@@ -14,9 +14,6 @@
   <component name="ChangeListManager">
     <list default="true" id="e573fb9d-04d0-4d61-8b4e-9dc4d800148f" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Views/Home/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Views/Home/Index.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Views/Shared/_Layout.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Views/Shared/_Layout.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Views/Shared/_Layout.cshtml.css" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,12 +32,12 @@
     &quot;assignee&quot;: &quot;hunlorvike&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hunlorvike/daiminh.git&quot;,
-    &quot;accountId&quot;: &quot;3f890c15-4dc8-4e08-bfb8-5bbc32f8898b&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/hunlorvike/daiminh.git",
+    "accountId": "3f890c15-4dc8-4e08-bfb8-5bbc32f8898b"
   }
-}</component>
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="mock://D:/Workspace/Backend/CSharp/daiminh/web/Views/Shared/_Layout.cshtml" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="SKIP_HIGHLIGHTING" />
     <setting file="mock://D:/Workspace/Backend/CSharp/daiminh/web/Views/Shared/_Layout.cshtml" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="SKIP_HIGHLIGHTING" />
@@ -69,6 +66,7 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
@@ -174,7 +172,22 @@
       <updated>1735136673504</updated>
       <workItem from="1735136675913" duration="6499000" />
       <workItem from="1735144951934" duration="2430000" />
+      <workItem from="1735185826993" duration="216000" />
+      <workItem from="1735283830832" duration="4203000" />
+      <workItem from="1735289590782" duration="4188000" />
+      <workItem from="1735310054512" duration="620000" />
+      <workItem from="1735458919861" duration="5210000" />
+      <workItem from="1735482446101" duration="8617000" />
     </task>
+    <task id="LOCAL-00001" summary="docs">
+      <option name="closed" value="true" />
+      <created>1735311999478</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1735311999478</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -184,5 +197,11 @@
   <component name="UnityProjectConfiguration" hasMinimizedUI="false" />
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
+    <MESSAGE value="docs" />
+    <option name="LAST_COMMIT_MESSAGE" value="docs" />
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

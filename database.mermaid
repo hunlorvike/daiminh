@@ -1,0 +1,340 @@
+erDiagram
+%% Core User Management
+    Users {
+        UUID Id PK "Primary key"
+        string UserName "Unique username"
+        string Email "Unique email address"
+        string PasswordHash "Hashed password"
+        string Name "Full name"
+        string PhoneNumber "Contact number"
+        string Role "Admin or Customer"
+        bool IsActive "Account status"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    UserAddresses {
+        UUID Id PK "Primary key"
+        UUID UserId FK "Reference to Users"
+        string AddressType "Billing or Shipping"
+        string Name "Recipient name"
+        string AddressLine1 "Primary address"
+        string AddressLine2 "Secondary address"
+        string City "City name"
+        string State "State/Province"
+        string PostalCode "ZIP/Postal code"
+        string Country "Country name"
+        string Phone "Contact number"
+        bool IsDefault "Default address flag"
+    }
+
+%% Content Management
+    Categories {
+        UUID Id PK "Primary key"
+        UUID ParentId FK "Self-reference for hierarchy"
+        string Name "Category name"
+        string Path "Hierarchical path"
+        string Description "Category description"
+        string Type "Product or Post category"
+        string Slug "URL-friendly name"
+        string MetaTitle "SEO title"
+        string MetaDescription "SEO description"
+        string MetaKeywords "SEO keywords"
+        int DisplayOrder "Sorting order"
+        bool IsActive "Status flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    Tags {
+        UUID Id PK "Primary key"
+        string Name "Tag name"
+        string Slug "URL-friendly name"
+        string Description "Tag description"
+        string Type "Product or Post tag"
+        bool IsActive "Status flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    Posts {
+        UUID Id PK "Primary key"
+        string Title "Post title"
+        string Slug "URL-friendly name"
+        string Summary "Brief description"
+        string Content "Main content"
+        UUID CategoryId FK "Reference to Categories"
+        string MetaTitle "SEO title"
+        string MetaDescription "SEO description"
+        string MetaKeywords "SEO keywords"
+        string Status "Draft or Published"
+        datetime PublishedAt "Publication timestamp"
+        bool IsActive "Status flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    Pages {
+        UUID Id PK "Primary key"
+        string Title "Page title"
+        string Slug "URL-friendly name"
+        string Content "Page content"
+        string Template "Page template"
+        int DisplayOrder "Sorting order"
+        string MetaTitle "SEO title"
+        string MetaDescription "SEO description"
+        string MetaKeywords "SEO keywords"
+        bool IsActive "Status flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    ProductTags {
+        UUID PostId FK "Reference to Posts"
+        UUID TagId FK "Reference to Tags"
+    }
+
+%% Media Management
+    Media {
+        UUID Id PK "Primary key"
+        string FileName "Original filename"
+        string FileType "MIME type"
+        string FilePath "Storage path"
+        long FileSize "File size in bytes"
+        string ThumbPath "Thumbnail path"
+        string Alt "Alt text"
+        string Title "Media title"
+        datetime CreatedAt "Creation timestamp"
+    }
+
+%% Product Management
+    Manufacturers {
+        UUID Id PK "Primary key"
+        string Name "Manufacturer name"
+        string Description "Description"
+        string Logo "Logo path"
+        string MetaTitle "SEO title"
+        string MetaDescription "SEO description"
+        string MetaKeywords "SEO keywords"
+        bool IsActive "Status flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    Products {
+        UUID Id PK "Primary key"
+        string Name "Product name"
+        string Slug "URL-friendly name"
+        string Type "Product type"
+        UUID ManufacturerId FK "Reference to Manufacturers"
+        UUID CategoryId FK "Reference to Categories"
+        string SKU "Stock keeping unit"
+        string Description "Full description"
+        string ShortDescription "Brief description"
+        string TechnicalSpecs "Technical details"
+        string ApplicationGuide "Usage instructions"
+        string Unit "Measurement unit"
+        string PackagingSizes "Available sizes"
+        string Certificates "Certification info"
+        decimal Price "Base price"
+        decimal Discount "Discount amount"
+        string Currency "Price currency"
+        string MetaTitle "SEO title"
+        string MetaDescription "SEO description"
+        string MetaKeywords "SEO keywords"
+        bool IsActive "Status flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    ProductImages {
+        UUID Id PK "Primary key"
+        UUID ProductId FK "Reference to Products"
+        UUID MediaId FK "Reference to Media"
+        int DisplayOrder "Sorting order"
+        bool IsMain "Main image flag"
+    }
+
+    ProductTags {
+        UUID ProductId FK "Reference to Products"
+        UUID TagId FK "Reference to Tags"
+    }
+
+    ProductAttributes {
+        UUID Id PK "Primary key"
+        string Name "Attribute name"
+        string Description "Description"
+        string DataType "Value data type"
+        bool IsFilterable "Filterable flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+    }
+
+    ProductAttributeValues {
+        UUID ProductId FK "Reference to Products"
+        UUID AttributeId FK "Reference to ProductAttributes"
+        string Value "Attribute value"
+    }
+
+%% Order Management
+    Orders {
+        UUID Id PK "Primary key"
+        UUID UserId FK "Reference to Users"
+        string OrderNumber "Unique order number"
+        string OrderStatus "Order status"
+        string PaymentStatus "Payment status"
+        string PaymentMethod "Payment method"
+        string ShippingMethod "Shipping method"
+        decimal SubTotal "Order subtotal"
+        decimal ShippingCost "Shipping cost"
+        decimal Tax "Tax amount"
+        decimal TotalAmount "Total amount"
+        string BillingName "Billing contact"
+        string BillingEmail "Billing email"
+        string BillingPhone "Billing phone"
+        string BillingAddress "Billing address"
+        string ShippingName "Shipping contact"
+        string ShippingEmail "Shipping email"
+        string ShippingPhone "Shipping phone"
+        string ShippingAddress "Shipping address"
+        string Notes "Order notes"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    OrderItems {
+        UUID Id PK "Primary key"
+        UUID OrderId FK "Reference to Orders"
+        UUID ProductId FK "Reference to Products"
+        string ProductName "Product name snapshot"
+        string SKU "SKU snapshot"
+        decimal UnitPrice "Unit price snapshot"
+        int Quantity "Order quantity"
+        decimal TotalPrice "Total item price"
+    }
+
+%% Customer Engagement
+    Reviews {
+        UUID Id PK "Primary key"
+        UUID ProductId FK "Reference to Products"
+        UUID UserId FK "Reference to Users"
+        int Rating "Star rating"
+        string Title "Review title"
+        string Comment "Review content"
+        string Status "Review status"
+        bool IsActive "Status flag"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    Wishlists {
+        UUID Id PK "Primary key"
+        UUID UserId FK "Reference to Users"
+        UUID ProductId FK "Reference to Products"
+        datetime CreatedAt "Creation timestamp"
+    }
+
+%% System Configuration
+    Settings {
+        UUID Id PK "Primary key"
+        string Key "Setting key"
+        string Value "Setting value"
+        string Description "Setting description"
+        string Type "Setting type"
+        bool IsActive "Status flag"
+        datetime UpdatedAt "Last update timestamp"
+    }
+
+    EmailTemplates {
+        UUID Id PK "Primary key"
+        string Name "Template name"
+        string Subject "Email subject"
+        string Body "Email body"
+        string Description "Template description"
+        string Type "Template type"
+        string Variables "Template variables"
+        bool IsActive "Status flag"
+        datetime UpdatedAt "Last update timestamp"
+    }
+
+%% SEO Management
+    SeoMetadata {
+        UUID Id PK "Primary key"
+        string EntityType "Related entity type"
+        UUID EntityId "Related entity ID"
+        string TwitterTitle "Twitter card title"
+        string TwitterDescription "Twitter card description"
+        string TwitterImage "Twitter card image"
+        string OgTitle "OpenGraph title"
+        string OgDescription "OpenGraph description"
+        string OgImage "OpenGraph image"
+        string StructuredData "JSON-LD data"
+        string CanonicalUrl "Canonical URL"
+        string Robots "Robots directive"
+        decimal Priority "Sitemap priority"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+    }
+
+%% Communication
+    ContactForms {
+        UUID Id PK "Primary key"
+        string Name "Contact name"
+        string Email "Contact email"
+        string Phone "Contact phone"
+        string Subject "Message subject"
+        string Message "Message content"
+        string Status "Message status"
+        string IPAddress "Sender IP"
+        datetime CreatedAt "Creation timestamp"
+        datetime UpdatedAt "Last update timestamp"
+        datetime DeletedAt "Soft delete timestamp"
+    }
+
+    Notifications {
+        UUID Id PK "Primary key"
+        UUID UserId FK "Reference to Users"
+        string Title "Notification title"
+        string Message "Notification content"
+        string Type "Notification type"
+        string EntityType "Related entity type"
+        UUID EntityId "Related entity ID"
+        bool IsRead "Read status"
+        datetime CreatedAt "Creation timestamp"
+        datetime ReadAt "Read timestamp"
+    }
+
+%% Relationships
+    Users ||--o{ UserAddresses: "has"
+    Users ||--o{ Orders: "places"
+    Users ||--o{ Wishlists: "has"
+    Users ||--o{ Reviews: "writes"
+    Users ||--o{ Notifications: "receives"
+    Categories ||--o{ Categories: "has_parent"
+    Categories ||--o{ Products: "contains"
+    Categories ||--o{ Posts: "contains"
+    Categories ||--o{ SeoMetadata: "has"
+    Products ||--o{ ProductImages: "has"
+    Products ||--o{ ProductTags: "has"
+    Products ||--o{ ProductAttributeValues: "has"
+    Products ||--o{ OrderItems: "included_in"
+    Products ||--o{ Reviews: "receives"
+    Products ||--o{ Wishlists: "saved_in"
+    Products ||--o{ SeoMetadata: "has"
+    Tags ||--o{ ProductTags: "used_in"
+    Tags ||--o{ SeoMetadata: "has"
+    Manufacturers ||--o{ Products: "produces"
+    Orders ||--o{ OrderItems: "contains"
+    ProductAttributes ||--o{ ProductAttributeValues: "defines"
+    Media ||--o{ ProductImages: "used_in"
+    Pages ||--o{ SeoMetadata: "has"
+    Posts ||--o{ SeoMetadata: "has"
