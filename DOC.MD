@@ -288,9 +288,13 @@ CREATE INDEX IX_Users_UserName ON Users (UserName);
 CREATE TABLE Settings (
     Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
     [Key] VARCHAR(100) NOT NULL UNIQUE,
-    Value NVARCHAR(MAX),
-    [Group] VARCHAR(50), -- mail, social, system, etc.
-    IsActive BIT NOT NULL DEFAULT 1
+    Value NVARCHAR(MAX) NULL,
+    [Group] VARCHAR(50) NULL, -- mail, social, system, etc.
+    SubGroup VARCHAR(50) NULL, -- subgroup of the group
+    Type VARCHAR(50) NOT NULL DEFAULT 'string', -- data type (e.g., string, int)
+    DisplayOrder INT NULL, -- display order
+    Description NVARCHAR(MAX) NULL, -- description of the setting
+    IsActive BIT NOT NULL DEFAULT 1 -- active status
 );
 
 CREATE TABLE EmailTemplates (
