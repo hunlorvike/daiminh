@@ -6,8 +6,10 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-var app = builder.Build();
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") ??
+                      throw new InvalidOperationException("Connection string not found.")));
+
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -24,14 +26,16 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
+app.MapAreaControllerRoute(
     name: "admin",
-    pattern: "admin/{controller=Dashboard}/{action=Index}/{id?}",
-    defaults: new { area = "Admin" });
+    areaName: "Admin",
+    pattern: "admin/{controller=Dashboard}/{action=Index}/{id?}"
+);
 
-app.MapControllerRoute(
+app.MapAreaControllerRoute(
     name: "client",
-    pattern: "{controller=Home}/{action=Index}/{id?}",
-    defaults: new { area = "Client" });
+    areaName: "Client",
+    pattern: "{controller=Home}/{action=Index}/{id?}"
+);
 
 app.Run();

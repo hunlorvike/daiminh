@@ -13,47 +13,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e573fb9d-04d0-4d61-8b4e-9dc4d800148f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/core/Common/Constants/EmailTemplateTypes.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Constants/SeoEntityTypes.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Constants/SettingGroups.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Enums/ContactFormStatus.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Enums/MediaType.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Enums/PostStatus.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Enums/ProductType.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Enums/UserRole.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Common/Extensions/TypedValueExtensions.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/CMS/CategoryConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/CMS/PageConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/CMS/PostConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/CMS/TagConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/Ecommerce/ManufacturerConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/Ecommerce/ProductConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/Ecommerce/ProductMediaConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/Marketing/ContactFormConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/Marketing/SeoMetadataConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/Settings/SettingConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Configuration/Users/UserConfiguration.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/CMS/Category.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/CMS/Page.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/CMS/Post.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/CMS/Tag.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Ecommerce/Manufacturer.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Ecommerce/Product.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Ecommerce/ProductMedia.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Marketing/ContactForm.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Marketing/SeoMetadata.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Settings/Setting.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Shared/BaseEntity.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Shared/IEntity.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/Entities/Users/User.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Controllers/AuthController.cs" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignIn.cshtml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignUp.cshtml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.cshtml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewImports.cshtml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewStart.cshtml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/DOC.MD" beforeDir="false" afterPath="$PROJECT_DIR$/DOC.MD" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/Domain/.keep" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/Interfaces/.keep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/Services/.keep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/core.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/core/core.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/Data/ApplicationDbContext.cs" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/Data/ApplicationDbContext.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/infrastructure/infrastructure.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/infrastructure/infrastructure.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Controllers/.keep" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibScripts.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/.keep" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibStyles.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Dashboard/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Dashboard/Index.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/web/Program.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/wwwroot/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/web/wwwroot/css/site.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,8 +50,10 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="mock://D:/Workspace/Backend/CSharp/daiminh/web/Views/Shared/_Layout.cshtml" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="SKIP_HIGHLIGHTING" />
-    <setting file="mock://D:/Workspace/Backend/CSharp/daiminh/web/Views/Shared/_Layout.cshtml" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="SKIP_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/36f346b6c0454bc8a6afa7aed38119fe5bbffcc983298d9bfa4dbd5f49461f/Monitor.CoreCLR.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/41ae51c8cb544f974a59ec25c40ba7172ccbc2bcd1dbeb8146255f3c999a/PartialTagHelper.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4c32958d8e8197ff3a8cad5383fa9a0f783157cc8c3f07a74cef668311de/ControllerEndpointRouteBuilderExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c7b951b325bab108c85162b50e1bcf1a5604ef441dabab73ab914f6c6f741d/HtmlHelperPartialExtensions.cs" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
@@ -98,22 +71,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;.NET Launch Settings Profile.daiminh.web: https.executor&quot;: &quot;Run&quot;,
-    &quot;.NET Launch Settings Profile.web: https.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    ".NET Launch Settings Profile.daiminh.web: https.executor": "Run",
+    ".NET Launch Settings Profile.web: https.executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected=".NET Launch Settings Profile.web: https">
     <configuration name="daiminh.web: IIS Express" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/daiminh.web/daiminh.web.csproj" />
@@ -224,6 +197,9 @@
       <workItem from="1735482446101" duration="8617000" />
       <workItem from="1735792057465" duration="290000" />
       <workItem from="1735802560049" duration="5459000" />
+      <workItem from="1735827315416" duration="571000" />
+      <workItem from="1735829772408" duration="8097000" />
+      <workItem from="1735840363444" duration="784000" />
     </task>
     <task id="LOCAL-00001" summary="docs">
       <option name="closed" value="true" />
