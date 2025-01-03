@@ -13,18 +13,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e573fb9d-04d0-4d61-8b4e-9dc4d800148f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Controllers/AuthController.cs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignIn.cshtml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignUp.cshtml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.cshtml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewImports.cshtml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewStart.cshtml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Controllers/.keep" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibScripts.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/.keep" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibStyles.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Dashboard/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Dashboard/Index.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Program.cs" beforeDir="false" afterPath="$PROJECT_DIR$/web/Program.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/wwwroot/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/web/wwwroot/css/site.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,12 +32,12 @@
     &quot;assignee&quot;: &quot;hunlorvike&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hunlorvike/daiminh.git&quot;,
-    &quot;accountId&quot;: &quot;3f890c15-4dc8-4e08-bfb8-5bbc32f8898b&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/hunlorvike/daiminh",
+    "accountId": "d529b2ca-2767-430f-8503-5929c1c8e36b"
   }
-}</component>
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/36f346b6c0454bc8a6afa7aed38119fe5bbffcc983298d9bfa4dbd5f49461f/Monitor.CoreCLR.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/41ae51c8cb544f974a59ec25c40ba7172ccbc2bcd1dbeb8146255f3c999a/PartialTagHelper.cs" root0="FORCE_HIGHLIGHTING" />
@@ -71,22 +60,22 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    ".NET Launch Settings Profile.daiminh.web: https.executor": "Run",
-    ".NET Launch Settings Profile.web: https.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "master",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;.NET Launch Settings Profile.daiminh.web: https.executor&quot;: &quot;Run&quot;,
+    &quot;.NET Launch Settings Profile.web: https.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.web: https">
     <configuration name="daiminh.web: IIS Express" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/daiminh.web/daiminh.web.csproj" />
@@ -200,6 +189,7 @@
       <workItem from="1735827315416" duration="571000" />
       <workItem from="1735829772408" duration="8097000" />
       <workItem from="1735840363444" duration="784000" />
+      <workItem from="1735873941881" duration="1200000" />
     </task>
     <task id="LOCAL-00001" summary="docs">
       <option name="closed" value="true" />

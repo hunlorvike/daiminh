@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-public class DashboardController : Controller
+public class HomeController : Controller
 {
     public IActionResult Index()
     {

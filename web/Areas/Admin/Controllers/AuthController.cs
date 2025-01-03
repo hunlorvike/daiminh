@@ -3,15 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Route("auth")]
 public class AuthController : Controller
 {
-    public IActionResult SignIn()
-    {
-        return View();
-    }
+    [HttpGet("sign-in")]
+    public IActionResult SignIn() => View();
 
-    public IActionResult SignUp()
-    {
-        return View();
-    }
+    [HttpGet("sign-up")]
+    public IActionResult SignUp() => View();
 }
