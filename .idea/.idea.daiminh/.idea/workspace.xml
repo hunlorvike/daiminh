@@ -13,7 +13,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e573fb9d-04d0-4d61-8b4e-9dc4d800148f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.Main.cshtml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignIn.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignIn.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignUp.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignUp.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Home/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Home/Index.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.Auth.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewStart.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewStart.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/.keep" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__Sidebar.cshtml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -32,12 +39,12 @@
     &quot;assignee&quot;: &quot;hunlorvike&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/hunlorvike/daiminh",
-    "accountId": "d529b2ca-2767-430f-8503-5929c1c8e36b"
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/hunlorvike/daiminh&quot;,
+    &quot;accountId&quot;: &quot;d529b2ca-2767-430f-8503-5929c1c8e36b&quot;
   }
-}]]></component>
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/36f346b6c0454bc8a6afa7aed38119fe5bbffcc983298d9bfa4dbd5f49461f/Monitor.CoreCLR.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/41ae51c8cb544f974a59ec25c40ba7172ccbc2bcd1dbeb8146255f3c999a/PartialTagHelper.cs" root0="FORCE_HIGHLIGHTING" />

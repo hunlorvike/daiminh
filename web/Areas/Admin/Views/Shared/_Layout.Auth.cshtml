@@ -11,8 +11,10 @@
     @await RenderSectionAsync("HeadScripts", required: false)
 </head>
 <body class="d-flex flex-column @ViewData["BodyClass"]">
-@RenderBody()
-<partial name="__LibScripts"/>
-@await RenderSectionAsync("ViewScripts", required: false)
+    <div class="page page-center">
+        @RenderBody()
+    </div>
+    <partial name="__LibScripts"/>
+    @await RenderSectionAsync("ViewScripts", required: false)
 </body>
 </html>
