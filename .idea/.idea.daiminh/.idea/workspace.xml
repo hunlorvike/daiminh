@@ -13,14 +13,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e573fb9d-04d0-4d61-8b4e-9dc4d800148f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.Main.cshtml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignIn.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignIn.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignUp.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Auth/SignUp.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Home/Index.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Home/Index.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/_Layout.Auth.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewStart.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/_ViewStart.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/.keep" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__Sidebar.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/Layout/Header.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/Layout/Header.cshtml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -46,10 +40,8 @@
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/36f346b6c0454bc8a6afa7aed38119fe5bbffcc983298d9bfa4dbd5f49461f/Monitor.CoreCLR.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/41ae51c8cb544f974a59ec25c40ba7172ccbc2bcd1dbeb8146255f3c999a/PartialTagHelper.cs" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/4c32958d8e8197ff3a8cad5383fa9a0f783157cc8c3f07a74cef668311de/ControllerEndpointRouteBuilderExtensions.cs" root0="FORCE_HIGHLIGHTING" />
-    <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/c7b951b325bab108c85162b50e1bcf1a5604ef441dabab73ab914f6c6f741d/HtmlHelperPartialExtensions.cs" root0="FORCE_HIGHLIGHTING" />
+    <setting file="mock://D:/Workspace/Backend/CSharp/daiminh/web/Areas/Client/Views/Shared/Layout/Header.cshtml" root0="FORCE_HIGHLIGHTING" root1="FORCE_HIGHLIGHTING" root2="SKIP_HIGHLIGHTING" />
   </component>
   <component name="KubernetesApiPersistence">{}</component>
   <component name="KubernetesApiProvider">{
@@ -197,6 +189,12 @@
       <workItem from="1735829772408" duration="8097000" />
       <workItem from="1735840363444" duration="784000" />
       <workItem from="1735873941881" duration="1200000" />
+      <workItem from="1736144449963" duration="9483000" />
+      <workItem from="1736224129713" duration="904000" />
+      <workItem from="1736231259703" duration="1757000" />
+      <workItem from="1736245011271" duration="51000" />
+      <workItem from="1736477001991" duration="6397000" />
+      <workItem from="1736490488460" duration="12487000" />
     </task>
     <task id="LOCAL-00001" summary="docs">
       <option name="closed" value="true" />
@@ -220,7 +218,7 @@
   <component name="VcsManagerConfiguration">
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="docs" />
-    <option name="LAST_COMMIT_MESSAGE" value="docs" />
+    <option name="LAST_COMMIT_MESSAGE" value="" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

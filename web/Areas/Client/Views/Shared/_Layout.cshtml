@@ -1,0 +1,22 @@
+@{
+    ViewData.TryGetValue("Title", out object? title);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Sơn Đại Minh - @title</title>
+    <partial name="__LibStyles"/>
+    @await RenderSectionAsync("HeadScripts", required: false)
+</head>
+<body class="d-flex flex-column bg-light @ViewData["BodyClass"]">
+<div class="page">
+    <partial name="Layout/Header"/>
+    @RenderBody()
+
+</div>
+<partial name="__LibScripts"/>
+@await RenderSectionAsync("ViewScripts", required: false)
+</body>
+</html>
