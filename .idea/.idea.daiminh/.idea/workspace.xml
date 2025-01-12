@@ -13,16 +13,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e573fb9d-04d0-4d61-8b4e-9dc4d800148f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/web/wwwroot/lib/tabler/docs/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibStyles.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibStyles.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/Layout/Header.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/Layout/Header.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/_Layout.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/_Layout.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibScripts.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibScripts.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibStyles.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibStyles.cshtml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/web.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/web/web.csproj" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/wwwroot/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/web/wwwroot/css/main.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/wwwroot/favicon.ico" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/daiminh.sln.DotSettings.user" beforeDir="false" afterPath="$PROJECT_DIR$/daiminh.sln.DotSettings.user" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
