@@ -1,14 +1,43 @@
 @{
-    ViewData.TryGetValue("Title", out object? title);
+    ViewData.TryGetValue("Title", out var title);
 }
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
     <title>Sơn Đại Minh - @title</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <link rel="icon" href="~/img/icon.jpg" type="image/x-icon">
+    <link rel="shortcut icon" href="~/img/icon.jpg" type="image/x-icon">
+    <meta name="description" content="Đại minh việt nam">
+    <meta name="canonical" content="https://localhost:7172/">
+
+    <meta name="twitter:image:src" content="https://tabler.io/demo/static/og.png">
+    <meta name="twitter:site" content="@@tabler_ui">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title"
+          content="Tabler: Premium and Open Source dashboard template with responsive and high quality UI.">
+    <meta name="twitter:description"
+          content="Tabler comes with tons of well-designed components and features. Start your adventure with Tabler and make your dashboard great again. For free!">
+
+    <meta property="og:image" content="https://tabler.io/demo/static/og.png">
+    <meta property="og:image:width" content="1280">
+    <meta property="og:image:height" content="640">
+    <meta property="og:site_name" content="Tabler">
+    <meta property="og:type" content="object">
+    <meta property="og:title"
+          content="Tabler: Premium and Open Source dashboard template with responsive and high quality UI.">
+    <meta property="og:url" content="https://tabler.io/demo/static/og.png">
+    <meta property="og:description"
+          content="Tabler comes with tons of well-designed components and features. Start your adventure with Tabler and make your dashboard great again. For free!">
+
     <partial name="__LibStyles"/>
-    @await RenderSectionAsync("HeadScripts", required: false)
+    @await RenderSectionAsync("HeadScripts", false)
 </head>
 <body class="d-flex flex-column bg-light @ViewData["BodyClass"]">
 <div class="page">
@@ -17,6 +46,6 @@
 
 </div>
 <partial name="__LibScripts"/>
-@await RenderSectionAsync("ViewScripts", required: false)
+@await RenderSectionAsync("ViewScripts", false)
 </body>
 </html>

@@ -1,5 +1,5 @@
 @{
-    ViewData.TryGetValue("Title", out object? title);
+    ViewData.TryGetValue("Title", out var title);
 }
 <!DOCTYPE html>
 <html lang="vi">
@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Sơn Đại Minh - @title</title>
     <partial name="__LibStyles"/>
-    @await RenderSectionAsync("HeadScripts", required: false)
+    @await RenderSectionAsync("HeadScripts", false)
 </head>
 <body class="d-flex flex-column @ViewData["BodyClass"]">
 <div class="page">
@@ -19,6 +19,6 @@
     </div>
 </div>
 <partial name="__LibScripts"/>
-@await RenderSectionAsync("ViewScripts", required: false)
+@await RenderSectionAsync("ViewScripts", false)
 </body>
 </html>

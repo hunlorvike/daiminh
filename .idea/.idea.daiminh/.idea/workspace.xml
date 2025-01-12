@@ -13,8 +13,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e573fb9d-04d0-4d61-8b4e-9dc4d800148f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/web/wwwroot/lib/tabler/docs/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.daiminh/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibStyles.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Admin/Views/Shared/__LibStyles.cshtml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/Layout/Header.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/Layout/Header.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/_Layout.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/_Layout.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibScripts.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibScripts.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibStyles.cshtml" beforeDir="false" afterPath="$PROJECT_DIR$/web/Areas/Client/Views/Shared/__LibStyles.cshtml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/web.csproj" beforeDir="false" afterPath="$PROJECT_DIR$/web/web.csproj" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/wwwroot/css/site.css" beforeDir="false" afterPath="$PROJECT_DIR$/web/wwwroot/css/main.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/web/wwwroot/favicon.ico" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -23,6 +31,13 @@
   </component>
   <component name="DpaMonitoringSettings">
     <option name="firstShow" value="false" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+      </list>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -35,8 +50,8 @@
 }</component>
   <component name="GithubPullRequestsUISettings">{
   &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/hunlorvike/daiminh&quot;,
-    &quot;accountId&quot;: &quot;d529b2ca-2767-430f-8503-5929c1c8e36b&quot;
+    &quot;url&quot;: &quot;https://github.com/hunlorvike/daiminh.git&quot;,
+    &quot;accountId&quot;: &quot;3f890c15-4dc8-4e08-bfb8-5bbc32f8898b&quot;
   }
 }</component>
   <component name="HighlightingSettingsPerFile">
@@ -63,6 +78,8 @@
   &quot;keyToString&quot;: {
     &quot;.NET Launch Settings Profile.daiminh.web: https.executor&quot;: &quot;Run&quot;,
     &quot;.NET Launch Settings Profile.web: https.executor&quot;: &quot;Run&quot;,
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
@@ -76,6 +93,9 @@
   }
 }</component>
   <component name="RunManager" selected=".NET Launch Settings Profile.web: https">
+    <configuration name="index.html" type="JavascriptDebugType" temporary="true" nameIsGenerated="true" uri="http://localhost:63342/daiminh/web/wwwroot/lib/tabler/docs/index.html" useBuiltInWebServerPort="true">
+      <method v="2" />
+    </configuration>
     <configuration name="daiminh.web: IIS Express" type="LaunchSettings" factoryName=".NET Launch Settings Profile">
       <option name="LAUNCH_PROFILE_PROJECT_FILE_PATH" value="$PROJECT_DIR$/daiminh.web/daiminh.web.csproj" />
       <option name="LAUNCH_PROFILE_TFM" value="net8.0" />
@@ -166,6 +186,11 @@
         <option name="Build" />
       </method>
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="JavaScript Debug.index.html" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -195,6 +220,7 @@
       <workItem from="1736245011271" duration="51000" />
       <workItem from="1736477001991" duration="6397000" />
       <workItem from="1736490488460" duration="12487000" />
+      <workItem from="1736644971391" duration="6665000" />
     </task>
     <task id="LOCAL-00001" summary="docs">
       <option name="closed" value="true" />

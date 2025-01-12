@@ -75,7 +75,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="wwwroot\lib\tabler\" />
+        <Folder Include="wwwroot\fonts\inter\"/>
+        <Folder Include="wwwroot\lib\tabler\dist\css\"/>
+        <Folder Include="wwwroot\lib\tabler\dist\img\"/>
+        <Folder Include="wwwroot\lib\tabler\dist\js\"/>
     </ItemGroup>
 
 </Project>

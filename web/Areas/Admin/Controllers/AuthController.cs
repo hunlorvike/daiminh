@@ -7,8 +7,14 @@ namespace web.Areas.Admin.Controllers;
 public class AuthController : Controller
 {
     [HttpGet("sign-in")]
-    public IActionResult SignIn() => View();
+    public IActionResult SignIn()
+    {
+        return View();
+    }
 
     [HttpGet("sign-up")]
-    public IActionResult SignUp() => View();
+    public IActionResult SignUp()
+    {
+        return View();
+    }
 }
