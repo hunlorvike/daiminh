@@ -1,4 +1,191 @@
 @{
     ViewBag.Title = "Trang chủ";
 }
-<h1>Client Home</h1>
+
+@section HeadScripts {
+    <link
+        rel="stylesheet"
+        href="~/lib/swiper/package/swiper-bundle.min.css"
+    />
+
+}
+
+<main class="container-xl py-md-5 py-sm-2">
+
+    <!-- Slider -->
+    <section class="row mb-2">
+        <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12 col-12">
+            <div
+                class="position-relative swiper swiper-container swiper-container-initialized swiper-container-horizontal swiper-container-pointer-events">
+                <div class="swiper-wrapper">
+                    <!-- Slide 1 -->
+                    <div class="swiper-slide">
+                        <div class="position-relative">
+                            <img src="~/img/placeholder.svg" alt="Giải Nhiệt" class="w-100 object-fit-cover"
+                                 style="height: 416px">
+                            <div class="position-absolute top-50 start-0 translate-middle-y p-5 text-white">
+                                <h2 class="display-4 fw-bold mb-3">Giải Nhiệt</h2>
+                                <p class="h5 mb-4">Không gian của bạn</p>
+                                <div>
+                                    <span class="feature-badge">
+                                        <i class="ti ti-check me-2"></i>
+                                        Hỗ trợ chi phí lắp đặt
+                                    </span>
+                                </div>
+                                <div>
+                                    <span class="feature-badge">
+                                        <i class="ti ti-check me-2"></i>
+                                        Chất lượng vượt niềm tin
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2 -->
+                    <div class="swiper-slide">
+                        <div class="position-relative">
+                            <img src="~/img/placeholder.svg" alt="Samsung" class="w-100 object-fit-cover"
+                                 style="height: 416px">
+                            <div class="position-absolute top-50 start-0 translate-middle-y p-5 text-white">
+                                <h2 class="display-4 fw-bold mb-3">Samsung</h2>
+                                <p class="h5 mb-4">Thế hệ tủ lạnh mới</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="swiper-slide">
+                        <div class="position-relative">
+                            <img src="~/img/placeholder.svg" alt="Khuyến mãi" class="w-100 object-fit-cover"
+                                 style="height: 416px">
+                            <div class="position-absolute top-50 start-0 translate-middle-y p-5 text-white">
+                                <h2 class="display-4 fw-bold mb-3">Khuyến mãi</h2>
+                                <p class="h5 mb-4">Mùa hè sôi động</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation buttons -->
+                <div class="swiper-button-prev btn btn-primary btn-icon rounded-3 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left m-0">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M15 6l-6 6l6 6"/>
+                    </svg>
+                </div>
+                <div class="swiper-button-next btn btn-primary btn-icon rounded-3 text-white">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right m-0">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M9 6l6 6l-6 6"/>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 col-12">
+            <div class="row flex-column gap-3">
+                <img
+                    src="~/img/placeholder.svg"
+                    class="card-img-top img-fluid"
+                    alt="TV Promotion"
+                    style="aspect-ratio: 16/9; height: 128px; object-fit: cover;">
+
+                <img
+                    src="~/img/placeholder.svg"
+                    class="card-img-top img-fluid"
+                    alt="TV Promotion"
+                    style="aspect-ratio: 16/9; height: 128px; object-fit: cover;">
+                <img
+                    src="~/img/placeholder.svg"
+                    class="card-img-top img-fluid"
+                    alt="TV Promotion"
+                    style="aspect-ratio: 16/9; height: 128px; object-fit: cover;">
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Brand -->
+    <section>
+        <p class="h2 mb-3">Thương hiệu nổi bật</p>
+        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3 align-items-center">
+            <!-- Brand 1 -->
+            <div class="col">
+                <div class="card border-0 shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+                        <img src="/img/brands/dulux.png" alt="Dulux" class="img-fluid"
+                             style="max-height: 150px; max-width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <!-- Brand 2 -->
+            <div class="col">
+                <div class="card border-0 shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+                        <img src="/img/brands/jotun.png" alt="Jotun" class="img-fluid"
+                             style="max-height: 150px; max-width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <!-- Brand 3 -->
+            <div class="col">
+                <div class="card border-0 shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+                        <img src="/img/brands/nippon.png" alt="Nippon" class="img-fluid"
+                             style="max-height: 150px; max-width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <!-- Brand 4 -->
+            <div class="col">
+                <div class="card border-0 shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+                        <img src="/img/brands/kova.jpg" alt="Kova" class="img-fluid"
+                             style="max-height: 150px; max-width: 100%;">
+                    </div>
+                </div>
+            </div>
+            <!-- Brand 5 -->
+            <div class="col">
+                <div class="card border-0 shadow-none">
+                    <div class="card-body d-flex align-items-center justify-content-center p-3">
+                        <img src="/img/brands/mykolor.jpg" alt="Mykolor" class="img-fluid"
+                             style="max-height: 150px; max-width: 100%;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+@section FootScripts {
+    <script src="~/lib/swiper/package/swiper-bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            new Swiper('.swiper', {
+                loop: true,
+
+                autoplay: {
+                    delay: 5000,
+                    disableOnInteraction: false,
+                },
+
+                pagination: {
+                    el: '.swiper-pagination',
+                    clickable: true,
+                },
+
+                navigation: {
+                    nextEl: '.swiper-button-next',
+                    prevEl: '.swiper-button-prev',
+                },
+            });
+        });
+    </script>
+}
