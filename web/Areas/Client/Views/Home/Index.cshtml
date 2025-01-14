@@ -13,7 +13,7 @@
 <main class="container-xl py-md-5 py-sm-2">
 
     <!-- Slider -->
-    <section class="row mb-2">
+    <section class="row mb-3 gap-md-0 gap-2">
         <div class="col-lg-9 col-md-9 col-sm-12 col-xs-12 col-12">
             <div
                 class="position-relative swiper swiper-container swiper-container-initialized swiper-container-horizontal swiper-container-pointer-events">
@@ -67,27 +67,12 @@
                     </div>
                 </div>
 
-                <!-- Navigation buttons -->
-                <div class="swiper-button-prev btn btn-primary btn-icon rounded-3 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-left m-0">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M15 6l-6 6l6 6"/>
-                    </svg>
-                </div>
-                <div class="swiper-button-next btn btn-primary btn-icon rounded-3 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="icon icon-tabler icons-tabler-outline icon-tabler-chevron-right m-0">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M9 6l6 6l-6 6"/>
-                    </svg>
-                </div>
+                <div class="swiper-pagination"></div>
+
             </div>
         </div>
         <div class="col-lg-3 col-md-3 col-sm-12 col-xs-12 col-12">
-            <div class="row flex-column gap-3">
+            <div class="row flex-md-column flex-nowrap gap-md-3 overflow-x-auto">
                 <img
                     src="~/img/placeholder.svg"
                     class="card-img-top img-fluid"
@@ -99,67 +84,391 @@
                     class="card-img-top img-fluid"
                     alt="TV Promotion"
                     style="aspect-ratio: 16/9; height: 128px; object-fit: cover;">
+
                 <img
                     src="~/img/placeholder.svg"
                     class="card-img-top img-fluid"
                     alt="TV Promotion"
                     style="aspect-ratio: 16/9; height: 128px; object-fit: cover;">
-
             </div>
         </div>
     </section>
 
     <!-- Brand -->
-    <section>
-        <p class="h2 mb-3">Thương hiệu nổi bật</p>
-        <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3 align-items-center">
+    <section class="mb-3 p-3 border">
+        <p class="h1 mb-0">Thương hiệu nổi bật</p>
+        <div class="row row-cards justify-content-between align-items-center flex-nowrap overflow-auto">
             <!-- Brand 1 -->
-            <div class="col">
-                <div class="card border-0 shadow-none">
-                    <div class="card-body d-flex align-items-center justify-content-center p-3">
-                        <img src="/img/brands/dulux.png" alt="Dulux" class="img-fluid"
-                             style="max-height: 150px; max-width: 100%;">
-                    </div>
+            <div class="col-6 col-md-2 card border-0 shadow-none">
+                <div class="card-body d-flex align-items-center justify-content-center p-3">
+                    <img src="/img/brands/dulux.png" alt="Dulux" class="img-fluid"
+                         style="max-height: 150px; max-width: 100%;">
                 </div>
             </div>
             <!-- Brand 2 -->
-            <div class="col">
-                <div class="card border-0 shadow-none">
-                    <div class="card-body d-flex align-items-center justify-content-center p-3">
-                        <img src="/img/brands/jotun.png" alt="Jotun" class="img-fluid"
-                             style="max-height: 150px; max-width: 100%;">
-                    </div>
+            <div class="col-6 col-md-2 card border-0 shadow-none">
+                <div class="card-body d-flex align-items-center justify-content-center p-3">
+                    <img src="/img/brands/jotun.png" alt="Jotun" class="img-fluid"
+                         style="max-height: 150px; max-width: 100%;">
                 </div>
             </div>
             <!-- Brand 3 -->
-            <div class="col">
-                <div class="card border-0 shadow-none">
-                    <div class="card-body d-flex align-items-center justify-content-center p-3">
-                        <img src="/img/brands/nippon.png" alt="Nippon" class="img-fluid"
-                             style="max-height: 150px; max-width: 100%;">
-                    </div>
+            <div class="col-6 col-md-2 card border-0 shadow-none">
+                <div class="card-body d-flex align-items-center justify-content-center p-3">
+                    <img src="/img/brands/nippon.png" alt="Nippon" class="img-fluid"
+                         style="max-height: 150px; max-width: 100%;">
                 </div>
             </div>
             <!-- Brand 4 -->
-            <div class="col">
-                <div class="card border-0 shadow-none">
-                    <div class="card-body d-flex align-items-center justify-content-center p-3">
-                        <img src="/img/brands/kova.jpg" alt="Kova" class="img-fluid"
-                             style="max-height: 150px; max-width: 100%;">
-                    </div>
+            <div class="col-6 col-md-2 card border-0 shadow-none">
+                <div class="card-body d-flex align-items-center justify-content-center p-3">
+                    <img src="/img/brands/kova.jpg" alt="Kova" class="img-fluid"
+                         style="max-height: 150px; max-width: 100%;">
                 </div>
             </div>
             <!-- Brand 5 -->
-            <div class="col">
-                <div class="card border-0 shadow-none">
-                    <div class="card-body d-flex align-items-center justify-content-center p-3">
-                        <img src="/img/brands/mykolor.jpg" alt="Mykolor" class="img-fluid"
-                             style="max-height: 150px; max-width: 100%;">
+            <div class="col-6 col-md-2 card border-0 shadow-none">
+                <div class="card-body d-flex align-items-center justify-content-center p-3">
+                    <img src="/img/brands/mykolor.jpg" alt="Mykolor" class="img-fluid"
+                         style="max-height: 150px; max-width: 100%;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Category -->
+    <section class="mb-3 p-3 border">
+        <!-- Tabs Navigation -->
+        <div class="d-flex justify-content-between mb-3">
+            <div class="col-9 d-flex flex-column flex-md-row ">
+                <p class="h1 mb-0 me-3" style="white-space: nowrap">Danh mục nổi bật</p>
+                <ul class="nav nav-pills justify-content-between align-items-center flex-md-nowrap flex-nowrap overflow-auto">
+                    <li class="nav-item">
+                        <a href="#tab1" class="nav-link active" style="white-space: nowrap" data-bs-toggle="tab">Sơn
+                            Dulux</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab2" class="nav-link" style="white-space: nowrap" data-bs-toggle="tab">Sơn Jotun</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab3" class="nav-link" style="white-space: nowrap" data-bs-toggle="tab">Sơn Nippon</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab4" class="nav-link" style="white-space: nowrap" data-bs-toggle="tab">Sơn Kova</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#tab5" class="nav-link" style="white-space: nowrap" data-bs-toggle="tab">Phụ gia, dụng
+                            cụ sơn</a>
+                    </li>
+                </ul>
+            </div>
+            <a href="#" class="col-3 text-end">Xem thêm</a>
+        </div>
+
+        <!-- Tabs Content -->
+        <div class="tab-content">
+            <!-- Tab 1 Content - Sơn Dulux -->
+            <div id="tab1" class="tab-pane active">
+                <div class="row row-cards flex-nowrap overflow-auto">
+                    <!-- Product 1 -->
+                    <div class="col-6 col-md-2">
+                        <div class="card card-sm h-100">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
+                                                             alt="Sơn Dulux"></a>
+                            <div class="card-body">
+                                <div class="fw-bold">Sơn Dulux Weathershield - Ngoại thất</div>
+                                <div class="text-muted mt-1">
+                                    <span class="text-primary fw-bold h3">1.250.000đ</span>
+                                    <span class="ms-2 text-danger">-10%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Product 2 -->
+                    <div class="col-6 col-md-2">
+                        <div class="card card-sm h-100">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
+                                                             alt="Sơn Dulux"></a>
+                            <div class="card-body">
+                                <div class="fw-bold">Sơn Dulux EasyClean - Nội thất</div>
+                                <div class="text-muted mt-1">
+                                    <span class="text-primary fw-bold h3">890.000đ</span>
+                                    <span class="ms-2 text-danger">-5%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2 Content - Sơn Jotun -->
+            <div id="tab2" class="tab-pane">
+                <div class="row row-cards flex-nowrap overflow-auto">
+                    <div class="col-6 col-md-2">
+                        <div class="card card-sm h-100">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
+                                                             alt="Sơn Jotun"></a>
+                            <div class="card-body">
+                                <div class="fw-bold">Sơn Jotun Majestic - Nội thất</div>
+                                <div class="text-muted mt-1">
+                                    <span class="text-primary fw-bold h3">1.100.000đ</span>
+                                    <span class="ms-2 text-danger">-8%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3 Content - Sơn Nippon -->
+            <div id="tab3" class="tab-pane">
+                <div class="row row-cards flex-nowrap overflow-auto">
+                    <div class="col-6 col-md-2">
+                        <div class="card card-sm h-100">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
+                                                             alt="Sơn Nippon"></a>
+                            <div class="card-body">
+                                <div class="fw-bold">Sơn Nippon WeatherGard - Ngoại thất</div>
+                                <div class="text-muted mt-1">
+                                    <span class="text-primary fw-bold h3">990.000đ</span>
+                                    <span class="ms-2 text-danger">-7%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4 Content - Sơn Kova -->
+            <div id="tab4" class="tab-pane">
+                <div class="row row-cards flex-nowrap overflow-auto">
+                    <div class="col-6 col-md-2">
+                        <div class="card card-sm h-100">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
+                                                             alt="Sơn Kova"></a>
+                            <div class="card-body">
+                                <div class="fw-bold">Sơn Kova Nano Gold - Nội thất</div>
+                                <div class="text-muted mt-1">
+                                    <span class="text-primary fw-bold h3">750.000đ</span>
+                                    <span class="ms-2 text-danger">-12%</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5 Content - Phụ gia, dụng cụ sơn -->
+            <div id="tab5" class="tab-pane">
+                <div class="row row-cards justify-content-between align-items-center flex-nowrap overflow-auto">
+                    <div class="col-6 col-md-2">
+                        <div class="card card-sm h-100">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
+                                                             alt="Dụng cụ sơn"></a>
+                            <div class="card-body">
+                                <div class="fw-bold">Con lăn sơn cao cấp</div>
+                                <div class="text-muted mt-1">
+                                    <span class="text-primary fw-bold h3">150.000đ</span>
+                                    <span class="ms-2 text-danger">-15%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- Product -->
+    <section class="mb-3 p-3 border">
+        <!-- Section Title -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="h1 mb-0">Sản phẩm nổi bật</p>
+            <a href="#" class="ms-2">Xem thêm</a>
+        </div>
+
+        <!-- Product List -->
+        <div class="row row-cards flex-nowrap overflow-auto">
+            <!-- Product 1 -->
+            <div class="col-6 col-md-2">
+                <div class="card card-sm h-100">
+                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                    <a href="#" class="d-block">
+                        <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 1">
+                    </a>
+                    <div class="card-body">
+                        <div class="fw-bold">Sơn Dulux Weathershield - Ngoại thất</div>
+                        <div class="text-muted mt-1">
+                            <span class="text-primary fw-bold h3">1.250.000đ</span>
+                            <span class="ms-2 text-danger">-10%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 2 -->
+            <div class="col-6 col-md-2">
+                <div class="card card-sm h-100">
+                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                    <a href="#" class="d-block">
+                        <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 2">
+                    </a>
+                    <div class="card-body">
+                        <div class="fw-bold">Sơn Jotun Majestic - Nội thất</div>
+                        <div class="text-muted mt-1">
+                            <span class="text-primary fw-bold h3">1.100.000đ</span>
+                            <span class="ms-2 text-danger">-8%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 3 -->
+            <div class="col-6 col-md-2">
+                <div class="card card-sm h-100">
+                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                    <a href="#" class="d-block">
+                        <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 3">
+                    </a>
+                    <div class="card-body">
+                        <div class="fw-bold">Sơn Nippon WeatherGard - Ngoại thất</div>
+                        <div class="text-muted mt-1">
+                            <span class="text-primary fw-bold h3">990.000đ</span>
+                            <span class="ms-2 text-danger">-7%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 4 -->
+            <div class="col-6 col-md-2">
+                <div class="card card-sm h-100">
+                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                    <a href="#" class="d-block">
+                        <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 4">
+                    </a>
+                    <div class="card-body">
+                        <div class="fw-bold">Sơn Kova Nano Gold - Nội thất</div>
+                        <div class="text-muted mt-1">
+                            <span class="text-primary fw-bold h3">750.000đ</span>
+                            <span class="ms-2 text-danger">-12%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product 5 -->
+            <div class="col-6 col-md-2">
+                <div class="card card-sm h-100">
+                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                    <a href="#" class="d-block">
+                        <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 5">
+                    </a>
+                    <div class="card-body">
+                        <div class="fw-bold">Con lăn sơn cao cấp</div>
+                        <div class="text-muted mt-1">
+                            <span class="text-primary fw-bold h3">150.000đ</span>
+                            <span class="ms-2 text-danger">-15%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-6 col-md-2">
+                <div class="card card-sm h-100">
+                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                    <a href="#" class="d-block">
+                        <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 5">
+                    </a>
+                    <div class="card-body">
+                        <div class="fw-bold">Con lăn sơn cao cấp 2</div>
+                        <div class="text-muted mt-1">
+                            <span class="text-primary fw-bold h3">150.000đ</span>
+                            <span class="ms-2 text-danger">-15%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Project Section -->
+    <section class="mb-3 p-3 border">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <p class="h1 mb-0">Dự án thi công nổi bật</p>
+            <a href="#" class="ms-2">Xem thêm</a>
+        </div>
+
+        <!-- Project List -->
+        <div class="row row-cards flex-nowrap overflow-auto">
+            <!-- Project 1 -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 1" style="height: 250px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Dự án Thi Công Sơn Dulux - Nhà ở</h5>
+                        <p class="card-text text-muted">Cập nhật xu hướng sơn mới nhất, đảm bảo chất lượng và độ bền lâu dài.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-primary">Hoàn thành</span>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 2 -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 2" style="height: 250px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Dự án Thi Công Sơn Jotun - Văn phòng</h5>
+                        <p class="card-text text-muted">Sử dụng sơn Jotun chất lượng cao cho không gian văn phòng hiện đại và năng động.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-success">Đang thi công</span>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 3 -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 3" style="height: 250px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Dự án Thi Công Sơn Nippon - Ngoại thất</h5>
+                        <p class="card-text text-muted">Lựa chọn sơn ngoại thất cao cấp giúp bảo vệ công trình lâu dài với thời tiết khắc nghiệt.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-warning">Sắp bắt đầu</span>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project 4 -->
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm border-0">
+                    <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 4" style="height: 250px;">
+                    <div class="card-body">
+                        <h5 class="card-title">Dự án Thi Công Sơn Kova - Căn hộ cao cấp</h5>
+                        <p class="card-text text-muted">Thiết kế độc đáo và sử dụng sơn Kova mang lại không gian sống sang trọng cho căn hộ cao cấp.</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="badge bg-danger">Chưa bắt đầu</span>
+                            <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
 
 </main>
 
@@ -179,11 +488,6 @@
                 pagination: {
                     el: '.swiper-pagination',
                     clickable: true,
-                },
-
-                navigation: {
-                    nextEl: '.swiper-button-next',
-                    prevEl: '.swiper-button-prev',
                 },
             });
         });
