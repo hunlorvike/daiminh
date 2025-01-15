@@ -169,11 +169,6 @@
                             <a href="#tab4" class="nav-link" style="white-space: nowrap" data-bs-toggle="tab">Sơn
                                 Kova</a>
                         </li>
-                        <li class="nav-item">
-                            <a href="#tab5" class="nav-link" style="white-space: nowrap" data-bs-toggle="tab">Phụ gia,
-                                dụng
-                                cụ sơn</a>
-                        </li>
                     </ul>
                 </div>
                 <a href="#" class="col-3 text-end">Xem thêm</a>
@@ -184,116 +179,237 @@
                 <!-- Tab 1 Content - Sơn Dulux -->
                 <div id="tab1" class="tab-pane active">
                     <div class="row row-cards flex-nowrap overflow-auto">
-                        <!-- Product 1 -->
-                        <div class="col-6 col-md-2">
-                            <div class="card card-sm h-100">
-                                <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                                <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
-                                                                 alt="Sơn Dulux"></a>
-                                <div class="card-body">
-                                    <div class="fw-bold">Sơn Dulux Weathershield - Ngoại thất</div>
-                                    <div class="text-muted mt-1">
-                                        <span class="text-primary fw-bold h3">1.250.000đ</span>
-                                        <span class="ms-2 text-danger">-10%</span>
+                        @for (int i = 0; i < 3; i++)
+                        {
+                            <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
+                                <div class="card card-sm product-card h-100">
+                                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                                    <a href="#" class="d-block position-relative">
+                                        <img src="/img/placeholder.svg" class="card-img-top object-cover"
+                                             style="height: 200px;"
+                                             alt="Sản phẩm @(i + 1)">
+                                        <div class="product-actions">
+                                            <button class="btn btn-primary btn-icon me-2" data-bs-toggle="tooltip"
+                                                    title="Thêm vào giỏ hàng">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-shopping-cart" width="24"
+                                                     height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 17h-11v-14h-2"></path>
+                                                    <path d="M6 5l14 1l-1 7h-13"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="btn btn-secondary btn-icon" data-bs-toggle="tooltip"
+                                                    title="Thêm vào yêu thích">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-heart" width="24" height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path
+                                                        d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </a>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-blue text-blue-fg me-2">Mới</span>
+                                            <div class="text-muted">Mã SP: SP@(i + 1)</div>
+                                        </div>
+                                        <h3 class="card-title mb-1">Sơn Dulux Weathershield @(i + 1)</h3>
+                                        <div class="text-muted mb-2">Thương hiệu: Dulux</div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold h4">1.250.000đ</span>
+                                            <span class="text-decoration-line-through text-muted ms-2">1.500.000đ</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <!-- Product 2 -->
-                        <div class="col-6 col-md-2">
-                            <div class="card card-sm h-100">
-                                <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                                <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
-                                                                 alt="Sơn Dulux"></a>
-                                <div class="card-body">
-                                    <div class="fw-bold">Sơn Dulux EasyClean - Nội thất</div>
-                                    <div class="text-muted mt-1">
-                                        <span class="text-primary fw-bold h3">890.000đ</span>
-                                        <span class="ms-2 text-danger">-5%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        }
                     </div>
                 </div>
 
                 <!-- Tab 2 Content - Sơn Jotun -->
                 <div id="tab2" class="tab-pane">
                     <div class="row row-cards flex-nowrap overflow-auto">
-                        <div class="col-6 col-md-2">
-                            <div class="card card-sm h-100">
-                                <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                                <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
-                                                                 alt="Sơn Jotun"></a>
-                                <div class="card-body">
-                                    <div class="fw-bold">Sơn Jotun Majestic - Nội thất</div>
-                                    <div class="text-muted mt-1">
-                                        <span class="text-primary fw-bold h3">1.100.000đ</span>
-                                        <span class="ms-2 text-danger">-8%</span>
+                        @for (int i = 0; i < 4; i++)
+                        {
+                            <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
+                                <div class="card card-sm product-card h-100">
+                                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                                    <a href="#" class="d-block position-relative">
+                                        <img src="/img/placeholder.svg" class="card-img-top object-cover"
+                                             style="height: 200px;"
+                                             alt="Sản phẩm @(i + 1)">
+                                        <div class="product-actions">
+                                            <button class="btn btn-primary btn-icon me-2" data-bs-toggle="tooltip"
+                                                    title="Thêm vào giỏ hàng">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-shopping-cart" width="24"
+                                                     height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 17h-11v-14h-2"></path>
+                                                    <path d="M6 5l14 1l-1 7h-13"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="btn btn-secondary btn-icon" data-bs-toggle="tooltip"
+                                                    title="Thêm vào yêu thích">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-heart" width="24" height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path
+                                                        d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </a>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-blue text-blue-fg me-2">Mới</span>
+                                            <div class="text-muted">Mã SP: SP@(i + 1)</div>
+                                        </div>
+                                        <h3 class="card-title mb-1">Sơn Dulux Weathershield @(i + 1)</h3>
+                                        <div class="text-muted mb-2">Thương hiệu: Dulux</div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold h4">1.250.000đ</span>
+                                            <span class="text-decoration-line-through text-muted ms-2">1.500.000đ</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        }
+
                     </div>
                 </div>
 
                 <!-- Tab 3 Content - Sơn Nippon -->
                 <div id="tab3" class="tab-pane">
                     <div class="row row-cards flex-nowrap overflow-auto">
-                        <div class="col-6 col-md-2">
-                            <div class="card card-sm h-100">
-                                <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                                <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
-                                                                 alt="Sơn Nippon"></a>
-                                <div class="card-body">
-                                    <div class="fw-bold">Sơn Nippon WeatherGard - Ngoại thất</div>
-                                    <div class="text-muted mt-1">
-                                        <span class="text-primary fw-bold h3">990.000đ</span>
-                                        <span class="ms-2 text-danger">-7%</span>
+                        @for (int i = 0; i < 5; i++)
+                        {
+                            <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
+                                <div class="card card-sm product-card h-100">
+                                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                                    <a href="#" class="d-block position-relative">
+                                        <img src="/img/placeholder.svg" class="card-img-top object-cover"
+                                             style="height: 200px;"
+                                             alt="Sản phẩm @(i + 1)">
+                                        <div class="product-actions">
+                                            <button class="btn btn-primary btn-icon me-2" data-bs-toggle="tooltip"
+                                                    title="Thêm vào giỏ hàng">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-shopping-cart" width="24"
+                                                     height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 17h-11v-14h-2"></path>
+                                                    <path d="M6 5l14 1l-1 7h-13"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="btn btn-secondary btn-icon" data-bs-toggle="tooltip"
+                                                    title="Thêm vào yêu thích">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-heart" width="24" height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path
+                                                        d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </a>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-blue text-blue-fg me-2">Mới</span>
+                                            <div class="text-muted">Mã SP: SP@(i + 1)</div>
+                                        </div>
+                                        <h3 class="card-title mb-1">Sơn Dulux Weathershield @(i + 1)</h3>
+                                        <div class="text-muted mb-2">Thương hiệu: Dulux</div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold h4">1.250.000đ</span>
+                                            <span class="text-decoration-line-through text-muted ms-2">1.500.000đ</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        }
                     </div>
                 </div>
 
                 <!-- Tab 4 Content - Sơn Kova -->
                 <div id="tab4" class="tab-pane">
                     <div class="row row-cards flex-nowrap overflow-auto">
-                        <div class="col-6 col-md-2">
-                            <div class="card card-sm h-100">
-                                <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                                <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
-                                                                 alt="Sơn Kova"></a>
-                                <div class="card-body">
-                                    <div class="fw-bold">Sơn Kova Nano Gold - Nội thất</div>
-                                    <div class="text-muted mt-1">
-                                        <span class="text-primary fw-bold h3">750.000đ</span>
-                                        <span class="ms-2 text-danger">-12%</span>
+                        @for (int i = 0; i < 6; i++)
+                        {
+                            <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
+                                <div class="card card-sm product-card h-100">
+                                    <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                                    <a href="#" class="d-block position-relative">
+                                        <img src="/img/placeholder.svg" class="card-img-top object-cover" style="height: 200px;"
+                                             alt="Sản phẩm @(i + 1)">
+                                        <div class="product-actions">
+                                            <button class="btn btn-primary btn-icon me-2" data-bs-toggle="tooltip"
+                                                    title="Thêm vào giỏ hàng">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-shopping-cart" width="24" height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                                    <path d="M17 17h-11v-14h-2"></path>
+                                                    <path d="M6 5l14 1l-1 7h-13"></path>
+                                                </svg>
+                                            </button>
+                                            <button class="btn btn-secondary btn-icon" data-bs-toggle="tooltip"
+                                                    title="Thêm vào yêu thích">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-heart" width="24" height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                     stroke-linecap="round" stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    <path
+                                                        d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </a>
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-blue text-blue-fg me-2">Mới</span>
+                                            <div class="text-muted">Mã SP: SP@(i + 1)</div>
+                                        </div>
+                                        <h3 class="card-title mb-1">Sơn Dulux Weathershield @(i + 1)</h3>
+                                        <div class="text-muted mb-2">Thương hiệu: Dulux</div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-primary fw-bold h4">1.250.000đ</span>
+                                            <span class="text-decoration-line-through text-muted ms-2">1.500.000đ</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Tab 5 Content - Phụ gia, dụng cụ sơn -->
-                <div id="tab5" class="tab-pane">
-                    <div class="row row-cards justify-content-between align-items-center flex-nowrap overflow-auto">
-                        <div class="col-6 col-md-2">
-                            <div class="card card-sm h-100">
-                                <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                                <a href="#" class="d-block"><img src="/img/placeholder.svg" class="card-img-top"
-                                                                 alt="Dụng cụ sơn"></a>
-                                <div class="card-body">
-                                    <div class="fw-bold">Con lăn sơn cao cấp</div>
-                                    <div class="text-muted mt-1">
-                                        <span class="text-primary fw-bold h3">150.000đ</span>
-                                        <span class="ms-2 text-danger">-15%</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -309,138 +425,56 @@
 
             <!-- Product List -->
             <div class="row row-cards flex-nowrap overflow-auto">
-                <!-- Product 1 -->
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 1">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Sơn Dulux Weathershield - Ngoại thất</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">1.250.000đ</span>
-                                <span class="ms-2 text-danger">-10%</span>
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="col-12 col-sm-6 col-lg-4 col-xl-3 mb-4">
+                        <div class="card card-sm product-card h-100">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block position-relative">
+                                <img src="/img/placeholder.svg" class="card-img-top object-cover" style="height: 200px;"
+                                     alt="Sản phẩm @(i + 1)">
+                                <div class="product-actions">
+                                    <button class="btn btn-primary btn-icon me-2" data-bs-toggle="tooltip"
+                                            title="Thêm vào giỏ hàng">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="icon icon-tabler icon-tabler-shopping-cart" width="24" height="24"
+                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                            <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
+                                            <path d="M17 17h-11v-14h-2"></path>
+                                            <path d="M6 5l14 1l-1 7h-13"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="btn btn-secondary btn-icon" data-bs-toggle="tooltip"
+                                            title="Thêm vào yêu thích">
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="icon icon-tabler icon-tabler-heart" width="24" height="24"
+                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path
+                                                d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </a>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-blue text-blue-fg me-2">Mới</span>
+                                    <div class="text-muted">Mã SP: SP@(i + 1)</div>
+                                </div>
+                                <h3 class="card-title mb-1">Sơn Dulux Weathershield @(i + 1)</h3>
+                                <div class="text-muted mb-2">Thương hiệu: Dulux</div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="text-primary fw-bold h4">1.250.000đ</span>
+                                    <span class="text-decoration-line-through text-muted ms-2">1.500.000đ</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Product 2 -->
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 2">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Sơn Jotun Majestic - Nội thất</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">1.100.000đ</span>
-                                <span class="ms-2 text-danger">-8%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product 3 -->
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 3">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Sơn Nippon WeatherGard - Ngoại thất</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">990.000đ</span>
-                                <span class="ms-2 text-danger">-7%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product 4 -->
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 4">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Sơn Kova Nano Gold - Nội thất</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">750.000đ</span>
-                                <span class="ms-2 text-danger">-12%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product 5 -->
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 5">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Con lăn sơn cao cấp</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">150.000đ</span>
-                                <span class="ms-2 text-danger">-15%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 5">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Con lăn sơn cao cấp 2</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">150.000đ</span>
-                                <span class="ms-2 text-danger">-15%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 5">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Con lăn sơn cao cấp 2</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">150.000đ</span>
-                                <span class="ms-2 text-danger">-15%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-6 col-md-2">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
-                        <a href="#" class="d-block">
-                            <img src="/img/placeholder.svg" class="card-img-top" alt="Sản phẩm 5">
-                        </a>
-                        <div class="card-body">
-                            <div class="fw-bold">Con lăn sơn cao cấp 3</div>
-                            <div class="text-muted mt-1">
-                                <span class="text-primary fw-bold h3">150.000đ</span>
-                                <span class="ms-2 text-danger">-15%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                }
             </div>
         </section>
 
