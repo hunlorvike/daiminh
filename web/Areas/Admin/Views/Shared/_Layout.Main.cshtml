@@ -12,13 +12,13 @@
 </head>
 <body class="d-flex flex-column @ViewData["BodyClass"]">
 <div class="page">
-    <partial name="__Sidebar"/>
+    <partial name="Layout/Sidebar"/>
 
     <div class="page-wrapper">
         @RenderBody()
     </div>
 </div>
 <partial name="__LibScripts"/>
-@await RenderSectionAsync("ViewScripts", false)
+@await RenderSectionAsync("FootScripts", false)
 </body>
 </html>
