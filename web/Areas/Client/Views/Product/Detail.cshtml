@@ -1,0 +1,470 @@
+@{
+    ViewBag.Title = "Sơn Dulux Weathershield Bề Mặt Mờ - 18L";
+}
+
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
+                        <li class="breadcrumb-item"><a href="#">Sản phẩm</a></li>
+                        <li class="breadcrumb-item"><a href="#">Sơn nước</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">Sơn Dulux Weathershield</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row g-4">
+            <!-- Product Images -->
+            <div class="col-12 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Main Image -->
+                        <div class="mb-3">
+                            <img id="mainImage" src="~/img/placeholder.svg" class="w-100 rounded"
+                                 alt="Sơn Dulux Weathershield" style="max-height: 500px; object-fit: cover;">
+                        </div>
+                        <!-- Thumbnail Images -->
+                        <div class="d-flex gap-2 overflow-auto pb-2">
+                            @for (int i = 1; i <= 4; i++)
+                            {
+                                <img src="~/img/placeholder.svg"
+                                     class="rounded cursor-pointer thumbnail-image"
+                                     alt="Thumbnail @i"
+                                     style="width: 80px; height: 80px; object-fit: cover;"
+                                     onclick="updateMainImage(this.src)">
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info -->
+            <div class="col-12 col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h1 class="card-title mb-2">Sơn Dulux Weathershield Bề Mặt Mờ</h1>
+                                <div class="text-muted">Mã SP: DLX001 | Thương hiệu: Dulux</div>
+                            </div>
+                            <button class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip"
+                                    title="Thêm vào yêu thích">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path
+                                        d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Rating -->
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="rating">
+                                @for (int i = 0; i < 5; i++)
+                                {
+                                    <span class="text-yellow">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                             fill="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path
+                                                d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>
+                                        </svg>
+                                    </span>
+                                }
+                            </div>
+                            <span class="ms-2">(128 đánh giá)</span>
+                        </div>
+
+                        <!-- Price -->
+                        <div class="d-flex align-items-baseline mb-3">
+                            <div class="h1 mb-0 me-2">1.250.000₫</div>
+                            <div class="text-muted text-decoration-line-through">1.500.000₫</div>
+                            <span class="badge bg-red text-white ms-2">Giảm 17%</span>
+                        </div>
+
+                        <!-- Options -->
+                        <div class="mb-3">
+                            <label class="form-label">Dung tích</label>
+                            <div class="btn-group w-100" role="group">
+                                <input type="radio" class="btn-check" name="volume" id="volume1" checked>
+                                <label class="btn" for="volume1">1L</label>
+                                <input type="radio" class="btn-check" name="volume" id="volume2">
+                                <label class="btn" for="volume2">5L</label>
+                                <input type="radio" class="btn-check" name="volume" id="volume3">
+                                <label class="btn" for="volume3">18L</label>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Màu sắc</label>
+                            <div class="row g-2">
+                                @foreach (var color in new[] { "#FFFFFF", "#F8F9FA", "#E9ECEF", "#DEE2E6" })
+                                {
+                                    <div class="col-auto">
+                                        <label class="form-colorinput">
+                                            <input name="color" type="radio" value="@color"
+                                                   class="form-colorinput-input">
+                                            <span class="form-colorinput-color" style="background-color: @color"></span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Quantity -->
+                        <div class="mb-3">
+                            <label class="form-label">Số lượng</label>
+                            <div class="input-group" style="width: 140px">
+                                <button class="btn btn-outline-secondary" type="button" id="decreaseQuantity">-</button>
+                                <input type="number" class="form-control text-center" value="1" min="1" id="quantity">
+                                <button class="btn btn-outline-secondary" type="button" id="increaseQuantity">+</button>
+                            </div>
+                        </div>
+
+                        <!-- Add to Cart -->
+                        <div class="d-flex gap-2 mb-3">
+                            <button class="btn btn-primary w-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                    <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                    <path d="M17 17h-11v-14h-2"/>
+                                    <path d="M6 5l14 1l-1 7h-13"/>
+                                </svg>
+                                Thêm vào giỏ hàng
+                            </button>
+                            <button class="btn btn-success w-100">Mua ngay</button>
+                        </div>
+
+                        <!-- Product Features -->
+                        <div class="card bg-primary-lt mb-3">
+                            <div class="card-body">
+                                <h3 class="card-title">Đặc điểm nổi bật</h3>
+                                <ul class="list-unstyled space-y-2">
+                                    <li class="d-flex align-items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-2"
+                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M5 12l5 5l10 -10"/>
+                                        </svg>
+                                        Chống thấm tuyệt đối
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-2"
+                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M5 12l5 5l10 -10"/>
+                                        </svg>
+                                        Độ bền màu cao
+                                    </li>
+                                    <li class="d-flex align-items-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon text-primary me-2"
+                                             width="24" height="24" viewBox="0 0 24 24" stroke-width="2"
+                                             stroke="currentColor" fill="none" stroke-linecap="round"
+                                             stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M5 12l5 5l10 -10"/>
+                                        </svg>
+                                        Kháng khuẩn, chống rêu mốc
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Delivery Info -->
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title">Thông tin giao hàng</h3>
+                                <div class="datagrid">
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">Phí vận chuyển</div>
+                                        <div class="datagrid-content">Miễn phí</div>
+                                    </div>
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">Thời gian giao hàng</div>
+                                        <div class="datagrid-content">2-3 ngày</div>
+                                    </div>
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">Chính sách đổi trả</div>
+                                        <div class="datagrid-content">7 ngày</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Product Details Tabs -->
+        <div class="card mt-4">
+            <div class="card-body">
+                <div class="d-flex overflow-auto">
+                    <ul class="nav nav-tabs nav-fill" data-bs-toggle="tabs">
+                        <li class="nav-item">
+                            <a href="#tabs-details" class="nav-link active" data-bs-toggle="tab">
+                                Chi tiết sản phẩm
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#tabs-specs" class="nav-link" data-bs-toggle="tab">
+                                Thông số kỹ thuật
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#tabs-reviews" class="nav-link" data-bs-toggle="tab">
+                                Đánh giá (128)
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="tab-content">
+                    <!-- Product Details -->
+                    <div class="tab-pane active show" id="tabs-details">
+                        <div class="mt-4">
+                            <h3>Mô tả sản phẩm</h3>
+                            <p>Sơn Dulux Weathershield là dòng sơn ngoại thất cao cấp của tập đoàn AkzoNobel...</p>
+
+                            <h4>Ứng dụng</h4>
+                            <ul>
+                                <li>Thích hợp sử dụng cho bề mặt tường ngoại thất</li>
+                                <li>Có thể sử dụng trên bề mặt vữa xi măng, bê tông...</li>
+                                <li>Thích hợp sơn mới và sơn lại</li>
+                            </ul>
+
+                            <h4>Đặc tính</h4>
+                            <ul>
+                                <li>Màng sơn bền đẹp với công nghệ Colourguard</li>
+                                <li>Chống thấm tuyệt đối với công nghệ Dualshield</li>
+                                <li>Độ phủ cao</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Specifications -->
+                    <div class="tab-pane" id="tabs-specs">
+                        <div class="mt-4">
+                            <div class="table-responsive">
+                                <table class="table table-vcenter">
+                                    <tbody>
+                                    <tr>
+                                        <td class="text-muted">Thương hiệu</td>
+                                        <td>Dulux</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Xuất xứ</td>
+                                        <td>Việt Nam</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Dung tích</td>
+                                        <td>18L</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Độ phủ lý thuyết</td>
+                                        <td>12-14 m²/lít/lớp</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Thời gian khô</td>
+                                        <td>Khô bề mặt: 30 phút</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="text-muted">Dụng cụ</td>
+                                        <td>Cọ, ru-lô, súng phun</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Reviews -->
+                    <div class="tab-pane" id="tabs-reviews">
+                        <div class="mt-4">
+                            <!-- Review Summary -->
+                            <div class="row align-items-center mb-4">
+                                <div class="col-md-4 text-center">
+                                    <div class="display-6 fw-bold mb-2">4.8</div>
+                                    <div class="rating mb-2">
+                                        @for (int i = 0; i < 5; i++)
+                                        {
+                                            <span class="text-yellow">
+                                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                     height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                     stroke="currentColor" fill="currentColor" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                    <path
+                                                        d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>
+                                                </svg>
+                                            </span>
+                                        }
+                                    </div>
+                                    <div class="text-muted">Dựa trên 128 đánh giá</div>
+                                </div>
+                                <div class="col-md-8">
+                                    @for (int i = 5; i >= 1; i--)
+                                    {
+                                        <div class="row align-items-center mb-2">
+                                            <div class="col-auto">@i sao</div>
+                                            <div class="col">
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-warning"
+                                                         style="width: @(Random.Shared.Next(20, 100))%"></div>
+                                                </div>
+                                            </div>
+                                            <div class="col-auto">@(Random.Shared.Next(10, 50))</div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+
+                            <!-- Review List -->
+                            @for (int i = 0; i < 3; i++)
+                            {
+                                <div class="mb-4 pb-4 border-bottom">
+                                    <div class="d-flex mb-3">
+                                        <div class="me-3">
+                                            <span class="avatar"
+                                                  style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
+                                        </div>
+                                        <div>
+                                            <div class="mb-1">Người dùng @(i + 1)</div>
+                                            <div class="rating">
+                                                @for (int star = 0; star < 5; star++)
+                                                {
+                                                    <span class="text-yellow">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24"
+                                                             height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                             stroke="currentColor" fill="currentColor"
+                                                             stroke-linecap="round" stroke-linejoin="round">
+                                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                            <path
+                                                                d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"/>
+                                                        </svg>
+                                                    </span>
+                                                }
+                                            </div>
+                                            <div class="text-muted">2 ngày trước</div>
+                                        </div>
+                                    </div>
+                                    <p>Sản phẩm rất tốt, dễ thi công và màu sắc đẹp. Đặc biệt là khả năng chống thấm rất
+                                        hiệu quả.</p>
+                                    <div class="d-flex gap-2">
+                                        @for (int img = 0; img < 2; img++)
+                                        {
+                                            <img src="~/img/placeholder.svg" class="rounded" width="100" height="100"
+                                                 alt="Review image">
+                                        }
+                                    </div>
+                                </div>
+                            }
+
+                            <!-- Load More -->
+                            <div class="text-center">
+                                <button class="btn btn-outline-primary">
+                                    Xem thêm đánh giá
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products -->
+        <div class="mt-4">
+            <h2 class="mb-4">Sản phẩm tương tự</h2>
+            <div class="row row-cards">
+                @for (int i = 0; i < 4; i++)
+                {
+                    <div class="col-sm-6 col-lg-3">
+                        <div class="card card-sm">
+                            <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                            <a href="#" class="d-block"><img src="~/img/placeholder.svg" class="card-img-top"
+                                                             alt=""></a>
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-2">
+                                    <span class="badge bg-primary me-2">Mới</span>
+                                    <div class="text-muted">Mã SP: SP@(i + 1)</div>
+                                </div>
+                                <h3 class="card-title mb-1">
+                                    <a href="#">Sơn Dulux Weathershield @(i + 1)</a>
+                                </h3>
+                                <div class="text-muted mb-2">Thương hiệu: Dulux</div>
+                                <div class="d-flex align-items-center">
+                                    <div class="h3 mb-0">1.250.000₫</div>
+                                    <del class="text-muted ms-2">1.500.000₫</del>
+                                </div>
+                            </div>
+                            <!-- Product Actions -->
+                            <div class="card-footer">
+                                <div class="d-flex gap-2">
+                                    <button class="btn btn-primary w-100">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                             stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                            <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                            <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                            <path d="M17 17h-11v-14h-2"/>
+                                            <path d="M6 5l14 1l-1 7h-13"/>
+                                        </svg>
+                                        Thêm vào giỏ
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FootScripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+
+            // Quantity handlers
+            const quantityInput = document.getElementById('quantity');
+            document.getElementById('decreaseQuantity').addEventListener('click', function () {
+                const currentValue = parseInt(quantityInput.value);
+                if (currentValue > 1) {
+                    quantityInput.value = currentValue - 1;
+                }
+            });
+
+            document.getElementById('increaseQuantity').addEventListener('click', function () {
+                const currentValue = parseInt(quantityInput.value);
+                quantityInput.value = currentValue + 1;
+            });
+
+            // Image gallery
+            function updateMainImage(src) {
+                document.getElementById('mainImage').src = src;
+            }
+        });
+    </script>
+}

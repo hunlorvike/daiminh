@@ -7,7 +7,6 @@
         rel="stylesheet"
         href="~/lib/swiper/package/swiper-bundle.min.css"
     />
-
 }
 
 <div class="page-header d-print-none" style="min-height: unset"></div>
@@ -366,14 +365,17 @@
                                 <div class="card card-sm product-card h-100">
                                     <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
                                     <a href="#" class="d-block position-relative">
-                                        <img src="/img/placeholder.svg" class="card-img-top object-cover" style="height: 200px;"
+                                        <img src="/img/placeholder.svg" class="card-img-top object-cover"
+                                             style="height: 200px;"
                                              alt="Sản phẩm @(i + 1)">
                                         <div class="product-actions">
                                             <button class="btn btn-primary btn-icon me-2" data-bs-toggle="tooltip"
                                                     title="Thêm vào giỏ hàng">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                                     class="icon icon-tabler icon-tabler-shopping-cart" width="24" height="24"
-                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                     class="icon icon-tabler icon-tabler-shopping-cart" width="24"
+                                                     height="24"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
                                                      stroke-linecap="round" stroke-linejoin="round">
                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                     <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
@@ -386,7 +388,8 @@
                                                     title="Thêm vào yêu thích">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                      class="icon icon-tabler icon-tabler-heart" width="24" height="24"
-                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                                     fill="none"
                                                      stroke-linecap="round" stroke-linejoin="round">
                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                     <path
@@ -478,86 +481,85 @@
             </div>
         </section>
 
-        <!-- Project Section -->
+        <!-- Project -->
         <section class="mb-3 p-3 border">
+            <!-- Section Title -->
+
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <p class="h1 mb-0">Dự án thi công nổi bật</p>
                 <a href="#" class="ms-2">Xem thêm</a>
             </div>
 
-            <!-- Project List -->
-            <div class="row row-cards flex-nowrap overflow-auto">
-                <!-- Project 1 -->
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 1"
-                             style="height: 250px;">
-                        <div class="card-body">
-                            <h5 class="card-title">Dự án Thi Công Sơn Dulux - Nhà ở</h5>
-                            <p class="card-text text-muted">Cập nhật xu hướng sơn mới nhất, đảm bảo chất lượng và độ bền
-                                lâu
-                                dài.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-primary">Hoàn thành</span>
-                                <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+            <!-- Project Grid -->
+            <div class="row row-cards g-3">
+                @for (int i = 0; i < 6; i++)
+                {
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="card">
+                            <!-- Project Image -->
+                            <div class="position-relative">
+                                <img src="/img/placeholder.svg" class="card-img-top object-fit-cover"
+                                     alt="Dự án @(i + 1)" style="height: 240px;">
+                                <div class="ribbon ribbon-top ribbon-start">
+                                    <span class="bg-green px-2">Hoàn thành</span>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Project 2 -->
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 2"
-                             style="height: 250px;">
-                        <div class="card-body">
-                            <h5 class="card-title">Dự án Thi Công Sơn Jotun - Văn phòng</h5>
-                            <p class="card-text text-muted">Sử dụng sơn Jotun chất lượng cao cho không gian văn phòng
-                                hiện
-                                đại và năng động.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-success">Đang thi công</span>
-                                <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                            <div class="card-body">
+                                <!-- Project Info -->
+                                <div class="d-flex align-items-center mb-3">
+                                    <span class="avatar avatar-sm me-2"
+                                          style="background-image: url('@Url.Content("~/img/placeholder.svg")')"
+                                    ></span>
+                                    <div>
+                                        <div class="font-weight-medium">Khách hàng @(i + 1)</div>
+                                        <div class="text-muted">Quận @(i + 1), TP.HCM</div>
+                                    </div>
+                                </div>
 
-                <!-- Project 3 -->
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 3"
-                             style="height: 250px;">
-                        <div class="card-body">
-                            <h5 class="card-title">Dự án Thi Công Sơn Nippon - Ngoại thất</h5>
-                            <p class="card-text text-muted">Lựa chọn sơn ngoại thất cao cấp giúp bảo vệ công trình lâu
-                                dài
-                                với thời tiết khắc nghiệt.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-warning">Sắp bắt đầu</span>
-                                <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                                <!-- Project Details -->
+                                <h3 class="card-title mb-3">Dự án Thi Công Sơn @(i % 2 == 0 ? "Dulux" : "Jotun") - Nhà
+                                    Phố</h3>
+                                <p class="text-muted">Hoàn thiện thi công sơn nước nội thất và ngoại thất theo tiêu
+                                    chuẩn chất lượng cao.</p>
 
-                <!-- Project 4 -->
-                <div class="col-12 col-md-6 col-lg-4">
-                    <div class="card h-100 shadow-sm border-0">
-                        <img src="/img/placeholder.svg" class="card-img-top object-fit-cover" alt="Dự án 4"
-                             style="height: 250px;">
-                        <div class="card-body">
-                            <h5 class="card-title">Dự án Thi Công Sơn Kova - Căn hộ cao cấp</h5>
-                            <p class="card-text text-muted">Thiết kế độc đáo và sử dụng sơn Kova mang lại không gian
-                                sống
-                                sang trọng cho căn hộ cao cấp.</p>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <span class="badge bg-danger">Chưa bắt đầu</span>
-                                <a href="#" class="btn btn-outline-primary btn-sm">Xem chi tiết</a>
+                                <!-- Project Stats -->
+                                <div class="mt-4">
+                                    <div class="row g-2 align-items-center">
+                                        <div class="col">
+                                            <div class="progress progress-sm">
+                                                <div class="progress-bar bg-primary" style="width: 100%"
+                                                     role="progressbar" aria-valuenow="100" aria-valuemin="0"
+                                                     aria-valuemax="100">
+                                                    <span class="visually-hidden">100% Complete</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <div class="text-muted">100%</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Project Actions -->
+                                <div class="d-flex align-items-center mt-4">
+                                    <a href="#" class="btn btn-primary">
+                                        Xem chi tiết
+                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                             class="icon icon-tabler icon-tabler-arrow-narrow-right ms-2" width="24"
+                                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                             fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                            <path d="M5 12l14 0"></path>
+                                            <path d="M15 16l4 -4"></path>
+                                            <path d="M15 8l4 4"></path>
+                                        </svg>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                }
             </div>
         </section>
     </main>

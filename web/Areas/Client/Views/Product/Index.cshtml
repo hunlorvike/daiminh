@@ -1,0 +1,278 @@
+@{
+    ViewBag.Title = "Danh sách sản phẩm";
+}
+
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Sản phẩm
+                </h2>
+                <div class="text-muted mt-1">Hiển thị 1-12 trong tổng số 36 sản phẩm</div>
+            </div>
+            <!-- Page title actions -->
+            <div class="col-auto ms-auto d-print-none">
+                <div class="d-flex">
+                    <div class="me-3">
+                        <div class="input-icon">
+                            <input type="text" class="form-control" placeholder="Tìm kiếm...">
+                            <span class="input-icon-addon">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/>
+                                    <path d="M21 21l-6 -6"/>
+                                </svg>
+                            </span>
+                        </div>
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-primary dropdown-toggle align-text-top" data-bs-toggle="dropdown">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                 stroke-linecap="round" stroke-linejoin="round">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                <path
+                                    d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.414 -4.414a2 2 0 0 1 -.586 -1.414v-2.172z"/>
+                            </svg>
+                            Lọc
+                        </button>
+                        <div class="dropdown-menu dropdown-menu-end">
+                            <h6 class="dropdown-header">Sắp xếp theo</h6>
+                            <a class="dropdown-item" href="#">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24"
+                                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M4 6l7 0"/>
+                                    <path d="M4 12l7 0"/>
+                                    <path d="M4 18l9 0"/>
+                                    <path d="M15 9l3 -3l3 3"/>
+                                    <path d="M18 6l0 12"/>
+                                </svg>
+                                Giá thấp đến cao
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24"
+                                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M4 6l9 0"/>
+                                    <path d="M4 12l7 0"/>
+                                    <path d="M4 18l7 0"/>
+                                    <path d="M15 15l3 3l3 -3"/>
+                                    <path d="M18 6l0 12"/>
+                                </svg>
+                                Giá cao đến thấp
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24"
+                                     height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path
+                                        d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/>
+                                </svg>
+                                Phổ biến nhất
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <h6 class="dropdown-header">Thương hiệu</h6>
+                            <a class="dropdown-item" href="#">Tất cả</a>
+                            <a class="dropdown-item" href="#">Dulux</a>
+                            <a class="dropdown-item" href="#">Jotun</a>
+                            <a class="dropdown-item" href="#">Nippon</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row g-4">
+            <!-- Filters Sidebar -->
+            <div class="col-12 col-lg-3">
+                <div class="card">
+                    <div class="card-body">
+                        <!-- Price Range -->
+                        <div class="mb-4">
+                            <label class="form-label">Khoảng giá</label>
+                            <div class="row g-2">
+                                <div class="col">
+                                    <input type="number" class="form-control" placeholder="Từ">
+                                </div>
+                                <div class="col-auto">-</div>
+                                <div class="col">
+                                    <input type="number" class="form-control" placeholder="Đến">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Categories -->
+                        <div class="mb-4">
+                            <label class="form-label">Danh mục</label>
+                            <div class="form-selectgroup form-selectgroup-pills">
+                                <label class="form-selectgroup-item">
+                                    <input type="checkbox" name="category" value="interior"
+                                           class="form-selectgroup-input" checked>
+                                    <span class="form-selectgroup-label">Sơn nội thất</span>
+                                </label>
+                                <label class="form-selectgroup-item">
+                                    <input type="checkbox" name="category" value="exterior"
+                                           class="form-selectgroup-input">
+                                    <span class="form-selectgroup-label">Sơn ngoại thất</span>
+                                </label>
+                                <label class="form-selectgroup-item">
+                                    <input type="checkbox" name="category" value="primer"
+                                           class="form-selectgroup-input">
+                                    <span class="form-selectgroup-label">Sơn lót</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Brands -->
+                        <div class="mb-4">
+                            <label class="form-label">Thương hiệu</label>
+                            @foreach (var brand in new[] { "Dulux", "Jotun", "Nippon", "Kova", "Mykolor" })
+                            {
+                                <label class="form-check mb-2">
+                                    <input type="checkbox" class="form-check-input" name="brand"
+                                           value="@brand.ToLower()">
+                                    <span class="form-check-label">@brand</span>
+                                </label>
+                            }
+                        </div>
+
+                        <!-- Colors -->
+                        <div class="mb-4">
+                            <label class="form-label">Màu sắc</label>
+                            <div class="row g-2">
+                                @foreach (var color in new[] { "#FFFFFF", "#F8F9FA", "#E9ECEF", "#DEE2E6", "#CED4DA", "#ADB5BD" })
+                                {
+                                    <div class="col-auto">
+                                        <label class="form-colorinput">
+                                            <input name="color" type="radio" value="@color"
+                                                   class="form-colorinput-input">
+                                            <span class="form-colorinput-color" style="background-color: @color"></span>
+                                        </label>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <!-- Apply Filters -->
+                        <button class="btn btn-primary w-100">
+                            Áp dụng bộ lọc
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Products Grid -->
+            <div class="col-12 col-lg-9">
+                <div class="row row-cards">
+                    @for (int i = 0; i < 12; i++)
+                    {
+                        <div class="col-sm-6 col-lg-4">
+                            <div class="card card-sm">
+                                <div class="ribbon ribbon-top ribbon-start bg-primary">Sale</div>
+                                <a href="#" class="d-block">
+                                    <img src="~/img/placeholder.svg" class="card-img-top" alt="">
+                                </a>
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-primary text-white me-2">Mới</span>
+                                        <div class="text-muted">Mã SP: SP@(i + 1)</div>
+                                    </div>
+                                    <h3 class="card-title mb-1">
+                                        <a href="#">Sơn Dulux Weathershield @(i + 1)</a>
+                                    </h3>
+                                    <div class="text-muted mb-2">Thương hiệu: Dulux</div>
+                                    <div class="d-flex align-items-center">
+                                        <div class="h3 mb-0">1.250.000₫</div>
+                                        <del class="text-muted ms-2">1.500.000₫</del>
+                                    </div>
+                                </div>
+                                <!-- Product Actions -->
+                                <div class="card-footer">
+                                    <div class="d-flex gap-2">
+                                        <button class="btn btn-primary w-100">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                                <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                                <path d="M17 17h-11v-14h-2"/>
+                                                <path d="M6 5l14 1l-1 7h-13"/>
+                                            </svg>
+                                            Thêm vào giỏ
+                                        </button>
+                                        <button class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip"
+                                                title="Thêm vào yêu thích">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                                <path
+                                                    d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center mt-4">
+                    <ul class="pagination">
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M15 6l-6 6l6 6"/>
+                                </svg>
+                                Trước
+                            </a>
+                        </li>
+                        <li class="page-item"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">4</a></li>
+                        <li class="page-item">
+                            <a class="page-link" href="#">
+                                Sau
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                     stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M9 6l6 6l-6 6"/>
+                                </svg>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section FootScripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Initialize tooltips
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+}
