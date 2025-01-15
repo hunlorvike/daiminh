@@ -1,0 +1,147 @@
+@{
+    ViewBag.Title = "Liên hệ";
+}
+
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    @ViewData["Title"]
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+    <div class="container-xl">
+        <div class="row row-cards">
+            <div class="col-12">
+                <div class="card">
+                    <div class="row g-0">
+                        <div class="col-12 col-md-6 border-end">
+                            <div class="card-body">
+                                <h2 class="card-title">Liên hệ với chúng tôi</h2>
+                                <p class="card-text">Hãy điền vào biểu mẫu bên dưới và chúng tôi sẽ liên hệ lại với bạn
+                                    trong thời gian sớm nhất.</p>
+                                <form action="#" method="post">
+                                    <div class="mb-3">
+                                        <label class="form-label">Họ và tên</label>
+                                        <input type="text" class="form-control" name="name"
+                                               placeholder="Nhập họ và tên của bạn" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Email</label>
+                                        <input type="email" class="form-control" name="email"
+                                               placeholder="your@email.com" required>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Số điện thoại</label>
+                                        <input type="tel" class="form-control" name="phone"
+                                               placeholder="(+84) 123-456-789">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label">Nội dung</label>
+                                        <textarea class="form-control" name="message" rows="13"
+                                                  placeholder="Nhập nội dung liên hệ của bạn" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Gửi liên hệ</button>
+                                </form>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="card-body">
+                                <h2 class="card-title">Thông tin liên hệ</h2>
+                                <p class="card-text">Bạn có thể liên hệ với chúng tôi qua các phương thức sau:</p>
+                                <div class="list-group list-group-flush mb-4">
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-blue text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                         class="icon icon-tabler icon-tabler-map-pin" width="24"
+                                                         height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                       <path d="M12 11m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+                                                       <path
+                                                           d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="text-truncate">
+                                                    Tiên Phương, Chương Mỹ, Hà Nội, Việt Nam
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-green text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                         class="icon icon-tabler icon-tabler-phone" width="24"
+                                                         height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                       <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                       <path
+                                                           d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"></path>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="text-truncate">
+                                                    (+84) 123-456-789
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-red text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                         class="icon icon-tabler icon-tabler-mail" width="24"
+                                                         height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                        <path
+                                                            d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path>
+                                                        <path d="M3 7l9 6l9 -6"></path>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="text-truncate">
+                                                    contact@example.com
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="list-group-item">
+                                        <!-- Google Maps -->
+                                        <div class="ratio ratio-16x9">
+                                            <iframe
+                                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d19873.513104675243!2d105.67122456094633!3d20.94111888969103!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x313451fa6b6a69a7%3A0xad68758c2c0cc2bc!2zVGnDqm4gUGjGsMahbmcsIENoxrDGoW5nIE3hu7ksIEjDoCBO4buZaSwgVmnhu4d0IE5hbQ!5e1!3m2!1svi!2s!4v1736927502234!5m2!1svi!2s"
+                                                class="border-0 rounded"
+                                                allowfullscreen=""
+                                                loading="lazy"
+                                                referrerpolicy="no-referrer-when-downgrade">
+                                            </iframe>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

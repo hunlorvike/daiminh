@@ -42,7 +42,9 @@
 <body class="d-flex flex-column bg-light @ViewData["BodyClass"]">
 <div class="page">
     <partial name="Layout/Header"/>
-    @RenderBody()
+    <div class="page-wrapper">
+        @RenderBody()
+    </div>
     <partial name="Components/FloatingButtons"/>
     <partial name="Layout/Footer"/>
 
