@@ -1,0 +1,213 @@
+@{
+    ViewBag.Title = "Về chúng tôi";
+}
+
+<div class="page-header d-print-none">
+    <div class="container-xl">
+        <div class="row g-2 align-items-center">
+            <div class="col">
+                <h2 class="page-title">
+                    Về chúng tôi
+                </h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-body">
+    <div class="container-xl">
+        <div class="card">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3 class="card-title">Chúng tôi là ai</h3>
+                        <p>
+                            Công ty Sơn ABC là nhà sản xuất và phân phối sơn hàng đầu tại Việt Nam. Với hơn 20 năm kinh
+                            nghiệm,
+                            chúng tôi tự hào mang đến những sản phẩm sơn chất lượng cao, thân thiện với môi trường và
+                            đáp ứng
+                            mọi nhu cầu của khách hàng.
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <img src="~/img/placeholder.svg" class="img-fluid rounded" alt="Về chúng tôi">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Sứ mệnh của chúng tôi</h3>
+                <p>
+                    Sứ mệnh của Sơn ABC là mang đến những giải pháp màu sắc tốt nhất, góp phần tạo nên không gian sống
+                    và làm việc đẹp đẽ, bền vững cho mọi gia đình và doanh nghiệp Việt Nam.
+                </p>
+                <div class="mt-4">
+                    <h4>Giá trị cốt lõi</h4>
+                    <div class="row g-3 mt-2">
+                        @foreach (var value in new[] { "Chất lượng", "Sáng tạo", "Trách nhiệm", "Khách hàng là trọng tâm" })
+                        {
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card card-sm">
+                                    <div class="card-body">
+                                        <div class="row align-items-center">
+                                            <div class="col-auto">
+                                                <span class="bg-blue text-white avatar">
+                                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                                         class="icon icon-tabler icon-tabler-star" width="24"
+                                                         height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                         stroke="currentColor" fill="none" stroke-linecap="round"
+                                                         stroke-linejoin="round">
+                                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                        <path
+                                                            d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
+                                                    </svg>
+                                                </span>
+                                            </div>
+                                            <div class="col">
+                                                <div class="font-weight-medium">@value</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Đội ngũ lãnh đạo</h3>
+                <div class="row g-3 mt-2">
+                    @foreach (var leader in new[]
+                                  {
+                                      new { Name = "Nguyễn Văn A", Position = "Giám đốc điều hành", Image = "/img/avatar-1.jpg" },
+                                      new { Name = "Trần Thị B", Position = "Giám đốc tài chính", Image = "/img/avatar-2.jpg" },
+                                      new { Name = "Lê Văn C", Position = "Giám đốc sản xuất", Image = "/img/avatar-3.jpg" },
+                                      new { Name = "Phạm Thị D", Position = "Giám đốc marketing", Image = "/img/avatar-4.jpg" }
+                                  })
+                    {
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card">
+                                <div class="card-body p-4 text-center">
+                                    <span class="avatar avatar-xl mb-3 rounded"
+                                          style="background-image: url(@leader.Image)"></span>
+                                    <h3 class="m-0 mb-1"><a href="#">@leader.Name</a></h3>
+                                    <div class="text-muted">@leader.Position</div>
+                                    <div class="mt-3">
+                                        <span class="badge bg-purple-lt">Quản lý cấp cao</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Thành tựu của chúng tôi</h3>
+                <div class="row g-3 mt-2">
+                    @foreach (var achievement in new[]
+                                  {
+                                      new { Title = "Khách hàng", Value = "1M+", Icon = "users" },
+                                      new { Title = "Dự án hoàn thành", Value = "10K+", Icon = "building" },
+                                      new { Title = "Giải thưởng", Value = "50+", Icon = "award" },
+                                      new { Title = "Năm kinh nghiệm", Value = "20+", Icon = "calendar" }
+                                  })
+                    {
+                        <div class="col-md-6 col-lg-3">
+                            <div class="card card-sm">
+                                <div class="card-body">
+                                    <div class="row align-items-center">
+                                        <div class="col-auto">
+                                            <span class="bg-green text-white avatar">
+                                                <svg xmlns="http://www.w3.org/2000/svg"
+                                                     class="icon icon-tabler icon-tabler-@achievement.Icon" width="24"
+                                                     height="24" viewBox="0 0 24 24" stroke-width="2"
+                                                     stroke="currentColor" fill="none" stroke-linecap="round"
+                                                     stroke-linejoin="round">
+                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                    @switch (achievement.Icon)
+                                                    {
+                                                        case "users":
+                                                            <path d="M9 7m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path>
+                                                            <path d="M3 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+                                                            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                                            <path d="M21 21v-2a4 4 0 0 0 -3 -3.85"></path>
+                                                            break;
+                                                        case "building":
+                                                            <path d="M3 21l18 0"></path>
+                                                            <path d="M9 8l1 0"></path>
+                                                            <path d="M9 12l1 0"></path>
+                                                            <path d="M9 16l1 0"></path>
+                                                            <path d="M14 8l1 0"></path>
+                                                            <path d="M14 12l1 0"></path>
+                                                            <path d="M14 16l1 0"></path>
+                                                            <path
+                                                                d="M5 21v-16a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v16"></path>
+                                                            break;
+                                                        case "award":
+                                                            <path d="M12 9m-6 0a6 6 0 1 0 12 0a6 6 0 1 0 -12 0"></path>
+                                                            <path
+                                                                d="M12 15l3.4 5.89l1.598 -3.233l3.598 .232l-3.4 -5.889"></path>
+                                                            <path
+                                                                d="M6.802 12l-3.4 5.89l3.598 -.233l1.598 3.232l3.4 -5.889"></path>
+                                                            break;
+                                                        case "calendar":
+                                                            <path
+                                                                d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+                                                            <path d="M16 3v4"></path>
+                                                            <path d="M8 3v4"></path>
+                                                            <path d="M4 11h16"></path>
+                                                            <path d="M11 15h1"></path>
+                                                            <path d="M12 15v3"></path>
+                                                            break;
+                                                    }
+                                                </svg>
+                                            </span>
+                                        </div>
+                                        <div class="col">
+                                            <div class="font-weight-medium">
+                                                @achievement.Value
+                                                <span class="text-muted">@achievement.Title</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body">
+                <h3 class="card-title">Liên hệ với chúng tôi</h3>
+                <p>
+                    Nếu bạn có bất kỳ câu hỏi hoặc đề xuất nào, đừng ngần ngại liên hệ với chúng tôi.
+                    Đội ngũ hỗ trợ khách hàng của chúng tôi luôn sẵn sàng hỗ trợ bạn.
+                </p>
+                <div class="mt-4">
+                    <a href="/contact" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-mail" width="24"
+                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                             stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path
+                                d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"></path>
+                            <path d="M3 7l9 6l9 -6"></path>
+                        </svg>
+                        Liên hệ với chúng tôi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
