@@ -6,6 +6,9 @@ namespace web.Areas.Client.Controllers;
 public class ArticleController : Controller
 {
     public IActionResult Index() => View();
+
+    [Route("/about-us")]
     public IActionResult AboutUs() => View();
+
     public IActionResult Detail() => View();
 }
