@@ -1,3 +1,7 @@
+@using Microsoft.Extensions.Options
+@using web.Models
+@inject IOptions<_ConfigModel> Config
+
 <header>
     <!-- Top Bar -->
     <div class="navbar-expand-md border border-bottom-1 d-none d-md-block">
@@ -8,7 +12,8 @@
                 </div>
                 <div class="col-auto">
                     <p class="text-muted mb-0">
-                        Hotline: <a href="tel:0359021323" class="text-decoration-none text-primary">035.902.1323</a>
+                        Hotline: <a href="tel:0359021323"
+                                    class="text-decoration-none text-primary">@Config.Value.SiteSettings.General.PhoneNumber</a>
                         <span class="mx-2">|</span>
                         Mail: <a href="mailto:viethung0106.developer@gmail.com"
                                  class="text-decoration-none text-primary">viethung0106.developer@gmail.com</a>

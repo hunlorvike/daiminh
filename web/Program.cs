@@ -1,6 +1,7 @@
 using infrastructure.Constraints;
 using infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
+using web.Models;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,9 @@ builder.Services.Configure<RouteOptions>(options =>
     options.LowercaseUrls = true;
     options.ConstraintMap.Add("slugOrId", typeof(SlugOrIdConstraint));
 });
+
+builder.Services.Configure<_ConfigModel>(builder.Configuration.GetSection("Config")
+                                         ?? throw new InvalidOperationException("Config section not found."));
 
 WebApplication app = builder.Build();
 
