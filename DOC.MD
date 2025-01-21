@@ -265,13 +265,13 @@
 -- Module: Authentication & Users
 -- *********************************************************************
 CREATE TABLE Users (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Id INT PRIMARY KEY AUTO_INCREMENT,
     UserName NVARCHAR(256) NOT NULL UNIQUE,
     Email NVARCHAR(256) NOT NULL UNIQUE,
     PasswordHash VARCHAR(MAX) NOT NULL,
     Name NVARCHAR(150),
     PhoneNumber VARCHAR(20),
-    Role VARCHAR(20) NOT NULL DEFAULT 'Customer', -- Admin, Customer
+    Role VARCHAR(20) NOT NULL DEFAULT 'Customer', -- Admin, Customer, Editor
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     UpdatedAt DATETIME2,
@@ -283,50 +283,37 @@ CREATE INDEX IX_Users_Email ON Users (Email);
 CREATE INDEX IX_Users_UserName ON Users (UserName);
 
 -- *********************************************************************
--- Module: Settings & Email
+-- Module: Settings
 -- *********************************************************************
 CREATE TABLE Settings (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    [Key] VARCHAR(100) NOT NULL UNIQUE,
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Key VARCHAR(100) NOT NULL UNIQUE,
     Value NVARCHAR(MAX) NULL,
-    [Group] VARCHAR(50) NULL, -- mail, social, system, etc.
-    SubGroup VARCHAR(50) NULL, -- subgroup of the group
-    Type VARCHAR(50) NOT NULL DEFAULT 'string', -- data type (e.g., string, int)
-    DisplayOrder INT NULL, -- display order
-    Description NVARCHAR(MAX) NULL, -- description of the setting
-    IsActive BIT NOT NULL DEFAULT 1 -- active status
-);
-
-CREATE TABLE EmailTemplates (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    Name VARCHAR(100) NOT NULL UNIQUE,
-    Subject NVARCHAR(200) NOT NULL,
-    Body NVARCHAR(MAX) NOT NULL,
-    Description NVARCHAR(500),
-    Type VARCHAR(50) NOT NULL, -- Welcome, Order, Password Reset, etc.
-    Variables NVARCHAR(MAX), -- JSON array of available template variables
-    IsActive BIT NOT NULL DEFAULT 1,
-    UpdatedAt DATETIME2
+    Group VARCHAR(50) NULL,
+    DisplayOrder INT NULL,
 );
 
 -- Settings table Indexes
-CREATE INDEX IX_Settings_Key ON Settings ([Key]);
-
--- EmailTemplates table Indexes
-CREATE INDEX IX_EmailTemplates_Name ON EmailTemplates (Name);
-CREATE INDEX IX_EmailTemplates_Type ON EmailTemplates (Type);
+CREATE INDEX IX_Settings_Key ON Settings (Key);
 
 -- *********************************************************************
 -- Module: Content Management (CMS)
 -- *********************************************************************
 CREATE TABLE Categories (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    ParentId UNIQUEIDENTIFIER,
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    ParentId INT,
     Name NVARCHAR(100) NOT NULL,
     Slug VARCHAR(500),
     MetaTitle NVARCHAR(200),
     MetaDescription NVARCHAR(500),
     MetaKeywords NVARCHAR(200),
+    TwitterTitle NVARCHAR(200),
+    TwitterDescription NVARCHAR(500),
+    TwitterImage VARCHAR(500),
+    OgTitle NVARCHAR(200),
+    OgDescription NVARCHAR(500),
+    OgImage VARCHAR(500),
+    StructuredData NVARCHAR(MAX),
     DisplayOrder INT NOT NULL DEFAULT 0,
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
@@ -336,12 +323,19 @@ CREATE TABLE Categories (
 );
 
 CREATE TABLE Tags (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Id INT PRIMARY KEY AUTO_INCREMENT,
     Name NVARCHAR(100) NOT NULL UNIQUE,
     Slug VARCHAR(100) NOT NULL UNIQUE,
     MetaTitle NVARCHAR(200),
     MetaDescription NVARCHAR(500),
     MetaKeywords NVARCHAR(200),
+    TwitterTitle NVARCHAR(200),
+    TwitterDescription NVARCHAR(500),
+    TwitterImage VARCHAR(500),
+    OgTitle NVARCHAR(200),
+    OgDescription NVARCHAR(500),
+    OgImage VARCHAR(500),
+    StructuredData NVARCHAR(MAX),
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     UpdatedAt DATETIME2,
@@ -349,15 +343,21 @@ CREATE TABLE Tags (
 );
 
 CREATE TABLE Posts (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Id INT PRIMARY KEY AUTO_INCREMENT,
     Title NVARCHAR(200) NOT NULL,
     Slug VARCHAR(200) NOT NULL UNIQUE,
     Summary NVARCHAR(500),
     Content NVARCHAR(MAX),
-    CategoryId UNIQUEIDENTIFIER NOT NULL,
     MetaTitle NVARCHAR(200),
     MetaDescription NVARCHAR(500),
     MetaKeywords NVARCHAR(200),
+    TwitterTitle NVARCHAR(200),
+    TwitterDescription NVARCHAR(500),
+    TwitterImage VARCHAR(500),
+    OgTitle NVARCHAR(200),
+    OgDescription NVARCHAR(500),
+    OgImage VARCHAR(500),
+    StructuredData NVARCHAR(MAX),
     Status TINYINT NOT NULL DEFAULT 0, -- 0: Draft, 1: Published, 2: Scheduled
     PublishedAt DATETIME2,
     IsActive BIT NOT NULL DEFAULT 1,
@@ -368,31 +368,66 @@ CREATE TABLE Posts (
 );
 
 CREATE TABLE PostTags (
-    PostId UNIQUEIDENTIFIER NOT NULL,
-    TagId UNIQUEIDENTIFIER NOT NULL,
+    PostId INT NOT NULL,
+    TagId INT NOT NULL,
     PRIMARY KEY (PostId, TagId),
     FOREIGN KEY (PostId) REFERENCES Posts(Id),
     FOREIGN KEY (TagId) REFERENCES Tags(Id)
 );
 
+CREATE TABLE PostCategories (
+    PostId INT NOT NULL,
+    CategoryId INT NOT NULL,
+    PRIMARY KEY (PostId, CategoryId),
+    FOREIGN KEY (PostId) REFERENCES Posts(Id),
+    FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
+);
+
+CREATE TABLE PostMedias (
+    PostId INT NOT NULL,
+    MediaId INT NOT NULL,
+    UsageType VARCHAR(50) NOT NULL, -- Cover/Twitter/OG/Content/Gallery
+    DisplayOrder INT DEFAULT 0,
+    PRIMARY KEY (PostId, MediaId),
+    FOREIGN KEY (PostId) REFERENCES Posts(Id),
+    FOREIGN KEY (MediaId) REFERENCES Medias(Id)
+);
+
 CREATE TABLE Pages (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Id INT PRIMARY KEY AUTO_INCREMENT,
     Title NVARCHAR(200) NOT NULL,
     Slug VARCHAR(200) NOT NULL UNIQUE,
     Content NVARCHAR(MAX),
-    Template VARCHAR(100),
     DisplayOrder INT NOT NULL DEFAULT 0,
     MetaTitle NVARCHAR(200),
     MetaDescription NVARCHAR(500),
     MetaKeywords NVARCHAR(200),
+    TwitterTitle NVARCHAR(200),
+    TwitterDescription NVARCHAR(500),
+    TwitterImage VARCHAR(500),
+    OgTitle NVARCHAR(200),
+    OgDescription NVARCHAR(500),
+    OgImage VARCHAR(500),
+    StructuredData NVARCHAR(MAX),
     IsActive BIT NOT NULL DEFAULT 1,
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     UpdatedAt DATETIME2,
     DeletedAt DATETIME2
 );
 
+CREATE TABLE PageMedias (
+    PageId INT NOT NULL,
+    MediaId INT NOT NULL,
+    UsageType VARCHAR(50) NOT NULL, -- Cover/Twitter/OG/Content/Gallery
+    DisplayOrder INT DEFAULT 0,
+    PRIMARY KEY (PageId, MediaId),
+    FOREIGN KEY (PageId) REFERENCES Pages(Id),
+    FOREIGN KEY (MediaId) REFERENCES Medias(Id)
+);
+
 -- Categories table Indexes
 CREATE INDEX IX_Categories_Name ON Categories (Name);
+CREATE INDEX IX_Categories_Slug ON Categories (Slug);
 CREATE INDEX IX_Categories_ParentId ON Categories (ParentId);
 
 -- Tags table Indexes
@@ -403,95 +438,32 @@ CREATE INDEX IX_Tags_Slug ON Tags (Slug);
 CREATE INDEX IX_Posts_Title ON Posts (Title);
 CREATE INDEX IX_Posts_CategoryId ON Posts (CategoryId);
 CREATE INDEX IX_Posts_Status ON Posts (Status);
+CREATE INDEX IX_PostMedias_UsageType ON PostMedias (UsageType);
 
 -- PostTags table Indexes
 CREATE INDEX IX_PostTags_PostId ON PostTags (PostId);
 CREATE INDEX IX_PostTags_TagId ON PostTags (TagId);
 
--- Pages table Indexes
-CREATE INDEX IX_Pages_Title ON Pages (Title);
+-- PostCategories table Indexes
+CREATE INDEX IX_PostCategories_PostId ON PostTags (PostId);
+CREATE INDEX IX_PostCategories_CategoryId ON PostTags (CategoryId);
 
 -- *********************************************************************
 -- Module: E-commerce
 -- *********************************************************************
-CREATE TABLE Manufacturers (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    Name NVARCHAR(200) NOT NULL,
-    Description NVARCHAR(500),
-    Logo VARCHAR(500),
-    MetaTitle NVARCHAR(200),
-    MetaDescription NVARCHAR(500),
-    MetaKeywords NVARCHAR(200),
-    IsActive BIT NOT NULL DEFAULT 1,
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    UpdatedAt DATETIME2,
-    DeletedAt DATETIME2
-);
-
 CREATE TABLE Products (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+    Id INT PRIMARY KEY AUTO_INCREMENT,
     Name NVARCHAR(200) NOT NULL,
     Slug VARCHAR(200) NOT NULL UNIQUE,
-    Type VARCHAR(100) NOT NULL, -- Paint, Waterproofing, Grout, Putty etc.
-    ManufacturerId UNIQUEIDENTIFIER,
-    CategoryId UNIQUEIDENTIFIER NOT NULL,
     SKU VARCHAR(100) NOT NULL UNIQUE,
     Description NVARCHAR(MAX),
     ShortDescription NVARCHAR(500),
     TechnicalSpecs NVARCHAR(MAX), -- Rich text for technical specifications
-    ApplicationGuide NVARCHAR(MAX), -- Rich text for Usage/application instructions
-    Certificates NVARCHAR(MAX), -- Rich text for certification info
     Price DECIMAL(18, 2) NOT NULL,
     Discount DECIMAL(18, 2),
     MetaTitle NVARCHAR(200),
     MetaDescription NVARCHAR(500),
     MetaKeywords NVARCHAR(200),
-    IsActive BIT NOT NULL DEFAULT 1,
-    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
-    UpdatedAt DATETIME2,
-    DeletedAt DATETIME2,
-    FOREIGN KEY (ManufacturerId) REFERENCES Manufacturers(Id),
-    FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
-);
-
-CREATE TABLE ProductMedias (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    ProductId UNIQUEIDENTIFIER NOT NULL,
-    MediaType VARCHAR(50) NOT NULL, -- Image, Video, Document
-    MediaUrl VARCHAR(500) NOT NULL,
-    DisplayOrder INT NOT NULL DEFAULT 0,
-    IsMain BIT NOT NULL DEFAULT 0,
-    FOREIGN KEY (ProductId) REFERENCES Products(Id)
-);
-
-CREATE TABLE ProductTags (
-    ProductId UNIQUEIDENTIFIER NOT NULL,
-    TagId UNIQUEIDENTIFIER NOT NULL,
-    PRIMARY KEY (ProductId, TagId),
-    FOREIGN KEY (ProductId) REFERENCES Products(Id),
-    FOREIGN KEY (TagId) REFERENCES Tags(Id)
-);
-
--- Manufacturers table Indexes
-CREATE INDEX IX_Manufacturers_Name ON Manufacturers (Name);
-
--- Products table Indexes
-CREATE INDEX IX_Products_Name ON Products (Name);
-CREATE INDEX IX_Products_Slug ON Products (Slug);
-CREATE INDEX IX_Products_CategoryId ON Products (CategoryId);
-CREATE INDEX IX_Products_ManufacturerId ON Products (ManufacturerId);
-
--- ProductTags table Indexes
-CREATE INDEX IX_ProductTags_ProductId ON ProductTags (ProductId);
-CREATE INDEX IX_ProductTags_TagId ON ProductTags (TagId);
-
--- *********************************************************************
--- Module: SEO & Marketing
--- *********************************************************************
-CREATE TABLE SeoMetadata (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
-    EntityType VARCHAR(50) NOT NULL, -- Page, Product, Category, Tag, Post
-    EntityId UNIQUEIDENTIFIER NOT NULL,
     TwitterTitle NVARCHAR(200),
     TwitterDescription NVARCHAR(500),
     TwitterImage VARCHAR(500),
@@ -499,19 +471,126 @@ CREATE TABLE SeoMetadata (
     OgDescription NVARCHAR(500),
     OgImage VARCHAR(500),
     StructuredData NVARCHAR(MAX),
-    CanonicalUrl VARCHAR(500),
-    Robots VARCHAR(50), -- index, follow or noindex, nofollow
-    Priority DECIMAL(3, 2) DEFAULT 0.5, -- sitemap.xml (0.0 -> 0.1)
+    IsActive BIT NOT NULL DEFAULT 1,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    UpdatedAt DATETIME2,
+    DeletedAt DATETIME2,
+);
+
+CREATE TABLE ProductTags (
+    ProductId INT NOT NULL,
+    TagId INT NOT NULL,
+    PRIMARY KEY (ProductId, TagId),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (TagId) REFERENCES Tags(Id)
+);
+
+CREATE TABLE ProductCategories (
+    ProductId INT NOT NULL,
+    CategoryId INT NOT NULL,
+    PRIMARY KEY (ProductId, CategoryId),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
+);
+
+CREATE TABLE ProductMedias (
+    ProductId INT NOT NULL,
+    MediaId INT NOT NULL,
+    UsageType VARCHAR(50) NOT NULL, -- Main/Thumbnail/Gallery/3DView
+    DisplayOrder INT DEFAULT 0,
+    PRIMARY KEY (ProductId, MediaId),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (MediaId) REFERENCES Medias(Id)
+);
+
+-- Products table Indexes
+CREATE INDEX IX_Products_Name ON Products (Name);
+CREATE INDEX IX_Products_Slug ON Products (Slug);
+
+-- ProductTags table Indexes
+CREATE INDEX IX_ProductTags_ProductId ON ProductTags (ProductId);
+CREATE INDEX IX_ProductTags_TagId ON ProductTags (TagId);
+
+-- ProductCategories table Indexes
+CREATE INDEX IX_ProductCategories_ProductId ON ProductTags (ProductId);
+CREATE INDEX IX_ProductCategories_CategoryId ON ProductTags (CategoryId);
+
+-- *********************************************************************
+-- Module: Shopping Cart & Wishlist
+-- *********************************************************************
+CREATE TABLE Carts (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL DEFAULT 1,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    UpdatedAt DATETIME2,
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+CREATE TABLE Wishlists (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    DeletedAt DATETIME2,
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+-- *********************************************************************
+-- Module: Orders (Bổ sung)
+-- *********************************************************************
+CREATE TABLE Orders (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    UserId INT NOT NULL,
+    OrderDate DATETIME2 NOT NULL DEFAULT GETDATE(),
+    TotalAmount DECIMAL(18, 2) NOT NULL,
+    Status VARCHAR(50) NOT NULL DEFAULT 'Pending', -- Pending, Processing, Completed, Cancelled
+    ShippingAddress NVARCHAR(MAX),
+    BillingAddress NVARCHAR(MAX),
+    PaymentMethod VARCHAR(50),
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    UpdatedAt DATETIME2,
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+CREATE TABLE OrderItems (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    OrderId INT NOT NULL,
+    ProductId INT NOT NULL,
+    Quantity INT NOT NULL,
+    Price DECIMAL(18, 2) NOT NULL,
+    Discount DECIMAL(18, 2),
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+-- *********************************************************************
+-- Module: Media Management (Áp dụng cho cả Post và Product)
+-- *********************************************************************
+CREATE TABLE Medias (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    MediaType VARCHAR(50) NOT NULL, -- Image/Video/Document
+    MediaUrl VARCHAR(500) NOT NULL, -- URL từ cloud storage
+    ThumbnailUrl VARCHAR(500), -- URL thumbnail (nếu cần)
+    AltText NVARCHAR(200), -- Mô tả ảnh cho SEO
+    FileSize INT, -- Kích thước file (KB)
+    Dimension VARCHAR(50), -- Kích thước ảnh (e.g., "1920x1080")
     CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
     UpdatedAt DATETIME2
 );
 
-CREATE TABLE ContactForms (
-    Id UNIQUEIDENTIFIER PRIMARY KEY DEFAULT NEWID(),
+-- *********************************************************************
+-- Module: Marketing
+-- *********************************************************************
+CREATE TABLE Contacts (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
     Name NVARCHAR(100) NOT NULL,
     Email VARCHAR(256),
     Phone VARCHAR(20) NOT NULL,
-    Subject NVARCHAR(200),
     Message NVARCHAR(MAX),
     Status VARCHAR(20) NOT NULL DEFAULT 'New', -- New, Read, Replied
     IPAddress VARCHAR(50),
@@ -520,14 +599,19 @@ CREATE TABLE ContactForms (
     DeletedAt DATETIME2
 );
 
--- SeoMetadata table Indexes
-CREATE INDEX IX_SeoMetadata_EntityId ON SeoMetadata (EntityId);
-CREATE INDEX IX_SeoMetadata_EntityType ON SeoMetadata (EntityType);
+CREATE TABLE Subscribers (
+    Id INT PRIMARY KEY AUTO_INCREMENT,
+    Email VARCHAR(256),
+    IPAddress VARCHAR(50),
+    CreatedAt DATETIME2 NOT NULL DEFAULT GETDATE(),
+    UpdatedAt DATETIME2,
+    DeletedAt DATETIME2
+);
 
--- ContactForms table Indexes
-CREATE INDEX IX_ContactForms_Status ON ContactForms (Status);
-CREATE INDEX IX_ContactForms_Email ON ContactForms (Email);
-CREATE INDEX IX_ContactForms_Phone ON ContactForms (Phone);
+-- Contacts table Indexes
+CREATE INDEX IX_Contacts_Status ON Contacts (Status);
+CREATE INDEX IX_Contacts_Email ON Contacts (Email);
+CREATE INDEX IX_Contacts_Phone ON Contacts (Phone);
 ```
 
 ---

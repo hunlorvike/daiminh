@@ -1,31 +1,23 @@
 @{
-    ViewBag.Title = "Đăng nhập";
+    ViewBag.Title = "Đăng nhập Admin";
     Layout = "_Layout.Blank";
 }
 
 <div class="page page-center">
     <div class="container container-tight py-4">
-        <div class="text-center mb-4">
-            <a href="/" class="navbar-brand navbar-brand-autodark">
-                <img src="/img/logo.svg" height="36" alt="">
-            </a>
-        </div>
         <div class="card card-md">
             <div class="card-body">
-                <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản của bạn</h2>
-                <form action="/login" method="post" autocomplete="off" novalidate>
+                <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản Admin</h2>
+                <form action="/admin/login" method="post" autocomplete="off" novalidate>
                     @Html.AntiForgeryToken()
                     <div class="mb-3">
                         <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" placeholder="your@email.com"
+                        <input type="email" name="email" class="form-control" placeholder="admin@example.com"
                                autocomplete="off">
                     </div>
                     <div class="mb-2">
                         <label class="form-label">
                             Mật khẩu
-                            <span class="form-label-description">
-                                <a href="/forgot-password">Quên mật khẩu?</a>
-                            </span>
                         </label>
                         <div class="input-group input-group-flat">
                             <input type="password" name="password" class="form-control" placeholder="Mật khẩu của bạn"
@@ -57,29 +49,7 @@
             </div>
         </div>
         <div class="text-center text-muted mt-3">
-            Chưa có tài khoản? <a href="/register" tabindex="-1">Đăng ký</a>
-        </div>
-
-        <div class="text-center mt-4">
-            <div class="text-muted mb-3">Hoặc đăng nhập với</div>
-            <div class="d-flex gap-2 justify-content-center">
-                <a href="#" class="btn btn-icon btn-outline-google">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-google" width="24"
-                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                         stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M17.788 5.108a9 9 0 1 0 3.212 6.892h-8"></path>
-                    </svg>
-                </a>
-                <a href="#" class="btn btn-icon btn-outline-facebook">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-facebook"
-                         width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                         stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"></path>
-                    </svg>
-                </a>
-            </div>
+            Không phải là Admin? <a href="/" tabindex="-1">Quay lại trang chủ</a>
         </div>
     </div>
 </div>
@@ -87,7 +57,6 @@
 @section FootScripts {
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            // Initialize tooltips
             const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
             tooltipTriggerList.map(function (tooltipTriggerEl) {
                 return new bootstrap.Tooltip(tooltipTriggerEl)
