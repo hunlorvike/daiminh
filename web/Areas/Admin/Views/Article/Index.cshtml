@@ -3,8 +3,9 @@
 }
 
 @section HeadScripts
+
 {
-    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.css" />
+    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.css"/>
 
 }
 
@@ -62,7 +63,7 @@
                         </tr>
                         </thead>
                         <tbody class="table-tbody">
-                        @for (int i = 0; i < 12; i++)
+                        @for (var i = 0; i < 12; i++)
                         {
                             <tr>
                                 <td class="sort-title">Tiêu đề bài viết</td>
@@ -259,18 +260,18 @@
         document.addEventListener("DOMContentLoaded", function () {
             CKEDITOR.replace('ckeditorEditor', {
                 toolbar: [
-                    { name: 'document', items: ['Source', '-', 'Save', 'Preview', 'Print'] },
-                    { name: 'clipboard', items: ['Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo'] },
-                    { name: 'editing', items: ['Find', 'Replace'] },
-                    { name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike'] },
-                    { name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent'] },
-                    { name: 'insert', items: ['Image', 'Table', 'Link', 'Unlink', 'Iframe'] },
+                    {name: 'document', items: ['Source', '-', 'Save', 'Preview', 'Print']},
+                    {name: 'clipboard', items: ['Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo']},
+                    {name: 'editing', items: ['Find', 'Replace']},
+                    {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike']},
+                    {name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent']},
+                    {name: 'insert', items: ['Image', 'Table', 'Link', 'Unlink', 'Iframe']},
                 ],
                 removeButtons: '',
                 height: 300,
                 placeholder: 'Nhập nội dung bài viết...'
             });
-            
+
             new List('table-default', {
                 sortClass: 'table-sort',
                 listClass: 'table-tbody',

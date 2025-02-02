@@ -1,195 +1,35 @@
 erDiagram
-    Users {
-        UNIQUEIDENTIFIER Id PK
-        NVARCHAR(256) UserName
-        NVARCHAR(256) Email
-        VARCHAR(MAX) PasswordHash
-        NVARCHAR(150) Name
-        VARCHAR(20) PhoneNumber
-        VARCHAR(20) Role
-        BIT IsActive
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
+    USERS ||--o{ CONTENTS : authors
+    USERS ||--o{ PRODUCT_REVIEWS : writes
+    USERS ||--o{ PRODUCT_COMMENTS : writes
+    USERS ||--o{ CONTENT_COMMENTS : writes
+    ROLES ||--o{ USERS : has
 
-    Categories {
-        UNIQUEIDENTIFIER Id PK
-        UNIQUEIDENTIFIER ParentId FK
-        NVARCHAR(100) Name
-        VARCHAR(500) Slug
-        NVARCHAR(200) MetaTitle
-        NVARCHAR(500) MetaDescription
-        NVARCHAR(200) MetaKeywords
-        INT DisplayOrder
-        BIT IsActive
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
+    CATEGORIES ||--o{ CATEGORIES : "parent of"
+    CATEGORIES ||--o{ CONTENT_CATEGORIES : has
+    CATEGORIES ||--o{ PRODUCT_CATEGORIES : has
 
-    Tags {
-        UNIQUEIDENTIFIER Id PK
-        NVARCHAR(100) Name
-        VARCHAR(100) Slug
-        NVARCHAR(200) MetaTitle
-        NVARCHAR(500) MetaDescription
-        NVARCHAR(200) MetaKeywords
-        BIT IsActive
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
+    TAGS ||--o{ CONTENT_TAGS : has
+    TAGS ||--o{ PRODUCT_TAGS : has
 
-    Posts {
-        UNIQUEIDENTIFIER Id PK
-        NVARCHAR(200) Title
-        VARCHAR(200) Slug
-        NVARCHAR(500) Summary
-        NVARCHAR(MAX) Content
-        UNIQUEIDENTIFIER CategoryId FK
-        NVARCHAR(200) MetaTitle
-        NVARCHAR(500) MetaDescription
-        NVARCHAR(200) MetaKeywords
-        TINYINT Status
-        DATETIME2 PublishedAt
-        BIT IsActive
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
+    CONTENT_TYPES ||--o{ CONTENTS : "defines"
+    CONTENT_TYPES ||--o{ CONTENT_FIELD_DEFINITIONS : "has"
 
-    PostTags {
-        UNIQUEIDENTIFIER PostId PK, FK
-        UNIQUEIDENTIFIER TagId PK, FK
-    }
+    CONTENTS ||--o{ CONTENT_FIELD_VALUES : has
+    CONTENTS ||--o{ CONTENT_CATEGORIES : "belongs to"
+    CONTENTS ||--o{ CONTENT_TAGS : "has"
+    CONTENTS ||--o{ CONTENT_COMMENTS : "has"
 
-    Pages {
-        UNIQUEIDENTIFIER Id PK
-        NVARCHAR(200) Title
-        VARCHAR(200) Slug
-        NVARCHAR(MAX) Content
-        VARCHAR(100) Template
-        INT DisplayOrder
-        NVARCHAR(200) MetaTitle
-        NVARCHAR(500) MetaDescription
-        NVARCHAR(200) MetaKeywords
-        BIT IsActive
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
+    PRODUCT_TYPES ||--o{ PRODUCT_FIELD_DEFINITIONS : "has"
+    PRODUCTS ||--o{ PRODUCT_FIELD_VALUES : has
+    PRODUCTS ||--o{ PRODUCT_CATEGORIES : "belongs to"
+    PRODUCTS ||--o{ PRODUCT_TAGS : "has"
+    PRODUCTS ||--o{ PRODUCT_COMMENTS : "has"
+    PRODUCTS ||--o{ PRODUCT_REVIEWS : "has"
+    PRODUCTS ||--o{ PRODUCT_IMAGES : "has"
 
-    Manufacturers {
-        UNIQUEIDENTIFIER Id PK
-        NVARCHAR(200) Name
-        NVARCHAR(500) Description
-        VARCHAR(500) Logo
-        NVARCHAR(200) MetaTitle
-        NVARCHAR(500) MetaDescription
-        NVARCHAR(200) MetaKeywords
-        BIT IsActive
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
+    SETTINGS 
 
-    Products {
-        UNIQUEIDENTIFIER Id PK
-        NVARCHAR(200) Name
-        VARCHAR(200) Slug
-        VARCHAR(100) Type
-        UNIQUEIDENTIFIER ManufacturerId FK
-        UNIQUEIDENTIFIER CategoryId FK
-        VARCHAR(100) SKU
-        NVARCHAR(MAX) Description
-        NVARCHAR(500) ShortDescription
-        NVARCHAR(MAX) TechnicalSpecs
-        NVARCHAR(MAX) ApplicationGuide
-        NVARCHAR(MAX) Certificates
-        DECIMAL(18) Price
-        DECIMAL(18) Discount
-        NVARCHAR(200) MetaTitle
-        NVARCHAR(500) MetaDescription
-        NVARCHAR(200) MetaKeywords
-        BIT IsActive
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
+    CONTACTS 
 
-    ProductMedias {
-        UNIQUEIDENTIFIER Id PK
-        UNIQUEIDENTIFIER ProductId FK
-        VARCHAR(50) MediaType
-        VARCHAR(500) MediaUrl
-        INT DisplayOrder
-        BIT IsMain
-    }
-
-    ProductTags {
-        UNIQUEIDENTIFIER ProductId PK, FK
-        UNIQUEIDENTIFIER TagId PK, FK
-    }
-
-    Settings {
-        UNIQUEIDENTIFIER Id PK
-        VARCHAR(100) Key
-        NVARCHAR(MAX) Value
-        VARCHAR(50) Group
-        BIT IsActive
-    }
-
-    EmailTemplates {
-        UNIQUEIDENTIFIER Id PK
-        VARCHAR(100) Name
-        NVARCHAR(200) Subject
-        NVARCHAR(MAX) Body
-        NVARCHAR(500) Description
-        VARCHAR(50) Type
-        NVARCHAR(MAX) Variables
-        BIT IsActive
-        DATETIME2 UpdatedAt
-    }
-
-    SeoMetadata {
-        UNIQUEIDENTIFIER Id PK
-        VARCHAR(50) EntityType
-        UNIQUEIDENTIFIER EntityId
-        NVARCHAR(200) TwitterTitle
-        NVARCHAR(500) TwitterDescription
-        VARCHAR(500) TwitterImage
-        NVARCHAR(200) OgTitle
-        NVARCHAR(500) OgDescription
-        VARCHAR(500) OgImage
-        NVARCHAR(MAX) StructuredData
-        VARCHAR(500) CanonicalUrl
-        VARCHAR(50) Robots
-        DECIMAL(3) Priority
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-    }
-
-    ContactForms {
-        UNIQUEIDENTIFIER Id PK
-        NVARCHAR(100) Name
-        VARCHAR(256) Email
-        VARCHAR(20) Phone
-        NVARCHAR(200) Subject
-        NVARCHAR(MAX) Message
-        VARCHAR(20) Status
-        VARCHAR(50) IPAddress
-        DATETIME2 CreatedAt
-        DATETIME2 UpdatedAt
-        DATETIME2 DeletedAt
-    }
-
-    Categories ||--o{ Posts: "One-to-Many"
-    Categories }o--o{ Categories: "Self-Referencing"
-    Posts ||--|| PostTags: "Many-to-Many"
-    Tags ||--|| PostTags: "Many-to-Many"
-    Manufacturers ||--o{ Products: "One-to-Many"
-    Products ||--|| ProductTags: "Many-to-Many"
-    Tags ||--|| ProductTags: "Many-to-Many"
-    Products ||--o{ ProductMedias: "One-to-Many"
-    Products ||--|| Categories: "Many-to-One"
+    SUBSCRIBER

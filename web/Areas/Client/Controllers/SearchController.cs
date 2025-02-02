@@ -6,5 +6,8 @@ namespace web.Areas.Client.Controllers;
 [Route("/tim-kiem")]
 public class SearchController : Controller
 {
-    public IActionResult Index() => View();
+    public IActionResult Index()
+    {
+        return View();
+    }
 }

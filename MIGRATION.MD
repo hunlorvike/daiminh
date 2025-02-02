@@ -24,18 +24,22 @@ dotnet tool install --global dotnet-ef
 2. Create a new migration:
 
 ```bash
-# Navigate to the infrastructure project directory
-cd infrastructure
-
-# Create migration
- dotnet ef migrations add [MigrationName] --startup-project ../web/web.csproj -o Data/Migrations
+# Create migration 
+dotnet ef migrations add [MigrationName] --project ./infrastructure/infrastructure.csproj --startup-project ./web/web.csproj -o Data/Migrations
 ```
 
 3. Apply migrations:
 
 ```bash
 # Apply pending migrations
-dotnet ef database update --startup-project ../web/web.csproj
+dotnet ef database update --project ./infrastructure/infrastructure.csproj --startup-project ./web/web.csproj
+```
+
+4. Remove migrations:
+
+```bash
+# Remove migrations
+dotnet ef migrations remove --project ./infrastructure/infrastructure.csproj  --startup-project ./web/web.csproj
 ```
 
 ### Option 3: Using Docker (For Development)
