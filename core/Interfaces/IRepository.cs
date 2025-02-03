@@ -20,4 +20,6 @@ public interface IRepository<TEntity, in TKey> where TEntity : BaseEntity<TKey>
 
     Task<bool> ExistsAsync(Expression<Func<TEntity, bool>> predicate);
     Task<int> CountAsync(Expression<Func<TEntity, bool>>? predicate = null);
+
+    IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate);
 }

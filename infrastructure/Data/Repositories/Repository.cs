@@ -69,4 +69,9 @@ public class Repository<TEntity, TKey>(ApplicationDbContext context) : IReposito
     {
         return predicate == null ? await _dbSet.CountAsync() : await _dbSet.CountAsync(predicate);
     }
+
+    public IQueryable<TEntity> Where(Expression<Func<TEntity, bool>> predicate)
+    {
+        return _dbSet.Where(predicate);
+    }
 }

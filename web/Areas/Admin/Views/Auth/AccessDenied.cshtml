@@ -1,0 +1,47 @@
+@{
+    ViewBag.Title = "Truy cập bị từ chối";
+    Layout = "_Layout.Blank";
+}
+
+<div class="page page-center">
+    <div class="container container-tight py-4">
+        <div class="empty">
+            <p class="empty-header">403</p>
+            <p class="empty-title">Oops... Bạn không có quyền truy cập trang này</p>
+            <p class="empty-subtitle text-muted">
+                Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là một sự nhầm lẫn
+            </p>
+            <div class="empty-action">
+                <div class="btn-list justify-content-center">
+                    <a href="javascript:history.back()" class="btn btn-primary">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/arrow-left -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M5 12l14 0"></path>
+                            <path d="M5 12l6 6"></path>
+                            <path d="M5 12l6 -6"></path>
+                        </svg>
+                        Quay lại
+                    </a>
+                    <a href="/" class="btn">
+                        <!-- Download SVG icon from http://tabler-icons.io/i/home -->
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                             stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+                            <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+                            <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
+                        </svg>
+                        Trang chủ
+                    </a>
+                </div>
+            </div>
+            <div class="text-muted mt-3">
+                Mã lỗi: <span class="text-danger">403</span>
+            </div>
+        </div>
+    </div>
+</div>

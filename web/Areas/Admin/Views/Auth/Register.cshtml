@@ -1,4 +1,4 @@
-@model web.Areas.Admin.Models.LoginViewModel
+@model web.Areas.Admin.Models.RegisterViewModel
 
 @{
     ViewBag.Title = "Đăng nhập Admin";
@@ -9,7 +9,7 @@
     <div class="container container-tight py-4">
         <div class="card card-md">
             <div class="card-body">
-                <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản Admin</h2>
+                <h2 class="h2 text-center mb-4">Đăng ký vào tài khoản Admin</h2>
 
                 <!-- Hiển thị thông báo thành công từ TempData -->
                 @if (TempData["SuccessMessage"] != null)
@@ -32,15 +32,22 @@
                     </div>
                 }
 
-                <form asp-area="Admin" asp-controller="Auth" asp-action="Login"
+                <form asp-area="Admin" asp-controller="Auth" asp-action="Register"
                       asp-route-returnUrl="@ViewData["ReturnUrl"]"
                       method="post" autocomplete="off" novalidate>
                     @Html.AntiForgeryToken()
+                    <div class="mb-2">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" class="form-control" placeholder="Email..." autocomplete="off">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+
                     <div class="mb-2">
                         <label asp-for="Username" class="form-label">Tài khoản</label>
                         <input asp-for="Username" class="form-control" placeholder="Username..." autocomplete="off">
                         <span asp-validation-for="Username" class="text-danger"></span>
                     </div>
+
                     <div class="mb-2">
                         <label asp-for="Password" class="form-label">
                             Mật khẩu
@@ -66,13 +73,7 @@
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <div class="mb-2">
-                        <label class="form-check">
-                            <input type="checkbox" class="form-check-input"/>
-                            <span class="form-check-label">Ghi nhớ đăng nhập</span>
-                        </label>
-                    </div>
-                    <div class="mb-2">
-                        <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                        <button type="submit" class="btn btn-primary w-100">Đăng ký</button>
                     </div>
                 </form>
             </div>
