@@ -1,4 +1,8 @@
+using core.Interfaces;
+using core.Services;
 using infrastructure.Data;
+using infrastructure.Data.Repositories;
+using infrastructure.Data.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +14,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")
                       ?? throw new InvalidOperationException("Connection string not found.")));
 
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // register unit of work
+
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>)); // register generic repository
+
+builder.Services.AddScoped<ContactService>();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

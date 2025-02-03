@@ -1,18 +1,18 @@
 version: '3.8'
 services:
-  web:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8080:80"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__Postgres: "Host=db;Port=5432;Database=daiminh;Username=user;Password=password"
-      Redis__Connection: "redis:6379"
-    depends_on:
-      - db
-      - redis
+#  web:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8080:80"
+#    environment:
+#      ASPNETCORE_ENVIRONMENT: Development
+#      ConnectionStrings__Postgres: "Host=db;Port=5432;Database=daiminh;Username=user;Password=password"
+#      Redis__Connection: "redis:6379"
+#    depends_on:
+#      - db
+#      - redis
 
   db:
     image: postgres:15
