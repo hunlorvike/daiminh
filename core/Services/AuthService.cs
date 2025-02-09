@@ -25,13 +25,20 @@ public class AuthService
         try
         {
             var userRepository = _unitOfWork.GetRepository<User, int>();
+            var roleRepository = _unitOfWork.GetRepository<Role, int>();
 
             var existingUsers = await userRepository.Where(u => u.Username == user.Username || u.Email == user.Email)
                 .FirstOrDefaultAsync();
 
             if (existingUsers != null) throw new Exception("Tên người dùng hoặc email đã tồn tại.");
 
+            // TODO: sửa lại thành user role
+            var defaultRole = await roleRepository.Where(r => r.Name == RoleConstants.Admin).FirstOrDefaultAsync();
+
+            if (defaultRole == null) throw new Exception("Chạy seeding cho role");
+
             user.PasswordHash = BC.HashPassword(user.PasswordHash);
+            user.RoleId = defaultRole.Id;
 
             await userRepository.AddAsync(user);
 
@@ -62,8 +69,8 @@ public class AuthService
             var claims = new List<Claim>
             {
                 new(ClaimTypes.Email, existingUsers.Email),
-                new(ClaimTypes.NameIdentifier, existingUsers.Id.ToString())
-                // new(ClaimTypes.Role, existingUsers.Role?.Name ?? string.Empty)
+                new(ClaimTypes.NameIdentifier, existingUsers.Id.ToString()),
+                new(ClaimTypes.Role, existingUsers.Role?.Name ?? string.Empty)
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, scheme);

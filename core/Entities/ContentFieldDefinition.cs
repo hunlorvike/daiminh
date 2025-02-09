@@ -10,13 +10,13 @@ public class ContentFieldDefinition : BaseEntity<int>
 {
     public int ContentTypeId { get; set; }
     public string FieldName { get; set; } = string.Empty;
-    public FieldType FieldType { get; set; }
+    public FieldType FieldType { get; set; } = FieldType.Text;
     public bool IsRequired { get; set; }
-    public JsonDocument? FieldOptions { get; set; }
+    public string? FieldOptions { get; set; }
 
     // Navigation properties
-    public ContentType ContentType { get; set; }
-    public ICollection<ContentFieldValue> FieldValues { get; set; }
+    public virtual ContentType ContentType { get; set; } = new();
+    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = new List<ContentFieldValue>();
 }
 
 public class ContentFieldDefinitionConfiguration : BaseEntityConfiguration<ContentFieldDefinition, int>
@@ -33,7 +33,7 @@ public class ContentFieldDefinitionConfiguration : BaseEntityConfiguration<Conte
             .HasConversion(v => v.ToStringValue(), v => v.ToFieldTypeEnum()).IsRequired().HasMaxLength(30)
             .HasDefaultValue(FieldType.Text);
         builder.Property(e => e.IsRequired).HasColumnName("is_required").HasDefaultValue(false);
-        builder.Property(e => e.FieldOptions).HasColumnName("field_options").HasColumnType("jsonb");
+        builder.Property(e => e.FieldOptions).HasColumnName("field_options");
 
         builder.HasIndex(x => x.ContentTypeId)
             .HasDatabaseName("idx_content_field_definitions_content_type_id");

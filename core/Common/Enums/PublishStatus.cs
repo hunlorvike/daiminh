@@ -3,9 +3,9 @@ namespace core.Common.Enums;
 // Content && Product status
 public enum PublishStatus
 {
-    Draft,
-    Published,
-    Archived,
-    Pending,
-    Private
+    Draft = 0,
+    Published = 1,
+    Archived = 2,
+    Pending = 3,
+    Private = 4
 }

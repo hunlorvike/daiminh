@@ -5,9 +5,8 @@ namespace core.Entities;
 
 public class Setting : BaseEntity<int>
 {
-    public string SettingKey { get; set; } = string.Empty;
-    public string SettingValue { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string Key { get; set; } = string.Empty;
+    public string Value { get; set; } = string.Empty;
 }
 
 public class SettingConfiguration : BaseEntityConfiguration<Setting, int>
@@ -18,12 +17,11 @@ public class SettingConfiguration : BaseEntityConfiguration<Setting, int>
 
         builder.ToTable("settings");
 
-        builder.Property(e => e.SettingKey).HasColumnName("setting_key").IsRequired().HasMaxLength(50);
-        builder.Property(e => e.SettingValue).HasColumnName("setting_value").IsRequired();
-        builder.Property(e => e.Description).HasColumnName("description");
+        builder.Property(e => e.Key).HasColumnName("key").IsRequired().HasMaxLength(50);
+        builder.Property(e => e.Value).HasColumnName("value").IsRequired();
 
-        builder.HasIndex(e => e.SettingKey)
-            .HasDatabaseName("idx_settings_setting_key")
+        builder.HasIndex(e => e.Key)
+            .HasDatabaseName("idx_settings_key")
             .IsUnique();
     }
 }

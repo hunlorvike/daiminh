@@ -2,8 +2,8 @@ namespace core.Common.Enums;
 
 public enum ReviewStatus
 {
-    Pending,
-    Approved,
-    Rejected,
-    Spam
+    Pending = 0,
+    Approved = 1,
+    Rejected = 2,
+    Spam = 3
 }

@@ -12,15 +12,15 @@ public class Content : SeoEntity<int>
     public int? AuthorId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
-    public PublishStatus Status { get; set; }
+    public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
     // Navigation properties
-    public ContentType ContentType { get; set; }
-    public User Author { get; set; }
-    public ICollection<ContentFieldValue> FieldValues { get; set; }
-    public ICollection<ContentCategory> ContentCategories { get; set; }
-    public ICollection<ContentTag> ContentTags { get; set; }
-    public ICollection<ContentComment> Comments { get; set; }
+    public virtual ContentType ContentType { get; set; } = new();
+    public virtual User Author { get; set; } = new();
+    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = new List<ContentFieldValue>();
+    public virtual ICollection<ContentCategory> ContentCategories { get; set; } = new List<ContentCategory>();
+    public virtual ICollection<ContentTag> ContentTags { get; set; } = new List<ContentTag>();
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }
 
 public class ContentConfiguration : SeoEntityConfiguration<Content, int>

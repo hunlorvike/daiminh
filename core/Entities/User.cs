@@ -11,11 +11,10 @@ public class User : BaseEntity<int>
     public int? RoleId { get; set; }
 
     // Navigation properties
-    public Role? Role { get; set; }
-    public ICollection<Content> ContentItems { get; set; }
-    public ICollection<ContentComment> ContentComments { get; set; }
-    public ICollection<ProductComment> ProductComments { get; set; }
-    public ICollection<ProductReview> ProductReviews { get; set; }
+    public virtual Role? Role { get; set; }
+    public virtual ICollection<Content> Contents { get; set; } = new List<Content>();
+    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }
 
 public class UserConfiguration : BaseEntityConfiguration<User, int>
@@ -35,7 +34,7 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
         builder.HasIndex(x => x.Email).HasDatabaseName("idx_users_email").IsUnique();
 
         builder.HasOne(x => x.Role)
-            .WithMany()
+            .WithMany(r => r.Users)
             .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.SetNull);
     }

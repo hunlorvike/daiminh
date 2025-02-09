@@ -12,7 +12,7 @@ public class ProductImage : BaseEntity<int>
     public short DisplayOrder { get; set; }
 
     // Navigation properties
-    public Product Product { get; set; }
+    public virtual Product Product { get; set; } = new();
 }
 
 public class ProductImageConfiguration : BaseEntityConfiguration<ProductImage, int>
@@ -28,12 +28,12 @@ public class ProductImageConfiguration : BaseEntityConfiguration<ProductImage, i
         builder.Property(e => e.IsPrimary).HasColumnName("is_primary").HasDefaultValue(false);
         builder.Property(e => e.DisplayOrder).HasColumnName("display_order");
 
+        builder.HasIndex(x => x.ProductId)
+            .HasDatabaseName("idx_product_images_product_id");
+
         builder.HasOne(x => x.Product)
             .WithMany(x => x.Images)
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasIndex(x => x.ProductId)
-            .HasDatabaseName("idx_product_images_product_id");
     }
 }

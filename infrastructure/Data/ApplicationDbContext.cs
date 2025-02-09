@@ -11,44 +11,43 @@ public class ApplicationDbContext : DbContext
 
     #region Identity & Authorization
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
+    public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Role> Roles { get; set; } = null!;
 
     #endregion
 
     #region Common
 
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<Tag> Tags { get; set; }
-    public DbSet<Setting> Settings { get; set; }
-    public DbSet<Contact> Contacts { get; set; }
-    public DbSet<Subscriber> Subscribers { get; set; }
+    public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Tag> Tags { get; set; } = null!;
+    public DbSet<Setting> Settings { get; set; } = null!;
+    public DbSet<Contact> Contacts { get; set; } = null!;
+    public DbSet<Subscriber> Subscribers { get; set; } = null!;
 
     #endregion
 
     #region Content Management
 
-    public DbSet<ContentType> ContentTypes { get; set; }
-    public DbSet<ContentFieldDefinition> ContentFieldDefinitions { get; set; }
-    public DbSet<Content> Contents { get; set; }
-    public DbSet<ContentFieldValue> ContentFieldValues { get; set; }
-    public DbSet<ContentCategory> ContentCategories { get; set; }
-    public DbSet<ContentTag> ContentTags { get; set; }
-    public DbSet<ContentComment> ContentComments { get; set; }
+    public DbSet<ContentType> ContentTypes { get; set; } = null!;
+    public DbSet<ContentFieldDefinition> ContentFieldDefinitions { get; set; } = null!;
+    public DbSet<Content> Contents { get; set; } = null!;
+    public DbSet<ContentFieldValue> ContentFieldValues { get; set; } = null!;
+    public DbSet<ContentCategory> ContentCategories { get; set; } = null!;
+    public DbSet<ContentTag> ContentTags { get; set; } = null!;
+    public DbSet<Comment> Comments { get; set; } = null!;
 
     #endregion
 
     #region Product Management
 
-    public DbSet<ProductType> ProductTypes { get; set; }
-    public DbSet<ProductFieldDefinition> ProductFieldDefinitions { get; set; }
-    public DbSet<Product> Products { get; set; }
-    public DbSet<ProductFieldValue> ProductFieldValues { get; set; }
-    public DbSet<ProductImage> ProductImages { get; set; }
-    public DbSet<ProductCategory> ProductCategories { get; set; }
-    public DbSet<ProductTag> ProductTags { get; set; }
-    public DbSet<ProductComment> ProductComments { get; set; }
-    public DbSet<ProductReview> ProductReviews { get; set; }
+    public DbSet<ProductType> ProductTypes { get; set; } = null!;
+    public DbSet<ProductFieldDefinition> ProductFieldDefinitions { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<ProductFieldValue> ProductFieldValues { get; set; } = null!;
+    public DbSet<ProductImage> ProductImages { get; set; } = null!;
+    public DbSet<ProductCategory> ProductCategories { get; set; } = null!;
+    public DbSet<ProductTag> ProductTags { get; set; } = null!;
+    public DbSet<Review> Reviews { get; set; } = null!;
 
     #endregion
 
@@ -81,7 +80,7 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ContentFieldValueConfiguration());
         modelBuilder.ApplyConfiguration(new ContentCategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ContentTagConfiguration());
-        modelBuilder.ApplyConfiguration(new ContentCommentConfiguration());
+        modelBuilder.ApplyConfiguration(new CommentConfiguration());
 
         #endregion
 
@@ -94,44 +93,8 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
         modelBuilder.ApplyConfiguration(new ProductCategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ProductTagConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductCommentConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductReviewConfiguration());
+        modelBuilder.ApplyConfiguration(new ReviewConfiguration());
 
         #endregion
-    }
-
-    public override int SaveChanges()
-    {
-        UpdateAuditFields();
-        return base.SaveChanges();
-    }
-
-    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-    {
-        UpdateAuditFields();
-        return base.SaveChangesAsync(cancellationToken);
-    }
-
-    private void UpdateAuditFields()
-    {
-        var entries = ChangeTracker.Entries<BaseEntity>();
-
-        foreach (var entry in entries)
-            switch (entry.State)
-            {
-                case EntityState.Added:
-                    entry.Entity.CreatedAt = DateTime.UtcNow;
-                    entry.Entity.UpdatedAt = DateTime.UtcNow;
-                    break;
-
-                case EntityState.Modified:
-                    entry.Entity.UpdatedAt = DateTime.UtcNow;
-                    break;
-
-                case EntityState.Deleted:
-                    entry.State = EntityState.Modified;
-                    entry.Entity.DeletedAt = DateTime.UtcNow;
-                    break;
-            }
     }
 }

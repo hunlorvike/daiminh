@@ -10,8 +10,8 @@ public class ProductFieldValue : BaseEntity<int>
     public string Value { get; set; }
 
     // Navigation properties
-    public Product Product { get; set; }
-    public ProductFieldDefinition Field { get; set; }
+    public virtual Product Product { get; set; } = new();
+    public virtual ProductFieldDefinition Field { get; set; } = new();
 }
 
 public class ProductFieldValueConfiguration : BaseEntityConfiguration<ProductFieldValue, int>
@@ -26,19 +26,19 @@ public class ProductFieldValueConfiguration : BaseEntityConfiguration<ProductFie
         builder.Property(e => e.FieldId).HasColumnName("field_id");
         builder.Property(e => e.Value).HasColumnName("value");
 
-        builder.HasOne(x => x.Product)
-            .WithMany()
-            .HasForeignKey(x => x.ProductId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasOne(x => x.Field)
-            .WithMany()
-            .HasForeignKey(x => x.FieldId)
-            .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasIndex(x => x.ProductId)
             .HasDatabaseName("idx_product_field_values_product_id");
         builder.HasIndex(x => x.FieldId)
             .HasDatabaseName("idx_product_field_values_field_id");
+
+        builder.HasOne(x => x.Product)
+            .WithMany(x => x.FieldValues)
+            .HasForeignKey(x => x.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(x => x.Field)
+            .WithMany(x => x.FieldValues)
+            .HasForeignKey(x => x.FieldId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

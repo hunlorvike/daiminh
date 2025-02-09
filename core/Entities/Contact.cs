@@ -11,7 +11,7 @@ public class Contact : BaseEntity<int>
     public string Email { get; set; } = string.Empty;
     public string Phone { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
-    public ContactStatus Status { get; set; }
+    public ContactStatus Status { get; set; } = ContactStatus.Pending;
 }
 
 public class ContactConfiguration : BaseEntityConfiguration<Contact, int>

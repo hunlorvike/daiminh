@@ -12,16 +12,16 @@ public class Product : SeoEntity<int>
     public string Description { get; set; } = string.Empty;
     public decimal BasePrice { get; set; }
     public string Sku { get; set; } = string.Empty;
-    public PublishStatus Status { get; set; }
+    public PublishStatus Status { get; set; } = PublishStatus.Draft;
+    public int ProductTypeId { get; set; }
 
     // Navigation properties
-    public ProductType ProductType { get; set; }
-    public ICollection<ProductFieldValue> FieldValues { get; set; }
-    public ICollection<ProductImage> Images { get; set; }
-    public ICollection<ProductCategory> ProductCategories { get; set; }
-    public ICollection<ProductTag> ProductTags { get; set; }
-    public ICollection<ProductComment> Comments { get; set; }
-    public ICollection<ProductReview> Reviews { get; set; }
+    public virtual ProductType ProductType { get; set; } = new();
+    public virtual ICollection<ProductFieldValue> FieldValues { get; set; } = new List<ProductFieldValue>();
+    public virtual ICollection<ProductImage> Images { get; set; } = new List<ProductImage>();
+    public virtual ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
+    public virtual ICollection<ProductTag> ProductTags { get; set; } = new List<ProductTag>();
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }
 
 public class ProductConfiguration : SeoEntityConfiguration<Product, int>
@@ -32,6 +32,7 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
 
         builder.ToTable("products");
 
+        builder.Property(e => e.ProductTypeId).HasColumnName("product_type_id");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Description).HasColumnName("description");
@@ -43,5 +44,13 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
 
         builder.HasIndex(e => e.Slug).HasDatabaseName("idx_products_slug").IsUnique();
         builder.HasIndex(e => e.Sku).IsUnique();
+
+        builder.HasIndex(p => p.ProductTypeId)
+            .HasDatabaseName("idx_products_product_type_id");
+
+        builder.HasOne(p => p.ProductType)
+            .WithMany(pt => pt.Products)
+            .HasForeignKey(p => p.ProductTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

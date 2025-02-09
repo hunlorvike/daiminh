@@ -24,7 +24,7 @@ public abstract class SeoEntity<TKey> : BaseEntity<TKey>
     public string OgTitle { get; set; } = string.Empty;
     public string OgDescription { get; set; } = string.Empty;
     public string OgImage { get; set; } = string.Empty;
-    public JsonDocument? StructuredData { get; set; }
+    public string? StructuredData { get; set; }
 }
 
 public abstract class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> where T : BaseEntity
@@ -91,11 +91,6 @@ public abstract class SeoEntityConfiguration<TEntity, TKey> : BaseEntityConfigur
 
         builder.Property(e => e.StructuredData)
             .HasColumnName("structured_data")
-            .HasColumnType("jsonb")
-            .IsRequired(false)
-            .HasConversion(
-                v => v == null ? null : JsonSerializer.Serialize(v, (JsonSerializerOptions)null!),
-                v => v == null ? null : JsonSerializer.Deserialize<JsonDocument>(v, (JsonSerializerOptions)null!)
-            );
+            .IsRequired(false);
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System;
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
+
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
 namespace infrastructure.Data.Migrations
 {
@@ -65,7 +66,6 @@ namespace infrastructure.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     slug = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -83,7 +83,6 @@ namespace infrastructure.Data.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     slug = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -100,8 +99,7 @@ namespace infrastructure.Data.Migrations
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    permissions = table.Column<JsonDocument>(type: "jsonb", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
+                    permissions = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -117,9 +115,8 @@ namespace infrastructure.Data.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    setting_key = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    setting_value = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
+                    key = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    value = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -173,7 +170,7 @@ namespace infrastructure.Data.Migrations
                     field_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     field_type = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false, defaultValue: "text"),
                     is_required = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    field_options = table.Column<JsonDocument>(type: "jsonb", nullable: true),
+                    field_options = table.Column<string>(type: "text", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -199,7 +196,7 @@ namespace infrastructure.Data.Migrations
                     field_name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     field_type = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false, defaultValue: "text"),
                     is_required = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
-                    field_options = table.Column<JsonDocument>(type: "jsonb", nullable: false),
+                    field_options = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -216,37 +213,6 @@ namespace infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "users",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    password_hash = table.Column<string>(type: "text", nullable: false),
-                    role_id = table.Column<int>(type: "integer", nullable: true),
-                    RoleId1 = table.Column<int>(type: "integer", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_users", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_users_roles_RoleId1",
-                        column: x => x.RoleId1,
-                        principalTable: "roles",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_users_roles_role_id",
-                        column: x => x.role_id,
-                        principalTable: "roles",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "products",
                 columns: table => new
                 {
@@ -258,9 +224,7 @@ namespace infrastructure.Data.Migrations
                     base_price = table.Column<decimal>(type: "numeric(10,2)", precision: 10, scale: 2, nullable: false),
                     sku = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "draft"),
-                    ProductTypeId = table.Column<int>(type: "integer", nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: true),
-                    TagId = table.Column<int>(type: "integer", nullable: true),
+                    product_type_id = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -270,82 +234,40 @@ namespace infrastructure.Data.Migrations
                     og_title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
                     og_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     og_image = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    structured_data = table.Column<string>(type: "jsonb", nullable: true)
+                    structured_data = table.Column<string>(type: "text", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_products", x => x.id);
                     table.ForeignKey(
-                        name: "FK_products_categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "categories",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_products_product_types_ProductTypeId",
-                        column: x => x.ProductTypeId,
+                        name: "FK_products_product_types_product_type_id",
+                        column: x => x.product_type_id,
                         principalTable: "product_types",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_products_tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "tags",
-                        principalColumn: "id");
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
-                name: "contents",
+                name: "users",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    content_type_id = table.Column<int>(type: "integer", nullable: false),
-                    author_id = table.Column<int>(type: "integer", nullable: true),
-                    title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    slug = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "draft"),
-                    CategoryId = table.Column<int>(type: "integer", nullable: true),
-                    TagId = table.Column<int>(type: "integer", nullable: true),
-                    UserId = table.Column<int>(type: "integer", nullable: true),
+                    username = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    email = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    password_hash = table.Column<string>(type: "text", nullable: false),
+                    role_id = table.Column<int>(type: "integer", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    meta_title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    meta_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    canonical_url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    og_title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    og_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    og_image = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    structured_data = table.Column<string>(type: "jsonb", nullable: true)
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_contents", x => x.id);
+                    table.PrimaryKey("PK_users", x => x.id);
                     table.ForeignKey(
-                        name: "FK_contents_categories_CategoryId",
-                        column: x => x.CategoryId,
-                        principalTable: "categories",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_contents_content_types_content_type_id",
-                        column: x => x.content_type_id,
-                        principalTable: "content_types",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_contents_tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "tags",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_contents_users_UserId",
-                        column: x => x.UserId,
-                        principalTable: "users",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_contents_users_author_id",
-                        column: x => x.author_id,
-                        principalTable: "users",
+                        name: "FK_users_roles_role_id",
+                        column: x => x.role_id,
+                        principalTable: "roles",
                         principalColumn: "id",
                         onDelete: ReferentialAction.SetNull);
                 });
@@ -354,71 +276,27 @@ namespace infrastructure.Data.Migrations
                 name: "product_categories",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "integer", nullable: false),
-                    CategoryId = table.Column<int>(type: "integer", nullable: false),
+                    product_id = table.Column<int>(type: "integer", nullable: false),
+                    category_id = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_product_categories", x => new { x.ProductId, x.CategoryId });
+                    table.PrimaryKey("PK_product_categories", x => new { x.product_id, x.category_id });
                     table.ForeignKey(
-                        name: "FK_product_categories_categories_CategoryId",
-                        column: x => x.CategoryId,
+                        name: "FK_product_categories_categories_category_id",
+                        column: x => x.category_id,
                         principalTable: "categories",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_product_categories_products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "products",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "product_comments",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    product_id = table.Column<int>(type: "integer", nullable: false),
-                    user_id = table.Column<int>(type: "integer", nullable: true),
-                    parent_comment_id = table.Column<int>(type: "integer", nullable: true),
-                    content = table.Column<string>(type: "text", nullable: false),
-                    status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "approved"),
-                    UserId1 = table.Column<int>(type: "integer", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_product_comments", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_product_comments_product_comments_parent_comment_id",
-                        column: x => x.parent_comment_id,
-                        principalTable: "product_comments",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_product_comments_products_product_id",
+                        name: "FK_product_categories_products_product_id",
                         column: x => x.product_id,
                         principalTable: "products",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_product_comments_users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "users",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_product_comments_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -430,8 +308,6 @@ namespace infrastructure.Data.Migrations
                     product_id = table.Column<int>(type: "integer", nullable: false),
                     field_id = table.Column<int>(type: "integer", nullable: false),
                     value = table.Column<string>(type: "text", nullable: false),
-                    ProductFieldDefinitionId = table.Column<int>(type: "integer", nullable: true),
-                    ProductId1 = table.Column<int>(type: "integer", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
@@ -440,21 +316,11 @@ namespace infrastructure.Data.Migrations
                 {
                     table.PrimaryKey("PK_product_field_values", x => x.id);
                     table.ForeignKey(
-                        name: "FK_product_field_values_product_field_definitions_ProductField~",
-                        column: x => x.ProductFieldDefinitionId,
-                        principalTable: "product_field_definitions",
-                        principalColumn: "id");
-                    table.ForeignKey(
                         name: "FK_product_field_values_product_field_definitions_field_id",
                         column: x => x.field_id,
                         principalTable: "product_field_definitions",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_product_field_values_products_ProductId1",
-                        column: x => x.ProductId1,
-                        principalTable: "products",
-                        principalColumn: "id");
                     table.ForeignKey(
                         name: "FK_product_field_values_products_product_id",
                         column: x => x.product_id,
@@ -490,7 +356,79 @@ namespace infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "product_reviews",
+                name: "product_tags",
+                columns: table => new
+                {
+                    product_id = table.Column<int>(type: "integer", nullable: false),
+                    tag_id = table.Column<int>(type: "integer", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_product_tags", x => new { x.product_id, x.tag_id });
+                    table.ForeignKey(
+                        name: "FK_product_tags_products_product_id",
+                        column: x => x.product_id,
+                        principalTable: "products",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_product_tags_tags_tag_id",
+                        column: x => x.tag_id,
+                        principalTable: "tags",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "contents",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
+                    content_type_id = table.Column<int>(type: "integer", nullable: false),
+                    author_id = table.Column<int>(type: "integer", nullable: true),
+                    title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    slug = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "draft"),
+                    UserId = table.Column<int>(type: "integer", nullable: true),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    meta_title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    meta_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    canonical_url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    og_title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
+                    og_description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    og_image = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    structured_data = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_contents", x => x.id);
+                    table.ForeignKey(
+                        name: "FK_contents_content_types_content_type_id",
+                        column: x => x.content_type_id,
+                        principalTable: "content_types",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_contents_users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "users",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "FK_contents_users_author_id",
+                        column: x => x.author_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "reviews",
                 columns: table => new
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
@@ -500,28 +438,22 @@ namespace infrastructure.Data.Migrations
                     rating = table.Column<short>(type: "smallint", nullable: false),
                     comment = table.Column<string>(type: "text", nullable: false),
                     status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "pending"),
-                    UserId1 = table.Column<int>(type: "integer", nullable: true),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_product_reviews", x => x.id);
-                    table.CheckConstraint("CK_ProductReview_Rating", "rating BETWEEN 1 AND 5");
+                    table.PrimaryKey("PK_reviews", x => x.id);
+                    table.CheckConstraint("CK_Review_Rating", "rating BETWEEN 1 AND 5");
                     table.ForeignKey(
-                        name: "FK_product_reviews_products_product_id",
+                        name: "FK_reviews_products_product_id",
                         column: x => x.product_id,
                         principalTable: "products",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_product_reviews_users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "users",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_product_reviews_users_user_id",
+                        name: "FK_reviews_users_user_id",
                         column: x => x.user_id,
                         principalTable: "users",
                         principalColumn: "id",
@@ -529,37 +461,48 @@ namespace infrastructure.Data.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "product_tags",
+                name: "comments",
                 columns: table => new
                 {
-                    ProductId = table.Column<int>(type: "integer", nullable: false),
-                    TagId = table.Column<int>(type: "integer", nullable: false),
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
+                    content_id = table.Column<int>(type: "integer", nullable: false),
+                    user_id = table.Column<int>(type: "integer", nullable: true),
+                    parent_comment_id = table.Column<int>(type: "integer", nullable: true),
+                    subject = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "approved"),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_product_tags", x => new { x.ProductId, x.TagId });
+                    table.PrimaryKey("PK_comments", x => x.id);
                     table.ForeignKey(
-                        name: "FK_product_tags_products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "products",
+                        name: "FK_comments_comments_parent_comment_id",
+                        column: x => x.parent_comment_id,
+                        principalTable: "comments",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_product_tags_tags_TagId",
-                        column: x => x.TagId,
-                        principalTable: "tags",
+                        name: "FK_comments_contents_content_id",
+                        column: x => x.content_id,
+                        principalTable: "contents",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_comments_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "users",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
                 name: "content_categories",
                 columns: table => new
                 {
-                    content_item_id = table.Column<int>(type: "integer", nullable: false),
+                    content_id = table.Column<int>(type: "integer", nullable: false),
                     category_id = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -567,7 +510,7 @@ namespace infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_content_categories", x => new { x.content_item_id, x.category_id });
+                    table.PrimaryKey("PK_content_categories", x => new { x.content_id, x.category_id });
                     table.ForeignKey(
                         name: "FK_content_categories_categories_category_id",
                         column: x => x.category_id,
@@ -575,55 +518,11 @@ namespace infrastructure.Data.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_content_categories_contents_content_item_id",
-                        column: x => x.content_item_id,
+                        name: "FK_content_categories_contents_content_id",
+                        column: x => x.content_id,
                         principalTable: "contents",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "content_comments",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    content_item_id = table.Column<int>(type: "integer", nullable: false),
-                    user_id = table.Column<int>(type: "integer", nullable: true),
-                    parent_comment_id = table.Column<int>(type: "integer", nullable: true),
-                    subject = table.Column<string>(type: "text", nullable: false),
-                    status = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false, defaultValue: "approved"),
-                    UserId1 = table.Column<int>(type: "integer", nullable: true),
-                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    deleted_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_content_comments", x => x.id);
-                    table.ForeignKey(
-                        name: "FK_content_comments_content_comments_parent_comment_id",
-                        column: x => x.parent_comment_id,
-                        principalTable: "content_comments",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_content_comments_contents_content_item_id",
-                        column: x => x.content_item_id,
-                        principalTable: "contents",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_content_comments_users_UserId1",
-                        column: x => x.UserId1,
-                        principalTable: "users",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "FK_content_comments_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "users",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
                 });
 
             migrationBuilder.CreateTable(
@@ -632,7 +531,7 @@ namespace infrastructure.Data.Migrations
                 {
                     id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
-                    content_item_id = table.Column<int>(type: "integer", nullable: false),
+                    content_id = table.Column<int>(type: "integer", nullable: false),
                     field_id = table.Column<int>(type: "integer", nullable: false),
                     value = table.Column<string>(type: "text", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -649,8 +548,8 @@ namespace infrastructure.Data.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_content_field_values_contents_content_item_id",
-                        column: x => x.content_item_id,
+                        name: "FK_content_field_values_contents_content_id",
+                        column: x => x.content_id,
                         principalTable: "contents",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -660,7 +559,7 @@ namespace infrastructure.Data.Migrations
                 name: "content_tags",
                 columns: table => new
                 {
-                    content_item_id = table.Column<int>(type: "integer", nullable: false),
+                    content_id = table.Column<int>(type: "integer", nullable: false),
                     tag_id = table.Column<int>(type: "integer", nullable: false),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
@@ -668,10 +567,10 @@ namespace infrastructure.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_content_tags", x => new { x.content_item_id, x.tag_id });
+                    table.PrimaryKey("PK_content_tags", x => new { x.content_id, x.tag_id });
                     table.ForeignKey(
-                        name: "FK_content_tags_contents_content_item_id",
-                        column: x => x.content_item_id,
+                        name: "FK_content_tags_contents_content_id",
+                        column: x => x.content_id,
                         principalTable: "contents",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
@@ -681,6 +580,16 @@ namespace infrastructure.Data.Migrations
                         principalTable: "tags",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "roles",
+                columns: new[] { "id", "created_at", "deleted_at", "name", "permissions", "updated_at" },
+                values: new object[,]
+                {
+                    { 1, new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5634), null, "Admin", "", new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5637) },
+                    { 2, new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5641), null, "User", "", new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5641) },
+                    { 3, new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5643), null, "Manager", "", new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5643) }
                 });
 
             migrationBuilder.CreateIndex(
@@ -695,6 +604,21 @@ namespace infrastructure.Data.Migrations
                 column: "parent_category_id");
 
             migrationBuilder.CreateIndex(
+                name: "idx_comments_content_id",
+                table: "comments",
+                column: "content_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_comments_parent_comment_id",
+                table: "comments",
+                column: "parent_comment_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_comments_user_id",
+                table: "comments",
+                column: "user_id");
+
+            migrationBuilder.CreateIndex(
                 name: "idx_contacts_email",
                 table: "contacts",
                 column: "email");
@@ -705,29 +629,9 @@ namespace infrastructure.Data.Migrations
                 column: "category_id");
 
             migrationBuilder.CreateIndex(
-                name: "idx_content_categories_content_item_id",
+                name: "idx_content_categories_content_id",
                 table: "content_categories",
-                column: "content_item_id");
-
-            migrationBuilder.CreateIndex(
-                name: "idx_content_comments_content_item_id",
-                table: "content_comments",
-                column: "content_item_id");
-
-            migrationBuilder.CreateIndex(
-                name: "idx_content_comments_parent_comment_id",
-                table: "content_comments",
-                column: "parent_comment_id");
-
-            migrationBuilder.CreateIndex(
-                name: "idx_content_comments_user_id",
-                table: "content_comments",
-                column: "user_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_content_comments_UserId1",
-                table: "content_comments",
-                column: "UserId1");
+                column: "content_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_content_field_definitions_content_type_id",
@@ -735,9 +639,9 @@ namespace infrastructure.Data.Migrations
                 column: "content_type_id");
 
             migrationBuilder.CreateIndex(
-                name: "idx_content_field_values_content_item_id",
+                name: "idx_content_field_values_content_id",
                 table: "content_field_values",
-                column: "content_item_id");
+                column: "content_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_content_field_values_field_id",
@@ -745,9 +649,9 @@ namespace infrastructure.Data.Migrations
                 column: "field_id");
 
             migrationBuilder.CreateIndex(
-                name: "idx_content_tags_content_item_id",
+                name: "idx_content_tags_content_id",
                 table: "content_tags",
-                column: "content_item_id");
+                column: "content_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_content_tags_tag_id",
@@ -775,16 +679,6 @@ namespace infrastructure.Data.Migrations
                 column: "slug");
 
             migrationBuilder.CreateIndex(
-                name: "IX_contents_CategoryId",
-                table: "contents",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_contents_TagId",
-                table: "contents",
-                column: "TagId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_contents_UserId",
                 table: "contents",
                 column: "UserId");
@@ -792,32 +686,12 @@ namespace infrastructure.Data.Migrations
             migrationBuilder.CreateIndex(
                 name: "idx_product_categories_category_id",
                 table: "product_categories",
-                column: "CategoryId");
+                column: "category_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_product_categories_product_id",
                 table: "product_categories",
-                column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "idx_product_comments_parent_comment_id",
-                table: "product_comments",
-                column: "parent_comment_id");
-
-            migrationBuilder.CreateIndex(
-                name: "idx_product_comments_product_id",
-                table: "product_comments",
                 column: "product_id");
-
-            migrationBuilder.CreateIndex(
-                name: "idx_product_comments_user_id",
-                table: "product_comments",
-                column: "user_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_comments_UserId1",
-                table: "product_comments",
-                column: "UserId1");
 
             migrationBuilder.CreateIndex(
                 name: "idx_product_field_definitions_product_type_id",
@@ -835,44 +709,19 @@ namespace infrastructure.Data.Migrations
                 column: "product_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_product_field_values_ProductFieldDefinitionId",
-                table: "product_field_values",
-                column: "ProductFieldDefinitionId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_field_values_ProductId1",
-                table: "product_field_values",
-                column: "ProductId1");
-
-            migrationBuilder.CreateIndex(
                 name: "idx_product_images_product_id",
                 table: "product_image",
                 column: "product_id");
 
             migrationBuilder.CreateIndex(
-                name: "idx_product_reviews_product_id",
-                table: "product_reviews",
-                column: "product_id");
-
-            migrationBuilder.CreateIndex(
-                name: "idx_product_reviews_user_id",
-                table: "product_reviews",
-                column: "user_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_product_reviews_UserId1",
-                table: "product_reviews",
-                column: "UserId1");
-
-            migrationBuilder.CreateIndex(
                 name: "idx_product_tags_product_id",
                 table: "product_tags",
-                column: "ProductId");
+                column: "product_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_product_tags_tag_id",
                 table: "product_tags",
-                column: "TagId");
+                column: "tag_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_product_types_name",
@@ -887,20 +736,15 @@ namespace infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "idx_products_product_type_id",
+                table: "products",
+                column: "product_type_id");
+
+            migrationBuilder.CreateIndex(
                 name: "idx_products_slug",
                 table: "products",
                 column: "slug",
                 unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_products_CategoryId",
-                table: "products",
-                column: "CategoryId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_products_ProductTypeId",
-                table: "products",
-                column: "ProductTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_products_sku",
@@ -909,9 +753,14 @@ namespace infrastructure.Data.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_products_TagId",
-                table: "products",
-                column: "TagId");
+                name: "idx_reviews_product_id",
+                table: "reviews",
+                column: "product_id");
+
+            migrationBuilder.CreateIndex(
+                name: "idx_reviews_user_id",
+                table: "reviews",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "idx_roles_name",
@@ -919,9 +768,9 @@ namespace infrastructure.Data.Migrations
                 column: "name");
 
             migrationBuilder.CreateIndex(
-                name: "idx_settings_setting_key",
+                name: "idx_settings_key",
                 table: "settings",
-                column: "setting_key",
+                column: "key",
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -950,24 +799,19 @@ namespace infrastructure.Data.Migrations
                 name: "IX_users_role_id",
                 table: "users",
                 column: "role_id");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_users_RoleId1",
-                table: "users",
-                column: "RoleId1");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "comments");
+
+            migrationBuilder.DropTable(
                 name: "contacts");
 
             migrationBuilder.DropTable(
                 name: "content_categories");
-
-            migrationBuilder.DropTable(
-                name: "content_comments");
 
             migrationBuilder.DropTable(
                 name: "content_field_values");
@@ -979,19 +823,16 @@ namespace infrastructure.Data.Migrations
                 name: "product_categories");
 
             migrationBuilder.DropTable(
-                name: "product_comments");
-
-            migrationBuilder.DropTable(
                 name: "product_field_values");
 
             migrationBuilder.DropTable(
                 name: "product_image");
 
             migrationBuilder.DropTable(
-                name: "product_reviews");
+                name: "product_tags");
 
             migrationBuilder.DropTable(
-                name: "product_tags");
+                name: "reviews");
 
             migrationBuilder.DropTable(
                 name: "settings");
@@ -1006,7 +847,13 @@ namespace infrastructure.Data.Migrations
                 name: "contents");
 
             migrationBuilder.DropTable(
+                name: "categories");
+
+            migrationBuilder.DropTable(
                 name: "product_field_definitions");
+
+            migrationBuilder.DropTable(
+                name: "tags");
 
             migrationBuilder.DropTable(
                 name: "products");
@@ -1018,13 +865,7 @@ namespace infrastructure.Data.Migrations
                 name: "users");
 
             migrationBuilder.DropTable(
-                name: "categories");
-
-            migrationBuilder.DropTable(
                 name: "product_types");
-
-            migrationBuilder.DropTable(
-                name: "tags");
 
             migrationBuilder.DropTable(
                 name: "roles");

@@ -1,3 +1,4 @@
+using core.Interceptors;
 using core.Interfaces;
 using core.Services;
 using infrastructure.Data;
@@ -48,9 +49,15 @@ builder.Services.AddAuthorization(options =>
             .AddAuthenticationSchemes("AdminAuth"));
 });
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")
-                      ?? throw new InvalidOperationException("Connection string not found.")));
+builder.Services.AddSingleton<AuditSaveChangesInterceptor>();
+
+builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+{
+    options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string not found."))
+        .AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+});
 
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // register unit of work
 

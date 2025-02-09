@@ -8,7 +8,7 @@ namespace core.Entities;
 public class Subscriber : BaseEntity<int>
 {
     public string Email { get; set; } = string.Empty;
-    public SubscriberStatus Status { get; set; }
+    public SubscriberStatus Status { get; set; } = SubscriberStatus.Pending;
 }
 
 public class SubscriberConfiguration : BaseEntityConfiguration<Subscriber, int>

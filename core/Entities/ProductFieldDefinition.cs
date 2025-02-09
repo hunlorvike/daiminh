@@ -10,13 +10,13 @@ public class ProductFieldDefinition : BaseEntity<int>
 {
     public int ProductTypeId { get; set; }
     public string FieldName { get; set; } = string.Empty;
-    public FieldType FieldType { get; set; }
+    public FieldType FieldType { get; set; } = FieldType.Text;
     public bool IsRequired { get; set; }
-    public JsonDocument FieldOptions { get; set; }
+    public string FieldOptions { get; set; }
 
     // Navigation properties
-    public ProductType ProductType { get; set; }
-    public ICollection<ProductFieldValue> FieldValues { get; set; }
+    public virtual ProductType ProductType { get; set; } = new();
+    public virtual ICollection<ProductFieldValue> FieldValues { get; set; } = new List<ProductFieldValue>();
 }
 
 public class ProductFieldDefinitionConfiguration : BaseEntityConfiguration<ProductFieldDefinition, int>
@@ -33,14 +33,14 @@ public class ProductFieldDefinitionConfiguration : BaseEntityConfiguration<Produ
             .HasConversion(v => v.ToStringValue(), v => v.ToFieldTypeEnum()).IsRequired().HasMaxLength(30)
             .HasDefaultValue(FieldType.Text);
         builder.Property(e => e.IsRequired).HasColumnName("is_required").HasDefaultValue(false);
-        builder.Property(e => e.FieldOptions).HasColumnName("field_options").HasColumnType("jsonb");
+        builder.Property(e => e.FieldOptions).HasColumnName("field_options");
+
+        builder.HasIndex(x => x.ProductTypeId)
+            .HasDatabaseName("idx_product_field_definitions_product_type_id");
 
         builder.HasOne(x => x.ProductType)
             .WithMany(x => x.FieldDefinitions)
             .HasForeignKey(x => x.ProductTypeId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasIndex(x => x.ProductTypeId)
-            .HasDatabaseName("idx_product_field_definitions_product_type_id");
     }
 }

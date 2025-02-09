@@ -9,8 +9,8 @@ public class ProductCategory : BaseEntity
     public int CategoryId { get; set; }
 
     // Navigation properties
-    public Product Product { get; set; }
-    public Category Category { get; set; }
+    public virtual Product Product { get; set; } = new();
+    public virtual Category Category { get; set; } = new();
 }
 
 public class ProductCategoryConfiguration : BaseEntityConfiguration<ProductCategory>
@@ -23,19 +23,22 @@ public class ProductCategoryConfiguration : BaseEntityConfiguration<ProductCateg
 
         builder.HasKey(x => new { x.ProductId, x.CategoryId });
 
+        builder.Property(e => e.ProductId).HasColumnName("product_id");
+        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+
+        builder.HasIndex(x => x.ProductId)
+            .HasDatabaseName("idx_product_categories_product_id");
+        builder.HasIndex(x => x.CategoryId)
+            .HasDatabaseName("idx_product_categories_category_id");
+
         builder.HasOne(x => x.Product)
             .WithMany(x => x.ProductCategories)
             .HasForeignKey(x => x.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Category)
-            .WithMany()
+            .WithMany(x => x.ProductCategories)
             .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasIndex(x => x.ProductId)
-            .HasDatabaseName("idx_product_categories_product_id");
-        builder.HasIndex(x => x.CategoryId)
-            .HasDatabaseName("idx_product_categories_category_id");
     }
 }

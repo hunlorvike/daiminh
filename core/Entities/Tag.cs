@@ -9,8 +9,8 @@ public class Tag : BaseEntity<int>
     public string Slug { get; set; }
 
     // Navigation properties
-    public ICollection<Content> ContentItems { get; set; }
-    public ICollection<Product> Products { get; set; }
+    public virtual ICollection<ContentTag> ContentTags { get; set; } = new List<ContentTag>();
+    public virtual ICollection<ProductTag> ProductTags { get; set; } = new List<ProductTag>();
 }
 
 public class TagConfiguration : BaseEntityConfiguration<Tag, int>
