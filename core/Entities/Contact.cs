@@ -26,9 +26,15 @@ public class ContactConfiguration : BaseEntityConfiguration<Contact, int>
         builder.Property(e => e.Email).HasColumnName("email").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Phone).HasColumnName("phone").HasMaxLength(20);
         builder.Property(e => e.Message).HasColumnName("message");
-        builder.Property(e => e.Status).HasColumnName("status")
-            .HasConversion(v => v.ToStringValue(), v => v.ToContactStatusEnum()).IsRequired().HasMaxLength(20)
+        builder.Property(e => e.Status)
+            .HasColumnName("status")
+            .HasConversion(
+                v => v.ToString().ToLowerInvariant(),
+                v => Enum.Parse<ContactStatus>(v, true))
+            .IsRequired()
+            .HasMaxLength(20)
             .HasDefaultValue(ContactStatus.Pending);
+
 
         builder.HasIndex(e => e.Email).HasDatabaseName("idx_contacts_email");
     }

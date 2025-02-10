@@ -32,8 +32,13 @@ public class CommentConfiguration : BaseEntityConfiguration<Comment, int>
         builder.Property(e => e.UserId).HasColumnName("user_id");
         builder.Property(e => e.ParentCommentId).HasColumnName("parent_comment_id");
         builder.Property(e => e.Subject).HasColumnName("subject").IsRequired();
-        builder.Property(e => e.Status).HasColumnName("status")
-            .HasConversion(v => v.ToStringValue(), v => v.ToCommentStatusEnum()).IsRequired().HasMaxLength(20)
+        builder.Property(e => e.Status)
+            .HasColumnName("status")
+            .HasConversion(
+                v => v.ToString().ToLowerInvariant(),
+                v => Enum.Parse<CommentStatus>(v, true))
+            .IsRequired()
+            .HasMaxLength(20)
             .HasDefaultValue(CommentStatus.Approved);
 
         builder.HasIndex(x => x.ContentId)

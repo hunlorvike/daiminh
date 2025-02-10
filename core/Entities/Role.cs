@@ -1,3 +1,4 @@
+using core.Common.Constants;
 using core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -27,13 +28,6 @@ public class RoleConfiguration : BaseEntityConfiguration<Role, int>
 
         builder.HasData(new RoleSeeder().DataSeeder());
     }
-}
-
-public static class RoleConstants
-{
-    public const string Admin = "Admin";
-    public const string User = "User";
-    public const string Manager = "Manager";
 }
 
 public class RoleSeeder : ISeeder<Role>

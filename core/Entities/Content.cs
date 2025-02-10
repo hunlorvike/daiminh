@@ -35,8 +35,13 @@ public class ContentConfiguration : SeoEntityConfiguration<Content, int>
         builder.Property(e => e.AuthorId).HasColumnName("author_id");
         builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Status).HasColumnName("status")
-            .HasConversion(v => v.ToStringValue(), v => v.ToPublishStatusEnum()).IsRequired().HasMaxLength(20)
+        builder.Property(e => e.Status)
+            .HasColumnName("status")
+            .HasConversion(
+                v => v.ToString().ToLowerInvariant(),
+                v => Enum.Parse<PublishStatus>(v, true))
+            .IsRequired()
+            .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
 
         builder.HasIndex(x => x.Slug).HasDatabaseName("idx_contents_slug");

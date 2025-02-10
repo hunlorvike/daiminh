@@ -21,9 +21,15 @@ public class SubscriberConfiguration : BaseEntityConfiguration<Subscriber, int>
 
         builder.Property(e => e.Id).HasColumnName("id").UseIdentityAlwaysColumn();
         builder.Property(e => e.Email).HasColumnName("email").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Status).HasColumnName("status")
-            .HasConversion(v => v.ToStringValue(), v => v.ToSubscriberStatusEnum()).IsRequired().HasMaxLength(20)
+        builder.Property(e => e.Status)
+            .HasColumnName("status")
+            .HasConversion(
+                v => v.ToString().ToLowerInvariant(),
+                v => Enum.Parse<SubscriberStatus>(v, true))
+            .IsRequired()
+            .HasMaxLength(20)
             .HasDefaultValue(SubscriberStatus.Pending);
+
 
         builder.HasIndex(e => e.Email).HasDatabaseName("idx_subscriber_email");
     }

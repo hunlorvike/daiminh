@@ -1,3 +1,5 @@
+using core.Common.Constants;
+using Core.Common.Models;
 using core.Entities;
 using core.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -18,10 +20,10 @@ public class AuthController : Controller
     }
 
     [AllowAnonymous]
-    public IActionResult Login(string returnUrl = null)
+    public IActionResult Login(string? returnUrl = null)
     {
-        // TODO: Nếu người dùng đã đăng nhập, chuyển hướng về trang chủ
-        if (User.Identity is { IsAuthenticated: true }) return RedirectToAction("Index", "Home");
+        if (User.Identity is { IsAuthenticated: true })
+            return RedirectToAction("Index", "Home", new { area = "Admin" });
 
         ViewData["ReturnUrl"] = returnUrl;
         return View();
@@ -30,8 +32,8 @@ public class AuthController : Controller
     [AllowAnonymous]
     public IActionResult Register(string? returnUrl = null)
     {
-        // TODO: Nếu người dùng đã đăng nhập, chuyển hướng về trang chủ
-        if (User.Identity is { IsAuthenticated: true }) return RedirectToAction("Index", "Home");
+        if (User.Identity is { IsAuthenticated: true })
+            return RedirectToAction("Login", "Auth", new { area = "Admin" });
 
         ViewData["ReturnUrl"] = returnUrl;
         return View();
@@ -58,16 +60,29 @@ public class AuthController : Controller
                 PasswordHash = model.Password
             };
 
-            await _authService.SignInAsync(user);
+            var response = await _authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
 
-            // Hiển thị thông báo thành công
-            TempData["SuccessMessage"] = "Đăng nhập thành công!";
+            switch (response)
+            {
+                case SuccessResponse<User> successResponse:
+                    TempData["SuccessMessage"] = successResponse.Message;
 
-            return RedirectToLocal(returnUrl);
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        return Redirect(returnUrl);
+                    else
+                        return RedirectToAction("Index", "Home", new { area = "Admin" });
+                case ErrorResponse errorResponse:
+                {
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+
+                    return View(model);
+                }
+                default:
+                    return View(model);
+            }
         }
         catch (Exception ex)
         {
-            // Hiển thị thông báo lỗi
             ModelState.AddModelError("", ex.Message);
             return View(model);
         }
@@ -79,7 +94,6 @@ public class AuthController : Controller
     public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
     {
         if (!ModelState.IsValid) return View(model);
-
         try
         {
             User newUser = new()
@@ -89,16 +103,29 @@ public class AuthController : Controller
                 PasswordHash = model.Password
             };
 
-            await _authService.SignUpAsync(newUser);
+            var response = await _authService.SignUpAsync(newUser);
 
-            // Hiển thị thông báo thành công
-            TempData["SuccessMessage"] = "Đăng ký thành công!";
+            switch (response)
+            {
+                case SuccessResponse<User> successResponse:
+                    TempData["SuccessMessage"] = successResponse.Message;
 
-            return RedirectToAction("Login", "Auth", new { area = "Admin" });
+                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+                        return Redirect(returnUrl);
+                    else
+                        return RedirectToAction("Login", "Auth", new { area = "Admin" });
+                case ErrorResponse errorResponse:
+                {
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+
+                    return View(model);
+                }
+                default:
+                    return View(model);
+            }
         }
         catch (Exception ex)
         {
-            // Hiển thị thông báo lỗi
             ModelState.AddModelError("", ex.Message);
             return View(model);
         }
@@ -108,18 +135,8 @@ public class AuthController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _authService.SignOutAsync();
+        await _authService.SignOutAsync(CookiesConstants.AdminCookieSchema);
 
-        // Hiển thị thông báo thành công
-        TempData["SuccessMessage"] = "Đăng xuất thành công!";
-
-        return RedirectToAction("Index", "Home");
-    }
-
-    private IActionResult RedirectToLocal(string? returnUrl)
-    {
-        if (Url.IsLocalUrl(returnUrl)) return Redirect(returnUrl);
-
-        return RedirectToAction("Index", "Home", new { Area = "Admin" });
+        return RedirectToAction("Login", "Auth", new { area = "Admin" });
     }
 }

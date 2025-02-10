@@ -1,14 +1,14 @@
 using core.Entities;
+using core.Interceptors;
 using Microsoft.EntityFrameworkCore;
 
 namespace infrastructure.Data;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    AuditSaveChangesInterceptor auditSaveChangesInterceptor)
+    : DbContext(options)
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-    {
-    }
-
     #region Identity & Authorization
 
     public DbSet<User> Users { get; set; } = null!;
@@ -96,5 +96,11 @@ public class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ReviewConfiguration());
 
         #endregion
+    }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        optionsBuilder.AddInterceptors(auditSaveChangesInterceptor);
+        base.OnConfiguring(optionsBuilder);
     }
 }

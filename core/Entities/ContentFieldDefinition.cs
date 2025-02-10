@@ -29,9 +29,15 @@ public class ContentFieldDefinitionConfiguration : BaseEntityConfiguration<Conte
 
         builder.Property(e => e.ContentTypeId).HasColumnName("content_type_id");
         builder.Property(e => e.FieldName).HasColumnName("field_name").IsRequired().HasMaxLength(50);
-        builder.Property(e => e.FieldType).HasColumnName("field_type")
-            .HasConversion(v => v.ToStringValue(), v => v.ToFieldTypeEnum()).IsRequired().HasMaxLength(30)
+        builder.Property(e => e.FieldType)
+            .HasColumnName("field_type")
+            .HasConversion(
+                v => v.ToString().ToLowerInvariant(),
+                v => Enum.Parse<FieldType>(v, true))
+            .IsRequired()
+            .HasMaxLength(20)
             .HasDefaultValue(FieldType.Text);
+
         builder.Property(e => e.IsRequired).HasColumnName("is_required").HasDefaultValue(false);
         builder.Property(e => e.FieldOptions).HasColumnName("field_options");
 

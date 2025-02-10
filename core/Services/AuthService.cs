@@ -1,8 +1,9 @@
 using System.Security.Claims;
+using core.Common.Constants;
+using Core.Common.Models;
 using core.Entities;
 using core.Interfaces;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using BC = BCrypt.Net.BCrypt;
@@ -20,58 +21,80 @@ public class AuthService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task SignUpAsync(User user)
+    public async Task<BaseResponse> SignUpAsync(User user)
     {
         try
         {
             var userRepository = _unitOfWork.GetRepository<User, int>();
             var roleRepository = _unitOfWork.GetRepository<Role, int>();
 
-            var existingUsers = await userRepository.Where(u => u.Username == user.Username || u.Email == user.Email)
+            var existingUsers = await userRepository
+                .Where(u => u.Username == user.Username || u.Email == user.Email)
+                .ToListAsync();
+
+            var errors = new Dictionary<string, string>();
+
+            if (existingUsers.Any(u => u.Username == user.Username))
+                errors.Add("Username", "Tên người dùng đã tồn tại.");
+
+            if (existingUsers.Any(u => u.Email == user.Email)) errors.Add("Email", "Email đã tồn tại.");
+
+            if (errors.Any()) return new ErrorResponse(errors);
+
+            var defaultRole = await roleRepository
+                .Where(r => r.Name == RoleConstants.User)
                 .FirstOrDefaultAsync();
 
-            if (existingUsers != null) throw new Exception("Tên người dùng hoặc email đã tồn tại.");
-
-            // TODO: sửa lại thành user role
-            var defaultRole = await roleRepository.Where(r => r.Name == RoleConstants.Admin).FirstOrDefaultAsync();
-
-            if (defaultRole == null) throw new Exception("Chạy seeding cho role");
+            if (defaultRole == null)
+                throw new Exception("Role mặc định không tồn tại. Vui lòng chạy seeding cho role.");
 
             user.PasswordHash = BC.HashPassword(user.PasswordHash);
             user.RoleId = defaultRole.Id;
 
             await userRepository.AddAsync(user);
-
             await _unitOfWork.SaveChangesAsync();
+
+            return new SuccessResponse<User>(user, "Đăng ký thành công.");
         }
         catch (Exception ex)
         {
-            // TODO: Log the exception (ex) here if needed
-            throw new Exception(ex.Message);
+            return new ErrorResponse(new Dictionary<string, string>
+            {
+                { "General", ex.Message }
+            });
         }
     }
 
-    public async Task SignInAsync(User user, string scheme = "AdminAuth")
+    public async Task<BaseResponse> SignInAsync(User user, string scheme)
     {
         try
         {
             var userRepository = _unitOfWork.GetRepository<User, int>();
 
-            var existingUsers = await userRepository
+            var existingUser = await userRepository
+                .Include(r => r.Role)
                 .Where(u => u.Username == user.Username)
                 .FirstOrDefaultAsync();
 
-            if (existingUsers == null) throw new Exception("Người dùng không tồn tại.");
+            if (existingUser == null)
+                return new ErrorResponse(new Dictionary<string, string>
+                {
+                    { "Username", "Người dùng không tồn tại." }
+                });
 
-            var isValidPassword = BC.Verify(user.PasswordHash, existingUsers.PasswordHash);
-            if (!isValidPassword) throw new Exception("Mật khẩu không đúng.");
+            var isValidPassword = BC.Verify(user.PasswordHash, existingUser.PasswordHash);
+            if (!isValidPassword)
+                return new ErrorResponse(new Dictionary<string, string>
+                {
+                    { "Password", "Mật khẩu không đúng." }
+                });
 
-            var claims = new List<Claim>
-            {
-                new(ClaimTypes.Email, existingUsers.Email),
-                new(ClaimTypes.NameIdentifier, existingUsers.Id.ToString()),
-                new(ClaimTypes.Role, existingUsers.Role?.Name ?? string.Empty)
-            };
+            List<Claim> claims =
+            [
+                new(ClaimTypes.NameIdentifier, existingUser.Id.ToString()),
+                new(ClaimTypes.Email, existingUser.Email),
+                new(ClaimTypes.Role, existingUser.Role?.Name ?? string.Empty)
+            ];
 
             var claimsIdentity = new ClaimsIdentity(claims, scheme);
             var authProperties = new AuthenticationProperties
@@ -84,15 +107,19 @@ public class AuthService
                 scheme,
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
+
+            return new SuccessResponse<User>(existingUser, "Đăng nhập thành công.");
         }
         catch (Exception ex)
         {
-            // TODO: Log the exception (ex) here if needed
-            throw new Exception(ex.Message);
+            return new ErrorResponse(new Dictionary<string, string>
+            {
+                { "General", ex.Message }
+            });
         }
     }
 
-    public async Task SignOutAsync(string scheme = "AdminAuth")
+    public async Task SignOutAsync(string scheme)
     {
         try
         {
@@ -100,7 +127,6 @@ public class AuthService
         }
         catch (Exception ex)
         {
-            // TODO: Log the exception (ex) here if needed
             throw new Exception(ex.Message);
         }
     }

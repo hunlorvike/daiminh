@@ -30,8 +30,13 @@ public class ReviewConfiguration : BaseEntityConfiguration<Review, int>
         builder.Property(e => e.UserId).HasColumnName("user_id");
         builder.Property(e => e.Rating).HasColumnName("rating");
         builder.Property(e => e.Comment).HasColumnName("comment");
-        builder.Property(e => e.Status).HasColumnName("status")
-            .HasConversion(v => v.ToStringValue(), v => v.ToReviewStatusEnum()).IsRequired().HasMaxLength(20)
+        builder.Property(e => e.Status)
+            .HasColumnName("status")
+            .HasConversion(
+                v => v.ToString().ToLowerInvariant(),
+                v => Enum.Parse<ReviewStatus>(v, true))
+            .IsRequired()
+            .HasMaxLength(20)
             .HasDefaultValue(ReviewStatus.Pending);
 
         builder.HasCheckConstraint("CK_Review_Rating", "rating BETWEEN 1 AND 5");

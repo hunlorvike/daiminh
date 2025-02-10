@@ -1,10 +1,10 @@
+using core.Common.Constants;
 using core.Interceptors;
 using core.Interfaces;
 using core.Services;
 using infrastructure.Data;
 using infrastructure.Data.Repositories;
 using infrastructure.Data.UnitOfWork;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,40 +16,33 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthentication(options =>
+builder.Services.AddAuthentication()
+    .AddCookie(CookiesConstants.AdminCookieSchema, options =>
     {
-        options.DefaultScheme = "AdminAuth";
-        options.DefaultChallengeScheme = "AdminAuth";
-    })
-    .AddCookie("AdminAuth", options =>
-    {
+        options.Cookie.Name = CookiesConstants.AdminCookieSchema;
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.ExpireTimeSpan = TimeSpan.FromHours(24);
+        options.SlidingExpiration = true;
         options.LoginPath = "/Admin/Auth/Login";
         options.LogoutPath = "/Admin/Auth/Logout";
         options.AccessDeniedPath = "/Admin/Auth/AccessDenied";
-        options.Cookie.Name = "AdminAuthCookie";
+    })
+    .AddCookie(CookiesConstants.UserCookieSchema, options =>
+    {
+        options.Cookie.Name = CookiesConstants.UserCookieSchema;
         options.Cookie.HttpOnly = true;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+        options.Cookie.SameSite = SameSiteMode.Strict;
         options.ExpireTimeSpan = TimeSpan.FromHours(24);
         options.SlidingExpiration = true;
-    })
-    .AddCookie("CustomerAuth", options =>
-    {
         options.LoginPath = "/Auth/Login";
         options.LogoutPath = "/Auth/Logout";
         options.AccessDeniedPath = "/Auth/AccessDenied";
-        options.Cookie.Name = "CustomerAuthCookie";
-        options.Cookie.HttpOnly = true;
-        options.ExpireTimeSpan = TimeSpan.FromHours(24);
-        options.SlidingExpiration = true;
     });
 
-builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequireAdminAuth", policy =>
-        policy.RequireAuthenticatedUser()
-            .AddAuthenticationSchemes("AdminAuth"));
-});
-
-builder.Services.AddSingleton<AuditSaveChangesInterceptor>();
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
 
 builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
 {

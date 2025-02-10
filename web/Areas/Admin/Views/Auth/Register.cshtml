@@ -20,17 +20,17 @@
                 }
 
                 <!-- Hiển thị thông báo lỗi từ ModelState -->
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div class="alert alert-danger mb-3">
-                        <ul class="list-unstyled">
-                            @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
-                            {
-                                <li>@error.ErrorMessage</li>
-                            }
-                        </ul>
-                    </div>
-                }
+                @* @if (!ViewData.ModelState.IsValid) *@
+                @* { *@
+                @*     <div class="alert alert-danger mb-3"> *@
+                @*         <ul class="list-unstyled"> *@
+                @*             @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors)) *@
+                @*             { *@
+                @*                 <li>@error.ErrorMessage</li> *@
+                @*             } *@
+                @*         </ul> *@
+                @*     </div> *@
+                @* } *@
 
                 <form asp-area="Admin" asp-controller="Auth" asp-action="Register"
                       asp-route-returnUrl="@ViewData["ReturnUrl"]"
