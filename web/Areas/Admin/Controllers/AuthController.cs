@@ -2,6 +2,8 @@ using core.Common.Constants;
 using Core.Common.Models;
 using core.Entities;
 using core.Services;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using web.Areas.Admin.Requests;
@@ -13,10 +15,15 @@ namespace web.Areas.Admin.Controllers;
 public class AuthController : Controller
 {
     private readonly AuthService _authService;
+    private readonly IValidator<LoginRequest> _loginRequestValidator;
+    private readonly IValidator<RegisterRequest> _registerRequestValidator;
 
-    public AuthController(AuthService authService)
+    public AuthController(AuthService authService, IValidator<LoginRequest> loginRequestValidator,
+        IValidator<RegisterRequest> registerRequestValidator)
     {
         _authService = authService;
+        _loginRequestValidator = loginRequestValidator;
+        _registerRequestValidator = registerRequestValidator;
     }
 
     [AllowAnonymous]
@@ -50,7 +57,13 @@ public class AuthController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginRequest model, string? returnUrl = null)
     {
-        if (!ModelState.IsValid) return View(model);
+        var validationResult = await _loginRequestValidator.ValidateAsync(model);
+
+        if (!validationResult.IsValid)
+        {
+            validationResult.AddToModelState(ModelState);
+            return View(model);
+        }
 
         try
         {
@@ -91,7 +104,14 @@ public class AuthController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterRequest model, string? returnUrl = null)
     {
-        if (!ModelState.IsValid) return View(model);
+        var validationResult = await _registerRequestValidator.ValidateAsync(model);
+
+        if (!validationResult.IsValid)
+        {
+            validationResult.AddToModelState(ModelState);
+            return View(model);
+        }
+
         try
         {
             User newUser = new()

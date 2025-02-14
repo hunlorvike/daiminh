@@ -1,4 +1,6 @@
+using System.Reflection;
 using core.Common.Constants;
+using core.Common.Extensions;
 using core.Interceptors;
 using core.Interfaces;
 using core.Services;
@@ -59,6 +61,8 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>)); // re
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ContactService>();
+
+builder.Services.AddValidators(Assembly.GetExecutingAssembly());
 
 #endregion
 

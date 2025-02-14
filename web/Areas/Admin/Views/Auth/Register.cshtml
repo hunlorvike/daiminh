@@ -24,23 +24,21 @@
                       method="post" autocomplete="off" novalidate>
                     @Html.AntiForgeryToken()
                     <div class="mb-2">
-                        <label asp-for="Email" class="form-label">Email</label>
-                        <input asp-for="Email" class="form-control" placeholder="Email..." autocomplete="off">
+                        <label asp-for="Email" class="form-label"></label>
+                        <input asp-for="Email" class="form-control" autocomplete="off">
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
 
                     <div class="mb-2">
-                        <label asp-for="Username" class="form-label">Tài khoản</label>
-                        <input asp-for="Username" class="form-control" placeholder="Username..." autocomplete="off">
+                        <label asp-for="Username" class="form-label"></label>
+                        <input asp-for="Username" class="form-control" autocomplete="off">
                         <span asp-validation-for="Username" class="text-danger"></span>
                     </div>
 
                     <div class="mb-2">
-                        <label asp-for="Password" class="form-label">
-                            Mật khẩu
-                        </label>
+                        <label asp-for="Password" class="form-label"></label>
                         <div class="input-group input-group-flat">
-                            <input asp-for="Password" class="form-control" placeholder="Password..."
+                            <input asp-for="Password" class="form-control"
                                    autocomplete="off">
                             <span class="input-group-text">
                                 <button class="btn-toggle-password btn-link" title="Hiện mật khẩu"
@@ -66,7 +64,8 @@
             </div>
         </div>
         <div class="text-center text-muted mt-3">
-            Không phải là Admin? <a href="/" tabindex="-1">Quay lại trang chủ</a>
+            Không phải là Admin? <a asp-area="Client" asp-controller="Home" asp-action="Index" tabindex="-1">Quay lại
+                trang chủ</a>
         </div>
     </div>
 </div>
