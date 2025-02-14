@@ -41,12 +41,12 @@
 </head>
 <body class="d-flex flex-column bg-light @ViewData["BodyClass"]">
 <div class="page">
-    <partial name="Layout/Header"/>
+    <partial name="Components/Header"/>
     <div class="page-wrapper">
         @RenderBody()
     </div>
     <partial name="Components/FloatingButtons"/>
-    <partial name="Layout/Footer"/>
+    <partial name="Components/Footer"/>
 </div>
 <partial name="__LibScripts"/>
 @await RenderSectionAsync("FootScripts", false)

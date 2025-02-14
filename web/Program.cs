@@ -57,6 +57,7 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // register unit of work
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>)); // register generic repository
 
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ContactService>();
 
 #endregion

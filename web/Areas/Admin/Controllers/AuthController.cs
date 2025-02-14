@@ -4,7 +4,7 @@ using core.Entities;
 using core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using web.Areas.Admin.Models;
+using web.Areas.Admin.Requests;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -48,7 +48,7 @@ public class AuthController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
+    public async Task<IActionResult> Login(LoginRequest model, string? returnUrl = null)
     {
         if (!ModelState.IsValid) return View(model);
 
@@ -65,8 +65,6 @@ public class AuthController : Controller
             switch (response)
             {
                 case SuccessResponse<User> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         return Redirect(returnUrl);
                     else
@@ -91,7 +89,7 @@ public class AuthController : Controller
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Register(RegisterViewModel model, string? returnUrl = null)
+    public async Task<IActionResult> Register(RegisterRequest model, string? returnUrl = null)
     {
         if (!ModelState.IsValid) return View(model);
         try
@@ -108,7 +106,7 @@ public class AuthController : Controller
             switch (response)
             {
                 case SuccessResponse<User> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
+                    ViewData["SuccessMessage"] = successResponse.Message;
 
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         return Redirect(returnUrl);

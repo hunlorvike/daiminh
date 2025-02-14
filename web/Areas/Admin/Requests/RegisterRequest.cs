@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace web.Areas.Admin.Models;
+namespace web.Areas.Admin.Requests;
 
-public class RegisterViewModel
+public class RegisterRequest
 {
     [Required] public string Username { get; set; } = string.Empty;
 

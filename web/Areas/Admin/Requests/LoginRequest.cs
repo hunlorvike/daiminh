@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace web.Areas.Admin.Models;
+namespace web.Areas.Admin.Requests;
 
-public class LoginViewModel
+public class LoginRequest
 {
     [Required(ErrorMessage = "Vui lòng nhập tên người dùng.")]
     public string Username { get; set; } = string.Empty;

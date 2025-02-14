@@ -1,0 +1,31 @@
+@{
+    ViewData.TryGetValue("Title", out var title);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+    <title>Sơn Đại Minh - @title</title>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="HandheldFriendly" content="True">
+    <meta name="MobileOptimized" content="320">
+    <link rel="icon" href="~/img/icon.jpg" type="image/x-icon">
+    <link rel="shortcut icon" href="~/img/icon.jpg" type="image/x-icon">
+    <meta name="description" content="Đại minh việt nam">
+
+    <partial name="__LibStyles"/>
+    @await RenderSectionAsync("HeadScripts", false)
+</head>
+<body class="d-flex flex-column @ViewData["BodyClass"]">
+<div class="page">
+    <div class="page-wrapper">
+        @RenderBody()
+    </div>
+</div>
+<partial name="__LibScripts"/>
+@await RenderSectionAsync("FootScripts", false)
+</body>
+</html>

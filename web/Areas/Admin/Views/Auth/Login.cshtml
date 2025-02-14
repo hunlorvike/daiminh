@@ -1,8 +1,8 @@
-@model web.Areas.Admin.Models.LoginViewModel
+@model LoginRequest
 
 @{
     ViewBag.Title = "Đăng nhập Admin";
-    Layout = "_Layout.Blank";
+    Layout = "Layout/_Layout.Blank";
 }
 
 <div class="page page-center">
@@ -11,26 +11,12 @@
             <div class="card-body">
                 <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản Admin</h2>
 
-                <!-- Hiển thị thông báo thành công từ TempData -->
-                @if (TempData["SuccessMessage"] != null)
+                @if (ViewData["SuccessMessage"] != null)
                 {
                     <div class="alert alert-success mb-3">
-                        @TempData["SuccessMessage"]
+                        @ViewData["SuccessMessage"]
                     </div>
                 }
-
-                <!-- Hiển thị thông báo lỗi từ ModelState -->
-                @* @if (!ViewData.ModelState.IsValid) *@
-                @* { *@
-                @*     <div class="alert alert-danger mb-3"> *@
-                @*         <ul class="list-unstyled"> *@
-                @*             @foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors)) *@
-                @*             { *@
-                @*                 <li>@error.ErrorMessage</li> *@
-                @*             } *@
-                @*         </ul> *@
-                @*     </div> *@
-                @* } *@
 
                 <form asp-area="Admin" asp-controller="Auth" asp-action="Login"
                       asp-route-returnUrl="@ViewData["ReturnUrl"]"
