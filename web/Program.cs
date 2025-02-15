@@ -8,8 +8,22 @@ using infrastructure.Data;
 using infrastructure.Data.Repositories;
 using infrastructure.Data.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
+using Serilog.Events;
+
+Log.Logger = new LoggerConfiguration()
+    .MinimumLevel.Verbose()
+    .WriteTo.Console()
+    .WriteTo.File("Logs/logs-.log", rollingInterval: RollingInterval.Day, rollOnFileSizeLimit: true,
+        restrictedToMinimumLevel: LogEventLevel.Warning,
+        fileSizeLimitBytes: 10 * 1024 * 1024,
+        outputTemplate:
+        "[{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz}] [{Level:u3}] [{SourceContext}] {Message:lj}{NewLine}{Exception}")
+    .CreateLogger();
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog();
 
 #region Services Configuration
 
@@ -58,6 +72,8 @@ builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // register unit of work
 
 builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>)); // register generic repository
 
+builder.Services.AddHttpContextAccessor();
+
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ContactService>();
@@ -67,6 +83,8 @@ builder.Services.AddValidators(Assembly.GetExecutingAssembly());
 #endregion
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
 
 #region Middleware Configuration
 
@@ -78,7 +96,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions()
+{
+    OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=7200"); }
+});
 
 app.UseRouting();
 
