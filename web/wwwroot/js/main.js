@@ -2,7 +2,6 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 function scrollToTop() {
-    console.log(window.pageYOffset);
     window.scrollTo({
         top: 0,
         behavior: 'smooth'

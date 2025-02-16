@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 
-namespace web.Areas.Admin.Requests;
+namespace web.Areas.Admin.Requests.Auth;
 
 public class LoginRequest
 {

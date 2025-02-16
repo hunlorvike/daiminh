@@ -1,174 +1,33 @@
-@model List<User>
+@model List<web.Areas.Admin.Models.Account.UserViewModel>
+
 @{
-    ViewBag.Title = "Quản lý người dùng";
+    const string title = "Quản lý người dùng";
+    const string screenCode = "account";
+    ViewBag.Title = title;
 }
 
-
-
-<!-- Page header -->
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <h2 class="page-title">Quản lý người dùng</h2>
+<div class="screen @screenCode">
+    <section class="page-header d-print-none">
+        <div class="container-xl">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">@title</h2>
+                </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <section class="dm-form form-create-container"></section>
+    <section class="dm-form form-details-container"></section>
+    <section class="dm-form form-edit-container"></section>
+    <section class="dm-form form-delete-container"></section>
+    <section class="paged-list">
+        <partial name="_ListUser" model="Model"/>
+    </section>
 </div>
 
-<!-- Page body -->
-<div class="page-body">
-    <div class="container-xl">
-        <div class="card">
-            <div class="card-body p-0">
-                @if (Model.Any())
-                {
-                    <table id="tableUsers" class="table table-vcenter card-table">
-                        <thead>
-                        <tr>
-                            <th scope="col" class="text-nowrap">Tên đăng nhập</th>
-                            <th scope="col" class="text-nowrap">Email</th>
-                            <th scope="col" class="text-nowrap">Vai trò</th>
-                            <th scope="col" class="text-nowrap">Ngày tạo</th>
-                            <th scope="col" class="w-1"></th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                            <span class="avatar me-2"
-                                                  style="background-image: url('@Url.Content("~/img/icon.jpg")');"></span>
-                                        <div>
-                                            <div class="font-weight-medium">@item.Username</div>
-                                            <div class="text-muted">@item.Email</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="text-muted">@item.Email</td>
-                                <td>
-                                    <span class="badge bg-blue-lt">@item?.Role?.Name</span>
-                                </td>
-                                <td class="text-muted">@item?.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN"))</td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
-                                        <a href="#" class="btn btn-icon btn-sm" data-bs-toggle="modal"
-                                           data-bs-target="#modal-article">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                 class="icon icon-tabler icon-tabler-edit" width="24" height="24"
-                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                 fill="none"
-                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <path
-                                                    d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
-                                                <path
-                                                    d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
-                                                <path d="M16 5l3 3"></path>
-                                            </svg>
-                                        </a>
-                                        <a href="#" class="btn btn-icon btn-sm btn-danger" data-bs-toggle="modal"
-                                           data-bs-target="#model-delete--user">
-                                            <svg xmlns="http://www.w3.org/2000/svg"
-                                                 class="icon icon-tabler icon-tabler-trash" width="24" height="24"
-                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                                 fill="none"
-                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <path d="M4 7l16 0"></path>
-                                                <path d="M10 11l0 6"></path>
-                                                <path d="M14 11l0 6"></path>
-                                                <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
-                                                <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
-                                            </svg>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                }
-            </div>
-        </div>
-    </div>
-</div>
 
 @section FootScripts {
-    <script src="~/lib/datatables/datatables.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            $("#tableUsers").DataTable({
-                "dom":
-                    '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' +
-                    '<"table-responsive"t>' +
-                    '<"card-footer d-flex justify-content-between align-items-center"ip>',
-                "paging": true,
-                "searching": true,
-                "info": true,
-                "lengthChange": true,
-                "ordering": true,
-                "pageLength": 8,
-                "lengthMenu": [[8, 25, 50, 100], [8, 25, 50, 100]],
-                "columnDefs": [
-                    {"targets": 0, "orderable": true},
-                    {"targets": 1, "orderable": true},
-                    {"targets": 2, "orderable": true},
-                    {"targets": 3, "orderable": true},
-                    {"targets": 4, "orderable": false}
-                ],
-                "language": {
-                    "search": "",
-                    "searchPlaceholder": "Tìm kiếm...",
-                    "lengthMenu":
-                        `<span class="text-secondary">Hiển thị</span>
-                    <select class="form-select form-select-sm d-inline-block w-50">
-                        <option value="8">8</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                    </select>`,
-                    "info": "Hiển thị _START_ đến _END_ của _TOTAL_ mục",
-                    "infoEmpty": "Hiển thị 0 đến 0 của 0 mục",
-                    "zeroRecords": "Không có dữ liệu nào khớp",
-                    "infoFiltered": "(lọc từ tổng số _MAX_ mục)",
-                    "paginate": {
-                        "first": '<svg xmlns="http://www.w3.org/2000/svg" class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M11 7l-5 5l5 5" /><path d="M17 7l-5 5l5 5" /></svg>',
-                        "previous": '<svg xmlns="http://www.w3.org/2000/svg" class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M15 6l-6 6l6 6" /></svg>',
-                        "next": '<svg xmlns="http://www.w3.org/2000/svg" class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>',
-                        "last": '<svg xmlns="http://www.w3.org/2000/svg" class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7l5 5l-5 5" /><path d="M13 7l5 5l-5 5" /></svg>'
-                    }
-                },
-                "initComplete": function () {
-                    updatePaginationClasses();
-                },
-                "drawCallback": function () {
-                    updatePaginationClasses();
-                }
-            });
-        });
-
-        function updatePaginationClasses() {
-            const $dtSearch = $('.dt-search'),
-                $pagingNav = $('.dt-paging nav'),
-                $pagingButton = $('.dt-paging-button');
-
-            $dtSearch.addClass('d-flex align-items-center justify-content-end')
-                .find('input')
-                .addClass('form-control form-control-sm w-50');
-
-            $pagingNav.addClass('pagination justify-content-center m-0');
-
-            $pagingButton.addClass('page-link');
-            $pagingButton.filter('.current').addClass('active');
-
-            $pagingButton.wrap('<li class="page-item"></li>');
-
-            $pagingButton.filter('.disabled').parent().addClass('disabled');
-            $pagingButton.filter('.current').parent().addClass('active');
-        }
-    </script>
-
+    <script src="~/lib/datatables/datatables.min.js" asp-append-version="true"></script>
+    <script src="~/js/Admin/Account.js"></script>
 }

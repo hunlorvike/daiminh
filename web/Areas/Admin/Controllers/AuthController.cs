@@ -6,7 +6,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using web.Areas.Admin.Requests;
+using web.Areas.Admin.Requests.Auth;
 
 namespace web.Areas.Admin.Controllers;
 
