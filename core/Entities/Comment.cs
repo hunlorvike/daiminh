@@ -17,7 +17,7 @@ public class Comment : BaseEntity<int>
     public virtual Content Content { get; set; } = new();
     public virtual User User { get; set; } = new();
     public virtual Comment ParentComment { get; set; } = new();
-    public virtual ICollection<Comment> ChildComments { get; set; } = new List<Comment>();
+    public virtual ICollection<Comment> ChildComments { get; set; } = [];
 }
 
 public class CommentConfiguration : BaseEntityConfiguration<Comment, int>

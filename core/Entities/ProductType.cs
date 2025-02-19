@@ -10,9 +10,9 @@ public class ProductType : BaseEntity<int>
 
     // Navigation properties
     public virtual ICollection<ProductFieldDefinition> FieldDefinitions { get; set; } =
-        new List<ProductFieldDefinition>();
+        [];
 
-    public virtual ICollection<Product> Products { get; set; } = new List<Product>();
+    public virtual ICollection<Product> Products { get; set; } = [];
 }
 
 public class ProductTypeConfiguration : BaseEntityConfiguration<ProductType, int>

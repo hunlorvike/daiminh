@@ -9,12 +9,11 @@ public static class ValidatorExtensions
 {
     public static IServiceCollection AddValidators(this IServiceCollection services, params Assembly[]? assemblies)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
+        ArgumentNullException.ThrowIfNull(services);
 
         try
         {
-            if (assemblies == null || !assemblies.Any()) assemblies = [Assembly.GetExecutingAssembly()];
+            if (assemblies == null || assemblies.Length == 0) assemblies = [Assembly.GetExecutingAssembly()];
 
             services.AddFluentValidationAutoValidation();
 

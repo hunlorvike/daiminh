@@ -12,19 +12,14 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
-public class AuthController : Controller
+public class AuthController(
+    AuthService authService,
+    IValidator<LoginRequest> loginRequestValidator,
+    IValidator<RegisterRequest> registerRequestValidator) : Controller
 {
-    private readonly AuthService _authService;
-    private readonly IValidator<LoginRequest> _loginRequestValidator;
-    private readonly IValidator<RegisterRequest> _registerRequestValidator;
-
-    public AuthController(AuthService authService, IValidator<LoginRequest> loginRequestValidator,
-        IValidator<RegisterRequest> registerRequestValidator)
-    {
-        _authService = authService;
-        _loginRequestValidator = loginRequestValidator;
-        _registerRequestValidator = registerRequestValidator;
-    }
+    private readonly AuthService _authService = authService;
+    private readonly IValidator<LoginRequest> _loginRequestValidator = loginRequestValidator;
+    private readonly IValidator<RegisterRequest> _registerRequestValidator = registerRequestValidator;
 
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)

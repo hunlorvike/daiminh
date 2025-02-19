@@ -17,10 +17,10 @@ public class Content : SeoEntity<int>
     // Navigation properties
     public virtual ContentType ContentType { get; set; } = new();
     public virtual User Author { get; set; } = new();
-    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = new List<ContentFieldValue>();
-    public virtual ICollection<ContentCategory> ContentCategories { get; set; } = new List<ContentCategory>();
-    public virtual ICollection<ContentTag> ContentTags { get; set; } = new List<ContentTag>();
-    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
+    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = [];
+    public virtual ICollection<ContentCategory> ContentCategories { get; set; } = [];
+    public virtual ICollection<ContentTag> ContentTags { get; set; } = [];
+    public virtual ICollection<Comment> Comments { get; set; } = [];
 }
 
 public class ContentConfiguration : SeoEntityConfiguration<Content, int>

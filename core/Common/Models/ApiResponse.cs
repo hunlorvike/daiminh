@@ -7,7 +7,7 @@ public abstract class BaseResponse(bool success)
 
 public class ErrorResponse(Dictionary<string, string>? errors) : BaseResponse(false)
 {
-    public Dictionary<string, string> Errors { get; } = errors ?? new Dictionary<string, string>();
+    public Dictionary<string, string> Errors { get; } = errors ?? [];
 
     private ErrorResponse(string key, string message)
         : this(new Dictionary<string, string> { { key, message } })

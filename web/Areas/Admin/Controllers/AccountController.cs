@@ -11,14 +11,9 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public class AccountController : Controller
+public class AccountController(ApplicationDbContext dbContext) : Controller
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public AccountController(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
     public async Task<IActionResult> Index()
     {

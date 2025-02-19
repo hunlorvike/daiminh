@@ -11,7 +11,7 @@ public class Role : BaseEntity<int>
     public string Permissions { get; set; } = string.Empty;
 
     // Navigation properties
-    public virtual ICollection<User> Users { get; set; } = new List<User>();
+    public virtual ICollection<User> Users { get; set; } = [];
 }
 
 public class RoleConfiguration : BaseEntityConfiguration<Role, int>

@@ -16,7 +16,7 @@ public class ProductFieldDefinition : BaseEntity<int>
 
     // Navigation properties
     public virtual ProductType ProductType { get; set; } = new();
-    public virtual ICollection<ProductFieldValue> FieldValues { get; set; } = new List<ProductFieldValue>();
+    public virtual ICollection<ProductFieldValue> FieldValues { get; set; } = [];
 }
 
 public class ProductFieldDefinitionConfiguration : BaseEntityConfiguration<ProductFieldDefinition, int>

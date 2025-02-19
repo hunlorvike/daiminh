@@ -1,6 +1,8 @@
 $(document).ready(function () {
     $("#table").DataTable({
-        dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' + '<"table-responsive"t>' + '<"card-footer d-flex justify-content-between align-items-center"ip>',
+        dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' +
+            '<"table-responsive"t>' +
+            '<"card-footer d-flex justify-content-between align-items-center"ip>',
         paging: true,
         searching: true,
         searchDelay: 500,
@@ -9,9 +11,11 @@ $(document).ready(function () {
         ordering: true,
         pageLength: 10,
         lengthMenu: [[8, 25, 50, 100], [8, 25, 50, 100]],
-        columnDefs: [{targets: 0, orderable: true, searchable: true}, {targets: 1, orderable: true, searchable: true}, {
-            targets: 2, orderable: true, searchable: true
-        }, {targets: 3, orderable: true, searchable: true}, {targets: 4, orderable: false, searchable: false},],
+        columnDefs: [{targets: 0, orderable: true, searchable: true},
+            {targets: 1, orderable: true, searchable: true},
+            {targets: 2, orderable: true, searchable: true},
+            {targets: 3, orderable: true, searchable: true},
+            {targets: 4, orderable: false, searchable: false}],
         language: {
             search: "",
             searchPlaceholder: "Tìm kiếm...",
@@ -38,10 +42,13 @@ $(document).ready(function () {
 
     function updatePaginationClasses() {
         const $dtSearch = $('.dt-search'), $pagingNav = $('.dt-paging nav'), $pagingButton = $('.dt-paging-button');
+        const $dtLength = $('.dt-length');
+
 
         $dtSearch.addClass('d-flex align-items-center justify-content-end')
             .find('input').addClass('form-control form-control-sm w-50');
 
+        $dtLength.find('label').addClass('w-50');
         $pagingNav.addClass('pagination justify-content-center m-0');
         $pagingButton.addClass('page-link')
             .filter('.current').addClass('active')
@@ -50,35 +57,4 @@ $(document).ready(function () {
         $pagingButton.filter('.disabled').parent().addClass('disabled');
         $pagingButton.filter('.current').parent().addClass('active');
     }
-
-
-    $('.command-modal-edit')
-        .off('click')
-        .on('click', function (e) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const
-                $button = $(this),
-                $container = $button.closest('.screen'),
-                $formContainer = $container.find('.form-edit-container');
-
-            const
-                MODAL_ID = $button.data('bs-target'),
-                TARGET_URL = $button.attr('formaction');
-
-            $.get({
-                url: TARGET_URL,
-                contentType: 'application/json; charset=UTF-8',
-                success: function (response) {
-                    $formContainer.html(response);
-
-                    if (MODAL_ID) {
-                        const __bsModal = bootstrap.Modal.getOrCreateInstance(`${MODAL_ID}`);
-                        __bsModal.show();
-                    }
-                }
-            })
-        })
 });
-

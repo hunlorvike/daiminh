@@ -10,16 +10,10 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace core.Services;
 
-public class AuthService
+public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-
-    public AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
-    {
-        _unitOfWork = unitOfWork;
-        _httpContextAccessor = httpContextAccessor;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+    private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
 
     public async Task<BaseResponse> SignUpAsync(User user)
     {
@@ -42,12 +36,9 @@ public class AuthService
             if (errors.Any()) return new ErrorResponse(errors);
 
             var defaultRole = await roleRepository
-                .Where(r => r.Name == RoleConstants.User)
-                .FirstOrDefaultAsync();
-
-            if (defaultRole == null)
-                throw new Exception("Role mặc định không tồn tại. Vui lòng chạy seeding cho role.");
-
+                                  .Where(r => r.Name == RoleConstants.User)
+                                  .FirstOrDefaultAsync() ??
+                              throw new Exception("Role mặc định không tồn tại. Vui lòng chạy seeding cho role.");
             user.PasswordHash = BC.HashPassword(user.PasswordHash);
             user.RoleId = defaultRole.Id;
 
