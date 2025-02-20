@@ -64,8 +64,8 @@ public class AuthController(
         {
             User user = new()
             {
-                Username = model.Username,
-                PasswordHash = model.Password
+                Username = model.Username ?? string.Empty,
+                PasswordHash = model.Password ?? string.Empty
             };
 
             var response = await _authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
@@ -78,11 +78,11 @@ public class AuthController(
                     else
                         return RedirectToAction("Index", "Home", new { area = "Admin" });
                 case ErrorResponse errorResponse:
-                    {
-                        foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+                {
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
-                        return View(model);
-                    }
+                    return View(model);
+                }
                 default:
                     return View(model);
             }
@@ -111,9 +111,9 @@ public class AuthController(
         {
             User newUser = new()
             {
-                Username = model.Username,
-                Email = model.Email,
-                PasswordHash = model.Password
+                Username = model.Username ?? string.Empty,
+                Email = model.Email ?? string.Empty,
+                PasswordHash = model.Password ?? string.Empty
             };
 
             var response = await _authService.SignUpAsync(newUser);
@@ -128,11 +128,11 @@ public class AuthController(
                     else
                         return RedirectToAction("Login", "Auth", new { area = "Admin" });
                 case ErrorResponse errorResponse:
-                    {
-                        foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+                {
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
-                        return View(model);
-                    }
+                    return View(model);
+                }
                 default:
                     return View(model);
             }

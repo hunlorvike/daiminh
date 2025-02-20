@@ -34,8 +34,8 @@ public interface IRepository<TEntity, in TKey> where TEntity : BaseEntity<TKey>
 
     Task<List<TEntity>> ToListAsync();
 
-    IQueryable<TEntity> OrderBy<TKey>(Expression<Func<TEntity, TKey>> keySelector);
-    IQueryable<TEntity> OrderByDescending<TKey>(Expression<Func<TEntity, TKey>> keySelector);
+    IQueryable<TEntity> OrderBy<TOrderKey>(Expression<Func<TEntity, TOrderKey>> keySelector);
+    IQueryable<TEntity> OrderByDescending<TOrderKey>(Expression<Func<TEntity, TOrderKey>> keySelector);
 
     Task<TEntity?> MaxAsync(Expression<Func<TEntity, bool>>? predicate = null);
     Task<TEntity?> MinAsync(Expression<Func<TEntity, bool>>? predicate = null);
@@ -55,10 +55,10 @@ public interface IRepository<TEntity, in TKey> where TEntity : BaseEntity<TKey>
 
     IQueryable<TEntity> AsNoTracking();
 
-    Task<Dictionary<TKey, TEntity>> ToDictionaryAsync<TKey>(
-        Expression<Func<TEntity, TKey>> keySelector) where TKey : notnull;
+    Task<Dictionary<TDictionaryKey, TEntity>> ToDictionaryAsync<TDictionaryKey>(
+        Expression<Func<TEntity, TDictionaryKey>> keySelector) where TDictionaryKey : notnull;
 
-    Task<IEnumerable<TResult>> GroupByAsync<TKey, TResult>(
-        Expression<Func<TEntity, TKey>> keySelector,
-        Expression<Func<IGrouping<TKey, TEntity>, TResult>> resultSelector);
+    Task<IEnumerable<TResult>> GroupByAsync<TGroupKey, TResult>(
+        Expression<Func<TEntity, TGroupKey>> keySelector,
+        Expression<Func<IGrouping<TGroupKey, TEntity>, TResult>> resultSelector);
 }

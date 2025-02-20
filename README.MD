@@ -57,12 +57,12 @@ docker compose up db redis -d
 
 ```json
 {
-  "ConnectionStrings": {
-    "Postgres": "Host=localhost;Port=5432;Database=daiminh;Username=user;Password=password"
-  },
-  "Redis": {
-    "Connection": "localhost:6379"
-  }
+    "ConnectionStrings": {
+        "Postgres": "Host=localhost;Port=5432;Database=daiminh;Username=user;Password=password"
+    },
+    "Redis": {
+        "Connection": "localhost:6379"
+    }
 }
 ```
 
