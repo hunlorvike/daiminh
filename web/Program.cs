@@ -1,4 +1,3 @@
-using System.Reflection;
 using core.Common.Constants;
 using core.Common.Extensions;
 using core.Interceptors;
@@ -10,6 +9,7 @@ using infrastructure.Data.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using System.Reflection;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()

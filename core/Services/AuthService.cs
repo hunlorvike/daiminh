@@ -1,11 +1,11 @@
-using System.Security.Claims;
 using core.Common.Constants;
-using Core.Common.Models;
 using core.Entities;
 using core.Interfaces;
+using Core.Common.Models;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using BC = BCrypt.Net.BCrypt;
 
 namespace core.Services;

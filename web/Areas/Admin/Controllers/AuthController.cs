@@ -1,7 +1,7 @@
 using core.Common.Constants;
-using Core.Common.Models;
 using core.Entities;
 using core.Services;
+using Core.Common.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
@@ -78,11 +78,11 @@ public class AuthController(
                     else
                         return RedirectToAction("Index", "Home", new { area = "Admin" });
                 case ErrorResponse errorResponse:
-                {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+                    {
+                        foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
-                    return View(model);
-                }
+                        return View(model);
+                    }
                 default:
                     return View(model);
             }
@@ -128,11 +128,11 @@ public class AuthController(
                     else
                         return RedirectToAction("Login", "Auth", new { area = "Admin" });
                 case ErrorResponse errorResponse:
-                {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+                    {
+                        foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
-                    return View(model);
-                }
+                        return View(model);
+                    }
                 default:
                     return View(model);
             }

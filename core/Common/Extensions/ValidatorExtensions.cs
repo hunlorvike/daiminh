@@ -1,7 +1,7 @@
-using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace core.Common.Extensions;
 
