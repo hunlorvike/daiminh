@@ -3,7 +3,7 @@
 }
 
 @section HeadScripts {
-    <link rel="stylesheet" href="https://cdn.ckeditor.com/ckeditor5/44.1.0/ckeditor5.css"/>
+    <partial name="__LibRTE"/>
 }
 
 <div class="page-header d-print-none">
@@ -66,8 +66,7 @@
                                 <td class="sort-title">Tiêu đề bài viết</td>
                                 <td class="sort-author">Tác giảr</td>
                                 <td class="sort-category">Danh mục</td>
-                                <td class="sort-date"
-                                    data-date="2024-01-16">2024-01-16
+                                <td class="sort-date" data-date="2024-01-16">2024-01-16
                                 </td>
                                 <td class="sort-status">
                                     <span class="badge bg-success me-1">Đã xuất bản</span>
@@ -81,10 +80,11 @@
                                                  viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
                                                  stroke-linecap="round" stroke-linejoin="round">
                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1">
+                                                </path>
                                                 <path
-                                                    d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
-                                                <path
-                                                    d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z"></path>
+                                                    d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z">
+                                                </path>
                                                 <path d="M16 5l3 3"></path>
                                             </svg>
                                         </a>
@@ -148,7 +148,7 @@
 
 <!-- Modal for Create/Edit Article -->
 <div class="modal modal-blur fade" id="modal-article" tabindex="-1" role="dialog" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Thêm/Sửa bài viết</h5>
@@ -163,7 +163,7 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nội dung</label>
-                        <textarea class="form-control" name="Content" id="ckeditorEditor" rows="6"
+                        <textarea class="form-control" name="Content" id="rte"
                                   placeholder="Nhập nội dung bài viết"></textarea>
                     </div>
                     <div class="row">
@@ -250,99 +250,9 @@
 </div>
 
 @section FootScripts {
-    <script src="https://cdn.jsdelivr.net/npm/list.js@2.3.1/dist/list.min.js"></script>
-    <script src="https://cdn.ckeditor.com/4.21.0/standard/ckeditor.js"></script>
-
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            CKEDITOR.replace('ckeditorEditor', {
-                toolbar: [
-                    {name: 'document', items: ['Source', '-', 'Save', 'Preview', 'Print']},
-                    {name: 'clipboard', items: ['Cut', 'Copy', 'Paste', '-', 'Undo', 'Redo']},
-                    {name: 'editing', items: ['Find', 'Replace']},
-                    {name: 'basicstyles', items: ['Bold', 'Italic', 'Underline', 'Strike']},
-                    {name: 'paragraph', items: ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent']},
-                    {name: 'insert', items: ['Image', 'Table', 'Link', 'Unlink', 'Iframe']},
-                ],
-                removeButtons: '',
-                height: 300,
-                placeholder: 'Nhập nội dung bài viết...'
-            });
-
-            new List('table-default', {
-                sortClass: 'table-sort',
-                listClass: 'table-tbody',
-                valueNames: ['sort-title', 'sort-author', 'sort-category', 'sort-date', 'sort-status']
-            });
-
-            // Handle Create/Edit Article
-            document.getElementById('modal-article').addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                var articleId = button.getAttribute('data-article-id');
-                var modal = this;
-                var form = modal.querySelector('#articleForm');
-
-                if (articleId) {
-                    // Edit mode: Fetch article data and populate form
-                    fetch('/api/articles/' + articleId)
-                        .then(response => response.json())
-                        .then(data => {
-                            form.Id.value = data.Id;
-                            form.Title.value = data.Title;
-                            form.Content.value = data.Content;
-                            form.Author.value = data.Author;
-                            form.Category.value = data.Category;
-                            form.PublishDate.value = data.PublishDate.split('T')[0];
-                            form.IsPublished.checked = data.IsPublished;
-                        });
-                } else {
-                    // Create mode: Reset form
-                    form.reset();
-                    form.Id.value = '';
-                }
-            });
-
-            // Handle Save Article
-            document.getElementById('saveArticle').addEventListener('click', function (e) {
-                e.preventDefault();
-                var form = document.getElementById('articleForm');
-                var formData = new FormData(form);
-                var articleId = formData.get('Id');
-
-                var url = articleId ? '/api/articles/' + articleId : '/api/articles';
-                var method = articleId ? 'PUT' : 'POST';
-
-                fetch(url, {
-                    method: method,
-                    body: formData
-                }).then(response => response.json())
-                    .then(data => {
-                        // Close modal and refresh page
-                        var modal = bootstrap.Modal.getInstance(document.getElementById('modal-article'));
-                        modal.hide();
-                        location.reload();
-                    });
-            });
-
-            // Handle Delete Article
-            var articleToDelete;
-            document.getElementById('modal-delete-article').addEventListener('show.bs.modal', function (event) {
-                var button = event.relatedTarget;
-                articleToDelete = button.getAttribute('data-article-id');
-            });
-
-            document.getElementById('confirmDelete').addEventListener('click', function (e) {
-                e.preventDefault();
-                if (articleToDelete) {
-                    fetch('/api/articles/' + articleToDelete, {
-                        method: 'DELETE'
-                    }).then(() => {
-                        var modal = bootstrap.Modal.getInstance(document.getElementById('modal-delete-article'));
-                        modal.hide();
-                        location.reload();
-                    });
-                }
-            });
+        new RichTextEditor(document.getElementById("rte"), {
+            width: "100%"
         });
     </script>
 }

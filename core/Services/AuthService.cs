@@ -33,7 +33,7 @@ public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContex
 
             if (existingUsers.Any(u => u.Email == user.Email)) errors.Add("Email", "Email đã tồn tại.");
 
-            if (errors.Any()) return new ErrorResponse(errors);
+            if (errors.Count != 0) return new ErrorResponse(errors);
 
             var defaultRole = await roleRepository
                                   .Where(r => r.Name == RoleConstants.User)

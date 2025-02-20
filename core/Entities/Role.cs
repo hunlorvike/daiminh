@@ -34,26 +34,26 @@ public class RoleSeeder : ISeeder<Role>
 {
     public IEnumerable<Role> DataSeeder()
     {
-        return new List<Role>
-        {
-            new()
+        return
+        [
+            new Role
             {
                 Id = 1,
                 Name = RoleConstants.Admin,
                 Permissions = ""
             },
-            new()
+            new Role
             {
                 Id = 2,
                 Name = RoleConstants.User,
                 Permissions = ""
             },
-            new()
+            new Role
             {
                 Id = 3,
                 Name = RoleConstants.Manager,
                 Permissions = ""
             }
-        };
+        ];
     }
 }
