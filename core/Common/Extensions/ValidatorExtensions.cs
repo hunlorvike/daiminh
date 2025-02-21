@@ -9,22 +9,19 @@ namespace core.Common.Extensions;
 
 public static class ValidatorExtensions
 {
-    public static IServiceCollection AddValidators(this IServiceCollection services, params Assembly[]? assemblies)
+    public static IServiceCollection AddDaiminhValidators(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
 
         try
         {
-            if (assemblies == null || assemblies.Length == 0) assemblies = [Assembly.GetExecutingAssembly()];
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
             services.AddFluentValidationAutoValidation();
 
             IEnumerable<Type> validatorTypes = assemblies
                 .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => !type.IsAbstract &&
-                               !type.IsInterface &&
-                               type.BaseType != null &&
-                               type.BaseType.IsGenericType &&
+                .Where(type => type is { IsAbstract: false, IsInterface: false, BaseType.IsGenericType: true } &&
                                type.BaseType.GetGenericTypeDefinition() == typeof(AbstractValidator<>));
 
             foreach (var validatorType in validatorTypes)

@@ -3,6 +3,7 @@ using core.Interfaces;
 using infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Collections.Concurrent;
+using core.Entities.Shared;
 
 namespace infrastructure.Data.UnitOfWork;
 

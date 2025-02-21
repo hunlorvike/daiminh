@@ -2,6 +2,7 @@ using core.Common.Constants;
 using core.Entities;
 using core.Services;
 using Core.Common.Models;
+using core.Interfaces.Service;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
@@ -13,14 +14,10 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize]
 public class AuthController(
-    AuthService authService,
+    IAuthService authService,
     IValidator<LoginRequest> loginRequestValidator,
     IValidator<RegisterRequest> registerRequestValidator) : Controller
 {
-    private readonly AuthService _authService = authService;
-    private readonly IValidator<LoginRequest> _loginRequestValidator = loginRequestValidator;
-    private readonly IValidator<RegisterRequest> _registerRequestValidator = registerRequestValidator;
-
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
@@ -52,7 +49,7 @@ public class AuthController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginRequest model, string? returnUrl = null)
     {
-        var validationResult = await _loginRequestValidator.ValidateAsync(model);
+        var validationResult = await loginRequestValidator.ValidateAsync(model);
 
         if (!validationResult.IsValid)
         {
@@ -68,7 +65,7 @@ public class AuthController(
                 PasswordHash = model.Password ?? string.Empty
             };
 
-            var response = await _authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
+            var response = await authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
 
             switch (response)
             {
@@ -99,7 +96,7 @@ public class AuthController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterRequest model, string? returnUrl = null)
     {
-        var validationResult = await _registerRequestValidator.ValidateAsync(model);
+        var validationResult = await registerRequestValidator.ValidateAsync(model);
 
         if (!validationResult.IsValid)
         {
@@ -116,7 +113,7 @@ public class AuthController(
                 PasswordHash = model.Password ?? string.Empty
             };
 
-            var response = await _authService.SignUpAsync(newUser);
+            var response = await authService.SignUpAsync(newUser);
 
             switch (response)
             {
@@ -148,7 +145,7 @@ public class AuthController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await _authService.SignOutAsync(CookiesConstants.AdminCookieSchema);
+        await authService.SignOutAsync(CookiesConstants.AdminCookieSchema);
 
         return RedirectToAction("Login", "Auth", new { area = "Admin" });
     }

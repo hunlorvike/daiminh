@@ -1,96 +1,112 @@
 using core.Common.Constants;
-using infrastructure.Data;
+using core.Common.Extensions;
+using Core.Common.Models;
+using core.Entities;
+using core.Interfaces.Service;
+using core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Account;
+using web.Areas.Admin.Requests.Account;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public class AccountController(ApplicationDbContext dbContext) : Controller
+public class AccountController(
+    IUserService userService,
+    RoleService roleService,
+    IServiceProvider serviceProvider,
+    IConfiguration configuration) : DaiminhController(serviceProvider, configuration)
 {
-    private readonly ApplicationDbContext _dbContext = dbContext;
-
     public async Task<IActionResult> Index()
     {
-        var users = await _dbContext.Users
-            .Include(u => u.Role)
-            .Select(u => new UserViewModel
-            {
-                Id = u.Id,
-                Username = u.Username,
-                Email = u.Email,
-                RoleName = u.Role!.Name,
-                CreatedAt = u.CreatedAt
-            })
-            .ToListAsync();
-        return View(users);
+        var response = await userService.GetAllAsync();
+
+        List<UserViewModel> userViewModels = response.Select(r => new UserViewModel
+        {
+            Id = r.Id,
+            Email = r.Email,
+            RoleName = r.Role?.Name,
+            CreatedAt = r.CreatedAt
+        }).ToList();
+        return View(userViewModels);
     }
 
     public async Task<IActionResult> Edit(int id)
     {
-        var user = await _dbContext.Users.Where(u => u.Id == id)
-            .Select(u => new UserViewModel
-            {
-                Id = u.Id,
-                RoleName = u.Role!.Name
-            }).FirstOrDefaultAsync();
+        var user = await userService.GetByIdAsync(id);
 
         if (user == null) return NotFound();
-
-        var roles = await _dbContext.Roles.Select(r => new SelectListItem
+        var viewModel = new UserRequest
         {
-            Text = r.Name,
-            Value = r.Name,
-            Selected = r.Name == user.RoleName
-        }).ToListAsync();
+            Id = user.Id,
+            RoleId = user.RoleId ?? throw new ArgumentNullException(nameof(user.RoleId))
+        };
 
-        ViewBag.Roles = roles;
+        ViewBag.Roles = await GetRoleOptionsAsync(viewModel.RoleId);
 
-        return PartialView("_Edit.Modal", user);
+        return PartialView("_Edit.Modal", viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, UserViewModel model)
+    public async Task<IActionResult> Edit(UserRequest model)
     {
-        if (id != model.Id) return NotFound();
+        var validator = GetValidator<UserRequest>();
 
-        if (!ModelState.IsValid)
+        if (await this.ValidateAndReturnView(validator, model))
         {
-            var roles = await _dbContext.Roles
-                .Select(r => new SelectListItem
-                {
-                    Text = r.Name,
-                    Value = r.Name,
-                    Selected = r.Name == model.RoleName
-                })
-                .ToListAsync();
-
-            ViewBag.Roles = roles;
+            ViewBag.Roles = await GetRoleOptionsAsync(model.RoleId);
             return PartialView("_Edit.Modal", model);
         }
 
-        var user = await _dbContext.Users
-            .Include(u => u.Role)
-            .FirstOrDefaultAsync(u => u.Id == id);
-
-        if (user == null) return NotFound();
-
-        var role = await _dbContext.Roles.FirstOrDefaultAsync(r => r.Name == model.RoleName);
-        if (role == null)
+        try
         {
-            ModelState.AddModelError("RoleName", "Vai trò không tồn tại");
-            return PartialView("_Edit.Modal", model);
+            User updateUser = new()
+            {
+                Id = model.Id,
+                RoleId = model.RoleId
+            };
+
+            var response = await userService.UpdateAsync(model.Id, updateUser);
+
+            switch (response)
+            {
+                case SuccessResponse<ContentType> successResponse:
+                    ViewData["SuccessMessage"] = successResponse.Message;
+                    return RedirectToAction("Index", "Account", new { area = "Admin" });
+
+                case ErrorResponse errorResponse:
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+
+                    break;
+
+                default:
+                    ModelState.AddModelError("", "An unexpected error occurred.");
+                    break;
+            }
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("", "An error occurred: " + ex.Message);
         }
 
-        user.Role = role;
+        ViewBag.Roles = await GetRoleOptionsAsync(model.RoleId);
+        return PartialView("_Edit.Modal", model);
+    }
 
-        await _dbContext.SaveChangesAsync();
-        return RedirectToAction("Index", "Account", new { area = "Admin" });
+    private async Task<List<SelectListItem>> GetRoleOptionsAsync(int selectedRoleId)
+    {
+        var roles = await roleService.GetAllAsync();
+        return roles.Select(r => new SelectListItem
+        {
+            Text = r.Name,
+            Value = r.Id.ToString(),
+            Selected = r.Id == selectedRoleId
+        }).ToList();
     }
 }

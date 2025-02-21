@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace core.Entities;
+namespace core.Entities.Shared;
 
 public abstract class BaseEntity
 {

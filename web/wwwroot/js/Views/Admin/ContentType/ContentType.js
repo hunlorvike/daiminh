@@ -15,11 +15,17 @@ jQuery(document).ready(function ($) {
         dataTable = $(tableSelector).DataTable();
     } else {
         dataTable = Daiminh.DataTable.initialize(tableSelector, {
-            columnDefs: [{targets: 0, orderable: true, searchable: true},
-                {targets: 1, orderable: true, searchable: true},
-                {targets: 2, orderable: true, searchable: true},
-                {targets: 3, orderable: false, searchable: false}],
+            columnDefs: [{targets: 0, orderable: true, searchable: true}, {
+                targets: 1, orderable: true, searchable: true
+            }, {targets: 2, orderable: true, searchable: true}, {targets: 3, orderable: false, searchable: false}],
 
         });
     }
+
+    $(document).on('input', '#Name', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        $('#Slug').val(Daiminh.Utils.generateSlug($(this).val()));
+    })
 });

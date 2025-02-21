@@ -49,17 +49,12 @@ const Daiminh = (($) => {
                 lengthMenu: [[8, 25, 50, 100], [8, 25, 50, 100]],
 
                 // DataTable DOM structure
-                dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' +
-                    '<"table-responsive"t>' +
-                    '<"card-footer d-flex justify-content-between align-items-center"ip>',
+                dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' + '<"table-responsive"t>' + '<"card-footer d-flex justify-content-between align-items-center"ip>',
 
                 // DataTable column definitions
-                columnDefs: [
-                    {targets: 0, orderable: true, searchable: true},
-                    {targets: 1, orderable: true, searchable: true},
-                    {targets: 2, orderable: true, searchable: true},
-                    {targets: 3, orderable: false, searchable: false}
-                ],
+                columnDefs: [{targets: 0, orderable: true, searchable: true}, {
+                    targets: 1, orderable: true, searchable: true
+                }, {targets: 2, orderable: true, searchable: true}, {targets: 3, orderable: false, searchable: false}],
 
                 // DataTable language settings
                 language: {
@@ -86,8 +81,7 @@ const Daiminh = (($) => {
 
             // Modal defaults
             modal: {
-                backdrop: true,
-                disableTimeout: 500
+                backdrop: true, disableTimeout: 500
             }
         }
     };
@@ -137,13 +131,29 @@ const Daiminh = (($) => {
          */
         hasValidationErrors: (response) => {
             return response.includes('field-validation-error');
+        },
+
+        /**
+         * Generate a URL-friendly slug from a string
+         * @param {string} text - The input text
+         * @returns {string} The generated slug
+         */
+        generateSlug: (text) => {
+            return text
+                .toLowerCase()
+                .trim()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/[^a-z0-9\s-]/g, "")
+                .replace(/\s+/g, "-")
+                .replace(/-+/g, "-");
         }
     };
 
     // Return public API
     return {
-        Config: Config,
-        Utils: Utils
+        Config: Config, Utils: Utils
     };
 
 })(jQuery);

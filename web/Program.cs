@@ -74,12 +74,10 @@ builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>)); // re
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<ContactService>();
-builder.Services.AddScoped<ContentTypeService>();
+builder.Services.AddScoped<ContactService>(); // TODO: remove when merge commit HaoDo
 
-builder.Services.AddValidators(Assembly.GetExecutingAssembly());
+builder.Services.AddDaiminhValidators();
+builder.Services.AddDaiminhService();
 
 #endregion
 

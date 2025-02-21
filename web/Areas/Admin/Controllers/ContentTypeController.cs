@@ -2,10 +2,11 @@ using core.Common.Constants;
 using core.Common.Extensions;
 using Core.Common.Models;
 using core.Entities;
+using core.Interfaces.Service;
 using core.Services;
-using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.ContentType;
 using web.Areas.Admin.Requests.ContentType;
 
@@ -15,27 +16,22 @@ namespace web.Areas.Admin.Controllers;
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
 public partial class ContentTypeController(
-    ContentTypeService contentTypeService,
-    IServiceProvider serviceProvider) : Controller
-{
-    private readonly ContentTypeService _contentTypeService = contentTypeService;
-    private readonly IServiceProvider _serviceProvider = serviceProvider;
-
-    private IValidator<T> GetValidator<T>() where T : class
-        => _serviceProvider.GetRequiredService<IValidator<T>>();
-}
+    IContentTypeService contentTypeService,
+    IServiceProvider serviceProvider,
+    IConfiguration configuration)
+    : DaiminhController(serviceProvider, configuration);
 
 public partial class ContentTypeController
 {
     public async Task<IActionResult> Index()
     {
-        List<ContentType> response = await _contentTypeService.GetAllAsync();
+        var response = await contentTypeService.GetAllAsync();
         List<ContentTypeViewModel> viewModels = response.Select(r => new ContentTypeViewModel
         {
             Id = r.Id,
             Name = r.Name,
             Slug = r.Slug,
-            CreatedAt = r.CreatedAt,
+            CreatedAt = r.CreatedAt
         }).ToList();
         return View(viewModels);
     }
@@ -47,13 +43,13 @@ public partial class ContentTypeController
 
     public async Task<IActionResult> Edit(int id)
     {
-        ContentType? response = await _contentTypeService.GetByIdAsync(id);
+        var response = await contentTypeService.GetByIdAsync(id);
         if (response == null) return NotFound();
         ContentTypeUpdateRequest request = new()
         {
             Id = response.Id,
             Name = response.Name,
-            Slug = response.Slug,
+            Slug = response.Slug
         };
         return PartialView("_Edit.Modal", request);
     }
@@ -61,11 +57,11 @@ public partial class ContentTypeController
 
     public async Task<IActionResult> Delete(int id)
     {
-        ContentType? response = await _contentTypeService.GetByIdAsync(id);
+        var response = await contentTypeService.GetByIdAsync(id);
         if (response == null) return NotFound();
         ContentTypeDeleteRequest request = new()
         {
-            Id = response.Id,
+            Id = response.Id
         };
         return PartialView("_Delete.Modal", request);
     }
@@ -78,20 +74,17 @@ public partial class ContentTypeController
     public async Task<IActionResult> Create(ContentTypeCreateRequest model)
     {
         var validator = GetValidator<ContentTypeCreateRequest>();
-        if (await this.ValidateAndReturnView(validator, model))
-        {
-            return PartialView("_Create.Modal", model);
-        }
+        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
 
         try
         {
-            ContentType newContentType = new ContentType()
+            var newContentType = new ContentType()
             {
                 Name = model.Name ?? string.Empty,
-                Slug = model.Slug ?? string.Empty,
+                Slug = model.Slug ?? string.Empty
             };
 
-            var response = await _contentTypeService.AddAsync(newContentType);
+            var response = await contentTypeService.AddAsync(newContentType);
 
             switch (response)
             {
@@ -100,11 +93,11 @@ public partial class ContentTypeController
 
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
                 case ErrorResponse errorResponse:
-                    {
-                        foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
+                {
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
-                        return PartialView("_Create.Modal", model);
-                    }
+                    return PartialView("_Create.Modal", model);
+                }
                 default:
                     return PartialView("_Create.Modal", model);
             }
@@ -121,20 +114,17 @@ public partial class ContentTypeController
     public async Task<IActionResult> Edit(ContentTypeUpdateRequest model)
     {
         var validator = GetValidator<ContentTypeUpdateRequest>();
-        if (await this.ValidateAndReturnView(validator, model))
-        {
-            return PartialView("_Edit.Modal", model);
-        }
+        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Edit.Modal", model);
 
         try
         {
-            ContentType updateContentType = new ContentType()
+            var updateContentType = new ContentType()
             {
                 Name = model.Name ?? string.Empty,
-                Slug = model.Slug ?? string.Empty,
+                Slug = model.Slug ?? string.Empty
             };
 
-            var response = await _contentTypeService.UpdateAsync(model.Id, updateContentType);
+            var response = await contentTypeService.UpdateAsync(model.Id, updateContentType);
 
             switch (response)
             {
@@ -142,10 +132,7 @@ public partial class ContentTypeController
                     ViewData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors)
-                    {
-                        ModelState.AddModelError(error.Key, error.Value);
-                    }
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
                     return PartialView("_Edit.Modal", model);
                 default:
@@ -165,7 +152,7 @@ public partial class ContentTypeController
     {
         try
         {
-            var response = await _contentTypeService.DeleteAsync(model.Id);
+            var response = await contentTypeService.DeleteAsync(model.Id);
             Console.WriteLine(response);
             switch (response)
             {
@@ -173,10 +160,7 @@ public partial class ContentTypeController
                     ViewData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors)
-                    {
-                        ModelState.AddModelError(error.Key, error.Value);
-                    }
+                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
                     return PartialView("_Delete.Modal", model);
                 default:

@@ -1,32 +1,48 @@
+using core.Attributes;
 using Core.Common.Models;
 using core.Entities;
 using core.Interfaces;
+using core.Interfaces.Service;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace core.Services;
 
-public partial class ContentTypeService(IUnitOfWork unitOfWork)
+public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService, IContentTypeService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<List<ContentType>> GetAllAsync()
     {
-        var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+        try
+        {
+            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
 
-        return await contentTypeRepository
-            .AsNoTracking()
-            .ToListAsync();
+            return await contentTypeRepository
+                .AsNoTracking()
+                .ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task<ContentType?> GetByIdAsync(int id)
     {
-        var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+        try
+        {
+            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
 
-        return await contentTypeRepository
-            .Where(ct => ct.Id == id)
-            .AsNoTracking()
-            .FirstOrDefaultAsync();
+            return await contentTypeRepository
+                .Where(ct => ct.Id == id)
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+        }
+        catch (Exception ex)
+        {
+            throw new Exception(ex.Message);
+        }
     }
 
     public async Task<BaseResponse> AddAsync(ContentType model)
@@ -69,23 +85,19 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork)
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
 
             if (existingSlug != null)
-            {
                 return new ErrorResponse(new Dictionary<string, string>
                 {
                     { nameof(model.Slug), "Slug đã tồn tại" }
                 });
-            }
 
             var existingContentType = await contentTypeRepository
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingContentType == null)
-            {
                 return new ErrorResponse(new Dictionary<string, string>
                 {
                     { "General", "ContentType không tồn tại" }
                 });
-            }
 
             existingContentType.Name = model.Name ?? existingContentType.Name;
             existingContentType.Slug = model.Slug ?? existingContentType.Slug;
@@ -111,10 +123,8 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork)
             var contentType = await contentTypeRepository.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (contentType == null)
-            {
                 return new ErrorResponse(new Dictionary<string, string>
                     { { "General", "Loại bài viết không tồn tại." } });
-            }
 
             contentType.DeletedAt = DateTime.UtcNow;
 
