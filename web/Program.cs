@@ -77,6 +77,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ContactService>();
+builder.Services.AddScoped<ContentTypeService>();
 
 builder.Services.AddValidators(Assembly.GetExecutingAssembly());
 

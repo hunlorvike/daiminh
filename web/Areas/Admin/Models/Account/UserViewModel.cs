@@ -5,8 +5,8 @@ namespace web.Areas.Admin.Models.Account;
 public class UserViewModel
 {
     public int Id { get; set; }
-    public string? Username { get; set; }
-    public string? Email { get; set; }
+    [DisplayName("Tài khoản")] public string? Username { get; set; }
+    [DisplayName("Địa chỉ email")] public string? Email { get; set; }
     [DisplayName("Vai trò")] public string? RoleName { get; set; }
-    public DateTime? CreatedAt { get; set; }
+    [DisplayName("Ngày tạo")] public DateTime? CreatedAt { get; set; }
 }
