@@ -1,4 +1,3 @@
-﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -584,7 +583,7 @@ namespace infrastructure.Data.Migrations
 
             migrationBuilder.InsertData(
                 table: "roles",
-                columns: new[] { "id", "created_at", "deleted_at", "name", "permissions", "updated_at" },
+                columns: ["id", "created_at", "deleted_at", "name", "permissions", "updated_at"],
                 values: new object[,]
                 {
                     { 1, new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5634), null, "Admin", "", new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5637) },

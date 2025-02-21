@@ -1,4 +1,3 @@
-using System.Reflection.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -11,9 +10,9 @@ public class ContentType : BaseEntity<int>
 
     // Navigation properties
     public virtual ICollection<ContentFieldDefinition> FieldDefinitions { get; set; } =
-        new List<ContentFieldDefinition>();
+        [];
 
-    public virtual ICollection<Content> Contents { get; set; } = new List<Content>();
+    public virtual ICollection<Content> Contents { get; set; } = [];
 }
 
 public class ContentTypeConfiguration : BaseEntityConfiguration<ContentType, int>

@@ -1,7 +1,7 @@
 using core.Common.Constants;
-using Core.Common.Models;
 using core.Entities;
 using core.Services;
+using Core.Common.Models;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
@@ -12,19 +12,14 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
-public class AuthController : Controller
+public class AuthController(
+    AuthService authService,
+    IValidator<LoginRequest> loginRequestValidator,
+    IValidator<RegisterRequest> registerRequestValidator) : Controller
 {
-    private readonly AuthService _authService;
-    private readonly IValidator<LoginRequest> _loginRequestValidator;
-    private readonly IValidator<RegisterRequest> _registerRequestValidator;
-
-    public AuthController(AuthService authService, IValidator<LoginRequest> loginRequestValidator,
-        IValidator<RegisterRequest> registerRequestValidator)
-    {
-        _authService = authService;
-        _loginRequestValidator = loginRequestValidator;
-        _registerRequestValidator = registerRequestValidator;
-    }
+    private readonly AuthService _authService = authService;
+    private readonly IValidator<LoginRequest> _loginRequestValidator = loginRequestValidator;
+    private readonly IValidator<RegisterRequest> _registerRequestValidator = registerRequestValidator;
 
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
@@ -69,8 +64,8 @@ public class AuthController : Controller
         {
             User user = new()
             {
-                Username = model.Username,
-                PasswordHash = model.Password
+                Username = model.Username ?? string.Empty,
+                PasswordHash = model.Password ?? string.Empty
             };
 
             var response = await _authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
@@ -116,9 +111,9 @@ public class AuthController : Controller
         {
             User newUser = new()
             {
-                Username = model.Username,
-                Email = model.Email,
-                PasswordHash = model.Password
+                Username = model.Username ?? string.Empty,
+                Email = model.Email ?? string.Empty,
+                PasswordHash = model.Password ?? string.Empty
             };
 
             var response = await _authService.SignUpAsync(newUser);

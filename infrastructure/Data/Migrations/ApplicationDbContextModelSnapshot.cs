@@ -360,8 +360,8 @@ namespace infrastructure.Data.Migrations
                     b.Property<string>("FieldType")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
                         .HasDefaultValue("text")
                         .HasColumnName("field_type");
 
@@ -676,8 +676,8 @@ namespace infrastructure.Data.Migrations
                     b.Property<string>("FieldType")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(30)
-                        .HasColumnType("character varying(30)")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
                         .HasDefaultValue("text")
                         .HasColumnName("field_type");
 
@@ -985,26 +985,26 @@ namespace infrastructure.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5634),
+                            CreatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 601, DateTimeKind.Utc).AddTicks(4042),
                             Name = "Admin",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5637)
+                            UpdatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 601, DateTimeKind.Utc).AddTicks(4045)
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5641),
+                            CreatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 601, DateTimeKind.Utc).AddTicks(4053),
                             Name = "User",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5641)
+                            UpdatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 601, DateTimeKind.Utc).AddTicks(4053)
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5643),
+                            CreatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 601, DateTimeKind.Utc).AddTicks(4054),
                             Name = "Manager",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 2, 9, 18, 39, 29, 921, DateTimeKind.Utc).AddTicks(5643)
+                            UpdatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 601, DateTimeKind.Utc).AddTicks(4055)
                         });
                 });
 
@@ -1188,6 +1188,37 @@ namespace infrastructure.Data.Migrations
                         .HasDatabaseName("idx_users_username");
 
                     b.ToTable("users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 189, DateTimeKind.Utc).AddTicks(3290),
+                            Email = "admin@admin.com",
+                            PasswordHash = "$2a$11$LYaUUzKmSh626Ph5PIIp3.v37WK2eVknM9aD47D0ShBIyKAB15z7a",
+                            RoleId = 1,
+                            UpdatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 189, DateTimeKind.Utc).AddTicks(3293),
+                            Username = "admin"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 321, DateTimeKind.Utc).AddTicks(9446),
+                            Email = "user@user.com",
+                            PasswordHash = "$2a$11$HqXoDet3MPqlb8SAprhAqeEscwagVhCe7GLjMx1RXy605oogl3ATS",
+                            RoleId = 2,
+                            UpdatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 321, DateTimeKind.Utc).AddTicks(9451),
+                            Username = "user"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 468, DateTimeKind.Utc).AddTicks(9425),
+                            Email = "manager@manager.com",
+                            PasswordHash = "$2a$11$GPBhC/xKtZci0zwqry8rdOfpQf1qq2DCFlP8lO9Y7gO0YBv0gZcQ2",
+                            UpdatedAt = new DateTime(2025, 2, 20, 14, 1, 39, 468, DateTimeKind.Utc).AddTicks(9430),
+                            Username = "manager"
+                        });
                 });
 
             modelBuilder.Entity("core.Entities.Category", b =>

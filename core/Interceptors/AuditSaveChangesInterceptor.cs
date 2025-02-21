@@ -6,7 +6,7 @@ namespace core.Interceptors;
 
 public class AuditSaveChangesInterceptor : SaveChangesInterceptor
 {
-    private void UpdateAuditFields(DbContext? context)
+    private static void UpdateAuditFields(DbContext? context)
     {
         if (context == null)
             return;

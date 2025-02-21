@@ -11,14 +11,9 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public class AccountController : Controller
+public class AccountController(ApplicationDbContext dbContext) : Controller
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public AccountController(ApplicationDbContext dbContext)
-    {
-        _dbContext = dbContext;
-    }
+    private readonly ApplicationDbContext _dbContext = dbContext;
 
     public async Task<IActionResult> Index()
     {
@@ -56,7 +51,7 @@ public class AccountController : Controller
 
         ViewBag.Roles = roles;
 
-        return PartialView("_EditUser.Modal", user);
+        return PartialView("_Edit.Modal", user);
     }
 
     [HttpPost]
@@ -77,7 +72,7 @@ public class AccountController : Controller
                 .ToListAsync();
 
             ViewBag.Roles = roles;
-            return PartialView("_EditUser.Modal", model);
+            return PartialView("_Edit.Modal", model);
         }
 
         var user = await _dbContext.Users
@@ -90,7 +85,7 @@ public class AccountController : Controller
         if (role == null)
         {
             ModelState.AddModelError("RoleName", "Vai trò không tồn tại");
-            return PartialView("_EditUser.Modal", model);
+            return PartialView("_Edit.Modal", model);
         }
 
         user.Role = role;

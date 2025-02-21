@@ -1,7 +1,9 @@
-using System.Reflection;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
+using FluentValidation.Results;
+using Microsoft.AspNetCore.Mvc;
 
 namespace core.Common.Extensions;
 
@@ -9,12 +11,11 @@ public static class ValidatorExtensions
 {
     public static IServiceCollection AddValidators(this IServiceCollection services, params Assembly[]? assemblies)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
+        ArgumentNullException.ThrowIfNull(services);
 
         try
         {
-            if (assemblies == null || !assemblies.Any()) assemblies = [Assembly.GetExecutingAssembly()];
+            if (assemblies == null || assemblies.Length == 0) assemblies = [Assembly.GetExecutingAssembly()];
 
             services.AddFluentValidationAutoValidation();
 
@@ -41,5 +42,17 @@ public static class ValidatorExtensions
         }
 
         return services;
+    }
+
+    public static async Task<bool> ValidateAndReturnView<T>(
+        this Controller controller,
+        IValidator<T> validator,
+        T model) where T : class
+    {
+        var validationResult = await validator.ValidateAsync(model);
+
+        if (validationResult.IsValid) return false;
+        validationResult.AddToModelState(controller.ModelState);
+        return true;
     }
 }

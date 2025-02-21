@@ -3,14 +3,9 @@ using core.Interfaces;
 
 namespace core.Services;
 
-public class ContactService
+public class ContactService(IUnitOfWork unitOfWork)
 {
-    private readonly IUnitOfWork _unitOfWork;
-
-    public ContactService(IUnitOfWork unitOfWork)
-    {
-        _unitOfWork = unitOfWork;
-    }
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
     public async Task<Contact> GetContactByIdAsync(int id)
     {

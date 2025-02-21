@@ -1,6 +1,4 @@
-using System.Text.Json;
 using core.Common.Enums;
-using core.Common.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +14,7 @@ public class ContentFieldDefinition : BaseEntity<int>
 
     // Navigation properties
     public virtual ContentType ContentType { get; set; } = new();
-    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = new List<ContentFieldValue>();
+    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = [];
 }
 
 public class ContentFieldDefinitionConfiguration : BaseEntityConfiguration<ContentFieldDefinition, int>

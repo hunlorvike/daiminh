@@ -1,5 +1,7 @@
+using core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using BC = BCrypt.Net.BCrypt;
 
 namespace core.Entities;
 
@@ -12,9 +14,9 @@ public class User : BaseEntity<int>
 
     // Navigation properties
     public virtual Role? Role { get; set; }
-    public virtual ICollection<Content> Contents { get; set; } = new List<Content>();
-    public virtual ICollection<Comment> Comments { get; set; } = new List<Comment>();
-    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
+    public virtual ICollection<Content> Contents { get; set; } = [];
+    public virtual ICollection<Comment> Comments { get; set; } = [];
+    public virtual ICollection<Review> Reviews { get; set; } = [];
 }
 
 public class UserConfiguration : BaseEntityConfiguration<User, int>
@@ -37,5 +39,41 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
             .WithMany(r => r.Users)
             .HasForeignKey(x => x.RoleId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasData(new UserSeeder().DataSeeder());
+    }
+}
+
+public class UserSeeder : ISeeder<User>
+{
+    public IEnumerable<User> DataSeeder()
+    {
+        return
+        [
+            new User
+            {
+                Id = 1,
+                Username = "admin",
+                Email = "admin@admin.com",
+                PasswordHash = BC.HashPassword("123456a@A"),
+                RoleId = 1
+            },
+            new User
+            {
+                Id = 2,
+                Username = "user",
+                Email = "user@user.com",
+                PasswordHash = BC.HashPassword("123456a@A"),
+                RoleId = 2
+            },
+            new User
+            {
+                Id = 3,
+                Username = "manager",
+                Email = "manager@manager.com",
+                PasswordHash = BC.HashPassword("123456a@A"),
+                RoleId = 3
+            }
+        ];
     }
 }

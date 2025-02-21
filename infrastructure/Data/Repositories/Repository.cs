@@ -1,7 +1,7 @@
-using System.Linq.Expressions;
 using core.Entities;
 using core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace infrastructure.Data.Repositories;
 

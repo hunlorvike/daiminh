@@ -1,4 +1,3 @@
-using System.Reflection;
 using core.Common.Constants;
 using core.Common.Extensions;
 using core.Interceptors;
@@ -10,6 +9,7 @@ using infrastructure.Data.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using System.Reflection;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
@@ -77,6 +77,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<ContactService>();
+builder.Services.AddScoped<ContentTypeService>();
 
 builder.Services.AddValidators(Assembly.GetExecutingAssembly());
 

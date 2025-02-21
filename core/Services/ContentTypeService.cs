@@ -1,0 +1,130 @@
+using Core.Common.Models;
+using core.Entities;
+using core.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+
+namespace core.Services;
+
+public partial class ContentTypeService(IUnitOfWork unitOfWork)
+{
+    private readonly IUnitOfWork _unitOfWork = unitOfWork;
+
+    public async Task<List<ContentType>> GetAllAsync()
+    {
+        var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+
+        return await contentTypeRepository
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<ContentType?> GetByIdAsync(int id)
+    {
+        var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+
+        return await contentTypeRepository
+            .Where(ct => ct.Id == id)
+            .AsNoTracking()
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<BaseResponse> AddAsync(ContentType model)
+    {
+        try
+        {
+            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+
+            var errors = new Dictionary<string, string>();
+
+            var existingContentType = await contentTypeRepository
+                .FirstOrDefaultAsync(ct => ct.Slug == model.Slug);
+
+            if (existingContentType != null)
+                errors.Add(nameof(model.Slug), "Slug đã tồn tại");
+
+            if (errors.Count != 0) return new ErrorResponse(errors);
+
+            await contentTypeRepository.AddAsync(model);
+            await _unitOfWork.SaveChangesAsync();
+
+            return new SuccessResponse<ContentType>(model, "Thêm thành công.");
+        }
+        catch (Exception ex)
+        {
+            return new ErrorResponse(new Dictionary<string, string>
+            {
+                { "General", ex.Message }
+            });
+        }
+    }
+
+    public async Task<BaseResponse> UpdateAsync(int id, ContentType model)
+    {
+        try
+        {
+            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+
+            var existingSlug = await contentTypeRepository
+                .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
+
+            if (existingSlug != null)
+            {
+                return new ErrorResponse(new Dictionary<string, string>
+                {
+                    { nameof(model.Slug), "Slug đã tồn tại" }
+                });
+            }
+
+            var existingContentType = await contentTypeRepository
+                .FirstOrDefaultAsync(ct => ct.Id == id);
+
+            if (existingContentType == null)
+            {
+                return new ErrorResponse(new Dictionary<string, string>
+                {
+                    { "General", "ContentType không tồn tại" }
+                });
+            }
+
+            existingContentType.Name = model.Name ?? existingContentType.Name;
+            existingContentType.Slug = model.Slug ?? existingContentType.Slug;
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return new SuccessResponse<ContentType>(existingContentType, "Cập nhật thành công.");
+        }
+        catch (Exception ex)
+        {
+            return new ErrorResponse(new Dictionary<string, string>
+            {
+                { "General", ex.Message }
+            });
+        }
+    }
+
+    public async Task<BaseResponse> DeleteAsync(int id)
+    {
+        try
+        {
+            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+            var contentType = await contentTypeRepository.FirstOrDefaultAsync(ct => ct.Id == id);
+
+            if (contentType == null)
+            {
+                return new ErrorResponse(new Dictionary<string, string>
+                    { { "General", "Loại bài viết không tồn tại." } });
+            }
+
+            contentType.DeletedAt = DateTime.UtcNow;
+
+            await _unitOfWork.SaveChangesAsync();
+
+            return new SuccessResponse<ContentType>(contentType, "Đã xóa thành công.");
+        }
+        catch (Exception ex)
+        {
+            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+        }
+    }
+}
