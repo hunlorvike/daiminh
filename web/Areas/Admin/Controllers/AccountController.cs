@@ -51,7 +51,7 @@ public class AccountController(ApplicationDbContext dbContext) : Controller
 
         ViewBag.Roles = roles;
 
-        return PartialView("_EditUser.Modal", user);
+        return PartialView("_Edit.Modal", user);
     }
 
     [HttpPost]
@@ -72,7 +72,7 @@ public class AccountController(ApplicationDbContext dbContext) : Controller
                 .ToListAsync();
 
             ViewBag.Roles = roles;
-            return PartialView("_EditUser.Modal", model);
+            return PartialView("_Edit.Modal", model);
         }
 
         var user = await _dbContext.Users
@@ -85,7 +85,7 @@ public class AccountController(ApplicationDbContext dbContext) : Controller
         if (role == null)
         {
             ModelState.AddModelError("RoleName", "Vai trò không tồn tại");
-            return PartialView("_EditUser.Modal", model);
+            return PartialView("_Edit.Modal", model);
         }
 
         user.Role = role;
