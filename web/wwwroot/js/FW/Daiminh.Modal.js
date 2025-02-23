@@ -1,7 +1,7 @@
 /**
  * Daiminh.Modal Module
  * Manages modal dialogs for create, edit, and delete operations
- * @requires Daiminh.Core
+ * @requires Daiminh
  */
 Daiminh.Modal = (($, Daiminh) => {
     'use strict';
@@ -37,13 +37,11 @@ Daiminh.Modal = (($, Daiminh) => {
      * @param {Object} config - Configuration object
      * @param {string} config.buttonSelector - Selector for action button
      * @param {string} config.containerSelector - Selector for content container
-     * @param {string} config.modalType - Type of modal (create, edit, delete)
+     * @param {string} config.modalType - Type of modal (detail, create, edit, delete)
      */
     const _setupModalAction = (config) => {
         const {
-            buttonSelector,
-            containerSelector,
-            modalType
+            buttonSelector, containerSelector, modalType
         } = config;
 
         // Attach click handler to action button
@@ -65,9 +63,7 @@ Daiminh.Modal = (($, Daiminh) => {
             try {
                 // Load modal content via AJAX
                 const response = await Utils.ajax({
-                    url: targetUrl,
-                    method: 'GET',
-                    contentType: 'application/json; charset=UTF-8'
+                    url: targetUrl, method: 'GET', contentType: 'application/json; charset=UTF-8'
                 }, null, null, `Error loading ${modalType} modal`);
 
                 // Update container with loaded content and show modal
@@ -88,11 +84,23 @@ Daiminh.Modal = (($, Daiminh) => {
          */
         init: () => {
             // Initialize modal action handlers
+            Daiminh.Modal.initDetailModal();
             Daiminh.Modal.initCreateModal();
             Daiminh.Modal.initEditModal();
             Daiminh.Modal.initDeleteModal();
-            // TODO: Daiminh.Modal.initDetailModal
             Daiminh.Modal.initCloseHandler();
+        },
+
+
+        /**
+         * Initialize detail modal handler
+         */
+        initDetailModal: () => {
+            _setupModalAction({
+                buttonSelector: Config.selectors.modalDetail,
+                containerSelector: Config.selectors.detailContainer,
+                modalType: 'detail'
+            });
         },
 
         /**
@@ -142,13 +150,8 @@ Daiminh.Modal = (($, Daiminh) => {
                 const instance = bootstrap.Modal.getInstance($modal[0]);
 
                 if (instance) {
-                    // Clear form container after modal is hidden
-                    $modal.one('hidden.bs.modal', () => {
-                        $formContainer.html('');
-                    });
-
-                    // Hide the modal
                     instance.hide();
+                    $formContainer.html('');
                 }
             });
         },

@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
+using core.Interfaces.Infrastructure;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
@@ -68,13 +69,11 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
         .AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
 });
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // register unit of work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>)); // register generic repository
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddScoped<ContactService>(); // TODO: remove when merge commit HaoDo
 
 builder.Services.AddDaiminhValidators();
 builder.Services.AddDaiminhService();

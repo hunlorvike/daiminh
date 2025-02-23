@@ -1,7 +1,7 @@
 /**
  * Daiminh.Form Module
  * Handles form submissions and validation
- * @requires Daiminh.Core
+ * @requires Daiminh
  */
 Daiminh.Form = (($, Daiminh) => {
     'use strict';

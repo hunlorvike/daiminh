@@ -1,0 +1,33 @@
+@model List<web.Areas.Admin.Models.Contact.ContactViewModel>
+
+@{
+    const string title = "Quản lý liên hệ";
+    const string screenCode = "contact";
+    ViewBag.Title = title;
+}
+
+<div class="screen @screenCode">
+    <section class="page-header d-print-none">
+        <div class="container">
+            <div class="row g-2 align-items-center">
+                <div class="col">
+                    <h2 class="page-title">@title</h2>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="dm-form form-create-container"></section>
+    <section class="dm-form form-details-container"></section>
+    <section class="dm-form form-edit-container"></section>
+    <section class="dm-form form-delete-container"></section>
+    <section class="paged-list">
+        <partial name="_List" model="Model"/>
+    </section>
+</div>
+
+
+@section FootScripts {
+    <script src="~/lib/datatables/datatables.min.js" asp-append-version="true"></script>
+    @* <script src="~/js/Admin/Account.js"></script> TODO: data table*@
+}

@@ -118,13 +118,13 @@ public partial class ContentTypeController
 
         try
         {
-            var updateContentType = new ContentType()
-            {
-                Name = model.Name ?? string.Empty,
-                Slug = model.Slug ?? string.Empty
-            };
+            var contentType = await contentTypeService.GetByIdAsync(model.Id);
+            if (contentType == null) return NotFound();
 
-            var response = await contentTypeService.UpdateAsync(model.Id, updateContentType);
+            contentType.Name = model.Name ?? string.Empty;
+            contentType.Slug = model.Slug ?? string.Empty;
+
+            var response = await contentTypeService.UpdateAsync(model.Id, contentType);
 
             switch (response)
             {

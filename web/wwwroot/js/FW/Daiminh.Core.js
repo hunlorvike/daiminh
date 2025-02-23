@@ -1,5 +1,5 @@
 /**
- * Daiminh.Core Module
+ * Daiminh Module
  * Core application functionality and shared utilities
  */
 const Daiminh = (($) => {
@@ -24,12 +24,14 @@ const Daiminh = (($) => {
             submitButton: '.command-submit',
 
             // Modal selectors
+            modalDetail: '.command-modal-detail',
             modalCreate: '.command-modal-create',
             modalEdit: '.command-modal-edit',
             modalDelete: '.command-modal-delete',
             modalClose: '.command-modal-close',
 
             // Container selectors
+            detailContainer: '.form-details-container',
             createContainer: '.form-create-container',
             editContainer: '.form-edit-container',
             deleteContainer: '.form-delete-container'
@@ -50,11 +52,6 @@ const Daiminh = (($) => {
 
                 // DataTable DOM structure
                 dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' + '<"table-responsive"t>' + '<"card-footer d-flex justify-content-between align-items-center"ip>',
-
-                // DataTable column definitions
-                columnDefs: [{targets: 0, orderable: true, searchable: true}, {
-                    targets: 1, orderable: true, searchable: true
-                }, {targets: 2, orderable: true, searchable: true}, {targets: 3, orderable: false, searchable: false}],
 
                 // DataTable language settings
                 language: {

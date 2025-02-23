@@ -1,7 +1,7 @@
 /**
- * Daiminh.Init Module
+ * Daiminh.Main Module
  * Application initialization and bootstrap
- * @requires Daiminh.Core
+ * @requires Daiminh
  * @requires Daiminh.DataTable
  * @requires Daiminh.Form
  * @requires Daiminh.Modal
