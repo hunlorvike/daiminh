@@ -1,3 +1,4 @@
+using AutoMapper;
 using core.Common.Extensions;
 using Core.Common.Models;
 using core.Entities;
@@ -10,16 +11,22 @@ namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
 [Route("/lien-he")]
-public class ContactController(
+public partial class ContactController(
     IContactService contactService,
+    IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(serviceProvider, configuration)
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration);
+
+public partial class ContactController
 {
     public IActionResult Index()
     {
         return View();
     }
+}
 
+public partial class ContactController
+{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ContactCreateRequest request)
@@ -30,13 +37,7 @@ public class ContactController(
 
         try
         {
-            Contact model = new()
-            {
-                Name = request.Name ?? string.Empty,
-                Email = request.Email ?? string.Empty,
-                Phone = request.Phone ?? string.Empty,
-                Message = request.Message ?? string.Empty
-            };
+            Contact model = _mapper.Map<Contact>(request);
 
             var response = await contactService.AddAsync(model);
 

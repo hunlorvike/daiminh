@@ -1,13 +1,21 @@
+using AutoMapper;
 using core.Common.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using web.Areas.Admin.Controllers.Shared;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}, {RoleConstants.Manager}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public class HomeController : Controller
+public partial class HomeController(
+    IMapper mapper,
+    IServiceProvider serviceProvider,
+    IConfiguration configuration)
+    : DaiminhController(mapper, serviceProvider, configuration);
+
+public partial class HomeController
 {
     public IActionResult Index()
     {

@@ -1,3 +1,4 @@
+using AutoMapper;
 using core.Common.Constants;
 using core.Common.Extensions;
 using core.Entities;
@@ -14,8 +15,9 @@ namespace web.Areas.Admin.Controllers;
 [Authorize]
 public partial class AuthController(
     IAuthService authService,
+    IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(serviceProvider, configuration);
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration);
 
 public partial class AuthController
 {
@@ -60,11 +62,7 @@ public partial class AuthController
 
         try
         {
-            User user = new()
-            {
-                Username = model.Username ?? string.Empty,
-                PasswordHash = model.Password ?? string.Empty
-            };
+            User user = _mapper.Map<User>(model);
 
             var response = await authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
 
@@ -103,14 +101,9 @@ public partial class AuthController
 
         try
         {
-            User newUser = new()
-            {
-                Username = model.Username ?? string.Empty,
-                Email = model.Email ?? string.Empty,
-                PasswordHash = model.Password ?? string.Empty
-            };
+            User user = _mapper.Map<User>(model);
 
-            var response = await authService.SignUpAsync(newUser);
+            var response = await authService.SignUpAsync(user);
 
             switch (response)
             {
@@ -138,12 +131,9 @@ public partial class AuthController
         }
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
+    [Authorize(AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
     public async Task<IActionResult> Logout()
     {
         await authService.SignOutAsync(CookiesConstants.AdminCookieSchema);
-
         return RedirectToAction("Login", "Auth", new { area = "Admin" });
-    }
-}
+    }}

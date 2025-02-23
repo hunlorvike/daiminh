@@ -1,3 +1,4 @@
+using AutoMapper;
 using core.Attributes;
 using core.Common.Constants;
 using core.Common.Enums;
@@ -17,37 +18,28 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public class ContactController(
+public partial class ContactController(
     IContactService contactService,
+    IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration)
-    : DaiminhController(serviceProvider, configuration)
+    : DaiminhController(mapper, serviceProvider, configuration);
+
+public partial class ContactController
 {
     public async Task<IActionResult> Index()
     {
-        var response = await contactService.GetAllAsync();
-        List<ContactViewModel> viewModels = response.Select(c => new ContactViewModel
-        {
-            Id = c.Id,
-            Name = c.Name,
-            Email = c.Email,
-            Phone = c.Phone,
-            Status = c.Status.ToString(),
-            CreatedAt = c.CreatedAt
-        }).ToList();
-        return View(viewModels);
+        List<Contact> contacts = await contactService.GetAllAsync();
+        List<ContactViewModel> models = _mapper.Map<List<ContactViewModel>>(contacts);
+        return View(models);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await contactService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        ContactUpdateRequest request = new()
-        {
-            Id = response.Id,
-            ContactStatus = response.Status
-        };
+        Contact? contact = await contactService.GetByIdAsync(id);
+        if (contact == null) return NotFound();
+        ContactUpdateRequest request = _mapper.Map<ContactUpdateRequest>(contact);
 
         ViewBag.ContactStatus = EnumExtensions.ToSelectList<ContactStatus>(request.ContactStatus);
         return PartialView("_Edit.Modal", request);
@@ -56,22 +48,15 @@ public class ContactController(
     [AjaxOnly]
     public async Task<IActionResult> Details(int id)
     {
-        var response = await contactService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-
-        var contactDetail = new ContactViewModel()
-        {
-            Id = response.Id,
-            Name = response.Name,
-            Email = response.Email,
-            Phone = response.Phone,
-            Message = response.Message,
-            Status = response.Status.ToString()
-        };
-
+        Contact? contact = await contactService.GetByIdAsync(id);
+        if (contact == null) return NotFound();
+        ContactViewModel contactDetail = _mapper.Map<ContactViewModel>(contact);
         return PartialView("_Detail.Modal", contactDetail);
     }
+}
 
+public partial class ContactController
+{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ContactUpdateRequest request)
@@ -89,7 +74,7 @@ public class ContactController(
             var contact = await contactService.GetByIdAsync(request.Id);
             if (contact == null) return NotFound();
 
-            contact.Status = request.ContactStatus;
+            _mapper.Map(request, contact);
 
             var response = await contactService.UpdateAsync(request.Id, contact);
 

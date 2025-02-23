@@ -1,10 +1,10 @@
+using AutoMapper;
 using core.Attributes;
 using core.Common.Constants;
 using core.Common.Extensions;
 using Core.Common.Models;
 using core.Entities;
 using core.Interfaces.Service;
-using core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using web.Areas.Admin.Controllers.Shared;
@@ -18,23 +18,18 @@ namespace web.Areas.Admin.Controllers;
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
 public partial class ContentTypeController(
     IContentTypeService contentTypeService,
+    IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration)
-    : DaiminhController(serviceProvider, configuration);
+    : DaiminhController(mapper, serviceProvider, configuration);
 
 public partial class ContentTypeController
 {
     public async Task<IActionResult> Index()
     {
-        var response = await contentTypeService.GetAllAsync();
-        List<ContentTypeViewModel> viewModels = response.Select(r => new ContentTypeViewModel
-        {
-            Id = r.Id,
-            Name = r.Name,
-            Slug = r.Slug,
-            CreatedAt = r.CreatedAt
-        }).ToList();
-        return View(viewModels);
+        List<ContentType> contentTypes = await contentTypeService.GetAllAsync();
+        List<ContentTypeViewModel> models = _mapper.Map<List<ContentTypeViewModel>>(contentTypes);
+        return View(models);
     }
 
 
@@ -47,26 +42,18 @@ public partial class ContentTypeController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await contentTypeService.GetByIdAsync(id);
+        ContentType? response = await contentTypeService.GetByIdAsync(id);
         if (response == null) return NotFound();
-        ContentTypeUpdateRequest request = new()
-        {
-            Id = response.Id,
-            Name = response.Name,
-            Slug = response.Slug
-        };
+        ContentTypeUpdateRequest request = _mapper.Map<ContentTypeUpdateRequest>(response);
         return PartialView("_Edit.Modal", request);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await contentTypeService.GetByIdAsync(id);
+        ContentType? response = await contentTypeService.GetByIdAsync(id);
         if (response == null) return NotFound();
-        ContentTypeDeleteRequest request = new()
-        {
-            Id = response.Id
-        };
+        ContentTypeDeleteRequest request = _mapper.Map<ContentTypeDeleteRequest>(response);
         return PartialView("_Delete.Modal", request);
     }
 }
@@ -82,11 +69,7 @@ public partial class ContentTypeController
 
         try
         {
-            var newContentType = new ContentType()
-            {
-                Name = model.Name ?? string.Empty,
-                Slug = model.Slug ?? string.Empty
-            };
+            var newContentType = _mapper.Map<ContentType>(model);
 
             var response = await contentTypeService.AddAsync(newContentType);
 
@@ -125,11 +108,10 @@ public partial class ContentTypeController
 
         try
         {
-            var contentType = await contentTypeService.GetByIdAsync(model.Id);
+            ContentType? contentType = await contentTypeService.GetByIdAsync(model.Id);
             if (contentType == null) return NotFound();
 
-            contentType.Name = model.Name ?? string.Empty;
-            contentType.Slug = model.Slug ?? string.Empty;
+            _mapper.Map(model, contentType);
 
             var response = await contentTypeService.UpdateAsync(model.Id, contentType);
 
@@ -163,7 +145,7 @@ public partial class ContentTypeController
         try
         {
             var response = await contentTypeService.DeleteAsync(model.Id);
-            Console.WriteLine(response);
+
             switch (response)
             {
                 case SuccessResponse<ContentType> successResponse:

@@ -1,10 +1,10 @@
+using AutoMapper;
 using core.Attributes;
 using core.Common.Constants;
 using core.Common.Extensions;
 using Core.Common.Models;
 using core.Entities;
 using core.Interfaces.Service;
-using core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -19,21 +19,16 @@ namespace web.Areas.Admin.Controllers;
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
 public class AccountController(
     IUserService userService,
-    RoleService roleService,
+    IRoleService roleService,
+    IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(serviceProvider, configuration)
+    IConfiguration configuration)
+    : DaiminhController(mapper, serviceProvider, configuration)
 {
     public async Task<IActionResult> Index()
     {
-        var response = await userService.GetAllAsync();
-
-        var userViewModels = response.Select(r => new UserViewModel
-        {
-            Id = r.Id,
-            Email = r.Email,
-            RoleName = r.Role?.Name,
-            CreatedAt = r.CreatedAt
-        }).ToList();
+        List<User> users = await userService.GetAllAsync();
+        List<UserViewModel> userViewModels = _mapper.Map<List<UserViewModel>>(users);
         return View(userViewModels);
     }
 
@@ -42,16 +37,9 @@ public class AccountController(
     public async Task<IActionResult> Edit(int id)
     {
         var user = await userService.GetByIdAsync(id);
-
         if (user == null) return NotFound();
-        var viewModel = new UserRequest
-        {
-            Id = user.Id,
-            RoleId = user.RoleId ?? throw new ArgumentNullException(nameof(user.RoleId))
-        };
-
+        UserRequest viewModel = _mapper.Map<UserRequest>(user);
         ViewBag.Roles = await GetRoleOptionsAsync(viewModel.RoleId);
-
         return PartialView("_Edit.Modal", viewModel);
     }
 
@@ -60,7 +48,6 @@ public class AccountController(
     public async Task<IActionResult> Edit(UserRequest model)
     {
         var validator = GetValidator<UserRequest>();
-
         if (await this.ValidateAndReturnView(validator, model))
         {
             ViewBag.Roles = await GetRoleOptionsAsync(model.RoleId);
@@ -72,7 +59,8 @@ public class AccountController(
             var user = await userService.GetByIdAsync(model.Id);
             if (user == null) return NotFound();
 
-            user.RoleId = model.RoleId;
+            _mapper.Map(model, user);
+
             var response = await userService.UpdateAsync(model.Id, user);
 
             switch (response)
