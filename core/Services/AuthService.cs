@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using core.Attributes;
+using core.Interfaces.Infrastructure;
 using core.Interfaces.Service;
 using BC = BCrypt.Net.BCrypt;
 

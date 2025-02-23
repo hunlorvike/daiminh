@@ -1,6 +1,7 @@
 using core.Attributes;
 using core.Entities;
 using core.Interfaces;
+using core.Interfaces.Infrastructure;
 using core.Interfaces.Service;
 
 namespace core.Services;

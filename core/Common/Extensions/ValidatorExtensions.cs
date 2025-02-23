@@ -15,27 +15,39 @@ public static class ValidatorExtensions
 
         try
         {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            services.AddFluentValidationAutoValidation(config => { config.DisableDataAnnotationsValidation = true; });
 
-            services.AddFluentValidationAutoValidation();
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => !a.IsDynamic && !string.IsNullOrEmpty(a.Location))
+                .ToArray();
 
-            IEnumerable<Type> validatorTypes = assemblies
-                .SelectMany(assembly => assembly.GetTypes())
-                .Where(type => type is { IsAbstract: false, IsInterface: false, BaseType.IsGenericType: true } &&
-                               type.BaseType.GetGenericTypeDefinition() == typeof(AbstractValidator<>));
+            foreach (var assembly in assemblies)
+                try
+                {
+                    var validatorTypes = assembly.GetTypes()
+                        .Where(t => t is
+                                    {
+                                        IsClass: true, IsAbstract: false, IsGenericType: false,
+                                        BaseType.IsGenericType: true
+                                    }
+                                    && t.BaseType.GetGenericTypeDefinition() == typeof(AbstractValidator<>));
 
-            foreach (var validatorType in validatorTypes)
-            {
-                var modelType = validatorType.BaseType?.GetGenericArguments().FirstOrDefault();
-                if (modelType == null) continue;
+                    foreach (var validatorType in validatorTypes)
+                    {
+                        var entityType = validatorType.BaseType!.GetGenericArguments()[0];
 
-                var interfaceType = typeof(IValidator<>).MakeGenericType(modelType);
-                services.AddScoped(interfaceType, validatorType);
-            }
+                        var serviceType = typeof(IValidator<>).MakeGenericType(entityType);
+                        services.AddScoped(serviceType, validatorType);
+                    }
+                }
+                catch (Exception)
+                {
+                    continue;
+                }
         }
-        catch (ReflectionTypeLoadException ex)
+        catch (Exception ex)
         {
-            throw new InvalidOperationException("Failed to load validator types", ex);
+            throw new InvalidOperationException("Failed to register validators", ex);
         }
 
         return services;
@@ -46,9 +58,13 @@ public static class ValidatorExtensions
         IValidator<T> validator,
         T model) where T : class
     {
+        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(model);
+
         var validationResult = await validator.ValidateAsync(model);
 
         if (validationResult.IsValid) return false;
+
         validationResult.AddToModelState(controller.ModelState);
         return true;
     }

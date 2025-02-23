@@ -66,13 +66,11 @@ public class AccountController(
 
         try
         {
-            User updateUser = new()
-            {
-                Id = model.Id,
-                RoleId = model.RoleId
-            };
+            var user = await userService.GetByIdAsync(model.Id);
+            if (user == null) return NotFound();
 
-            var response = await userService.UpdateAsync(model.Id, updateUser);
+            user.RoleId = model.RoleId;
+            var response = await userService.UpdateAsync(model.Id, user);
 
             switch (response)
             {

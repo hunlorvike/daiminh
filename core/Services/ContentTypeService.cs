@@ -1,22 +1,19 @@
 using core.Attributes;
 using Core.Common.Models;
 using core.Entities;
-using core.Interfaces;
+using core.Interfaces.Infrastructure;
 using core.Interfaces.Service;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace core.Services;
 
 public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService, IContentTypeService
 {
-    private readonly IUnitOfWork _unitOfWork = unitOfWork;
-
     public async Task<List<ContentType>> GetAllAsync()
     {
         try
         {
-            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
 
             return await contentTypeRepository
                 .AsNoTracking()
@@ -32,7 +29,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
     {
         try
         {
-            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
 
             return await contentTypeRepository
                 .Where(ct => ct.Id == id)
@@ -49,7 +46,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
     {
         try
         {
-            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
 
             var errors = new Dictionary<string, string>();
 
@@ -62,7 +59,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
             if (errors.Count != 0) return new ErrorResponse(errors);
 
             await contentTypeRepository.AddAsync(model);
-            await _unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(model, "Thêm thành công.");
         }
@@ -79,7 +76,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
     {
         try
         {
-            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
 
             var existingSlug = await contentTypeRepository
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
@@ -102,7 +99,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
             existingContentType.Name = model.Name ?? existingContentType.Name;
             existingContentType.Slug = model.Slug ?? existingContentType.Slug;
 
-            await _unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(existingContentType, "Cập nhật thành công.");
         }
@@ -119,7 +116,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
     {
         try
         {
-            var contentTypeRepository = _unitOfWork.GetRepository<ContentType, int>();
+            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
             var contentType = await contentTypeRepository.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (contentType == null)
@@ -128,7 +125,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
 
             contentType.DeletedAt = DateTime.UtcNow;
 
-            await _unitOfWork.SaveChangesAsync();
+            await unitOfWork.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(contentType, "Đã xóa thành công.");
         }

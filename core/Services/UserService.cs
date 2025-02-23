@@ -3,6 +3,7 @@ using core.Common.Constants;
 using Core.Common.Models;
 using core.Entities;
 using core.Interfaces;
+using core.Interfaces.Infrastructure;
 using core.Interfaces.Service;
 using Microsoft.EntityFrameworkCore;
 using BC = BCrypt.Net.BCrypt;

@@ -1,3 +1,4 @@
+@model web.Areas.Client.Requests.Contact.ContactCreateRequest
 @{
     ViewBag.Title = "Liên hệ";
 }
@@ -25,26 +26,38 @@
                                 <h2 class="card-title">Liên hệ với chúng tôi</h2>
                                 <p class="card-text">Hãy điền vào biểu mẫu bên dưới và chúng tôi sẽ liên hệ lại với bạn
                                     trong thời gian sớm nhất.</p>
-                                <form action="#" method="post">
+                                @if (TempData["SuccessMessage"] != null)
+                                {
+                                    <div class="alert alert-success">
+                                        @TempData["SuccessMessage"]
+                                    </div>
+                                }
+                                <form asp-area="Client" asp-controller="Contact" asp-action="Create" method="post">
+                                    @Html.AntiForgeryToken()
                                     <div class="mb-3">
-                                        <label class="form-label">Họ và tên</label>
-                                        <input type="text" class="form-control" name="name"
-                                               placeholder="Nhập họ và tên của bạn" required>
+                                        <label asp-for="Name" class="form-label"></label>
+                                        <input asp-for="Name" class="form-control" autocomplete="off">
+                                        <span asp-validation-for="Name" class="text-danger"></span>
                                     </div>
                                     <div class="mb-3">
-                                        <label class="form-label">Email</label>
-                                        <input type="email" class="form-control" name="email"
-                                               placeholder="your@email.com" required>
+                                        <label asp-for="Email" class="form-label"></label>
+                                        <input asp-for="Email" class="form-control" placeholder="Nhập email"
+                                               autocomplete="off">
+                                        <span asp-validation-for="Email" class="text-danger"></span>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label class="form-label">Số điện thoại</label>
-                                        <input type="tel" class="form-control" name="phone"
-                                               placeholder="(+84) 123-456-789">
+                                        <label asp-for="Phone" class="form-label"></label>
+                                        <input asp-for="Phone" class="form-control" placeholder="Nhập số điện thoại"
+                                               autocomplete="off">
+                                        <span asp-validation-for="Phone" class="text-danger"></span>
                                     </div>
+
                                     <div class="mb-3">
-                                        <label class="form-label">Nội dung</label>
-                                        <textarea class="form-control" name="message" rows="13"
-                                                  placeholder="Nhập nội dung liên hệ của bạn" required></textarea>
+                                        <label asp-for="Message" class="form-label"></label>
+                                        <textarea asp-for="Message" class="form-control" rows="5"
+                                                  placeholder="Nhập nội dung liên hệ"></textarea>
+                                        <span asp-validation-for="Message" class="text-danger"></span>
                                     </div>
                                     <button type="submit" class="btn btn-primary">Gửi liên hệ</button>
                                 </form>
