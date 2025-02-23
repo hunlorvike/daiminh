@@ -1,3 +1,4 @@
+using core.Attributes;
 using core.Common.Constants;
 using core.Common.Extensions;
 using Core.Common.Models;
@@ -26,7 +27,7 @@ public class AccountController(
     {
         var response = await userService.GetAllAsync();
 
-        List<UserViewModel> userViewModels = response.Select(r => new UserViewModel
+        var userViewModels = response.Select(r => new UserViewModel
         {
             Id = r.Id,
             Email = r.Email,
@@ -36,6 +37,8 @@ public class AccountController(
         return View(userViewModels);
     }
 
+
+    [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
         var user = await userService.GetByIdAsync(id);
@@ -74,8 +77,10 @@ public class AccountController(
 
             switch (response)
             {
-                case SuccessResponse<ContentType> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
+                case SuccessResponse<User> successResponse:
+                    if (Request.IsAjaxRequest())
+                        return Json(new { redirectUrl = Url.Action("Index", "Account", new { area = "Admin" }) });
+
                     return RedirectToAction("Index", "Account", new { area = "Admin" });
 
                 case ErrorResponse errorResponse:

@@ -1,3 +1,4 @@
+using core.Attributes;
 using core.Common.Constants;
 using core.Common.Enums;
 using core.Common.Extensions;
@@ -37,6 +38,7 @@ public class ContactController(
         return View(viewModels);
     }
 
+    [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
         var response = await contactService.GetByIdAsync(id);
@@ -51,6 +53,7 @@ public class ContactController(
         return PartialView("_Edit.Modal", request);
     }
 
+    [AjaxOnly]
     public async Task<IActionResult> Details(int id)
     {
         var response = await contactService.GetByIdAsync(id);
@@ -94,6 +97,8 @@ public class ContactController(
             {
                 case SuccessResponse<Contact> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
+                    if (Request.IsAjaxRequest())
+                        return Json(new { redirectUrl = Url.Action("Index", "Contact", new { area = "Admin" }) });
                     return RedirectToAction("Index", "Contact", new { area = "Admin" });
 
                 case ErrorResponse errorResponse:

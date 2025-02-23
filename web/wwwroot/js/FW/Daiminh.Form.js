@@ -11,43 +11,36 @@ Daiminh.Form = (($, Daiminh) => {
     const Utils = Daiminh.Utils;
 
     /**
-     * Process form submission using AJAX
+     * Process form submission using $.ajax callbacks
      * @param {jQuery} $form - The form to submit
-     * @returns {Promise} AJAX promise
+     * @returns {void}
      */
-    const _submitForm = async ($form) => {
+    const _submitForm = ($form) => {
         const url = $form.attr('action');
         const method = $form.attr('method') || 'POST';
         const $container = $form.closest(Config.selectors.formContainer);
         const $submitBtn = $form.find(Config.selectors.submitButton);
 
-        // Disable submit button during submission
         Utils.disableButton($submitBtn);
 
-        try {
-            // Make the AJAX request
-            const response = await Utils.ajax({
-                url: url,
-                method: method,
-                data: $form.serialize(),
-                dataType: 'html'
-            }, null, null, 'Form submission error');
+        $.ajax({
+            url: url, method: method, data: $form.serialize(), beforeSend: function (xhr) {
+                xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+            }, success: function (response, textStatus, jqXHR) {
+                if (response.redirectUrl) {
+                    window.location.href = response.redirectUrl;
+                    return;
+                }
 
-            // Handle response based on validation status
-            if (Utils.hasValidationErrors(response)) {
-                _updateFormContent($container, response);
-            } else {
-                window.location.reload();
+                if (Utils.hasValidationErrors(response)) {
+                    _updateFormContent($container, response);
+                }
+            }, error: function (jqXHR, textStatus, errorThrown) {
+                console.error("Form submission error:", errorThrown);
+            }, complete: function (jqXHR, textStatus) {
+                $submitBtn.prop('disabled', false);
             }
-
-            return response;
-        } catch (error) {
-            // Error handling already done in Utils.ajax
-            throw error;
-        } finally {
-            // Re-enable the submit button
-            $submitBtn.prop('disabled', false);
-        }
+        });
     };
 
     /**

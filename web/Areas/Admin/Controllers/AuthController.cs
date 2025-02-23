@@ -1,22 +1,23 @@
 using core.Common.Constants;
+using core.Common.Extensions;
 using core.Entities;
-using core.Services;
 using Core.Common.Models;
 using core.Interfaces.Service;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Requests.Auth;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
-public class AuthController(
+public partial class AuthController(
     IAuthService authService,
-    IValidator<LoginRequest> loginRequestValidator,
-    IValidator<RegisterRequest> registerRequestValidator) : Controller
+    IServiceProvider serviceProvider,
+    IConfiguration configuration) : DaiminhController(serviceProvider, configuration);
+
+public partial class AuthController
 {
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
@@ -43,19 +44,19 @@ public class AuthController(
     {
         return View();
     }
+}
 
+public partial class AuthController
+
+{
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Login(LoginRequest model, string? returnUrl = null)
     {
-        var validationResult = await loginRequestValidator.ValidateAsync(model);
+        var validator = GetValidator<LoginRequest>();
 
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState);
-            return View(model);
-        }
+        if (await this.ValidateAndReturnView(validator, model)) return View(model);
 
         try
         {
@@ -96,13 +97,9 @@ public class AuthController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterRequest model, string? returnUrl = null)
     {
-        var validationResult = await registerRequestValidator.ValidateAsync(model);
+        var validator = GetValidator<RegisterRequest>();
 
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState);
-            return View(model);
-        }
+        if (await this.ValidateAndReturnView(validator, model)) return View(model);
 
         try
         {

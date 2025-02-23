@@ -99,13 +99,14 @@ const Daiminh = (($) => {
         },
 
         /**
-         * Make an AJAX request with standardized error handling
+         * Make an AJAX request with standardized error handling and onComplete callback
          * @param {Object} options - jQuery AJAX options
          * @param {Function} onSuccess - Success callback
          * @param {Function} onError - Error callback
+         * @param {Function} onComplete - Callback executed after request completes (success or error)
          * @param {string} errorMessage - User-friendly error message
          */
-        ajax: async (options, onSuccess, onError, errorMessage = 'An error occurred') => {
+        ajax: async (options, onSuccess, onError, onComplete, errorMessage = 'An error occurred') => {
             try {
                 const response = await $.ajax(options);
                 if (onSuccess && typeof onSuccess === 'function') {
@@ -118,6 +119,10 @@ const Daiminh = (($) => {
                     onError(error);
                 }
                 throw error;
+            } finally {
+                if (onComplete && typeof onComplete === 'function') {
+                    onComplete();
+                }
             }
         },
 

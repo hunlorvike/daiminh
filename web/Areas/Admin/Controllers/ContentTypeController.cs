@@ -1,3 +1,4 @@
+using core.Attributes;
 using core.Common.Constants;
 using core.Common.Extensions;
 using Core.Common.Models;
@@ -36,11 +37,14 @@ public partial class ContentTypeController
         return View(viewModels);
     }
 
+
+    [AjaxOnly]
     public IActionResult Create()
     {
         return PartialView("_Create.Modal", new ContentTypeCreateRequest());
     }
 
+    [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
         var response = await contentTypeService.GetByIdAsync(id);
@@ -54,7 +58,7 @@ public partial class ContentTypeController
         return PartialView("_Edit.Modal", request);
     }
 
-
+    [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
         var response = await contentTypeService.GetByIdAsync(id);
@@ -90,6 +94,9 @@ public partial class ContentTypeController
             {
                 case SuccessResponse<ContentType> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
+
+                    if (Request.IsAjaxRequest())
+                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
 
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
                 case ErrorResponse errorResponse:
@@ -130,6 +137,9 @@ public partial class ContentTypeController
             {
                 case SuccessResponse<ContentType> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
+                    if (Request.IsAjaxRequest())
+                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
+
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
@@ -158,6 +168,9 @@ public partial class ContentTypeController
             {
                 case SuccessResponse<ContentType> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
+                    if (Request.IsAjaxRequest())
+                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
+
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);

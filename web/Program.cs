@@ -29,6 +29,8 @@ builder.Host.UseSerilog();
 #region Services Configuration
 
 // Add services to the container.
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpContextAccessor();
