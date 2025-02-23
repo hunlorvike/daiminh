@@ -1,7 +1,10 @@
 @{
     ViewBag.Title = "Liên hệ";
 }
-
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
 <div class="page-header d-print-none">
     <div class="container-xl">
         <div class="row g-2 align-items-center">
@@ -25,7 +28,8 @@
                                 <h2 class="card-title">Liên hệ với chúng tôi</h2>
                                 <p class="card-text">Hãy điền vào biểu mẫu bên dưới và chúng tôi sẽ liên hệ lại với bạn
                                     trong thời gian sớm nhất.</p>
-                                <form action="#" method="post">
+                                <form asp-area="Client" asp-controller="Contact"
+                                    asp-action="SubmitContact" method="post">
                                     <div class="mb-3">
                                         <label class="form-label">Họ và tên</label>
                                         <input type="text" class="form-control" name="name"
