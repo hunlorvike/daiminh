@@ -145,12 +145,21 @@
                 <p class="small mb-3">
                     Nhận thông tin về các sản phẩm sơn mới và ưu đãi đặc biệt.
                 </p>
-                <div class="input-group mb-3">
+               @*  <div class="input-group mb-3">
                     <input type="email" class="form-control border-primary" placeholder="Nhập email của bạn">
-                    <button class="btn btn-primary" type="button">
+                    <button class="btn btn-primary" type="button" asp-area="Client" asp-controller="Subscription"
+                            asp-action="Create">
                         GỬI
                     </button>
-                </div>
+                </div> *@
+                <form asp-area="Client" asp-controller="Subscriber" asp-action="Create" method="post">
+                    <div class="input-group mb-3">
+                        <input type="email" class="form-control border-primary" name="email" placeholder="Nhập email của bạn" required>
+                        <button class="btn btn-primary" type="submit">
+                            GỬI
+                        </button>
+                    </div>
+                </form>
                 <!-- Social Media Icons -->
                 <div class="d-flex gap-2">
                     <a href="#" class="btn btn-icon btn-outline-facebook">
