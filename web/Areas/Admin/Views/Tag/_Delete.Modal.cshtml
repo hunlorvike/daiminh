@@ -1,0 +1,31 @@
+@model web.Areas.Admin.Requests.ContentType.TagDeleteRequest
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public async Task<IActionResult> Delete(TagDeleteRequest model)
+{
+    try
+    {
+        var response = await _tagService.DeleteAsync(model.Id);
+
+        switch (response)
+        {
+            case SuccessResponse<Tag> successResponse:
+                ViewData["SuccessMessage"] = successResponse.Message;
+                return RedirectToAction("Index", "Tag", new { area = "Admin" });
+            case ErrorResponse errorResponse:
+                foreach (var error in errorResponse.Errors)
+                {
+                    ModelState.AddModelError(error.Key, error.Value);
+                }
+                return PartialView("_Delete.Modal", model);
+            default:
+                return PartialView("_Delete.Modal", model);
+        }
+    }
+    catch (Exception ex)
+    {
+        ModelState.AddModelError("", ex.Message);
+        return PartialView("_Delete.Modal", model);
+    }
+}
