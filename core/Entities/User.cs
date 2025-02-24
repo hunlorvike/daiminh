@@ -1,4 +1,4 @@
-using core.Interfaces;
+using core.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using BC = BCrypt.Net.BCrypt;

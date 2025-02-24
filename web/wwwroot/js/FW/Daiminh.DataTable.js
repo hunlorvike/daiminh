@@ -1,7 +1,7 @@
 /**
  * Daiminh.DataTable Module
  * Manages and initializes DataTables with standardized styling and behavior
- * @requires Daiminh.Core
+ * @requires Daiminh
  */
 Daiminh.DataTable = (($, Daiminh) => {
     'use strict';

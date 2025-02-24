@@ -1,5 +1,5 @@
 /**
- * Daiminh.Core Module
+ * Daiminh Module
  * Core application functionality and shared utilities
  */
 const Daiminh = (($) => {
@@ -24,12 +24,14 @@ const Daiminh = (($) => {
             submitButton: '.command-submit',
 
             // Modal selectors
+            modalDetail: '.command-modal-detail',
             modalCreate: '.command-modal-create',
             modalEdit: '.command-modal-edit',
             modalDelete: '.command-modal-delete',
             modalClose: '.command-modal-close',
 
             // Container selectors
+            detailContainer: '.form-details-container',
             createContainer: '.form-create-container',
             editContainer: '.form-edit-container',
             deleteContainer: '.form-delete-container'
@@ -49,17 +51,7 @@ const Daiminh = (($) => {
                 lengthMenu: [[8, 25, 50, 100], [8, 25, 50, 100]],
 
                 // DataTable DOM structure
-                dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' +
-                    '<"table-responsive"t>' +
-                    '<"card-footer d-flex justify-content-between align-items-center"ip>',
-
-                // DataTable column definitions
-                columnDefs: [
-                    {targets: 0, orderable: true, searchable: true},
-                    {targets: 1, orderable: true, searchable: true},
-                    {targets: 2, orderable: true, searchable: true},
-                    {targets: 3, orderable: false, searchable: false}
-                ],
+                dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' + '<"table-responsive"t>' + '<"card-footer d-flex justify-content-between align-items-center"ip>',
 
                 // DataTable language settings
                 language: {
@@ -86,8 +78,7 @@ const Daiminh = (($) => {
 
             // Modal defaults
             modal: {
-                backdrop: true,
-                disableTimeout: 500
+                backdrop: true, disableTimeout: 500
             }
         }
     };
@@ -108,13 +99,14 @@ const Daiminh = (($) => {
         },
 
         /**
-         * Make an AJAX request with standardized error handling
+         * Make an AJAX request with standardized error handling and onComplete callback
          * @param {Object} options - jQuery AJAX options
          * @param {Function} onSuccess - Success callback
          * @param {Function} onError - Error callback
+         * @param {Function} onComplete - Callback executed after request completes (success or error)
          * @param {string} errorMessage - User-friendly error message
          */
-        ajax: async (options, onSuccess, onError, errorMessage = 'An error occurred') => {
+        ajax: async (options, onSuccess, onError, onComplete, errorMessage = 'An error occurred') => {
             try {
                 const response = await $.ajax(options);
                 if (onSuccess && typeof onSuccess === 'function') {
@@ -127,6 +119,10 @@ const Daiminh = (($) => {
                     onError(error);
                 }
                 throw error;
+            } finally {
+                if (onComplete && typeof onComplete === 'function') {
+                    onComplete();
+                }
             }
         },
 
@@ -137,13 +133,29 @@ const Daiminh = (($) => {
          */
         hasValidationErrors: (response) => {
             return response.includes('field-validation-error');
+        },
+
+        /**
+         * Generate a URL-friendly slug from a string
+         * @param {string} text - The input text
+         * @returns {string} The generated slug
+         */
+        generateSlug: (text) => {
+            return text
+                .toLowerCase()
+                .trim()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/[^a-z0-9\s-]/g, "")
+                .replace(/\s+/g, "-")
+                .replace(/-+/g, "-");
         }
     };
 
     // Return public API
     return {
-        Config: Config,
-        Utils: Utils
+        Config: Config, Utils: Utils
     };
 
 })(jQuery);

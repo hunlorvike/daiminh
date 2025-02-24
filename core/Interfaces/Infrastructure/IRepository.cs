@@ -1,5 +1,6 @@
 using core.Entities;
 using System.Linq.Expressions;
+using core.Entities.Shared;
 
 namespace core.Interfaces;
 

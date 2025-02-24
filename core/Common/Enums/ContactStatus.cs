@@ -1,9 +1,14 @@
 namespace core.Common.Enums;
 
+using System.ComponentModel.DataAnnotations;
+
 public enum ContactStatus
 {
-    Pending = 0,
-    InProgress = 1,
-    Completed = 2,
-    Spam = 3
+    [Display(Name = "Đang chờ xử lý")] Pending = 0,
+
+    [Display(Name = "Đang xử lý")] InProgress = 1,
+
+    [Display(Name = "Hoàn thành")] Completed = 2,
+
+    [Display(Name = "Spam")] Spam = 3
 }

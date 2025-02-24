@@ -3,12 +3,13 @@ using core.Interfaces;
 using infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 using System.Collections.Concurrent;
+using core.Entities.Shared;
+using core.Interfaces.Infrastructure;
 
 namespace infrastructure.Data.UnitOfWork;
 
 public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
 {
-    private readonly ApplicationDbContext _context = context;
     private readonly ConcurrentDictionary<Type, object> _repositories = new();
     private bool _disposed;
     private IDbContextTransaction? _currentTransaction;
@@ -16,19 +17,19 @@ public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
     public IRepository<TEntity, TKey> GetRepository<TEntity, TKey>() where TEntity : BaseEntity<TKey>
     {
         return (IRepository<TEntity, TKey>)_repositories.GetOrAdd(typeof(TEntity),
-            _ => new Repository<TEntity, TKey>(_context));
+            _ => new Repository<TEntity, TKey>(context));
     }
 
     public async Task<int> SaveChangesAsync()
     {
-        return await _context.SaveChangesAsync();
+        return await context.SaveChangesAsync();
     }
 
     public async Task<IDbContextTransaction?> BeginTransactionAsync()
     {
         if (_currentTransaction != null) return null;
 
-        _currentTransaction = await _context.Database.BeginTransactionAsync();
+        _currentTransaction = await context.Database.BeginTransactionAsync();
         return _currentTransaction;
     }
 
@@ -81,7 +82,7 @@ public class UnitOfWork(ApplicationDbContext context) : IUnitOfWork
     {
         if (!_disposed && disposing)
         {
-            _context.Dispose();
+            context.Dispose();
             foreach (var repository in _repositories.Values)
                 if (repository is IDisposable disposableRepository)
                     disposableRepository.Dispose();

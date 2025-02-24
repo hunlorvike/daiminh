@@ -1,7 +1,7 @@
-using core.Entities;
+using core.Entities.Shared;
 using Microsoft.EntityFrameworkCore.Storage;
 
-namespace core.Interfaces;
+namespace core.Interfaces.Infrastructure;
 
 public interface IUnitOfWork : IDisposable
 {

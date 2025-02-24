@@ -1,6 +1,4 @@
-using core.Entities;
-
-namespace core.Interfaces;
+namespace core.Entities.Shared;
 
 public interface ISeeder<out T> where T : BaseEntity
 {

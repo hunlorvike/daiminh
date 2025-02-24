@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using System.Reflection;
+using core.Interfaces.Infrastructure;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
@@ -28,6 +29,8 @@ builder.Host.UseSerilog();
 #region Services Configuration
 
 // Add services to the container.
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
+
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddHttpContextAccessor();
@@ -68,18 +71,14 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
         .AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
 });
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>(); // register unit of work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
-builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>)); // register generic repository
+builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddScoped<AuthService>();
-builder.Services.AddScoped<UserService>();
-builder.Services.AddScoped<ContactService>();
-builder.Services.AddScoped<ContentTypeService>();
-
-builder.Services.AddValidators(Assembly.GetExecutingAssembly());
+builder.Services.AddDaiminhValidators();
+builder.Services.AddDaiminhService();
 
 #endregion
 

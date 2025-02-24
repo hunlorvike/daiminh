@@ -6,11 +6,14 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using core.Attributes;
+using core.Interfaces.Infrastructure;
+using core.Interfaces.Service;
 using BC = BCrypt.Net.BCrypt;
 
 namespace core.Services;
 
-public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor) : ScopedService, IAuthService
 {
     private readonly IUnitOfWork _unitOfWork = unitOfWork;
     private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
@@ -29,9 +32,9 @@ public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContex
             var errors = new Dictionary<string, string>();
 
             if (existingUsers.Any(u => u.Username == user.Username))
-                errors.Add("Username", "Tên người dùng đã tồn tại.");
+                errors.Add(nameof(user.Username), "Tên người dùng đã tồn tại.");
 
-            if (existingUsers.Any(u => u.Email == user.Email)) errors.Add("Email", "Email đã tồn tại.");
+            if (existingUsers.Any(u => u.Email == user.Email)) errors.Add(nameof(user.Email), "Email đã tồn tại.");
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
@@ -70,7 +73,7 @@ public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContex
             if (existingUser == null)
                 return new ErrorResponse(new Dictionary<string, string>
                 {
-                    { "Username", "Người dùng không tồn tại." }
+                    { nameof(user.Username), "Người dùng không tồn tại." }
                 });
 
             var isValidPassword = BC.Verify(user.PasswordHash, existingUser.PasswordHash);

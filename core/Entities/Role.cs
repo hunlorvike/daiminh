@@ -1,4 +1,5 @@
 using core.Common.Constants;
+using core.Entities.Shared;
 using core.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
