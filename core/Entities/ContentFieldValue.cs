@@ -8,11 +8,11 @@ public class ContentFieldValue : BaseEntity<int>
 {
     public int ContentId { get; set; }
     public int FieldId { get; set; }
-    public string Value { get; set; }
+    public string Value { get; set; } = string.Empty;
 
     // Navigation properties
-    public virtual Content Content { get; set; } = new();
-    public virtual ContentFieldDefinition Field { get; set; } = new();
+    public virtual Content? Content { get; set; }
+    public virtual ContentFieldDefinition? Field { get; set; }
 }
 
 public class ContentFieldValueConfiguration : BaseEntityConfiguration<ContentFieldValue, int>

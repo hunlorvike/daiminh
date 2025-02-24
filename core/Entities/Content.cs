@@ -14,12 +14,12 @@ public class Content : SeoEntity<int>
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
     // Navigation properties
-    public virtual ContentType ContentType { get; set; } = new();
-    public virtual User Author { get; set; } = new();
-    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = [];
-    public virtual ICollection<ContentCategory> ContentCategories { get; set; } = [];
-    public virtual ICollection<ContentTag> ContentTags { get; set; } = [];
-    public virtual ICollection<Comment> Comments { get; set; } = [];
+    public virtual ContentType? ContentType { get; set; }
+    public virtual User? Author { get; set; }
+    public virtual ICollection<ContentFieldValue>? FieldValues { get; set; }
+    public virtual ICollection<ContentCategory>? ContentCategories { get; set; }
+    public virtual ICollection<ContentTag>? ContentTags { get; set; }
+    public virtual required ICollection<Comment>? Comments { get; set; }
 }
 
 public class ContentConfiguration : SeoEntityConfiguration<Content, int>

@@ -10,8 +10,8 @@ public class ProductCategory : BaseEntity
     public int CategoryId { get; set; }
 
     // Navigation properties
-    public virtual Product Product { get; set; } = new();
-    public virtual Category Category { get; set; } = new();
+    public virtual Product? Product { get; set; }
+    public virtual Category? Category { get; set; }
 }
 
 public class ProductCategoryConfiguration : BaseEntityConfiguration<ProductCategory>

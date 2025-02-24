@@ -14,8 +14,8 @@ public class ContentFieldDefinition : BaseEntity<int>
     public string? FieldOptions { get; set; }
 
     // Navigation properties
-    public virtual ContentType ContentType { get; set; } = new();
-    public virtual ICollection<ContentFieldValue> FieldValues { get; set; } = [];
+    public virtual ContentType? ContentType { get; set; }
+    public virtual ICollection<ContentFieldValue>? FieldValues { get; set; }
 }
 
 public class ContentFieldDefinitionConfiguration : BaseEntityConfiguration<ContentFieldDefinition, int>

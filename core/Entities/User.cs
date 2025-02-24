@@ -14,9 +14,9 @@ public class User : BaseEntity<int>
 
     // Navigation properties
     public virtual Role? Role { get; set; }
-    public virtual ICollection<Content> Contents { get; set; } = [];
-    public virtual ICollection<Comment> Comments { get; set; } = [];
-    public virtual ICollection<Review> Reviews { get; set; } = [];
+    public virtual ICollection<Content>? Contents { get; set; }
+    public virtual ICollection<Comment>? Comments { get; set; }
+    public virtual ICollection<Review>? Reviews { get; set; }
 }
 
 public class UserConfiguration : BaseEntityConfiguration<User, int>

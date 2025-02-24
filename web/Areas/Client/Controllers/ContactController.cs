@@ -37,7 +37,7 @@ public partial class ContactController
 
         try
         {
-            Contact model = _mapper.Map<Contact>(request);
+            var model = _mapper.Map<Contact>(request);
 
             var response = await contactService.AddAsync(model);
 

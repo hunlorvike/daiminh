@@ -14,10 +14,10 @@ public class Comment : BaseEntity<int>
     public CommentStatus Status { get; set; } = CommentStatus.Approved;
 
     // Navigation properties
-    public virtual Content Content { get; set; } = new();
-    public virtual User User { get; set; } = new();
-    public virtual Comment ParentComment { get; set; } = new();
-    public virtual ICollection<Comment> ChildComments { get; set; } = [];
+    public virtual Content? Content { get; set; }
+    public virtual User? User { get; set; }
+    public virtual Comment? ParentComment { get; set; }
+    public virtual ICollection<Comment>? ChildComments { get; set; }
 }
 
 public class CommentConfiguration : BaseEntityConfiguration<Comment, int>
