@@ -27,7 +27,7 @@ public partial class ContentTypeController
 {
     public async Task<IActionResult> Index()
     {
-        List<ContentType> contentTypes = await contentTypeService.GetAllAsync();
+        var contentTypes = await contentTypeService.GetAllAsync();
         List<ContentTypeViewModel> models = _mapper.Map<List<ContentTypeViewModel>>(contentTypes);
         return View(models);
     }
@@ -42,18 +42,18 @@ public partial class ContentTypeController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        ContentType? response = await contentTypeService.GetByIdAsync(id);
+        var response = await contentTypeService.GetByIdAsync(id);
         if (response == null) return NotFound();
-        ContentTypeUpdateRequest request = _mapper.Map<ContentTypeUpdateRequest>(response);
+        var request = _mapper.Map<ContentTypeUpdateRequest>(response);
         return PartialView("_Edit.Modal", request);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        ContentType? response = await contentTypeService.GetByIdAsync(id);
+        var response = await contentTypeService.GetByIdAsync(id);
         if (response == null) return NotFound();
-        ContentTypeDeleteRequest request = _mapper.Map<ContentTypeDeleteRequest>(response);
+        var request = _mapper.Map<ContentTypeDeleteRequest>(response);
         return PartialView("_Delete.Modal", request);
     }
 }
@@ -108,7 +108,7 @@ public partial class ContentTypeController
 
         try
         {
-            ContentType? contentType = await contentTypeService.GetByIdAsync(model.Id);
+            var contentType = await contentTypeService.GetByIdAsync(model.Id);
             if (contentType == null) return NotFound();
 
             _mapper.Map(model, contentType);

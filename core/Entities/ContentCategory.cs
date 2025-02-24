@@ -10,8 +10,8 @@ public class ContentCategory : BaseEntity
     public int CategoryId { get; set; }
 
     // Navigation properties
-    public virtual Content Content { get; set; } = new();
-    public virtual Category Category { get; set; } = new();
+    public virtual Content? Content { get; set; }
+    public virtual Category? Category { get; set; }
 }
 
 public class ContentCategoryConfiguration : BaseEntityConfiguration<ContentCategory>

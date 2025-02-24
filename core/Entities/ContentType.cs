@@ -10,10 +10,9 @@ public class ContentType : BaseEntity<int>
     public string Slug { get; set; } = string.Empty;
 
     // Navigation properties
-    public virtual ICollection<ContentFieldDefinition> FieldDefinitions { get; set; } =
-        [];
+    public virtual ICollection<ContentFieldDefinition>? FieldDefinitions { get; set; }
 
-    public virtual ICollection<Content> Contents { get; set; } = [];
+    public virtual ICollection<Content>? Contents { get; set; }
 }
 
 public class ContentTypeConfiguration : BaseEntityConfiguration<ContentType, int>
