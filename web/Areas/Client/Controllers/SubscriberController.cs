@@ -23,11 +23,21 @@ public partial class SubscriberController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(SubscriberCreateRequest model)
         {
-            var validator = GetValidator<SubscriberCreateRequest>();
-            if (await this.ValidateAndReturnView(validator, model))
+        var validator = GetValidator<SubscriberCreateRequest>();
+        var validationResult = await validator.ValidateAsync(model);
+        if (!validationResult.IsValid)
             {
-                TempData["ErrorMessage"] = "Dữ liệu không hợp lệ!";
-                return RedirectToAction("Index", "Home", new { area = "Client" });
+                foreach (var error in validationResult.Errors)
+                {
+                    ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+                }
+
+                return Json(new
+                    {
+                        success = false,
+                        message = "Dữ liệu rất là không hợp lệ!",
+                        errors = ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Errors.Select(e => e.ErrorMessage).FirstOrDefault())
+                    });
             }
         try
             {
@@ -36,27 +46,30 @@ public partial class SubscriberController
                 switch (response)
                 {
                     case SuccessResponse<Subscriber> successResponse:
-                        TempData["SuccessMessage"] = successResponse.Message;
-
-                        if (Request.IsAjaxRequest())
-                            return Json(new { redirectUrl = Url.Action("Index", "Home", new { area = "Client" }) });
-
-                        return RedirectToAction("Index", "Home", new { area = "Client" });
-                    case ErrorResponse errorResponse:
-                        TempData["ErrorMessage"] = "Đăng ký không thành công!";
+                   
+                    return Json(new
                     {
-                            foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-                            return RedirectToAction("Index", "Home", new { area = "Client" });
-                    }
-                    default:
-                    TempData["ErrorMessage"] = "Có lỗi xảy ra, vui lòng thử lại!";
-                        return RedirectToAction("Index", "Home", new { area = "Client" });
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Home", new { area = "Client" })
+                    });
+
+                case ErrorResponse errorResponse:
+                   
+                    return Json(new
+                    {
+                        success = false,
+                        message = "Đăng ký không thành công!",
+                        errors = errorResponse.Errors
+                    });
+                default:
+                    return Json(new { success = false, message = "Có lỗi xảy ra, vui lòng thử lại!" });
             }
             }
             catch (Exception ex)
             {
-                ModelState.AddModelError("", ex.Message);
-                return RedirectToAction("Index", "Home", new { area = "Client" });
+          
+                return Json(new { success = false, message = ex.Message });
         }
         }
     }
