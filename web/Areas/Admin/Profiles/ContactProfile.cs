@@ -1,4 +1,5 @@
 using AutoMapper;
+using core.Common.Enums;
 using core.Entities;
 using web.Areas.Admin.Models.Contact;
 using web.Areas.Admin.Requests.Contact;
@@ -12,6 +13,6 @@ public class ContactProfile : Profile
         CreateMap<Contact, ContactViewModel>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status.ToString()));
 
-        CreateMap<Contact, ContactUpdateRequest>().ReverseMap();
+        CreateMap<Contact, ContactUpdateRequest>().ForMember(cr => cr.ContactStatus, opt => opt.MapFrom(usr => usr.Status)).ReverseMap();
     }
 }
