@@ -1,4 +1,3 @@
-using core.Entities;
 using core.Interfaces;
 using infrastructure.Data.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
