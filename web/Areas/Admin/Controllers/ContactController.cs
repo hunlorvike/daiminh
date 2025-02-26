@@ -19,10 +19,11 @@ namespace web.Areas.Admin.Controllers;
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
 public partial class ContactController(
-    IContactService contactService,
-    IMapper mapper,
-    IServiceProvider serviceProvider,
-    IConfiguration configuration)
+        IContactService contactService,
+        IMapper mapper,
+        IServiceProvider serviceProvider,
+        IConfiguration configuration
+    )
     : DaiminhController(mapper, serviceProvider, configuration);
 
 public partial class ContactController

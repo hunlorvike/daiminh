@@ -1,3 +1,5 @@
+@model web.Areas.Client.Requests.Subscriber.SubscriberCreateRequest
+
 <footer class="footer d-print-none py-4">
     <div class="container-xl">
         <div class="row">
@@ -8,12 +10,10 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24"
                              fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="icon icon-tabler icons-tabler-outline icon-tabler-paint">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"
-                            />
-                            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2"/>
-                            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"
-                            />
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+                            <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+                            <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
                         </svg>
                     </span>
                     <span class="fw-bold h2 text-uppercase text-primary m-0">
@@ -33,10 +33,9 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                          stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-map-pin">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"/>
-                        <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"
-                        />
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0" />
+                        <path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z" />
                     </svg>
                     Tiên Phương, Chương Mỹ, TP Hà Nội
                 </p>
@@ -44,10 +43,9 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                          stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-mail">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z"
-                        />
-                        <path d="M3 7l9 6l9 -6"/>
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-10z" />
+                        <path d="M3 7l9 6l9 -6" />
                     </svg>
                     support@daiminh.com
                 </p>
@@ -55,10 +53,8 @@
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                          stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-phone">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path
-                            d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"
-                        />
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2" />
                     </svg>
                     035.902.1323
                 </p>
@@ -145,12 +141,19 @@
                 <p class="small mb-3">
                     Nhận thông tin về các sản phẩm sơn mới và ưu đãi đặc biệt.
                 </p>
-                <div class="input-group mb-3">
-                    <input type="email" class="form-control border-primary" placeholder="Nhập email của bạn">
-                    <button class="btn btn-primary" type="button">
-                        GỬI
-                    </button>
-                </div>
+               
+                <form id="subscriberForm" asp-area="Client"
+                      asp-controller="Subscriber" asp-action="Create" method="post">
+                    <div class="input-group mb-3">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Email" class="form-control border-primary">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                        <button class="btn btn-primary" id="submitBtn" type="submit">
+                            GỬI
+                        </button>
+                    </div>
+                    <div id="formMessage" class="mt-2"></div>
+                </form>
                 <!-- Social Media Icons -->
                 <div class="d-flex gap-2">
                     <a href="#" class="btn btn-icon btn-outline-facebook">
@@ -158,9 +161,8 @@
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                              stroke-linejoin="round"
                              class="icon icon-tabler icons-tabler-outline icon-tabler-brand-facebook">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"
-                            />
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3" />
                         </svg>
                     </a>
                     <a href="#" class="btn btn-icon btn-outline-dark">
@@ -168,10 +170,8 @@
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                              stroke-linejoin="round"
                              class="icon icon-tabler icons-tabler-outline icon-tabler-brand-tiktok">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path
-                                d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z"
-                            />
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M21 7.917v4.034a9.948 9.948 0 0 1 -5 -1.951v4.5a6.5 6.5 0 1 1 -8 -6.326v4.326a2.5 2.5 0 1 0 4 2v-11.5h4.083a6.005 6.005 0 0 0 4.917 4.917z" />
                         </svg>
                     </a>
                     <a href="#" class="btn btn-icon btn-outline-youtube">
@@ -179,14 +179,17 @@
                              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                              stroke-linejoin="round"
                              class="icon icon-tabler icons-tabler-outline icon-tabler-brand-youtube">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M2 8a4 4 0 0 1 4 -4h12a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-12a4 4 0 0 1 -4 -4v-8z"
-                            />
-                            <path d="M10 9l5 3l-5 3z"/>
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                            <path d="M2 8a4 4 0 0 1 4 -4h12a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-12a4 4 0 0 1 -4 -4v-8z" />
+                            <path d="M10 9l5 3l-5 3z" />
                         </svg>
                     </a>
                 </div>
             </div>
         </div>
     </div>
+    @section FootScripts {
+        <script src="~/js/Views/Client/Subscriber/Subscriber.js"></script>
+    }
 </footer>
+

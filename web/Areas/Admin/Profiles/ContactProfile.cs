@@ -1,4 +1,5 @@
 using AutoMapper;
+using core.Common.Enums;
 using core.Entities;
 using web.Areas.Admin.Models.Contact;
 using web.Areas.Admin.Requests.Contact;
