@@ -62,7 +62,7 @@ public partial class AuthController
 
         try
         {
-            User user = _mapper.Map<User>(model);
+            var user = _mapper.Map<User>(model);
 
             var response = await authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
 
@@ -101,7 +101,7 @@ public partial class AuthController
 
         try
         {
-            User user = _mapper.Map<User>(model);
+            var user = _mapper.Map<User>(model);
 
             var response = await authService.SignUpAsync(user);
 
@@ -136,4 +136,5 @@ public partial class AuthController
     {
         await authService.SignOutAsync(CookiesConstants.AdminCookieSchema);
         return RedirectToAction("Login", "Auth", new { area = "Admin" });
-    }}
+    }
+}

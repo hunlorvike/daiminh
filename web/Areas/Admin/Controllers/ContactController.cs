@@ -29,7 +29,7 @@ public partial class ContactController
 {
     public async Task<IActionResult> Index()
     {
-        List<Contact> contacts = await contactService.GetAllAsync();
+        var contacts = await contactService.GetAllAsync();
         List<ContactViewModel> models = _mapper.Map<List<ContactViewModel>>(contacts);
         return View(models);
     }
@@ -37,9 +37,9 @@ public partial class ContactController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        Contact? contact = await contactService.GetByIdAsync(id);
+        var contact = await contactService.GetByIdAsync(id);
         if (contact == null) return NotFound();
-        ContactUpdateRequest request = _mapper.Map<ContactUpdateRequest>(contact);
+        var request = _mapper.Map<ContactUpdateRequest>(contact);
 
         ViewBag.ContactStatus = EnumExtensions.ToSelectList<ContactStatus>(request.ContactStatus);
         return PartialView("_Edit.Modal", request);
@@ -48,9 +48,9 @@ public partial class ContactController
     [AjaxOnly]
     public async Task<IActionResult> Details(int id)
     {
-        Contact? contact = await contactService.GetByIdAsync(id);
+        var contact = await contactService.GetByIdAsync(id);
         if (contact == null) return NotFound();
-        ContactViewModel contactDetail = _mapper.Map<ContactViewModel>(contact);
+        var contactDetail = _mapper.Map<ContactViewModel>(contact);
         return PartialView("_Detail.Modal", contactDetail);
     }
 }
