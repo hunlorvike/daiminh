@@ -15,13 +15,13 @@ using web.Areas.Admin.Requests.Category;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(Roles = $"{RoleConstants.Admin}", 
+[Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
 public partial class CategoryController(
     ICategoryService categoryService,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) 
+    IConfiguration configuration)
     : DaiminhController(mapper, serviceProvider, configuration);
 
 public partial class CategoryController
@@ -32,14 +32,14 @@ public partial class CategoryController
         List<CategoryViewModel> models = _mapper.Map<List<CategoryViewModel>>(categories);
         return View(models);
     }
-    
+
     [AjaxOnly]
     public async Task<IActionResult> Create()
     {
         var categories = await categoryService.GetAllAsync();
         ViewBag.CategoryList = new List<SelectListItem>
         {
-            new SelectListItem { Value = "", Text = "-- Chọn danh mục cha --" }
+            new() { Value = "", Text = "-- Chọn danh mục cha --" }
         }.Concat(categories.Select(c => new SelectListItem
         {
             Value = c.Id.ToString(),
@@ -53,14 +53,14 @@ public partial class CategoryController
     public async Task<IActionResult> Edit(int id)
     {
         var response = await categoryService.GetByIdAsync(id);
-        if (response == null) 
+        if (response == null)
             return NotFound();
-    
+
         // Fetch all categories to populate the dropdown list
         var categories = await categoryService.GetAllAsync();
         ViewBag.CategoryList = new List<SelectListItem>
         {
-            new SelectListItem { Value = "", Text = "-- Chọn danh mục cha --" }
+            new() { Value = "", Text = "-- Chọn danh mục cha --" }
         }.Concat(categories.Select(c => new SelectListItem
         {
             Value = c.Id.ToString(),
@@ -90,11 +90,11 @@ public partial class CategoryController
     {
         var validator = GetValidator<CategoryCreateRequest>();
         if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
-        
+
         try
         {
             var newCategory = _mapper.Map<Category>(model);
-            
+
             var response = await categoryService.AddAsync(newCategory);
 
             switch (response)
@@ -134,7 +134,7 @@ public partial class CategoryController
         {
             var category = await categoryService.GetByIdAsync(model.Id);
             if (category == null) return NotFound();
-            
+
             _mapper.Map(model, category);
 
             var response = await categoryService.UpdateAsync(model.Id, category);
@@ -169,7 +169,7 @@ public partial class CategoryController
         try
         {
             var response = await categoryService.DeleteAsync(model.Id);
-            
+
             switch (response)
             {
                 case SuccessResponse<Category> successResponse:

@@ -57,7 +57,7 @@ public class CategoryUpdateRequestValidator : AbstractValidator<CategoryUpdateRe
         RuleFor(request => request.Name)
             .NotEmpty().WithMessage("Tên không được để trống.")
             .MaximumLength(255).WithMessage("Tên không được vượt quá 255 ký tự.");
-        
+
         RuleFor(request => request.Slug)
             .NotEmpty().WithMessage("Slug không được để trống.")
             .MaximumLength(255).WithMessage("Slug không được vượt quá 255 ký tự.")

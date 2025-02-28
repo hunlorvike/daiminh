@@ -13,7 +13,7 @@ public class ProductImage : BaseEntity<int>
     public short DisplayOrder { get; set; }
 
     // Navigation properties
-    public virtual Product Product { get; set; } = new();
+    public virtual Product? Product { get; set; }
 }
 
 public class ProductImageConfiguration : BaseEntityConfiguration<ProductImage, int>

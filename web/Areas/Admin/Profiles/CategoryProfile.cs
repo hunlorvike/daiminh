@@ -14,7 +14,7 @@ public class CategoryProfile : Profile
                 dest => dest.ParentCategoryName,
                 opt => opt.MapFrom(src => src.ParentCategory != null ? src.ParentCategory.Name : "N/A")
             );
-        
+
         CreateMap<CategoryCreateRequest, Category>();
         CreateMap<Category, CategoryUpdateRequest>().ReverseMap();
         CreateMap<Category, CategoryDeleteRequest>().ReverseMap();

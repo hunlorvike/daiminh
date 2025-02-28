@@ -16,12 +16,12 @@ public class Product : SeoEntity<int>
     public int ProductTypeId { get; set; }
 
     // Navigation properties
-    public virtual ProductType ProductType { get; set; } = new();
-    public virtual ICollection<ProductFieldValue> FieldValues { get; set; } = [];
-    public virtual ICollection<ProductImage> Images { get; set; } = [];
-    public virtual ICollection<ProductCategory> ProductCategories { get; set; } = [];
-    public virtual ICollection<ProductTag> ProductTags { get; set; } = [];
-    public virtual ICollection<Review> Reviews { get; set; } = [];
+    public virtual ProductType? ProductType { get; set; }
+    public virtual ICollection<ProductFieldValue>? FieldValues { get; set; }
+    public virtual ICollection<ProductImage>? Images { get; set; }
+    public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
+    public virtual ICollection<ProductTag>? ProductTags { get; set; }
+    public virtual ICollection<Review>? Reviews { get; set; }
 }
 
 public class ProductConfiguration : SeoEntityConfiguration<Product, int>

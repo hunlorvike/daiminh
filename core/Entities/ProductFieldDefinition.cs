@@ -11,11 +11,11 @@ public class ProductFieldDefinition : BaseEntity<int>
     public string FieldName { get; set; } = string.Empty;
     public FieldType FieldType { get; set; } = FieldType.Text;
     public bool IsRequired { get; set; }
-    public string FieldOptions { get; set; }
+    public string FieldOptions { get; set; } = string.Empty;
 
     // Navigation properties
-    public virtual ProductType ProductType { get; set; } = new();
-    public virtual ICollection<ProductFieldValue> FieldValues { get; set; } = [];
+    public virtual ProductType? ProductType { get; set; }
+    public virtual ICollection<ProductFieldValue>? FieldValues { get; set; }
 }
 
 public class ProductFieldDefinitionConfiguration : BaseEntityConfiguration<ProductFieldDefinition, int>

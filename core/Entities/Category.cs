@@ -11,10 +11,10 @@ public class Category : BaseEntity<int>
     public int? ParentCategoryId { get; set; }
 
     // Navigation properties
-    public virtual Category ParentCategory { get; set; }
-    public virtual ICollection<Category> ChildCategories { get; set; } = [];
-    public virtual ICollection<ContentCategory> ContentCategories { get; set; } = [];
-    public virtual ICollection<ProductCategory> ProductCategories { get; set; } = [];
+    public virtual Category? ParentCategory { get; set; }
+    public virtual ICollection<Category>? ChildCategories { get; set; }
+    public virtual ICollection<ContentCategory>? ContentCategories { get; set; }
+    public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
 }
 
 public class CategoryConfiguration : BaseEntityConfiguration<Category, int>
