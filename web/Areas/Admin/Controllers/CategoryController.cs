@@ -53,15 +53,19 @@ public partial class CategoryController
     public async Task<IActionResult> Edit(int id)
     {
         var response = await categoryService.GetByIdAsync(id);
+        
         if (response == null)
             return NotFound();
-
+        
         // Fetch all categories to populate the dropdown list
         var categories = await categoryService.GetAllAsync();
+        
+        var filteredCategories = categories.Where(c => c.Id != id);
+
         ViewBag.CategoryList = new List<SelectListItem>
         {
             new() { Value = "", Text = "-- Chọn danh mục cha --" }
-        }.Concat(categories.Select(c => new SelectListItem
+        }.Concat(filteredCategories.Select(c => new SelectListItem
         {
             Value = c.Id.ToString(),
             Text = c.Name
