@@ -19,11 +19,9 @@ public class CategoryUpdateRequest
 {
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Tên không được để trống.")]
     [Display(Name = "Tên danh mục", Prompt = "Nhập tên của danh mục")]
     public string? Name { get; set; }
 
-    [Required(ErrorMessage = "Slug không được để trống.")]
     [Display(Name = "Đường dẫn danh mục", Prompt = "Nhập đường dẫn của danh mục")]
     public string? Slug { get; set; }
 
@@ -42,11 +40,11 @@ public class CategoryCreateRequestValidator : AbstractValidator<CategoryCreateRe
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên không được để trống.")
-            .MaximumLength(255).WithMessage("Tên không được quá 255 ký tự.");
+            .MaximumLength(100).WithMessage("Tên không được quá 100 ký tự.");
 
         RuleFor(x => x.Slug)
             .NotEmpty().WithMessage("Slug không được để trống.")
-            .MaximumLength(255).WithMessage("Slug không được quá 255 ký tự.");
+            .MaximumLength(100).WithMessage("Slug không được quá 100 ký tự.");
     }
 }
 
@@ -56,14 +54,12 @@ public class CategoryUpdateRequestValidator : AbstractValidator<CategoryUpdateRe
     {
         RuleFor(request => request.Name)
             .NotEmpty().WithMessage("Tên không được để trống.")
-            .MaximumLength(255).WithMessage("Tên không được vượt quá 255 ký tự.");
+            .MaximumLength(100).WithMessage("Tên không được vượt quá 100 ký tự.");
 
         RuleFor(request => request.Slug)
             .NotEmpty().WithMessage("Slug không được để trống.")
-            .MaximumLength(255).WithMessage("Slug không được vượt quá 255 ký tự.")
+            .MaximumLength(100).WithMessage("Slug không được vượt quá 100 ký tự.")
             .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-            .WithMessage("Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.")
-            // .MustAsync(BeUniqueSlug).WithMessage("Slug đã tồn tại.");
-            ;
+            .WithMessage("Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.");
     }
 }
