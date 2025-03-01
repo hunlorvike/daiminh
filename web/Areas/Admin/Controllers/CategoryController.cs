@@ -52,23 +52,23 @@ public partial class CategoryController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await categoryService.GetByIdAsync(id);
-        if (response == null)
+        var category = await categoryService.GetByIdAsync(id);
+        if (category == null)
             return NotFound();
 
-        // Fetch all categories to populate the dropdown list
-        var categories = await categoryService.GetAllAsync();
-        ViewBag.CategoryList = new List<SelectListItem>
-        {
-            new() { Value = "", Text = "-- Chọn danh mục cha --" }
-        }.Concat(categories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.Name
-        })).ToList();
+        var categoryList = (await categoryService.GetAllAsync())
+            .Where(c => c.Id != id)
+            .Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            })
+            .ToList();
 
-        // Map the retrieved category to a CategoryUpdateRequest
-        var request = _mapper.Map<CategoryUpdateRequest>(response);
+        categoryList.Insert(0, new SelectListItem { Value = "", Text = "-- Chọn danh mục cha --" });
+        ViewBag.CategoryList = categoryList;
+
+        var request = _mapper.Map<CategoryUpdateRequest>(category);
         return PartialView("_Edit.Modal", request);
     }
 
