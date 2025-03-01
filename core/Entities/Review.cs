@@ -14,8 +14,8 @@ public class Review : BaseEntity<int>
     public ReviewStatus Status { get; set; } = ReviewStatus.Pending;
 
     // Navigation properties
-    public virtual Product Product { get; set; } = new();
-    public virtual User User { get; set; } = new();
+    public virtual Product? Product { get; set; }
+    public virtual User? User { get; set; }
 }
 
 public class ReviewConfiguration : BaseEntityConfiguration<Review, int>

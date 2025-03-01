@@ -11,8 +11,8 @@ public class ProductFieldValue : BaseEntity<int>
     public string Value { get; set; }
 
     // Navigation properties
-    public virtual Product Product { get; set; } = new();
-    public virtual ProductFieldDefinition Field { get; set; } = new();
+    public virtual Product? Product { get; set; }
+    public virtual ProductFieldDefinition? Field { get; set; }
 }
 
 public class ProductFieldValueConfiguration : BaseEntityConfiguration<ProductFieldValue, int>

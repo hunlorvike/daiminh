@@ -27,7 +27,7 @@ public class AccountController(
 {
     public async Task<IActionResult> Index()
     {
-        List<User> users = await userService.GetAllAsync();
+        var users = await userService.GetAllAsync();
         List<UserViewModel> userViewModels = _mapper.Map<List<UserViewModel>>(users);
         return View(userViewModels);
     }
@@ -38,7 +38,7 @@ public class AccountController(
     {
         var user = await userService.GetByIdAsync(id);
         if (user == null) return NotFound();
-        UserRequest viewModel = _mapper.Map<UserRequest>(user);
+        var viewModel = _mapper.Map<UserRequest>(user);
         ViewBag.Roles = await GetRoleOptionsAsync(viewModel.RoleId);
         return PartialView("_Edit.Modal", viewModel);
     }

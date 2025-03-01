@@ -10,10 +10,8 @@ public class ProductType : BaseEntity<int>
     public string Slug { get; set; } = string.Empty;
 
     // Navigation properties
-    public virtual ICollection<ProductFieldDefinition> FieldDefinitions { get; set; } =
-        [];
-
-    public virtual ICollection<Product> Products { get; set; } = [];
+    public virtual ICollection<ProductFieldDefinition>? FieldDefinitions { get; set; }
+    public virtual ICollection<Product>? Products { get; set; }
 }
 
 public class ProductTypeConfiguration : BaseEntityConfiguration<ProductType, int>

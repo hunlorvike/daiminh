@@ -1,4 +1,4 @@
-using AutoMapper;
+﻿using AutoMapper;
 using core.Attributes;
 using core.Common.Constants;
 using core.Common.Extensions;
@@ -7,81 +7,105 @@ using core.Entities;
 using core.Interfaces.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.ContentType;
-using web.Areas.Admin.Requests.ContentType;
+using web.Areas.Admin.Models.Category;
+using web.Areas.Admin.Requests.Category;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ContentTypeController(
-    IContentTypeService contentTypeService,
+public partial class CategoryController(
+    ICategoryService categoryService,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration)
     : DaiminhController(mapper, serviceProvider, configuration);
 
-public partial class ContentTypeController
+public partial class CategoryController
 {
     public async Task<IActionResult> Index()
     {
-        var contentTypes = await contentTypeService.GetAllAsync();
-        List<ContentTypeViewModel> models = _mapper.Map<List<ContentTypeViewModel>>(contentTypes);
+        var categories = await categoryService.GetAllAsync();
+        List<CategoryViewModel> models = _mapper.Map<List<CategoryViewModel>>(categories);
         return View(models);
     }
 
-
     [AjaxOnly]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        return PartialView("_Create.Modal", new ContentTypeCreateRequest());
+        var categories = await categoryService.GetAllAsync();
+        ViewBag.CategoryList = new List<SelectListItem>
+        {
+            new() { Value = "", Text = "-- Chọn danh mục cha --" }
+        }.Concat(categories.Select(c => new SelectListItem
+        {
+            Value = c.Id.ToString(),
+            Text = c.Name
+        })).ToList();
+
+        return PartialView("_Create.Modal", new CategoryCreateRequest());
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await contentTypeService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ContentTypeUpdateRequest>(response);
+        var response = await categoryService.GetByIdAsync(id);
+        if (response == null)
+            return NotFound();
+
+        // Fetch all categories to populate the dropdown list
+        var categories = await categoryService.GetAllAsync();
+        ViewBag.CategoryList = new List<SelectListItem>
+        {
+            new() { Value = "", Text = "-- Chọn danh mục cha --" }
+        }.Concat(categories.Select(c => new SelectListItem
+        {
+            Value = c.Id.ToString(),
+            Text = c.Name
+        })).ToList();
+
+        // Map the retrieved category to a CategoryUpdateRequest
+        var request = _mapper.Map<CategoryUpdateRequest>(response);
         return PartialView("_Edit.Modal", request);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await contentTypeService.GetByIdAsync(id);
+        var response = await categoryService.GetByIdAsync(id);
         if (response == null) return NotFound();
-        var request = _mapper.Map<ContentTypeDeleteRequest>(response);
+        var request = _mapper.Map<CategoryDeleteRequest>(response);
         return PartialView("_Delete.Modal", request);
     }
 }
 
-public partial class ContentTypeController
+public partial class CategoryController
 {
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ContentTypeCreateRequest model)
+    public async Task<IActionResult> Create(CategoryCreateRequest model)
     {
-        var validator = GetValidator<ContentTypeCreateRequest>();
+        var validator = GetValidator<CategoryCreateRequest>();
         if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
 
         try
         {
-            var newContentType = _mapper.Map<ContentType>(model);
+            var newCategory = _mapper.Map<Category>(model);
 
-            var response = await contentTypeService.AddAsync(newContentType);
+            var response = await categoryService.AddAsync(newCategory);
 
             switch (response)
             {
-                case SuccessResponse<ContentType> successResponse:
+                case SuccessResponse<Category> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
 
                     if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
+                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
 
-                    return RedirectToAction("Index", "ContentType", new { area = "Admin" });
+                    return RedirectToAction("Index", "Category", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                 {
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
@@ -101,28 +125,28 @@ public partial class ContentTypeController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(ContentTypeUpdateRequest model)
+    public async Task<IActionResult> Edit(CategoryUpdateRequest model)
     {
-        var validator = GetValidator<ContentTypeUpdateRequest>();
+        var validator = GetValidator<CategoryUpdateRequest>();
         if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Edit.Modal", model);
 
         try
         {
-            var contentType = await contentTypeService.GetByIdAsync(model.Id);
-            if (contentType == null) return NotFound();
+            var category = await categoryService.GetByIdAsync(model.Id);
+            if (category == null) return NotFound();
 
-            _mapper.Map(model, contentType);
+            _mapper.Map(model, category);
 
-            var response = await contentTypeService.UpdateAsync(model.Id, contentType);
+            var response = await categoryService.UpdateAsync(model.Id, category);
 
             switch (response)
             {
-                case SuccessResponse<ContentType> successResponse:
+                case SuccessResponse<Category> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
                     if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
+                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
 
-                    return RedirectToAction("Index", "ContentType", new { area = "Admin" });
+                    return RedirectToAction("Index", "Category", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
@@ -140,20 +164,20 @@ public partial class ContentTypeController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(ContentTypeDeleteRequest model)
+    public async Task<IActionResult> Delete(CategoryDeleteRequest model)
     {
         try
         {
-            var response = await contentTypeService.DeleteAsync(model.Id);
+            var response = await categoryService.DeleteAsync(model.Id);
 
             switch (response)
             {
-                case SuccessResponse<ContentType> successResponse:
+                case SuccessResponse<Category> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
                     if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
+                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
 
-                    return RedirectToAction("Index", "ContentType", new { area = "Admin" });
+                    return RedirectToAction("Index", "Category", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 

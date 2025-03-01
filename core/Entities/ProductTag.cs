@@ -10,8 +10,8 @@ public class ProductTag : BaseEntity
     public int TagId { get; set; }
 
     // Navigation properties
-    public virtual Product Product { get; set; } = new();
-    public virtual Tag Tag { get; set; } = new();
+    public virtual Product? Product { get; set; }
+    public virtual Tag? Tag { get; set; }
 }
 
 public class ProductTagConfiguration : BaseEntityConfiguration<ProductTag>

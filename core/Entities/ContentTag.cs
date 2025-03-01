@@ -10,8 +10,8 @@ public class ContentTag : BaseEntity
     public int TagId { get; set; }
 
     // Navigation properties
-    public virtual Content Content { get; set; } = new();
-    public virtual Tag Tag { get; set; } = new();
+    public virtual Content? Content { get; set; }
+    public virtual Tag? Tag { get; set; }
 }
 
 public class ContentTagConfiguration : BaseEntityConfiguration<ContentTag>
