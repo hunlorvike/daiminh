@@ -1,3 +1,4 @@
+@model web.Areas.Client.Requests.Auth.LoginRequest
 @{
     ViewBag.Title = "Đăng nhập";
     Layout = "Layout/_Layout.Blank";
@@ -13,22 +14,40 @@
         <div class="card card-md">
             <div class="card-body">
                 <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản của bạn</h2>
-                <form action="/login" method="post" autocomplete="off" novalidate>
-                    @Html.AntiForgeryToken()
-                    <div class="mb-3">
-                        <label class="form-label">Email</label>
-                        <input type="email" name="email" class="form-control" placeholder="your@email.com"
-                               autocomplete="off">
+
+                @if (ViewData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success mb-3">
+                        @ViewData["SuccessMessage"]
                     </div>
+                }
+
+                <form asp-area="Client" asp-controller="Auth" asp-action="Login"
+                      asp-route-returnUrl="@ViewData["ReturnUrl"]"
+                    method="post" autocomplete="off" novalidate>
+                    @Html.AntiForgeryToken()
+                    @* <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Email</label>
+                        <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com"
+                               autocomplete="off">
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div> *@
+
+                    <div class="mb-3">
+                        <label asp-for="Username" class="form-label"></label>
+                        <input asp-for="Username" class="form-control" autocomplete="off">
+                        <span asp-validation-for="Username" class="text-danger"></span>
+                    </div>
+
                     <div class="mb-2">
-                        <label class="form-label">
+                        <label asp-for="Password" class="form-label">
                             Mật khẩu
                             <span class="form-label-description">
                                 <a href="/forgot-password">Quên mật khẩu?</a>
                             </span>
                         </label>
                         <div class="input-group input-group-flat">
-                            <input type="password" name="password" class="form-control" placeholder="Mật khẩu của bạn"
+                            <input asp-for="Password" type="password" class="form-control" placeholder="Mật khẩu của bạn"
                                    autocomplete="off">
                             <span class="input-group-text">
                                 <a href="#" class="link-secondary" title="Hiện mật khẩu" data-bs-toggle="tooltip">
@@ -42,7 +61,9 @@
                                     </svg>
                                 </a>
                             </span>
+                            
                         </div>
+                        <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <div class="mb-2">
                         <label class="form-check">
@@ -57,7 +78,7 @@
             </div>
         </div>
         <div class="text-center text-muted mt-3">
-            Chưa có tài khoản? <a href="/register" tabindex="-1">Đăng ký</a>
+            Chưa có tài khoản? <a asp-controller="Auth" asp-action="Register" tabindex="-1">Đăng ký</a>
         </div>
 
         <div class="text-center mt-4">
