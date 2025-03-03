@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using core.Attributes;
 using core.Common.Constants;
 using core.Common.Extensions;
@@ -7,105 +7,83 @@ using core.Entities;
 using core.Interfaces.Service;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Category;
-using web.Areas.Admin.Requests.Category;
+using web.Areas.Admin.Models.Tag;
+using web.Areas.Admin.Requests.Tag;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class CategoryController(
-    ICategoryService categoryService,
+public partial class TagController(
+    ITagService tagService,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration)
     : DaiminhController(mapper, serviceProvider, configuration);
 
-public partial class CategoryController
+public partial class TagController
 {
     public async Task<IActionResult> Index()
     {
-        var categories = await categoryService.GetAllAsync();
-        List<CategoryViewModel> models = _mapper.Map<List<CategoryViewModel>>(categories);
+        List<Tag> tags = await tagService.GetAllAsync();
+        List<TagViewModel> models = _mapper.Map<List<TagViewModel>>(tags);
         return View(models);
     }
 
     [AjaxOnly]
-    public async Task<IActionResult> Create()
+    public IActionResult Create()
     {
-        var categories = await categoryService.GetAllAsync();
-        ViewBag.CategoryList = new List<SelectListItem>
-        {
-            new() { Value = "", Text = "-- Chọn danh mục cha --" }
-        }.Concat(categories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.Name
-        })).ToList();
-
-        return PartialView("_Create.Modal", new CategoryCreateRequest());
+        return PartialView("_Create.Modal", new TagCreateRequest());
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var category = await categoryService.GetByIdAsync(id);
-        if (category == null)
-            return NotFound();
-
-        var categoryList = (await categoryService.GetAllAsync())
-            .Where(c => c.Id != id)
-            .Select(c => new SelectListItem
-            {
-                Value = c.Id.ToString(),
-                Text = c.Name
-            })
-            .ToList();
-
-        categoryList.Insert(0, new SelectListItem { Value = "", Text = "-- Chọn danh mục cha --" });
-        ViewBag.CategoryList = categoryList;
-
-        var request = _mapper.Map<CategoryUpdateRequest>(category);
+        var response = await tagService.GetByIdAsync(id);
+        if (response == null) return NotFound();
+        var request = _mapper.Map<TagUpdateRequest>(response);
         return PartialView("_Edit.Modal", request);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await categoryService.GetByIdAsync(id);
+        var response = await tagService.GetByIdAsync(id);
         if (response == null) return NotFound();
-        var request = _mapper.Map<CategoryDeleteRequest>(response);
+        var request = _mapper.Map<TagDeleteRequest>(response);
         return PartialView("_Delete.Modal", request);
     }
 }
 
-public partial class CategoryController
+public partial class TagController
 {
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(CategoryCreateRequest model)
+    public async Task<IActionResult> Create(TagCreateRequest model)
     {
-        var validator = GetValidator<CategoryCreateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
+        var validator = GetValidator<TagCreateRequest>();
+        if (await this.ValidateAndReturnView(validator, model))
+        {
+            return PartialView("_Create.Modal", model);
+        }
 
         try
         {
-            var newCategory = _mapper.Map<Category>(model);
+            var newTag = _mapper.Map<Tag>(model);
 
-            var response = await categoryService.AddAsync(newCategory);
+            var response = await tagService.AddAsync(newTag);
 
             switch (response)
             {
-                case SuccessResponse<Category> successResponse:
+                case SuccessResponse<Tag> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
 
                     if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
+                        return Json(new { redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" }) });
 
-                    return RedirectToAction("Index", "Category", new { area = "Admin" });
+                    return RedirectToAction("Index", "Tag", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                 {
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
@@ -125,28 +103,28 @@ public partial class CategoryController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(CategoryUpdateRequest model)
+    public async Task<IActionResult> Edit(TagUpdateRequest model)
     {
-        var validator = GetValidator<CategoryUpdateRequest>();
+        var validator = GetValidator<TagUpdateRequest>();
         if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Edit.Modal", model);
 
         try
         {
-            var category = await categoryService.GetByIdAsync(model.Id);
-            if (category == null) return NotFound();
+            var contentType = await tagService.GetByIdAsync(model.Id);
+            if (contentType == null) return NotFound();
 
-            _mapper.Map(model, category);
+            _mapper.Map(model, contentType);
 
-            var response = await categoryService.UpdateAsync(model.Id, category);
+            var response = await tagService.UpdateAsync(model.Id, contentType);
 
             switch (response)
             {
-                case SuccessResponse<Category> successResponse:
+                case SuccessResponse<Tag> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
                     if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
+                        return Json(new { redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" }) });
 
-                    return RedirectToAction("Index", "Category", new { area = "Admin" });
+                    return RedirectToAction("Index", "Tag", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
@@ -164,20 +142,20 @@ public partial class CategoryController
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(CategoryDeleteRequest model)
+    public async Task<IActionResult> Delete(TagDeleteRequest model)
     {
         try
         {
-            var response = await categoryService.DeleteAsync(model.Id);
+            var response = await tagService.DeleteAsync(model.Id);
 
             switch (response)
             {
-                case SuccessResponse<Category> successResponse:
+                case SuccessResponse<Tag> successResponse:
                     ViewData["SuccessMessage"] = successResponse.Message;
                     if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
+                        return Json(new { redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" }) });
 
-                    return RedirectToAction("Index", "Category", new { area = "Admin" });
+                    return RedirectToAction("Index", "Tag", new { area = "Admin" });
                 case ErrorResponse errorResponse:
                     foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
 
