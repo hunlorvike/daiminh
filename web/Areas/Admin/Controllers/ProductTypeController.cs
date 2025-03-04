@@ -36,7 +36,6 @@ public partial class ProductTypeController
     public IActionResult Create()
     {
         return PartialView("_Create.Modal", new ProductTypeCreateRequest());
-        
     }
 
     [AjaxOnly]
@@ -47,7 +46,7 @@ public partial class ProductTypeController
         var request = _mapper.Map<ProductTypeUpdateRequest>(response);
         return PartialView("_Edit.Modal", request);
     }
-    
+
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
@@ -66,7 +65,7 @@ public partial class ProductTypeController
     {
         var validator = GetValidator<ProductTypeCreateRequest>();
         if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
-        
+
         try
         {
             var newProductType = _mapper.Map<ProductType>(model);
@@ -75,30 +74,36 @@ public partial class ProductTypeController
 
             switch (response)
             {
+                case SuccessResponse<ProductType> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
+                    });
                 case SuccessResponse<ProductType> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ProductType", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
                 {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Create.Modal", model);
+                    return BadRequest(errorResponse);
                 }
-                default:
-                    return PartialView("_Create.Modal", model);
             }
+
+            return PartialView("_Create.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Create.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ProductTypeUpdateRequest model)
@@ -117,27 +122,36 @@ public partial class ProductTypeController
 
             switch (response)
             {
+                case SuccessResponse<ProductType> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
+                    });
                 case SuccessResponse<ProductType> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ProductType", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Edit.Modal", model);
-                default:
-                    return PartialView("_Edit.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Edit.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
-    
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(ProductTypeDeleteRequest model)
@@ -148,24 +162,33 @@ public partial class ProductTypeController
 
             switch (response)
             {
+                case SuccessResponse<ProductType> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
+                    });
                 case SuccessResponse<ProductType> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ProductType", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Delete.Modal", model);
-                default:
-                    return PartialView("_Delete.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Delete.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Delete.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 }

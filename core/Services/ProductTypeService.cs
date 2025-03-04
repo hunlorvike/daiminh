@@ -48,13 +48,13 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : ScopedService,
         {
             var productTypeRepository = unitOfWork.GetRepository<ProductType, int>();
 
-            var errors = new Dictionary<string, string>();
+            var errors = new Dictionary<string, string[]>();
 
             var existingProductType = await productTypeRepository
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug);
 
             if (existingProductType != null)
-                errors.Add(nameof(model.Slug), "Slug đã tồn tại");
+                errors.Add(nameof(model.Slug), ["Slug đã tồn tại"]);
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
@@ -65,9 +65,9 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : ScopedService,
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -82,18 +82,18 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : ScopedService,
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
 
             if (existingSlug != null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { nameof(model.Slug), "Slug đã tồn tại" }
+                    { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
 
             var existingProductType = await productTypeRepository
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingProductType == null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { "General", "ProductType không tồn tại" }
+                    { "General", ["ProductType không tồn tại"] }
                 });
 
             existingProductType.Name = model.Name ?? existingProductType.Name;
@@ -105,9 +105,9 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : ScopedService,
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -120,8 +120,8 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : ScopedService,
             var productType = await productTypeRepository.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (productType == null)
-                return new ErrorResponse(new Dictionary<string, string>
-                    { { "General", "Loại sản phẩm không tồn tại." } });
+                return new ErrorResponse(new Dictionary<string, string[]>
+                    { { "General", ["Loại sản phẩm không tồn tại."] } });
 
             productType.DeletedAt = DateTime.UtcNow;
 
@@ -131,7 +131,7 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : ScopedService,
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+            return new ErrorResponse(new Dictionary<string, string[]> { { "General", [ex.Message] } });
         }
     }
 }
