@@ -48,13 +48,13 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
         {
             var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
 
-            var errors = new Dictionary<string, string>();
+            var errors = new Dictionary<string, string[]>();
 
             var existingContentType = await contentTypeRepository
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug);
 
             if (existingContentType != null)
-                errors.Add(nameof(model.Slug), "Slug đã tồn tại");
+                errors.Add(nameof(model.Slug), ["Slug đã tồn tại"]);
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
@@ -65,9 +65,9 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -82,18 +82,18 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
 
             if (existingSlug != null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { nameof(model.Slug), "Slug đã tồn tại" }
+                    { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
 
             var existingContentType = await contentTypeRepository
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingContentType == null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { "General", "ContentType không tồn tại" }
+                    { "General", ["ContentType không tồn tại"] }
                 });
 
             existingContentType.Name = model.Name ?? existingContentType.Name;
@@ -105,9 +105,9 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -120,8 +120,8 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
             var contentType = await contentTypeRepository.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (contentType == null)
-                return new ErrorResponse(new Dictionary<string, string>
-                    { { "General", "Loại bài viết không tồn tại." } });
+                return new ErrorResponse(new Dictionary<string, string[]>
+                    { { "General", ["Loại bài viết không tồn tại."] } });
 
             contentType.DeletedAt = DateTime.UtcNow;
 
@@ -131,7 +131,7 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService,
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+            return new ErrorResponse(new Dictionary<string, string[]> { { "General", [ex.Message] } });
         }
     }
 }

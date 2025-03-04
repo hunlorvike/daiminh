@@ -65,37 +65,43 @@ public partial class ContentTypeController
     public async Task<IActionResult> Create(ContentTypeCreateRequest model)
     {
         var validator = GetValidator<ContentTypeCreateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
             var newContentType = _mapper.Map<ContentType>(model);
-
             var response = await contentTypeService.AddAsync(newContentType);
 
             switch (response)
             {
+                case SuccessResponse<ContentType> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
+                    });
                 case SuccessResponse<ContentType> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
                 {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Create.Modal", model);
+                    return BadRequest(errorResponse);
                 }
-                default:
-                    return PartialView("_Create.Modal", model);
             }
+
+            return PartialView("_Create.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Create.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -104,7 +110,8 @@ public partial class ContentTypeController
     public async Task<IActionResult> Edit(ContentTypeUpdateRequest model)
     {
         var validator = GetValidator<ContentTypeUpdateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Edit.Modal", model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -117,22 +124,35 @@ public partial class ContentTypeController
 
             switch (response)
             {
+                case SuccessResponse<ContentType> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
+                    });
                 case SuccessResponse<ContentType> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Edit.Modal", model);
-                default:
-                    return PartialView("_Edit.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Edit.Modal", model);
         }
         catch (Exception ex)
         {
+            if (Request.IsAjaxRequest())
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+
             ModelState.AddModelError("", ex.Message);
             return PartialView("_Edit.Modal", model);
         }
@@ -148,24 +168,33 @@ public partial class ContentTypeController
 
             switch (response)
             {
+                case SuccessResponse<ContentType> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
+                    });
                 case SuccessResponse<ContentType> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "ContentType", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Delete.Modal", model);
-                default:
-                    return PartialView("_Delete.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Delete.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Delete.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 }

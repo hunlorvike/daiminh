@@ -2,6 +2,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using Core.Common.Models;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
 
@@ -67,5 +68,27 @@ public static class ValidatorExtensions
 
         validationResult.AddToModelState(controller.ModelState);
         return true;
+    }
+
+    public static async Task<IActionResult?> ValidateAndReturnBadRequest<T>(
+        this Controller controller,
+        IValidator<T> validator,
+        T model) where T : class
+    {
+        ArgumentNullException.ThrowIfNull(validator);
+        ArgumentNullException.ThrowIfNull(model);
+
+        var validationResult = await validator.ValidateAsync(model);
+
+        if (validationResult.IsValid) return null;
+
+        Dictionary<string, string[]> errors = validationResult.Errors
+            .GroupBy(e => e.PropertyName)
+            .ToDictionary(
+                group => group.Key,
+                group => group.Select(e => e.ErrorMessage).ToArray()
+            );
+
+        return controller.BadRequest(new ErrorResponse(errors));
     }
 }

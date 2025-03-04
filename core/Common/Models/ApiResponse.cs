@@ -5,17 +5,17 @@ public abstract class BaseResponse(bool success)
     public bool Success { get; protected init; } = success;
 }
 
-public class ErrorResponse(Dictionary<string, string>? errors) : BaseResponse(false)
+public class ErrorResponse(Dictionary<string, string[]>? errors) : BaseResponse(false)
 {
-    public Dictionary<string, string> Errors { get; } = errors ?? [];
+    public Dictionary<string, string[]> Errors { get; } = errors ?? [];
 
-    private ErrorResponse(string key, string message)
-        : this(new Dictionary<string, string> { { key, message } })
+    private ErrorResponse(string key, string[] message)
+        : this(new Dictionary<string, string[]> { { key, message } })
     {
     }
 
-    public ErrorResponse(string message)
-        : this("General", message)
+    public ErrorResponse(string[] messages)
+        : this("General", messages)
     {
     }
 }

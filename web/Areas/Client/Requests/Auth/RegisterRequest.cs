@@ -18,7 +18,6 @@ public class RegisterRequest
     public string? PasswordConfirm { get; set; }
 }
 
-
 public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {
     public RegisterRequestValidator()

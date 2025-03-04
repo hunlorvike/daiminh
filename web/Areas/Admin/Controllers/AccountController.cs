@@ -17,13 +17,15 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public class AccountController(
+public partial class AccountController(
     IUserService userService,
     IRoleService roleService,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration)
+    : DaiminhController(mapper, serviceProvider, configuration);
+
+public partial class AccountController
 {
     public async Task<IActionResult> Index()
     {
@@ -31,7 +33,6 @@ public class AccountController(
         List<UserViewModel> userViewModels = _mapper.Map<List<UserViewModel>>(users);
         return View(userViewModels);
     }
-
 
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
@@ -42,17 +43,17 @@ public class AccountController(
         ViewBag.Roles = await GetRoleOptionsAsync(viewModel.RoleId);
         return PartialView("_Edit.Modal", viewModel);
     }
+}
 
+public partial class AccountController
+{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(UserRequest model)
     {
         var validator = GetValidator<UserRequest>();
-        if (await this.ValidateAndReturnView(validator, model))
-        {
-            ViewBag.Roles = await GetRoleOptionsAsync(model.RoleId);
-            return PartialView("_Edit.Modal", model);
-        }
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -65,29 +66,34 @@ public class AccountController(
 
             switch (response)
             {
+                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Account", new { area = "Admin" })
+                    });
                 case SuccessResponse<User> successResponse:
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Account", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Account", new { area = "Admin" });
-
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    break;
-
-                default:
-                    ModelState.AddModelError("", "An unexpected error occurred.");
-                    break;
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Edit.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", "An error occurred: " + ex.Message);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
-
-        ViewBag.Roles = await GetRoleOptionsAsync(model.RoleId);
-        return PartialView("_Edit.Modal", model);
     }
 
     private async Task<List<SelectListItem>> GetRoleOptionsAsync(int selectedRoleId)

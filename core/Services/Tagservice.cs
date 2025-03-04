@@ -48,13 +48,13 @@ public class TagService(IUnitOfWork unitOfWork) : ScopedService, ITagService
         {
             var tagRepository = unitOfWork.GetRepository<Tag, int>();
 
-            var errors = new Dictionary<string, string>();
+            var errors = new Dictionary<string, string[]>();
 
             var existingTag = await tagRepository
                 .FirstOrDefaultAsync(t => t.Slug == model.Slug);
 
             if (existingTag != null)
-                errors.Add(nameof(model.Slug), "Slug đã tồn tại");
+                errors.Add(nameof(model.Slug), ["Slug đã tồn tại"]);
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
@@ -65,9 +65,9 @@ public class TagService(IUnitOfWork unitOfWork) : ScopedService, ITagService
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -82,23 +82,19 @@ public class TagService(IUnitOfWork unitOfWork) : ScopedService, ITagService
                 .FirstOrDefaultAsync(t => t.Slug == model.Slug && t.Id != id);
 
             if (existingSlug != null)
-            {
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { nameof(model.Slug), "Slug đã tồn tại" }
+                    { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
-            }
 
             var existingTag = await tagRepository
                 .FirstOrDefaultAsync(t => t.Id == id);
 
             if (existingTag == null)
-            {
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { "General", "Thẻ không tồn tại" }
+                    { "General", ["Thẻ không tồn tại"] }
                 });
-            }
 
             existingTag.Name = model.Name ?? existingTag.Name;
             existingTag.Slug = model.Slug ?? existingTag.Slug;
@@ -109,9 +105,9 @@ public class TagService(IUnitOfWork unitOfWork) : ScopedService, ITagService
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -124,10 +120,8 @@ public class TagService(IUnitOfWork unitOfWork) : ScopedService, ITagService
             var tag = await tagRepository.FirstOrDefaultAsync(t => t.Id == id);
 
             if (tag == null)
-            {
-                return new ErrorResponse(new Dictionary<string, string>
-                    { { "General", "Thẻ không tồn tại." } });
-            }
+                return new ErrorResponse(new Dictionary<string, string[]>
+                    { { "General", ["Thẻ không tồn tại."] } });
 
             tag.DeletedAt = DateTime.UtcNow;
 
@@ -137,7 +131,7 @@ public class TagService(IUnitOfWork unitOfWork) : ScopedService, ITagService
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+            return new ErrorResponse(new Dictionary<string, string[]> { { "General", [ex.Message] } });
         }
     }
 }

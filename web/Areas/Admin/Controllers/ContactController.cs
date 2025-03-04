@@ -59,47 +59,50 @@ public partial class ContactController
 {
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(ContactUpdateRequest request)
+    public async Task<IActionResult> Edit(ContactUpdateRequest model)
     {
         var validator = GetValidator<ContactUpdateRequest>();
-
-        if (await this.ValidateAndReturnView(validator, request))
-        {
-            ViewBag.ContactStatus = EnumExtensions.ToSelectList<ContactStatus>(request.ContactStatus);
-            return PartialView("_Edit.Modal", request);
-        }
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
-            var contact = await contactService.GetByIdAsync(request.Id);
+            var contact = await contactService.GetByIdAsync(model.Id);
             if (contact == null) return NotFound();
 
-            _mapper.Map(request, contact);
+            _mapper.Map(model, contact);
 
-            var response = await contactService.UpdateAsync(request.Id, contact);
+            var response = await contactService.UpdateAsync(model.Id, contact);
 
             switch (response)
             {
+                case SuccessResponse<Contact> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Contact", new { area = "Admin" })
+                    });
                 case SuccessResponse<Contact> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Contact", new { area = "Admin" }) });
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Contact", new { area = "Admin" });
-
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Edit.Modal", request);
-
-                default:
-                    ModelState.AddModelError("", "An unexpected error occurred.");
-                    return PartialView("_Edit.Modal", request);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Edit.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", request);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 }

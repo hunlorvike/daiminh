@@ -32,7 +32,7 @@
                 <div class="mb-3">
                     <label asp-for="Email" class="form-label">Email</label>
                     <input asp-for="Email" type="email" class="form-control" placeholder="your@email.com">
-                     <span asp-validation-for="Email" class="text-danger"></span>
+                    <span asp-validation-for="Email" class="text-danger"></span>
                 </div>
                 <div class="mb-3">
                     <label asp-for="Password" class="form-label">Mật khẩu</label>
@@ -40,16 +40,19 @@
                         <input asp-for="Password" type="password" class="form-control" placeholder="Mật khẩu"
                                autocomplete="off">
                         <span class="input-group-text">
-                            <a href="#" class="link-secondary" title="Hiện mật khẩu" data-bs-toggle="tooltip">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
+                            <button class="btn-toggle-password btn-link"
+                                    title="Hiện mật khẩu"
+                                    data-bs-toggle="tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
                                     <path
-                                        d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7"/>
+                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
                                 </svg>
-                            </a>
+                            </button>
                         </span>
                     </div>
                     <span asp-validation-for="Password" class="text-danger"></span>
@@ -60,16 +63,19 @@
                         <input asp-for="PasswordConfirm" type="password" name="PasswordConfirm" class="form-control"
                                placeholder="Xác nhận mật khẩu" autocomplete="off">
                         <span class="input-group-text">
-                            <a href="#" class="link-secondary" title="Hiện mật khẩu" data-bs-toggle="tooltip">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
+                             <button class="btn-toggle-password btn-link"
+                                     title="Hiện mật khẩu"
+                                     data-bs-toggle="tooltip">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                     stroke-linejoin="round"
+                                     class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M12 12m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
                                     <path
-                                        d="M22 12c-2.667 4.667 -6 7 -10 7s-7.333 -2.333 -10 -7c2.667 -4.667 6 -7 10 -7s7.333 2.333 10 7"/>
+                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
                                 </svg>
-                            </a>
+                            </button>
                         </span>
                     </div>
                     <span asp-validation-for="PasswordConfirm" class="text-danger"></span>
@@ -78,13 +84,13 @@
                     <label class="form-check">
                         <input type="checkbox" class="form-check-input"/>
                         <span class="form-check-label">
-                            Tôi đồng ý với <a href="/terms" tabindex="-1">điều khoản</a> và <a href="/privacy"
-                                                                                               tabindex="-1">chính sách bảo mật</a>.
+                            Tôi đồng ý với <a href="#" tabindex="-1">điều khoản</a> và <a href="#"
+                                                                                          tabindex="-1">chính sách bảo mật</a>.
                         </span>
                     </label>
                 </div>
                 <div class="form-footer">
-                    <button type="submit" class="btn btn-primary w-100">Tạo tài khoản</button>
+                    <button type="button" class="btn btn-primary w-100 command-submit">Tạo tài khoản</button>
                 </div>
             </div>
         </form>
@@ -118,12 +124,41 @@
 
 @section FootScripts {
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initialize tooltips
-            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
+        $(document).ready(function () {
+            const eyeOpenIcon = `<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  
+                                    fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0" />
+                                    <path d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6" />
+                                </svg>`;
+
+            const eyeOffIcon = `<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  
+                                    fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye-off">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                    <path d="M10.585 10.587a2 2 0 0 0 2.829 2.828" />
+                                    <path d="M16.681 16.673a8.717 8.717 0 0 1 -4.681 1.327c-3.6 0 -6.6 -2 -9 -6c1.272 -2.12 2.712 -3.678 4.32 -4.674m2.86 -1.146a9.055 9.055 0 0 1 1.82 -.18c3.6 0 6.6 2 9 6c-.666 1.11 -1.379 2.067 -2.138 2.87" />
+                                    <path d="M3 3l18 18" />
+                                </svg>`
+
+            $(document).on('click', '.btn-toggle-password', function (e) {
+                e.preventDefault();
+
+                const $button = $(this),
+                    $input = $button.closest('.input-group').find('input');
+
+                if ($input.attr('type') === 'password') {
+                    $input.attr('type', 'text');
+                    $button.attr('title', 'Ẩn mật khẩu').attr('data-bs-original-title', 'Ẩn mật khẩu').html(eyeOffIcon);
+                } else {
+                    $input.attr('type', 'password');
+                    $button.attr('title', 'Hiện mật khẩu').attr('data-bs-original-title', 'Hiện mật khẩu').html(eyeOpenIcon);
+                }
+
+                const tooltip = bootstrap.Tooltip.getOrCreateInstance($button[0]);
+                tooltip.hide();
+                tooltip.update();
             });
+
         });
     </script>
 }
