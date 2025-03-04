@@ -1,3 +1,5 @@
+@model web.Areas.Client.Requests.Subscriber.SubscriberCreateRequest
+
 <footer class="footer d-print-none py-4">
     <div class="container-xl">
         <div class="row">
@@ -145,12 +147,16 @@
                 <p class="small mb-3">
                     Nhận thông tin về các sản phẩm sơn mới và ưu đãi đặc biệt.
                 </p>
-                <div class="input-group mb-3">
-                    <input type="email" class="form-control border-primary" placeholder="Nhập email của bạn">
-                    <button class="btn btn-primary" type="button">
-                        GỬI
-                    </button>
-                </div>
+                <form class="mb-3" asp-area="Client" asp-controller="Subscriber" asp-action="Create" method="post">
+                    <div class="input-group mb-3">
+                        @Html.AntiForgeryToken()
+                        <input asp-for="Email" class="form-control border-primary">
+                        <button class="btn btn-primary command-submit" type="button">
+                            GỬI
+                        </button>
+                    </div>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </form>
                 <!-- Social Media Icons -->
                 <div class="d-flex gap-2">
                     <a href="#" class="btn btn-icon btn-outline-facebook">
