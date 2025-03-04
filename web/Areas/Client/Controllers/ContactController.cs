@@ -3,6 +3,7 @@ using core.Common.Extensions;
 using Core.Common.Models;
 using core.Entities;
 using core.Interfaces.Service;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Client.Requests.Contact;
@@ -29,39 +30,48 @@ public partial class ContactController
 {
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ContactCreateRequest request)
+    public async Task<IActionResult> Create(ContactCreateRequest model)
     {
         var validator = GetValidator<ContactCreateRequest>();
 
-        if (await this.ValidateAndReturnView(validator, request)) return View("Index", request);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
-            var model = _mapper.Map<Contact>(request);
+            var contact = _mapper.Map<Contact>(model);
 
-            var response = await contactService.AddAsync(model);
+            var response = await contactService.AddAsync(contact);
 
             switch (response)
             {
+                case SuccessResponse<Contact> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Contact", new { area = "Client" })
+                    });
                 case SuccessResponse<Contact> successResponse:
-                    TempData["SuccessMessage"] = "Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm.";
-
-                    return RedirectToAction("Index");
+                    TempData["SuccessMessage"] = successResponse.Message;
+                    return RedirectToAction("Index", "Contact", new { area = "Client" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
                 {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return View("Index", request);
+                    return BadRequest(errorResponse);
                 }
-                default:
-
-                    return View("Index", request);
             }
+
+            return RedirectToAction("Index", "Contact", new { area = "Client" });
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return View("Index", request);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 }

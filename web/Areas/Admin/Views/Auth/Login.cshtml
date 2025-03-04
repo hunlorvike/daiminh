@@ -11,13 +11,6 @@
             <div class="card-body">
                 <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản Admin</h2>
 
-                @if (ViewData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success mb-3">
-                        @ViewData["SuccessMessage"]
-                    </div>
-                }
-
                 <form asp-area="Admin" asp-controller="Auth" asp-action="Login"
                       asp-route-returnUrl="@ViewData["ReturnUrl"]"
                       method="post" autocomplete="off" novalidate>
@@ -35,22 +28,22 @@
                             <span class="input-group-text">
                                 <button class="btn-toggle-password btn-link" title="Hiện mật khẩu"
                                         data-bs-toggle="tooltip">
-                                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                      fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                      stroke-linejoin="round"
-                                      class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                    <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
-                                    <path
-                                        d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
-                                </svg>
+                                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                          fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
+                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                                        <path d="M10 12a2 2 0 1 0 4 0a2 2 0 0 0 -4 0"/>
+                                        <path
+                                            d="M21 12c-2.4 4 -5.4 6 -9 6c-3.6 0 -6.6 -2 -9 -6c2.4 -4 5.4 -6 9 -6c3.6 0 6.6 2 9 6"/>
+                                    </svg>
                                 </button>
                             </span>
                         </div>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                     <div class="mb-2">
-                        <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
+                        <button type="button" class="btn btn-primary w-100 command-submit">Đăng nhập</button>
                     </div>
                 </form>
             </div>
@@ -65,10 +58,6 @@
 @section FootScripts {
     <script>
         $(document).ready(function () {
-            const
-                $passwordInput = $('input[type="password"]'),
-                $togglePasswordButton = $('.btn-toggle-password');
-
             const eyeOpenIcon = `<svg  xmlns="http://www.w3.org/2000/svg"  width="24"  height="24"  viewBox="0 0 24 24"  
                                     fill="none"  stroke="currentColor"  stroke-width="2"  stroke-linecap="round"  stroke-linejoin="round"  class="icon icon-tabler icons-tabler-outline icon-tabler-eye">
                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
@@ -84,27 +73,25 @@
                                     <path d="M3 3l18 18" />
                                 </svg>`
 
-            $togglePasswordButton.on('click', function (e) {
+            $(document).on('click', '.btn-toggle-password', function (e) {
                 e.preventDefault();
 
-                if ($passwordInput.attr('type') === 'password') {
-                    $passwordInput.attr('type', 'text');
-                    $(this).attr('title', 'Ẩn mật khẩu')
-                        .attr('data-bs-original-title', 'Ẩn mật khẩu')
-                        .html(eyeOffIcon);
+                const $button = $(this),
+                    $input = $button.closest('.input-group').find('input');
+
+                if ($input.attr('type') === 'password') {
+                    $input.attr('type', 'text');
+                    $button.attr('title', 'Ẩn mật khẩu').attr('data-bs-original-title', 'Ẩn mật khẩu').html(eyeOffIcon);
                 } else {
-                    $passwordInput.attr('type', 'password');
-                    $(this).attr('title', 'Hiện mật khẩu')
-                        .attr('data-bs-original-title', 'Hiện mật khẩu')
-                        .html(eyeOpenIcon);
+                    $input.attr('type', 'password');
+                    $button.attr('title', 'Hiện mật khẩu').attr('data-bs-original-title', 'Hiện mật khẩu').html(eyeOpenIcon);
                 }
 
-                const tooltip = bootstrap.Tooltip.getOrCreateInstance(this);
-                if (tooltip) {
-                    tooltip.hide();
-                    tooltip.update();
-                }
+                const tooltip = bootstrap.Tooltip.getOrCreateInstance($button[0]);
+                tooltip.hide();
+                tooltip.update();
             });
+
         });
     </script>
 }

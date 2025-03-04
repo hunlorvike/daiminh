@@ -48,13 +48,13 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ScopedService, IC
         try
         {
             var categoryRepository = unitOfWork.GetRepository<Category, int>();
-            var errors = new Dictionary<string, string>();
+            var errors = new Dictionary<string, string[]>();
 
             var existingCategory = await categoryRepository
                 .FirstOrDefaultAsync(c => c.Slug == model.Slug && c.DeletedAt == null);
 
             if (existingCategory != null)
-                errors.Add(nameof(model.Slug), "Slug đã tồn tại");
+                errors.Add(nameof(model.Slug), ["Slug đã tồn tại"]);
 
             if (errors.Count != 0)
                 return new ErrorResponse(errors);
@@ -66,9 +66,9 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ScopedService, IC
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -84,18 +84,18 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ScopedService, IC
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
 
             if (existingSlug != null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { nameof(model.Slug), "Slug đã tồn tại" }
+                    { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
 
             var existingCategory = await categoryRepository
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingCategory == null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { "General", "Category không tồn tại" }
+                    { "General", ["Category không tồn tại"] }
                 });
 
             existingCategory.Name = model.Name ?? existingCategory.Name;
@@ -108,9 +108,9 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ScopedService, IC
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string>
+            return new ErrorResponse(new Dictionary<string, string[]>
             {
-                { "General", ex.Message }
+                { "General", [ex.Message] }
             });
         }
     }
@@ -123,8 +123,8 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ScopedService, IC
             var category = await categoryRepository.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
             if (category == null)
-                return new ErrorResponse(new Dictionary<string, string>
-                    { { "General", "Category không tồn tại" } });
+                return new ErrorResponse(new Dictionary<string, string[]>
+                    { { "General", ["Category không tồn tại"] } });
 
             category.DeletedAt = DateTime.UtcNow;
 
@@ -134,7 +134,7 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ScopedService, IC
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+            return new ErrorResponse(new Dictionary<string, string[]> { { "General", [ex.Message] } });
         }
     }
 }

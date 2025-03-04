@@ -57,8 +57,8 @@ public partial class AuthController
     public async Task<IActionResult> Login(LoginRequest model, string? returnUrl = null)
     {
         var validator = GetValidator<LoginRequest>();
-
-        if (await this.ValidateAndReturnView(validator, model)) return View(model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -68,25 +68,33 @@ public partial class AuthController
 
             switch (response)
             {
+                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Admin" })
+                    });
                 case SuccessResponse<User> successResponse:
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                        return Redirect(returnUrl);
-                    else
-                        return RedirectToAction("Index", "Home", new { area = "Admin" });
+                    TempData["SuccessMessage"] = successResponse.Message;
+                    return RedirectToAction("Index", "Home", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
                 {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return View(model);
+                    return BadRequest(errorResponse);
                 }
-                default:
-                    return View(model);
             }
+
+            return View(model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -97,7 +105,8 @@ public partial class AuthController
     {
         var validator = GetValidator<RegisterRequest>();
 
-        if (await this.ValidateAndReturnView(validator, model)) return View(model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -107,27 +116,33 @@ public partial class AuthController
 
             switch (response)
             {
+                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Login", "Auth", new { area = "Admin" })
+                    });
                 case SuccessResponse<User> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                        return Redirect(returnUrl);
-                    else
-                        return RedirectToAction("Login", "Auth", new { area = "Admin" });
+                    TempData["SuccessMessage"] = successResponse.Message;
+                    return RedirectToAction("Login", "Auth", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
                 {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return View(model);
+                    return BadRequest(errorResponse);
                 }
-                default:
-                    return View(model);
             }
+
+            return View(model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 

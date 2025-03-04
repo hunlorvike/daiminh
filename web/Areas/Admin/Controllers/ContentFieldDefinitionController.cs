@@ -11,5 +11,4 @@ public partial class ContentFieldDefinitionController(
 
 public partial class ContentFieldDefinitionController
 {
-    
 }

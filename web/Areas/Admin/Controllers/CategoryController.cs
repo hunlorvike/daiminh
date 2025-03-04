@@ -89,7 +89,8 @@ public partial class CategoryController
     public async Task<IActionResult> Create(CategoryCreateRequest model)
     {
         var validator = GetValidator<CategoryCreateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -99,27 +100,33 @@ public partial class CategoryController
 
             switch (response)
             {
+                case SuccessResponse<Category> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
+                    });
                 case SuccessResponse<Category> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Category", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
                 {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Create.Modal", model);
+                    return BadRequest(errorResponse);
                 }
-                default:
-                    return PartialView("_Create.Modal", model);
             }
+
+            return PartialView("_Create.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Create.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -128,7 +135,8 @@ public partial class CategoryController
     public async Task<IActionResult> Edit(CategoryUpdateRequest model)
     {
         var validator = GetValidator<CategoryUpdateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Edit.Modal", model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -141,24 +149,33 @@ public partial class CategoryController
 
             switch (response)
             {
+                case SuccessResponse<Category> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
+                    });
                 case SuccessResponse<Category> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Category", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Edit.Modal", model);
-                default:
-                    return PartialView("_Edit.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Edit.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -172,24 +189,33 @@ public partial class CategoryController
 
             switch (response)
             {
+                case SuccessResponse<Category> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
+                    });
                 case SuccessResponse<Category> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Category", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Category", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Delete.Modal", model);
-                default:
-                    return PartialView("_Delete.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Delete.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Delete.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 }

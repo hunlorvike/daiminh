@@ -2,7 +2,7 @@
 
 @{
     const string title = "Quản lý thẻ";
-    const string screenCode = "tag";
+    const string screenCode = "tagScreen";
     ViewBag.Title = title;
 }
 
@@ -32,15 +32,9 @@
     </section>
 
     <section class="dm-form form-create-container"></section>
-    <section class="dm-form form-details-container"></section>
     <section class="dm-form form-edit-container"></section>
     <section class="dm-form form-delete-container"></section>
-
     <section class="paged-list">
         <partial name="_List" model="Model"/>
     </section>
 </div>
-
-@section FootScripts {
-    <script src="~/js/Views/Admin/Tag/Tag.js"></script>
-}

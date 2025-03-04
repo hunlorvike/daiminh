@@ -3,7 +3,6 @@ using core.Common.Constants;
 using core.Common.Extensions;
 using Core.Common.Models;
 using core.Entities;
-using core.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using web.Areas.Admin.Controllers.Shared;
@@ -13,7 +12,6 @@ using core.Interfaces.Service;
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
-[Route("Auth")]
 public partial class AuthController(
     IMapper mapper,
     IAuthService authService,
@@ -23,13 +21,6 @@ public partial class AuthController(
 
 public partial class AuthController
 {
-    /*  
-     
-      [Route("/quen-mat-khau")]
-      public IActionResult ForgotPassword()
-      {
-          return View();
-      }*/
     [HttpGet("dang-nhap")]
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
@@ -40,6 +31,7 @@ public partial class AuthController
         ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
+
     [HttpGet("dang-ky")]
     [AllowAnonymous]
     public IActionResult Register(string? returnUrl = null)
@@ -50,9 +42,6 @@ public partial class AuthController
         ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
-
-    
-
 }
 
 public partial class AuthController
@@ -63,8 +52,8 @@ public partial class AuthController
     public async Task<IActionResult> Login(LoginRequest model, string? returnUrl = null)
     {
         var validator = GetValidator<LoginRequest>();
-
-        if (await this.ValidateAndReturnView(validator, model)) return View(model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -74,25 +63,33 @@ public partial class AuthController
 
             switch (response)
             {
-                case SuccessResponse<User> successResponse:
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                        return Redirect(returnUrl);
-                    else
-                        return RedirectToAction("Index", "Home", new { area = "Client" });
-                case ErrorResponse errorResponse:
+                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
+                    return Json(new
                     {
-                        foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                        return View(model);
-                    }
-                default:
-                    return View(model);
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Client" })
+                    });
+                case SuccessResponse<User> successResponse:
+                    TempData["SuccessMessage"] = successResponse.Message;
+                    return RedirectToAction("Index", "Home", new { area = "Client" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
+                case ErrorResponse errorResponse:
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return View(model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -103,7 +100,8 @@ public partial class AuthController
     {
         var validator = GetValidator<RegisterRequest>();
 
-        if (await this.ValidateAndReturnView(validator, model)) return View(model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -113,27 +111,33 @@ public partial class AuthController
 
             switch (response)
             {
-                case SuccessResponse<User> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-
-                    if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-                        return Redirect(returnUrl);
-                    else
-                        return RedirectToAction("Login", "Auth", new { area = "Client" });
-                case ErrorResponse errorResponse:
+                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
+                    return Json(new
                     {
-                        foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                        return View(model);
-                    }
-                default:
-                    return View(model);
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Login", "Auth", new { area = "Client" })
+                    });
+                case SuccessResponse<User> successResponse:
+                    TempData["SuccessMessage"] = successResponse.Message;
+                    return RedirectToAction("Login", "Auth", new { area = "Client" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
+                case ErrorResponse errorResponse:
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return View(model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return View(model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 

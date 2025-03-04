@@ -26,12 +26,6 @@
                                 <h2 class="card-title">Liên hệ với chúng tôi</h2>
                                 <p class="card-text">Hãy điền vào biểu mẫu bên dưới và chúng tôi sẽ liên hệ lại với bạn
                                     trong thời gian sớm nhất.</p>
-                                @if (TempData["SuccessMessage"] != null)
-                                {
-                                    <div class="alert alert-success">
-                                        @TempData["SuccessMessage"]
-                                    </div>
-                                }
                                 <form asp-area="Client" asp-controller="Contact" asp-action="Create" method="post">
                                     @Html.AntiForgeryToken()
                                     <div class="mb-3">
@@ -59,7 +53,7 @@
                                                   placeholder="Nhập nội dung liên hệ"></textarea>
                                         <span asp-validation-for="Message" class="text-danger"></span>
                                     </div>
-                                    <button type="submit" class="btn btn-primary">Gửi liên hệ</button>
+                                    <button type="button" class="btn btn-primary command-submit">Gửi liên hệ</button>
                                 </form>
                             </div>
                         </div>

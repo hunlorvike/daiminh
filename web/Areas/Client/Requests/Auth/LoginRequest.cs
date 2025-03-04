@@ -23,19 +23,10 @@ public class LoginRequestValidator : AbstractValidator<LoginRequest>
             .NotEmpty().WithMessage("Email đăng nhập không được để trống")
             .EmailAddress().WithMessage("Email không hợp lệ");*/
         RuleFor(request => request.Username)
-           .NotEmpty().WithMessage("Tên đăng nhập không được để trống")
-           .Length(3, 50).WithMessage("Tên đăng nhập phải từ 3-50 ký tự");
+            .NotEmpty().WithMessage("Tên đăng nhập không được để trống")
+            .Length(3, 50).WithMessage("Tên đăng nhập phải từ 3-50 ký tự");
         RuleFor(x => x.Password)
             .NotEmpty().WithMessage("Mật khẩu không được để trống")
             .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự");
     }
 }
-
-
-
-
-
-
-
-
-

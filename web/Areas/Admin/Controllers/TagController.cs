@@ -27,7 +27,7 @@ public partial class TagController
 {
     public async Task<IActionResult> Index()
     {
-        List<Tag> tags = await tagService.GetAllAsync();
+        var tags = await tagService.GetAllAsync();
         List<TagViewModel> models = _mapper.Map<List<TagViewModel>>(tags);
         return View(models);
     }
@@ -64,10 +64,8 @@ public partial class TagController
     public async Task<IActionResult> Create(TagCreateRequest model)
     {
         var validator = GetValidator<TagCreateRequest>();
-        if (await this.ValidateAndReturnView(validator, model))
-        {
-            return PartialView("_Create.Modal", model);
-        }
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -77,27 +75,33 @@ public partial class TagController
 
             switch (response)
             {
+                case SuccessResponse<Tag> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
+                    });
                 case SuccessResponse<Tag> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Tag", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
                 {
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Create.Modal", model);
+                    return BadRequest(errorResponse);
                 }
-                default:
-                    return PartialView("_Create.Modal", model);
             }
+
+            return PartialView("_Create.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Create.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -106,7 +110,8 @@ public partial class TagController
     public async Task<IActionResult> Edit(TagUpdateRequest model)
     {
         var validator = GetValidator<TagUpdateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Edit.Modal", model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -119,24 +124,33 @@ public partial class TagController
 
             switch (response)
             {
+                case SuccessResponse<Tag> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
+                    });
                 case SuccessResponse<Tag> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Tag", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Edit.Modal", model);
-                default:
-                    return PartialView("_Edit.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Edit.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -150,24 +164,33 @@ public partial class TagController
 
             switch (response)
             {
+                case SuccessResponse<Tag> successResponse when Request.IsAjaxRequest():
+                    return Json(new
+                    {
+                        success = true,
+                        message = successResponse.Message,
+                        redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
+                    });
                 case SuccessResponse<Tag> successResponse:
-                    ViewData["SuccessMessage"] = successResponse.Message;
-                    if (Request.IsAjaxRequest())
-                        return Json(new { redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" }) });
-
+                    TempData["SuccessMessage"] = successResponse.Message;
                     return RedirectToAction("Index", "Tag", new { area = "Admin" });
+                case ErrorResponse errorResponse when Request.IsAjaxRequest():
+                    return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                    foreach (var error in errorResponse.Errors) ModelState.AddModelError(error.Key, error.Value);
-
-                    return PartialView("_Delete.Modal", model);
-                default:
-                    return PartialView("_Delete.Modal", model);
+                {
+                    return BadRequest(errorResponse);
+                }
             }
+
+            return PartialView("_Delete.Modal", model);
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Delete.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 }

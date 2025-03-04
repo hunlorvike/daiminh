@@ -52,7 +52,7 @@ public class ContactService(IUnitOfWork unitOfWork) : ScopedService, IContactSer
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+            return new ErrorResponse(new Dictionary<string, string[]> { { "General", [ex.Message] } });
         }
     }
 
@@ -64,9 +64,9 @@ public class ContactService(IUnitOfWork unitOfWork) : ScopedService, IContactSer
             var existingContact = await repository.FindByIdAsync(id);
 
             if (existingContact == null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { "General", "Liên hệ không tồn tại" }
+                    { "General", ["Liên hệ không tồn tại"] }
                 });
 
             existingContact.Name = model.Name;
@@ -82,7 +82,7 @@ public class ContactService(IUnitOfWork unitOfWork) : ScopedService, IContactSer
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+            return new ErrorResponse(new Dictionary<string, string[]> { { "General", [ex.Message] } });
         }
     }
 
@@ -94,9 +94,9 @@ public class ContactService(IUnitOfWork unitOfWork) : ScopedService, IContactSer
             var existingContact = await repository.FirstOrDefaultAsync(c => c.Id == id);
 
             if (existingContact == null)
-                return new ErrorResponse(new Dictionary<string, string>
+                return new ErrorResponse(new Dictionary<string, string[]>
                 {
-                    { "General", "Liên hệ không tồn tại" }
+                    { "General", ["Liên hệ không tồn tại"] }
                 });
 
             existingContact.DeletedAt = DateTime.UtcNow;
@@ -108,7 +108,7 @@ public class ContactService(IUnitOfWork unitOfWork) : ScopedService, IContactSer
         }
         catch (Exception ex)
         {
-            return new ErrorResponse(new Dictionary<string, string> { { "General", ex.Message } });
+            return new ErrorResponse(new Dictionary<string, string[]> { { "General", [ex.Message] } });
         }
     }
 }
