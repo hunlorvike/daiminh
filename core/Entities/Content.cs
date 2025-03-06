@@ -53,7 +53,7 @@ public class ContentConfiguration : SeoEntityConfiguration<Content, int>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(x => x.Author)
-            .WithMany()
+            .WithMany(u => u.Contents)
             .HasForeignKey(x => x.AuthorId)
             .OnDelete(DeleteBehavior.SetNull);
     }
