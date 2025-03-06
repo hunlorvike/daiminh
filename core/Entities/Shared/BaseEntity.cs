@@ -5,6 +5,7 @@ namespace core.Entities.Shared;
 
 public abstract class BaseEntity
 {
+    public bool IsActive { get; set; } = true;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? DeletedAt { get; set; }
@@ -30,6 +31,7 @@ public abstract class BaseEntityConfiguration<T> : IEntityTypeConfiguration<T> w
 {
     public virtual void Configure(EntityTypeBuilder<T> builder)
     {
+        builder.Property(x => x.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         builder.Property(x => x.CreatedAt).HasColumnName("created_at");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
         builder.Property(e => e.DeletedAt).HasColumnName("deleted_at").IsRequired(false);
