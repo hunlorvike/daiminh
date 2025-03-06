@@ -59,6 +59,8 @@
         <_ContentIncludedByDefault Remove="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js"/>
         <_ContentIncludedByDefault Remove="wwwroot\lib\bootstrap\dist\js\bootstrap.min.js.map"/>
         <_ContentIncludedByDefault Remove="wwwroot\lib\bootstrap\LICENSE"/>
+        <_ContentIncludedByDefault Remove="wwwroot\js\Common\AppCommand.js" />
+        <_ContentIncludedByDefault Remove="wwwroot\js\Common\AppUtility.js" />
     </ItemGroup>
 
     <ItemGroup>
