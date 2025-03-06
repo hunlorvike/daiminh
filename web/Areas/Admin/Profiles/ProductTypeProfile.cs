@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using core.Entities;
 using web.Areas.Admin.Models.ProductType;
 using web.Areas.Admin.Requests.ProductType;
