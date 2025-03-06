@@ -1,0 +1,26 @@
+@model web.Areas.Admin.Models.Subscriber.SubscriberViewModel
+<div class="modal modal-blur fade" id="detail-subscriber--modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-md modal-dialog-centered modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Chi tiết Mail Liên hệ</h5>
+                <button type="button" class="btn-close command-modal-close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12 mb-3">
+                        <h6 class="text-muted">Email</h6>
+                        <p class="text-truncate mb-0">@Model.Email</p>
+                    </div>
+                    <div class="col-12 mb-3">
+                        <h6 class="text-muted">Trạng thái</h6>
+                        <span class="badge bg-blue-lt">@Model.Status</span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary w-100 command-modal-close">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
