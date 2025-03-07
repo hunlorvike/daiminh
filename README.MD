@@ -14,172 +14,85 @@ daiminh/
 
 ## Prerequisites
 
+Trước khi bắt đầu, hãy đảm bảo bạn đã cài đặt:
+
 - [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 - [Docker](https://www.docker.com/products/docker-desktop/)
 - [Docker Compose](https://docs.docker.com/compose/install/)
+
+---
 
 ## Local Development Setup
 
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/hunlorvike/daiminh.git
+git clone https://github.com/hunlorvike/daiminh.git daiminh
 cd daiminh
 ```
 
-### 2. Development Environment
+### 2. Setup và Chạy Dự Án
 
-#### Option 1: Using Docker Compose (Recommended)
+#### **Option 1: Sử dụng Docker Compose (Recommended)**
 
-1. Start the application and its dependencies:
+1. **Khởi động các dịch vụ (database, ứng dụng, etc.)**  
+   Chạy lệnh sau để khởi động tất cả container cần thiết:
 
-```bash
-docker compose up -d
-```
+   ```bash
+   docker compose up -d
+   ```
 
-The application will be available at `http://localhost:8080`
+2. **Apply Database Migrations**  
+   Chạy lệnh sau để cập nhật database:
 
-#### Option 2: Local Development
+   ```bash
+   dotnet ef database update --project ./infrastructure/infrastructure.csproj --startup-project ./web/web.csproj
+   ```
 
-1. Install dependencies:
+3. **Build và Chạy Ứng Dụng**  
+   Chạy các lệnh sau để build và chạy ứng dụng:
 
-```bash
-dotnet restore
-```
+   ```bash
+   dotnet clean daiminh.sln
+   dotnet restore daiminh.sln
+   dotnet build daiminh.sln
+   dotnet run --project ./web/web.csproj
+   ```
+---
 
-2. Start PostgreSQL and Redis using Docker:
+#### **Option 2: Chạy thủ công không dùng Docker**
 
-```bash
-docker compose up db redis -d
-```
+Nếu bạn không muốn sử dụng Docker, có thể chạy thủ công như sau:
 
-3. Update the connection strings in `appsettings.Development.json`:
+1. **Cấu hình database**  
+   - Đảm bảo bạn đã cài đặt PostgreSQL.  
+   - Cập nhật connection string trong `appsettings.json`.
 
-```json
-{
-    "ConnectionStrings": {
-        "Postgres": "Host=localhost;Port=5432;Database=daiminh;Username=user;Password=password"
-    },
-    "Redis": {
-        "Connection": "localhost:6379"
-    }
-}
-```
+2. **Apply Database Migrations**  
+   ```bash
+   dotnet ef database update --project ./infrastructure/infrastructure.csproj --startup-project ./web/web.csproj
+   ```
 
-4. Run the application:
+3. **Chạy ứng dụng**  
+   ```bash
+   dotnet run --project ./web/web.csproj
+   ```
 
-```bash
-cd web
-dotnet run
-```
+---
 
-## Environment Variables
+## Lưu ý
 
-The application uses the following environment variables:
+- Nếu gặp lỗi liên quan đến Entity Framework, hãy đảm bảo bạn đã cài đặt công cụ `dotnet-ef` bằng lệnh:
 
-- `ASPNETCORE_ENVIRONMENT`: Application environment (Development/Production)
-- `ConnectionStrings__Postgres`: PostgreSQL connection string
-- `Redis__Connection`: Redis connection string
+  ```bash
+  dotnet tool install --global dotnet-ef
+  ```
 
-## Docker Services
+- Nếu có thay đổi trong migrations, chạy lại:
 
-- **Web Application**: ASP.NET Core MVC application
-    - Port: 8080
-    - URL: http://localhost:8080
+  ```bash
+  dotnet ef migrations add <MigrationName> --project ./infrastructure/infrastructure.csproj --startup-project ./web/web.csproj
+  dotnet ef database update --project ./infrastructure/infrastructure.csproj --startup-project ./web/web.csproj
+  ```
 
-- **PostgreSQL Database**:
-    - Port: 5432
-    - Database: daiminh
-    - Username: user
-    - Password: password
-
-- **Redis Cache**:
-    - Port: 6379
-
-## Development Workflow
-
-1. Make changes to the code
-2. Build and test locally:
-
-```bash
-dotnet build
-dotnet test
-```
-
-3. Run with Docker Compose:
-
-```bash
-docker compose up --build
-```
-
-## Useful Commands
-
-### Docker Compose
-
-- Start all services:
-
-```bash
-docker compose up -d
-```
-
-- Stop all services:
-
-```bash
-docker compose down
-```
-
-- View logs:
-
-```bash
-docker compose logs -f
-```
-
-### Database
-
-- Access PostgreSQL:
-
-```bash
-docker compose exec db psql -U user -d daiminh
-```
-
-### Application
-
-- Clean solution:
-
-```bash
-dotnet clean
-```
-
-- Build solution:
-
-```bash
-dotnet build
-```
-
-- Run tests:
-
-```bash
-dotnet test
-```
-
-## Troubleshooting
-
-1. If the application can't connect to PostgreSQL:
-    - Ensure PostgreSQL container is running: `docker compose ps`
-    - Check logs: `docker compose logs db`
-    - Verify connection string settings
-
-2. If Redis connection fails:
-    - Check Redis container status: `docker compose ps`
-    - Verify Redis logs: `docker compose logs redis`
-
-3. If the web application fails to start:
-    - Check application logs: `docker compose logs web`
-    - Verify environment variables in docker-compose.yml
-
-## Contributing
-
-1. Create a new branch
-2. Make your changes
-3. Submit a pull request
-
+Chúc bạn coding vui vẻ! 🚀
