@@ -10,5 +10,4 @@ public interface IContentFieldDefinitionService
     Task<BaseResponse> AddAsync(ContentFieldDefinition model);
     Task<BaseResponse> UpdateAsync(int id, ContentFieldDefinition model);
     Task<BaseResponse> DeleteAsync(int id);
-    // Task<List<ContentFieldDefinition>> GetByContentTypeAsync(int contentTypeId);
 }
