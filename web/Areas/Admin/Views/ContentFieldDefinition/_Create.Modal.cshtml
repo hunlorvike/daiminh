@@ -1,0 +1,68 @@
+@model web.Areas.Admin.Requests.ContentFieldDefinition.ContentFieldDefinitionCreateRequest
+@using core.Common.Enums
+
+<div class="modal modal-blur fade" id="create-content-field-definition--modal"
+     tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" role="document">
+        <form asp-area="Admin" asp-controller="ContentFieldDefinition" asp-action="Create" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm trường nội dung</h5>
+                <button type="button" class="btn-close command-modal-close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="ContentTypeId" class="form-label">Loại nội dung</label>
+                            <select asp-for="ContentTypeId" class="form-select" asp-items="ViewBag.ContentTypes">
+                                <option value="">-- Chọn loại nội dung --</option>
+                            </select>
+                            <span asp-validation-for="ContentTypeId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="FieldName" class="form-label"></label>
+                            <input asp-for="FieldName" class="form-control" autocomplete="off">
+                            <span asp-validation-for="FieldName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="FieldType" class="form-label"></label>
+                            <input asp-for="FieldType" class="form-control" autocomplete="off">
+                            <span asp-validation-for="FieldType" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3 form-check">
+                            <input asp-for="IsRequired" class="form-check-input">
+                            <label asp-for="IsRequired" class="form-check-label"></label>
+                            <span asp-validation-for="IsRequired" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="FieldOptions" class="form-label"></label>
+                            <input asp-for="FieldOptions" class="form-control" autocomplete="off">
+                            <span asp-validation-for="FieldOptions" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-link link-secondary command-modal-close">Hủy</button>
+                <button class="btn btn-primary command-submit ms-auto" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M5 12l5 5l10 -10"/>
+                    </svg>
+                    Lưu thông tin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

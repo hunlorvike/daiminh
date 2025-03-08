@@ -1,4 +1,5 @@
 using AutoMapper;
+using core.Attributes;
 using core.Common.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -20,5 +21,11 @@ public partial class ArticleController
     public IActionResult Index()
     {
         return View();
+    }
+
+    [AjaxOnly]
+    public IActionResult Create()
+    {
+        return PartialView("_Create.Modal");
     }
 }
