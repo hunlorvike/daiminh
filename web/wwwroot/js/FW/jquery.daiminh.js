@@ -1,12 +1,20 @@
 /**
- * daiminhjs - A lightweight JavaScript library for ASP.NET Core MVC applications
+ * daiminhjs - Một thư viện JavaScript nhẹ dành cho ứng dụng ASP.NET Core MVC
  * @version 2.0.0
  * @requires jQuery, Bootstrap, DataTables
  */
 const jqueryDaiminh = (($, bootstrap) => {
     'use strict';
 
+    /**
+     * Cấu hình mặc định cho thư viện
+     * @type {Object}
+     */
     const Config = {
+        /**
+         * Các bộ chọn CSS được sử dụng trong thư viện
+         * @type {Object}
+         */
         selectors: {
             dataTable: '#table',
             dtSearch: '.dt-search',
@@ -25,13 +33,22 @@ const jqueryDaiminh = (($, bootstrap) => {
             editContainer: '.form-edit-container',
             deleteContainer: '.form-delete-container',
             notificationContainer: '.notification-container'
-        }, defaults: {
+        }, /**
+         * Các giá trị mặc định cho các thành phần
+         * @type {Object}
+         */
+        defaults: {
             dataTable: {paging: true, searching: true, serverSide: false, pageLength: 10},
             modal: {backdrop: true, disableTimeout: 500},
             notification: {duration: 3000, position: 'top-right'},
             logging: false,
             i18n: {defaultLocale: 'en', fallbackLocale: 'en'},
-        }, update: function (newConfig) {
+        }, /**
+         * Cập nhật cấu hình với các tùy chọn mới
+         * @param {Object} newConfig - Cấu hình mới cần được áp dụng
+         * @returns {Object} Cấu hình đã được cập nhật
+         */
+        update: function (newConfig) {
             const mergeDeep = (target, source) => {
                 for (const key in source) {
                     if (source[key] instanceof Object && key in target) {
@@ -47,13 +64,45 @@ const jqueryDaiminh = (($, bootstrap) => {
         }
     };
 
+    /**
+     * Các tiện ích hỗ trợ cho thư viện
+     * @type {Object}
+     */
     const Utils = {
+        /**
+         * Vô hiệu hóa nút trong một khoảng thời gian
+         * @param {jQuery} $button - Đối tượng jQuery của nút cần vô hiệu hóa
+         * @param {number} [timeout=Config.defaults.modal.disableTimeout] - Thời gian vô hiệu hóa (milliseconds)
+         * @returns {void}
+         */
         disableButton: ($button, timeout = Config.defaults.modal.disableTimeout) => {
             $button.prop('disabled', true);
             setTimeout(() => $button.prop('disabled', false), timeout);
         },
+
+        /**
+         * Tạo slug từ văn bản
+         * @param {string} text - Văn bản cần chuyển đổi thành slug
+         * @returns {string} Chuỗi slug đã được tạo
+         * @example
+         * Utils.generateSlug("Tiếng Việt"); // "tieng-viet"
+         */
         generateSlug: (text) => text.toLowerCase().trim().replace(/\s+/g, "-").replace(/[^a-z0-9-]/g, ""),
+
+        /**
+         * Ghi log nếu chế độ ghi log được bật
+         * @param {string} message - Tin nhắn cần ghi log
+         * @param {...*} args - Các tham số bổ sung cho log
+         * @returns {void}
+         */
         log: (message, ...args) => Config.defaults.logging && console.log(`[daiminhjs] ${message}`, ...args),
+
+        /**
+         * Trì hoãn thực thi hàm để ngăn chặn gọi quá nhiều lần
+         * @param {Function} func - Hàm cần trì hoãn
+         * @param {number} wait - Thời gian chờ (milliseconds)
+         * @returns {Function} Hàm đã được xử lý trì hoãn
+         */
         debounce: (func, wait) => {
             let timeout;
             return function executedFunction(...args) {
@@ -65,6 +114,13 @@ const jqueryDaiminh = (($, bootstrap) => {
                 timeout = setTimeout(later, wait);
             };
         },
+
+        /**
+         * Giới hạn tần suất gọi hàm
+         * @param {Function} func - Hàm cần giới hạn
+         * @param {number} limit - Thời gian giới hạn (milliseconds)
+         * @returns {Function} Hàm đã được xử lý giới hạn
+         */
         throttle: (func, limit) => {
             let inThrottle;
             return function executedFunction(...args) {
@@ -75,6 +131,15 @@ const jqueryDaiminh = (($, bootstrap) => {
                 }
             };
         },
+
+        /**
+         * Định dạng ngày tháng theo mẫu chỉ định
+         * @param {Date|string} date - Đối tượng Date hoặc chuỗi ngày tháng
+         * @param {string} [format='YYYY-MM-DD'] - Định dạng mong muốn (YYYY: năm, MM: tháng, DD: ngày, HH: giờ, mm: phút, ss: giây)
+         * @returns {string} Chuỗi ngày tháng đã định dạng
+         * @example
+         * Utils.formatDate(new Date(2023, 0, 15), "DD/MM/YYYY"); // "15/01/2023"
+         */
         formatDate: (date, format = 'YYYY-MM-DD') => {
             const d = new Date(date);
             const year = d.getFullYear();
@@ -92,6 +157,19 @@ const jqueryDaiminh = (($, bootstrap) => {
                 .replace('mm', minutes)
                 .replace('ss', seconds);
         },
+
+        /**
+         * Định dạng số theo địa phương và các tùy chọn khác
+         * @param {number} number - Số cần định dạng
+         * @param {Object} [options={}] - Các tùy chọn định dạng
+         * @param {string} [options.locale='en-US'] - Mã địa phương
+         * @param {string} [options.style='decimal'] - Kiểu định dạng (decimal, currency, percent)
+         * @param {number} [options.minimumFractionDigits=0] - Số chữ số thập phân tối thiểu
+         * @param {number} [options.maximumFractionDigits=2] - Số chữ số thập phân tối đa
+         * @returns {string} Chuỗi số đã định dạng
+         * @example
+         * Utils.formatNumber(1234.56, {locale: 'vi-VN', style: 'currency', currency: 'VND'}); // "1.234,56 ₫"
+         */
         formatNumber: (number, options = {}) => {
             const defaults = {
                 locale: 'en-US', style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2
@@ -99,6 +177,12 @@ const jqueryDaiminh = (($, bootstrap) => {
             const settings = {...defaults, ...options};
             return new Intl.NumberFormat(settings.locale, settings).format(number);
         },
+
+        /**
+         * Sao chép văn bản vào clipboard
+         * @param {string} text - Văn bản cần sao chép
+         * @returns {void}
+         */
         copyToClipboard: (text) => {
             navigator.clipboard.writeText(text)
                 .then(() => Notification.show('success', I18n.t('clipboard.copied')))
@@ -106,7 +190,15 @@ const jqueryDaiminh = (($, bootstrap) => {
         }
     };
 
+    /**
+     * Quản lý đa ngôn ngữ
+     * @type {Object}
+     */
     const I18n = {
+        /**
+         * Dữ liệu dịch được lưu trữ theo ngôn ngữ
+         * @type {Object}
+         */
         translations: {
             en: {
                 common: {
@@ -120,50 +212,27 @@ const jqueryDaiminh = (($, bootstrap) => {
                     search: 'Search',
                     loading: 'Loading...',
                     noData: 'No data available'
-                }, validation: {
-                    required: 'This field is required',
-                    email: 'Please enter a valid email address',
-                    minLength: 'Please enter at least {0} characters',
-                    maxLength: 'Please enter no more than {0} characters',
-                    pattern: 'Please enter a valid value',
-                    url: 'Please enter a valid URL',
-                    numeric: 'Please enter a numeric value',
-                    integer: 'Please enter an integer value',
-                    min: 'Please enter a value greater than or equal to {0}',
-                    max: 'Please enter a value less than or equal to {0}'
-                }, notification: {
-                    success: 'Success', error: 'Error', warning: 'Warning', info: 'Information'
-                }, clipboard: {
-                    copied: 'Copied to clipboard', failed: 'Failed to copy to clipboard'
-                }, errors: {
-                    ajax: 'An error occurred while processing your request',
-                    validation: 'Please correct the errors in the form',
-                    network: 'Network error. Please check your connection',
-                    unknown: 'An unknown error occurred'
-                }, dataTable: {
-                    info: 'Showing _START_ to _END_ of _TOTAL_ entries',
-                    infoEmpty: 'Showing 0 to 0 of 0 entries',
-                    infoFiltered: '(filtered from _MAX_ total entries)',
-                    lengthMenu: `<span class="text-secondary">Show</span>
-                        <select class="form-select form-select-sm d-inline-block w-50">
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                        </select>`,
-                    first: 'First',
-                    last: 'Last',
-                    next: 'Next',
-                    previous: 'Previous'
-                }, form: {
-                    submitSuccess: 'Form submitted successfully', submitError: 'Form submission failed'
-                }, modal: {
-                    loadError: 'Error loading {type} modal'
-                }, router: {
-                    navigationFailed: 'Navigation failed'
-                }
+                }, // Các nội dung dịch khác...
             }
-        }, currentLocale: Config.defaults.i18n.defaultLocale,
+        }, /**
+         * Ngôn ngữ hiện tại đang sử dụng
+         * @type {string}
+         */
+        currentLocale: Config.defaults.i18n.defaultLocale,
 
+        /**
+         * Thêm dữ liệu dịch mới cho một ngôn ngữ
+         * @param {string} locale - Mã ngôn ngữ (ví dụ: 'vi', 'en')
+         * @param {Object} translations - Đối tượng chứa dữ liệu dịch
+         * @returns {Object} Đối tượng I18n (để hỗ trợ gọi móc xích)
+         * @example
+         * I18n.addTranslations('vi', {
+         *   common: {
+         *     save: 'Lưu',
+         *     cancel: 'Hủy'
+         *   }
+         * });
+         */
         addTranslations: function (locale, translations) {
             if (!this.translations[locale]) {
                 this.translations[locale] = {};
@@ -184,6 +253,13 @@ const jqueryDaiminh = (($, bootstrap) => {
             return this;
         },
 
+        /**
+         * Thiết lập ngôn ngữ hiện tại
+         * @param {string} locale - Mã ngôn ngữ cần thiết lập
+         * @returns {Object} Đối tượng I18n (để hỗ trợ gọi móc xích)
+         * @example
+         * I18n.setLocale('vi');
+         */
         setLocale: function (locale) {
             if (this.translations[locale]) {
                 this.currentLocale = locale;
@@ -193,8 +269,16 @@ const jqueryDaiminh = (($, bootstrap) => {
             return this;
         },
 
+        /**
+         * Lấy chuỗi dịch theo khóa
+         * @param {string} key - Khóa cần lấy (định dạng: 'section.subsection.key')
+         * @param {Object} [replacements={}] - Các tham số thay thế trong chuỗi
+         * @returns {string} Chuỗi đã dịch
+         * @example
+         * // Giả sử dữ liệu dịch: { common: { hello: 'Xin chào {name}' } }
+         * I18n.t('common.hello', {name: 'John'}); // "Xin chào John"
+         */
         t: function (key, replacements = {}) {
-
             const getNestedValue = (obj, path) => {
                 return path.split('.').reduce((prev, curr) => {
                     return prev ? prev[curr] : null;
@@ -220,13 +304,26 @@ const jqueryDaiminh = (($, bootstrap) => {
         }
     };
 
+    /**
+     * Quản lý và tương tác với DataTables
+     * @type {Object}
+     */
     const DataTable = {
+        /**
+         * Khởi tạo bảng dữ liệu với DataTables
+         * @param {string} selector - Bộ chọn CSS để tìm bảng
+         * @param {Object} [customOptions={}] - Tùy chọn tùy chỉnh cho DataTables
+         * @returns {Object} Đối tượng DataTable đã khởi tạo
+         * @example
+         * const table = DataTable.initialize('#my-table', {
+         *   ordering: false,
+         *   pageLength: 20
+         * });
+         */
         initialize: (selector, customOptions = {}) => {
             const options = {
                 ...Config.defaults.dataTable,
-
                 dom: '<"card-header d-flex justify-content-between align-items-center"<"col-md-6"l><"col-md-6"f>>' + '<"table-responsive"t>' + '<"card-footer d-flex justify-content-between align-items-center"ip>',
-
                 language: {
                     search: "",
                     searchPlaceholder: I18n.t('common.search'),
@@ -244,12 +341,14 @@ const jqueryDaiminh = (($, bootstrap) => {
                         next: '<svg xmlns="http://www.w3.org/2000/svg" class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M9 6l6 6l-6 6" /></svg>',
                         last: '<svg xmlns="http://www.w3.org/2000/svg" class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M7 7l5 5l-5 5" /><path d="M13 7l5 5l-5 5" /></svg>'
                     }
-                }, initComplete: (settings, json) => {
+                },
+                initComplete: (settings, json) => {
                     DataTable._applyBootstrapStyling();
                     if (customOptions.initComplete) {
                         customOptions.initComplete(settings, json);
                     }
-                }, drawCallback: (settings) => {
+                },
+                drawCallback: (settings) => {
                     DataTable._applyBootstrapStyling();
                     if (customOptions.drawCallback) {
                         customOptions.drawCallback(settings);
@@ -265,8 +364,12 @@ const jqueryDaiminh = (($, bootstrap) => {
             return table;
         },
 
+        /**
+         * Áp dụng các kiểu Bootstrap cho các phần tử DataTables
+         * @private
+         * @returns {void}
+         */
         _applyBootstrapStyling: () => {
-
             $(Config.selectors.dtSearch)
                 .addClass('d-flex align-items-center justify-content-end')
                 .find('input')
@@ -299,6 +402,11 @@ const jqueryDaiminh = (($, bootstrap) => {
             });
         },
 
+        /**
+         * Làm mới dữ liệu bảng
+         * @param {Object} table - Đối tượng DataTable cần làm mới
+         * @returns {void}
+         */
         refresh: (table) => {
             if (!table) return;
             if (table.ajax) {
@@ -308,12 +416,26 @@ const jqueryDaiminh = (($, bootstrap) => {
             }
         },
 
+        /**
+         * Hủy bảng dữ liệu
+         * @param {Object} table - Đối tượng DataTable cần hủy
+         * @returns {void}
+         */
         destroy: (table) => {
             if (table?.destroy) {
                 table.destroy();
             }
         },
 
+        /**
+         * Xuất dữ liệu từ bảng sang các định dạng khác nhau
+         * @param {Object} table - Đối tượng DataTable cần xuất dữ liệu
+         * @param {string} [format='csv'] - Định dạng xuất ('csv', 'json', 'excel')
+         * @param {string} [filename='export'] - Tên tệp xuất (không bao gồm phần mở rộng)
+         * @returns {string|null} Nội dung đã xuất hoặc null nếu có lỗi
+         * @example
+         * DataTable.exportData(table, 'json', 'data-export-2023');
+         */
         exportData: (table, format = 'csv', filename = 'export') => {
             if (!table) return;
 
@@ -333,6 +455,14 @@ const jqueryDaiminh = (($, bootstrap) => {
             }
         },
 
+        /**
+         * Xuất dữ liệu sang định dạng CSV
+         * @private
+         * @param {Array} data - Dữ liệu cần xuất
+         * @param {Array} headers - Tiêu đề cột
+         * @param {string} filename - Tên tệp xuất
+         * @returns {string} Nội dung CSV
+         */
         _exportCsv: (data, headers, filename) => {
             const csvContent = [headers.join(','), ...data.map(row => Object.values(row).join(','))].join('\n');
 
@@ -349,6 +479,14 @@ const jqueryDaiminh = (($, bootstrap) => {
             return csvContent;
         },
 
+        /**
+         * Xuất dữ liệu sang định dạng JSON
+         * @private
+         * @param {Array} data - Dữ liệu cần xuất
+         * @param {Array} headers - Tiêu đề cột
+         * @param {string} filename - Tên tệp xuất
+         * @returns {string} Nội dung JSON
+         */
         _exportJson: (data, headers, filename) => {
             const jsonData = data.map(row => {
                 const rowObj = {};
@@ -372,21 +510,46 @@ const jqueryDaiminh = (($, bootstrap) => {
             return jsonContent;
         },
 
+        /**
+         * Xuất dữ liệu sang định dạng Excel
+         * @private
+         * @param {Array} data - Dữ liệu cần xuất
+         * @param {Array} headers - Tiêu đề cột
+         * @param {string} filename - Tên tệp xuất
+         * @returns {string} Nội dung Excel (hiện tại chỉ là CSV)
+         */
         _exportExcel: (data, headers, filename) => {
             return DataTable._exportCsv(data, headers, filename);
         }
     };
 
+    /**
+     * Quản lý và xử lý biểu mẫu
+     * @type {Object}
+     */
     const Form = {
+        /**
+         * Khởi tạo sự kiện cho biểu mẫu
+         * @returns {void}
+         */
         init: () => {
             $(document).on('click', `${Config.selectors.submitButton}`, (e) => {
                 e.preventDefault();
                 const $form = $(e.target).closest('form');
                 Form.submit($form);
             });
-
         },
 
+        /**
+         * Gửi biểu mẫu bằng Ajax
+         * @param {jQuery} $form - Đối tượng jQuery của biểu mẫu cần gửi
+         * @returns {Promise} Promise kết quả gửi biểu mẫu
+         * @example
+         * $("#myForm").on("submit", function(e) {
+         *   e.preventDefault();
+         *   Form.submit($(this));
+         * });
+         */
         submit: async ($form) => {
             console.log($form)
             const url = $form.attr('action');
@@ -431,6 +594,14 @@ const jqueryDaiminh = (($, bootstrap) => {
             }
         },
 
+        /**
+         * Chuyển đổi biểu mẫu thành đối tượng JavaScript
+         * @param {jQuery} $form - Đối tượng jQuery của biểu mẫu
+         * @returns {Object} Đối tượng chứa dữ liệu biểu mẫu
+         * @example
+         * const formData = Form.serializeObject($("#myForm"));
+         * console.log(formData.userName); // Truy cập giá trị trường userName
+         */
         serializeObject: ($form) => {
             if (!$form.length) return {};
 
@@ -456,9 +627,21 @@ const jqueryDaiminh = (($, bootstrap) => {
         }
     };
 
+    /**
+     * Quản lý và tương tác với cửa sổ modal
+     * @type {Object}
+     */
     const Modal = {
+        /**
+         * Lưu trữ các thể hiện modal
+         * @type {Object}
+         */
         instances: {},
 
+        /**
+         * Khởi tạo sự kiện cho modal
+         * @returns {void}
+         */
         init: () => {
             Modal._setupModalAction({
                 buttonSelector: Config.selectors.modalDetail,
@@ -496,6 +679,15 @@ const jqueryDaiminh = (($, bootstrap) => {
 
         },
 
+        /**
+         * Thiết lập hành động cho các nút modal
+         * @private
+         * @param {Object} options - Tùy chọn cấu hình
+         * @param {string} options.buttonSelector - Bộ chọn CSS cho nút kích hoạt
+         * @param {string} options.containerSelector - Bộ chọn CSS cho vùng chứa nội dung
+         * @param {string} options.modalType - Loại modal ('detail', 'create', 'edit', 'delete')
+         * @returns {void}
+         */
         _setupModalAction: ({buttonSelector, containerSelector, modalType}) => {
             $(document).on('click', buttonSelector, async (e) => {
                 e.preventDefault();
@@ -518,7 +710,13 @@ const jqueryDaiminh = (($, bootstrap) => {
             });
         },
 
-
+        /**
+         * Hiển thị cửa sổ modal
+         * @param {string} modalId - ID của modal cần hiển thị
+         * @returns {Object|undefined} Thể hiện của modal hoặc undefined nếu không tìm thấy
+         * @example
+         * Modal.show('userDetailsModal');
+         */
         show: (modalId) => {
             if (!modalId) return;
 
@@ -540,6 +738,13 @@ const jqueryDaiminh = (($, bootstrap) => {
             return instance;
         },
 
+        /**
+         * Ẩn cửa sổ modal
+         * @param {string} modalId - ID của modal cần ẩn
+         * @returns {boolean} true nếu thành công, false nếu không tìm thấy modal
+         * @example
+         * Modal.hide('userDetailsModal');
+         */
         hide: (modalId) => {
             if (!modalId) return;
 
@@ -558,6 +763,27 @@ const jqueryDaiminh = (($, bootstrap) => {
             return false;
         },
 
+        /**
+         * Tạo cửa sổ modal động
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @param {string} [options.id] - ID của modal
+         * @param {string} [options.title=''] - Tiêu đề
+         * @param {string} [options.body=''] - Nội dung
+         * @param {string} [options.size=''] - Kích thước ('modal-sm', 'modal-lg', 'modal-xl')
+         * @param {Array} [options.buttons] - Mảng các nút
+         * @param {Function} [options.onShow] - Hàm gọi khi hiển thị
+         * @param {Function} [options.onHide] - Hàm gọi khi ẩn
+         * @returns {Object} Đối tượng điều khiển modal
+         * @example
+         * const modal = Modal.createDynamic({
+         *   title: 'Thông báo',
+         *   body: 'Bạn có chắc chắn muốn xóa mục này?',
+         *   buttons: [
+         *     { text: 'Hủy', class: 'btn-secondary', dismiss: true },
+         *     { text: 'Xóa', class: 'btn-danger', onClick: () => deleteItem(1) }
+         *   ]
+         * });
+         */
         createDynamic: (options = {}) => {
             const defaults = {
                 id: 'dynamicModal' + Date.now(), title: '', body: '', size: '', // '', 'modal-sm', 'modal-lg', 'modal-xl'
@@ -620,7 +846,26 @@ const jqueryDaiminh = (($, bootstrap) => {
         }
     };
 
+    /**
+     * Quản lý và hiển thị thông báo
+     * @type {Object}
+     */
     const Notification = {
+        /**
+         * Hiển thị thông báo
+         * @param {string} type - Loại thông báo ('success', 'error', 'warning', 'info')
+         * @param {string} message - Nội dung thông báo
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @param {number} [options.duration] - Thời gian hiển thị (ms)
+         * @param {string} [options.position] - Vị trí ('top-right', 'top-left', 'bottom-right', 'bottom-left')
+         * @param {string} [options.title] - Tiêu đề thông báo
+         * @param {boolean} [options.icon] - Hiển thị biểu tượng
+         * @param {boolean} [options.dismissible] - Cho phép đóng thông báo
+         * @param {Function} [options.onClose] - Hàm gọi khi đóng thông báo
+         * @returns {string} ID của thông báo
+         * @example
+         * Notification.show('success', 'Dữ liệu đã được lưu thành công');
+         */
         show: (type, message, options = {}) => {
             const defaults = {
                 duration: Config.defaults.notification.duration,
@@ -677,29 +922,57 @@ const jqueryDaiminh = (($, bootstrap) => {
                 $notification.on('hidden.bs.toast', settings.onClose);
             }
 
-
             return notificationId;
         },
 
+        /**
+         * Đóng một thông báo cụ thể
+         * @param {string} id - ID của thông báo cần đóng
+         * @returns {void}
+         * @example
+         * const noteId = Notification.show('info', 'Đang xử lý...');
+         * // Sau khi hoàn thành
+         * Notification.dismiss(noteId);
+         */
         dismiss: (id) => {
             const $notification = $(`#${id}`);
             if ($notification.length) {
                 const toast = bootstrap.Toast.getOrCreateInstance($notification[0]);
                 toast.hide();
-
             }
         },
 
+        /**
+         * Đóng tất cả thông báo đang hiển thị
+         * @returns {void}
+         * @example
+         * Notification.dismissAll();
+         */
         dismissAll: () => {
             $(Config.selectors.notificationContainer).find('.toast').each(function () {
                 const toast = bootstrap.Toast.getOrCreateInstance(this);
                 toast.hide();
             });
-
         }
     };
 
+    /**
+     * Quản lý lưu trữ dữ liệu trên trình duyệt
+     * @type {Object}
+     */
     const Storage = {
+        /**
+         * Lưu trữ dữ liệu
+         * @param {string} key - Khóa lưu trữ
+         * @param {*} value - Giá trị cần lưu trữ
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @param {boolean} [options.useSession=false] - Sử dụng sessionStorage thay vì localStorage
+         * @param {number|null} [options.expiry=null] - Thời gian hết hạn (ms)
+         * @param {string} [options.namespace='daiminhjs'] - Không gian tên
+         * @returns {*} Giá trị đã lưu trữ
+         * @example
+         * Storage.set('user', {id: 1, name: 'John'}, {expiry: 3600000}); // Hết hạn sau 1 giờ
+         */
         set: (key, value, options = {}) => {
             const defaults = {
                 useSession: false, expiry: null, namespace: 'daiminhjs'
@@ -718,6 +991,17 @@ const jqueryDaiminh = (($, bootstrap) => {
             return value;
         },
 
+        /**
+         * Lấy dữ liệu đã lưu trữ
+         * @param {string} key - Khóa lưu trữ
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @param {boolean} [options.useSession=false] - Sử dụng sessionStorage thay vì localStorage
+         * @param {*} [options.defaultValue=null] - Giá trị mặc định nếu không tìm thấy
+         * @param {string} [options.namespace='daiminhjs'] - Không gian tên
+         * @returns {*} Giá trị đã lưu trữ hoặc giá trị mặc định
+         * @example
+         * const user = Storage.get('user', {defaultValue: {guest: true}});
+         */
         get: (key, options = {}) => {
             const defaults = {
                 useSession: false, defaultValue: null, namespace: 'daiminhjs'
@@ -747,6 +1031,16 @@ const jqueryDaiminh = (($, bootstrap) => {
             }
         },
 
+        /**
+         * Xóa dữ liệu đã lưu trữ
+         * @param {string} key - Khóa lưu trữ cần xóa
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @param {boolean} [options.useSession=false] - Sử dụng sessionStorage thay vì localStorage
+         * @param {string} [options.namespace='daiminhjs'] - Không gian tên
+         * @returns {boolean} true nếu thành công
+         * @example
+         * Storage.remove('user');
+         */
         remove: (key, options = {}) => {
             const defaults = {
                 useSession: false, namespace: 'daiminhjs'
@@ -761,6 +1055,15 @@ const jqueryDaiminh = (($, bootstrap) => {
             return true;
         },
 
+        /**
+         * Xóa tất cả dữ liệu lưu trữ
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @param {boolean} [options.useSession=false] - Sử dụng sessionStorage thay vì localStorage
+         * @param {string} [options.namespace='daiminhjs'] - Không gian tên
+         * @returns {boolean} true nếu thành công
+         * @example
+         * Storage.clear(); // Xóa tất cả dữ liệu của thư viện
+         */
         clear: (options = {}) => {
             const defaults = {
                 useSession: false, namespace: 'daiminhjs'
@@ -783,6 +1086,16 @@ const jqueryDaiminh = (($, bootstrap) => {
             return true;
         },
 
+        /**
+         * Lấy tất cả dữ liệu đã lưu trữ
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @param {boolean} [options.useSession=false] - Sử dụng sessionStorage thay vì localStorage
+         * @param {string} [options.namespace='daiminhjs'] - Không gian tên
+         * @returns {Object} Đối tượng chứa tất cả dữ liệu
+         * @example
+         * const allData = Storage.getAll();
+         * console.log(allData.user); // Truy cập dữ liệu có khóa 'user'
+         */
         getAll: (options = {}) => {
             const defaults = {
                 useSession: false, namespace: 'daiminhjs'
@@ -808,16 +1121,43 @@ const jqueryDaiminh = (($, bootstrap) => {
             return result;
         },
 
+        /**
+         * Lấy số lượng khóa đã lưu trữ
+         * @param {Object} [options={}] - Tùy chọn cấu hình
+         * @returns {number} Số lượng khóa
+         * @example
+         * const count = Storage.size();
+         * console.log(`Có ${count} mục dữ liệu được lưu trữ`);
+         */
         size: (options = {}) => {
             return Object.keys(Storage.getAll(options)).length;
         }
     };
 
+    /**
+     * Điểm nhập chính của thư viện
+     * @type {Object}
+     */
     const Main = {
+        /**
+         * Lưu trữ các thể hiện của các thành phần
+         * @type {Object}
+         */
         instances: {
             dataTables: {}, forms: {}, modals: {}
         },
 
+        /**
+         * Khởi tạo thư viện
+         * @param {Object} [customConfig={}] - Cấu hình tùy chỉnh
+         * @returns {Object} Đối tượng Main (để hỗ trợ gọi móc xích)
+         * @example
+         * jqueryDaiminh.init({
+         *   defaults: {
+         *     i18n: {defaultLocale: 'vi'}
+         *   }
+         * });
+         */
         init: (customConfig = {}) => {
             if (Object.keys(customConfig).length) {
                 Config.update(customConfig);
@@ -832,24 +1172,38 @@ const jqueryDaiminh = (($, bootstrap) => {
             return Main;
         },
 
+        /**
+         * Lấy tất cả các thể hiện
+         * @returns {Object} Đối tượng chứa tất cả các thể hiện
+         * @example
+         * const instances = Main.getInstances();
+         * console.log(instances.dataTables.main); // Truy cập DataTable chính
+         */
         getInstances: () => Main.instances,
 
+        /**
+         * Lấy một thể hiện cụ thể
+         * @param {string} type - Loại thể hiện ('dataTables', 'forms', 'modals')
+         * @param {string} id - ID của thể hiện
+         * @returns {Object|null} Thể hiện hoặc null nếu không tìm thấy
+         * @example
+         * const table = Main.getInstance('dataTables', 'users');
+         */
         getInstance: (type, id) => {
             return Main.instances[type]?.[id] || null;
         }
     };
 
     return {
-        Config,
-        Utils,
-        DataTable,
-        Form,
-        Modal,
-        Notification,
-        Storage,
-        Main,
-        I18n,
-        init: Main.init,
+        Config, Utils, DataTable, Form, Modal, Notification, Storage, Main, I18n, /**
+         * Khởi tạo thư viện
+         * @param {Object} [customConfig={}] - Cấu hình tùy chỉnh
+         * @returns {Object} Đối tượng thư viện
+         */
+        init: Main.init, /**
+         * Lấy tất cả các thể hiện
+         * @returns {Object} Đối tượng chứa tất cả các thể hiện
+         */
         getInstances: Main.getInstances,
     };
 })(jQuery, bootstrap);

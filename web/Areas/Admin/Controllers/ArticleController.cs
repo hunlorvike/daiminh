@@ -28,4 +28,26 @@ public partial class ArticleController
     {
         return PartialView("_Create.Modal");
     }
+
+    [AjaxOnly]
+    public IActionResult Edit(int id)
+    {
+        return PartialView("_Edit.Modal");
+    }
+
+    [AjaxOnly]
+    public IActionResult Details(int id)
+    {
+        return PartialView("_Detail.Modal");
+    }
+
+    [AjaxOnly]
+    public IActionResult Delete(int id)
+    {
+        return PartialView("_Delete.Modal");
+    }
+}
+
+public partial class ArticleController
+{
 }
