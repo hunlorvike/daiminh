@@ -1,6 +1,7 @@
 using AutoMapper;
 using core.Attributes;
 using core.Common.Constants;
+using core.Common.Enums;
 using core.Common.Extensions;
 using Core.Common.Models;
 using core.Entities;
@@ -45,6 +46,7 @@ public partial class ContentFieldDefinitionController
         }
         
         await PopulateContentTypeDropdown();
+        await PopulateFieldTypeDropdown();
         return PartialView("_Create.Modal", model);
     }
 
@@ -56,6 +58,7 @@ public partial class ContentFieldDefinitionController
         var request = _mapper.Map<ContentFieldDefinitionUpdateRequest>(response);
         
         await PopulateContentTypeDropdown();
+        await PopulateFieldTypeDropdown();
         return PartialView("_Edit.Modal", request);
     }
 
@@ -73,6 +76,18 @@ public partial class ContentFieldDefinitionController
         var contentTypes = await contentTypeService.GetAllAsync();
         ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name");
     }
+    
+    private async Task PopulateFieldTypeDropdown()
+    {
+        var fieldTypes = Enum.GetValues(typeof(FieldType))
+            .Cast<FieldType>()
+            .Select(ft => new SelectListItem
+            {
+                Value = ft.ToString(),
+                Text = ft.ToString()
+            });
+        ViewBag.FieldTypes = new SelectList(fieldTypes, "Value", "Text");
+    }
 }
 
 public partial class ContentFieldDefinitionController
@@ -83,8 +98,13 @@ public partial class ContentFieldDefinitionController
     {
         var validator = GetValidator<ContentFieldDefinitionCreateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null) return result;
-
+        if (result != null)
+        {
+            await PopulateContentTypeDropdown();
+            await PopulateFieldTypeDropdown();
+            return result;
+        }
+        
         try
         {
             var newContentFieldDefinition = _mapper.Map<ContentFieldDefinition>(model);
@@ -128,8 +148,13 @@ public partial class ContentFieldDefinitionController
     {
         var validator = GetValidator<ContentFieldDefinitionUpdateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null) return result;
-
+        if (result != null)
+        {
+            await PopulateContentTypeDropdown();
+            await PopulateFieldTypeDropdown();
+            return result;
+        }
+        
         try
         {
             var contentFieldDefinition = await contentFieldDefinitionService.GetByIdAsync(model.Id);

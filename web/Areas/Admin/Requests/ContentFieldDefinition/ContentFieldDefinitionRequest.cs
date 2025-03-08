@@ -10,9 +10,10 @@ public class ContentFieldDefinitionCreateRequest
 
     [Display(Name = "Tên trường", Prompt = "Nhập tên của trường")]
     public string? FieldName { get; set; }
-
+    
     [Display(Name = "Kiểu trường", Prompt = "Chọn kiểu của trường")]
-    public FieldType FieldType { get; set; }
+    [Required(ErrorMessage = "Loại trường là bắt buộc.")]
+    public FieldType? FieldType { get; set; }
 
     [Display(Name = "Bắt buộc", Prompt = "Trường này có bắt buộc không")]
     public bool IsRequired { get; set; }
@@ -29,9 +30,10 @@ public class ContentFieldDefinitionUpdateRequest
 
     [Display(Name = "Tên trường", Prompt = "Nhập tên của trường")]
     public string? FieldName { get; set; }
-
+    
     [Display(Name = "Kiểu trường", Prompt = "Chọn kiểu của trường")]
-    public FieldType FieldType { get; set; }
+    [Required(ErrorMessage = "Loại trường là bắt buộc.")]
+    public FieldType? FieldType { get; set; }
 
     [Display(Name = "Bắt buộc", Prompt = "Trường này có bắt buộc không")]
     public bool IsRequired { get; set; }
@@ -59,6 +61,9 @@ public class ContentFieldDefinitionCreateRequestValidator : AbstractValidator<Co
             .WithMessage("Tên trường chỉ được chứa chữ cái, số và dấu gạch dưới.");
 
         RuleFor(request => request.FieldType)
+            .NotNull().WithMessage("Vui lòng chọn một loại trường.")
+            .Must(ft => ft != default(FieldType))
+            .WithMessage("Vui lòng chọn một loại trường.")
             .IsInEnum().WithMessage("Kiểu trường không hợp lệ.");
     }
 }
@@ -80,6 +85,9 @@ public class ContentFieldDefinitionUpdateRequestValidator : AbstractValidator<Co
             .WithMessage("Tên trường chỉ được chứa chữ cái, số và dấu gạch dưới.");
 
         RuleFor(request => request.FieldType)
+            .NotNull().WithMessage("Vui lòng chọn một loại trường.")
+            .Must(ft => ft != default(FieldType))
+            .WithMessage("Vui lòng chọn một loại trường.")
             .IsInEnum().WithMessage("Kiểu trường không hợp lệ.");
     }
 }
