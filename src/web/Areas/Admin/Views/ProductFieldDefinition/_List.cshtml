@@ -1,0 +1,84 @@
+@model List<web.Areas.Admin.Models.ProductFieldDefinition.ProductFieldDefinitionViewModel>
+
+<div class="page-body">
+    <div class="container">
+        <div class="card">
+            <div class="card-body p-0">
+                @if (Model.Any())
+                {
+                    <table id="table" class="table table-vcenter card-table">
+                        <thead>
+                        <tr>
+                            <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].FieldName)</th>
+                            <th scope="col"
+                                class="text-nowrap">@Html.DisplayNameFor(model => model[0].ProductTypeName)</th>
+                            <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].FieldType)</th>
+                            <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].IsRequired)</th>
+                            <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].CreatedAt)</th>
+                            <th scope="col" class="w-1" data-orderable="false">Hành động</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-muted">@item.FieldName</td>
+                                <td class="text-muted">@item.ProductTypeName</td>
+                                <td class="text-muted">@item.FieldType</td>
+                                <td class="text-muted">@(item.IsRequired ? "Có" : "Không")</td>
+                                <td class="text-muted">
+                                    @(item?.CreatedAt?.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
+                                </td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <button class="btn btn-icon btn-sm command-modal-edit" asp-area="Admin"
+                                                asp-controller="ProductFieldDefinition" asp-action="Edit"
+                                                asp-route-id="@item!.Id"
+                                                data-bs-toggle="modal" data-bs-backdrop="true"
+                                                data-bs-target="#edit-product-field-definition--modal">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="icon icon-tabler icon-tabler-edit" width="24" height="24"
+                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path
+                                                    d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1"></path>
+                                                <path
+                                                    d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z">
+                                                </path>
+                                                <path d="M16 5l3 3"></path>
+                                            </svg>
+                                        </button>
+
+                                        <button class="btn btn-icon btn-sm text-danger command-modal-delete"
+                                                asp-area="Admin" asp-controller="ProductFieldDefinition"
+                                                asp-action="Delete"
+                                                asp-route-id="@item!.Id" data-bs-toggle="modal"
+                                                data-bs-target="#delete-product-field-definition--modal">
+                                            <svg xmlns="http://www.w3.org/2000/svg"
+                                                 class="icon icon-tabler icon-tabler-trash" width="24" height="24"
+                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+                                                 stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M4 7h16"></path>
+                                                <path d="M10 11v6"></path>
+                                                <path d="M14 11v6"></path>
+                                                <path d="M5 7l1 -4h12l1 4"></path>
+                                                <path d="M9 7v12h6V7"></path>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <partial name="Components/Empty"/>
+                }
+            </div>
+        </div>
+    </div>
+</div>
