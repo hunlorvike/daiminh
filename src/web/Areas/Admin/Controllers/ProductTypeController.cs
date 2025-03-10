@@ -1,4 +1,4 @@
-﻿using application.Interfaces;
+using application.Interfaces;
 using AutoMapper;
 using domain.Constants;
 using domain.Entities;
@@ -87,9 +87,9 @@ public partial class ProductTypeController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return PartialView("_Create.Modal", model);
@@ -135,9 +135,9 @@ public partial class ProductTypeController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return PartialView("_Edit.Modal", model);
@@ -175,9 +175,9 @@ public partial class ProductTypeController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return PartialView("_Delete.Modal", model);

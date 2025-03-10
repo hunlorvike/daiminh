@@ -79,9 +79,9 @@ public partial class AccountController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return PartialView("_Edit.Modal", model);

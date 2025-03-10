@@ -1,6 +1,6 @@
-using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using shared.Attributes;
+using System.Reflection;
 
 namespace shared.Extensions;
 

@@ -1,7 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using shared.Models;
 
 namespace shared.Extensions;
@@ -25,10 +25,10 @@ public static class ValidatorExtensions
                 {
                     var validatorTypes = assembly.GetTypes()
                         .Where(t => t is
-                                    {
-                                        IsClass: true, IsAbstract: false, IsGenericType: false,
-                                        BaseType.IsGenericType: true
-                                    }
+                        {
+                            IsClass: true, IsAbstract: false, IsGenericType: false,
+                            BaseType.IsGenericType: true
+                        }
                                     && t.BaseType.GetGenericTypeDefinition() == typeof(AbstractValidator<>));
 
                     foreach (var validatorType in validatorTypes)

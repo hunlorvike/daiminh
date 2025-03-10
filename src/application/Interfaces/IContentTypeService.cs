@@ -1,5 +1,5 @@
-using shared.Models;
 using domain.Entities;
+using shared.Models;
 
 namespace application.Interfaces;
 

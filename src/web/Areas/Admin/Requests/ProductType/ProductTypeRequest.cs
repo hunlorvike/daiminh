@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.ProductType;
 

@@ -1,9 +1,8 @@
-using System.Collections.Concurrent;
-using domain.Entities.Shared;
 using infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore.Storage;
 using shared.Interfaces;
 using shared.Models;
+using System.Collections.Concurrent;
 
 namespace infrastructure.UnitOfWork;
 

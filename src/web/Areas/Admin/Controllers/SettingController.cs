@@ -1,14 +1,14 @@
 using application.Interfaces;
 using AutoMapper;
+using domain.Constants;
+using domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using shared.Extensions;
+using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Setting;
 using web.Areas.Admin.Requests.Setting;
-using domain.Constants;
-using domain.Entities;
-using shared.Extensions;
-using shared.Models;
 using web.Attributes;
 
 namespace web.Areas.Admin.Controllers;
@@ -97,9 +97,9 @@ public partial class SettingController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return PartialView("_Create.Modal", model);
@@ -146,9 +146,9 @@ public partial class SettingController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return PartialView("_Edit.Modal", model);
@@ -190,9 +190,9 @@ public partial class SettingController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return PartialView("_Delete.Modal", model);

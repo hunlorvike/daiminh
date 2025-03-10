@@ -1,13 +1,13 @@
 using application.Interfaces;
 using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Client.Requests.Auth;
 using domain.Constants;
 using domain.Entities;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using shared.Extensions;
 using shared.Models;
+using web.Areas.Admin.Controllers.Shared;
+using web.Areas.Client.Requests.Auth;
 
 namespace web.Areas.Client.Controllers;
 
@@ -76,9 +76,9 @@ public partial class AuthController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return View(model);
@@ -124,9 +124,9 @@ public partial class AuthController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return View(model);

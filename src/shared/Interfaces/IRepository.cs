@@ -1,5 +1,5 @@
-using System.Linq.Expressions;
 using shared.Models;
+using System.Linq.Expressions;
 
 namespace shared.Interfaces;
 

@@ -1,6 +1,6 @@
-using System.ComponentModel;
 using FluentValidation;
 using shared.Enums;
+using System.ComponentModel;
 
 namespace web.Areas.Admin.Requests.Contact;
 

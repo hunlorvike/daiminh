@@ -1,13 +1,11 @@
-using AutoMapper;
 using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 
 namespace web.Areas.Admin.Controllers.Shared;
 
+using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
 
 public abstract class DaiminhController : Controller
 {

@@ -81,9 +81,9 @@ public partial class AuthController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return View(model);
@@ -129,9 +129,9 @@ public partial class AuthController
                 case ErrorResponse errorResponse when Request.IsAjaxRequest():
                     return BadRequest(errorResponse);
                 case ErrorResponse errorResponse:
-                {
-                    return BadRequest(errorResponse);
-                }
+                    {
+                        return BadRequest(errorResponse);
+                    }
             }
 
             return View(model);

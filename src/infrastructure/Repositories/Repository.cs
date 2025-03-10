@@ -1,8 +1,7 @@
-using System.Linq.Expressions;
-using domain.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using shared.Interfaces;
 using shared.Models;
+using System.Linq.Expressions;
 
 namespace infrastructure.Repositories;
 

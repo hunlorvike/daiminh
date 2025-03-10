@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using application.Interfaces;
 using domain.Constants;
 using domain.Entities;
@@ -8,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
+using System.Security.Claims;
 using BC = BCrypt.Net.BCrypt;
 
 namespace application.Services;

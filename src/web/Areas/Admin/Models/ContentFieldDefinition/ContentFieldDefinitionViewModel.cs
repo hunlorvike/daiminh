@@ -1,5 +1,5 @@
-﻿using System.ComponentModel;
 using shared.Enums;
+using System.ComponentModel;
 
 namespace web.Areas.Admin.Models.ContentFieldDefinition;
 
