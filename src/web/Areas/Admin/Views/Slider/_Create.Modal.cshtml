@@ -1,0 +1,74 @@
+@model web.Areas.Admin.Requests.Slider.SliderCreateRequest
+
+<div class="modal modal-blur fade" id="create-slider--modal"
+     tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-sm modal-dialog-centered modal-dialog-scrollable" role="document">
+        <form asp-area="Admin" asp-controller="Slider" asp-action="Create" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm slide mới</h5>
+                <button type="button" class="btn-close command-modal-close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="ImageUrl" class="form-label"></label>
+                            <input asp-for="ImageUrl" class="form-control" autocomplete="off">
+                            <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="LinkUrl" class="form-label"></label>
+                            <input asp-for="LinkUrl" class="form-control" autocomplete="off">
+                            <span asp-validation-for="LinkUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="Order" class="form-label"></label>
+                            <input asp-for="Order" class="form-control" type="number" min="1" autocomplete="off">
+                            <span asp-validation-for="Order" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="OverlayHtml" class="form-label"></label>
+                            <textarea asp-for="OverlayHtml" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="OverlayHtml" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="OverlayPosition" class="form-label"></label>
+                            <select asp-for="OverlayPosition" class="form-control" asp-items="ViewBag.OverlayPositionList">                            
+                                <option value="">-- Chọn vị trí Overlay --</option>
+                            </select>
+                            <span asp-validation-for="OverlayPosition" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>                   
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-link link-secondary command-modal-close">Hủy</button>
+                <button class="btn btn-primary command-submit ms-auto" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+                        <path d="M5 12l5 5l10 -10"/>
+                    </svg>
+                    Lưu thông tin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

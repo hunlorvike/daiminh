@@ -22,6 +22,7 @@ public class ApplicationDbContext(
     public DbSet<Setting> Settings { get; set; } = null!;
     public DbSet<Contact> Contacts { get; set; } = null!;
     public DbSet<Subscriber> Subscribers { get; set; } = null!;
+    public DbSet<Slider> Sliders { get; set; } = null!;
 
     #endregion
 
