@@ -1,7 +1,7 @@
+using domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using shared.Constants;
-using shared.Interfaces;
 using shared.Models;
 
 namespace domain.Entities;

@@ -1,6 +1,6 @@
+using domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using shared.Interfaces;
 using shared.Models;
 using BC = BCrypt.Net.BCrypt;
 

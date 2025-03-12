@@ -17,6 +17,7 @@ const jqueryDaiminh = (($, bootstrap) => {
          */
         selectors: {
             dataTable: '#table',
+            dtMenu: '.dt-input',
             dtSearch: '.dt-search',
             dtLength: '.dt-length',
             pagingNav: '.dt-paging nav',
@@ -212,7 +213,11 @@ const jqueryDaiminh = (($, bootstrap) => {
                     search: 'Search',
                     loading: 'Loading...',
                     noData: 'No data available'
-                }, // Các nội dung dịch khác...
+                },
+                dataTable: {
+                    lengthMenu: 'Show _MENU_ entries',
+                },
+                // Các nội dung dịch khác...
             }
         }, /**
          * Ngôn ngữ hiện tại đang sử dụng
@@ -370,6 +375,9 @@ const jqueryDaiminh = (($, bootstrap) => {
          * @returns {void}
          */
         _applyBootstrapStyling: () => {
+            $(Config.selectors.dtMenu)
+                .addClass('form-select form-select-sm d-inline-block w-50')
+
             $(Config.selectors.dtSearch)
                 .addClass('d-flex align-items-center justify-content-end')
                 .find('input')
