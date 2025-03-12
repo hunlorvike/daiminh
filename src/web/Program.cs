@@ -1,12 +1,10 @@
 using application.Interfaces;
 using infrastructure;
-using infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using shared.Constants;
 using shared.Extensions;
-using shared.Interfaces;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
@@ -72,23 +70,10 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddDaiminhValidators();
 
 builder.Services.Scan(scan => scan
-    .FromAssemblyOf<ApplicationDbContext>()
-    .AddClasses(classes => classes.AssignableTo(typeof(IRepository<,>)))
-    .AsImplementedInterfaces()
-    .WithScopedLifetime());
-
-// Register Unit of Work
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-// Register application services
-builder.Services.Scan(scan => scan
-    .FromAssemblyOf<IAuthService>() // Assuming IService is a marker interface in your application layer
+    .FromAssemblyOf<IAuthService>()
     .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
     .AsImplementedInterfaces()
     .WithScopedLifetime());
-
-
-// TODO cấu hình DI
 
 #endregion
 

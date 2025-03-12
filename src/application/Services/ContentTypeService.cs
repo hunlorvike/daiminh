@@ -1,20 +1,26 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeService
+public partial class ContentTypeService : IContentTypeService
 {
+    private readonly ApplicationDbContext _context;
+
+    public ContentTypeService(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
     public async Task<List<ContentType>> GetAllAsync()
     {
         try
         {
-            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
-
-            return await contentTypeRepository
+            // Truy vấn trực tiếp
+            return await _context.ContentTypes
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -28,9 +34,8 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeSe
     {
         try
         {
-            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
-
-            return await contentTypeRepository
+            // Truy vấn trực tiếp
+            return await _context.ContentTypes
                 .Where(ct => ct.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -45,11 +50,10 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeSe
     {
         try
         {
-            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
-
+            // Validation và thêm trực tiếp
             var errors = new Dictionary<string, string[]>();
 
-            var existingContentType = await contentTypeRepository
+            var existingContentType = await _context.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug);
 
             if (existingContentType != null)
@@ -57,8 +61,8 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeSe
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
-            await contentTypeRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await _context.ContentTypes.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(model, "Thêm thành công.");
         }
@@ -75,9 +79,8 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeSe
     {
         try
         {
-            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
-
-            var existingSlug = await contentTypeRepository
+            // Check for duplicate slug, excluding the current record
+            var existingSlug = await _context.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
 
             if (existingSlug != null)
@@ -86,7 +89,8 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeSe
                     { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
 
-            var existingContentType = await contentTypeRepository
+            // Find the existing record
+            var existingContentType = await _context.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingContentType == null)
@@ -94,11 +98,11 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeSe
                 {
                     { "General", ["ContentType không tồn tại"] }
                 });
-
+            // Update fields
             existingContentType.Name = model.Name ?? existingContentType.Name;
             existingContentType.Slug = model.Slug ?? existingContentType.Slug;
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(existingContentType, "Cập nhật thành công.");
         }
@@ -115,16 +119,16 @@ public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeSe
     {
         try
         {
-            var contentTypeRepository = unitOfWork.GetRepository<ContentType, int>();
-            var contentType = await contentTypeRepository.FirstOrDefaultAsync(ct => ct.Id == id);
+            // Soft delete
+            var contentType = await _context.ContentTypes.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (contentType == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
                     { { "General", ["Loại bài viết không tồn tại."] } });
 
-            contentType.DeletedAt = DateTime.UtcNow;
+            contentType.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(contentType, "Đã xóa thành công.");
         }

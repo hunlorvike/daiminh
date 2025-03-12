@@ -1,19 +1,19 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public class ContactService(IUnitOfWork unitOfWork) : IContactService
+public class ContactService(ApplicationDbContext context) : IContactService
 {
     public async Task<List<Contact>> GetAllAsync()
     {
         try
         {
-            var repository = unitOfWork.GetRepository<Contact, int>();
-            return await repository.AsNoTracking().ToListAsync();
+            // Truy vấn trực tiếp
+            return await context.Contacts.AsNoTracking().ToListAsync();
         }
         catch (Exception ex)
         {
@@ -25,8 +25,9 @@ public class ContactService(IUnitOfWork unitOfWork) : IContactService
     {
         try
         {
-            var repository = unitOfWork.GetRepository<Contact, int>();
-            return await repository.Where(ct => ct.Id == id)
+            // Truy vấn trực tiếp
+            return await context.Contacts
+                .Where(ct => ct.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
         }
@@ -40,12 +41,11 @@ public class ContactService(IUnitOfWork unitOfWork) : IContactService
     {
         try
         {
-            var repository = unitOfWork.GetRepository<Contact, int>();
+            // Thêm trực tiếp
+            //var errors = new Dictionary<string, string>(); //Không có validation đặc biệt.
 
-            var errors = new Dictionary<string, string>();
-
-            await repository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await context.Contacts.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Contact>(model, "Thêm thành công.");
         }
@@ -59,8 +59,8 @@ public class ContactService(IUnitOfWork unitOfWork) : IContactService
     {
         try
         {
-            var repository = unitOfWork.GetRepository<Contact, int>();
-            var existingContact = await repository.FindByIdAsync(id);
+            // Tìm và cập nhật trực tiếp
+            var existingContact = await context.Contacts.FindAsync(id);
 
             if (existingContact == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -74,8 +74,8 @@ public class ContactService(IUnitOfWork unitOfWork) : IContactService
             existingContact.Message = model.Message;
             existingContact.Status = model.Status;
 
-            await repository.UpdateAsync(existingContact);
-            await unitOfWork.SaveChangesAsync();
+            // Không cần gọi UpdateAsync, EF Core tự tracking.
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Contact>(existingContact, "Cập nhật liên hệ thành công.");
         }
@@ -89,8 +89,7 @@ public class ContactService(IUnitOfWork unitOfWork) : IContactService
     {
         try
         {
-            var repository = unitOfWork.GetRepository<Contact, int>();
-            var existingContact = await repository.FirstOrDefaultAsync(c => c.Id == id);
+            var existingContact = await context.Contacts.FirstOrDefaultAsync(c => c.Id == id);
 
             if (existingContact == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -100,8 +99,7 @@ public class ContactService(IUnitOfWork unitOfWork) : IContactService
 
             existingContact.DeletedAt = DateTime.UtcNow;
 
-            await repository.DeleteAsync(existingContact);
-            await unitOfWork.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Contact>(existingContact, "Đã xóa thành công.");
         }

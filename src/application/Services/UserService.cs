@@ -1,22 +1,28 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure; // Namespace của ApplicationDbContext
 using Microsoft.EntityFrameworkCore;
 using shared.Constants;
-using shared.Interfaces;
 using shared.Models;
 using BC = BCrypt.Net.BCrypt;
 
-
 namespace application.Services;
 
-public class UserService(IUnitOfWork unitOfWork) : IUserService
+public class UserService : IUserService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public UserService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<List<User>> GetAllAsync()
     {
         try
         {
-            var userRepository = unitOfWork.GetRepository<User, int>();
-            var users = await userRepository
+            // Direct query, including Role
+            var users = await _context.Users
                 .Include(u => u.Role)
                 .ToListAsync();
 
@@ -32,9 +38,8 @@ public class UserService(IUnitOfWork unitOfWork) : IUserService
     {
         try
         {
-            var userRepository = unitOfWork.GetRepository<User, int>();
-
-            return await userRepository
+            // Direct query
+            return await _context.Users
                 .Where(u => u.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -49,10 +54,8 @@ public class UserService(IUnitOfWork unitOfWork) : IUserService
     {
         try
         {
-            var userRepository = unitOfWork.GetRepository<User, int>();
-            var roleRepository = unitOfWork.GetRepository<Role, int>();
-
-            var existingUsers = await userRepository
+            // Validation and direct add
+            var existingUsers = await _context.Users
                 .Where(u => u.Username == user.Username || u.Email == user.Email)
                 .ToListAsync();
 
@@ -65,15 +68,16 @@ public class UserService(IUnitOfWork unitOfWork) : IUserService
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
-            var defaultRole = await roleRepository
+            // Find the default role directly
+            var defaultRole = await _context.Roles
                                   .Where(r => r.Name == RoleConstants.User)
                                   .FirstOrDefaultAsync() ??
                               throw new Exception("Role mặc định không tồn tại. Vui lòng chạy seeding cho role.");
-            user.PasswordHash = BC.HashPassword(user.PasswordHash);
+            user.PasswordHash = BC.HashPassword(user.PasswordHash); // Hash the password
             user.RoleId = defaultRole.Id;
 
-            await userRepository.AddAsync(user);
-            await unitOfWork.SaveChangesAsync();
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<User>(user, "Đăng ký thành công.");
         }
@@ -90,9 +94,8 @@ public class UserService(IUnitOfWork unitOfWork) : IUserService
     {
         try
         {
-            var userRepository = unitOfWork.GetRepository<User, int>();
-
-            var existingUser = await userRepository
+            // Find existing user
+            var existingUser = await _context.Users
                 .FirstOrDefaultAsync(u => u.Id == id);
 
             if (existingUser == null)
@@ -100,10 +103,30 @@ public class UserService(IUnitOfWork unitOfWork) : IUserService
                 {
                     { "General", ["Người dùng không tồn tại"] }
                 });
+            //Check Duplicate
+            var duplicateUser = await _context.Users.FirstOrDefaultAsync(u => u.Id != id && (u.Username == user.Username || u.Email == user.Email));
+            var errors = new Dictionary<string, string[]>();
+            if (duplicateUser != null)
+            {
+                if (duplicateUser.Username == user.Username)
+                    errors.Add(nameof(user.Username), ["Tên người dùng đã tồn tại."]);
 
+                if (duplicateUser.Email == user.Email) errors.Add(nameof(user.Email), ["Email đã tồn tại."]);
+
+                if (errors.Count != 0) return new ErrorResponse(errors);
+            }
+            // Update fields.  Make sure to update ALL relevant fields.
             existingUser.RoleId = user.RoleId;
+            existingUser.Username = user.Username ?? existingUser.Username;  // Important!
+            existingUser.Email = user.Email ?? existingUser.Email;    // Important!
+                                                                      // ... other fields you want to update (e.g., FullName, etc.) ...
 
-            await unitOfWork.SaveChangesAsync();
+            // Update password only if a new password is provided
+            if (!string.IsNullOrWhiteSpace(user.PasswordHash))
+            {
+                existingUser.PasswordHash = BC.HashPassword(user.PasswordHash);
+            }
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<User>(existingUser, "Cập nhật thành công.");
         }

@@ -1,20 +1,26 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeService
+public partial class ProductTypeService : IProductTypeService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public ProductTypeService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<List<ProductType>> GetAllAsync()
     {
         try
         {
-            var productTypeRepository = unitOfWork.GetRepository<ProductType, int>();
-
-            return await productTypeRepository
+            // Direct query
+            return await _context.ProductTypes
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -28,9 +34,8 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeSe
     {
         try
         {
-            var productTypeRepository = unitOfWork.GetRepository<ProductType, int>();
-
-            return await productTypeRepository
+            // Direct query
+            return await _context.ProductTypes
                 .Where(ct => ct.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -45,11 +50,10 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeSe
     {
         try
         {
-            var productTypeRepository = unitOfWork.GetRepository<ProductType, int>();
-
+            // Validation and direct add
             var errors = new Dictionary<string, string[]>();
 
-            var existingProductType = await productTypeRepository
+            var existingProductType = await _context.ProductTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug);
 
             if (existingProductType != null)
@@ -57,8 +61,8 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeSe
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
-            await productTypeRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await _context.ProductTypes.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ProductType>(model, "Thêm thành công.");
         }
@@ -75,9 +79,8 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeSe
     {
         try
         {
-            var productTypeRepository = unitOfWork.GetRepository<ProductType, int>();
-
-            var existingSlug = await productTypeRepository
+            // Check for duplicate slug, excluding current record
+            var existingSlug = await _context.ProductTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
 
             if (existingSlug != null)
@@ -86,7 +89,8 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeSe
                     { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
 
-            var existingProductType = await productTypeRepository
+            // Find existing record
+            var existingProductType = await _context.ProductTypes
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingProductType == null)
@@ -94,11 +98,11 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeSe
                 {
                     { "General", ["ProductType không tồn tại"] }
                 });
-
+            // Update fields
             existingProductType.Name = model.Name ?? existingProductType.Name;
             existingProductType.Slug = model.Slug ?? existingProductType.Slug;
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ProductType>(existingProductType, "Cập nhật thành công.");
         }
@@ -115,16 +119,16 @@ public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeSe
     {
         try
         {
-            var productTypeRepository = unitOfWork.GetRepository<ProductType, int>();
-            var productType = await productTypeRepository.FirstOrDefaultAsync(ct => ct.Id == id);
+            // Find and soft-delete
+            var productType = await _context.ProductTypes.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (productType == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
                     { { "General", ["Loại sản phẩm không tồn tại."] } });
 
-            productType.DeletedAt = DateTime.UtcNow;
+            productType.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ProductType>(productType, "Đã xóa thành công.");
         }

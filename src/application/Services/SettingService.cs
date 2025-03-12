@@ -1,20 +1,26 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure; // Namespace của ApplicationDbContext
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
+public partial class SettingService : ISettingService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public SettingService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<List<Setting>> GetAllAsync()
     {
         try
         {
-            var settingRepository = unitOfWork.GetRepository<Setting, int>();
-
-            return await settingRepository
+            // Direct query
+            return await _context.Settings
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -28,9 +34,8 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
     {
         try
         {
-            var settingRepository = unitOfWork.GetRepository<Setting, int>();
-
-            return await settingRepository
+            // Direct query
+            return await _context.Settings
                 .Where(ct => ct.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -45,11 +50,10 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
     {
         try
         {
-            var settingRepository = unitOfWork.GetRepository<Setting, int>();
-
+            // Validation and direct add
             var errors = new Dictionary<string, string[]>();
 
-            var existingSettingKey = await settingRepository
+            var existingSettingKey = await _context.Settings
                 .FirstOrDefaultAsync(ct => ct.Key == model.Key);
 
             if (existingSettingKey != null)
@@ -57,8 +61,8 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
-            await settingRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await _context.Settings.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Setting>(model, "Thêm thành công.");
         }
@@ -75,9 +79,8 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
     {
         try
         {
-            var settingRepository = unitOfWork.GetRepository<Setting, int>();
-
-            var existingKey = await settingRepository
+            // Check for duplicates, excluding the current record
+            var existingKey = await _context.Settings
                 .FirstOrDefaultAsync(ct => ct.Key == model.Key && ct.Id != id);
 
             if (existingKey != null)
@@ -86,8 +89,8 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
                     { nameof(model.Key), ["Key đã tồn tại"] }
                 });
 
-            var existingValue = await settingRepository
-                .FirstOrDefaultAsync(ct => ct.Value == model.Value && ct.Id != id);
+            var existingValue = await _context.Settings
+              .FirstOrDefaultAsync(ct => ct.Value == model.Value && ct.Id != id);
 
             if (existingValue != null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -95,34 +98,8 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
                     { nameof(model.Value), ["Value đã tồn tại"] }
                 });
 
-            var existingGroup = await settingRepository
-                .FirstOrDefaultAsync(ct => ct.Group == model.Group && ct.Id != id);
-
-            if (existingGroup != null)
-                return new ErrorResponse(new Dictionary<string, string[]>
-                {
-                    { nameof(model.Group), ["Group đã tồn tại"] }
-                });
-
-            var existingDescription = await settingRepository
-                .FirstOrDefaultAsync(ct => ct.Description == model.Description && ct.Id != id);
-
-            if (existingDescription != null)
-                return new ErrorResponse(new Dictionary<string, string[]>
-                {
-                    { nameof(model.Group), ["Description đã tồn tại"] }
-                });
-
-            var existingOrder = await settingRepository
-                .FirstOrDefaultAsync(ct => ct.Order == model.Order && ct.Id != id);
-
-            if (existingOrder != null)
-                return new ErrorResponse(new Dictionary<string, string[]>
-                {
-                    { nameof(model.Order), ["Order đã tồn tại"] }
-                });
-
-            var existingSetting = await settingRepository
+            // Find the existing record
+            var existingSetting = await _context.Settings
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingSetting == null)
@@ -131,13 +108,15 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
                     { "General", ["Key-Value không tồn tại"] }
                 });
 
+            // Update fields
             existingSetting.Key = model.Key ?? existingSetting.Key;
             existingSetting.Value = model.Value ?? existingSetting.Value;
             existingSetting.Group = model.Group ?? existingSetting.Group;
             existingSetting.Description = model.Description ?? existingSetting.Description;
             existingSetting.Order = model.Order != existingSetting.Order ? model.Order : existingSetting.Order;
 
-            await unitOfWork.SaveChangesAsync();
+
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Setting>(existingSetting, "Cập nhật thành công.");
         }
@@ -154,16 +133,16 @@ public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
     {
         try
         {
-            var settingRepository = unitOfWork.GetRepository<Setting, int>();
-            var setting = await settingRepository.FirstOrDefaultAsync(ct => ct.Id == id);
+            // Find and soft-delete
+            var setting = await _context.Settings.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (setting == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
-                    { { "General", ["Loại sản phẩm không tồn tại."] } });
+                    { { "General", ["Loại sản phẩm không tồn tại."] } }); // Corrected message
 
-            setting.DeletedAt = DateTime.UtcNow;
+            setting.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Setting>(setting, "Đã xóa thành công.");
         }

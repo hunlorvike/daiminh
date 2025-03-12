@@ -1,20 +1,26 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public class TagService(IUnitOfWork unitOfWork) : ITagService
+public class TagService : ITagService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public TagService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<List<Tag>> GetAllAsync()
     {
         try
         {
-            var tagRepository = unitOfWork.GetRepository<Tag, int>();
-
-            return await tagRepository
+            // Direct query
+            return await _context.Tags
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -28,9 +34,8 @@ public class TagService(IUnitOfWork unitOfWork) : ITagService
     {
         try
         {
-            var tagRepository = unitOfWork.GetRepository<Tag, int>();
-
-            return await tagRepository
+            // Direct query
+            return await _context.Tags
                 .Where(t => t.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -45,11 +50,10 @@ public class TagService(IUnitOfWork unitOfWork) : ITagService
     {
         try
         {
-            var tagRepository = unitOfWork.GetRepository<Tag, int>();
-
+            // Validation and direct add
             var errors = new Dictionary<string, string[]>();
 
-            var existingTag = await tagRepository
+            var existingTag = await _context.Tags
                 .FirstOrDefaultAsync(t => t.Slug == model.Slug);
 
             if (existingTag != null)
@@ -57,8 +61,8 @@ public class TagService(IUnitOfWork unitOfWork) : ITagService
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
-            await tagRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await _context.Tags.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Tag>(model, "Thêm thẻ thành công.");
         }
@@ -75,9 +79,8 @@ public class TagService(IUnitOfWork unitOfWork) : ITagService
     {
         try
         {
-            var tagRepository = unitOfWork.GetRepository<Tag, int>();
-
-            var existingSlug = await tagRepository
+            // Check for duplicate slug (excluding current record)
+            var existingSlug = await _context.Tags
                 .FirstOrDefaultAsync(t => t.Slug == model.Slug && t.Id != id);
 
             if (existingSlug != null)
@@ -86,7 +89,8 @@ public class TagService(IUnitOfWork unitOfWork) : ITagService
                     { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
 
-            var existingTag = await tagRepository
+            // Find existing tag
+            var existingTag = await _context.Tags
                 .FirstOrDefaultAsync(t => t.Id == id);
 
             if (existingTag == null)
@@ -95,10 +99,11 @@ public class TagService(IUnitOfWork unitOfWork) : ITagService
                     { "General", ["Thẻ không tồn tại"] }
                 });
 
+            // Update fields
             existingTag.Name = model.Name ?? existingTag.Name;
             existingTag.Slug = model.Slug ?? existingTag.Slug;
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Tag>(existingTag, "Cập nhật thẻ thành công.");
         }
@@ -115,16 +120,16 @@ public class TagService(IUnitOfWork unitOfWork) : ITagService
     {
         try
         {
-            var tagRepository = unitOfWork.GetRepository<Tag, int>();
-            var tag = await tagRepository.FirstOrDefaultAsync(t => t.Id == id);
+            // Find and soft-delete
+            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == id);
 
             if (tag == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
                     { { "General", ["Thẻ không tồn tại."] } });
 
-            tag.DeletedAt = DateTime.UtcNow;
+            tag.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Tag>(tag, "Xóa thẻ thành công.");
         }

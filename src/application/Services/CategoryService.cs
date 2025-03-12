@@ -1,19 +1,18 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
+public partial class CategoryService(ApplicationDbContext context) : ICategoryService
 {
     public async Task<List<Category>> GetAllAsync()
     {
         try
         {
-            var categoryRepository = unitOfWork.GetRepository<Category, int>();
-            return await categoryRepository
+            return await context.Categories
                 .AsNoTracking()
                 .Where(c => c.DeletedAt == null)
                 .Include(c => c.ParentCategory)
@@ -29,8 +28,7 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     {
         try
         {
-            var categoryRepository = unitOfWork.GetRepository<Category, int>();
-            return await categoryRepository
+            return await context.Categories
                 .Where(c => c.Id == id && c.DeletedAt == null)
                 .Include(c => c.ParentCategory)
                 .AsNoTracking()
@@ -46,10 +44,9 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     {
         try
         {
-            var categoryRepository = unitOfWork.GetRepository<Category, int>();
             var errors = new Dictionary<string, string[]>();
 
-            var existingCategory = await categoryRepository
+            var existingCategory = await context.Categories
                 .FirstOrDefaultAsync(c => c.Slug == model.Slug && c.DeletedAt == null);
 
             if (existingCategory != null)
@@ -58,8 +55,8 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
             if (errors.Count != 0)
                 return new ErrorResponse(errors);
 
-            await categoryRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await context.Categories.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Category>(model, "Thêm thành công.");
         }
@@ -76,10 +73,7 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     {
         try
         {
-            var categoryRepository = unitOfWork.GetRepository<Category, int>();
-
-            // Check for duplicate slug on another record
-            var existingSlug = await categoryRepository
+            var existingSlug = await context.Categories
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id);
 
             if (existingSlug != null)
@@ -88,7 +82,7 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
                     { nameof(model.Slug), ["Slug đã tồn tại"] }
                 });
 
-            var existingCategory = await categoryRepository
+            var existingCategory = await context.Categories
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingCategory == null)
@@ -101,7 +95,7 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
             existingCategory.Slug = model.Slug ?? existingCategory.Slug;
             existingCategory.ParentCategoryId = model.ParentCategoryId;
 
-            await unitOfWork.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Category>(existingCategory, "Cập nhật thành công.");
         }
@@ -118,8 +112,7 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
     {
         try
         {
-            var categoryRepository = unitOfWork.GetRepository<Category, int>();
-            var category = await categoryRepository.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+            var category = await context.Categories.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
             if (category == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -127,7 +120,7 @@ public partial class CategoryService(IUnitOfWork unitOfWork) : ICategoryService
 
             category.DeletedAt = DateTime.UtcNow;
 
-            await unitOfWork.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Category>(category, "Đã xóa thành công.");
         }

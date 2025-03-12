@@ -1,21 +1,25 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
-    : IContentFieldDefinitionService
+public partial class ContentFieldDefinitionService : IContentFieldDefinitionService
 {
+    private readonly ApplicationDbContext _context;
+
+    public ContentFieldDefinitionService(ApplicationDbContext context)
+    {
+        _context = context;
+    }
+
     public async Task<List<ContentFieldDefinition>> GetAllAsync()
     {
         try
         {
-            var contentFieldDefinitionRepository = unitOfWork.GetRepository<ContentFieldDefinition, int>();
-
-            return await contentFieldDefinitionRepository
+            return await _context.ContentFieldDefinitions
                 .AsNoTracking()
                 .Where(c => c.DeletedAt == null)
                 .Include(c => c.ContentType)
@@ -31,8 +35,7 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var contentFieldDefinitionRepository = unitOfWork.GetRepository<ContentFieldDefinition, int>();
-            return await contentFieldDefinitionRepository
+            return await _context.ContentFieldDefinitions
                 .Where(c => c.Id == id && c.DeletedAt == null)
                 .Include(c => c.ContentType)
                 .AsNoTracking()
@@ -48,8 +51,8 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var contentFieldDefinitionRepository = unitOfWork.GetRepository<ContentFieldDefinition, int>();
-            return await contentFieldDefinitionRepository
+            // Truy vấn trực tiếp
+            return await _context.ContentFieldDefinitions
                 .Where(c => c.ContentTypeId == contentTypeId && c.DeletedAt == null)
                 .Include(c => c.ContentType)
                 .AsNoTracking()
@@ -65,10 +68,10 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var contentFieldDefinitionRepository = unitOfWork.GetRepository<ContentFieldDefinition, int>();
+            // Validation và thêm trực tiếp
             var errors = new Dictionary<string, string[]>();
 
-            var existingContentField = await contentFieldDefinitionRepository
+            var existingContentField = await _context.ContentFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ContentTypeId == model.ContentTypeId &&
                                           c.DeletedAt == null);
@@ -79,8 +82,8 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
             if (errors.Count != 0)
                 return new ErrorResponse(errors);
 
-            await contentFieldDefinitionRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await _context.ContentFieldDefinitions.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ContentFieldDefinition>(model, "Thêm thành công.");
         }
@@ -97,12 +100,12 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var contentFieldDefinitionRepository = unitOfWork.GetRepository<ContentFieldDefinition, int>();
+            // Validation và cập nhật trực tiếp
 
-            var existingField = await contentFieldDefinitionRepository
+            var existingField = await _context.ContentFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ContentTypeId == model.ContentTypeId &&
-                                          c.Id != id &&
+                                          c.Id != id &&  // Quan trọng: Loại trừ bản ghi hiện tại
                                           c.DeletedAt == null);
 
             if (existingField != null)
@@ -111,7 +114,7 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
                     { nameof(model.FieldName), ["Field name đã tồn tại cho loại nội dung này"] }
                 });
 
-            var existingContentFieldDefinition = await contentFieldDefinitionRepository
+            var existingContentFieldDefinition = await _context.ContentFieldDefinitions
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (existingContentFieldDefinition == null)
@@ -119,7 +122,7 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
                 {
                     { "General", ["Content field definition không tồn tại"] }
                 });
-
+            //Cập nhật fields
             existingContentFieldDefinition.ContentTypeId = model.ContentTypeId;
             existingContentFieldDefinition.FieldName = model.FieldName ?? existingContentFieldDefinition.FieldName;
             existingContentFieldDefinition.FieldType = model.FieldType;
@@ -127,7 +130,7 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
             existingContentFieldDefinition.FieldOptions =
                 model.FieldOptions ?? existingContentFieldDefinition.FieldOptions;
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ContentFieldDefinition>(existingContentFieldDefinition, "Cập nhật thành công.");
         }
@@ -144,9 +147,9 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var contentFieldDefinitionRepository = unitOfWork.GetRepository<ContentFieldDefinition, int>();
+            // Tìm và soft-delete
             var contentFieldDefinition =
-                await contentFieldDefinitionRepository.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+                await _context.ContentFieldDefinitions.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
             if (contentFieldDefinition == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -154,7 +157,7 @@ public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
 
             contentFieldDefinition.DeletedAt = DateTime.UtcNow;
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ContentFieldDefinition>(contentFieldDefinition, "Đã xóa thành công.");
         }

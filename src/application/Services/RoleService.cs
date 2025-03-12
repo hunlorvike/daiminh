@@ -1,19 +1,25 @@
 using application.Interfaces;
 using domain.Entities;
-using shared.Interfaces;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace application.Services;
 
-public class RoleService(IUnitOfWork unitOfWork) : IRoleService
+public class RoleService : IRoleService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public RoleService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<List<Role>> GetAllAsync()
     {
         try
         {
-            var roleRepository = unitOfWork.GetRepository<Role, int>();
-            var roles = await roleRepository
-                .ToListAsync();
-
+            // Direct query using DbContext
+            var roles = await _context.Roles.ToListAsync();
             return roles;
         }
         catch (Exception ex)

@@ -1,20 +1,26 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure; // Namespace của ApplicationDbContext
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public class SubscriberService(IUnitOfWork unitOfWork) : ISubscriberService
+public class SubscriberService : ISubscriberService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public SubscriberService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<List<Subscriber>> GetAllAsync()
     {
         try
         {
-            var subscriberRepository = unitOfWork.GetRepository<Subscriber, int>();
-
-            return await subscriberRepository
+            // Direct query
+            return await _context.Subscribers
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -28,9 +34,8 @@ public class SubscriberService(IUnitOfWork unitOfWork) : ISubscriberService
     {
         try
         {
-            var subscriberRepository = unitOfWork.GetRepository<Subscriber, int>();
-
-            return await subscriberRepository
+            // Direct query
+            return await _context.Subscribers
                 .Where(ct => ct.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -45,14 +50,19 @@ public class SubscriberService(IUnitOfWork unitOfWork) : ISubscriberService
     {
         try
         {
-            var subscriberRepository = unitOfWork.GetRepository<Subscriber, int>();
+            // Check for existing email (Important!)
+            var existingSubscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.Email == model.Email);
+            if (existingSubscriber != null)
+            {
+                return new ErrorResponse(new Dictionary<string, string[]>
+                {
+                    { nameof(model.Email), ["Email đã đăng ký."] }
+                });
+            }
 
-            var errors = new Dictionary<string, string[]>();
-
-            if (errors.Count != 0) return new ErrorResponse(errors);
-
-            await subscriberRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            // Direct add
+            await _context.Subscribers.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Subscriber>(model, "Thêm thành công.");
         }
@@ -69,8 +79,8 @@ public class SubscriberService(IUnitOfWork unitOfWork) : ISubscriberService
     {
         try
         {
-            var subscriberRepository = unitOfWork.GetRepository<Subscriber, int>();
-            var existingSubscriber = await subscriberRepository
+            // Find existing subscriber
+            var existingSubscriber = await _context.Subscribers
                 .FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (existingSubscriber == null)
@@ -79,10 +89,20 @@ public class SubscriberService(IUnitOfWork unitOfWork) : ISubscriberService
                     { "General", ["Subscriber không tồn tại"] }
                 });
 
+            // Check for duplicate email (excluding current record)
+            var duplicateEmail = await _context.Subscribers.FirstOrDefaultAsync(s => s.Email == model.Email && s.Id != id);
+            if (duplicateEmail != null)
+            {
+                return new ErrorResponse(new Dictionary<string, string[]>()
+                {
+                    {nameof(model.Email), ["Email đã được sử dụng."]}
+                });
+            }
+
+            // Update email
             existingSubscriber.Email = model.Email ?? existingSubscriber.Email;
 
-
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Subscriber>(existingSubscriber, "Cập nhật thành công.");
         }
@@ -99,16 +119,16 @@ public class SubscriberService(IUnitOfWork unitOfWork) : ISubscriberService
     {
         try
         {
-            var subscriberRepository = unitOfWork.GetRepository<Subscriber, int>();
-            var subscriber = await subscriberRepository.FirstOrDefaultAsync(ct => ct.Id == id);
+            // Find and soft-delete
+            var subscriber = await _context.Subscribers.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (subscriber == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
-                    { { "General", ["Email không tồn tại."] } });
+                    { { "General", ["Email không tồn tại."] } }); // Corrected message
 
-            subscriber.DeletedAt = DateTime.UtcNow;
+            subscriber.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Subscriber>(subscriber, "Đã xóa thành công.");
         }

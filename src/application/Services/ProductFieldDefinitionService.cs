@@ -1,21 +1,26 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
-    : IProductFieldDefinitionService
+public partial class ProductFieldDefinitionService : IProductFieldDefinitionService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public ProductFieldDefinitionService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<List<ProductFieldDefinition>> GetAllAsync()
     {
         try
         {
-            var productFieldDefinitionRepository = unitOfWork.GetRepository<ProductFieldDefinition, int>();
-
-            return await productFieldDefinitionRepository
+            // Truy vấn trực tiếp
+            return await _context.ProductFieldDefinitions
                 .AsNoTracking()
                 .Where(c => c.DeletedAt == null)
                 .Include(c => c.ProductType)
@@ -31,8 +36,8 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var productFieldDefinitionRepository = unitOfWork.GetRepository<ProductFieldDefinition, int>();
-            return await productFieldDefinitionRepository
+            // Truy vấn trực tiếp
+            return await _context.ProductFieldDefinitions
                 .Where(c => c.Id == id && c.DeletedAt == null)
                 .Include(c => c.ProductType)
                 .AsNoTracking()
@@ -48,8 +53,8 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var productFieldDefinitionRepository = unitOfWork.GetRepository<ProductFieldDefinition, int>();
-            return await productFieldDefinitionRepository
+            // Truy vấn trực tiếp
+            return await _context.ProductFieldDefinitions
                 .Where(c => c.ProductTypeId == productTypeId && c.DeletedAt == null)
                 .Include(c => c.ProductType)
                 .AsNoTracking()
@@ -65,10 +70,10 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var productFieldDefinitionRepository = unitOfWork.GetRepository<ProductFieldDefinition, int>();
+            // Validation and direct add
             var errors = new Dictionary<string, string[]>();
 
-            var existingProductField = await productFieldDefinitionRepository
+            var existingProductField = await _context.ProductFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ProductTypeId == model.ProductTypeId &&
                                           c.DeletedAt == null);
@@ -79,8 +84,8 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
             if (errors.Count != 0)
                 return new ErrorResponse(errors);
 
-            await productFieldDefinitionRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await _context.ProductFieldDefinitions.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ProductFieldDefinition>(model, "Thêm thành công.");
         }
@@ -97,12 +102,11 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var productFieldDefinitionRepository = unitOfWork.GetRepository<ProductFieldDefinition, int>();
-
-            var existingField = await productFieldDefinitionRepository
+            // Check for duplicates, excluding the current record
+            var existingField = await _context.ProductFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ProductTypeId == model.ProductTypeId &&
-                                          c.Id != id &&
+                                          c.Id != id &&  // Exclude current record
                                           c.DeletedAt == null);
 
             if (existingField != null)
@@ -111,7 +115,8 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
                     { nameof(model.FieldName), ["Field name đã tồn tại cho loại nội dung này"] }
                 });
 
-            var existingProductFieldDefinition = await productFieldDefinitionRepository
+            // Find the existing record
+            var existingProductFieldDefinition = await _context.ProductFieldDefinitions
                 .FirstOrDefaultAsync(c => c.Id == id);
 
             if (existingProductFieldDefinition == null)
@@ -120,6 +125,7 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
                     { "General", ["Product field definition không tồn tại"] }
                 });
 
+            // Update fields
             existingProductFieldDefinition.ProductTypeId = model.ProductTypeId;
             existingProductFieldDefinition.FieldName = model.FieldName ?? existingProductFieldDefinition.FieldName;
             existingProductFieldDefinition.FieldType = model.FieldType;
@@ -127,7 +133,7 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
             existingProductFieldDefinition.FieldOptions =
                 model.FieldOptions ?? existingProductFieldDefinition.FieldOptions;
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ProductFieldDefinition>(existingProductFieldDefinition, "Cập nhật thành công.");
         }
@@ -144,17 +150,17 @@ public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
     {
         try
         {
-            var productFieldDefinitionRepository = unitOfWork.GetRepository<ProductFieldDefinition, int>();
+            // Find and soft-delete
             var productFieldDefinition =
-                await productFieldDefinitionRepository.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+                await _context.ProductFieldDefinitions.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
             if (productFieldDefinition == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
                     { { "General", ["Product field definition không tồn tại"] } });
 
-            productFieldDefinition.DeletedAt = DateTime.UtcNow;
+            productFieldDefinition.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<ProductFieldDefinition>(productFieldDefinition, "Đã xóa thành công.");
         }

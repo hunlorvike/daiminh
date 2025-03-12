@@ -1,22 +1,28 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure; // Namespace của ApplicationDbContext
 using Microsoft.EntityFrameworkCore;
-using shared.Interfaces;
 using shared.Models;
-
 
 namespace application.Services;
 
-public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
+public partial class SliderService : ISliderService
 {
+    private readonly ApplicationDbContext _context; // Inject DbContext
+
+    public SliderService(ApplicationDbContext context) // Constructor
+    {
+        _context = context;
+    }
+
     public async Task<BaseResponse> AddAsync(Slider model)
     {
         try
         {
-            var sliderRepository = unitOfWork.GetRepository<Slider, int>();
+            // Validation and direct add
             var errors = new Dictionary<string, string[]>();
 
-            var existingSlider = await sliderRepository.FirstOrDefaultAsync(s =>
+            var existingSlider = await _context.Sliders.FirstOrDefaultAsync(s =>
                 s.Title == model.Title ||
                 s.ImageUrl == model.ImageUrl ||
                 s.Order == model.Order ||
@@ -37,17 +43,17 @@ public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
-            await sliderRepository.AddAsync(model);
-            await unitOfWork.SaveChangesAsync();
+            await _context.Sliders.AddAsync(model);
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Slider>(model, "Thêm thành công.");
         }
         catch (Exception ex)
         {
             return new ErrorResponse(new Dictionary<string, string[]>
-        {
-            { "General", [ex.Message] }
-        });
+            {
+                { "General", [ex.Message] }
+            });
         }
     }
 
@@ -56,14 +62,14 @@ public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
     {
         try
         {
-            var sliderRepository = unitOfWork.GetRepository<Slider, int>();
-            var slider = await sliderRepository.FirstOrDefaultAsync(ct => ct.Id == id);
+            // Find and soft-delete
+            var slider = await _context.Sliders.FirstOrDefaultAsync(ct => ct.Id == id);
 
             if (slider == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
-                    { { "General", ["Loại slider không tồn tại."] } });
-            slider.DeletedAt = DateTime.UtcNow;
-            await unitOfWork.SaveChangesAsync();
+                    { { "General", ["Slider không tồn tại."] } }); // Corrected message
+            slider.DeletedAt = DateTime.UtcNow; // Soft delete
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Slider>(slider, "Đã xóa thành công.");
         }
@@ -77,9 +83,8 @@ public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
     {
         try
         {
-            var sliderRepository = unitOfWork.GetRepository<Slider, int>();
-
-            return await sliderRepository
+            // Direct query
+            return await _context.Sliders
                 .AsNoTracking()
                 .ToListAsync();
         }
@@ -93,9 +98,8 @@ public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
     {
         try
         {
-            var sliderRepository = unitOfWork.GetRepository<Slider, int>();
-
-            return await sliderRepository
+            // Direct query
+            return await _context.Sliders
                 .Where(ct => ct.Id == id)
                 .AsNoTracking()
                 .FirstOrDefaultAsync();
@@ -110,22 +114,22 @@ public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
     {
         try
         {
-            var sliderRepository = unitOfWork.GetRepository<Slider, int>();
-            var errors = new Dictionary<string, string[]>();
-
-            var existingSlider = await sliderRepository.FindByIdAsync(id);
+            // Find existing slider
+            var existingSlider = await _context.Sliders.FindAsync(id); // Use FindAsync for efficiency
             if (existingSlider == null)
             {
                 return new ErrorResponse(new Dictionary<string, string[]>
-            {
-                { "General", ["Slider không tồn tại."] }
-            });
+                {
+                    { "General", ["Slider không tồn tại."] }
+                });
             }
+            //Check duplicate
+            var errors = new Dictionary<string, string[]>();
 
-            var duplicateSlider = await sliderRepository.FirstOrDefaultAsync(s =>
-                s.Id != id &&
-                (s.Title == model.Title || s.ImageUrl == model.ImageUrl || s.Order == model.Order || s.LinkUrl == model.LinkUrl)
-            );
+            var duplicateSlider = await _context.Sliders.FirstOrDefaultAsync(s =>
+               s.Id != id &&
+               (s.Title == model.Title || s.ImageUrl == model.ImageUrl || s.Order == model.Order || s.LinkUrl == model.LinkUrl)
+           );
 
             if (duplicateSlider != null)
             {
@@ -141,6 +145,7 @@ public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
+            // Update fields
             existingSlider.Title = model.Title ?? existingSlider.Title;
             existingSlider.ImageUrl = model.ImageUrl ?? existingSlider.ImageUrl;
             existingSlider.LinkUrl = model.LinkUrl ?? existingSlider.LinkUrl;
@@ -148,17 +153,16 @@ public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
             existingSlider.OverlayHtml = model.OverlayHtml ?? existingSlider.OverlayHtml;
             existingSlider.OverlayPosition = model.OverlayPosition ?? existingSlider.OverlayPosition;
 
-            await unitOfWork.SaveChangesAsync();
+            await _context.SaveChangesAsync();
 
             return new SuccessResponse<Slider>(existingSlider, "Cập nhật thành công.");
         }
         catch (Exception ex)
         {
             return new ErrorResponse(new Dictionary<string, string[]>
-        {
-            { "General", [ex.Message] }
-        });
+            {
+                { "General", [ex.Message] }
+            });
         }
     }
-
 }

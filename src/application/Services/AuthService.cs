@@ -1,26 +1,23 @@
 using application.Interfaces;
 using domain.Entities;
+using infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using shared.Constants;
-using shared.Interfaces;
 using shared.Models;
 using System.Security.Claims;
 using BC = BCrypt.Net.BCrypt;
 
 namespace application.Services;
 
-public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor) : IAuthService
+public class AuthService(ApplicationDbContext context, IHttpContextAccessor httpContextAccessor) : IAuthService
 {
     public async Task<BaseResponse> SignUpAsync(User user)
     {
         try
         {
-            var userRepository = unitOfWork.GetRepository<User, int>();
-            var roleRepository = unitOfWork.GetRepository<Role, int>();
-
-            var existingUsers = await userRepository
+            var existingUsers = await context.Users
                 .Where(u => u.Username == user.Username || u.Email == user.Email)
                 .ToListAsync();
 
@@ -33,15 +30,15 @@ public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContex
 
             if (errors.Count != 0) return new ErrorResponse(errors);
 
-            var defaultRole = await roleRepository
+            var defaultRole = await context.Roles
                                   .Where(r => r.Name == RoleConstants.User)
                                   .FirstOrDefaultAsync() ??
                               throw new Exception("Role mặc định không tồn tại. Vui lòng chạy seeding cho role.");
             user.PasswordHash = BC.HashPassword(user.PasswordHash);
             user.RoleId = defaultRole.Id;
 
-            await userRepository.AddAsync(user);
-            await unitOfWork.SaveChangesAsync();
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<User>(user, "Đăng ký thành công.");
         }
@@ -58,10 +55,8 @@ public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContex
     {
         try
         {
-            var userRepository = unitOfWork.GetRepository<User, int>();
-
-            var existingUser = await userRepository
-                .Include(r => r.Role)
+            var existingUser = await context.Users
+                .Include(u => u.Role)
                 .Where(u => u.Username == user.Username)
                 .FirstOrDefaultAsync();
 
