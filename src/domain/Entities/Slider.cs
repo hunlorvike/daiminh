@@ -15,7 +15,7 @@ public class Slider : BaseEntity<int>
     public OverlayPosition? OverlayPosition { get; set; }
 }
 
-public class SliderConfiguratioon : BaseEntityConfiguration<Slider, int>
+public class SliderConfiguration : BaseEntityConfiguration<Slider, int>
 {
     public override void Configure(EntityTypeBuilder<Slider> builder)
     {

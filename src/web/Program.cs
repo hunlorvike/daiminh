@@ -1,10 +1,13 @@
 using application.Interfaces;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using shared.Constants;
 using shared.Extensions;
+using System.Reflection;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
@@ -26,6 +29,8 @@ builder.Host.UseSerilog();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
 builder.Services.AddHttpContextAccessor();
 
@@ -66,8 +71,6 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
 });
 
 builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddDaiminhValidators();
 
 builder.Services.Scan(scan => scan
     .FromAssemblyOf<IAuthService>()

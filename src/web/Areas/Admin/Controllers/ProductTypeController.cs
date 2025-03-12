@@ -9,6 +9,7 @@ using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.ProductType;
+using web.Areas.Admin.Requests.ContentType;
 using web.Areas.Admin.Requests.ProductType;
 
 namespace web.Areas.Admin.Controllers;
@@ -64,7 +65,8 @@ public partial class ProductTypeController
     public async Task<IActionResult> Create(ProductTypeCreateRequest model)
     {
         var validator = GetValidator<ProductTypeCreateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Create.Modal", model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
@@ -109,7 +111,8 @@ public partial class ProductTypeController
     public async Task<IActionResult> Edit(ProductTypeUpdateRequest model)
     {
         var validator = GetValidator<ProductTypeUpdateRequest>();
-        if (await this.ValidateAndReturnView(validator, model)) return PartialView("_Edit.Modal", model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
 
         try
         {
