@@ -1,14 +1,13 @@
 using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
 public partial class ContentFieldDefinitionService(IUnitOfWork unitOfWork)
-    : ScopedService, IContentFieldDefinitionService
+    : IContentFieldDefinitionService
 {
     public async Task<List<ContentFieldDefinition>> GetAllAsync()
     {

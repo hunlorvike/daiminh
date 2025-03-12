@@ -1,13 +1,12 @@
-﻿using application.Interfaces;
+using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class ProductTypeService(IUnitOfWork unitOfWork) : ScopedService, IProductTypeService
+public partial class ProductTypeService(IUnitOfWork unitOfWork) : IProductTypeService
 {
     public async Task<List<ProductType>> GetAllAsync()
     {

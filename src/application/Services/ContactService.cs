@@ -1,13 +1,12 @@
 using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public class ContactService(IUnitOfWork unitOfWork) : ScopedService, IContactService
+public class ContactService(IUnitOfWork unitOfWork) : IContactService
 {
     public async Task<List<Contact>> GetAllAsync()
     {

@@ -1,14 +1,13 @@
 using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 
 namespace application.Services;
 
-public partial class SliderService(IUnitOfWork unitOfWork) : ScopedService, ISliderService
+public partial class SliderService(IUnitOfWork unitOfWork) : ISliderService
 {
     public async Task<BaseResponse> AddAsync(Slider model)
     {

@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using shared.Extensions;
 
-namespace web.Attributes;
+namespace shared.Attributes;
 
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Method)]
 public class AjaxOnlyAttribute : ActionFilterAttribute

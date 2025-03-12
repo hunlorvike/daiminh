@@ -1,13 +1,12 @@
 using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class SettingService(IUnitOfWork unitOfWork) : ScopedService, ISettingService
+public partial class SettingService(IUnitOfWork unitOfWork) : ISettingService
 {
     public async Task<List<Setting>> GetAllAsync()
     {

@@ -7,12 +7,13 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3"/>
+        <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+        <PackageReference Include="Scrutor" Version="6.0.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\domain\domain.csproj"/>
-        <ProjectReference Include="..\shared\shared.csproj"/>
+        <ProjectReference Include="..\domain\domain.csproj" />
+        <ProjectReference Include="..\shared\shared.csproj" />
     </ItemGroup>
 
 </Project>

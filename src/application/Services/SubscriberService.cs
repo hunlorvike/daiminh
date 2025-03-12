@@ -1,13 +1,12 @@
 using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public class SubscriberService(IUnitOfWork unitOfWork) : ScopedService, ISubscriberService
+public class SubscriberService(IUnitOfWork unitOfWork) : ISubscriberService
 {
     public async Task<List<Subscriber>> GetAllAsync()
     {

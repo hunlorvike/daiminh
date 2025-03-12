@@ -1,13 +1,12 @@
 using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public class TagService(IUnitOfWork unitOfWork) : ScopedService, ITagService
+public class TagService(IUnitOfWork unitOfWork) : ITagService
 {
     public async Task<List<Tag>> GetAllAsync()
     {

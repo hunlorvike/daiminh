@@ -1,6 +1,6 @@
 using shared.Models;
 
-namespace domain.Entities.Shared;
+namespace shared.Interfaces;
 
 public interface ISeeder<out T> where T : BaseEntity
 {

@@ -1,4 +1,4 @@
-namespace domain.Constants;
+namespace shared.Constants;
 
 public static class CookiesConstants
 {

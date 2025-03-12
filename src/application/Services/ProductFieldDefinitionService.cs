@@ -1,14 +1,13 @@
-﻿using application.Interfaces;
+using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
 public partial class ProductFieldDefinitionService(IUnitOfWork unitOfWork)
-    : ScopedService, IProductFieldDefinitionService
+    : IProductFieldDefinitionService
 {
     public async Task<List<ProductFieldDefinition>> GetAllAsync()
     {

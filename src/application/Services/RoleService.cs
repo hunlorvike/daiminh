@@ -1,11 +1,10 @@
 using application.Interfaces;
 using domain.Entities;
-using shared.Attributes;
 using shared.Interfaces;
 
 namespace application.Services;
 
-public class RoleService(IUnitOfWork unitOfWork) : ScopedService, IRoleService
+public class RoleService(IUnitOfWork unitOfWork) : IRoleService
 {
     public async Task<List<Role>> GetAllAsync()
     {

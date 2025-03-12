@@ -1,6 +1,5 @@
 using FluentValidation;
 using shared.Enums;
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.Slider;
@@ -24,7 +23,7 @@ public class SliderCreateRequest
 
     [Display(Name = "Vị trí overlay", Prompt = "Chọn vị trí overlay")]
     public OverlayPosition? OverlayPosition { get; set; }
-}   
+}
 
 public class SliderUpdateRequest
 {

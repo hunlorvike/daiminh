@@ -1,10 +1,9 @@
 using application.Interfaces;
-using domain.Constants;
 using domain.Entities;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
+using shared.Constants;
 using shared.Interfaces;
 using shared.Models;
 using System.Security.Claims;
@@ -12,7 +11,7 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace application.Services;
 
-public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor) : ScopedService, IAuthService
+public class AuthService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor) : IAuthService
 {
     public async Task<BaseResponse> SignUpAsync(User user)
     {

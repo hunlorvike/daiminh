@@ -1,16 +1,16 @@
 using application.Interfaces;
 using AutoMapper;
-using domain.Constants;
 using domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using shared.Attributes;
+using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Contact;
 using web.Areas.Admin.Requests.Contact;
-using web.Attributes;
 
 namespace web.Areas.Admin.Controllers;
 

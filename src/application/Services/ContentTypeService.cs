@@ -1,13 +1,12 @@
 using application.Interfaces;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
 using shared.Interfaces;
 using shared.Models;
 
 namespace application.Services;
 
-public partial class ContentTypeService(IUnitOfWork unitOfWork) : ScopedService, IContentTypeService
+public partial class ContentTypeService(IUnitOfWork unitOfWork) : IContentTypeService
 {
     public async Task<List<ContentType>> GetAllAsync()
     {

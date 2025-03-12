@@ -1,7 +1,7 @@
 using AutoMapper;
-using domain.Constants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using shared.Constants;
 using web.Areas.Admin.Controllers.Shared;
 
 namespace web.Areas.Admin.Controllers;

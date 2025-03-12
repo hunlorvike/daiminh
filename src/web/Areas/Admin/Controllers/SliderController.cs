@@ -1,18 +1,17 @@
 using application.Interfaces;
-using application.Services;
 using AutoMapper;
-using domain.Constants;
 using domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using shared.Attributes;
+using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Slider;
 using web.Areas.Admin.Requests.Slider;
-using web.Attributes;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -43,7 +42,7 @@ public partial class SliderController
        .Cast<OverlayPosition>()
        .Select(op => new SelectListItem
        {
-           Value = ((int)op).ToString(), 
+           Value = ((int)op).ToString(),
            Text = op.ToString()
        })
        .ToList();
@@ -61,9 +60,9 @@ public partial class SliderController
         .Cast<OverlayPosition>()
         .Select(op => new SelectListItem
         {
-            Value = ((int)op).ToString(), 
-            Text = op.ToString(), 
-            Selected = request.OverlayPosition == op 
+            Value = ((int)op).ToString(),
+            Text = op.ToString(),
+            Selected = request.OverlayPosition == op
         })
         .ToList();
         return PartialView("_Edit.Modal", request);

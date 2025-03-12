@@ -1,10 +1,10 @@
-using domain.Constants;
+using application.Interfaces;
 using infrastructure;
-using infrastructure.Repositories;
 using infrastructure.UnitOfWork;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using shared.Constants;
 using shared.Extensions;
 using shared.Interfaces;
 
@@ -67,14 +67,28 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
         .AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
 });
 
-builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
-
-builder.Services.AddScoped(typeof(IRepository<,>), typeof(Repository<,>));
-
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDaiminhValidators();
-builder.Services.AddDaiminhService();
+
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<ApplicationDbContext>()
+    .AddClasses(classes => classes.AssignableTo(typeof(IRepository<,>)))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime());
+
+// Register Unit of Work
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+// Register application services
+builder.Services.Scan(scan => scan
+    .FromAssemblyOf<IAuthService>() // Assuming IService is a marker interface in your application layer
+    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
+    .AsImplementedInterfaces()
+    .WithScopedLifetime());
+
+
+// TODO cấu hình DI
 
 #endregion
 

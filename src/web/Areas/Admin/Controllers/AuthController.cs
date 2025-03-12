@@ -1,9 +1,9 @@
 using application.Interfaces;
 using AutoMapper;
-using domain.Constants;
 using domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using shared.Constants;
 using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;

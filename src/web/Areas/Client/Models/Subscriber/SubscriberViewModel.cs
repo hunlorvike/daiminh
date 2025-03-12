@@ -1,7 +1,7 @@
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
-namespace web.Areas.Client.Models.Subscription;
+namespace web.Areas.Client.Models.Subscriber;
 
 public class SubscriberViewModel
 {

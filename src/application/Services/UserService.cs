@@ -1,8 +1,7 @@
 using application.Interfaces;
-using domain.Constants;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
-using shared.Attributes;
+using shared.Constants;
 using shared.Interfaces;
 using shared.Models;
 using BC = BCrypt.Net.BCrypt;
@@ -10,7 +9,7 @@ using BC = BCrypt.Net.BCrypt;
 
 namespace application.Services;
 
-public class UserService(IUnitOfWork unitOfWork) : ScopedService, IUserService
+public class UserService(IUnitOfWork unitOfWork) : IUserService
 {
     public async Task<List<User>> GetAllAsync()
     {
