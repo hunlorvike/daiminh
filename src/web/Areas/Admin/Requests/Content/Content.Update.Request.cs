@@ -46,6 +46,20 @@ public class ContentUpdateRequest
     [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
     [Display(Name = "Đường dẫn")]
     public string Slug { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the body content of the content item.
+    /// </summary>
+    [Required(ErrorMessage = "Nội dung bài viết là bắt buộc.")]
+    [Display(Name = "Nội dung")]
+    public string ContentBody { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Gets or sets the updated cover image URL for the content item.
+    /// </summary>
+    [Display(Name = "Ảnh bìa")]
+    public string? CoverImageUrl { get; set; }
+
     /// <summary>
     /// Gets or sets the publishing status of the content item.
     /// </summary>
@@ -131,6 +145,13 @@ public class ContentUpdateRequestValidator : AbstractValidator<ContentUpdateRequ
             .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.")
             .MaximumLength(255).WithMessage("Đường dẫn (slug) không được vượt quá 255 ký tự.")
             .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.");
+
+        RuleFor(request => request.ContentBody)
+            .NotEmpty().WithMessage("Nội dung bài viết không được để trống.");
+
+        RuleFor(request => request.CoverImageUrl)
+           .MaximumLength(500).WithMessage("Đường dẫn ảnh bìa không được vượt quá 500 ký tự.")
+           .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.CoverImageUrl)).WithMessage("Đường dẫn ảnh bìa không hợp lệ.");
 
         RuleFor(x => x.Status)
            .IsInEnum().WithMessage("Trạng thái xuất bản không hợp lệ.");

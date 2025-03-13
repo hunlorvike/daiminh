@@ -117,6 +117,8 @@ public class ContentService(ApplicationDbContext context) : IContentService
             existingContent.AuthorId = model.AuthorId;
             existingContent.Title = model.Title ?? existingContent.Title;
             existingContent.Slug = model.Slug ?? existingContent.Slug;
+            existingContent.ContentBody = model.ContentBody ?? existingContent.ContentBody;
+            existingContent.CoverImageUrl = model.CoverImageUrl ?? existingContent.CoverImageUrl;
             existingContent.Status = model.Status;
             existingContent.MetaTitle = model.MetaTitle ?? existingContent.MetaTitle;
             existingContent.MetaDescription = model.MetaDescription ?? existingContent.MetaDescription;

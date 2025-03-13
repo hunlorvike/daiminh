@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using infrastructure;
@@ -11,9 +12,11 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250313083744_v3_add_contentbody_to_content")]
+    partial class v3_add_contentbody_to_content
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -235,11 +238,6 @@ namespace infrastructure.Migrations
                     b.Property<int>("ContentTypeId")
                         .HasColumnType("integer")
                         .HasColumnName("content_type_id");
-
-                    b.Property<string>("CoverImageUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("cover_image_url");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1098,29 +1096,29 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 583, DateTimeKind.Utc).AddTicks(8374),
+                            CreatedAt = new DateTime(2025, 3, 13, 8, 37, 43, 0, DateTimeKind.Utc).AddTicks(9629),
                             IsActive = true,
                             Name = "Admin",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 583, DateTimeKind.Utc).AddTicks(8377)
+                            UpdatedAt = new DateTime(2025, 3, 13, 8, 37, 43, 0, DateTimeKind.Utc).AddTicks(9632)
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 583, DateTimeKind.Utc).AddTicks(8379),
+                            CreatedAt = new DateTime(2025, 3, 13, 8, 37, 43, 0, DateTimeKind.Utc).AddTicks(9634),
                             IsActive = true,
                             Name = "User",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 583, DateTimeKind.Utc).AddTicks(8379)
+                            UpdatedAt = new DateTime(2025, 3, 13, 8, 37, 43, 0, DateTimeKind.Utc).AddTicks(9634)
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 583, DateTimeKind.Utc).AddTicks(8380),
+                            CreatedAt = new DateTime(2025, 3, 13, 8, 37, 43, 0, DateTimeKind.Utc).AddTicks(9635),
                             IsActive = true,
                             Name = "Manager",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 583, DateTimeKind.Utc).AddTicks(8380)
+                            UpdatedAt = new DateTime(2025, 3, 13, 8, 37, 43, 0, DateTimeKind.Utc).AddTicks(9635)
                         });
                 });
 
@@ -1406,34 +1404,34 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 289, DateTimeKind.Utc).AddTicks(4144),
+                            CreatedAt = new DateTime(2025, 3, 13, 8, 37, 42, 707, DateTimeKind.Utc).AddTicks(6149),
                             Email = "admin@admin.com",
                             IsActive = true,
-                            PasswordHash = "$2a$11$l/A5viotCdI6k3Jw1qGCn.VY6k58FWsMIv4HfSVfSU4QzYD4N1FHm",
+                            PasswordHash = "$2a$11$dlfk1cYKAxK4IzUYPvm2QelN2maxzfTHjbLpFeU2wRJxPpPWexDni",
                             RoleId = 1,
-                            UpdatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 289, DateTimeKind.Utc).AddTicks(4146),
+                            UpdatedAt = new DateTime(2025, 3, 13, 8, 37, 42, 707, DateTimeKind.Utc).AddTicks(6151),
                             Username = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 386, DateTimeKind.Utc).AddTicks(4033),
+                            CreatedAt = new DateTime(2025, 3, 13, 8, 37, 42, 804, DateTimeKind.Utc).AddTicks(2043),
                             Email = "user@user.com",
                             IsActive = true,
-                            PasswordHash = "$2a$11$Fxj.uSlh1eTprzNRVs0x4ulLu07LB2sFFx1wDhPwmLGncOKzTGHl2",
+                            PasswordHash = "$2a$11$X01uEddhmuzkEKZNJmqgmemVjZbAncvDfmbFgBBbjjrZ5GJbAZVfG",
                             RoleId = 2,
-                            UpdatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 386, DateTimeKind.Utc).AddTicks(4038),
+                            UpdatedAt = new DateTime(2025, 3, 13, 8, 37, 42, 804, DateTimeKind.Utc).AddTicks(2049),
                             Username = "user"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 483, DateTimeKind.Utc).AddTicks(7116),
+                            CreatedAt = new DateTime(2025, 3, 13, 8, 37, 42, 900, DateTimeKind.Utc).AddTicks(9036),
                             Email = "manager@manager.com",
                             IsActive = true,
-                            PasswordHash = "$2a$11$hrnIO2jxbmp2OHoQ1mNDiObgpIceK7yj1FhmZ7uyKQDXgGzKxB6u2",
+                            PasswordHash = "$2a$11$q/H1X.p5Phc44YMGpEjjM.W47OtJ6CQXwuIGaLT5IFaTzVmRBJtOC",
                             RoleId = 3,
-                            UpdatedAt = new DateTime(2025, 3, 13, 8, 49, 33, 483, DateTimeKind.Utc).AddTicks(7120),
+                            UpdatedAt = new DateTime(2025, 3, 13, 8, 37, 42, 900, DateTimeKind.Utc).AddTicks(9041),
                             Username = "manager"
                         });
                 });

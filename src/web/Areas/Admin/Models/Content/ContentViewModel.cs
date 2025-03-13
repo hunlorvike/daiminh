@@ -16,6 +16,8 @@ public class ContentViewModel
 
     [DisplayName("Đường dẫn")]
     public string? Slug { get; set; }
+    [DisplayName("Ảnh bìa")]
+    public string? CoverImageUrl { get; set; }
     [DisplayName("Trạng thái")]
     public string? Status { get; set; }
 

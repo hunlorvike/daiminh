@@ -13,6 +13,7 @@
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].ContentTypeName)</th>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].AuthorName)</th>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Slug)</th>
+                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].CoverImageUrl)</th>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Status)</th>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].CreatedAt)</th>
                                 <th scope="col" class="w-1" data-orderable="false">Hành động</th>
@@ -26,6 +27,16 @@
                                     <td class="text-muted">@item.ContentTypeName</td>
                                     <td class="text-muted">@item.AuthorName</td>
                                     <td class="text-muted">@item.Slug</td>
+                                    <td class="text-muted">
+                                        @if (!string.IsNullOrEmpty(item.CoverImageUrl))
+                                        {
+                                            <img src="@item.CoverImageUrl" alt="Cover Image" style="max-width: 50px; max-height: 50px;" />
+                                        }
+                                        else
+                                        {
+                                            <span>(No Image)</span>
+                                        }
+                                    </td>
                                     <td class="text-muted">@item.Status</td>
                                     <td class="text-muted">
                                         @(item?.CreatedAt?.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
