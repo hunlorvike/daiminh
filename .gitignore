@@ -116,4 +116,5 @@ $RECYCLE.BIN/
 .AppleDouble
 .LSOverride
 
-## web/wwwroot/lib/
+# Ignore wwwroot/lib directory
+src/web/wwwroot/lib/
