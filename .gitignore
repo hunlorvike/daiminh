@@ -115,3 +115,5 @@ $RECYCLE.BIN/
 .DS_Store
 .AppleDouble
 .LSOverride
+
+## web/wwwroot/lib/
