@@ -1,4 +1,4 @@
-﻿namespace web.tests;
+namespace web.tests;
 
 public class UnitTest1
 {

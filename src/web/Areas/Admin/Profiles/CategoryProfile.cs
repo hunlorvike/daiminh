@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using domain.Entities;
 using web.Areas.Admin.Models.Category;
 using web.Areas.Admin.Requests.Category;

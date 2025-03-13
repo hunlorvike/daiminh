@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using AutoMapper;
 using domain.Entities;
 using web.Areas.Admin.Models.ProductFieldDefinition;
 using web.Areas.Admin.Requests.ProductFieldDefinition;

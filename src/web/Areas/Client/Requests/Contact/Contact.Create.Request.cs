@@ -18,9 +18,9 @@ public class ContactCreateRequest
     public string? Message { get; set; }
 }
 
-public class ContactEditRequestValidator : AbstractValidator<ContactCreateRequest>
+public class ContactCreateRequestValidator : AbstractValidator<ContactCreateRequest>
 {
-    public ContactEditRequestValidator()
+    public ContactCreateRequestValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Họ và tên không được để trống")

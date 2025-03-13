@@ -9,9 +9,9 @@ public class SubscriberCreateRequest
     public string? Email { get; set; }
 }
 
-public class SubscriberEditRequestValidator : AbstractValidator<SubscriberCreateRequest>
+public class SubscriberCreateRequestValidator : AbstractValidator<SubscriberCreateRequest>
 {
-    public SubscriberEditRequestValidator()
+    public SubscriberCreateRequestValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Email không được để trống")

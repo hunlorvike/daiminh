@@ -1,4 +1,4 @@
-﻿namespace domain.tests;
+namespace domain.tests;
 
 public class UnitTest1
 {
