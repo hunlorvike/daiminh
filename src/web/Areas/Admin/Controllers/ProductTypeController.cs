@@ -9,7 +9,6 @@ using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.ProductType;
-using web.Areas.Admin.Requests.ContentType;
 using web.Areas.Admin.Requests.ProductType;
 
 namespace web.Areas.Admin.Controllers;

@@ -7,18 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-public abstract class DaiminhController : Controller
+public abstract class DaiminhController(IMapper mapper, IServiceProvider serviceProvider, IConfiguration configuration) : Controller
 {
-    protected readonly IMapper _mapper;
-    protected readonly IServiceProvider _serviceProvider;
-    protected readonly IConfiguration _configuration;
-
-    protected DaiminhController(IMapper mapper, IServiceProvider serviceProvider, IConfiguration configuration)
-    {
-        _mapper = mapper;
-        _serviceProvider = serviceProvider;
-        _configuration = configuration;
-    }
+    protected readonly IMapper _mapper = mapper;
+    protected readonly IServiceProvider _serviceProvider = serviceProvider;
+    protected readonly IConfiguration _configuration = configuration;
 
     protected IValidator<T> GetValidator<T>() where T : class
     {

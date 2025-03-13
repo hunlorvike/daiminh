@@ -11,36 +11,47 @@ public class SettingUpdateRequest
     /// <summary>
     /// Gets or sets the ID of the setting.
     /// </summary>
+    /// <example>1</example>
+    [Required(ErrorMessage = "Id không được bỏ trống")]
     public int Id { get; set; }
 
     /// <summary>
-    /// Gets or sets the key of the setting.
+    /// Gets or sets the key of the setting.  This should be unique.
     /// </summary>
+    /// <example>site_name</example>
     [Display(Name = "Key", Prompt = "Nhập tên key")]
+    [Required(ErrorMessage = "Key là bắt buộc.")] //DataAnnotations
     public string? Key { get; set; }
 
     /// <summary>
     /// Gets or sets the value of the setting.
     /// </summary>
+    /// <example>My Updated Website</example>
     [Display(Name = "Giá trị", Prompt = "Nhập giá trị")]
+    [Required(ErrorMessage = "Giá trị là bắt buộc.")] //DataAnnotation
     public string? Value { get; set; }
 
     /// <summary>
     /// Gets or sets the group the setting belongs to.
     /// </summary>
+    /// <example>General</example>
     [Display(Name = "Nhóm", Prompt = "Nhập nhóm")]
+    [Required(ErrorMessage = "Nhóm là bắt buộc.")] //DataAnnotation
     public string Group { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the description of the setting.
     /// </summary>
+    /// <example>Updated description.</example>
     [Display(Name = "Mô tả", Prompt = "Nhập mô tả")]
     public string? Description { get; set; }
 
     /// <summary>
-    /// Gets or sets the display order of the setting.
+    /// Gets or sets the display order of the setting within its group.
     /// </summary>
+    /// <example>2</example>
     [Display(Name = "Thứ tự hiển thị", Prompt = "Nhập thứ tự")]
+    [Required(ErrorMessage = "Thứ tự là bắt buộc.")]
     public int Order { get; set; }
 }
 
@@ -54,19 +65,24 @@ public class SettingUpdateRequestValidator : AbstractValidator<SettingUpdateRequ
     /// </summary>
     public SettingUpdateRequestValidator()
     {
+        RuleFor(request => request.Id)
+            .GreaterThan(0).WithMessage("ID cài đặt phải là một số nguyên dương.");
+
         RuleFor(request => request.Key)
-            .NotEmpty().WithMessage("Vui lòng nhập key.")
-            .MaximumLength(50).WithMessage("Key không được vượt quá 50 ký tự.");
+           .NotEmpty().WithMessage("Key cài đặt không được bỏ trống.") // Improved message
+           .MaximumLength(50).WithMessage("Key cài đặt không được vượt quá 50 ký tự.");
 
         RuleFor(request => request.Value)
-            .NotEmpty().WithMessage("Vui lòng nhập giá trị.");
+            .NotEmpty().WithMessage("Giá trị cài đặt không được bỏ trống."); // Improved message
 
         RuleFor(request => request.Group)
-            .NotEmpty().WithMessage("Vui lòng nhập nhóm.")
-            .MaximumLength(100).WithMessage("Nhóm không được vượt quá 100 ký tự.");
-
+            .NotEmpty().WithMessage("Nhóm cài đặt không được bỏ trống.") // Improved message
+            .MaximumLength(100).WithMessage("Nhóm cài đặt không được vượt quá 100 ký tự.");
 
         RuleFor(request => request.Description)
-            .MaximumLength(500).WithMessage("Mô tả không được vượt quá 500 ký tự.");
+            .MaximumLength(500).WithMessage("Mô tả cài đặt không được vượt quá 500 ký tự."); // Optional, but limited
+
+        RuleFor(request => request.Order)
+            .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải là một số nguyên không âm.");
     }
 }

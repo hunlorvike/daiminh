@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using shared.Constants;
-using shared.Extensions;
 using System.Reflection;
 
 Log.Logger = new LoggerConfiguration()
@@ -25,14 +24,35 @@ builder.Host.UseSerilog();
 
 #region Services Configuration
 
+#region Database Configuration
+
+builder.Services.AddScoped<AuditSaveChangesInterceptor>();
+
+builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
+{
+    options.UseNpgsql(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string not found."))
+        .AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+});
+
+#endregion
+
+#region MVC and Validation
+
 // Add services to the container.
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
-builder.Services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly(), Assembly.Load("application")]);
 
 builder.Services.AddHttpContextAccessor();
+
+#endregion
+#endregion
+
+#region Authentication and Authorization
 
 builder.Services.AddAuthentication()
     .AddCookie(CookiesConstants.AdminCookieSchema, options =>
@@ -60,23 +80,15 @@ builder.Services.AddAuthentication()
         options.AccessDeniedPath = "/Auth/AccessDenied";
     });
 
-builder.Services.AddScoped<AuditSaveChangesInterceptor>();
+#endregion
 
-builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
-{
-    options.UseNpgsql(
-            builder.Configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string not found."))
-        .AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
-});
-
-builder.Services.AddHttpContextAccessor();
+#region Dependency Injection (Services Registration)
 
 builder.Services.Scan(scan => scan
-    .FromAssemblyOf<IAuthService>()
-    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service")))
-    .AsImplementedInterfaces()
-    .WithScopedLifetime());
+    .FromAssemblyOf<IAuthService>() // Scan from the assembly containing IAuthService
+    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service"))) // Filter classes ending with "Service"
+    .AsImplementedInterfaces() // Register as their implemented interfaces
+    .WithScopedLifetime()); // Use scoped lifetime
 
 #endregion
 
@@ -86,38 +98,55 @@ app.UseSerilogRequestLogging();
 
 #region Middleware Configuration
 
+#region Error Handling and Security
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Home/Error");
+    app.UseExceptionHandler("/Home/Error"); // Exception handler for non-development environments
     app.UseHsts(); // HSTS settings for production
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles(new StaticFileOptions()
+#endregion
+
+#region HTTPS and Static Files
+
+app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
+app.UseStaticFiles(new StaticFileOptions() // Serve static files (wwwroot)
 {
     OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=7200"); }
 });
 
-app.UseRouting();
+#endregion
 
-app.UseAuthentication();
-app.UseAuthorization();
+#region Routing, Authentication, and Authorization
+
+app.UseRouting(); // Enable routing
+
+app.UseAuthentication(); // Enable authentication
+app.UseAuthorization(); // Enable authorization
+
+
+#endregion
+
+#region Endpoint Mapping
 
 // Define routes
 app.MapControllerRoute(
     "default",
     "{controller=Home}/{action=Index}/{id?}",
-    new { area = "Client" }
+    new { area = "Client" } // Default route for the Client area
 );
 
 app.MapControllerRoute(
     "areas",
-    "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+    "{area:exists}/{controller=Home}/{action=Index}/{id?}" // Route for other areas
 );
+
+#endregion
 
 #endregion
 
 app.Run();
 
-// (routing → static files → authorization → endpoint mapping)
+// (routing → static files → authentication → authorization → endpoint mapping)
