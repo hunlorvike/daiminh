@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing content field definitions.
 /// </summary>
-public partial class ContentFieldDefinitionService : IContentFieldDefinitionService
+/// <remarks>
+/// Initializes a new instance of the <see cref="ContentFieldDefinitionService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public partial class ContentFieldDefinitionService(ApplicationDbContext context) : IContentFieldDefinitionService
 {
-    private readonly ApplicationDbContext _context;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ContentFieldDefinitionService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public ContentFieldDefinitionService(ApplicationDbContext context)
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all content field definitions.
@@ -31,7 +25,7 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
         try
         {
             // Retrieve all content field definitions that are not soft-deleted, including their related content types.
-            return await _context.ContentFieldDefinitions
+            return await context.ContentFieldDefinitions
                 .AsNoTracking() // Use AsNoTracking for read-only scenarios
                 .Where(c => c.DeletedAt == null)
                 .Include(c => c.ContentType)
@@ -55,7 +49,7 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
         try
         {
             // Retrieve a content field definition by ID, including its related content type.
-            return await _context.ContentFieldDefinitions
+            return await context.ContentFieldDefinitions
                 .Where(c => c.Id == id && c.DeletedAt == null)
                 .Include(c => c.ContentType)
                 .AsNoTracking() // Use AsNoTracking for read-only operations
@@ -79,7 +73,7 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
         try
         {
             // Retrieve all content field definitions for a given content type ID, including their related content types.
-            return await _context.ContentFieldDefinitions
+            return await context.ContentFieldDefinitions
                 .Where(c => c.ContentTypeId == contentTypeId && c.DeletedAt == null)
                 .Include(c => c.ContentType)
                 .AsNoTracking() // Use AsNoTracking for read-only operations
@@ -105,7 +99,7 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
             // Check for duplicate field names within the same content type.
             var errors = new Dictionary<string, string[]>();
 
-            var existingContentField = await _context.ContentFieldDefinitions
+            var existingContentField = await context.ContentFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ContentTypeId == model.ContentTypeId &&
                                           c.DeletedAt == null);
@@ -117,12 +111,12 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
                 return new ErrorResponse(errors);
 
             // Add the new content field definition to the database.
-            await _context.ContentFieldDefinitions.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.ContentFieldDefinitions.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ContentFieldDefinition>(model, "Thêm định nghĩa trường nội dung mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log exception
             // _logger.LogError(ex, "An error occurred while adding a new content field definition.");
@@ -144,7 +138,7 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
         try
         {
             // Check for duplicate field names within the same content type (excluding the current record).
-            var existingField = await _context.ContentFieldDefinitions
+            var existingField = await context.ContentFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ContentTypeId == model.ContentTypeId &&
                                           c.Id != id &&  // Exclude the current record
@@ -157,7 +151,7 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
                 });
 
             // Find the existing content field definition by ID.
-            var existingContentFieldDefinition = await _context.ContentFieldDefinitions
+            var existingContentFieldDefinition = await context.ContentFieldDefinitions
                 .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null); // Also check DeletedAt here
 
             if (existingContentFieldDefinition == null)
@@ -174,11 +168,11 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
             existingContentFieldDefinition.FieldOptions = model.FieldOptions ?? existingContentFieldDefinition.FieldOptions;
 
             // Save the changes to the database.
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ContentFieldDefinition>(existingContentFieldDefinition, "Cập nhật định nghĩa trường nội dung thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log exception
             // _logger.LogError(ex, $"An error occurred while updating content field definition with ID: {id}.");
@@ -200,7 +194,7 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
         {
             // Find the content field definition by ID (only if not already soft-deleted).
             var contentFieldDefinition =
-                await _context.ContentFieldDefinitions.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+                await context.ContentFieldDefinitions.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
             if (contentFieldDefinition == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -209,11 +203,11 @@ public partial class ContentFieldDefinitionService : IContentFieldDefinitionServ
             // Perform a soft delete by setting the DeletedAt property.
             contentFieldDefinition.DeletedAt = DateTime.UtcNow;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ContentFieldDefinition>(contentFieldDefinition, "Xóa định nghĩa trường nội dung thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log exception
             // _logger.LogError(ex, $"An error occurred while deleting content field definition with ID: {id}.");

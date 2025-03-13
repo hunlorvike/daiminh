@@ -44,7 +44,7 @@ public partial class ProductFieldDefinitionController
         if (productTypeId.HasValue) model.ProductTypeId = productTypeId.Value;
 
         await PopulateProductTypeDropdown();
-        await PopulateFieldTypeDropdown();
+        PopulateFieldTypeDropdown();
         return PartialView("_Create.Modal", model);
     }
 
@@ -56,7 +56,7 @@ public partial class ProductFieldDefinitionController
         var request = _mapper.Map<ProductFieldDefinitionUpdateRequest>(response);
 
         await PopulateProductTypeDropdown();
-        await PopulateFieldTypeDropdown();
+        PopulateFieldTypeDropdown();
         return PartialView("_Edit.Modal", request);
     }
 
@@ -75,7 +75,7 @@ public partial class ProductFieldDefinitionController
         ViewBag.ProductTypes = new SelectList(productTypes, "Id", "Name");
     }
 
-    private async Task PopulateFieldTypeDropdown()
+    private void PopulateFieldTypeDropdown()
     {
         var fieldTypes = Enum.GetValues(typeof(FieldType))
             .Cast<FieldType>()
@@ -99,7 +99,7 @@ public partial class ProductFieldDefinitionController
         if (result != null)
         {
             await PopulateProductTypeDropdown();
-            await PopulateFieldTypeDropdown();
+            PopulateFieldTypeDropdown();
             return result;
         }
 
@@ -149,7 +149,7 @@ public partial class ProductFieldDefinitionController
         if (result != null)
         {
             await PopulateProductTypeDropdown();
-            await PopulateFieldTypeDropdown();
+            PopulateFieldTypeDropdown();
             return result;
         }
 

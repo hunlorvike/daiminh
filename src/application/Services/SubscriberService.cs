@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing subscribers.
 /// </summary>
-public class SubscriberService : ISubscriberService
+/// <remarks>
+/// Initializes a new instance of the <see cref="SubscriberService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public class SubscriberService(ApplicationDbContext context) : ISubscriberService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SubscriberService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public SubscriberService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all subscribers.
@@ -31,7 +25,7 @@ public class SubscriberService : ISubscriberService
         try
         {
             // Retrieve all subscribers from the database.
-            return await _context.Subscribers
+            return await context.Subscribers
                 .AsNoTracking()
                 .Where(x => x.DeletedAt == null)
                 .ToListAsync();
@@ -54,7 +48,7 @@ public class SubscriberService : ISubscriberService
         try
         {
             // Retrieve a subscriber by ID from the database.
-            return await _context.Subscribers
+            return await context.Subscribers
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null); // Use FirstOrDefaultAsync
         }
@@ -76,7 +70,7 @@ public class SubscriberService : ISubscriberService
         try
         {
             // Check for existing email.
-            var existingSubscriber = await _context.Subscribers.FirstOrDefaultAsync(s => s.Email == model.Email && s.DeletedAt == null);
+            var existingSubscriber = await context.Subscribers.FirstOrDefaultAsync(s => s.Email == model.Email && s.DeletedAt == null);
             if (existingSubscriber != null)
             {
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -86,12 +80,12 @@ public class SubscriberService : ISubscriberService
             }
 
             // Add the new subscriber to the database.
-            await _context.Subscribers.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.Subscribers.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Subscriber>(model, "Đăng ký nhận tin thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync SubscriberService");
@@ -113,7 +107,7 @@ public class SubscriberService : ISubscriberService
         try
         {
             // Find the existing subscriber by ID.
-            var existingSubscriber = await _context.Subscribers
+            var existingSubscriber = await context.Subscribers
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (existingSubscriber == null)
@@ -123,7 +117,7 @@ public class SubscriberService : ISubscriberService
                 });
 
             // Check for duplicate email (excluding the current record).
-            var duplicateEmail = await _context.Subscribers.FirstOrDefaultAsync(s => s.Email == model.Email && s.Id != id && s.DeletedAt == null);
+            var duplicateEmail = await context.Subscribers.FirstOrDefaultAsync(s => s.Email == model.Email && s.Id != id && s.DeletedAt == null);
             if (duplicateEmail != null)
             {
                 return new ErrorResponse(new Dictionary<string, string[]>()
@@ -135,11 +129,11 @@ public class SubscriberService : ISubscriberService
             // Update the subscriber's email.
             existingSubscriber.Email = model.Email ?? existingSubscriber.Email;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Subscriber>(existingSubscriber, "Cập nhật thông tin người đăng ký thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync SubscriberService with id: {id}");
@@ -160,7 +154,7 @@ public class SubscriberService : ISubscriberService
         try
         {
             // Find the subscriber by ID (only if not already soft-deleted).
-            var subscriber = await _context.Subscribers.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+            var subscriber = await context.Subscribers.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (subscriber == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -169,11 +163,11 @@ public class SubscriberService : ISubscriberService
             // Perform a soft delete by setting the DeletedAt property.
             subscriber.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Subscriber>(subscriber, "Xóa người đăng ký thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync SubscriberService with id: {id}");

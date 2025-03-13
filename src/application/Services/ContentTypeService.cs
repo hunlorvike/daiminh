@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing content types.
 /// </summary>
-public partial class ContentTypeService : IContentTypeService
+/// <remarks>
+/// Initializes a new instance of the <see cref="ContentTypeService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public partial class ContentTypeService(ApplicationDbContext context) : IContentTypeService
 {
-    private readonly ApplicationDbContext _context;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ContentTypeService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public ContentTypeService(ApplicationDbContext context)
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all content types.
@@ -31,7 +25,7 @@ public partial class ContentTypeService : IContentTypeService
         try
         {
             // Retrieve all content types from the database.
-            return await _context.ContentTypes
+            return await context.ContentTypes
                 .AsNoTracking()
                 .Where(x => x.DeletedAt == null)
                 .ToListAsync();
@@ -54,7 +48,7 @@ public partial class ContentTypeService : IContentTypeService
         try
         {
             // Retrieve a content type by ID from the database.
-            return await _context.ContentTypes
+            return await context.ContentTypes
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null); //use FirstOrDefaultAsync direct
         }
@@ -78,7 +72,7 @@ public partial class ContentTypeService : IContentTypeService
             // Check for duplicate slugs.
             var errors = new Dictionary<string, string[]>();
 
-            var existingContentType = await _context.ContentTypes
+            var existingContentType = await context.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.DeletedAt == null);
 
             if (existingContentType != null)
@@ -87,12 +81,12 @@ public partial class ContentTypeService : IContentTypeService
             if (errors.Count != 0) return new ErrorResponse(errors);
 
             // Add the new content type to the database.
-            await _context.ContentTypes.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.ContentTypes.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(model, "Thêm loại nội dung mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync ContentTypeService");
@@ -114,7 +108,7 @@ public partial class ContentTypeService : IContentTypeService
         try
         {
             // Check for duplicate slugs (excluding the current record).
-            var existingSlug = await _context.ContentTypes
+            var existingSlug = await context.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id && ct.DeletedAt == null);
 
             if (existingSlug != null)
@@ -124,7 +118,7 @@ public partial class ContentTypeService : IContentTypeService
                 });
 
             // Find the existing content type by ID.
-            var existingContentType = await _context.ContentTypes
+            var existingContentType = await context.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (existingContentType == null)
@@ -138,11 +132,11 @@ public partial class ContentTypeService : IContentTypeService
             existingContentType.Slug = model.Slug ?? existingContentType.Slug;
 
             // Save the changes to the database.
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(existingContentType, "Cập nhật loại nội dung thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync ContentTypeService with id: {id}");
@@ -163,7 +157,7 @@ public partial class ContentTypeService : IContentTypeService
         try
         {
             // Find the content type by ID (only if not already soft-deleted).
-            var contentType = await _context.ContentTypes.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+            var contentType = await context.ContentTypes.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (contentType == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -172,11 +166,11 @@ public partial class ContentTypeService : IContentTypeService
             // Perform a soft delete by setting the DeletedAt property.
             contentType.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ContentType>(contentType, "Xóa loại nội dung thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync ContentTypeService with id: {id}");

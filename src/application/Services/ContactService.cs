@@ -67,7 +67,7 @@ public class ContactService(ApplicationDbContext context) : IContactService
 
             return new SuccessResponse<Contact>(model, "Thêm liên hệ mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log exception
             //_logger.LogError(ex, "An error occurred while adding a new contact entry.");
@@ -106,7 +106,7 @@ public class ContactService(ApplicationDbContext context) : IContactService
 
             return new SuccessResponse<Contact>(existingContact, "Cập nhật thông tin liên hệ thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log exception
             // _logger.LogError(ex, $"An error occurred while updating contact entry with ID: {id}.");
@@ -139,7 +139,7 @@ public class ContactService(ApplicationDbContext context) : IContactService
 
             return new SuccessResponse<Contact>(existingContact, "Xóa liên hệ thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log exception
             // _logger.LogError(ex, $"An error occurred while deleting contact entry with ID: {id}.");

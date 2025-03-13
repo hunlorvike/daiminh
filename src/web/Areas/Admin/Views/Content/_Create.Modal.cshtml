@@ -1,0 +1,125 @@
+@model web.Areas.Admin.Requests.Content.ContentCreateRequest
+
+<div class="modal modal-blur fade" id="create-content--modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <form asp-area="Admin" asp-controller="Content" asp-action="Create" class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm nội dung mới</h5>
+                <button type="button" class="btn-close command-modal-close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="ContentTypeId" class="form-label"></label>
+                            <select asp-for="ContentTypeId" class="form-select" asp-items="ViewBag.ContentTypes">
+                                <option value="">Chọn loại nội dung</option>
+                            </select>
+                            <span asp-validation-for="ContentTypeId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="AuthorId" class="form-label"></label>
+                            <select asp-for="AuthorId" class="form-select" asp-items="ViewBag.Authors">
+                                <option value="">Chọn tác giả</option>
+                            </select>
+                            <span asp-validation-for="AuthorId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label"></label>
+                            <input asp-for="Title" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="Slug" class="form-label"></label>
+                            <input asp-for="Slug" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Slug" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<shared.Enums.PublishStatus>()"></select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="MetaTitle" class="form-label"></label>
+                            <input type="text" asp-for="MetaTitle" class="form-control" />
+                            <span asp-validation-for="MetaTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="MetaDescription" class="form-label"></label>
+                            <textarea asp-for="MetaDescription" class="form-control"></textarea>
+                            <span asp-validation-for="MetaDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="CanonicalUrl" class="form-label"></label>
+                            <input type="text" asp-for="CanonicalUrl" class="form-control" />
+                            <span asp-validation-for="CanonicalUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="OgTitle" class="form-label"></label>
+                            <input type="text" asp-for="OgTitle" class="form-control" />
+                            <span asp-validation-for="OgTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="OgDescription" class="form-label"></label>
+                            <textarea asp-for="OgDescription" class="form-control"></textarea>
+                            <span asp-validation-for="OgDescription" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="OgImage" class="form-label"></label>
+                            <input type="text" asp-for="OgImage" class="form-control" />
+                            <span asp-validation-for="OgImage" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="StructuredData" class="form-label"></label>
+                            <textarea asp-for="StructuredData" class="form-control"></textarea>
+                            <span asp-validation-for="StructuredData" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-link link-secondary command-modal-close">Hủy</button>
+                <button class="btn btn-primary command-submit ms-auto" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M5 12l5 5l10 -10" />
+                    </svg>
+                    Lưu thông tin
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

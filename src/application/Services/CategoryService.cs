@@ -86,7 +86,7 @@ public partial class CategoryService(ApplicationDbContext context) : ICategorySe
 
             return new SuccessResponse<Category>(model, "Thêm danh mục mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log the exception.
             // _logger.LogError(ex, "Error occurred while adding a new category.");
@@ -137,7 +137,7 @@ public partial class CategoryService(ApplicationDbContext context) : ICategorySe
 
             return new SuccessResponse<Category>(existingCategory, "Cập nhật danh mục thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log the exception.
             // _logger.LogError(ex, $"Error occurred while updating category with ID: {id}.");
@@ -172,7 +172,7 @@ public partial class CategoryService(ApplicationDbContext context) : ICategorySe
 
             return new SuccessResponse<Category>(category, "Xóa danh mục thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log the exception.
             // _logger.LogError(ex, $"Error occurred while deleting category with ID: {id}.");

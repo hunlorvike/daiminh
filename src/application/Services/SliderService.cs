@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing slider items.
 /// </summary>
-public partial class SliderService : ISliderService
+/// <remarks>
+/// Initializes a new instance of the <see cref="SliderService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public partial class SliderService(ApplicationDbContext context) : ISliderService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SliderService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public SliderService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Adds a new slider item.
@@ -34,7 +28,7 @@ public partial class SliderService : ISliderService
             // Check for duplicates on Title, ImageUrl, LinkUrl, and Order.
             var errors = new Dictionary<string, string[]>();
 
-            var existingSlider = await _context.Sliders.FirstOrDefaultAsync(s =>
+            var existingSlider = await context.Sliders.FirstOrDefaultAsync(s =>
                 (s.Title == model.Title && model.Title != null && model.Title != string.Empty) ||
                 (s.ImageUrl == model.ImageUrl && model.ImageUrl != null && model.ImageUrl != string.Empty) ||
                 (s.Order == model.Order) ||
@@ -57,12 +51,12 @@ public partial class SliderService : ISliderService
             if (errors.Count != 0) return new ErrorResponse(errors);
 
             // Add the new slider item to the database.
-            await _context.Sliders.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.Sliders.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Slider>(model, "Thêm slider mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync SliderService");
@@ -84,17 +78,17 @@ public partial class SliderService : ISliderService
         try
         {
             // Find the slider item by ID (only if not already soft-deleted).
-            var slider = await _context.Sliders.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+            var slider = await context.Sliders.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (slider == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
                     { { "General", ["Slider không tồn tại hoặc đã bị xóa."] } });
             slider.DeletedAt = DateTime.UtcNow; // Soft delete
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Slider>(slider, "Xóa slider thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync SliderService with id: {id}");
@@ -111,7 +105,7 @@ public partial class SliderService : ISliderService
         try
         {
             // Retrieve all slider items from the database.
-            return await _context.Sliders
+            return await context.Sliders
                 .AsNoTracking()
                 .Where(x => x.DeletedAt == null)
                 .ToListAsync();
@@ -134,7 +128,7 @@ public partial class SliderService : ISliderService
         try
         {
             // Retrieve a slider item by ID from the database.
-            return await _context.Sliders
+            return await context.Sliders
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null); // Use FirstOrDefaultAsync
         }
@@ -157,7 +151,7 @@ public partial class SliderService : ISliderService
         try
         {
             // Find the existing slider item by ID.
-            var existingSlider = await _context.Sliders.FindAsync(id); // Use FindAsync for efficiency
+            var existingSlider = await context.Sliders.FindAsync(id); // Use FindAsync for efficiency
             if (existingSlider == null)
             {
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -168,7 +162,7 @@ public partial class SliderService : ISliderService
             //Check duplicate
             var errors = new Dictionary<string, string[]>();
 
-            var duplicateSlider = await _context.Sliders.FirstOrDefaultAsync(s =>
+            var duplicateSlider = await context.Sliders.FirstOrDefaultAsync(s =>
                s.Id != id &&
                ((s.Title == model.Title && model.Title != null && model.Title != string.Empty) ||
                 (s.ImageUrl == model.ImageUrl && model.ImageUrl != null && model.ImageUrl != string.Empty) ||
@@ -199,11 +193,11 @@ public partial class SliderService : ISliderService
             existingSlider.OverlayHtml = model.OverlayHtml ?? existingSlider.OverlayHtml;
             existingSlider.OverlayPosition = model.OverlayPosition ?? existingSlider.OverlayPosition;
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Slider>(existingSlider, "Cập nhật slider thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync SliderService with id: {id}");

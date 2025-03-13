@@ -11,18 +11,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing users.
 /// </summary>
-public class UserService : IUserService
+/// <remarks>
+/// Initializes a new instance of the <see cref="UserService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public class UserService(ApplicationDbContext context) : IUserService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UserService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public UserService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all users.
@@ -33,7 +27,7 @@ public class UserService : IUserService
         try
         {
             // Retrieve all users from the database, including their roles.
-            var users = await _context.Users
+            var users = await context.Users
                 .Include(u => u.Role)
                 .Where(x => x.DeletedAt == null)
                 .AsNoTracking()
@@ -59,7 +53,7 @@ public class UserService : IUserService
         try
         {
             // Retrieve a user by ID from the database.
-            return await _context.Users
+            return await context.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(u => u.Id == id && u.DeletedAt == null); // Use FirstOrDefaultAsync
         }
@@ -81,7 +75,7 @@ public class UserService : IUserService
         try
         {
             // Check for existing users with the same username or email.
-            var existingUsers = await _context.Users
+            var existingUsers = await context.Users
                 .Where(u => (u.Username == user.Username || u.Email == user.Email) && u.DeletedAt == null)
                 .ToListAsync();
 
@@ -95,7 +89,7 @@ public class UserService : IUserService
             if (errors.Count != 0) return new ErrorResponse(errors);
 
             // Find the default user role.
-            var defaultRole = await _context.Roles
+            var defaultRole = await context.Roles
                                   .Where(r => r.Name == RoleConstants.User)
                                   .FirstOrDefaultAsync() ??
                               throw new Exception("Không tìm thấy role mặc định. Vui lòng kiểm tra lại cấu hình hệ thống.");
@@ -105,12 +99,12 @@ public class UserService : IUserService
             user.RoleId = defaultRole.Id;
 
             // Add the new user to the database.
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<User>(user, "Thêm người dùng mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync UserService");
@@ -132,7 +126,7 @@ public class UserService : IUserService
         try
         {
             // Find the existing user by ID.
-            var existingUser = await _context.Users
+            var existingUser = await context.Users
                 .FirstOrDefaultAsync(u => u.Id == id && u.DeletedAt == null);
 
             if (existingUser == null)
@@ -142,7 +136,7 @@ public class UserService : IUserService
                 });
 
             //Check Duplicate
-            var duplicateUser = await _context.Users.FirstOrDefaultAsync(u => u.Id != id && (u.Username == user.Username || u.Email == user.Email) && u.DeletedAt == null);
+            var duplicateUser = await context.Users.FirstOrDefaultAsync(u => u.Id != id && (u.Username == user.Username || u.Email == user.Email) && u.DeletedAt == null);
             var errors = new Dictionary<string, string[]>();
             if (duplicateUser != null)
             {
@@ -165,11 +159,11 @@ public class UserService : IUserService
             {
                 existingUser.PasswordHash = BC.HashPassword(user.PasswordHash);
             }
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<User>(existingUser, "Cập nhật thông tin người dùng thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync UserService with id: {id}");
@@ -189,7 +183,7 @@ public class UserService : IUserService
         try
         {
             // Find the user by ID (only if not already soft-deleted).
-            var user = await _context.Users.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+            var user = await context.Users.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (user == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -198,11 +192,11 @@ public class UserService : IUserService
             // Perform a soft delete by setting the DeletedAt property.
             user.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<User>(user, "Xóa user thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync UserService with id: {id}");

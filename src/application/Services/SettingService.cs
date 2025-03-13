@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing settings.
 /// </summary>
-public partial class SettingService : ISettingService
+/// <remarks>
+/// Initializes a new instance of the <see cref="SettingService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public partial class SettingService(ApplicationDbContext context) : ISettingService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="SettingService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public SettingService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all settings.
@@ -31,7 +25,7 @@ public partial class SettingService : ISettingService
         try
         {
             // Retrieve all settings from the database.
-            return await _context.Settings
+            return await context.Settings
                 .AsNoTracking()
                 .Where(x => x.DeletedAt == null)
                 .ToListAsync();
@@ -54,7 +48,7 @@ public partial class SettingService : ISettingService
         try
         {
             // Retrieve a setting by ID from the database.
-            return await _context.Settings
+            return await context.Settings
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null); // Use FirstOrDefaultAsync
         }
@@ -78,7 +72,7 @@ public partial class SettingService : ISettingService
             // Check for duplicate keys.
             var errors = new Dictionary<string, string[]>();
 
-            var existingSettingKey = await _context.Settings
+            var existingSettingKey = await context.Settings
                 .FirstOrDefaultAsync(ct => ct.Key == model.Key && ct.DeletedAt == null);
 
             if (existingSettingKey != null)
@@ -87,12 +81,12 @@ public partial class SettingService : ISettingService
             if (errors.Count != 0) return new ErrorResponse(errors);
 
             // Add the new setting to the database.
-            await _context.Settings.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.Settings.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Setting>(model, "Thêm cài đặt mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync SettingService");
@@ -114,7 +108,7 @@ public partial class SettingService : ISettingService
         try
         {
             // Check for duplicate keys (excluding the current record).
-            var existingKey = await _context.Settings
+            var existingKey = await context.Settings
                 .FirstOrDefaultAsync(ct => ct.Key == model.Key && ct.Id != id && ct.DeletedAt == null);
 
             if (existingKey != null)
@@ -124,7 +118,7 @@ public partial class SettingService : ISettingService
                 });
 
             // Find the existing setting by ID.
-            var existingSetting = await _context.Settings
+            var existingSetting = await context.Settings
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null); // Check for DeletedAt
 
             if (existingSetting == null)
@@ -141,11 +135,11 @@ public partial class SettingService : ISettingService
             existingSetting.Order = model.Order; // No null check (int)
 
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Setting>(existingSetting, "Cập nhật cài đặt thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync SettingService with id: {id}");
@@ -166,7 +160,7 @@ public partial class SettingService : ISettingService
         try
         {
             // Find the setting by ID (only if not already soft-deleted).
-            var setting = await _context.Settings.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+            var setting = await context.Settings.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (setting == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -175,11 +169,11 @@ public partial class SettingService : ISettingService
             // Perform a soft delete by setting the DeletedAt property.
             setting.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Setting>(setting, "Xóa cài đặt thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync SettingService with id: {id}");

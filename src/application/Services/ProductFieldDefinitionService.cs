@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing product field definitions.
 /// </summary>
-public partial class ProductFieldDefinitionService : IProductFieldDefinitionService
+/// <remarks>
+/// Initializes a new instance of the <see cref="ProductFieldDefinitionService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public partial class ProductFieldDefinitionService(ApplicationDbContext context) : IProductFieldDefinitionService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProductFieldDefinitionService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public ProductFieldDefinitionService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all product field definitions.
@@ -31,7 +25,7 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
         try
         {
             // Retrieve all product field definitions, including the related ProductType, that are not soft-deleted.
-            return await _context.ProductFieldDefinitions
+            return await context.ProductFieldDefinitions
                 .AsNoTracking() // Use AsNoTracking for read-only scenarios
                 .Where(c => c.DeletedAt == null)
                 .Include(c => c.ProductType)
@@ -55,7 +49,7 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
         try
         {
             // Retrieve a product field definition by ID, including the related ProductType.
-            return await _context.ProductFieldDefinitions
+            return await context.ProductFieldDefinitions
                 .Where(c => c.Id == id && c.DeletedAt == null)
                 .Include(c => c.ProductType)
                 .AsNoTracking() // Use AsNoTracking for read-only scenarios
@@ -79,7 +73,7 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
         try
         {
             // Retrieve all product field definitions for a specific product type, including the related ProductType.
-            return await _context.ProductFieldDefinitions
+            return await context.ProductFieldDefinitions
                 .Where(c => c.ProductTypeId == productTypeId && c.DeletedAt == null)
                 .Include(c => c.ProductType)
                 .AsNoTracking() // Use AsNoTracking for read-only operations
@@ -105,7 +99,7 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
             // Check for duplicate field names within the same product type.
             var errors = new Dictionary<string, string[]>();
 
-            var existingProductField = await _context.ProductFieldDefinitions
+            var existingProductField = await context.ProductFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ProductTypeId == model.ProductTypeId &&
                                           c.DeletedAt == null);
@@ -117,12 +111,12 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
                 return new ErrorResponse(errors);
 
             // Add the new product field definition to the database.
-            await _context.ProductFieldDefinitions.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.ProductFieldDefinitions.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ProductFieldDefinition>(model, "Thêm định nghĩa trường sản phẩm mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync ProductFieldDefinitionService");
@@ -144,7 +138,7 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
         try
         {
             // Check for duplicate field names within the same product type (excluding the current record).
-            var existingField = await _context.ProductFieldDefinitions
+            var existingField = await context.ProductFieldDefinitions
                 .FirstOrDefaultAsync(c => c.FieldName == model.FieldName &&
                                           c.ProductTypeId == model.ProductTypeId &&
                                           c.Id != id &&  // Exclude current record
@@ -157,7 +151,7 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
                 });
 
             // Find the existing product field definition by ID.
-            var existingProductFieldDefinition = await _context.ProductFieldDefinitions
+            var existingProductFieldDefinition = await context.ProductFieldDefinitions
                 .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null); // Check for DeletedAt also
 
             if (existingProductFieldDefinition == null)
@@ -174,11 +168,11 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
             existingProductFieldDefinition.FieldOptions = model.FieldOptions ?? existingProductFieldDefinition.FieldOptions;
 
             // Save the changes to the database.
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ProductFieldDefinition>(existingProductFieldDefinition, "Cập nhật định nghĩa trường sản phẩm thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync ProductFieldDefinitionService with id: {id}");
@@ -200,7 +194,7 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
         {
             // Find the product field definition by ID (only if not already soft-deleted).
             var productFieldDefinition =
-                await _context.ProductFieldDefinitions.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+                await context.ProductFieldDefinitions.FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
             if (productFieldDefinition == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -209,11 +203,11 @@ public partial class ProductFieldDefinitionService : IProductFieldDefinitionServ
             // Perform a soft delete by setting the DeletedAt property.
             productFieldDefinition.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ProductFieldDefinition>(productFieldDefinition, "Xóa định nghĩa trường sản phẩm thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync ProductFieldDefinitionService with id: {id}");

@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing product types.
 /// </summary>
-public partial class ProductTypeService : IProductTypeService
+/// <remarks>
+/// Initializes a new instance of the <see cref="ProductTypeService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public partial class ProductTypeService(ApplicationDbContext context) : IProductTypeService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="ProductTypeService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public ProductTypeService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all product types.
@@ -31,7 +25,7 @@ public partial class ProductTypeService : IProductTypeService
         try
         {
             // Retrieve all product types from the database.
-            return await _context.ProductTypes
+            return await context.ProductTypes
                 .AsNoTracking()
                 .Where(x => x.DeletedAt == null)
                 .ToListAsync();
@@ -54,7 +48,7 @@ public partial class ProductTypeService : IProductTypeService
         try
         {
             // Retrieve a product type by ID from the database.
-            return await _context.ProductTypes
+            return await context.ProductTypes
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null); // Use FirstOrDefaultAsync
         }
@@ -78,7 +72,7 @@ public partial class ProductTypeService : IProductTypeService
             // Check for duplicate slugs.
             var errors = new Dictionary<string, string[]>();
 
-            var existingProductType = await _context.ProductTypes
+            var existingProductType = await context.ProductTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.DeletedAt == null);
 
             if (existingProductType != null)
@@ -87,12 +81,12 @@ public partial class ProductTypeService : IProductTypeService
             if (errors.Count != 0) return new ErrorResponse(errors);
 
             // Add the new product type to the database.
-            await _context.ProductTypes.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.ProductTypes.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ProductType>(model, "Thêm loại sản phẩm mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync ProductTypeService");
@@ -114,7 +108,7 @@ public partial class ProductTypeService : IProductTypeService
         try
         {
             // Check for duplicate slugs (excluding the current record).
-            var existingSlug = await _context.ProductTypes
+            var existingSlug = await context.ProductTypes
                 .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != id && ct.DeletedAt == null);
 
             if (existingSlug != null)
@@ -124,7 +118,7 @@ public partial class ProductTypeService : IProductTypeService
                 });
 
             // Find the existing product type by ID.
-            var existingProductType = await _context.ProductTypes
+            var existingProductType = await context.ProductTypes
                 .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null); // Check for DeletedAt
 
             if (existingProductType == null)
@@ -138,11 +132,11 @@ public partial class ProductTypeService : IProductTypeService
             existingProductType.Slug = model.Slug ?? existingProductType.Slug;
 
             // Save the changes to the database.
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ProductType>(existingProductType, "Cập nhật loại sản phẩm thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync ProductTypeService with id: {id}");
@@ -163,7 +157,7 @@ public partial class ProductTypeService : IProductTypeService
         try
         {
             // Find the product type by ID (only if not already soft-deleted).
-            var productType = await _context.ProductTypes.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+            var productType = await context.ProductTypes.FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
 
             if (productType == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -172,11 +166,11 @@ public partial class ProductTypeService : IProductTypeService
             // Perform a soft delete by setting the DeletedAt property.
             productType.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<ProductType>(productType, "Xóa loại sản phẩm thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync ProductTypeService with id: {id}");

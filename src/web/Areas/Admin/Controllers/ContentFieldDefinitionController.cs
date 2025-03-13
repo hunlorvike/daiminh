@@ -44,7 +44,7 @@ public partial class ContentFieldDefinitionController
         if (contentTypeId.HasValue) model.ContentTypeId = contentTypeId.Value;
 
         await PopulateContentTypeDropdown();
-        await PopulateFieldTypeDropdown();
+        PopulateFieldTypeDropdown();
         return PartialView("_Create.Modal", model);
     }
 
@@ -56,7 +56,7 @@ public partial class ContentFieldDefinitionController
         var request = _mapper.Map<ContentFieldDefinitionUpdateRequest>(response);
 
         await PopulateContentTypeDropdown();
-        await PopulateFieldTypeDropdown();
+        PopulateFieldTypeDropdown();
         return PartialView("_Edit.Modal", request);
     }
 
@@ -75,7 +75,7 @@ public partial class ContentFieldDefinitionController
         ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name");
     }
 
-    private async Task PopulateFieldTypeDropdown()
+    private void PopulateFieldTypeDropdown()
     {
         var fieldTypes = Enum.GetValues(typeof(FieldType))
             .Cast<FieldType>()
@@ -99,7 +99,7 @@ public partial class ContentFieldDefinitionController
         if (result != null)
         {
             await PopulateContentTypeDropdown();
-            await PopulateFieldTypeDropdown();
+            PopulateFieldTypeDropdown();
             return result;
         }
 
@@ -149,7 +149,7 @@ public partial class ContentFieldDefinitionController
         if (result != null)
         {
             await PopulateContentTypeDropdown();
-            await PopulateFieldTypeDropdown();
+            PopulateFieldTypeDropdown();
             return result;
         }
 

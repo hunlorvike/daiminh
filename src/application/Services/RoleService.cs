@@ -8,18 +8,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing roles.
 /// </summary>
-public class RoleService : IRoleService
+/// <remarks>
+/// Initializes a new instance of the <see cref="RoleService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public class RoleService(ApplicationDbContext context) : IRoleService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RoleService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public RoleService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all roles.
@@ -30,7 +24,7 @@ public class RoleService : IRoleService
         try
         {
             // Retrieve all roles from the database.
-            var roles = await _context.Roles.AsNoTracking().ToListAsync();
+            var roles = await context.Roles.AsNoTracking().ToListAsync();
             return roles;
         }
         catch (Exception ex)

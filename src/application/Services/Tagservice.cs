@@ -9,18 +9,12 @@ namespace application.Services;
 /// <summary>
 /// Service for managing tags.
 /// </summary>
-public class TagService : ITagService
+/// <remarks>
+/// Initializes a new instance of the <see cref="TagService"/> class.
+/// </remarks>
+/// <param name="context">The application database context.</param>
+public class TagService(ApplicationDbContext context) : ITagService
 {
-    private readonly ApplicationDbContext _context; // Inject DbContext
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="TagService"/> class.
-    /// </summary>
-    /// <param name="context">The application database context.</param>
-    public TagService(ApplicationDbContext context) // Constructor
-    {
-        _context = context;
-    }
 
     /// <summary>
     /// Retrieves all tags.
@@ -31,7 +25,7 @@ public class TagService : ITagService
         try
         {
             // Retrieve all tags from the database.
-            return await _context.Tags
+            return await context.Tags
                 .AsNoTracking()
                 .Where(x => x.DeletedAt == null)
                 .ToListAsync();
@@ -54,7 +48,7 @@ public class TagService : ITagService
         try
         {
             // Retrieve a tag by ID from the database.
-            return await _context.Tags
+            return await context.Tags
                 .AsNoTracking()
                 .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null); // Use FirstOrDefaultAsync
         }
@@ -78,7 +72,7 @@ public class TagService : ITagService
             // Check for duplicate slugs.
             var errors = new Dictionary<string, string[]>();
 
-            var existingTag = await _context.Tags
+            var existingTag = await context.Tags
                 .FirstOrDefaultAsync(t => t.Slug == model.Slug && t.DeletedAt == null);
 
             if (existingTag != null)
@@ -87,12 +81,12 @@ public class TagService : ITagService
             if (errors.Count != 0) return new ErrorResponse(errors);
 
             // Add the new tag to the database.
-            await _context.Tags.AddAsync(model);
-            await _context.SaveChangesAsync();
+            await context.Tags.AddAsync(model);
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Tag>(model, "Thêm thẻ mới thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, "AddAsync TagService");
@@ -114,7 +108,7 @@ public class TagService : ITagService
         try
         {
             // Check for duplicate slugs (excluding the current record).
-            var existingSlug = await _context.Tags
+            var existingSlug = await context.Tags
                 .FirstOrDefaultAsync(t => t.Slug == model.Slug && t.Id != id && t.DeletedAt == null);
 
             if (existingSlug != null)
@@ -124,7 +118,7 @@ public class TagService : ITagService
                 });
 
             // Find the existing tag by ID.
-            var existingTag = await _context.Tags
+            var existingTag = await context.Tags
                 .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
 
             if (existingTag == null)
@@ -138,11 +132,11 @@ public class TagService : ITagService
             existingTag.Slug = model.Slug ?? existingTag.Slug;
 
             // Save the changes to the database.
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Tag>(existingTag, "Cập nhật thẻ thành công.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"UpdateAsync TagService with id: {id}");
@@ -163,7 +157,7 @@ public class TagService : ITagService
         try
         {
             // Find the tag by ID (only if not already soft-deleted).
-            var tag = await _context.Tags.FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
+            var tag = await context.Tags.FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
 
             if (tag == null)
                 return new ErrorResponse(new Dictionary<string, string[]>
@@ -172,11 +166,11 @@ public class TagService : ITagService
             // Perform a soft delete by setting the DeletedAt property.
             tag.DeletedAt = DateTime.UtcNow; // Soft delete
 
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
 
             return new SuccessResponse<Tag>(tag, "Xóa thẻ thành công (đã ẩn).");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             //log
             //_logger.LogError(ex, $"DeleteAsync TagService with id: {id}");
