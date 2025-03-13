@@ -64,6 +64,7 @@ daiminh/
 ├── daiminh.sln             # Solution file
 ├── docker-compose.yml      # Docker Compose configuration
 ├── Dockerfile              # Dockerfile for building the application image
+├── libman.json             # LibMan configuration file (for client-side libraries)
 └── README.MD               # This file
 ```
 
@@ -74,6 +75,7 @@ Before you begin, ensure you have the following installed:
 -   [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 -   [Docker](https://www.docker.com/products/docker-desktop/)
 -   [Docker Compose](https://docs.docker.com/compose/install/)
+-   (Optional, but recommended) LibMan CLI:  `dotnet tool install -g Microsoft.Web.LibraryManager.Cli`
 
 ---
 
@@ -90,25 +92,28 @@ cd daiminh
 
 #### **Option 1: Using Docker Compose (Recommended)**
 
-1.  **Start the Services (database, application, etc.)**  
+1.  **Start the Services (database, application, etc.)**
     Run the following command to start all necessary containers:
 
     ```bash
     docker compose up -d
     ```
 
-2.  **Apply Database Migrations**  
+2.  **Apply Database Migrations**
     Run the following command to update the database:
-    
+
     ```bash
      dotnet ef database update --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
     ```
-3. **Build and Run**  
-   Build and Run application:
-  ```bash
+
+3. **Clean, Restore, Build, and Run**
+
+   ```bash
    dotnet clean daiminh.sln
    dotnet restore daiminh.sln
    dotnet build daiminh.sln
+   libman clean  # Clean client-side libraries
+   libman restore # Restore client-side libraries
    dotnet run --project ./src/web/web.csproj
    ```
 
@@ -118,19 +123,59 @@ cd daiminh
 
 If you don't want to use Docker, you can run the project manually:
 
-1.  **Configure the Database**  
-    -   Ensure you have PostgreSQL installed.  
+1.  **Configure the Database**
+    -   Ensure you have PostgreSQL installed.
     -   Update the connection string in `src/web/appsettings.json`.
 
-2.  **Apply Database Migrations**  
+2.  **Apply Database Migrations**
     ```bash
     dotnet ef database update --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
     ```
 
-3.  **Run the Application**  
-    ```bash
+3. **Clean, Restore, Build, and Run**
+
+   ```bash
+    dotnet clean daiminh.sln       # Clean the solution
+    dotnet restore daiminh.sln    # Restore NuGet packages
+    dotnet build daiminh.sln       # Build the solution
+    libman clean                  # Clean client-side libraries
+    libman restore                # Restore client-side libraries (using libman.json)
     dotnet run --project ./src/web/web.csproj
-    ```
+   ```
+
+---
+
+##  Managing Client-Side Libraries (LibMan)
+
+This project uses LibMan to manage client-side libraries (JavaScript, CSS, etc.).  The `libman.json` file at the root of the project defines these libraries.
+
+- **Restore Libraries:**
+  ```bash
+  libman restore
+  ```
+  This command downloads and installs the libraries specified in `libman.json` into the `wwwroot` folder.
+
+- **Clean Libraries:**
+  ```bash
+  libman clean
+  ```
+  This command removes all library files managed by LibMan from the `wwwroot` folder.  It's a good practice to run this before restoring to ensure you have a clean slate.
+
+- **Update a Specific Library:**
+  ```bash
+  libman update <library-name>
+  ```
+  This command updates a specific library to the latest version (or the version specified in `libman.json`).
+
+- **Install a New Library:**
+    -  You can use the LibMan CLI:
+        ```bash
+        libman install <library-name>@<version> -p <provider> -d <destination>
+        ```
+        (e.g., `libman install jquery@3.7.1 -p unpkg -d wwwroot/lib/jquery`)
+    -  Or, you can directly edit the `libman.json` file and then run `libman restore`.  Visual Studio also provides a GUI for managing LibMan.
+
+**Important:** Always run `libman restore` after cloning the repository, pulling changes, or modifying `libman.json`.  This ensures your `wwwroot` folder contains the correct library files.
 
 ---
 

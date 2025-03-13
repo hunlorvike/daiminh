@@ -2,13 +2,6 @@
     ViewBag.Title = "Trang chủ";
 }
 
-@section HeadScripts {
-    <link
-        rel="stylesheet"
-        href="~/lib/swiper/package/swiper-bundle.min.css"
-    />
-}
-
 <div class="page-header d-print-none" style="min-height: unset"></div>
 
 <div class="page-body">
@@ -566,8 +559,6 @@
 </div>
 
 @section FootScripts {
-    <script src="~/lib/swiper/package/swiper-bundle.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             new Swiper('.swiper', {

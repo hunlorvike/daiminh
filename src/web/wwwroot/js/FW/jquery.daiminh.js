@@ -1174,7 +1174,6 @@ const jqueryDaiminh = (($, bootstrap) => {
         init: () => {
             Theme.currentTheme = Theme._getInitialTheme();
             Theme._applyTheme(Theme.currentTheme);
-            Theme._setupToggleButton();
         },
 
         /**
@@ -1210,9 +1209,6 @@ const jqueryDaiminh = (($, bootstrap) => {
             }
             localStorage.setItem(Theme.storageKey, theme);
             Theme.currentTheme = theme;
-
-            // Cập nhật biểu tượng của nút toggle
-            Theme._updateToggleButtonIcon();
         },
 
         /**

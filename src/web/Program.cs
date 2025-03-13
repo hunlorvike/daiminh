@@ -112,10 +112,7 @@ if (!app.Environment.IsDevelopment())
 #region HTTPS and Static Files
 
 app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
-app.UseStaticFiles(new StaticFileOptions() // Serve static files (wwwroot)
-{
-    OnPrepareResponse = ctx => { ctx.Context.Response.Headers.Append("Cache-Control", "public, max-age=7200"); }
-});
+app.UseStaticFiles();
 
 #endregion
 

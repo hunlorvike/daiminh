@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "defaultProvider": "jsdelivr",
+  "libraries": [
+    {
+      "library": "jquery@3.7.1",
+      "destination": "wwwroot/lib/jquery"
+    },
+    {
+      "library": "jquery-validation@1.21.0",
+      "destination": "wwwroot/lib/jquery-validation"
+    },
+    {
+      "library": "jquery-validation-unobtrusive@4.0.0",
+      "destination": "wwwroot/lib/jquery-validation-unobtrusive"
+    },
+    {
+      "library": "swiper@11.2.5",
+      "destination": "wwwroot/lib/swiper"
+    },
+    {
+      "library": "tinymce-all-in-one@4.9.5",
+      "destination": "wwwroot/lib/tinymce-all-in-one"
+    },
+    {
+      "library": "bootstrap@5.3.3",
+      "destination": "wwwroot/lib/bootstrap"
+    },
+    {
+      "library": "@tabler/core@1.1.1",
+      "destination": "wwwroot/lib/tabler/core"
+    },
+    {
+      "library": "@tabler/icons@3.31.0",
+      "destination": "wwwroot/lib/tabler/icons"
+    },
+    {
+      "library": "datatables.net@2.2.2",
+      "destination": "wwwroot/lib/datatables"
+    }
+  ]
+}
