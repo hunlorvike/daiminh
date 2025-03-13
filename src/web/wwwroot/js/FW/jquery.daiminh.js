@@ -39,11 +39,11 @@ const jqueryDaiminh = (($, bootstrap) => {
          * @type {Object}
          */
         defaults: {
-            dataTable: {paging: true, searching: true, serverSide: false, pageLength: 10},
-            modal: {backdrop: true, disableTimeout: 500},
-            notification: {duration: 3000, position: 'top-right'},
+            dataTable: { paging: true, searching: true, serverSide: false, pageLength: 10 },
+            modal: { backdrop: true, disableTimeout: 500 },
+            notification: { duration: 3000, position: 'top-right' },
             logging: false,
-            i18n: {defaultLocale: 'en', fallbackLocale: 'en'},
+            i18n: { defaultLocale: 'en', fallbackLocale: 'en' },
         }, /**
          * Cập nhật cấu hình với các tùy chọn mới
          * @param {Object} newConfig - Cấu hình mới cần được áp dụng
@@ -175,7 +175,7 @@ const jqueryDaiminh = (($, bootstrap) => {
             const defaults = {
                 locale: 'en-US', style: 'decimal', minimumFractionDigits: 0, maximumFractionDigits: 2
             };
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
             return new Intl.NumberFormat(settings.locale, settings).format(number);
         },
 
@@ -333,10 +333,10 @@ const jqueryDaiminh = (($, bootstrap) => {
                     search: "",
                     searchPlaceholder: I18n.t('common.search'),
                     emptyTable: I18n.t('common.noData'),
-                    info: I18n.t('dataTable.info', {start: '_START_', end: '_END_', total: '_TOTAL_'}),
+                    info: I18n.t('dataTable.info', { start: '_START_', end: '_END_', total: '_TOTAL_' }),
                     infoEmpty: I18n.t('dataTable.infoEmpty'),
-                    infoFiltered: I18n.t('dataTable.infoFiltered', {max: '_MAX_'}),
-                    lengthMenu: I18n.t('dataTable.lengthMenu', {menu: '_MENU_'}),
+                    infoFiltered: I18n.t('dataTable.infoFiltered', { max: '_MAX_' }),
+                    lengthMenu: I18n.t('dataTable.lengthMenu', { menu: '_MENU_' }),
                     loadingRecords: I18n.t('common.loading'),
                     processing: I18n.t('common.loading'),
                     zeroRecords: I18n.t('common.noData'),
@@ -474,7 +474,7 @@ const jqueryDaiminh = (($, bootstrap) => {
         _exportCsv: (data, headers, filename) => {
             const csvContent = [headers.join(','), ...data.map(row => Object.values(row).join(','))].join('\n');
 
-            const blob = new Blob([csvContent], {type: 'text/csv;charset=utf-8;'});
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
 
             const link = document.createElement('a');
@@ -505,7 +505,7 @@ const jqueryDaiminh = (($, bootstrap) => {
             });
 
             const jsonContent = JSON.stringify(jsonData, null, 2);
-            const blob = new Blob([jsonContent], {type: 'application/json;charset=utf-8;'});
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
 
             const link = document.createElement('a');
@@ -696,7 +696,7 @@ const jqueryDaiminh = (($, bootstrap) => {
          * @param {string} options.modalType - Loại modal ('detail', 'create', 'edit', 'delete')
          * @returns {void}
          */
-        _setupModalAction: ({buttonSelector, containerSelector, modalType}) => {
+        _setupModalAction: ({ buttonSelector, containerSelector, modalType }) => {
             $(document).on('click', buttonSelector, async (e) => {
                 e.preventDefault();
                 const $button = $(e.target).closest(buttonSelector);
@@ -712,7 +712,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                         $(containerSelector).html(response);
                         Modal.show(modalId);
                     }, error: function () {
-                        Notification.show('error', I18n.t('modal.loadError', {type: modalType}));
+                        Notification.show('error', I18n.t('modal.loadError', { type: modalType }));
                     }
                 });
             });
@@ -800,7 +800,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 }], onShow: null, onHide: null
             };
 
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
 
             const modalHtml = `
                 <div class="modal fade" id="${settings.id}" tabindex="-1" aria-labelledby="${settings.id}Label" aria-hidden="true">
@@ -884,7 +884,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 onClose: null
             };
 
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
 
             let $container = $(Config.selectors.notificationContainer);
             if (!$container.length) {
@@ -986,7 +986,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 useSession: false, expiry: null, namespace: 'daiminhjs'
             };
 
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
             const storage = settings.useSession ? sessionStorage : localStorage;
             const namespacedKey = `${settings.namespace}.${key}`;
 
@@ -1015,7 +1015,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 useSession: false, defaultValue: null, namespace: 'daiminhjs'
             };
 
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
             const storage = settings.useSession ? sessionStorage : localStorage;
             const namespacedKey = `${settings.namespace}.${key}`;
 
@@ -1029,7 +1029,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 const item = JSON.parse(data);
 
                 if (item.expiry && item.expiry < Date.now()) {
-                    Storage.remove(key, {useSession: settings.useSession, namespace: settings.namespace});
+                    Storage.remove(key, { useSession: settings.useSession, namespace: settings.namespace });
                     return settings.defaultValue;
                 }
 
@@ -1054,7 +1054,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 useSession: false, namespace: 'daiminhjs'
             };
 
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
             const storage = settings.useSession ? sessionStorage : localStorage;
             const namespacedKey = `${settings.namespace}.${key}`;
 
@@ -1077,7 +1077,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 useSession: false, namespace: 'daiminhjs'
             };
 
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
             const storage = settings.useSession ? sessionStorage : localStorage;
 
             if (settings.namespace === 'daiminhjs') {
@@ -1109,7 +1109,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                 useSession: false, namespace: 'daiminhjs'
             };
 
-            const settings = {...defaults, ...options};
+            const settings = { ...defaults, ...options };
             const storage = settings.useSession ? sessionStorage : localStorage;
             const result = {};
 
@@ -1141,6 +1141,99 @@ const jqueryDaiminh = (($, bootstrap) => {
             return Object.keys(Storage.getAll(options)).length;
         }
     };
+
+
+    /**
+    * Quản lý chế độ hiển thị (Dark/Light Mode)
+    * @type {Object}
+    */
+    const Theme = {
+        /**
+         * Khóa lưu trữ cho theme
+         * @type {string}
+         */
+        storageKey: "daiminhjsTheme",
+
+        /**
+         * Theme mặc định
+         * @type {string}
+         */
+        defaultTheme: "light",
+
+        /**
+         * Theme hiện tại
+         * @type {string}
+         */
+        currentTheme: null,
+
+
+        /**
+         * Khởi tạo theme
+         * @returns {void}
+         */
+        init: () => {
+            Theme.currentTheme = Theme._getInitialTheme();
+            Theme._applyTheme(Theme.currentTheme);
+            Theme._setupToggleButton();
+        },
+
+        /**
+         * Lấy theme ban đầu từ URL param hoặc localStorage
+         * @private
+         * @returns {string}
+         */
+        _getInitialTheme: () => {
+            const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+            });
+
+            if (!!params.theme) {
+                localStorage.setItem(Theme.storageKey, params.theme);
+                return params.theme;
+            } else {
+                const storedTheme = localStorage.getItem(Theme.storageKey);
+                return storedTheme ? storedTheme : Theme.defaultTheme;
+            }
+        },
+
+        /**
+         * Áp dụng theme
+         * @private
+         * @param {string} theme
+         * @returns {void}
+         */
+        _applyTheme: (theme) => {
+            if (theme === 'dark') {
+                document.body.setAttribute("data-bs-theme", theme);
+            } else {
+                document.body.removeAttribute("data-bs-theme");
+            }
+            localStorage.setItem(Theme.storageKey, theme);
+            Theme.currentTheme = theme;
+
+            // Cập nhật biểu tượng của nút toggle
+            Theme._updateToggleButtonIcon();
+        },
+
+        /**
+         * Chuyển đổi theme (dark/light)
+         * @returns {void}
+         */
+        toggle: () => {
+            const newTheme = Theme.currentTheme === 'dark' ? 'light' : 'dark';
+            Theme._applyTheme(newTheme);
+        },
+
+        /**
+        * Lấy theme hiện tại.
+        * @returns {string} Tên của theme hiện tại ('dark' hoặc 'light').
+        */
+        getCurrentTheme: () => {
+            return Theme.currentTheme;
+        }
+
+    };
+
 
     /**
      * Điểm nhập chính của thư viện
@@ -1174,6 +1267,7 @@ const jqueryDaiminh = (($, bootstrap) => {
             Main.instances.dataTables.main = DataTable.initialize(Config.selectors.dataTable);
             Form.init();
             Modal.init();
+            Theme.init();
 
             Utils.log('daiminhjs v2.0.0 initialized');
 
@@ -1201,6 +1295,8 @@ const jqueryDaiminh = (($, bootstrap) => {
             return Main.instances[type]?.[id] || null;
         }
     };
+
+
 
     return {
         Config, Utils, DataTable, Form, Modal, Notification, Storage, Main, I18n, /**
