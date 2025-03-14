@@ -1,0 +1,481 @@
+@using web.Areas.Admin.Models.Gallery
+@model GalleryViewModel;
+
+<div class="container-xl">
+	<!-- Breadcrumb -->
+	<div class="page-header d-print-none mb-3">
+		<div class="row align-items-center">
+			<div class="col">
+				<nav aria-label="breadcrumb">
+					<ol class="breadcrumb">
+						<li class="breadcrumb-item">
+							<a asp-area="Admin" asp-controller="Gallery" asp-action="Index">Thư viện</a>
+						</li>
+						@foreach (var folder in Model.Breadcrumbs)
+						{
+							<li class="breadcrumb-item">
+								<a asp-area="Admin"  asp-controller="Gallery" asp-action="Index" asp-route-folderId="@folder.Id">@folder.Name</a>
+							</li>
+						}
+						@if (Model.CurrentFolder != null)
+						{
+							<li class="breadcrumb-item active" aria-current="page">@Model.CurrentFolder.Name</li>
+						}
+					</ol>
+				</nav>
+			</div>
+			<div class="col-auto ms-auto">
+				<div class="btn-list">
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-new-folder">
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+							<path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+							<path d="M12 10l0 6"></path>
+							<path d="M9 13l6 0"></path>
+						</svg>
+						Thêm thư mục
+					</button>
+					<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-upload-file">
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+							<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+							<path d="M7 9l5 -5l5 5"></path>
+							<path d="M12 4l0 12"></path>
+						</svg>
+						Tải lên tệp
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Folders -->
+	@if (Model.Folders.Any())
+	{
+		<div class="row mb-4">
+			<div class="col-12">
+				<div class="card">
+					<div class="card-header">
+						<h3 class="card-title">Thư mục</h3>
+					</div>
+					<div class="card-body">
+						<div class="row row-cards">
+							@foreach (var folder in Model.Folders)
+							{
+								<div class="col-sm-6 col-lg-4">
+									<div class="card card-sm">
+										<div class="card-body">
+											<div class="row align-items-center">
+												<div class="col-auto">
+													<span class="bg-yellow text-white avatar">
+														<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+															<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+															<path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+														</svg>
+													</span>
+												</div>
+												<div class="col">
+													<div class="font-weight-medium">
+														<a asp-area="Admin"  asp-controller="Gallery" asp-action="Index" asp-route-folderId="@folder.Id" class="text-reset">
+															@folder.Name
+														</a>
+													</div>
+												</div>
+												<div class="col-auto">
+													<div class="dropdown">
+														<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+															<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+																<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+																<path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+																<path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+																<path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+															</svg>
+														</a>
+														<div class="dropdown-menu dropdown-menu-end">
+															<a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
+																Đổi tên
+															</a>
+															<a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
+																Xóa
+															</a>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	}
+
+	<!-- Media Files -->
+	<div class="row">
+		<div class="col-12">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">Tệp media</h3>
+				</div>
+				<div class="card-body">
+					@if (!Model.MediaFiles.Any())
+					{
+						<div class="empty">
+							<div class="empty-img">
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file-off" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+									<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+									<path d="M3 3l18 18"></path>
+									<path d="M7 3h7l5 5v7m0 4a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-14"></path>
+								</svg>
+							</div>
+							<p class="empty-title">Không có tệp nào</p>
+							<p class="empty-subtitle text-muted">
+								Hãy tải lên tệp mới hoặc tạo thư mục để tổ chức tài liệu của bạn.
+							</p>
+							<div class="empty-action">
+								<button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modal-upload-file">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+										<path d="M7 9l5 -5l5 5"></path>
+										<path d="M12 4l0 12"></path>
+									</svg>
+									Tải lên tệp
+								</button>
+							</div>
+						</div>
+					}
+					else
+					{
+						<div class="row row-cards">
+							@foreach (var file in Model.MediaFiles)
+							{
+								<div class="col-sm-6 col-lg-4">
+									<div class="card card-sm">
+										<div class="ribbon ribbon-top ribbon-start bg-secondary">
+											@file.Extension
+										</div>
+										@if (file.MimeType.StartsWith("image/"))
+										{
+											<a href="@file.Url" class="d-block" target="_blank">
+												<img src="@file.Url" class="card-img-top" alt="@file.Name" style="height: 180px; object-fit: cover;">
+											</a>
+										}
+										else
+										{
+											<div class="card-img-top img-responsive img-responsive-16by9 text-center bg-white pt-4" style="height: 180px;">
+												<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-file" width="64" height="64" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+													<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+													<path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+													<path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+												</svg>
+											</div>
+										}
+										<div class="card-body">
+											<div class="d-flex align-items-center">
+												<div>
+													<div title="@file.Name">@(file.Name.Length > 20 ? file.Name.Substring(0, 17) + "..." : file.Name)</div>
+													<div class="text-muted">@(file.Size / 1024.0) KB</div>
+												</div>
+												<div class="ms-auto">
+													<div class="dropdown">
+														<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+															<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+																<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+																<path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+																<path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+																<path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
+															</svg>
+														</a>
+														<div class="dropdown-menu dropdown-menu-end">
+															<a href="@file.Url" class="dropdown-item" target="_blank">
+																Xem
+															</a>
+															<a href="@file.Url" class="dropdown-item" download="@file.Name">
+																Tải xuống
+															</a>
+															<a href="#" class="dropdown-item" onclick="copyToClipboard('@file.Url'); return false;">
+																Sao chép URL
+															</a>
+															<a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-file" data-file-id="@file.Id" data-file-name="@file.Name">
+																Đổi tên
+															</a>
+															<a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-file" data-file-id="@file.Id" data-file-name="@file.Name">
+																Xóa
+															</a>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					}
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- Modals -->
+<!-- New Folder Modal -->
+<div class="modal modal-blur fade" id="modal-new-folder" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<form asp-area="Admin"  asp-controller="Gallery" asp-action="CreateFolder" method="post">
+				<div class="modal-header">
+					<h5 class="modal-title">Tạo thư mục mới</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Tên thư mục</label>
+						<input type="text" class="form-control" name="name" placeholder="Nhập tên thư mục" required>
+					</div>
+					<input type="hidden" name="parentId" value="@Model.CurrentFolder?.Id">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+						Hủy
+					</button>
+					<button type="submit" class="btn btn-primary ms-auto">
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+							<path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+							<path d="M12 10l0 6"></path>
+							<path d="M9 13l6 0"></path>
+						</svg>
+						Tạo thư mục
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Upload File Modal -->
+<div class="modal modal-blur fade" id="modal-upload-file" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<form asp-area="Admin"  asp-controller="Gallery" asp-action="UploadFile" method="post" enctype="multipart/form-data">
+				<div class="modal-header">
+					<h5 class="modal-title">Tải lên tệp mới</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<div class="form-label">Chọn tệp</div>
+						<input type="file" class="form-control" name="file" required>
+					</div>
+					<input type="hidden" name="folderId" value="@Model.CurrentFolder?.Id">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+						Hủy
+					</button>
+					<button type="submit" class="btn btn-primary ms-auto">
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+							<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+							<path d="M7 9l5 -5l5 5"></path>
+							<path d="M12 4l0 12"></path>
+						</svg>
+						Tải lên
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Rename Folder Modal -->
+<div class="modal modal-blur fade" id="modal-rename-folder" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<form asp-area="Admin"  asp-controller="Gallery" asp-action="RenameFolder" method="post">
+				<div class="modal-header">
+					<h5 class="modal-title">Đổi tên thư mục</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Tên thư mục mới</label>
+						<input type="text" class="form-control" id="rename-folder-name" name="name" required>
+						<input type="hidden" id="rename-folder-id" name="id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+						Hủy
+					</button>
+					<button type="submit" class="btn btn-primary ms-auto">
+						Lưu thay đổi
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Delete Folder Modal -->
+<div class="modal modal-blur fade" id="modal-delete-folder" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<form asp-area="Admin"  asp-controller="Gallery" asp-action="DeleteFolder" method="post">
+				<div class="modal-header">
+					<h5 class="modal-title">Xóa thư mục</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<p class="text-danger">Bạn có chắc chắn muốn xóa thư mục "<span id="delete-folder-name"></span>"?</p>
+						<p>Tất cả các tệp và thư mục con sẽ bị xóa. Hành động này không thể hoàn tác.</p>
+						<input type="hidden" id="delete-folder-id" name="id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+						Hủy
+					</button>
+					<button type="submit" class="btn btn-danger ms-auto">
+						Xóa thư mục
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Rename File Modal -->
+<div class="modal modal-blur fade" id="modal-rename-file" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<form asp-area="Admin"  asp-controller="Gallery" asp-action="RenameFile" method="post">
+				<div class="modal-header">
+					<h5 class="modal-title">Đổi tên tệp</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Tên tệp mới</label>
+						<input type="text" class="form-control" id="rename-file-name" name="name" required>
+						<input type="hidden" id="rename-file-id" name="id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+						Hủy
+					</button>
+					<button type="submit" class="btn btn-primary ms-auto">
+						Lưu thay đổi
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+<!-- Delete File Modal -->
+<div class="modal modal-blur fade" id="modal-delete-file" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<form asp-area="Admin"  asp-controller="Gallery" asp-action="DeleteFile" method="post">
+				<div class="modal-header">
+					<h5 class="modal-title">Xóa tệp</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					<div class="mb-3">
+						<p class="text-danger">Bạn có chắc chắn muốn xóa tệp "<span id="delete-file-name"></span>"?</p>
+						<p>Hành động này không thể hoàn tác.</p>
+						<input type="hidden" id="delete-file-id" name="id">
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+						Hủy
+					</button>
+					<button type="submit" class="btn btn-danger ms-auto">
+						Xóa tệp
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section FootScripts {
+	<script>
+		function copyToClipboard(text) {
+			navigator.clipboard.writeText(text).then(function() {
+				// Show notification
+				var toast = document.createElement('div');
+				toast.className = 'toast position-fixed top-0 end-0 m-3 bg-success text-white';
+				toast.setAttribute('role', 'alert');
+				toast.setAttribute('aria-live', 'assertive');
+				toast.setAttribute('aria-atomic', 'true');
+				toast.innerHTML = `
+					<div class="toast-header bg-success text-white">
+						<strong class="me-auto">Thông báo</strong>
+						<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+					</div>
+					<div class="toast-body">
+						URL đã được sao chép vào clipboard.
+					</div>
+				`;
+				document.body.appendChild(toast);
+				var bsToast = new bootstrap.Toast(toast);
+				bsToast.show();
+
+				// Remove toast after it's hidden
+				toast.addEventListener('hidden.bs.toast', function () {
+					toast.remove();
+				});
+			});
+		}
+
+		// Setup modal data
+		document.addEventListener('DOMContentLoaded', function() {
+			$('#modal-rename-folder').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget);
+				var folderId = button.data('folder-id');
+				var folderName = button.data('folder-name');
+				var modal = $(this);
+				modal.find('#rename-folder-id').val(folderId);
+				modal.find('#rename-folder-name').val(folderName);
+			});
+
+			$('#modal-delete-folder').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget);
+				var folderId = button.data('folder-id');
+				var folderName = button.data('folder-name');
+				var modal = $(this);
+				modal.find('#delete-folder-id').val(folderId);
+				modal.find('#delete-folder-name').text(folderName);
+			});
+
+			$('#modal-rename-file').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget);
+				var fileId = button.data('file-id');
+				var fileName = button.data('file-name');
+				var modal = $(this);
+				modal.find('#rename-file-id').val(fileId);
+				modal.find('#rename-file-name').val(fileName);
+			});
+
+			$('#modal-delete-file').on('show.bs.modal', function (event) {
+				var button = $(event.relatedTarget);
+				var fileId = button.data('file-id');
+				var fileName = button.data('file-name');
+				var modal = $(this);
+				modal.find('#delete-file-id').val(fileId);
+				modal.find('#delete-file-name').text(fileName);
+			});
+		});
+	</script>
+}
