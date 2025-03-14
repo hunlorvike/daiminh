@@ -7,12 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <Compile Remove="Entities\Shared\**" />
-      <EmbeddedResource Remove="Entities\Shared\**" />
-      <None Remove="Entities\Shared\**" />
-    </ItemGroup>
-
-    <ItemGroup>
         <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.11" />

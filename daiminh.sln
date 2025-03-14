@@ -25,6 +25,19 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "infrastructure.tests", "tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web.tests", "tests\web.tests\web.tests.csproj", "{E6B73CAB-D88F-4C36-BFD7-5984D8ED51D5}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
+	ProjectSection(SolutionItems) = preProject
+		docs\DATABASE.MD = docs\DATABASE.MD
+		docs\database.mermaid = docs\database.mermaid
+		README.MD = README.MD
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{6FB2BA5D-4828-4AD0-B784-8964F013F718}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+		Dockerfile = Dockerfile
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -157,5 +170,8 @@ Global
 		{F399CED7-AF65-46BB-8112-EC4993AAF64A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{507DCC72-3148-4302-876D-7111EDE56822} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{E6B73CAB-D88F-4C36-BFD7-5984D8ED51D5} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {61B02C1D-7A4F-475C-ACB6-DB310175D0B4}
 	EndGlobalSection
 EndGlobal
