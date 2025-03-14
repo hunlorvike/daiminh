@@ -1,6 +1,6 @@
-using shared.Enums;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using shared.Enums;
 
 namespace web.Areas.Admin.Models.Slider;
 

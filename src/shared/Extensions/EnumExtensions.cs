@@ -1,7 +1,7 @@
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace shared.Extensions;
 

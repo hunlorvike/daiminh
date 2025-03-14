@@ -1,7 +1,7 @@
-using FluentValidation;
-using shared.Enums;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using shared.Enums;
 
 namespace web.Areas.Admin.Requests.Contact;
 

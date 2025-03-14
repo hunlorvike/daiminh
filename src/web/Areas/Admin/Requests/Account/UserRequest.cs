@@ -1,5 +1,5 @@
-using FluentValidation;
 using System.ComponentModel;
+using FluentValidation;
 
 namespace web.Areas.Admin.Requests.Account;
 

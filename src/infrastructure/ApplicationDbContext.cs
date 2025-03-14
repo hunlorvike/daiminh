@@ -147,6 +147,18 @@ public class ApplicationDbContext(
 
     #endregion
 
+    #region File Management     
+    /// <summary>
+    /// Gets or sets the DbSet for Folder
+    /// </summary>
+    public DbSet<Folder> Folders { get; set; } = null!;
+
+    /// <summary>
+    /// Gets or sets the DbSet for MediaFile
+    /// </summary>
+    public DbSet<MediaFile> MediaFiles { get; set; } = null!;
+    #endregion
+
     /// <summary>
     /// Configures the model that was discovered by convention from the entity types
     /// exposed in <see cref="DbSet{TEntity}"/> properties on your derived context.
@@ -201,6 +213,11 @@ public class ApplicationDbContext(
         modelBuilder.ApplyConfiguration(new ProductTagConfiguration());
         modelBuilder.ApplyConfiguration(new ReviewConfiguration());
 
+        #endregion
+
+        #region File Management Configurations  
+        modelBuilder.ApplyConfiguration(new FolderConfiguration());
+        modelBuilder.ApplyConfiguration(new MediaFileConfiguration());
         #endregion
     }
 

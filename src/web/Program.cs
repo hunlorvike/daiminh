@@ -1,3 +1,4 @@
+using System.Reflection;
 using application.Interfaces;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -6,7 +7,6 @@ using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using shared.Constants;
-using System.Reflection;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()

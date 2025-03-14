@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using shared.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.Content;
 
