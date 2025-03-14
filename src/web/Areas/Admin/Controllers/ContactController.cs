@@ -39,8 +39,6 @@ public partial class ContactController
         var contact = await contactService.GetByIdAsync(id);
         if (contact == null) return NotFound();
         var request = _mapper.Map<ContactUpdateRequest>(contact);
-
-        ViewBag.ContactStatus = EnumExtensions.ToSelectList<ContactStatus>();
         return PartialView("_Edit.Modal", request);
     }
 

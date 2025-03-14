@@ -56,6 +56,7 @@ daiminh/
 │       ├── wwwroot/          # Static files (CSS, JavaScript, images)
 │       ├── appsettings.Development.json
 │       ├── appsettings.json
+|       ├── libman.json       # Client-side library configuration 
 │       ├── Program.cs
 │       └── web.csproj
 ├── .dockerignore            # Files/folders to ignore in Docker builds
@@ -64,7 +65,6 @@ daiminh/
 ├── daiminh.sln             # Solution file
 ├── docker-compose.yml      # Docker Compose configuration
 ├── Dockerfile              # Dockerfile for building the application image
-├── libman.json             # LibMan configuration file (for client-side libraries)
 └── README.MD               # This file
 ```
 
