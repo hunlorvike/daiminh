@@ -9,6 +9,8 @@ namespace web.Areas.Admin.Profiles
         public GalleryProfile()
         {
             CreateMap<Folder, FolderEditRequest>().ReverseMap();
+            CreateMap<MediaFile, FileEditRequest>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => Path.GetFileNameWithoutExtension(src.Name)));
         }
     }
 }

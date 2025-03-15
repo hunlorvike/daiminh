@@ -90,7 +90,8 @@ public partial class GalleryController
     {
         var file = await context.Set<MediaFile>().FindAsync(id);
         if (file == null) return NotFound();
-        return PartialView("_EditFile.Modal", file);
+        var request = mapper.Map<FileEditRequest>(file);
+        return PartialView("_EditFile.Modal", request);
     }
 
     [AjaxOnly]
@@ -288,7 +289,79 @@ public partial class GalleryController
                 Errors = ex.Message
             });
         }
-    }       
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditFile([FromForm] FileEditRequest model)
+    {
+        var validator = GetValidator<FileEditRequest>();
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
+
+        try
+        {
+            var file = await context.Set<MediaFile>().FindAsync(model.Id);
+            if (file == null) return NotFound();
+
+            string oldFileName = file.Name;
+            string oldPath = file.Path;
+
+            file.Name = model.Name;
+
+            string folderPath = await GetFolderPathAsync(file.FolderId);
+
+            string extension = file.Extension;
+
+            string currentFileName = Path.GetFileName(oldPath);
+            string uniquePrefix = string.Empty;
+
+            if (currentFileName.Contains('_'))
+            {
+                uniquePrefix = currentFileName.Substring(0, currentFileName.IndexOf('_') + 1);
+            }
+            else
+            {
+                uniquePrefix = $"{Guid.NewGuid()}_";
+            }
+
+            string newFileName = $"{uniquePrefix}{model.Name}{extension}";
+
+            string relativeUploadPath = Path.Combine("uploads", folderPath).Replace("\\", "/");
+            string newRelativePath = $"/{relativeUploadPath}/{newFileName}";
+
+            file.Path = newRelativePath;
+            file.Url = newRelativePath;
+
+            string wwwrootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            string oldFullPath = Path.Combine(wwwrootPath, oldPath.TrimStart('/'));
+            string newFullPath = Path.Combine(wwwrootPath, newRelativePath.TrimStart('/'));
+
+            if (System.IO.File.Exists(oldFullPath) && oldFullPath != newFullPath)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(newFullPath));
+
+                System.IO.File.Move(oldFullPath, newFullPath);
+            }
+
+            await context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Cập nhật thông tin tệp thành công",
+                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = file.FolderId })
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
+        }
+    }
 }
 
 public partial class GalleryController

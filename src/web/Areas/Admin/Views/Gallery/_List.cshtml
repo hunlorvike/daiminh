@@ -205,15 +205,16 @@
                                                                                 <a href="@file.Url" class="dropdown-item" download="@file.Name">
                                                                                     Tải xuống
                                                                                 </a>
-                                                                                <a href="#" class="dropdown-item" onclick="copyToClipboard('@file.Url'); return false;">
+																				<button class="dropdown-item" onclick="copyToClipboard('@file.Url'); return false;">
                                                                                     Sao chép URL
-                                                                                </a>
-                                                                                <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-file" data-file-id="@file.Id" data-file-name="@file.Name">
+                                                                                </button>
+																				<button asp-area="Admin" asp-controller="Gallery" asp-action="EditFile" asp-route-id="@file.Id"
+																						class="dropdown-item command-modal-edit" data-bs-toggle="modal" data-bs-target="#modal-rename-file">
                                                                                     Đổi tên
-                                                                                </a>
-                                                                                <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-file" data-file-id="@file.Id" data-file-name="@file.Name">
+                                                                                </button>
+																				<button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-file">
                                                                                     Xóa
-                                                                                </a>
+                                                                                </button>
                                                                             </div>
                                                                         </div>
                                                                     </div>

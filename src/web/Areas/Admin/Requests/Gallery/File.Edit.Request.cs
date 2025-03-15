@@ -37,7 +37,16 @@ public class FileEditRequestValidator : AbstractValidator<FileEditRequest>
         RuleFor(request => request.Name)
             .NotEmpty().WithMessage("Tên tệp không được bỏ trống.")
             .MaximumLength(100).WithMessage("Tên tệp không được vượt quá 100 ký tự")
-            .Matches("^[a-zA-Z0-9\\s\\-_]+$")
-            .WithMessage("Tên tệp chỉ được chứa chữ cái, số, dấu gạch ngang và gạch dưới");
+            .Must(name => !string.IsNullOrWhiteSpace(name) &&
+                  !name.Contains("/") &&
+                  !name.Contains("\\") &&
+                  !name.Contains(":") &&
+                  !name.Contains("*") &&
+                  !name.Contains("?") &&
+                  !name.Contains("\"") &&
+                  !name.Contains("<") &&
+                  !name.Contains(">") &&
+                  !name.Contains("|"))
+            .WithMessage("Tên tệp không được chứa các ký tự đặc biệt không hợp lệ (/ \\ : * ? \" < > |)");
     }
-}   
+}
