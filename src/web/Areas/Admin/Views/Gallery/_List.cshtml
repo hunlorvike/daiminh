@@ -119,9 +119,9 @@
                                                                                 </svg>
                                                                             </a>
                                                                             <div class="dropdown-menu dropdown-menu-end">
-                                                                                <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
-                                                                                    Đổi tên
-                                                                                </a>
+																				<button class="dropdown-item command-modal-edit" asp-area="Admin" asp-controller="Gallery" asp-action="EditFolder" asp-route-id="@folder.Id" data-bs-toggle="modal" data-bs-target="#modal-rename-folder">
+																					Đổi tên	
+                                                                                </button>
                                                                                 <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
                                                                                     Xóa
                                                                                 </a>
@@ -270,12 +270,12 @@
                                                                             </svg>
                                                                         </a>
                                                                         <div class="dropdown-menu dropdown-menu-end">
-                                                                            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
+																			<button asp-area="Admin" asp-controller="Gallery" asp-action="EditFolder" asp-route-id="@folder.Id" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
                                                                                 Đổi tên
-                                                                            </a>
-                                                                            <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
+                                                                            </button>
+                                                                            <button href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
                                                                                 Xóa
-                                                                            </a>
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 </td>

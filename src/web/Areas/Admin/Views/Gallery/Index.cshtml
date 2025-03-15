@@ -75,27 +75,6 @@
 		.rotate-90 {
 			transform: rotate(90deg);
 		}
-
-		/* File Cards */
-		.card-sm {
-			transition: transform 0.2s, box-shadow 0.2s;
-		}
-
-			.card-sm:hover {
-				transform: translateY(-3px);
-				box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-			}
-
-		/* View Mode Buttons */
-		.view-mode-btn.active {
-			background-color: var(--tblr-primary);
-			color: #fff;
-		}
-
-		/* Toast Container */
-		.toast-container {
-			z-index: 1090;
-		}
 	</style>
 }
 
@@ -153,6 +132,18 @@
 				$(this).closest('.folder-tree-item').toggleClass('expanded');
 				$(this).find('.folder-tree-icon').toggleClass('rotate-90');
 			});
+
+			window.copyToClipboard = function(text) {
+				if (navigator.clipboard && navigator.clipboard.writeText) {
+					navigator.clipboard.writeText(text)
+						.then(function() {
+							jqueryDaiminh.Notification.show( 'success', 'Đã sao chép đường dẫn');
+						})
+						.catch(function(err) {
+							jqueryDaiminh.Notification.show( 'error', err);
+						});
+				}
+			};
 		});
 	</script>
 }

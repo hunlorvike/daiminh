@@ -34,7 +34,8 @@ const jqueryDaiminh = (($, bootstrap) => {
             editContainer: '.form-edit-container',
             deleteContainer: '.form-delete-container',
             notificationContainer: '.notification-container'
-        }, /**
+        },
+        /**
          * Các giá trị mặc định cho các thành phần
          * @type {Object}
          */
@@ -219,7 +220,127 @@ const jqueryDaiminh = (($, bootstrap) => {
                     info: 'Showing _START_ to _END_ of _TOTAL_ entries',
                     infoEmpty: 'Showing 0 to 0 of 0 entries',
                     infoFiltered: '(filtered from _MAX_ total entries)',
+                    paginate: {
+                        first: 'First',
+                        previous: 'Previous',
+                        next: 'Next',
+                        last: 'Last'
+                    },
+                    processing: 'Processing...',
+                    zeroRecords: 'No matching records found',
+                    emptyTable: 'No data available in table'
                 },
+                notification: {
+                    success: 'Success',
+                    error: 'Error',
+                    warning: 'Warning',
+                    info: 'Information'
+                },
+                modal: {
+                    loadError: 'Failed to load {type} data'
+                },
+                clipboard: {
+                    copied: 'Copied to clipboard',
+                    failed: 'Failed to copy to clipboard'
+                },
+                validation: {
+                    required: 'This field is required',
+                    email: 'Please enter a valid email address',
+                    minLength: 'Please enter at least {min} characters',
+                    maxLength: 'Please enter no more than {max} characters',
+                    pattern: 'Please enter a valid format',
+                    number: 'Please enter a valid number',
+                    min: 'Please enter a value greater than or equal to {min}',
+                    max: 'Please enter a value less than or equal to {max}'
+                },
+                form: {
+                    submitting: 'Submitting...',
+                    submitted: 'Form submitted successfully',
+                    error: 'There was an error submitting the form'
+                },
+                pagination: {
+                    previous: 'Previous',
+                    next: 'Next',
+                    showing: 'Showing',
+                    to: 'to',
+                    of: 'of',
+                    results: 'results'
+                },
+                theme: {
+                    light: 'Light Mode',
+                    dark: 'Dark Mode',
+                    toggle: 'Toggle Theme'
+                }
+            },
+            vi: {
+                common: {
+                    save: 'Lưu',
+                    cancel: 'Hủy',
+                    delete: 'Xóa',
+                    edit: 'Sửa',
+                    create: 'Tạo mới',
+                    details: 'Chi tiết',
+                    close: 'Đóng',
+                    search: 'Tìm kiếm',
+                    loading: 'Đang tải...',
+                    noData: 'Không có dữ liệu'
+                },
+                dataTable: {
+                    lengthMenu: 'Hiển thị _MENU_ mục',
+                    info: 'Hiển thị _START_ đến _END_ của _TOTAL_ mục',
+                    infoEmpty: 'Hiển thị 0 đến 0 của 0 mục',
+                    infoFiltered: '(lọc từ _MAX_ mục)',
+                    paginate: {
+                        first: 'Đầu tiên',
+                        previous: 'Trước',
+                        next: 'Tiếp',
+                        last: 'Cuối cùng'
+                    },
+                    processing: 'Đang xử lý...',
+                    zeroRecords: 'Không tìm thấy kết quả phù hợp',
+                    emptyTable: 'Không có dữ liệu trong bảng'
+                },
+                notification: {
+                    success: 'Thành công',
+                    error: 'Lỗi',
+                    warning: 'Cảnh báo',
+                    info: 'Thông tin'
+                },
+                modal: {
+                    loadError: 'Không thể tải dữ liệu {type}'
+                },
+                clipboard: {
+                    copied: 'Đã sao chép vào clipboard',
+                    failed: 'Không thể sao chép vào clipboard'
+                },
+                validation: {
+                    required: 'Trường này là bắt buộc',
+                    email: 'Vui lòng nhập địa chỉ email hợp lệ',
+                    minLength: 'Vui lòng nhập ít nhất {min} ký tự',
+                    maxLength: 'Vui lòng nhập không quá {max} ký tự',
+                    pattern: 'Vui lòng nhập đúng định dạng',
+                    number: 'Vui lòng nhập số hợp lệ',
+                    min: 'Vui lòng nhập giá trị lớn hơn hoặc bằng {min}',
+                    max: 'Vui lòng nhập giá trị nhỏ hơn hoặc bằng {max}'
+                },
+                form: {
+                    submitting: 'Đang gửi...',
+                    submitted: 'Biểu mẫu đã được gửi thành công',
+                    error: 'Đã xảy ra lỗi khi gửi biểu mẫu'
+                },
+                pagination: {
+                    previous: 'Trước',
+                    next: 'Tiếp',
+                    showing: 'Hiển thị',
+                    to: 'đến',
+                    of: 'của',
+                    results: 'kết quả'
+                },
+                theme: {
+                    light: 'Chế độ sáng',
+                    dark: 'Chế độ tối',
+                    toggle: 'Chuyển đổi chế độ'
+                }
             }
         }, /**
          * Ngôn ngữ hiện tại đang sử dụng
@@ -1219,6 +1340,10 @@ const jqueryDaiminh = (($, bootstrap) => {
          */
         _getInitialTheme: () => {
             const params = new Proxy(new URLSearchParams(window.location.search), {
+                get: (searchParams, prop) => searchParams.get(prop),
+            });
+
+            if (!!{
                 get: (searchParams, prop) => searchParams.get(prop),
             });
 

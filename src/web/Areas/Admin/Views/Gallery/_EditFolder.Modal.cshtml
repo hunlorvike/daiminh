@@ -1,23 +1,25 @@
+@model web.Areas.Admin.Requests.Gallery.FolderEditRequest
+
 <div class="modal modal-blur fade" id="modal-rename-folder" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
-            <form asp-area="Admin" asp-controller="Gallery" asp-action="RenameFolder" method="post">
+			<form asp-area="Admin" asp-controller="Gallery" asp-action="EditFolder" method="post">
                 <div class="modal-header">
                     <h5 class="modal-title">Đổi tên thư mục</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
+					<button type="button" class="btn-close command-modal-close"></button>
+				</div>
                 <div class="modal-body">
+					@Html.AntiForgeryToken()
+					<input asp-for="Id" type="hidden" />
                     <div class="mb-3">
-                        <label class="form-label">Tên thư mục mới</label>
-                        <input type="text" class="form-control" id="rename-folder-name" name="name" required>
-                        <input type="hidden" id="rename-folder-id" name="id">
-                    </div>
+						<label asp-for="Name" class="form-label"></label>
+						<input asp-for="Name" class="form-control">
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                        Hủy
-                    </button>
-                    <button type="submit" class="btn btn-primary ms-auto">
+					<button class="btn btn-link link-secondary command-modal-close">Hủy</button>
+					<button type="button" class="btn btn-primary command-submit ms-auto">
                         Lưu thay đổi
                     </button>
                 </div>

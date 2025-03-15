@@ -77,16 +77,19 @@ public partial class GalleryController
     }
 
     [AjaxOnly]
-    public async Task<IActionResult> EditFolder(int folderId)
+    public async Task<IActionResult> EditFolder(int id)
     {
-        var folder = await context.Set<Folder>().FindAsync(folderId);
-        return PartialView("_EditFolder.Modal", folder);
+        var folder = await context.Set<Folder>().FindAsync(id);
+        if (folder == null) return NotFound();  
+        var request = mapper.Map<FolderEditRequest>(folder);    
+        return PartialView("_EditFolder.Modal", request);
     }
 
     [AjaxOnly]
-    public async Task<IActionResult> EditFile(int fileId)
+    public async Task<IActionResult> EditFile(int id)
     {
-        var file = await context.Set<MediaFile>().FindAsync(fileId);
+        var file = await context.Set<MediaFile>().FindAsync(id);
+        if (file == null) return NotFound();
         return PartialView("_EditFile.Modal", file);
     }
 
@@ -212,6 +215,80 @@ public partial class GalleryController
             });
         }
     }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> EditFolder([FromForm] FolderEditRequest model)
+    {
+        var validator = GetValidator<FolderEditRequest>();
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
+        try
+        {
+            var folder = await context.Set<Folder>().FindAsync(model.Id);
+            if (folder == null) return NotFound();
+
+            string oldName = folder.Name;
+            string oldPath = folder.Path;
+
+            folder.Name = model.Name;
+
+            string newPathSegment = model.Name.ToUrlSlug();
+            string newPath;
+
+            if (folder.ParentId.HasValue)
+            {
+                var parentFolder = await context.Set<Folder>().FindAsync(folder.ParentId);
+                if (parentFolder != null)
+                {
+                    newPath = Path.Combine(parentFolder.Path, newPathSegment);
+                }
+                else
+                {
+                    newPath = newPathSegment;
+                }
+            }
+            else
+            {
+                newPath = newPathSegment;
+            }
+
+            folder.Path = newPath;
+
+            string oldFullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", oldPath);
+            string newFullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", newPath);
+
+            if (Directory.Exists(oldFullPath) && !Directory.Exists(newFullPath))
+            {
+                Directory.Move(oldFullPath, newFullPath);
+            }
+            else if (!Directory.Exists(oldFullPath))
+            {
+                Directory.CreateDirectory(newFullPath);
+            }
+
+            await UpdateSubfolderPaths(folder.Id, oldPath, newPath);
+
+            await UpdateFilePaths(folder.Id, oldPath, newPath);
+
+            await context.SaveChangesAsync();
+
+            return Json(new
+            {
+                success = true,
+                message = "Đổi tên thư mục thành công",
+                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = folder.ParentId })
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
+        }
+    }       
 }
 
 public partial class GalleryController
@@ -245,6 +322,7 @@ public partial class GalleryController
 
         return breadcrumbs;
     }
+
     private async Task<string> GetFolderPathAsync(int? folderId)
     {
         if (folderId == null)
@@ -255,6 +333,40 @@ public partial class GalleryController
             return string.Empty;
 
         return folder.Path;
+    }
+
+    private async Task UpdateSubfolderPaths(int parentId, string oldParentPath, string newParentPath)
+    {
+        var subfolders = await context.Set<Folder>()
+            .Where(f => f.ParentId == parentId)
+            .ToListAsync();
+
+        foreach (var subfolder in subfolders)
+        {
+            string oldPath = subfolder.Path;
+            string relativePath = oldPath.Replace(oldParentPath, "").TrimStart('/').TrimStart('\\');
+            string newPath = Path.Combine(newParentPath, relativePath).Replace("\\", "/");
+
+            subfolder.Path = newPath;
+
+            await UpdateSubfolderPaths(subfolder.Id, oldPath, newPath);
+        }
+    }
+
+    private async Task UpdateFilePaths(int folderId, string oldFolderPath, string newFolderPath)
+    {
+        var files = await context.Set<MediaFile>()
+            .Where(f => f.FolderId == folderId)
+            .ToListAsync();
+
+        foreach (var file in files)
+        {
+            string fileName = Path.GetFileName(file.Path);
+            string newPath = "/" + Path.Combine("uploads", newFolderPath, fileName).Replace("\\", "/");
+
+            file.Path = newPath;
+            file.Url = newPath;
+        }
     }
 }
 
