@@ -1,0 +1,27 @@
+<div class="modal modal-blur fade" id="modal-rename-file" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form asp-area="Admin" asp-controller="Gallery" asp-action="RenameFile" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Đổi tên tệp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tên tệp mới</label>
+                        <input type="text" class="form-control" id="rename-file-name" name="name" required>
+                        <input type="hidden" id="rename-file-id" name="id">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Hủy
+                    </button>
+                    <button type="submit" class="btn btn-primary ms-auto">
+                        Lưu thay đổi
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

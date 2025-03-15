@@ -568,39 +568,73 @@ const jqueryDaiminh = (($, bootstrap) => {
 
             Utils.disableButton($submitBtn);
 
-            const hasFiles = $form.find('input[type="file"]').length > 0;
-            let response;
+            const hasFiles = $form.find('input[type="file"]').length > 0 &&
+                $form.find('input[type="file"]').get().some(input => input.files.length > 0);
 
-            if (hasFiles) {
-                const formData = new FormData($form[0]);
-                // TODO: thực hiện logic submit FormData
-            } else {
-                $.ajax({
-                    url: url,
-                    type: method,
-                    data: Form.serializeObject($form),
-                    success: function (response, textStatus, jqXHR) {
-                        if (response.redirectUrl) {
-                            window.location.href = response.redirectUrl;
+            try {
+                let response;
+
+                if (hasFiles) {
+                    // Use FormData for file uploads
+                    const formData = new FormData($form[0]);
+
+                    response = await $.ajax({
+                        url: url,
+                        type: method,
+                        data: formData,
+                        processData: false,  // Don't process the data
+                        contentType: false,  // Don't set content type
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                         }
-                    },
-                    error: function (response, textStatus, jqXHR) {
-                        const errors = response.responseJSON.errors;
-                        console.log(errors);
-                        $form.find('span[data-valmsg-for]').text('');
-                        if (errors) {
-                            Object.keys(errors).forEach(key => {
-                                const $errorSpan = $form.find(`span[data-valmsg-for="${key}"]`);
-                                if ($errorSpan.length) {
-                                    $errorSpan.text(errors[key][0]);
-                                    $errorSpan.removeClass('field-validation-valid').addClass('field-validation-error');
-                                } else {
-                                    console.warn(`No error span found for field: ${key}`);
-                                }
-                            });
-                        }
+                    });
+
+                    if (response.redirectUrl) {
+                        window.location.href = response.redirectUrl;
                     }
-                });
+                } else {
+                    // Use regular serialization for non-file forms
+                    response = await $.ajax({
+                        url: url,
+                        type: method,
+                        data: Form.serializeObject($form),
+                        beforeSend: function (xhr) {
+                            xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+                        }
+                    });
+
+                    if (response.redirectUrl) {
+                        window.location.href = response.redirectUrl;
+                    }
+                }
+
+                return response;
+            } catch (error) {
+                const response = error.responseJSON || {};
+                const errors = response.errors || {};
+
+                console.log(errors);
+                $form.find('span[data-valmsg-for]').text('');
+
+                if (Object.keys(errors).length > 0) {
+                    Object.keys(errors).forEach(key => {
+                        const $errorSpan = $form.find(`span[data-valmsg-for="${key}"]`);
+                        if ($errorSpan.length) {
+                            $errorSpan.text(errors[key][0]);
+                            $errorSpan.removeClass('field-validation-valid').addClass('field-validation-error');
+                        } else {
+                            console.warn(`No error span found for field: ${key}`);
+                        }
+                    });
+                } else {
+                    // Show generic error if no specific errors returned
+                    Notification.show('error', 'Đã xảy ra lỗi khi xử lý yêu cầu.');
+                }
+
+                throw error;
+            } finally {
+                // Re-enable the button after processing
+                setTimeout(() => $submitBtn.prop('disabled', false), Config.defaults.modal.disableTimeout);
             }
         },
 
