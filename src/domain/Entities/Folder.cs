@@ -9,6 +9,8 @@ public class Folder : BaseEntity<int>
     public string Name { get; set; } = string.Empty;
     public string Path { get; set; } = string.Empty;
     public int? ParentId { get; set; }
+
+    // Navigation properties
     public Folder? Parent { get; set; }
     public virtual ICollection<Folder>? Children { get; set; }
     public virtual ICollection<MediaFile>? MediaFiles { get; set; }

@@ -1,0 +1,27 @@
+<div class="modal modal-blur fade" id="modal-delete-file" tabindex="-1" role="dialog" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <form asp-area="Admin" asp-controller="Gallery" asp-action="DeleteFile" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xóa tệp</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <p class="text-danger">Bạn có chắc chắn muốn xóa tệp "<span id="delete-file-name"></span>"?</p>
+                        <p>Hành động này không thể hoàn tác.</p>
+                        <input type="hidden" id="delete-file-id" name="id">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Hủy
+                    </button>
+                    <button type="submit" class="btn btn-danger ms-auto">
+                        Xóa tệp
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
