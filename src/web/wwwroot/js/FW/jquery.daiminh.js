@@ -33,7 +33,7 @@ const jqueryDaiminh = (($, bootstrap) => {
             createContainer: '.form-create-container',
             editContainer: '.form-edit-container',
             deleteContainer: '.form-delete-container',
-            notificationContainer: '.notification-container'
+            notificationContainer: '.toast-container'
         },
         /**
          * Các giá trị mặc định cho các thành phần
@@ -1045,7 +1045,7 @@ const jqueryDaiminh = (($, bootstrap) => {
 
             let $container = $(Config.selectors.notificationContainer);
             if (!$container.length) {
-                $('body').append(`<div class="notification-container position-fixed ${settings.position}" style="z-index: 9999;"></div>`);
+                $('body').append(`<section class="toast-container position-fixed ${settings.position}" style="z-index: 9999;"></section>`);
                 $container = $(Config.selectors.notificationContainer);
             }
 
