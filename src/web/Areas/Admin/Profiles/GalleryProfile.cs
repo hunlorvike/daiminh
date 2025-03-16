@@ -11,6 +11,10 @@ namespace web.Areas.Admin.Profiles
             CreateMap<Folder, FolderEditRequest>().ReverseMap();
             CreateMap<MediaFile, FileEditRequest>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => Path.GetFileNameWithoutExtension(src.Name)));
+
+            CreateMap<Folder, FolderDeleteRequest>().ReverseMap();
+            CreateMap<MediaFile, FileDeleteRequest>()
+                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => Path.GetFileNameWithoutExtension(src.Name)));
         }
     }
 }

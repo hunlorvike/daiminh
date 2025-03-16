@@ -95,17 +95,21 @@ public partial class GalleryController
     }
 
     [AjaxOnly]
-    public async Task<IActionResult> DeleteFolder(int folderId)
+    public async Task<IActionResult> DeleteFolder(int id)
     {
-        var folder = await context.Set<Folder>().FindAsync(folderId);
-        return PartialView("_DeleteFolder.Modal", folder);
+        var folder = await context.Set<Folder>().FindAsync(id);
+        if(folder == null) return NotFound();
+        var request = mapper.Map<FolderDeleteRequest>(folder);
+        return PartialView("_DeleteFolder.Modal", request);
     }
 
     [AjaxOnly]
-    public async Task<IActionResult> DeleteFile(int fileId)
+    public async Task<IActionResult> DeleteFile(int id)
     {
-        var file = await context.Set<MediaFile>().FindAsync(fileId);
-        return PartialView("_DeleteFile.Modal", file);
+        var file = await context.Set<MediaFile>().FindAsync(id);
+        if (file == null) return NotFound();
+        var request = mapper.Map<FileDeleteRequest>(file);
+        return PartialView("_DeleteFile.Modal", request);
     }
 }
 
@@ -350,6 +354,72 @@ public partial class GalleryController
             {
                 success = true,
                 message = "Cập nhật thông tin tệp thành công",
+                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = file.FolderId })
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteFolder([FromForm] FolderDeleteRequest model)
+    {
+        var folder = await context.Set<Folder>().FindAsync(model.Id);
+        if (folder == null) return NotFound();
+        try
+        {
+            string folderPath = folder.Path;
+            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", folderPath);
+            if (Directory.Exists(fullPath))
+            {
+                Directory.Delete(fullPath, true);
+            }
+            context.Set<Folder>().Remove(folder);
+            await context.SaveChangesAsync();
+            return Json(new
+            {
+                success = true,
+                message = "Xóa thư mục thành công",
+                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = folder.ParentId })
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteFile([FromForm] FileDeleteRequest model)
+    {
+        var file = await context.Set<MediaFile>().FindAsync(model.Id);
+        if (file == null) return NotFound();
+        try
+        {
+            string filePath = file.Path;
+            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", filePath.TrimStart('/'));
+            if (System.IO.File.Exists(fullPath))
+            {
+                System.IO.File.Delete(fullPath);
+            }
+            context.Set<MediaFile>().Remove(file);
+            await context.SaveChangesAsync();
+            return Json(new
+            {
+                success = true,
+                message = "Xóa tệp thành công",
                 redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = file.FolderId })
             });
         }

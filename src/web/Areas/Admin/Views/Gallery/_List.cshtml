@@ -2,81 +2,82 @@
 @model GalleryViewModel;
 
 <div class="page-body">
-	<div class="container">
-		<div class="card">
-			<div class="card-body row p-0">
-				<!-- Folder Tree (Left Column) -->
-				<div class="col-md-3">
-					<div class="card">
-						<div class="card-header">
-							<h3 class="card-title">Thư mục</h3>
-						</div>
-						<div class="card-body p-2">
-							<div id="folder-tree" class="folder-tree">
-								<ul class="folder-tree-list">
-									<li class="folder-tree-item @(Model.CurrentFolder == null ? "active" : "")">
-										<a asp-area="Admin" asp-controller="Gallery" asp-action="Index" class="folder-tree-link">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
-												<path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
-												<path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
-											</svg>
-											Thư mục gốc
-										</a>
-									</li>
-									@await Html.PartialAsync("__FolderTree", Model.AllFolders)
-								</ul>
-							</div>
-						</div>
-					</div>
-				</div>
+    <div class="container">
+        <div class="card">
+            <div class="card-body row p-0">
+                <!-- Folder Tree (Left Column) -->
+                <div class="col-md-3">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Thư mục</h3>
+                        </div>
+                        <div class="card-body p-2">
+                            <div id="folder-tree" class="folder-tree">
+                                <ul class="folder-tree-list">
+                                    <li class="folder-tree-item @(Model.CurrentFolder == null ? "active" : "")">
+                                        <a asp-area="Admin" asp-controller="Gallery" asp-action="Index" class="folder-tree-link">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+                                                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+                                                <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path>
+                                            </svg>
+                                            Thư mục gốc
+                                        </a>
+                                    </li>
+                                    @await Html.PartialAsync("__FolderTree", Model.AllFolders)
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-				<!-- Files (Right Column) -->
-				<div class="col-md-9">
-					<div class="card">
-						<div class="card-header">
-							<h3 class="card-title">
-								@if (Model.CurrentFolder != null)
-								{
-									<span>@Model.CurrentFolder.Name</span>
-								}
-								else
-								{
-									<span>Tất cả tệp</span>
-								}
-							</h3>
-							<div class="card-actions">
-								<ul class="nav nav-tabs card-tabs" data-bs-toggle="tabs">
-									<li class="nav-item">
-										<a href="#tabs-grid" class="nav-link active" data-bs-toggle="tab">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-grid" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
-												<path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
-												<path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
-												<path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
-											</svg>
-											Lưới
-										</a>
-									</li>
-									<li class="nav-item">
-										<a href="#tabs-list" class="nav-link" data-bs-toggle="tab">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M9 6l11 0"></path>
-												<path d="M9 12l11 0"></path>
-												<path d="M9 18l11 0"></path>
-												<path d="M5 6l0 .01"></path>
-												<path d="M5 12l0 .01"></path>
-												<path d="M5 18l0 .01"></path>
-											</svg>
-											Danh sách
-										</a>
-									</li>
-								</ul>
-							</div>
-						</div>
+                <!-- Files (Right Column) -->
+                <div class="col-md-9">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">
+                                @if (Model.CurrentFolder != null)
+                                {
+                                    <span>@Model.CurrentFolder.Name</span>
+                                }
+                                else
+                                {
+                                    <span>Tất cả tệp</span>
+                                }
+                            </h3>
+                            <div class="card-actions">
+                                <ul class="nav nav-tabs card-tabs" data-bs-toggle="tabs">
+                                    <li class="nav-item">
+                                        <a href="#tabs-grid" class="nav-link active" data-bs-toggle="tab">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-layout-grid" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M4 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
+                                                <path d="M14 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
+                                                <path d="M4 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
+                                                <path d="M14 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z"></path>
+                                            </svg>
+                                            Lưới
+                                        </a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a href="#tabs-list" class="nav-link" data-bs-toggle="tab">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-list" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M9 6l11 0"></path>
+                                                <path d="M9 12l11 0"></path>
+                                                <path d="M9 18l11 0"></path>
+                                                <path d="M5 6l0 .01"></path>
+                                                <path d="M5 12l0 .01"></path>
+                                                <path d="M5 18l0 .01"></path>
+                                            </svg>
+                                            Danh sách
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
                         <div class="card-body">
                             <div class="tab-content">
                                 <!-- Grid View -->
@@ -110,21 +111,23 @@
                                                                     </div>
                                                                     <div class="col-auto">
                                                                         <div class="dropdown">
-                                                                            <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                            <button class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                                                     <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                     <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                     <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                 </svg>
-                                                                            </a>
+                                                                            </button>
                                                                             <div class="dropdown-menu dropdown-menu-end">
-																				<button class="dropdown-item command-modal-edit" asp-area="Admin" asp-controller="Gallery" asp-action="EditFolder" asp-route-id="@folder.Id" data-bs-toggle="modal" data-bs-target="#modal-rename-folder">
-																					Đổi tên	
+                                                                                <button asp-area="Admin" asp-controller="Gallery" asp-action="EditFolder" asp-route-id="@folder.Id"
+                                                                                        class="dropdown-item command-modal-edit" data-bs-toggle="modal" data-bs-target="#modal-rename-folder">
+                                                                                    Đổi tên
                                                                                 </button>
-                                                                                <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
+                                                                                <button asp-area="Admin" asp-controller="Gallery" asp-action="DeleteFolder" asp-route-id="@folder.Id"
+                                                                                        class="dropdown-item text-danger command-modal-delete" data-bs-toggle="modal" data-bs-target="#modal-delete-folder">
                                                                                     Xóa
-                                                                                </a>
+                                                                                </button>
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -190,14 +193,14 @@
                                                                     </div>
                                                                     <div class="ms-auto">
                                                                         <div class="dropdown">
-                                                                            <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                            <button class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
                                                                                 <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                                     <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                                                     <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                     <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                     <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                 </svg>
-                                                                            </a>
+                                                                            </button>
                                                                             <div class="dropdown-menu dropdown-menu-end">
                                                                                 <a href="@file.Url" class="dropdown-item" target="_blank">
                                                                                     Xem
@@ -205,14 +208,15 @@
                                                                                 <a href="@file.Url" class="dropdown-item" download="@file.Name">
                                                                                     Tải xuống
                                                                                 </a>
-																				<button class="dropdown-item" onclick="copyToClipboard('@file.Url'); return false;">
+                                                                                <button class="dropdown-item" onclick="copyToClipboard('@file.Url'); return false;">
                                                                                     Sao chép URL
                                                                                 </button>
-																				<button asp-area="Admin" asp-controller="Gallery" asp-action="EditFile" asp-route-id="@file.Id"
-																						class="dropdown-item command-modal-edit" data-bs-toggle="modal" data-bs-target="#modal-rename-file">
+                                                                                <button asp-area="Admin" asp-controller="Gallery" asp-action="EditFile" asp-route-id="@file.Id"
+                                                                                        class="dropdown-item command-modal-edit" data-bs-toggle="modal" data-bs-target="#modal-rename-file">
                                                                                     Đổi tên
                                                                                 </button>
-																				<button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-file">
+                                                                                <button asp-area="Admin" asp-controller="Gallery" asp-action="DeleteFile" asp-route-id="@file.Id"
+                                                                                        class="dropdown-item text-danger command-modal-delete" data-bs-toggle="modal" data-bs-target="#modal-delete-file">
                                                                                     Xóa
                                                                                 </button>
                                                                             </div>
@@ -227,7 +231,7 @@
                                         }
                                     </div>
                                 </div>
-                                
+
                                 <!-- List View -->
                                 <div class="tab-pane" id="tabs-list">
                                     <!-- Folders in current directory -->
@@ -262,19 +266,21 @@
                                                                 </td>
                                                                 <td>
                                                                     <div class="dropdown">
-                                                                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        <button class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
                                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                                                 <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                 <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                 <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                             </svg>
-                                                                        </a>
+                                                                        </button>
                                                                         <div class="dropdown-menu dropdown-menu-end">
-																			<button asp-area="Admin" asp-controller="Gallery" asp-action="EditFolder" asp-route-id="@folder.Id" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
+                                                                            <button asp-area="Admin" asp-controller="Gallery" asp-action="EditFolder" asp-route-id="@folder.Id"
+                                                                                    class="dropdown-item command-model-edit" data-bs-toggle="modal" data-bs-target="#modal-rename-folder">
                                                                                 Đổi tên
                                                                             </button>
-                                                                            <button href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-folder" data-folder-id="@folder.Id" data-folder-name="@folder.Name">
+                                                                            <button asp-area="Admin" asp-controller="Gallery" asp-action="DeleteFolder" asp-route-id="@folder.Id"
+                                                                                    class="dropdown-item text-danger command-modal-delete" data-bs-toggle="modal" data-bs-target="#modal-delete-folder">
                                                                                 Xóa
                                                                             </button>
                                                                         </div>
@@ -325,7 +331,7 @@
                                                             <tr>
                                                                 <td>
                                                                     <div class="d-flex align-items-center">
-																		<span class="avatar me-2" style="background-image: url('@file.Url')"></span>
+                                                                        <span class="avatar me-2" style="background-image: url('@file.Url')"></span>
                                                                         <div>
                                                                             <a href="@file.Url" target="_blank" class="text-reset">@file.Name</a>
                                                                         </div>
@@ -339,14 +345,14 @@
                                                                 </td>
                                                                 <td>
                                                                     <div class="dropdown">
-                                                                        <a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        <button class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
                                                                             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-dots-vertical" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                                                                                 <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                                                                                 <path d="M12 12m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                 <path d="M12 19m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                                 <path d="M12 5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
                                                                             </svg>
-                                                                        </a>
+                                                                        </button>
                                                                         <div class="dropdown-menu dropdown-menu-end">
                                                                             <a href="@file.Url" class="dropdown-item" target="_blank">
                                                                                 Xem
@@ -354,15 +360,17 @@
                                                                             <a href="@file.Url" class="dropdown-item" download="@file.Name">
                                                                                 Tải xuống
                                                                             </a>
-                                                                            <a href="#" class="dropdown-item" onclick="copyToClipboard('@file.Url'); return false;">
+                                                                            <button class="dropdown-item" onclick="copyToClipboard('@file.Url'); return false;">
                                                                                 Sao chép URL
-                                                                            </a>
-                                                                            <a href="#" class="dropdown-item" data-bs-toggle="modal" data-bs-target="#modal-rename-file" data-file-id="@file.Id" data-file-name="@file.Name">
+                                                                            </button>
+                                                                            <button asp-area="Admin" asp-controller="Gallery" asp-action="EditFile" asp-route-id="@file.Id"
+                                                                                    class="dropdown-item command-modal-edit" data-bs-toggle="modal" data-bs-target="#modal-rename-file">
                                                                                 Đổi tên
-                                                                            </a>
-                                                                            <a href="#" class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#modal-delete-file" data-file-id="@file.Id" data-file-name="@file.Name">
+                                                                            </button>
+                                                                            <button asp-area="Admin" asp-controller="Gallery" asp-action="DeleteFile" asp-route-id="@file.Id"
+                                                                                    class="dropdown-item text-danger command-modal-delete" data-bs-toggle="modal" data-bs-target="#modal-delete-file">
                                                                                 Xóa
-                                                                            </a>
+                                                                            </button>
                                                                         </div>
                                                                     </div>
                                                                 </td>
@@ -376,11 +384,11 @@
                                 </div>
                             </div>
                         </div>
-					</div>
-				</div>
+                    </div>
+                </div>
 
-			</div>
-		</div>
-	</div>
+            </div>
+        </div>
+    </div>
 </div>
 

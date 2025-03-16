@@ -1,3 +1,5 @@
+@model web.Areas.Admin.Requests.Gallery.FolderDeleteRequest
+
 <div class="modal modal-blur fade" id="modal-delete-folder" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -7,17 +9,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <p class="text-danger">Bạn có chắc chắn muốn xóa thư mục "<span id="delete-folder-name"></span>"?</p>
-                        <p>Tất cả các tệp và thư mục con sẽ bị xóa. Hành động này không thể hoàn tác.</p>
-                        <input type="hidden" id="delete-folder-id" name="id">
-                    </div>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id">
+                    <p class="text-danger">Bạn có chắc chắn muốn xóa thư mục "@Model.Name"?</p>
+                    <p>Tất cả các tệp và thư mục con sẽ bị xóa. Hành động này không thể hoàn tác.</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                        Hủy
-                    </button>
-                    <button type="submit" class="btn btn-danger ms-auto">
+                    <button class="btn btn-link link-secondary command-modal-close">Hủy</button>
+                    <button type="button" class="btn btn-danger command-submit ms-auto">
                         Xóa thư mục
                     </button>
                 </div>

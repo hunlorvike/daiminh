@@ -1,3 +1,5 @@
+@model web.Areas.Admin.Requests.Gallery.FileDeleteRequest
+
 <div class="modal modal-blur fade" id="modal-delete-file" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -7,17 +9,14 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <div class="mb-3">
-                        <p class="text-danger">Bạn có chắc chắn muốn xóa tệp "<span id="delete-file-name"></span>"?</p>
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id">
+                        <p class="text-danger">Bạn có chắc chắn muốn xóa tệp "@Model.Name"?</p>
                         <p>Hành động này không thể hoàn tác.</p>
-                        <input type="hidden" id="delete-file-id" name="id">
-                    </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-                        Hủy
-                    </button>
-                    <button type="submit" class="btn btn-danger ms-auto">
+                    <button class="btn btn-link link-secondary command-modal-close">Hủy</button>
+                    <button type="button" class="btn btn-danger command-submit ms-auto">
                         Xóa tệp
                     </button>
                 </div>
