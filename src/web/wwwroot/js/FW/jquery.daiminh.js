@@ -962,7 +962,7 @@ const jqueryDaiminh = (($, bootstrap) => {
             const modalHtml = `
                 <div class="modal fade" id="${settings.id}" tabindex="-1" aria-labelledby="${settings.id}Label" aria-hidden="true">
                     <div class="modal-dialog ${settings.size}">
-                        <div class="modal-content">
+                        <div class="modal-content border">
                             <div class="modal-header">
                                 <h5 class="modal-title" id="${settings.id}Label">${settings.title}</h5>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
