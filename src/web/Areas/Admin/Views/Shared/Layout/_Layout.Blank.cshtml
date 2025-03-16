@@ -20,11 +20,7 @@
 	@await RenderSectionAsync("HeadScripts", false)
 </head>
 <body class="@ViewData["BodyClass"]">
-	<div class="page">
-		<div class="page-wrapper">
-			@RenderBody()
-		</div>
-	</div>
+	@RenderBody()
 	<partial name="Components/Toast" />
 	<partial name="__LibScripts" />
 	@await RenderSectionAsync("FootScripts", false)
