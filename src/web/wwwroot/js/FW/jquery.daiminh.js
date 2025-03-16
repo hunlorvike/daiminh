@@ -44,7 +44,7 @@ const jqueryDaiminh = (($, bootstrap) => {
             modal: { backdrop: true, disableTimeout: 500 },
             notification: { duration: 3000, position: 'top-right' },
             logging: false,
-            i18n: { defaultLocale: 'en', fallbackLocale: 'en' },
+            i18n: { defaultLocale: 'vi', fallbackLocale: 'vi' },
         }, /**
          * Cập nhật cấu hình với các tùy chọn mới
          * @param {Object} newConfig - Cấu hình mới cần được áp dụng

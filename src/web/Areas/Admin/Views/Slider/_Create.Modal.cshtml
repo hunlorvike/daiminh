@@ -49,7 +49,7 @@
                     <div class="col-lg-12">
                         <div class="mb-3">
                             <label asp-for="OverlayPosition" class="form-label"></label>
-                            <select asp-for="OverlayPosition" class="form-control" asp-items="ViewBag.OverlayPositionList">                            
+                            <select asp-for="OverlayPosition" class="form-control" asp-items="Html.GetEnumSelectList<shared.Enums.OverlayPosition>()">                            
                                 <option value="">-- Chọn vị trí Overlay --</option>
                             </select>
                             <span asp-validation-for="OverlayPosition" class="text-danger"></span>
