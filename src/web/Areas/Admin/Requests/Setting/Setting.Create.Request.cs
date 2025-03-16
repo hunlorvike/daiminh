@@ -12,7 +12,7 @@ public class SettingCreateRequest
     /// Gets or sets the key of the setting.  This should be unique.
     /// </summary>
     /// <example>site_name</example>
-    [Display(Name = "Key", Prompt = "Nhập tên key")]
+    [Display(Name = "Khóa", Prompt = "Nhập khóa")]
     [Required(ErrorMessage = "Key là bắt buộc.")] //DataAnnotations
     public string? Key { get; set; }
 
@@ -28,7 +28,7 @@ public class SettingCreateRequest
     /// Gets or sets the group the setting belongs to.  This is used for organization.
     /// </summary>
     /// <example>General</example>
-    [Display(Name = "Nhóm", Prompt = "Nhập tên nhóm")]
+    [Display(Name = "Nhóm", Prompt = "Nhập nhóm")]
     [Required(ErrorMessage = "Nhóm là bắt buộc.")] //DataAnnotation
     public string Group { get; set; } = string.Empty;
 
@@ -43,7 +43,7 @@ public class SettingCreateRequest
     /// Gets or sets the display order of the setting within its group.
     /// </summary>
     /// <example>1</example>
-    [Display(Name = "Thứ tự hiển thị", Prompt = "Nhập thứ tự")]
+    [Display(Name = "Thứ tự", Prompt = "Nhập thứ tự")]
     [Required(ErrorMessage = "Thứ tự là bắt buộc.")]
     public int Order { get; set; }
 }

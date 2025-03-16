@@ -20,7 +20,7 @@ public class SliderUpdateRequest
     /// Gets or sets the updated title of the slider item.
     /// </summary>
     /// <example>New Slider Title</example>
-    [Display(Name = "Tiêu đề", Prompt = "Nhập tên tiêu đề")]
+    [Display(Name = "Tiêu đề", Prompt = "Nhập tiêu đề")]
     [Required(ErrorMessage = "Tiêu đề là bắt buộc.")]
     public string Title { get; set; } = string.Empty;
 
@@ -28,7 +28,7 @@ public class SliderUpdateRequest
     /// Gets or sets the updated URL of the image for the slider item.
     /// </summary>
     /// <example>https://example.com/images/new_slider.jpg</example>
-    [Display(Name = "Hình ảnh", Prompt = "Nhập đường dẫn hình ảnh")]
+    [Display(Name = "Hình ảnh", Prompt = "Nhập URL hình ảnh")]
     [Required(ErrorMessage = "Hình ảnh là bắt buộc.")]
     public string ImageUrl { get; set; } = string.Empty;
 
@@ -36,14 +36,14 @@ public class SliderUpdateRequest
     /// Gets or sets the updated optional URL to link to when the slider item is clicked.
     /// </summary>
     /// <example>https://example.com/new-products</example>
-    [Display(Name = "Đường dẫn liên kết", Prompt = "Nhập URL liên kết")]
+    [Display(Name = "Liên kết", Prompt = "Nhập URL liên kết")]
     public string? LinkUrl { get; set; }
 
     /// <summary>
     /// Gets or sets the updated display order of the slider item.
     /// </summary>
     /// <example>2</example>
-    [Display(Name = "Thứ tự hiển thị", Prompt = "Nhập thứ tự hiển thị")]
+    [Display(Name = "Thứ tự", Prompt = "Nhập thứ tự")]
     [Required(ErrorMessage = "Thứ tự là bắt buộc.")]
     public int Order { get; set; }
 
@@ -51,14 +51,14 @@ public class SliderUpdateRequest
     /// Gets or sets the updated optional HTML content to overlay on the slider item.
     /// </summary>
     /// <example><p>Updated content!</p></example>
-    [Display(Name = "Nội dung HTML overlay", Prompt = "Nhập nội dung HTML overlay")]
+    [Display(Name = "HTML Overlay", Prompt = "Nhập HTML (tùy chọn)")]
     public string? OverlayHtml { get; set; }
 
     /// <summary>
     /// Gets or sets the updated position of the overlay content.
     /// </summary>
     /// <example>BottomRight</example>
-    [Display(Name = "Vị trí overlay", Prompt = "Chọn vị trí overlay")]
+    [Display(Name = "Vị trí", Prompt = "Chọn vị trí")]
     public OverlayPosition? OverlayPosition { get; set; }
 }
 

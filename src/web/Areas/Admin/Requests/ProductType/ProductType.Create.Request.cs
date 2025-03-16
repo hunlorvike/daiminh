@@ -12,7 +12,7 @@ public class ProductTypeCreateRequest
     /// Gets or sets the name of the product type.
     /// </summary>
     /// <example>Laptop</example>
-    [Display(Name = "Tên loại sản phẩm", Prompt = "Nhập tên của loại sản phẩm")]
+    [Display(Name = "Tên loại sản phẩm", Prompt = "Nhập tên loại sản phẩm")]
     [Required(ErrorMessage = "Tên loại sản phẩm không được bỏ trống.")] //DataAnnotations
     public string? Name { get; set; }
 
@@ -20,7 +20,7 @@ public class ProductTypeCreateRequest
     /// Gets or sets the slug (URL-friendly name) of the product type.
     /// </summary>
     /// <example>laptop</example>
-    [Display(Name = "Đường dẫn loại sản phẩm", Prompt = "Nhập đường dẫn của loại sản phẩm")]
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
     [Required(ErrorMessage = "Đường dẫn loại sản phẩm không được bỏ trống.")] //DataAnnotations
     public string? Slug { get; set; }
 }

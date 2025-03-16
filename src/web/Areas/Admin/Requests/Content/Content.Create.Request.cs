@@ -14,14 +14,14 @@ public class ContentCreateRequest
     /// </summary>
     /// <example>1</example>
     [Required(ErrorMessage = "Loại nội dung là bắt buộc.")]
-    [Display(Name = "Loại nội dung")]
+    [Display(Name = "Loại nội dung", Prompt = "Chọn loại nội dung")]
     public int ContentTypeId { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the author (optional).
     /// </summary>
     /// <example>2</example>
-    [Display(Name = "Tác giả")]
+    [Display(Name = "Tác giả", Prompt = "Chọn tác giả")]
     public int? AuthorId { get; set; }
 
     /// <summary>
@@ -29,7 +29,7 @@ public class ContentCreateRequest
     /// </summary>
     /// <example>My Awesome Blog Post</example>
     [Required(ErrorMessage = "Tiêu đề là bắt buộc.")]
-    [Display(Name = "Tiêu đề")]
+    [Display(Name = "Tiêu đề", Prompt = "Nhập tiêu đề")]
     public string Title { get; set; } = string.Empty;
 
     /// <summary>
@@ -37,76 +37,76 @@ public class ContentCreateRequest
     /// </summary>
     /// <example>my-awesome-blog-post</example>
     [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
-    [Display(Name = "Đường dẫn")]
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
     public string Slug { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the body content of the content item.
     /// </summary>
     [Required(ErrorMessage = "Nội dung bài viết là bắt buộc.")]
-    [Display(Name = "Nội dung")]
+    [Display(Name = "Nội dung", Prompt = "Nhập nội dung")]
     public string ContentBody { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the URL of the cover image for the content item.
     /// </summary>
-    [Display(Name = "Ảnh bìa")]
+    [Display(Name = "Ảnh bìa", Prompt = "Nhập URL ảnh bìa")]
     public string? CoverImageUrl { get; set; }
 
     /// <summary>
     /// Gets or sets the publishing status of the content item.
     /// </summary>
     /// <example>Draft</example>
-    [Display(Name = "Trạng thái")]
+    [Display(Name = "Trạng thái", Prompt = "Chọn trạng thái")]
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
     /// <summary>
     /// Gets or sets the meta title for SEO.
     /// </summary>
     /// <example>My Awesome Blog Post - Best Blog Ever</example>
-    [Display(Name = "Meta Title")]
+    [Display(Name = "Tiêu đề SEO", Prompt = "Nhập tiêu đề SEO")]
     public string MetaTitle { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the meta description for SEO.
     /// </summary>
     /// <example>This is the best blog post ever written about...</example>
-    [Display(Name = "Meta Description")]
+    [Display(Name = "Mô tả SEO", Prompt = "Nhập mô tả SEO")]
     public string MetaDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the canonical URL for SEO.
     /// </summary>
     /// <example>https://example.com/my-awesome-blog-post</example>
-    [Display(Name = "Canonical URL")]
+    [Display(Name = "URL chuẩn", Prompt = "Nhập URL chuẩn")]
     public string CanonicalUrl { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the Open Graph title.
     /// </summary>
     /// <example>My Awesome Blog Post</example>
-    [Display(Name = "Open Graph Title")]
+    [Display(Name = "Tiêu đề OG", Prompt = "Nhập tiêu đề OG")]
     public string OgTitle { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the Open Graph description.
     /// </summary>
     /// <example>This is the best blog post ever written about...</example>
-    [Display(Name = "Open Graph Description")]
+    [Display(Name = "Mô tả OG", Prompt = "Nhập mô tả OG")]
     public string OgDescription { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the Open Graph image URL.
     /// </summary>
     /// <example>https://example.com/images/blog-post-image.jpg</example>
-    [Display(Name = "Open Graph Image")]
+    [Display(Name = "Ảnh OG", Prompt = "Nhập URL ảnh OG")]
     public string OgImage { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the structured data (e.g., JSON-LD) for SEO.
     /// </summary>
     /// <example>{ "@context": "https://schema.org", "@type": "BlogPosting", ... }</example>
-    [Display(Name = "Structured Data")]
+    [Display(Name = "Dữ liệu cấu trúc", Prompt = "Nhập dữ liệu cấu trúc")]
     public string? StructuredData { get; set; }
 }
 

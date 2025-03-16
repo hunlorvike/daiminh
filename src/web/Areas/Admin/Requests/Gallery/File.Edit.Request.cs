@@ -16,7 +16,7 @@ public class FileEditRequest
     /// <summary>
     /// Gets or sets the name of the file.  
     /// </summary>
-    [Display(Name = "Tên tệp", Prompt = "Nhập tên mới của tệp")]
+    [Display(Name = "Tên tệp", Prompt = "Nhập tên tệp")]
     [Required(ErrorMessage = "Tên tệp không được bỏ trống.")]
     public string? Name { get; set; }
 }

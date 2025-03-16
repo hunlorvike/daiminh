@@ -19,7 +19,7 @@ public class SettingUpdateRequest
     /// Gets or sets the key of the setting.  This should be unique.
     /// </summary>
     /// <example>site_name</example>
-    [Display(Name = "Key", Prompt = "Nhập tên key")]
+    [Display(Name = "Khóa", Prompt = "Nhập khóa")]
     [Required(ErrorMessage = "Key là bắt buộc.")] //DataAnnotations
     public string? Key { get; set; }
 
@@ -50,7 +50,7 @@ public class SettingUpdateRequest
     /// Gets or sets the display order of the setting within its group.
     /// </summary>
     /// <example>2</example>
-    [Display(Name = "Thứ tự hiển thị", Prompt = "Nhập thứ tự")]
+    [Display(Name = "Thứ tự", Prompt = "Nhập thứ tự")]
     [Required(ErrorMessage = "Thứ tự là bắt buộc.")]
     public int Order { get; set; }
 }

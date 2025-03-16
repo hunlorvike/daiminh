@@ -20,7 +20,7 @@ public class ProductFieldDefinitionCreateRequest
     /// Gets or sets the name of the field.
     /// </summary>
     /// <example>color</example>
-    [Display(Name = "Tên trường", Prompt = "Nhập tên của trường")]
+    [Display(Name = "Tên trường", Prompt = "Nhập tên trường")]
     [Required(ErrorMessage = "Tên trường là bắt buộc.")]
     public string? FieldName { get; set; }
 
@@ -28,7 +28,7 @@ public class ProductFieldDefinitionCreateRequest
     /// Gets or sets the data type of the field.
     /// </summary>
     /// <example>Text</example>
-    [Display(Name = "Kiểu trường", Prompt = "Chọn kiểu của trường")]
+    [Display(Name = "Loại trường", Prompt = "Chọn loại trường")]
     [Required(ErrorMessage = "Loại trường là bắt buộc.")]  //DataAnnotations for simplicity
     public FieldType? FieldType { get; set; }
 
@@ -36,14 +36,14 @@ public class ProductFieldDefinitionCreateRequest
     /// Gets or sets a value indicating whether the field is required.
     /// </summary>
     /// <example>false</example>
-    [Display(Name = "Bắt buộc", Prompt = "Trường này có bắt buộc không")]
+    [Display(Name = "Bắt buộc", Prompt = "Có / Không")]
     public bool IsRequired { get; set; }
 
     /// <summary>
     /// Gets or sets optional settings for the field (e.g., a JSON string with configuration).
     /// </summary>
     /// <example>{ "allowedValues": ["Red", "Green", "Blue"] }</example>
-    [Display(Name = "Tùy chọn trường", Prompt = "Nhập các tùy chọn cho trường (nếu có)")]
+    [Display(Name = "Tùy chọn", Prompt = "Nhập tùy chọn (JSON)")]
     public string? FieldOptions { get; set; }
 }
 

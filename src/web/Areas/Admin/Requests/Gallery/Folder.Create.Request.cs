@@ -11,7 +11,7 @@ public class FolderCreateRequest
     /// <summary>
     /// Gets or sets the name of the folder.
     /// </summary>
-    [Display(Name = "Tên thư mục", Prompt = "Nhập tên của thư mục")]
+    [Display(Name = "Tên thư mục", Prompt = "Nhập tên thư mục")]
     [Required(ErrorMessage = "Tên thư mục không được bỏ trống.")]
     public string? Name { get; set; }
 
@@ -23,8 +23,14 @@ public class FolderCreateRequest
 }
 
 
+/// <summary>
+/// Validator for <see cref="FolderCreateRequest"/>.
+/// </summary>
 public class FolderCreateRequestValidator : AbstractValidator<FolderCreateRequest>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FolderCreateRequestValidator"/> class.
+    /// </summary>
     public FolderCreateRequestValidator()
     {
         RuleFor(request => request.Name)

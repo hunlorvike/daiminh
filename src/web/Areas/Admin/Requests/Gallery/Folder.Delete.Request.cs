@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.Gallery;
 
+/// <summary>
+/// Represents a request to delete a folder.
+/// </summary>
 public class FolderDeleteRequest
 {
     /// <summary>

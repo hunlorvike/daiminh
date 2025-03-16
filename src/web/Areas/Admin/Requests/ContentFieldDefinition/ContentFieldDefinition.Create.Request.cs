@@ -13,14 +13,14 @@ public class ContentFieldDefinitionCreateRequest
     /// Gets or sets the ID of the content type this field belongs to.
     /// </summary>
     /// <example>1</example>
-    [Required(ErrorMessage = "ID loại nội dung là bắt buộc.")] // Use DataAnnotations for simple checks
+    [Required(ErrorMessage = "ID loại nội dung là bắt buộc.")]
     public int ContentTypeId { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the field.
     /// </summary>
     /// <example>short_description</example>
-    [Display(Name = "Tên trường", Prompt = "Nhập tên của trường")]
+    [Display(Name = "Tên trường", Prompt = "Nhập tên trường")]
     [Required(ErrorMessage = "Tên trường là bắt buộc.")]
     public string? FieldName { get; set; }
 
@@ -28,7 +28,7 @@ public class ContentFieldDefinitionCreateRequest
     /// Gets or sets the data type of the field.
     /// </summary>
     /// <example>Text</example>
-    [Display(Name = "Kiểu trường", Prompt = "Chọn kiểu của trường")]
+    [Display(Name = "Loại trường", Prompt = "Chọn loại trường")]
     [Required(ErrorMessage = "Loại trường là bắt buộc.")]
     public FieldType? FieldType { get; set; }
 
@@ -36,14 +36,14 @@ public class ContentFieldDefinitionCreateRequest
     /// Gets or sets a value indicating whether the field is required.
     /// </summary>
     /// <example>true</example>
-    [Display(Name = "Bắt buộc", Prompt = "Trường này có bắt buộc không")]
+    [Display(Name = "Bắt buộc", Prompt = "Có / Không")]
     public bool IsRequired { get; set; }
 
     /// <summary>
     /// Gets or sets optional settings for the field (e.g., a JSON string with configuration).
     /// </summary>
-    /// <example>{ "maxLength": 255, "allowedValues": ["option1", "option2"] }</example>
-    [Display(Name = "Tùy chọn trường", Prompt = "Nhập các tùy chọn cho trường (nếu có)")]
+    /// <example>{ "maxLength": 255, "allowedValues": ["option1","option2"] }</example>
+    [Display(Name = "Tùy chọn", Prompt = "Nhập tùy chọn (JSON)")]
     public string? FieldOptions { get; set; }
 }
 
@@ -70,3 +70,4 @@ public class ContentFieldDefinitionCreateRequestValidator : AbstractValidator<Co
             .IsInEnum().WithMessage("Kiểu trường không hợp lệ. Vui lòng chọn một kiểu trường từ danh sách."); // Combined checks
     }
 }
+

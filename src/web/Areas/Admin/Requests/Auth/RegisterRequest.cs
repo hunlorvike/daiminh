@@ -12,21 +12,21 @@ public class RegisterRequest
     /// Gets or sets the username.
     /// </summary>
     /// <example>johndoe</example>
-    [Display(Name = "Tài khoản", Prompt = "Nhập tài khoản của bạn")]
+    [Display(Name = "Tài khoản", Prompt = "Nhập tài khoản")]
     public string? Username { get; set; }
 
     /// <summary>
     /// Gets or sets the email address.
     /// </summary>
     /// <example>john.doe@example.com</example>
-    [Display(Name = "Địa chỉ email", Prompt = "Nhập email của bạn")]
+    [Display(Name = "Email", Prompt = "Nhập email")]
     public string? Email { get; set; }
 
     /// <summary>
     /// Gets or sets the password.
     /// </summary>
     /// <example>Password123!</example>
-    [Display(Name = "Mật khẩu", Prompt = "Nhập mật khẩu của bạn")]
+    [Display(Name = "Mật khẩu", Prompt = "Nhập mật khẩu")]
     public string? Password { get; set; }
 }
 

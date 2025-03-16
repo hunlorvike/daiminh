@@ -1,4 +1,3 @@
-// Example using FluentValidation (not strictly necessary, but good practice)
 using FluentValidation;
 
 namespace web.Areas.Admin.Requests.Category;

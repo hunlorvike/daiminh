@@ -18,21 +18,21 @@ public class CategoryUpdateRequest
     /// Gets or sets the updated name of the category.
     /// </summary>
     /// <example>Updated Electronics</example>
-    [Display(Name = "Tên danh mục", Prompt = "Nhập tên của danh mục")]
+    [Display(Name = "Tên danh mục", Prompt = "Nhập tên danh mục")]
     public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the updated slug (URL-friendly name) of the category.
     /// </summary>
     /// <example>updated-electronics</example>
-    [Display(Name = "Đường dẫn danh mục", Prompt = "Nhập đường dẫn của danh mục")]
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
     public string? Slug { get; set; }
 
     /// <summary>
     /// Gets or sets the ID of the parent category. Set to null to remove the parent category.
     /// </summary>
     /// <example>2</example>
-    [Display(Name = "ID danh mục cha", Prompt = "Nhập ID danh mục cha (Không chọn nếu không có)")]
+    [Display(Name = "Danh mục cha", Prompt = "Chọn danh mục cha")]
     public int? ParentCategoryId { get; set; }
 }
 

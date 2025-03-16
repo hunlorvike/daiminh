@@ -12,14 +12,14 @@ public class LoginRequest
     /// Gets or sets the username.
     /// </summary>
     /// <example>johndoe</example>
-    [Display(Name = "Tài khoản", Prompt = "Nhập tài khoản của bạn")]
+    [Display(Name = "Tài khoản", Prompt = "Nhập tài khoản")]
     public string? Username { get; set; }
 
     /// <summary>
     /// Gets or sets the password.
     /// </summary>
     /// <example>Password123!</example>
-    [Display(Name = "Mật khẩu", Prompt = "Nhập mật khẩu của bạn")]
+    [Display(Name = "Mật khẩu", Prompt = "Nhập mật khẩu")]
     [DataType(DataType.Password)]
     public string? Password { get; set; }
 }

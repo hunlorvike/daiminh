@@ -19,7 +19,7 @@ public class TagUpdateRequest
     /// Gets or sets the updated name of the tag.
     /// </summary>
     /// <example>Updated Technology</example>
-    [Display(Name = "Tên thẻ", Prompt = "Nhập tên của thẻ")]
+    [Display(Name = "Tên thẻ", Prompt = "Nhập tên thẻ")]
     [Required(ErrorMessage = "Tên thẻ là bắt buộc.")]
     public string Name { get; set; } = string.Empty;
 
@@ -27,7 +27,7 @@ public class TagUpdateRequest
     /// Gets or sets the updated slug (URL-friendly name) of the tag.
     /// </summary>
     /// <example>updated-technology</example>
-    [Display(Name = "Đường dẫn thẻ", Prompt = "Nhập đường dẫn của thẻ")] // Changed to "Đường dẫn thẻ"
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]  // Changed to "Đường dẫn thẻ"
     [Required(ErrorMessage = "Đường dẫn thẻ là bắt buộc.")] // Changed to "Đường dẫn thẻ"
     public string Slug { get; set; } = string.Empty;
 }

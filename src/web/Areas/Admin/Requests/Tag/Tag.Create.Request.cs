@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations;
+
 using FluentValidation;
+using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.Tag;
 
@@ -12,7 +13,7 @@ public class TagCreateRequest
     /// Gets or sets the name of the tag.
     /// </summary>
     /// <example>Technology</example>
-    [Display(Name = "Tên thẻ", Prompt = "Nhập tên của thẻ")]
+    [Display(Name = "Tên thẻ", Prompt = "Nhập tên thẻ")]
     [Required(ErrorMessage = "Tên thẻ là bắt buộc.")] //DataAnnotations
     public string Name { get; set; } = string.Empty;
 
@@ -20,7 +21,7 @@ public class TagCreateRequest
     /// Gets or sets the slug (URL-friendly name) of the tag.
     /// </summary>
     /// <example>technology</example>
-    [Display(Name = "Đường dẫn thẻ", Prompt = "Nhập đường dẫn của thẻ")]  // Changed to "Đường dẫn thẻ"
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]  // Changed to "Đường dẫn thẻ"
     [Required(ErrorMessage = "Đường dẫn thẻ là bắt buộc.")] //DataAnnotations, and changed to "Đường dẫn thẻ"
     public string Slug { get; set; } = string.Empty;
 }

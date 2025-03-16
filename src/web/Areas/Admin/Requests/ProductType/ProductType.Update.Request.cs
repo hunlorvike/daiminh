@@ -15,11 +15,11 @@ public class ProductTypeUpdateRequest
     [Required(ErrorMessage = "Id không được bỏ trống")]
     public int Id { get; set; }
 
-    /// <summary>
+    /// <summary
     /// Gets or sets the updated name of the product type.
     /// </summary>
     /// <example>Gaming Laptop</example>
-    [Display(Name = "Tên loại sản phẩm", Prompt = "Nhập tên của loại sản phẩm")]
+    [Display(Name = "Tên loại sản phẩm", Prompt = "Nhập tên loại sản phẩm")]
     [Required(ErrorMessage = "Tên loại sản phẩm không được bỏ trống.")]
     public string? Name { get; set; }
 
@@ -27,7 +27,7 @@ public class ProductTypeUpdateRequest
     /// Gets or sets the updated slug (URL-friendly name) of the product type.
     /// </summary>
     /// <example>gaming-laptop</example>
-    [Display(Name = "Đường dẫn loại sản phẩm", Prompt = "Nhập đường dẫn của loại sản phẩm")]
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
     [Required(ErrorMessage = "Đường dẫn loại sản phẩm không được bỏ trống.")]
     public string? Slug { get; set; }
 }

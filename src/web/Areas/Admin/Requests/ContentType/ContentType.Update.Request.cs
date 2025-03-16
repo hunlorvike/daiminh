@@ -19,16 +19,16 @@ public class ContentTypeUpdateRequest
     /// Gets or sets the updated name of the content type.
     /// </summary>
     /// <example>News Article</example>
-    [Display(Name = "Tên loại bài viết", Prompt = "Nhập tên của loại bài viết")]
-    [Required(ErrorMessage = "Tên loại bài viết không được bỏ trống.")]
+    [Display(Name = "Tên loại nội dung", Prompt = "Nhập tên loại nội dung")]
+    [Required(ErrorMessage = "Tên loại nội dung không được bỏ trống.")]
     public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the updated slug (URL-friendly name) of the content type.
     /// </summary>
     /// <example>news-article</example>
-    [Display(Name = "Đường dẫn bài viết", Prompt = "Nhập đường dẫn của loại bài viết")]
-    [Required(ErrorMessage = "Đường dẫn loại bài viết không được bỏ trống.")]
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
+    [Required(ErrorMessage = "Đường dẫn loại nội dung không được bỏ trống.")]
     public string? Slug { get; set; }
 }
 

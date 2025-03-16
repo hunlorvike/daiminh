@@ -3,6 +3,9 @@ using FluentValidation;
 
 namespace web.Areas.Admin.Requests.Gallery;
 
+/// <summary>
+/// Represents a request to rename a folder.
+/// </summary>
 public class FolderEditRequest
 {
     /// <summary>
@@ -14,13 +17,19 @@ public class FolderEditRequest
     /// <summary>
     /// Gets or sets the new name of the folder.
     /// </summary>
-    [Display(Name = "Tên thư mục", Prompt = "Nhập tên mới của thư mục")]
+    [Display(Name = "Tên thư mục", Prompt = "Nhập tên thư mục")]
     [Required(ErrorMessage = "Tên thư mục không được bỏ trống.")]
     public string? Name { get; set; }
 }
 
+/// <summary>
+/// Validator for <see cref="FolderEditRequest"/>.
+/// </summary>
 public class FolderEditRequestValidator : AbstractValidator<FolderEditRequest>
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FolderEditRequestValidator"/> class.
+    /// </summary>
     public FolderEditRequestValidator()
     {
         RuleFor(request => request.Id)

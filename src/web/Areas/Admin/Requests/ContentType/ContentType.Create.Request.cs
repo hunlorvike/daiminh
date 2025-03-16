@@ -12,16 +12,16 @@ public class ContentTypeCreateRequest
     /// Gets or sets the name of the content type.
     /// </summary>
     /// <example>Blog Post</example>
-    [Display(Name = "Tên loại bài viết", Prompt = "Nhập tên của loại bài viết")]
-    [Required(ErrorMessage = "Tên loại bài viết không được bỏ trống.")] // Use DataAnnotations
+    [Display(Name = "Tên loại nội dung", Prompt = "Nhập tên loại nội dung")]
+    [Required(ErrorMessage = "Tên loại nội dung không được bỏ trống.")] // Use DataAnnotations
     public string? Name { get; set; }
 
     /// <summary>
     /// Gets or sets the slug (URL-friendly name) of the content type.
     /// </summary>
     /// <example>blog-post</example>
-    [Display(Name = "Đường dẫn bài viết", Prompt = "Nhập đường dẫn của loại bài viết")]
-    [Required(ErrorMessage = "Đường dẫn loại bài viết không được bỏ trống.")] // Use DataAnnotations
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
+    [Required(ErrorMessage = "Đường dẫn loại nội dung không được bỏ trống.")] // Use DataAnnotations
     public string? Slug { get; set; }
 }
 

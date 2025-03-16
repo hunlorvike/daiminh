@@ -27,7 +27,7 @@ public class ProductFieldDefinitionUpdateRequest
     /// Gets or sets the updated name of the field.
     /// </summary>
     /// <example>new_field_name</example>
-    [Display(Name = "Tên trường", Prompt = "Nhập tên của trường")]
+    [Display(Name = "Tên trường", Prompt = "Nhập tên trường")]
     [Required(ErrorMessage = "Tên trường là bắt buộc.")]
     public string? FieldName { get; set; }
 
@@ -35,7 +35,7 @@ public class ProductFieldDefinitionUpdateRequest
     /// Gets or sets the updated data type of the field.
     /// </summary>
     /// <example>Number</example>
-    [Display(Name = "Kiểu trường", Prompt = "Chọn kiểu của trường")]
+    [Display(Name = "Loại trường", Prompt = "Chọn loại trường")]
     [Required(ErrorMessage = "Loại trường là bắt buộc.")]
     public FieldType? FieldType { get; set; }
 
@@ -43,14 +43,14 @@ public class ProductFieldDefinitionUpdateRequest
     /// Gets or sets a value indicating whether the field is required.
     /// </summary>
     /// <example>true</example>
-    [Display(Name = "Bắt buộc", Prompt = "Trường này có bắt buộc không")]
+    [Display(Name = "Bắt buộc", Prompt = "Có / Không")]
     public bool IsRequired { get; set; }
 
     /// <summary>
     /// Gets or sets updated optional settings for the field.
     /// </summary>
     /// <example>{ "maxLength": 10 }</example>
-    [Display(Name = "Tùy chọn trường", Prompt = "Nhập các tùy chọn cho trường (nếu có)")]
+    [Display(Name = "Tùy chọn", Prompt = "Nhập tùy chọn (JSON)")]
     public string? FieldOptions { get; set; }
 }
 
