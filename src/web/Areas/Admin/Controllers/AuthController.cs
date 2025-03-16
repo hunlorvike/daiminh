@@ -146,6 +146,8 @@ public partial class AuthController
         }
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
     public async Task<IActionResult> Logout()
     {
