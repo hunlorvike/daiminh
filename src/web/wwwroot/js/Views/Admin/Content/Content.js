@@ -1,5 +1,5 @@
 $(document).ready(function () {
-    $(document).on('shown.bs.modal', '#create-content--modal', function (e) {
+    $(document).on('shown.bs.modal', '#create-content--modal, #edit-content--modal', function (e) {
         let options = {
             lang: 'vi-VN',
             placeholder: 'Nhập nội dung bài viết',
