@@ -19,10 +19,6 @@
       "destination": "wwwroot/lib/swiper"
     },
     {
-      "library": "tinymce-all-in-one@4.9.5",
-      "destination": "wwwroot/lib/tinymce-all-in-one"
-    },
-    {
       "library": "bootstrap@5.3.3",
       "destination": "wwwroot/lib/bootstrap"
     },
@@ -41,6 +37,10 @@
     {
       "library": "datatables.net@2.2.2",
       "destination": "wwwroot/lib/datatables"
+    },
+    {
+      "library": "summernote@0.9.1",
+      "destination": "wwwroot/lib/summernote/"
     }
   ]
 }
