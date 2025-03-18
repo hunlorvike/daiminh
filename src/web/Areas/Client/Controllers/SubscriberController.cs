@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
+using web.Areas.Client.Models.Home;
 using web.Areas.Client.Requests.Subscriber;
 
 namespace web.Areas.Client.Controllers;
@@ -22,15 +23,15 @@ public partial class SubscriberController
 {
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(SubscriberCreateRequest model)
+    public async Task<IActionResult> Create(HomeViewModel model)
     {
         var validator = GetValidator<SubscriberCreateRequest>();
-        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        var result = await this.ValidateAndReturnBadRequest(validator, model.Subscriber);
         if (result != null) return result;
 
         try
         {
-            var newSubscriber = _mapper.Map<Subscriber>(model);
+            var newSubscriber = _mapper.Map<Subscriber>(model.Subscriber);
             var response = await subscriberService.AddAsync(newSubscriber);
             switch (response)
             {

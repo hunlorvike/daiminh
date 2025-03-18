@@ -1,4 +1,5 @@
-@model web.Areas.Client.Requests.Subscriber.SubscriberCreateRequest
+@* @model web.Areas.Client.Requests.Subscriber.SubscriberCreateRequest *@
+@model web.Areas.Client.Models.Home.HomeViewModel
 
 <footer class="footer bg-transparent d-print-none py-4">
     <div class="container-xl">
@@ -150,13 +151,13 @@
                 <form class="mb-3" asp-area="Client" asp-controller="Subscriber" asp-action="Create" method="post">
                     <div class="input-group mb-3">
                         @Html.AntiForgeryToken()
-                        <input asp-for="Email" class="form-control border-primary">
+                        <input asp-for="Subscriber.Email" class="form-control border-primary">
                         <button class="btn btn-primary command-submit" type="button">
                             GỬI
                         </button>
                     </div>
-                    <span asp-validation-for="Email" class="text-danger"></span>
-                </form>
+                    <span asp-validation-for="Subscriber.Email" class="text-danger"></span>
+                </form>              
                 <!-- Social Media Icons -->
                 <div class="d-flex gap-2">
                     <a href="#" class="btn btn-icon btn-outline-facebook">
