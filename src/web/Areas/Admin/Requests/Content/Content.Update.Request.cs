@@ -32,6 +32,18 @@ public class ContentUpdateRequest
     public int? AuthorId { get; set; }
 
     /// <summary>
+    /// Gets or set the CategoryIds 
+    /// </summary>
+    [Display(Name = "Danh mục", Prompt = "Chọn danh mục")]
+    public List<int>? CategoryIds { get; set; } = [];
+
+    /// <summary>
+    /// Gets or set the TagIds 
+    /// </summary>
+    [Display(Name = "Thẻ", Prompt = "Chọn thẻ")]
+    public List<int>? TagIds { get; set; } = [];
+
+    /// <summary>
     /// Gets or sets the updated title of the content item.
     /// </summary>
     /// <example>Updated Blog Post Title</example>
@@ -66,7 +78,6 @@ public class ContentUpdateRequest
     /// <example>Draft</example>
     [Display(Name = "Trạng thái", Prompt = "Chọn trạng thái")]
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
-
 
     /// <summary>
     /// Gets or sets the updated meta title for SEO.
@@ -133,6 +144,12 @@ public class ContentUpdateRequestValidator : AbstractValidator<ContentUpdateRequ
 
         RuleFor(request => request.ContentTypeId)
             .GreaterThan(0).WithMessage("ID loại nội dung phải là một số nguyên dương.");
+
+        RuleForEach(x => x.CategoryIds)
+            .GreaterThan(0).WithMessage("ID danh mục phải là một số nguyên dương.");
+
+        RuleForEach(x => x.TagIds)
+            .GreaterThan(0).WithMessage("ID thẻ phải là một số nguyên dương.");
 
         RuleFor(request => request.AuthorId)
            .GreaterThan(0).When(x => x.AuthorId.HasValue).WithMessage("ID tác giả phải là một số nguyên dương.");

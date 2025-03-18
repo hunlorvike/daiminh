@@ -10,6 +10,8 @@ public class ContentViewModel
 
     [DisplayName("Tác giả")]
     public string? AuthorName { get; set; }
+    public List<int> CategoryIds { get; set; } = new List<int>();
+    public List<int> TagIds { get; set; } = new List<int>();
 
     [DisplayName("Tiêu đề")]
     public string? Title { get; set; }

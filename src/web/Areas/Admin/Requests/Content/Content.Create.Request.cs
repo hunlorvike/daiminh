@@ -25,6 +25,18 @@ public class ContentCreateRequest
     public int? AuthorId { get; set; }
 
     /// <summary>
+    /// Gets or set the CategoryIds 
+    /// </summary>
+    [Display(Name = "Danh mục", Prompt = "Chọn danh mục")]
+    public List<int>? CategoryIds { get; set; } = [];
+
+    /// <summary>
+    /// Gets or set the TagIds 
+    /// </summary>
+    [Display(Name = "Thẻ", Prompt = "Chọn thẻ")]
+    public List<int>? TagIds { get; set; } = [];
+
+    /// <summary>
     /// Gets or sets the title of the content item.
     /// </summary>
     /// <example>My Awesome Blog Post</example>
@@ -125,6 +137,12 @@ public class ContentCreateRequestValidator : AbstractValidator<ContentCreateRequ
 
         RuleFor(request => request.AuthorId)
            .GreaterThan(0).When(x => x.AuthorId.HasValue).WithMessage("ID tác giả phải là một số nguyên dương.");
+
+        RuleForEach(x => x.CategoryIds)
+            .GreaterThan(0).WithMessage("ID danh mục phải là một số nguyên dương.");
+
+        RuleForEach(x => x.TagIds)
+            .GreaterThan(0).WithMessage("ID thẻ phải là một số nguyên dương.");
 
         RuleFor(request => request.Title)
             .NotEmpty().WithMessage("Tiêu đề không được bỏ trống.")

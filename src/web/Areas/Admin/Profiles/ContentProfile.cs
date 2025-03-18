@@ -11,10 +11,20 @@ public class ContentProfile : Profile
     {
         CreateMap<Content, ContentViewModel>()
             .ForMember(dest => dest.ContentTypeName, opt => opt.MapFrom(src => src.ContentType!.Name))
-            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Username));
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Username))
+            .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.ContentCategories != null ? src.ContentCategories.Select(cc => cc.CategoryId).ToList() : new List<int>()))
+            .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src => src.ContentTags != null ? src.ContentTags.Select(ct => ct.TagId).ToList() : new List<int>()));
+
         CreateMap<ContentCreateRequest, Content>();
-        CreateMap<ContentUpdateRequest, Content>();
-        CreateMap<Content, ContentUpdateRequest>();
+
+        CreateMap<ContentUpdateRequest, Content>()
+            .ForMember(dest => dest.ContentCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.ContentTags, opt => opt.Ignore());
+
+        CreateMap<Content, ContentUpdateRequest>()
+            .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src => src.ContentCategories != null ? src.ContentCategories.Select(cc => cc.CategoryId).ToList() : new List<int>()))
+            .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src => src.ContentTags != null ? src.ContentTags.Select(ct => ct.TagId).ToList() : new List<int>()));
+
         CreateMap<Content, ContentDeleteRequest>();
     }
 }

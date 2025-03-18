@@ -19,6 +19,8 @@ namespace web.Areas.Admin.Controllers;
 public partial class ContentController(
     IContentService contentService,
     IContentTypeService contentTypeService,
+    ITagService tagService,
+    ICategoryService categoryService,
     IUserService userService,
     IMapper mapper,
     IServiceProvider serviceProvider,
@@ -41,6 +43,12 @@ public partial class ContentController(
         var authors = await userService.GetAllAsync();
         ViewBag.Authors = new SelectList(authors, "Id", "Username");
 
+        var tags = await tagService.GetAllAsync();
+        ViewBag.Tags = new MultiSelectList(tags, "Id", "Name");
+
+        var categories = await categoryService.GetAllAsync();
+        ViewBag.Categories = new MultiSelectList(categories, "Id", "Name");
+
         return PartialView("_Create.Modal", new ContentCreateRequest());
     }
 
@@ -55,7 +63,15 @@ public partial class ContentController(
 
         var authors = await userService.GetAllAsync();
         ViewBag.Authors = new SelectList(authors, "Id", "Username", response.AuthorId);
+
+        var tags = await tagService.GetAllAsync();
+        ViewBag.Tags = new MultiSelectList(tags, "Id", "Name", response.ContentTags?.Select(ct => ct.TagId).ToList());
+
+        var categories = await categoryService.GetAllAsync();
+        ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", response.ContentCategories?.Select(ct => ct.CategoryId).ToList());
+
         var request = _mapper.Map<ContentUpdateRequest>(response);
+
         return PartialView("_Edit.Modal", request);
     }
 
@@ -79,6 +95,26 @@ public partial class ContentController(
         try
         {
             var newContent = _mapper.Map<Content>(model);
+
+
+            if (model.CategoryIds != null && model.CategoryIds.Count != 0)
+            {
+                newContent.ContentCategories = [.. model.CategoryIds.Select(categoryId =>
+                    new ContentCategory
+                    {
+                        CategoryId = categoryId
+                    })];
+            }
+
+            if (model.TagIds != null && model.TagIds.Count != 0)
+            {
+                newContent.ContentTags = [.. model.TagIds.Select(tagId =>
+                    new ContentTag
+                    {
+                        TagId = tagId
+                    })];
+            }
+
             var response = await contentService.AddAsync(newContent);
 
             switch (response)
@@ -121,12 +157,54 @@ public partial class ContentController(
         if (result != null) return result;
         try
         {
-            var content = await contentService.GetByIdAsync(model.Id);
-            if (content == null) return NotFound();
+            var existingContent = await contentService.GetByIdAsync(model.Id);
+            if (existingContent == null) return NotFound();
 
-            _mapper.Map(model, content);
+            _mapper.Map(model, existingContent);
 
-            var response = await contentService.UpdateAsync(model.Id, content);
+            if (existingContent.ContentCategories != null)
+            {
+                existingContent.ContentCategories.Clear();
+            }
+            else
+            {
+                existingContent.ContentCategories = new List<ContentCategory>();
+            }
+
+            if (model.CategoryIds != null && model.CategoryIds.Any())
+            {
+                foreach (var categoryId in model.CategoryIds)
+                {
+                    existingContent.ContentCategories.Add(new ContentCategory
+                    {
+                        ContentId = model.Id,
+                        CategoryId = categoryId
+                    });
+                }
+            }
+
+            if (existingContent.ContentTags != null)
+            {
+                existingContent.ContentTags.Clear();
+            }
+            else
+            {
+                existingContent.ContentTags = new List<ContentTag>();
+            }
+
+            if (model.TagIds != null && model.TagIds.Any())
+            {
+                foreach (var tagId in model.TagIds)
+                {
+                    existingContent.ContentTags.Add(new ContentTag
+                    {
+                        ContentId = model.Id,
+                        TagId = tagId
+                    });
+                }
+            }
+
+            var response = await contentService.UpdateAsync(model.Id, existingContent);
 
             switch (response)
             {
