@@ -1,3 +1,4 @@
+@model web.Areas.Client.Models.Home.HomeViewModel
 @{
     ViewBag.Title = "Tin tức & Bài viết";
 }
@@ -103,7 +104,7 @@
 
 <div class="page-body">
     <div class="container-xl">
-        <!-- Featured Article -->
+        <!-- Featured Content -->
         <div class="card mb-4">
             <div class="card-body p-0">
                 <div class="row g-0">
@@ -115,17 +116,14 @@
                         <div class="card-body">
                             <div class="badge bg-primary mb-2">Nổi bật</div>
                             <h2 class="card-title mb-3">
-                                <a href="#" class="text-reset">Xu hướng màu sắc cho năm 2024: Sự kết hợp giữa hiện đại
-                                    và tự nhiên</a>
+                                <a href="@Url.Action("Details", "Content", new { id = @Model.LatestContent.Id, area = "Client" })" class="text-reset">@Model.LatestContent.Title</a>
                             </h2>
-                            <p class="card-text">Khám phá những xu hướng màu sắc mới nhất cho năm 2024, từ những gam màu
-                                trung tính đến những tông màu táo bạo, giúp không gian sống của bạn trở nên độc đáo và
-                                phong cách hơn.</p>
+                            <p class="card-text">@Model.LatestContent.MetaDescription</p>
                             <div class="d-flex align-items-center mt-4">
                                 <span class="avatar avatar-sm me-2"
                                       style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
                                 <div class="me-auto">
-                                    <a href="#" class="text-reset">Nguyễn Văn A</a>
+                                    <a href="#" class="text-reset">@Model.LatestContent.AuthorName</a>
                                     <div class="text-muted">15/01/2024 · 5 phút đọc</div>
                                 </div>
                                 <a href="#" class="btn btn-primary">Đọc tiếp</a>
@@ -138,27 +136,30 @@
 
         <!-- Articles Grid -->
         <div class="row row-cards">
-            @for (var i = 1; i <= 9; i++)
+            @foreach (var content in Model.Contents)
             {
                 <div class="col-md-6 col-lg-4">
                     <div class="card">
                         <div class="img-responsive img-responsive-21x9 card-img-top"
-                             style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></div>
+                             style="background-image: url('@Url.Content(content.CoverImageUrl ?? "~/img/placeholder.svg")')">
+                         </div>
                         <div class="card-body">
                             <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-purple-lt me-2">Hướng dẫn</span>
-                                <div class="text-muted">15/01/2024</div>
+                                <span class="badge bg-purple-lt me-2">@content.ContentTypeName</span>
+                                <div class="text-muted">@content.CreatedAt?.ToString("dd/MM/yyyy")</div>
                             </div>
                             <h3 class="card-title mb-3">
-                                <a href="#" class="text-reset">Cách chọn sơn phù hợp cho từng không gian trong nhà</a>
+                                <a href="@Url.Action("Details", "Content", new { id = content.Id, area = "Client" })" class="text-reset">
+                                    @content.Title
+                                </a>
                             </h3>
-                            <p class="text-muted">Hướng dẫn chi tiết giúp bạn lựa chọn đúng loại sơn cho từng không
-                                gian, đảm bảo độ bền và tính thẩm mỹ cao.</p>
+                            <p class="text-muted">@content.MetaDescription</p>
                             <div class="d-flex align-items-center mt-4">
                                 <span class="avatar avatar-sm me-2"
-                                      style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
+                                      style="background-image: url('@Url.Content("~/img/avatar-placeholder.png")')">
+                                </span>
                                 <div>
-                                    <a href="#" class="text-reset">Nguyễn Văn A</a>
+                                    <a href="#" class="text-reset">@content.AuthorName</a>
                                     <div class="text-muted">5 phút đọc</div>
                                 </div>
                             </div>
@@ -192,13 +193,70 @@
                     </div>
                 </div>
             }
+           
+@*             @for (var i = 1; i <= 9; i++)
+            {
+            <div class="col-md-6 col-lg-4">
+                <div class="card">
+                    <div class="img-responsive img-responsive-21x9 card-img-top"
+                            style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></div>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <span class="badge bg-purple-lt me-2">Hướng dẫn</span>
+                            <div class="text-muted">15/01/2024</div>
+                        </div>
+                        <h3 class="card-title mb-3">
+                            <a href="#" class="text-reset">Cách chọn sơn phù hợp cho từng không gian trong nhà</a>
+                        </h3>
+                        <p class="text-muted">
+                            Hướng dẫn chi tiết giúp bạn lựa chọn đúng loại sơn cho từng không
+                            gian, đảm bảo độ bền và tính thẩm mỹ cao.
+                        </p>
+                        <div class="d-flex align-items-center mt-4">
+                            <span class="avatar avatar-sm me-2"
+                                    style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
+                            <div>
+                                <a href="#" class="text-reset">Nguyễn Văn A</a>
+                                <div class="text-muted">5 phút đọc</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex align-items-center">
+                            <div class="d-flex align-items-center me-auto">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
+                                </svg>
+                                <span class="text-muted">28</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted me-2" width="24"
+                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
+                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1"></path>
+                                    <path d="M12 12l0 .01"></path>
+                                    <path d="M8 12l0 .01"></path>
+                                    <path d="M16 12l0 .01"></path>
+                                </svg>
+                                <span class="text-muted">12</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            } *@
+        
         </div>
 
         <!-- Categories -->
         <div class="my-5">
             <h2 class="mb-4">Khám phá theo chủ đề</h2>
             <div class="row g-3">
-                @foreach (var category in new[] { "Hướng dẫn", "Tin tức", "Mẹo vặt", "Xu hướng" })
+                @foreach (var contentType in Model.ContentTypes)
                 {
                     <div class="col-sm-6 col-lg-3">
                         <div class="card card-sm">
@@ -216,7 +274,7 @@
                                         </span>
                                     </div>
                                     <div class="col">
-                                        <div class="font-weight-medium">@category</div>
+                                        <div class="font-weight-medium">@contentType.Name</div>
                                         <div class="text-muted">12 bài viết</div>
                                     </div>
                                 </div>
