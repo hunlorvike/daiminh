@@ -11,7 +11,7 @@ public class ProductFieldDefinition : BaseEntity<int>
     public string FieldName { get; set; } = string.Empty;
     public FieldType FieldType { get; set; } = FieldType.Text;
     public bool IsRequired { get; set; }
-    public string FieldOptions { get; set; } = string.Empty;
+    public string? FieldOptions { get; set; }
 
     // Navigation properties
     public virtual ProductType? ProductType { get; set; }
