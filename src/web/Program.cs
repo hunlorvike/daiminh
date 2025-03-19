@@ -38,6 +38,16 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
 
 #endregion
 
+#region Redis Configuration
+
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration["Redis:DefaultConnection"]; ;
+    options.InstanceName = "DaiMinhCache_";
+});
+
+#endregion
+
 #region MVC and Validation
 
 // Add services to the container.
