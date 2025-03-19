@@ -44,6 +44,11 @@ public class ContentUpdateRequest
     public List<int>? TagIds { get; set; } = [];
 
     /// <summary>
+    /// Gets or sets the field values for the content item.
+    /// </summary>
+    public Dictionary<int, string> FieldValues { get; set; } = new();
+
+    /// <summary>
     /// Gets or sets the updated title of the content item.
     /// </summary>
     /// <example>Updated Blog Post Title</example>

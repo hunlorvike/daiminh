@@ -1,12 +1,13 @@
 :root {
-    font-family: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
     --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+    --bs-body-bg: var(--tblr-body-bg);
+    font-family: var(--tblr-font-sans-serif);
 }
 
 @supports (font-variation-settings: normal) {
-    :root {
-        font-family: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+    : root {
         --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
+        font-family: var(--tblr-font-sans-serif);
     }
 }
 
@@ -14,9 +15,9 @@
     transition: all 0.3s ease;
 }
 
-.product-card:hover {
-    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
+    .product-card:hover {
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
 
 .product-actions {
     position: absolute;

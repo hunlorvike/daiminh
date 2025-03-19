@@ -40,5 +40,109 @@
 </div>
 
 @section FootScripts {
-	<script src="~/js/Views/Admin/Content/Content.js"></script>
-}	
+	<script>
+		$(document).ready(function () {
+			$(document).on('shown.bs.modal', '#create-content--modal, #edit-content--modal', function (e) {
+				let optionsSummernote = {
+					lang: 'vi-VN',
+					placeholder: 'Nhập nội dung bài viết',
+					tabsize: 2,
+					height: 300,
+					minHeight: 200,
+					maxHeight: 500
+				};
+				$('#ContentBody').summernote(optionsSummernote);
+
+				new TomSelect('#categoriesSelect', {
+					plugins: ['remove_button'],
+					placeholder: 'Select categories'
+				});
+
+				new TomSelect('#tagsSelect', {
+					plugins: ['remove_button'],
+					placeholder: 'Select tags'
+				});
+
+				$('#contentTypeSelect').on('change', function () {
+					var contentTypeId = $(this).val();
+					if (!contentTypeId) {
+						$('#dynamicFieldsCard').hide();
+						return;
+					}
+
+					$.ajax({
+						url: '@Url.Action("GetContentTypeFields", "Content", new { area = "Admin" })',
+						type: 'GET',
+						data: { contentTypeId: contentTypeId },
+						success: function (fields) {
+							if (fields && fields.length > 0) {
+								var fieldsHtml = '';
+
+								fields.forEach(function (field) {
+									fieldsHtml += '<div class="mb-3">';
+									fieldsHtml += '<label class="form-label">' + field.fieldName + (field.isRequired ? ' *' : '') + '</label>';
+
+									switch (parseInt(field.fieldType)) {
+										case @((int)FieldType.Text):
+											fieldsHtml += '<input type="text" class="form-control" name="FieldValues[' + field.id + ']" ' + (field.isRequired ? 'required' : '') + '>';
+											break;
+
+										case @((int)FieldType.Number):
+											fieldsHtml += '<input type="number" class="form-control" name="FieldValues[' + field.id + ']" ' + (field.isRequired ? 'required' : '') + '>';
+											break;
+
+										case @((int)FieldType.Date):
+											fieldsHtml += '<input type="date" class="form-control" name="FieldValues[' + field.id + ']" ' + (field.isRequired ? 'required' : '') + '>';
+											break;
+
+										case @((int)FieldType.Select):
+											fieldsHtml += '<select class="form-select" name="FieldValues[' + field.id + ']" ' + (field.isRequired ? 'required' : '') + '>';
+											fieldsHtml += '<option value="">-- Select Option --</option>';
+
+											if (field.fieldOptions) {
+												try {
+													var options = JSON.parse(field.fieldOptions);
+													options.forEach(function (option) {
+														fieldsHtml += '<option value="' + option.value + '">' + option.label + '</option>';
+													});
+												} catch (e) {
+													console.error('Error parsing field options:', e);
+												}
+											}
+
+											fieldsHtml += '</select>';
+											break;
+									}
+									fieldsHtml += '</div>';
+								});
+
+								$('#dynamicFieldsContainer').html(fieldsHtml);
+
+								initializeSpecialEditors();
+
+								$('#dynamicFieldsCard').show();
+							} else {
+								$('#dynamicFieldsCard').hide();
+							}
+						},
+						error: function (error) {
+							console.error('Error loading content type fields:', error);
+							$('#dynamicFieldsCard').hide();
+						}
+					});
+				});
+
+				function initializeSpecialEditors() {
+					$('.form-select[multiple]').each(function () {
+						if (!$(this).hasClass('tomselected')) {
+							new TomSelect(this, {
+								plugins: ['remove_button'],
+								placeholder: 'Select options'
+							});
+						}
+					});
+				}
+			});
+		});
+	</script>
+}

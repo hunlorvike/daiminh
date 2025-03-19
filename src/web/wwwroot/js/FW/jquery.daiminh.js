@@ -703,16 +703,20 @@ const jqueryDaiminh = (($, bootstrap) => {
                         url: url,
                         type: method,
                         data: formData,
-                        processData: false,  // Don't process the data
-                        contentType: false,  // Don't set content type
+                        processData: false,
+                        contentType: false,
                         beforeSend: function (xhr) {
                             xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
                         }
                     });
 
-                    if (response.redirectUrl) {
-                        window.location.href = response.redirectUrl;
+                    if (response.success) {
+                        Notification.show("success", response.message);
+                        setTimeout(function () {
+                            window.location.href = response.redirectUrl;
+                        }, 1000);
                     }
+
                 } else {
                     // Use regular serialization for non-file forms
                     response = await $.ajax({
@@ -724,8 +728,11 @@ const jqueryDaiminh = (($, bootstrap) => {
                         }
                     });
 
-                    if (response.redirectUrl) {
-                        window.location.href = response.redirectUrl;
+                    if (response.success) {
+                        Notification.show("success", response.message);
+                        setTimeout(function () {
+                            window.location.href = response.redirectUrl;
+                        }, 1000);
                     }
                 }
 

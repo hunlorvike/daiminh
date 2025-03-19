@@ -36,6 +36,8 @@ public class ContentCreateRequest
     [Display(Name = "Thẻ", Prompt = "Chọn thẻ")]
     public List<int>? TagIds { get; set; } = [];
 
+    public Dictionary<int, string> FieldValues { get; set; } = new();
+
     /// <summary>
     /// Gets or sets the title of the content item.
     /// </summary>

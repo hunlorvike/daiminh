@@ -1,9 +1,10 @@
-using application.Interfaces;
 using AutoMapper;
 using domain.Entities;
+using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
@@ -16,20 +17,27 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}", AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ContentController(
-    IContentService contentService,
-    IContentTypeService contentTypeService,
-    ITagService tagService,
-    ICategoryService categoryService,
-    IUserService userService,
-    IMapper mapper,
-    IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration)
+public partial class ContentController : DaiminhController
 {
+    private readonly ApplicationDbContext _dbContext;
+
+    public ContentController(
+        ApplicationDbContext dbContext,
+        IMapper mapper,
+        IServiceProvider serviceProvider,
+        IConfiguration configuration)
+        : base(mapper, serviceProvider, configuration)
+    {
+        _dbContext = dbContext;
+    }
+
     public async Task<IActionResult> Index()
     {
-        var contents = await contentService.GetAllAsync();
+        var contents = await _dbContext.Set<Content>()
+            .Include(c => c.ContentType)
+            .Include(c => c.Author)
+            .ToListAsync();
+
         List<ContentViewModel> models = _mapper.Map<List<ContentViewModel>>(contents);
         return View(models);
     }
@@ -37,40 +45,56 @@ public partial class ContentController(
     [AjaxOnly]
     public async Task<IActionResult> Create()
     {
-        var contentTypes = await contentTypeService.GetAllAsync();
+        var contentTypes = await _dbContext.Set<ContentType>().ToListAsync();
         ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name");
 
-        var authors = await userService.GetAllAsync();
+        var authors = await _dbContext.Set<User>().ToListAsync();
         ViewBag.Authors = new SelectList(authors, "Id", "Username");
 
-        var tags = await tagService.GetAllAsync();
+        var tags = await _dbContext.Set<Tag>().ToListAsync();
         ViewBag.Tags = new MultiSelectList(tags, "Id", "Name");
 
-        var categories = await categoryService.GetAllAsync();
+        var categories = await _dbContext.Set<Category>().ToListAsync();
         ViewBag.Categories = new MultiSelectList(categories, "Id", "Name");
 
         return PartialView("_Create.Modal", new ContentCreateRequest());
     }
 
     [AjaxOnly]
+    public async Task<IActionResult> GetContentTypeFields(int contentTypeId)
+    {
+        var fields = await _dbContext.Set<ContentFieldDefinition>()
+            .Where(f => f.ContentTypeId == contentTypeId)
+            .ToListAsync();
+
+        return Json(fields);
+    }
+
+    [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await contentService.GetByIdAsync(id);
-        if (response == null) return NotFound();
+        var content = await _dbContext.Set<Content>()
+            .Include(c => c.ContentType)
+            .Include(c => c.ContentCategories)
+            .Include(c => c.ContentTags)
+            .Include(c => c.FieldValues)
+            .FirstOrDefaultAsync(c => c.Id == id);
 
-        var contentTypes = await contentTypeService.GetAllAsync();
-        ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name", response.ContentTypeId);
+        if (content == null) return NotFound();
 
-        var authors = await userService.GetAllAsync();
-        ViewBag.Authors = new SelectList(authors, "Id", "Username", response.AuthorId);
+        var contentTypes = await _dbContext.Set<ContentType>().ToListAsync();
+        ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name", content.ContentTypeId);
 
-        var tags = await tagService.GetAllAsync();
-        ViewBag.Tags = new MultiSelectList(tags, "Id", "Name", response.ContentTags?.Select(ct => ct.TagId).ToList());
+        var authors = await _dbContext.Set<User>().ToListAsync();
+        ViewBag.Authors = new SelectList(authors, "Id", "Username", content.AuthorId);
 
-        var categories = await categoryService.GetAllAsync();
-        ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", response.ContentCategories?.Select(ct => ct.CategoryId).ToList());
+        var tags = await _dbContext.Set<Tag>().ToListAsync();
+        ViewBag.Tags = new MultiSelectList(tags, "Id", "Name", content.ContentTags?.Select(ct => ct.TagId).ToList());
 
-        var request = _mapper.Map<ContentUpdateRequest>(response);
+        var categories = await _dbContext.Set<Category>().ToListAsync();
+        ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", content.ContentCategories?.Select(ct => ct.CategoryId).ToList());
+
+        var request = _mapper.Map<ContentUpdateRequest>(content);
 
         return PartialView("_Edit.Modal", request);
     }
@@ -78,9 +102,9 @@ public partial class ContentController(
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await contentService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ContentDeleteRequest>(response);
+        var content = await _dbContext.Set<Content>().FindAsync(id);
+        if (content == null) return NotFound();
+        var request = _mapper.Map<ContentDeleteRequest>(content);
         return PartialView("_Delete.Modal", request);
     }
 
@@ -94,50 +118,59 @@ public partial class ContentController(
 
         try
         {
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
             var newContent = _mapper.Map<Content>(model);
 
-
+            // Add categories
             if (model.CategoryIds != null && model.CategoryIds.Count != 0)
             {
-                newContent.ContentCategories = [.. model.CategoryIds.Select(categoryId =>
+                newContent.ContentCategories = model.CategoryIds.Select(categoryId =>
                     new ContentCategory
                     {
                         CategoryId = categoryId
-                    })];
+                    }).ToList();
             }
 
+            // Add tags
             if (model.TagIds != null && model.TagIds.Count != 0)
             {
-                newContent.ContentTags = [.. model.TagIds.Select(tagId =>
+                newContent.ContentTags = model.TagIds.Select(tagId =>
                     new ContentTag
                     {
                         TagId = tagId
-                    })];
+                    }).ToList();
             }
 
-            var response = await contentService.AddAsync(newContent);
-
-            switch (response)
+            // Add field values
+            if (model.FieldValues != null && model.FieldValues.Count != 0)
             {
-                case SuccessResponse<Content> successResponse when Request.IsAjaxRequest():
-                    return Json(new
+                newContent.FieldValues = model.FieldValues.Select(kv =>
+                    new ContentFieldValue
                     {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Content", new { area = "Admin" })
-                    });
-                case SuccessResponse<Content> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Content", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                        FieldId = kv.Key,
+                        Value = kv.Value
+                    }).ToList();
             }
-            return PartialView("_Create.Modal", model);
 
+            await _dbContext.AddAsync(newContent);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
+
+            var successResponse = new SuccessResponse<Content>(newContent, "Content created successfully");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Content", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Content", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -155,79 +188,79 @@ public partial class ContentController(
         var validator = GetValidator<ContentUpdateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
         if (result != null) return result;
+
         try
         {
-            var existingContent = await contentService.GetByIdAsync(model.Id);
+            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+
+            var existingContent = await _dbContext.Set<Content>()
+                .Include(c => c.ContentCategories)
+                .Include(c => c.ContentTags)
+                .Include(c => c.FieldValues)
+                .FirstOrDefaultAsync(c => c.Id == model.Id);
+
             if (existingContent == null) return NotFound();
 
             _mapper.Map(model, existingContent);
 
-            if (existingContent.ContentCategories != null)
-            {
-                existingContent.ContentCategories.Clear();
-            }
-            else
-            {
-                existingContent.ContentCategories = new List<ContentCategory>();
-            }
+            // Update categories
+            _dbContext.RemoveRange(existingContent.ContentCategories ?? Enumerable.Empty<ContentCategory>());
 
             if (model.CategoryIds != null && model.CategoryIds.Any())
             {
-                foreach (var categoryId in model.CategoryIds)
-                {
-                    existingContent.ContentCategories.Add(new ContentCategory
+                existingContent.ContentCategories = model.CategoryIds.Select(categoryId =>
+                    new ContentCategory
                     {
                         ContentId = model.Id,
                         CategoryId = categoryId
-                    });
-                }
+                    }).ToList();
             }
 
-            if (existingContent.ContentTags != null)
-            {
-                existingContent.ContentTags.Clear();
-            }
-            else
-            {
-                existingContent.ContentTags = new List<ContentTag>();
-            }
+            // Update tags
+            _dbContext.RemoveRange(existingContent.ContentTags ?? Enumerable.Empty<ContentTag>());
 
             if (model.TagIds != null && model.TagIds.Any())
             {
-                foreach (var tagId in model.TagIds)
-                {
-                    existingContent.ContentTags.Add(new ContentTag
+                existingContent.ContentTags = model.TagIds.Select(tagId =>
+                    new ContentTag
                     {
                         ContentId = model.Id,
                         TagId = tagId
-                    });
-                }
+                    }).ToList();
             }
 
-            var response = await contentService.UpdateAsync(model.Id, existingContent);
+            // Update field values
+            _dbContext.RemoveRange(existingContent.FieldValues ?? Enumerable.Empty<ContentFieldValue>());
 
-            switch (response)
+            if (model.FieldValues != null && model.FieldValues.Any())
             {
-                case SuccessResponse<Content> successResponse when Request.IsAjaxRequest():
-                    return Json(new
+                existingContent.FieldValues = model.FieldValues.Select(kv =>
+                    new ContentFieldValue
                     {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Content", new { area = "Admin" })
-                    });
-                case SuccessResponse<Content> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Content", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                        ContentId = model.Id,
+                        FieldId = kv.Key,
+                        Value = kv.Value
+                    }).ToList();
             }
 
-            return PartialView("_Edit.Modal", model);
+            _dbContext.Update(existingContent);
+            await _dbContext.SaveChangesAsync();
+            await transaction.CommitAsync();
 
+            var successResponse = new SuccessResponse<Content>(existingContent, "Content updated successfully");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Content", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Content", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -238,37 +271,32 @@ public partial class ContentController(
         }
     }
 
-
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(ContentDeleteRequest model)
     {
-
         try
         {
-            var response = await contentService.DeleteAsync(model.Id);
+            var content = await _dbContext.Set<Content>().FindAsync(model.Id);
+            if (content == null) return NotFound();
 
-            switch (response)
+            _dbContext.Remove(content);
+            await _dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Content>(content, "Content deleted successfully");
+
+            if (Request.IsAjaxRequest())
             {
-                case SuccessResponse<Content> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Content", new { area = "Admin" })
-                    });
-                case SuccessResponse<Content> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Content", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Content", new { area = "Admin" })
+                });
             }
 
-            return PartialView("_Delete.Modal", model);
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Content", new { area = "Admin" });
         }
         catch (Exception ex)
         {
