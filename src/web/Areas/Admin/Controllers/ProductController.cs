@@ -1,10 +1,14 @@
 using AutoMapper;
+
 using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Product;
 

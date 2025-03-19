@@ -1,14 +1,19 @@
 using AutoMapper;
+
 using domain.Entities;
+
 using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Content;
 using web.Areas.Admin.Requests.Content;
@@ -17,23 +22,17 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}", AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ContentController : DaiminhController
+public class ContentController(
+    ApplicationDbContext dbContext,
+    IMapper mapper,
+    IServiceProvider serviceProvider,
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
-    private readonly ApplicationDbContext _dbContext;
-
-    public ContentController(
-        ApplicationDbContext dbContext,
-        IMapper mapper,
-        IServiceProvider serviceProvider,
-        IConfiguration configuration)
-        : base(mapper, serviceProvider, configuration)
-    {
-        _dbContext = dbContext;
-    }
-
     public async Task<IActionResult> Index()
     {
-        var contents = await _dbContext.Set<Content>()
+        var contents = await dbContext.Contents
+            .AsNoTracking()
+            .Where(c => c.DeletedAt == null)
             .Include(c => c.ContentType)
             .Include(c => c.Author)
             .ToListAsync();
@@ -45,26 +44,16 @@ public partial class ContentController : DaiminhController
     [AjaxOnly]
     public async Task<IActionResult> Create()
     {
-        var contentTypes = await _dbContext.Set<ContentType>().ToListAsync();
-        ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name");
-
-        var authors = await _dbContext.Set<User>().ToListAsync();
-        ViewBag.Authors = new SelectList(authors, "Id", "Username");
-
-        var tags = await _dbContext.Set<Tag>().ToListAsync();
-        ViewBag.Tags = new MultiSelectList(tags, "Id", "Name");
-
-        var categories = await _dbContext.Set<Category>().ToListAsync();
-        ViewBag.Categories = new MultiSelectList(categories, "Id", "Name");
-
+        await PopulateDropdowns();
         return PartialView("_Create.Modal", new ContentCreateRequest());
     }
 
     [AjaxOnly]
     public async Task<IActionResult> GetContentTypeFields(int contentTypeId)
     {
-        var fields = await _dbContext.Set<ContentFieldDefinition>()
-            .Where(f => f.ContentTypeId == contentTypeId)
+        var fields = await dbContext.ContentFieldDefinitions
+            .AsNoTracking()
+            .Where(f => f.ContentTypeId == contentTypeId && f.DeletedAt == null)
             .ToListAsync();
 
         return Json(fields);
@@ -73,36 +62,28 @@ public partial class ContentController : DaiminhController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var content = await _dbContext.Set<Content>()
+        var content = await dbContext.Contents
+            .AsNoTracking()
             .Include(c => c.ContentType)
             .Include(c => c.ContentCategories)
             .Include(c => c.ContentTags)
             .Include(c => c.FieldValues)
-            .FirstOrDefaultAsync(c => c.Id == id);
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
         if (content == null) return NotFound();
 
-        var contentTypes = await _dbContext.Set<ContentType>().ToListAsync();
-        ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name", content.ContentTypeId);
-
-        var authors = await _dbContext.Set<User>().ToListAsync();
-        ViewBag.Authors = new SelectList(authors, "Id", "Username", content.AuthorId);
-
-        var tags = await _dbContext.Set<Tag>().ToListAsync();
-        ViewBag.Tags = new MultiSelectList(tags, "Id", "Name", content.ContentTags?.Select(ct => ct.TagId).ToList());
-
-        var categories = await _dbContext.Set<Category>().ToListAsync();
-        ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", content.ContentCategories?.Select(ct => ct.CategoryId).ToList());
-
+        await PopulateDropdowns(content);
         var request = _mapper.Map<ContentUpdateRequest>(content);
-
         return PartialView("_Edit.Modal", request);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var content = await _dbContext.Set<Content>().FindAsync(id);
+        var content = await dbContext.Contents
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+
         if (content == null) return NotFound();
         var request = _mapper.Map<ContentDeleteRequest>(content);
         return PartialView("_Delete.Modal", request);
@@ -114,50 +95,90 @@ public partial class ContentController : DaiminhController
     {
         var validator = GetValidator<ContentCreateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null) return result;
+        if (result != null)
+        {
+            await PopulateDropdowns();
+            return result;
+        }
 
         try
         {
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
+            using var transaction = await dbContext.Database.BeginTransactionAsync();
 
             var newContent = _mapper.Map<Content>(model);
 
-            // Add categories
-            if (model.CategoryIds != null && model.CategoryIds.Count != 0)
+            // Kiểm tra tính duy nhất của Slug
+            var existingContent = await dbContext.Contents
+                .FirstOrDefaultAsync(c => c.Slug == newContent.Slug && c.DeletedAt == null);
+            if (existingContent != null)
             {
-                newContent.ContentCategories = model.CategoryIds.Select(categoryId =>
-                    new ContentCategory
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            // Kiểm tra ContentTypeId hợp lệ
+            var contentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
+            if (contentType == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            // Kiểm tra AuthorId hợp lệ (nếu có)
+            if (model.AuthorId.HasValue)
+            {
+                var author = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Id == model.AuthorId.Value);
+                if (author == null)
+                {
+                    var errors = new Dictionary<string, string[]>
                     {
-                        CategoryId = categoryId
-                    }).ToList();
+                        { nameof(model.AuthorId), ["Tác giả không tồn tại."] }
+                    };
+                    return BadRequest(new ErrorResponse(errors));
+                }
+            }
+
+            // Add categories
+            if (model.CategoryIds != null && model.CategoryIds.Any())
+            {
+                newContent.ContentCategories = model.CategoryIds.Select(categoryId => new ContentCategory
+                {
+                    CategoryId = categoryId
+                }).ToList();
             }
 
             // Add tags
-            if (model.TagIds != null && model.TagIds.Count != 0)
+            if (model.TagIds != null && model.TagIds.Any())
             {
-                newContent.ContentTags = model.TagIds.Select(tagId =>
-                    new ContentTag
-                    {
-                        TagId = tagId
-                    }).ToList();
+                newContent.ContentTags = model.TagIds.Select(tagId => new ContentTag
+                {
+                    TagId = tagId
+                }).ToList();
             }
 
             // Add field values
-            if (model.FieldValues != null && model.FieldValues.Count != 0)
+            if (model.FieldValues != null && model.FieldValues.Any())
             {
-                newContent.FieldValues = model.FieldValues.Select(kv =>
-                    new ContentFieldValue
-                    {
-                        FieldId = kv.Key,
-                        Value = kv.Value
-                    }).ToList();
+                newContent.FieldValues = model.FieldValues.Select(kv => new ContentFieldValue
+                {
+                    FieldId = kv.Key,
+                    Value = kv.Value
+                }).ToList();
             }
 
-            await _dbContext.AddAsync(newContent);
-            await _dbContext.SaveChangesAsync();
+            await dbContext.Contents.AddAsync(newContent);
+            await dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            var successResponse = new SuccessResponse<Content>(newContent, "Content created successfully");
+            var successResponse = new SuccessResponse<Content>(newContent, "Thêm nội dung mới thành công.");
 
             if (Request.IsAjaxRequest())
             {
@@ -174,10 +195,11 @@ public partial class ContentController : DaiminhController
         }
         catch (Exception ex)
         {
-            return BadRequest(new ErrorResponse(new Dictionary<string, string[]>
+            return BadRequest(new
             {
-                { "General", [ex.Message] }
-            }));
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
@@ -187,67 +209,118 @@ public partial class ContentController : DaiminhController
     {
         var validator = GetValidator<ContentUpdateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null) return result;
-
-        try
+        if (result != null)
         {
-            using var transaction = await _dbContext.Database.BeginTransactionAsync();
-
-            var existingContent = await _dbContext.Set<Content>()
+            var content = await dbContext.Contents
+                .AsNoTracking()
+                .Include(c => c.ContentType)
                 .Include(c => c.ContentCategories)
                 .Include(c => c.ContentTags)
                 .Include(c => c.FieldValues)
-                .FirstOrDefaultAsync(c => c.Id == model.Id);
+                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
+            await PopulateDropdowns(content);
+            return result;
+        }
 
-            if (existingContent == null) return NotFound();
+        try
+        {
+            using var transaction = await dbContext.Database.BeginTransactionAsync();
 
+            var existingContent = await dbContext.Contents
+                .Include(c => c.ContentCategories)
+                .Include(c => c.ContentTags)
+                .Include(c => c.FieldValues)
+                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
+
+            if (existingContent == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            // Kiểm tra tính duy nhất của Slug
+            var existingContentWithSlug = await dbContext.Contents
+                .FirstOrDefaultAsync(c => c.Slug == model.Slug && c.Id != model.Id && c.DeletedAt == null);
+            if (existingContentWithSlug != null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            // Kiểm tra ContentTypeId hợp lệ
+            var contentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
+            if (contentType == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            // Kiểm tra AuthorId hợp lệ (nếu có)
+            if (model.AuthorId.HasValue)
+            {
+                var author = await dbContext.Users
+                    .FirstOrDefaultAsync(u => u.Id == model.AuthorId.Value);
+                if (author == null)
+                {
+                    var errors = new Dictionary<string, string[]>
+                    {
+                        { nameof(model.AuthorId), ["Tác giả không tồn tại."] }
+                    };
+                    return BadRequest(new ErrorResponse(errors));
+                }
+            }
+
+            // Cập nhật nội dung
             _mapper.Map(model, existingContent);
 
             // Update categories
-            _dbContext.RemoveRange(existingContent.ContentCategories ?? Enumerable.Empty<ContentCategory>());
-
+            dbContext.ContentCategories.RemoveRange(existingContent.ContentCategories ?? Enumerable.Empty<ContentCategory>());
             if (model.CategoryIds != null && model.CategoryIds.Any())
             {
-                existingContent.ContentCategories = model.CategoryIds.Select(categoryId =>
-                    new ContentCategory
-                    {
-                        ContentId = model.Id,
-                        CategoryId = categoryId
-                    }).ToList();
+                existingContent.ContentCategories = model.CategoryIds.Select(categoryId => new ContentCategory
+                {
+                    ContentId = model.Id,
+                    CategoryId = categoryId
+                }).ToList();
             }
 
             // Update tags
-            _dbContext.RemoveRange(existingContent.ContentTags ?? Enumerable.Empty<ContentTag>());
-
+            dbContext.ContentTags.RemoveRange(existingContent.ContentTags ?? Enumerable.Empty<ContentTag>());
             if (model.TagIds != null && model.TagIds.Any())
             {
-                existingContent.ContentTags = model.TagIds.Select(tagId =>
-                    new ContentTag
-                    {
-                        ContentId = model.Id,
-                        TagId = tagId
-                    }).ToList();
+                existingContent.ContentTags = model.TagIds.Select(tagId => new ContentTag
+                {
+                    ContentId = model.Id,
+                    TagId = tagId
+                }).ToList();
             }
 
             // Update field values
-            _dbContext.RemoveRange(existingContent.FieldValues ?? Enumerable.Empty<ContentFieldValue>());
-
+            dbContext.ContentFieldValues.RemoveRange(existingContent.FieldValues ?? Enumerable.Empty<ContentFieldValue>());
             if (model.FieldValues != null && model.FieldValues.Any())
             {
-                existingContent.FieldValues = model.FieldValues.Select(kv =>
-                    new ContentFieldValue
-                    {
-                        ContentId = model.Id,
-                        FieldId = kv.Key,
-                        Value = kv.Value
-                    }).ToList();
+                existingContent.FieldValues = model.FieldValues.Select(kv => new ContentFieldValue
+                {
+                    ContentId = model.Id,
+                    FieldId = kv.Key,
+                    Value = kv.Value
+                }).ToList();
             }
 
-            _dbContext.Update(existingContent);
-            await _dbContext.SaveChangesAsync();
+            await dbContext.SaveChangesAsync();
             await transaction.CommitAsync();
 
-            var successResponse = new SuccessResponse<Content>(existingContent, "Content updated successfully");
+            var successResponse = new SuccessResponse<Content>(existingContent, "Cập nhật nội dung thành công.");
 
             if (Request.IsAjaxRequest())
             {
@@ -264,10 +337,23 @@ public partial class ContentController : DaiminhController
         }
         catch (Exception ex)
         {
-            return BadRequest(new ErrorResponse(new Dictionary<string, string[]>
-            {
-                { "General", [ex.Message] }
-            }));
+            if (Request.IsAjaxRequest())
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+
+            var content = await dbContext.Contents
+                .AsNoTracking()
+                .Include(c => c.ContentType)
+                .Include(c => c.ContentCategories)
+                .Include(c => c.ContentTags)
+                .Include(c => c.FieldValues)
+                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
+            await PopulateDropdowns(content);
+            ModelState.AddModelError("", ex.Message);
+            return PartialView("_Edit.Modal", model);
         }
     }
 
@@ -277,13 +363,22 @@ public partial class ContentController : DaiminhController
     {
         try
         {
-            var content = await _dbContext.Set<Content>().FindAsync(model.Id);
-            if (content == null) return NotFound();
+            var content = await dbContext.Contents
+                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            _dbContext.Remove(content);
-            await _dbContext.SaveChangesAsync();
+            if (content == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
 
-            var successResponse = new SuccessResponse<Content>(content, "Content deleted successfully");
+            dbContext.Contents.Remove(content);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Content>(content, "Xóa nội dung thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {
@@ -300,10 +395,37 @@ public partial class ContentController : DaiminhController
         }
         catch (Exception ex)
         {
-            return BadRequest(new ErrorResponse(new Dictionary<string, string[]>
+            return BadRequest(new
             {
-                { "General", [ex.Message] }
-            }));
+                Success = false,
+                Errors = ex.Message
+            });
         }
+    }
+
+    private async Task PopulateDropdowns(Content? content = null)
+    {
+        var contentTypes = await dbContext.ContentTypes
+            .AsNoTracking()
+            .Where(ct => ct.DeletedAt == null)
+            .ToListAsync();
+        ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name", content?.ContentTypeId);
+
+        var authors = await dbContext.Users
+            .AsNoTracking()
+            .ToListAsync();
+        ViewBag.Authors = new SelectList(authors, "Id", "Username", content?.AuthorId);
+
+        var tags = await dbContext.Tags
+            .AsNoTracking()
+            .Where(t => t.DeletedAt == null)
+            .ToListAsync();
+        ViewBag.Tags = new MultiSelectList(tags, "Id", "Name", content?.ContentTags?.Select(ct => ct.TagId).ToList());
+
+        var categories = await dbContext.Categories
+            .AsNoTracking()
+            .Where(c => c.DeletedAt == null)
+            .ToListAsync();
+        ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", content?.ContentCategories?.Select(ct => ct.CategoryId).ToList());
     }
 }

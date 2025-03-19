@@ -1,25 +1,35 @@
-using application.Interfaces;
+using System.Security.Claims;
+
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Requests.Auth;
+
+using BC = BCrypt.Net.BCrypt;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
 public partial class AuthController(
-    IAuthService authService,
+    ApplicationDbContext context,
+    IHttpContextAccessor httpContextAccessor,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration);
-
-public partial class AuthController
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
@@ -46,11 +56,7 @@ public partial class AuthController
     {
         return View();
     }
-}
 
-public partial class AuthController
-
-{
     [HttpPost]
     [AllowAnonymous]
     [ValidateAntiForgeryToken]
@@ -64,29 +70,57 @@ public partial class AuthController
         {
             var user = _mapper.Map<User>(model);
 
-            var response = await authService.SignInAsync(user, CookiesConstants.AdminCookieSchema);
+            // Find user by username, including their role
+            var existingUser = await context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Username == user.Username)
+                .FirstOrDefaultAsync();
 
-            switch (response)
+            if (existingUser == null)
+                return BadRequest(new ErrorResponse(new Dictionary<string, string[]>
+                {
+                    { nameof(user.Username), ["Tên đăng nhập không tồn tại."] }
+                }));
+
+            // Verify password
+            var isValidPassword = BC.Verify(user.PasswordHash, existingUser.PasswordHash);
+            if (!isValidPassword)
+                return BadRequest(new ErrorResponse(new Dictionary<string, string[]>
+                {
+                    { "Password", ["Mật khẩu không chính xác."] }
+                }));
+
+            // Create claims for the authenticated user
+            List<Claim> claims =
+            [
+                new(ClaimTypes.NameIdentifier, existingUser.Id.ToString()),
+                new(ClaimTypes.Email, existingUser.Email),
+                new(ClaimTypes.Role, existingUser.Role?.Name ?? string.Empty)
+            ];
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookiesConstants.AdminCookieSchema);
+            var authProperties = new AuthenticationProperties
             {
-                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Admin" })
-                    });
-                case SuccessResponse<User> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Home", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
-            }
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
+            };
 
-            return View(model);
+            // Sign in the user
+            await httpContextAccessor.HttpContext!.SignInAsync(
+                CookiesConstants.AdminCookieSchema,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            if (Request.IsAjaxRequest())
+                return Json(new
+                {
+                    success = true,
+                    message = "Đăng nhập thành công.",
+                    redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Admin" })
+                });
+
+            TempData["SuccessMessage"] = "Đăng nhập thành công.";
+            return RedirectToAction("Index", "Home", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -104,7 +138,6 @@ public partial class AuthController
     public async Task<IActionResult> Register(RegisterRequest model, string? returnUrl = null)
     {
         var validator = GetValidator<RegisterRequest>();
-
         var result = await this.ValidateAndReturnBadRequest(validator, model);
         if (result != null) return result;
 
@@ -112,29 +145,44 @@ public partial class AuthController
         {
             var user = _mapper.Map<User>(model);
 
-            var response = await authService.SignUpAsync(user);
+            // Check for existing users
+            var existingUsers = await context.Users
+                .Where(u => u.Username == user.Username || u.Email == user.Email)
+                .ToListAsync();
 
-            switch (response)
-            {
-                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Login", "Auth", new { area = "Admin" })
-                    });
-                case SuccessResponse<User> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Login", "Auth", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
-            }
+            var errors = new Dictionary<string, string[]>();
+            if (existingUsers.Any(u => u.Username == user.Username))
+                errors.Add(nameof(user.Username), ["Tên đăng nhập này đã được sử dụng. Vui lòng chọn một tên khác."]);
+            if (existingUsers.Any(u => u.Email == user.Email))
+                errors.Add(nameof(user.Email), ["Địa chỉ email này đã được đăng ký. Vui lòng sử dụng một địa chỉ email khác."]);
 
-            return View(model);
+            if (errors.Count != 0)
+                return BadRequest(new ErrorResponse(errors));
+
+            // Retrieve default role
+            var defaultRole = await context.Roles
+                .Where(r => r.Name == RoleConstants.User)
+                .FirstOrDefaultAsync() ??
+                throw new Exception("Không tìm thấy role mặc định. Vui lòng kiểm tra lại cấu hình hệ thống.");
+
+            // Hash password and set role
+            user.PasswordHash = BC.HashPassword(user.PasswordHash);
+            user.RoleId = defaultRole.Id;
+
+            // Add user to database
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
+
+            if (Request.IsAjaxRequest())
+                return Json(new
+                {
+                    success = true,
+                    message = "Đăng ký tài khoản thành công.",
+                    redirectUrl = Url.Action("Login", "Auth", new { area = "Admin" })
+                });
+
+            TempData["SuccessMessage"] = "Đăng ký tài khoản thành công.";
+            return RedirectToAction("Login", "Auth", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -151,7 +199,18 @@ public partial class AuthController
     [Authorize(AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
     public async Task<IActionResult> Logout()
     {
-        await authService.SignOutAsync(CookiesConstants.AdminCookieSchema);
-        return RedirectToAction("Login", "Auth", new { area = "Admin" });
+        try
+        {
+            await httpContextAccessor.HttpContext!.SignOutAsync(CookiesConstants.AdminCookieSchema);
+            return RedirectToAction("Login", "Auth", new { area = "Admin" });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
+        }
     }
 }

@@ -1,13 +1,19 @@
-using application.Interfaces;
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Category;
 using web.Areas.Admin.Requests.Category;
@@ -17,18 +23,20 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class CategoryController(
-    ICategoryService categoryService,
+public class CategoryController(
+    ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
-
-public partial class CategoryController
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
     public async Task<IActionResult> Index()
     {
-        var categories = await categoryService.GetAllAsync();
+        var categories = await dbContext.Categories
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .Include(x => x.ParentCategory)
+            .ToListAsync();
+
         List<CategoryViewModel> models = _mapper.Map<List<CategoryViewModel>>(categories);
         return View(models);
     }
@@ -36,34 +44,28 @@ public partial class CategoryController
     [AjaxOnly]
     public async Task<IActionResult> Create()
     {
-        var categories = await categoryService.GetAllAsync();
-        ViewBag.CategoryList = new List<SelectListItem>
-        {
-            new() { Value = "", Text = "-- Chọn danh mục cha --" }
-        }.Concat(categories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.Name
-        })).ToList();
-
+        await PopulateCategoryDropdown();
         return PartialView("_Create.Modal", new CategoryCreateRequest());
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var category = await categoryService.GetByIdAsync(id);
-        if (category == null)
-            return NotFound();
+        var category = await dbContext.Categories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
-        var categoryList = (await categoryService.GetAllAsync())
-            .Where(c => c.Id != id)
+        if (category == null) return NotFound();
+
+        var categoryList = await dbContext.Categories
+            .AsNoTracking()
+            .Where(c => c.Id != id && c.DeletedAt == null)
             .Select(c => new SelectListItem
             {
                 Value = c.Id.ToString(),
                 Text = c.Name
             })
-            .ToList();
+            .ToListAsync();
 
         categoryList.Insert(0, new SelectListItem { Value = "", Text = "-- Chọn danh mục cha --" });
         ViewBag.CategoryList = categoryList;
@@ -75,50 +77,92 @@ public partial class CategoryController
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await categoryService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<CategoryDeleteRequest>(response);
+        var category = await dbContext.Categories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+
+        if (category == null) return NotFound();
+        var request = _mapper.Map<CategoryDeleteRequest>(category);
         return PartialView("_Delete.Modal", request);
     }
-}
 
-public partial class CategoryController
-{
+    private async Task PopulateCategoryDropdown()
+    {
+        var categories = await dbContext.Categories
+            .AsNoTracking()
+            .Where(c => c.DeletedAt == null)
+            .ToListAsync();
+
+        ViewBag.CategoryList = new List<SelectListItem>
+        {
+            new() { Value = "", Text = "-- Chọn danh mục cha --" }
+        }.Concat(categories.Select(c => new SelectListItem
+        {
+            Value = c.Id.ToString(),
+            Text = c.Name
+        })).ToList();
+    }
+
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CategoryCreateRequest model)
     {
         var validator = GetValidator<CategoryCreateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null) return result;
+        if (result != null)
+        {
+            await PopulateCategoryDropdown();
+            return result;
+        }
 
         try
         {
             var newCategory = _mapper.Map<Category>(model);
 
-            var response = await categoryService.AddAsync(newCategory);
-
-            switch (response)
+            // Kiểm tra tính duy nhất của Slug
+            var existingCategory = await dbContext.Categories
+                .FirstOrDefaultAsync(c => c.Slug == newCategory.Slug && c.DeletedAt == null);
+            if (existingCategory != null)
             {
-                case SuccessResponse<Category> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
-                    });
-                case SuccessResponse<Category> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Category", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Create.Modal", model);
+            // Kiểm tra ParentCategoryId hợp lệ
+            if (model.ParentCategoryId.HasValue)
+            {
+                var parentCategory = await dbContext.Categories
+                    .FirstOrDefaultAsync(c => c.Id == model.ParentCategoryId && c.DeletedAt == null);
+                if (parentCategory == null)
+                {
+                    var errors = new Dictionary<string, string[]>
+                    {
+                        { nameof(model.ParentCategoryId), ["Danh mục cha không tồn tại hoặc đã bị xóa."] }
+                    };
+                    return BadRequest(new ErrorResponse(errors));
+                }
+            }
+
+            await dbContext.Categories.AddAsync(newCategory);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Category>(newCategory, "Thêm danh mục mới thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Category", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -136,38 +180,79 @@ public partial class CategoryController
     {
         var validator = GetValidator<CategoryUpdateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null) return result;
+        if (result != null)
+        {
+            await PopulateCategoryDropdownForEdit(model.Id);
+            return result;
+        }
 
         try
         {
-            var category = await categoryService.GetByIdAsync(model.Id);
-            if (category == null) return NotFound();
+            var category = await dbContext.Categories
+                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            _mapper.Map(model, category);
-
-            var response = await categoryService.UpdateAsync(model.Id, category);
-
-            switch (response)
+            if (category == null)
             {
-                case SuccessResponse<Category> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
-                    });
-                case SuccessResponse<Category> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Category", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Danh mục không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Edit.Modal", model);
+            // Kiểm tra tính duy nhất của Slug
+            var existingCategory = await dbContext.Categories
+                .FirstOrDefaultAsync(c => c.Slug == model.Slug && c.Id != model.Id && c.DeletedAt == null);
+            if (existingCategory != null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            // Kiểm tra ParentCategoryId hợp lệ
+            if (model.ParentCategoryId.HasValue)
+            {
+                var parentCategory = await dbContext.Categories
+                    .FirstOrDefaultAsync(c => c.Id == model.ParentCategoryId && c.DeletedAt == null);
+                if (parentCategory == null)
+                {
+                    var errors = new Dictionary<string, string[]>
+                    {
+                        { nameof(model.ParentCategoryId), ["Danh mục cha không tồn tại hoặc đã bị xóa."] }
+                    };
+                    return BadRequest(new ErrorResponse(errors));
+                }
+                // Kiểm tra không cho phép danh mục cha là chính nó hoặc con của nó
+                if (model.ParentCategoryId == model.Id || await IsDescendant(model.Id, model.ParentCategoryId.Value))
+                {
+                    var errors = new Dictionary<string, string[]>
+                    {
+                        { nameof(model.ParentCategoryId), ["Danh mục cha không thể là chính nó hoặc danh mục con của nó."] }
+                    };
+                    return BadRequest(new ErrorResponse(errors));
+                }
+            }
+
+            _mapper.Map(model, category);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Category>(category, "Cập nhật danh mục thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Category", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -185,29 +270,35 @@ public partial class CategoryController
     {
         try
         {
-            var response = await categoryService.DeleteAsync(model.Id);
+            var category = await dbContext.Categories
+                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            switch (response)
+            if (category == null)
             {
-                case SuccessResponse<Category> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
-                    });
-                case SuccessResponse<Category> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Category", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Danh mục không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Delete.Modal", model);
+            dbContext.Categories.Remove(category);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Category>(category, "Xóa danh mục thành công (đã ẩn).");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Category", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Category", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -217,5 +308,36 @@ public partial class CategoryController
                 Errors = ex.Message
             });
         }
+    }
+
+    private async Task PopulateCategoryDropdownForEdit(int currentCategoryId)
+    {
+        var categoryList = await dbContext.Categories
+            .AsNoTracking()
+            .Where(c => c.Id != currentCategoryId && c.DeletedAt == null)
+            .Select(c => new SelectListItem
+            {
+                Value = c.Id.ToString(),
+                Text = c.Name
+            })
+            .ToListAsync();
+
+        categoryList.Insert(0, new SelectListItem { Value = "", Text = "-- Chọn danh mục cha --" });
+        ViewBag.CategoryList = categoryList;
+    }
+
+    private async Task<bool> IsDescendant(int parentId, int childId)
+    {
+        var currentId = childId;
+        while (currentId != 0)
+        {
+            var category = await dbContext.Categories
+                .AsNoTracking()
+                .FirstOrDefaultAsync(c => c.Id == currentId && c.DeletedAt == null);
+            if (category == null) return false;
+            if (category.ParentCategoryId == parentId) return true;
+            currentId = category.ParentCategoryId ?? 0;
+        }
+        return false;
     }
 }

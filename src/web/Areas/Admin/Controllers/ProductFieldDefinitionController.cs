@@ -1,14 +1,20 @@
-using application.Interfaces;
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.ProductFieldDefinition;
 using web.Areas.Admin.Requests.ProductFieldDefinition;
@@ -18,24 +24,23 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ProductFieldDefinitionController(
-    IProductFieldDefinitionService productFieldDefinitionService,
-    IProductTypeService productTypeService,
+public class ProductFieldDefinitionController(
+    ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
-
-public partial class ProductFieldDefinitionController
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
     public async Task<IActionResult> Index()
     {
-        var productFieldDefinitions = await productFieldDefinitionService.GetAllAsync();
-        List<ProductFieldDefinitionViewModel> models =
-            _mapper.Map<List<ProductFieldDefinitionViewModel>>(productFieldDefinitions);
+        var productFieldDefinitions = await dbContext.ProductFieldDefinitions
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .Include(x => x.ProductType)
+            .ToListAsync();
+
+        List<ProductFieldDefinitionViewModel> models = _mapper.Map<List<ProductFieldDefinitionViewModel>>(productFieldDefinitions);
         return View(models);
     }
-
 
     [AjaxOnly]
     public async Task<IActionResult> Create(int? productTypeId = null)
@@ -51,9 +56,12 @@ public partial class ProductFieldDefinitionController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await productFieldDefinitionService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ProductFieldDefinitionUpdateRequest>(response);
+        var productFieldDefinition = await dbContext.ProductFieldDefinitions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(pfd => pfd.Id == id && pfd.DeletedAt == null);
+
+        if (productFieldDefinition == null) return NotFound();
+        var request = _mapper.Map<ProductFieldDefinitionUpdateRequest>(productFieldDefinition);
 
         await PopulateProductTypeDropdown();
         PopulateFieldTypeDropdown();
@@ -63,15 +71,21 @@ public partial class ProductFieldDefinitionController
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await productFieldDefinitionService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ProductFieldDefinitionDeleteRequest>(response);
+        var productFieldDefinition = await dbContext.ProductFieldDefinitions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(pfd => pfd.Id == id && pfd.DeletedAt == null);
+
+        if (productFieldDefinition == null) return NotFound();
+        var request = _mapper.Map<ProductFieldDefinitionDeleteRequest>(productFieldDefinition);
         return PartialView("_Delete.Modal", request);
     }
 
     private async Task PopulateProductTypeDropdown()
     {
-        var productTypes = await productTypeService.GetAllAsync();
+        var productTypes = await dbContext.ProductTypes
+            .AsNoTracking()
+            .Where(pt => pt.DeletedAt == null)
+            .ToListAsync();
         ViewBag.ProductTypes = new SelectList(productTypes, "Id", "Name");
     }
 
@@ -86,10 +100,7 @@ public partial class ProductFieldDefinitionController
             });
         ViewBag.FieldTypes = new SelectList(fieldTypes, "Value", "Text");
     }
-}
 
-public partial class ProductFieldDefinitionController
-{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductFieldDefinitionCreateRequest model)
@@ -106,29 +117,35 @@ public partial class ProductFieldDefinitionController
         try
         {
             var newProductFieldDefinition = _mapper.Map<ProductFieldDefinition>(model);
-            var response = await productFieldDefinitionService.AddAsync(newProductFieldDefinition);
 
-            switch (response)
+            var productType = await dbContext.ProductTypes
+                .FirstOrDefaultAsync(pt => pt.Id == model.ProductTypeId && pt.DeletedAt == null);
+            if (productType == null)
             {
-                case SuccessResponse<ProductFieldDefinition> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ProductFieldDefinition", new { area = "Admin" })
-                    });
-                case SuccessResponse<ProductFieldDefinition> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ProductFieldDefinition", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.ProductTypeId), ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Create.Modal", model);
+            await dbContext.ProductFieldDefinitions.AddAsync(newProductFieldDefinition);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ProductFieldDefinition>(newProductFieldDefinition, "Thêm định nghĩa trường sản phẩm mới thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ProductFieldDefinition", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ProductFieldDefinition", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -155,34 +172,47 @@ public partial class ProductFieldDefinitionController
 
         try
         {
-            var productFieldDefinition = await productFieldDefinitionService.GetByIdAsync(model.Id);
-            if (productFieldDefinition == null) return NotFound();
+            var productFieldDefinition = await dbContext.ProductFieldDefinitions
+                .FirstOrDefaultAsync(pfd => pfd.Id == model.Id && pfd.DeletedAt == null);
 
-            _mapper.Map(model, productFieldDefinition);
-
-            var response = await productFieldDefinitionService.UpdateAsync(model.Id, productFieldDefinition);
-
-            switch (response)
+            if (productFieldDefinition == null)
             {
-                case SuccessResponse<ProductFieldDefinition> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ProductFieldDefinition", new { area = "Admin" })
-                    });
-                case SuccessResponse<ProductFieldDefinition> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ProductFieldDefinition", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Định nghĩa trường sản phẩm không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Edit.Modal", model);
+            // Kiểm tra xem ProductTypeId có hợp lệ không
+            var productType = await dbContext.ProductTypes
+                .FirstOrDefaultAsync(pt => pt.Id == model.ProductTypeId && pt.DeletedAt == null);
+            if (productType == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.ProductTypeId), ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            _mapper.Map(model, productFieldDefinition);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ProductFieldDefinition>(productFieldDefinition, "Cập nhật định nghĩa trường sản phẩm thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ProductFieldDefinition", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ProductFieldDefinition", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -193,6 +223,8 @@ public partial class ProductFieldDefinitionController
                     error = ex.Message
                 });
 
+            await PopulateProductTypeDropdown();
+            PopulateFieldTypeDropdown();
             ModelState.AddModelError("", ex.Message);
             return PartialView("_Edit.Modal", model);
         }
@@ -204,29 +236,35 @@ public partial class ProductFieldDefinitionController
     {
         try
         {
-            var response = await productFieldDefinitionService.DeleteAsync(model.Id);
+            var productFieldDefinition = await dbContext.ProductFieldDefinitions
+                .FirstOrDefaultAsync(pfd => pfd.Id == model.Id && pfd.DeletedAt == null);
 
-            switch (response)
+            if (productFieldDefinition == null)
             {
-                case SuccessResponse<ProductFieldDefinition> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ProductFieldDefinition", new { area = "Admin" })
-                    });
-                case SuccessResponse<ProductType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ProductFieldDefinition", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Định nghĩa trường sản phẩm không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Delete.Modal", model);
+            dbContext.ProductFieldDefinitions.Remove(productFieldDefinition);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ProductFieldDefinition>(productFieldDefinition, "Xóa định nghĩa trường sản phẩm thành công (đã ẩn).");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ProductFieldDefinition", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ProductFieldDefinition", new { area = "Admin" });
         }
         catch (Exception ex)
         {

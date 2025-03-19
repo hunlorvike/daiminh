@@ -1,13 +1,18 @@
-using application.Interfaces;
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
-using shared.Enums;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Contact;
 using web.Areas.Admin.Requests.Contact;
@@ -17,18 +22,19 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ContactController(
-    IContactService contactService,
+public class ContactController(
+    ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
-
-public partial class ContactController
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
     public async Task<IActionResult> Index()
     {
-        var contacts = await contactService.GetAllAsync();
+        var contacts = await dbContext.Contacts
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .ToListAsync();
+
         List<ContactViewModel> models = _mapper.Map<List<ContactViewModel>>(contacts);
         return View(models);
     }
@@ -36,7 +42,10 @@ public partial class ContactController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var contact = await contactService.GetByIdAsync(id);
+        var contact = await dbContext.Contacts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+
         if (contact == null) return NotFound();
         var request = _mapper.Map<ContactUpdateRequest>(contact);
         return PartialView("_Edit.Modal", request);
@@ -45,15 +54,15 @@ public partial class ContactController
     [AjaxOnly]
     public async Task<IActionResult> Details(int id)
     {
-        var contact = await contactService.GetByIdAsync(id);
+        var contact = await dbContext.Contacts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
+
         if (contact == null) return NotFound();
         var contactDetail = _mapper.Map<ContactViewModel>(contact);
         return PartialView("_Detail.Modal", contactDetail);
     }
-}
 
-public partial class ContactController
-{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(ContactUpdateRequest model)
@@ -64,42 +73,47 @@ public partial class ContactController
 
         try
         {
-            var contact = await contactService.GetByIdAsync(model.Id);
-            if (contact == null) return NotFound();
+            var contact = await dbContext.Contacts
+                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            _mapper.Map(model, contact);
-
-            var response = await contactService.UpdateAsync(model.Id, contact);
-
-            switch (response)
+            if (contact == null)
             {
-                case SuccessResponse<Contact> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Contact", new { area = "Admin" })
-                    });
-                case SuccessResponse<Contact> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Contact", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Thông tin liên hệ không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Edit.Modal", model);
+            _mapper.Map(model, contact);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Contact>(contact, "Cập nhật thông tin liên hệ thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Contact", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Contact", new { area = "Admin" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            if (Request.IsAjaxRequest())
+                return Json(new
+                {
+                    success = false,
+                    error = ex.Message
+                });
+
+            ModelState.AddModelError("", ex.Message);
+            return PartialView("_Edit.Modal", model);
         }
     }
 }

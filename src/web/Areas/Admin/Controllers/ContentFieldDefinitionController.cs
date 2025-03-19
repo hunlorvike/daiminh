@@ -1,14 +1,20 @@
-using application.Interfaces;
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.ContentFieldDefinition;
 using web.Areas.Admin.Requests.ContentFieldDefinition;
@@ -18,24 +24,23 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ContentFieldDefinitionController(
-    IContentFieldDefinitionService contentFieldDefinitionService,
-    IContentTypeService contentTypeService,
+public class ContentFieldDefinitionController(
+    ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
-
-public partial class ContentFieldDefinitionController
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
     public async Task<IActionResult> Index()
     {
-        var contentFieldDefinitions = await contentFieldDefinitionService.GetAllAsync();
-        List<ContentFieldDefinitionViewModel> models =
-            _mapper.Map<List<ContentFieldDefinitionViewModel>>(contentFieldDefinitions);
+        var contentFieldDefinitions = await dbContext.ContentFieldDefinitions
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .Include(x => x.ContentType)
+            .ToListAsync();
+
+        List<ContentFieldDefinitionViewModel> models = _mapper.Map<List<ContentFieldDefinitionViewModel>>(contentFieldDefinitions);
         return View(models);
     }
-
 
     [AjaxOnly]
     public async Task<IActionResult> Create(int? contentTypeId = null)
@@ -51,9 +56,12 @@ public partial class ContentFieldDefinitionController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await contentFieldDefinitionService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ContentFieldDefinitionUpdateRequest>(response);
+        var contentFieldDefinition = await dbContext.ContentFieldDefinitions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cfd => cfd.Id == id && cfd.DeletedAt == null);
+
+        if (contentFieldDefinition == null) return NotFound();
+        var request = _mapper.Map<ContentFieldDefinitionUpdateRequest>(contentFieldDefinition);
 
         await PopulateContentTypeDropdown();
         PopulateFieldTypeDropdown();
@@ -63,15 +71,21 @@ public partial class ContentFieldDefinitionController
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await contentFieldDefinitionService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ContentFieldDefinitionDeleteRequest>(response);
+        var contentFieldDefinition = await dbContext.ContentFieldDefinitions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cfd => cfd.Id == id && cfd.DeletedAt == null);
+
+        if (contentFieldDefinition == null) return NotFound();
+        var request = _mapper.Map<ContentFieldDefinitionDeleteRequest>(contentFieldDefinition);
         return PartialView("_Delete.Modal", request);
     }
 
     private async Task PopulateContentTypeDropdown()
     {
-        var contentTypes = await contentTypeService.GetAllAsync();
+        var contentTypes = await dbContext.ContentTypes
+            .AsNoTracking()
+            .Where(ct => ct.DeletedAt == null)
+            .ToListAsync();
         ViewBag.ContentTypes = new SelectList(contentTypes, "Id", "Name");
     }
 
@@ -86,10 +100,7 @@ public partial class ContentFieldDefinitionController
             });
         ViewBag.FieldTypes = new SelectList(fieldTypes, "Value", "Text");
     }
-}
 
-public partial class ContentFieldDefinitionController
-{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ContentFieldDefinitionCreateRequest model)
@@ -106,29 +117,36 @@ public partial class ContentFieldDefinitionController
         try
         {
             var newContentFieldDefinition = _mapper.Map<ContentFieldDefinition>(model);
-            var response = await contentFieldDefinitionService.AddAsync(newContentFieldDefinition);
 
-            switch (response)
+            // Kiểm tra ContentTypeId hợp lệ
+            var contentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
+            if (contentType == null)
             {
-                case SuccessResponse<ContentFieldDefinition> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ContentFieldDefinition", new { area = "Admin" })
-                    });
-                case SuccessResponse<ContentFieldDefinition> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ContentFieldDefinition", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Create.Modal", model);
+            await dbContext.ContentFieldDefinitions.AddAsync(newContentFieldDefinition);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ContentFieldDefinition>(newContentFieldDefinition, "Thêm định nghĩa trường nội dung mới thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ContentFieldDefinition", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ContentFieldDefinition", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -155,34 +173,47 @@ public partial class ContentFieldDefinitionController
 
         try
         {
-            var contentFieldDefinition = await contentFieldDefinitionService.GetByIdAsync(model.Id);
-            if (contentFieldDefinition == null) return NotFound();
+            var contentFieldDefinition = await dbContext.ContentFieldDefinitions
+                .FirstOrDefaultAsync(cfd => cfd.Id == model.Id && cfd.DeletedAt == null);
 
-            _mapper.Map(model, contentFieldDefinition);
-
-            var response = await contentFieldDefinitionService.UpdateAsync(model.Id, contentFieldDefinition);
-
-            switch (response)
+            if (contentFieldDefinition == null)
             {
-                case SuccessResponse<ContentFieldDefinition> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ContentFieldDefinition", new { area = "Admin" })
-                    });
-                case SuccessResponse<ContentFieldDefinition> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ContentFieldDefinition", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Định nghĩa trường nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Edit.Modal", model);
+            // Kiểm tra ContentTypeId hợp lệ
+            var contentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
+            if (contentType == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            _mapper.Map(model, contentFieldDefinition);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ContentFieldDefinition>(contentFieldDefinition, "Cập nhật định nghĩa trường nội dung thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ContentFieldDefinition", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ContentFieldDefinition", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -193,6 +224,8 @@ public partial class ContentFieldDefinitionController
                     error = ex.Message
                 });
 
+            await PopulateContentTypeDropdown();
+            PopulateFieldTypeDropdown();
             ModelState.AddModelError("", ex.Message);
             return PartialView("_Edit.Modal", model);
         }
@@ -204,29 +237,35 @@ public partial class ContentFieldDefinitionController
     {
         try
         {
-            var response = await contentFieldDefinitionService.DeleteAsync(model.Id);
+            var contentFieldDefinition = await dbContext.ContentFieldDefinitions
+                .FirstOrDefaultAsync(cfd => cfd.Id == model.Id && cfd.DeletedAt == null);
 
-            switch (response)
+            if (contentFieldDefinition == null)
             {
-                case SuccessResponse<ContentFieldDefinition> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ContentFieldDefinition", new { area = "Admin" })
-                    });
-                case SuccessResponse<ContentType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ContentFieldDefinition", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Định nghĩa trường nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Delete.Modal", model);
+            dbContext.ContentFieldDefinitions.Remove(contentFieldDefinition);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ContentFieldDefinition>(contentFieldDefinition, "Xóa định nghĩa trường nội dung thành công (đã ẩn).");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ContentFieldDefinition", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ContentFieldDefinition", new { area = "Admin" });
         }
         catch (Exception ex)
         {

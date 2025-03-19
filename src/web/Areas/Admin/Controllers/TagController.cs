@@ -1,12 +1,18 @@
-using application.Interfaces;
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.Tag;
 using web.Areas.Admin.Requests.Tag;
@@ -17,7 +23,7 @@ namespace web.Areas.Admin.Controllers;
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
 public partial class TagController(
-    ITagService tagService,
+    ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration)
@@ -27,7 +33,11 @@ public partial class TagController
 {
     public async Task<IActionResult> Index()
     {
-        var tags = await tagService.GetAllAsync();
+        var tags = await dbContext.Tags
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .ToListAsync();
+
         List<TagViewModel> models = _mapper.Map<List<TagViewModel>>(tags);
         return View(models);
     }
@@ -41,7 +51,10 @@ public partial class TagController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await tagService.GetByIdAsync(id);
+        var response = await dbContext.Tags
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
+
         if (response == null) return NotFound();
         var request = _mapper.Map<TagUpdateRequest>(response);
         return PartialView("_Edit.Modal", request);
@@ -50,7 +63,10 @@ public partial class TagController
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await tagService.GetByIdAsync(id);
+        var response = await dbContext.Tags
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
+
         if (response == null) return NotFound();
         var request = _mapper.Map<TagDeleteRequest>(response);
         return PartialView("_Delete.Modal", request);
@@ -71,29 +87,36 @@ public partial class TagController
         {
             var newTag = _mapper.Map<Tag>(model);
 
-            var response = await tagService.AddAsync(newTag);
+            var existingTag = await dbContext.Tags
+                .FirstOrDefaultAsync(t => t.Slug == newTag.Slug && t.DeletedAt == null);
 
-            switch (response)
+            if (existingTag != null)
             {
-                case SuccessResponse<Tag> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
-                    });
-                case SuccessResponse<Tag> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Tag", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Create.Modal", model);
+            await dbContext.Tags.AddAsync(newTag);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Tag>(newTag, "Thêm thẻ mới thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Tag", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -115,34 +138,49 @@ public partial class TagController
 
         try
         {
-            var contentType = await tagService.GetByIdAsync(model.Id);
-            if (contentType == null) return NotFound();
+            var existingSlug = await dbContext.Tags
+                .FirstOrDefaultAsync(t => t.Slug == model.Slug && t.Id != model.Id && t.DeletedAt == null);
 
-            _mapper.Map(model, contentType);
-
-            var response = await tagService.UpdateAsync(model.Id, contentType);
-
-            switch (response)
+            if (existingSlug != null)
             {
-                case SuccessResponse<Tag> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
-                    });
-                case SuccessResponse<Tag> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Tag", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Edit.Modal", model);
+            var existingTag = await dbContext.Tags
+                .FirstOrDefaultAsync(t => t.Id == model.Id && t.DeletedAt == null);
+
+            if (existingTag == null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Thẻ không tồn tại hoặc đã bị xóa."] }
+                };
+
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            _mapper.Map(model, existingTag);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Tag>(existingTag, "Cập nhật thẻ thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "Tag", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -160,29 +198,30 @@ public partial class TagController
     {
         try
         {
-            var response = await tagService.DeleteAsync(model.Id);
+            var tag = await dbContext.Tags
+                .FirstOrDefaultAsync(t => t.Id == model.Id && t.DeletedAt == null);
 
-            switch (response)
+            if (tag == null)
             {
-                case SuccessResponse<Tag> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
-                    });
-                case SuccessResponse<Tag> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Tag", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Thẻ không tồn tại hoặc đã bị xóa."] }
+                };
+
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Delete.Modal", model);
+            dbContext.Tags.Remove(tag);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Tag>(tag, "Xóa thẻ thành công (đã ẩn).");
+
+            return Json(new
+            {
+                success = true,
+                message = successResponse.Message,
+                redirectUrl = Url.Action("Index", "Tag", new { area = "Admin" })
+            });
         }
         catch (Exception ex)
         {

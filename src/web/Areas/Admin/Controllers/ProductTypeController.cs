@@ -1,12 +1,18 @@
-using application.Interfaces;
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.ProductType;
 using web.Areas.Admin.Requests.ProductType;
@@ -16,18 +22,19 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ProductTypeController(
-    IProductTypeService productTypeService,
+public class ProductTypeController(
+    ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
-
-public partial class ProductTypeController
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
     public async Task<IActionResult> Index()
     {
-        var productTypes = await productTypeService.GetAllAsync();
+        var productTypes = await dbContext.ProductTypes
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .ToListAsync();
+
         List<ProductTypeViewModel> models = _mapper.Map<List<ProductTypeViewModel>>(productTypes);
         return View(models);
     }
@@ -41,24 +48,27 @@ public partial class ProductTypeController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await productTypeService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ProductTypeUpdateRequest>(response);
+        var productType = await dbContext.ProductTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(pt => pt.Id == id && pt.DeletedAt == null);
+
+        if (productType == null) return NotFound();
+        var request = _mapper.Map<ProductTypeUpdateRequest>(productType);
         return PartialView("_Edit.Modal", request);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await productTypeService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ProductTypeDeleteRequest>(response);
+        var productType = await dbContext.ProductTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(pt => pt.Id == id && pt.DeletedAt == null);
+
+        if (productType == null) return NotFound();
+        var request = _mapper.Map<ProductTypeDeleteRequest>(productType);
         return PartialView("_Delete.Modal", request);
     }
-}
 
-public partial class ProductTypeController
-{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductTypeCreateRequest model)
@@ -71,29 +81,35 @@ public partial class ProductTypeController
         {
             var newProductType = _mapper.Map<ProductType>(model);
 
-            var response = await productTypeService.AddAsync(newProductType);
+            var existingProductType = await dbContext.ProductTypes
+                .FirstOrDefaultAsync(pt => pt.Slug == newProductType.Slug && pt.DeletedAt == null);
 
-            switch (response)
+            if (existingProductType != null)
             {
-                case SuccessResponse<ProductType> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
-                    });
-                case SuccessResponse<ProductType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ProductType", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Create.Modal", model);
+            await dbContext.ProductTypes.AddAsync(newProductType);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ProductType>(newProductType, "Thêm loại sản phẩm mới thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ProductType", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -115,34 +131,47 @@ public partial class ProductTypeController
 
         try
         {
-            var productType = await productTypeService.GetByIdAsync(model.Id);
-            if (productType == null) return NotFound();
+            var productType = await dbContext.ProductTypes
+                .FirstOrDefaultAsync(pt => pt.Id == model.Id && pt.DeletedAt == null);
 
-            _mapper.Map(model, productType);
-
-            var response = await productTypeService.UpdateAsync(model.Id, productType);
-
-            switch (response)
+            if (productType == null)
             {
-                case SuccessResponse<ProductType> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
-                    });
-                case SuccessResponse<ProductType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ProductType", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Edit.Modal", model);
+            var existingSlug = await dbContext.ProductTypes
+                .FirstOrDefaultAsync(pt => pt.Slug == model.Slug && pt.Id != model.Id && pt.DeletedAt == null);
+
+            if (existingSlug != null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            _mapper.Map(model, productType);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ProductType>(productType, "Cập nhật loại sản phẩm thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ProductType", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -160,29 +189,35 @@ public partial class ProductTypeController
     {
         try
         {
-            var response = await productTypeService.DeleteAsync(model.Id);
+            var productType = await dbContext.ProductTypes
+                .FirstOrDefaultAsync(pt => pt.Id == model.Id && pt.DeletedAt == null);
 
-            switch (response)
+            if (productType == null)
             {
-                case SuccessResponse<ProductType> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
-                    });
-                case SuccessResponse<ProductType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ProductType", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Delete.Modal", model);
+            dbContext.ProductTypes.Remove(productType);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ProductType>(productType, "Xóa loại sản phẩm thành công (đã ẩn).");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ProductType", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ProductType", new { area = "Admin" });
         }
         catch (Exception ex)
         {

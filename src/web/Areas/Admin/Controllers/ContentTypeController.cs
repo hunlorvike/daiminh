@@ -1,12 +1,18 @@
-using application.Interfaces;
 using AutoMapper;
+
 using domain.Entities;
+
+using infrastructure;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
+
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Models.ContentType;
 using web.Areas.Admin.Requests.ContentType;
@@ -16,22 +22,22 @@ namespace web.Areas.Admin.Controllers;
 [Area("Admin")]
 [Authorize(Roles = $"{RoleConstants.Admin}",
     AuthenticationSchemes = CookiesConstants.AdminCookieSchema)]
-public partial class ContentTypeController(
-    IContentTypeService contentTypeService,
+public class ContentTypeController(
+    ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
-
-public partial class ContentTypeController
+    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
 {
     public async Task<IActionResult> Index()
     {
-        var contentTypes = await contentTypeService.GetAllAsync();
+        var contentTypes = await dbContext.ContentTypes
+            .AsNoTracking()
+            .Where(x => x.DeletedAt == null)
+            .ToListAsync();
+
         List<ContentTypeViewModel> models = _mapper.Map<List<ContentTypeViewModel>>(contentTypes);
         return View(models);
     }
-
 
     [AjaxOnly]
     public IActionResult Create()
@@ -42,24 +48,27 @@ public partial class ContentTypeController
     [AjaxOnly]
     public async Task<IActionResult> Edit(int id)
     {
-        var response = await contentTypeService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ContentTypeUpdateRequest>(response);
+        var contentType = await dbContext.ContentTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+
+        if (contentType == null) return NotFound();
+        var request = _mapper.Map<ContentTypeUpdateRequest>(contentType);
         return PartialView("_Edit.Modal", request);
     }
 
     [AjaxOnly]
     public async Task<IActionResult> Delete(int id)
     {
-        var response = await contentTypeService.GetByIdAsync(id);
-        if (response == null) return NotFound();
-        var request = _mapper.Map<ContentTypeDeleteRequest>(response);
+        var contentType = await dbContext.ContentTypes
+            .AsNoTracking()
+            .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
+
+        if (contentType == null) return NotFound();
+        var request = _mapper.Map<ContentTypeDeleteRequest>(contentType);
         return PartialView("_Delete.Modal", request);
     }
-}
 
-public partial class ContentTypeController
-{
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ContentTypeCreateRequest model)
@@ -71,29 +80,36 @@ public partial class ContentTypeController
         try
         {
             var newContentType = _mapper.Map<ContentType>(model);
-            var response = await contentTypeService.AddAsync(newContentType);
 
-            switch (response)
+            // Kiểm tra tính duy nhất của Slug
+            var existingContentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Slug == newContentType.Slug && ct.DeletedAt == null);
+            if (existingContentType != null)
             {
-                case SuccessResponse<ContentType> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
-                    });
-                case SuccessResponse<ContentType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ContentType", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Create.Modal", model);
+            await dbContext.ContentTypes.AddAsync(newContentType);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ContentType>(newContentType, "Thêm loại nội dung mới thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ContentType", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -115,34 +131,47 @@ public partial class ContentTypeController
 
         try
         {
-            var contentType = await contentTypeService.GetByIdAsync(model.Id);
-            if (contentType == null) return NotFound();
+            var contentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Id == model.Id && ct.DeletedAt == null);
 
-            _mapper.Map(model, contentType);
-
-            var response = await contentTypeService.UpdateAsync(model.Id, contentType);
-
-            switch (response)
+            if (contentType == null)
             {
-                case SuccessResponse<ContentType> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
-                    });
-                case SuccessResponse<ContentType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ContentType", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Edit.Modal", model);
+            // Kiểm tra tính duy nhất của Slug
+            var existingContentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != model.Id && ct.DeletedAt == null);
+            if (existingContentType != null)
+            {
+                var errors = new Dictionary<string, string[]>
+                {
+                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
+            }
+
+            _mapper.Map(model, contentType);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ContentType>(contentType, "Cập nhật loại nội dung thành công.");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ContentType", new { area = "Admin" });
         }
         catch (Exception ex)
         {
@@ -164,29 +193,35 @@ public partial class ContentTypeController
     {
         try
         {
-            var response = await contentTypeService.DeleteAsync(model.Id);
+            var contentType = await dbContext.ContentTypes
+                .FirstOrDefaultAsync(ct => ct.Id == model.Id && ct.DeletedAt == null);
 
-            switch (response)
+            if (contentType == null)
             {
-                case SuccessResponse<ContentType> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
-                    });
-                case SuccessResponse<ContentType> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "ContentType", new { area = "Admin" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                var errors = new Dictionary<string, string[]>
+                {
+                    { "General", ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
+                };
+                return BadRequest(new ErrorResponse(errors));
             }
 
-            return PartialView("_Delete.Modal", model);
+            dbContext.ContentTypes.Remove(contentType);
+            await dbContext.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<ContentType>(contentType, "Xóa loại nội dung thành công (đã ẩn).");
+
+            if (Request.IsAjaxRequest())
+            {
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "ContentType", new { area = "Admin" })
+                });
+            }
+
+            TempData["SuccessMessage"] = successResponse.Message;
+            return RedirectToAction("Index", "ContentType", new { area = "Admin" });
         }
         catch (Exception ex)
         {

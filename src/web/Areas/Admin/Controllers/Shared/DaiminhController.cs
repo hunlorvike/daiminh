@@ -3,6 +3,7 @@ using FluentValidation;
 namespace web.Areas.Admin.Controllers.Shared;
 
 using AutoMapper;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
