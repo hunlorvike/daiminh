@@ -5,7 +5,7 @@ using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Attributes;
 using shared.Constants;
 
@@ -19,8 +19,9 @@ public partial class ProductController(
     ApplicationDbContext context,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache);
 
 public partial class ProductController
 {

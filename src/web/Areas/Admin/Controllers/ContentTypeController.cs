@@ -7,14 +7,13 @@ using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.ContentType;
 using web.Areas.Admin.Requests.ContentType;
 
 namespace web.Areas.Admin.Controllers;
@@ -26,7 +25,9 @@ public class ContentTypeController(
     ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache)
 {
     public async Task<IActionResult> Index()
     {

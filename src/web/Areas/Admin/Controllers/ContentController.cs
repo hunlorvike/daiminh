@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
@@ -25,7 +25,9 @@ public class ContentController(
     ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache)
 {
     public async Task<IActionResult> Index()
     {

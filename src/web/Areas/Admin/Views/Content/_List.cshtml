@@ -25,8 +25,8 @@
                             {
                                 <tr>
                                     <td class="text-muted">@item.Title</td>
-                                    <td class="text-muted">@item.ContentType.Name</td>
-                                    <td class="text-muted">@item.Author.Username</td>
+                                    <td class="text-muted">@item.ContentType?.Name ?? "N/A"</td>
+                                    <td class="text-muted">@item.Author?.Username ?? "N/A"</td>
                                     <td class="text-muted">@item.Slug</td>
                                     <td class="text-muted">
                                         @if (!string.IsNullOrEmpty(item.CoverImageUrl))
@@ -45,7 +45,7 @@
                                     <td>
                                         <div class="btn-list flex-nowrap">
                                             <button class="btn btn-icon btn-sm command-modal-edit" asp-area="Admin"
-                                                    asp-controller="Content" asp-action="Edit" asp-route-id="@item.Id"
+                                                    asp-controller="Content" asp-action="Edit" asp-route-id="@item!.Id"
                                                     data-bs-toggle="modal" data-bs-backdrop="true"
                                                     data-bs-target="#edit-content--modal">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -62,7 +62,7 @@
 
                                             <button class="btn btn-icon btn-sm text-danger command-modal-delete"
                                                     asp-area="Admin" asp-controller="Content" asp-action="Delete"
-                                                    asp-route-id="@item.Id" data-bs-toggle="modal"
+                                                    asp-route-id="@item!.Id" data-bs-toggle="modal"
                                                     data-bs-target="#delete-content--modal">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                      class="icon icon-tabler icon-tabler-trash" width="24" height="24"

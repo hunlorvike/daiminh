@@ -26,7 +26,7 @@
                             {
                                 <tr>
                                     <td class="text-muted">@item.Name</td>
-                                    <td class="text-muted">@item.ProductType.Name</td>
+                                    <td class="text-muted">@item.ProductType?.Name ?? "N/A"</td>
                                     <td class="text-muted">@item.Slug</td>
                                     <td class="text-muted">@item.BasePrice.ToString("N0") đ</td>
                                     <td class="text-muted">@item.Sku</td>
@@ -51,7 +51,7 @@
                                     <td>
                                         <div class="btn-list flex-nowrap">
                                             <button class="btn btn-icon btn-sm command-modal-edit" asp-area="Admin"
-                                                    asp-controller="Product" asp-action="Edit" asp-route-id="@item.Id"
+                                                    asp-controller="Product" asp-action="Edit" asp-route-id="@item!.Id"
                                                     data-bs-toggle="modal" data-bs-backdrop="true"
                                                     data-bs-target="#edit-product--modal">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
@@ -68,7 +68,7 @@
 
                                             <button class="btn btn-icon btn-sm text-danger command-modal-delete"
                                                     asp-area="Admin" asp-controller="Product" asp-action="Delete"
-                                                    asp-route-id="@item.Id" data-bs-toggle="modal"
+                                                    asp-route-id="@item!.Id" data-bs-toggle="modal"
                                                     data-bs-target="#delete-product--modal">
                                                 <svg xmlns="http://www.w3.org/2000/svg"
                                                      class="icon icon-tabler icon-tabler-trash" width="24" height="24"

@@ -2,7 +2,7 @@ using AutoMapper;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Constants;
 
 using web.Areas.Admin.Controllers.Shared;
@@ -15,8 +15,9 @@ namespace web.Areas.Admin.Controllers;
 public partial class HomeController(
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache);
 
 public partial class HomeController
 {

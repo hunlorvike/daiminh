@@ -7,14 +7,13 @@ using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Attributes;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Tag;
 using web.Areas.Admin.Requests.Tag;
 
 namespace web.Areas.Admin.Controllers;
@@ -26,8 +25,9 @@ public partial class TagController(
     ApplicationDbContext dbContext,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache);
 
 public partial class TagController
 {

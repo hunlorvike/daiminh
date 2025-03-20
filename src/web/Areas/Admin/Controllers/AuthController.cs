@@ -1,23 +1,17 @@
-using System.Security.Claims;
-
 using AutoMapper;
-
 using domain.Entities;
-
 using infrastructure;
-
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
-
+using System.Security.Claims;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Requests.Auth;
-
 using BC = BCrypt.Net.BCrypt;
 
 namespace web.Areas.Admin.Controllers;
@@ -29,7 +23,9 @@ public partial class AuthController(
     IHttpContextAccessor httpContextAccessor,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration)
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache)
 {
     [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
