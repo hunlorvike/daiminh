@@ -53,6 +53,25 @@ public class ContentService(ApplicationDbContext context) : IContentService
         }
     }
 
+    public async Task<Content?> GetLatestContentAsync()
+    {
+        try
+        {
+            return await context.Contents
+                .AsNoTracking()
+                .Include(c => c.ContentType) // Include related data
+                .Include(c => c.Author)
+                .Where(c => c.DeletedAt == null) 
+                .OrderByDescending(c => c.Id) 
+                .FirstOrDefaultAsync();
+        }
+        catch (Exception ex)
+        {
+            //_logger.LogError(ex, $"Error getting content by ID: {id}");
+            throw new Exception($"An error occurred while retrieving content with ID:", ex);
+        }
+    }
+
     /// <inheritdoc/>
     public async Task<BaseResponse> AddAsync(Content model)
     {
@@ -170,4 +189,6 @@ public class ContentService(ApplicationDbContext context) : IContentService
             });
         }
     }
+
+   
 }

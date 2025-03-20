@@ -42,4 +42,6 @@ public interface IContentService
     /// <param name="id">The ID of the content entry to delete.</param>
     /// <returns>A BaseResponse indicating success or failure.</returns>
     Task<BaseResponse> DeleteAsync(int id);
+
+    Task<Content?> GetLatestContentAsync();
 }
