@@ -178,6 +178,14 @@ This project uses LibMan to manage client-side libraries (JavaScript, CSS, etc.)
 **Important:** Always run `libman restore` after cloning the repository, pulling changes, or modifying `libman.json`.  This ensures your `wwwroot` folder contains the correct library files.
 
 ---
+## EditorConfig
+-   Configure .editorconfig settings in your editor to maintain consistent coding styles across the project.
+  - Remove unnecessary imports or usings
+  - Apply namespace matches folder preferences
+  - Fix analyzer warnings and errors set in EditorConfig
+  - Sort Imports or usings
+  - Format document
+---
 
 ## Notes
 

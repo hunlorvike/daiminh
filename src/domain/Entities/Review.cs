@@ -20,6 +20,7 @@ public class Review : BaseEntity<int>
 
 public class ReviewConfiguration : BaseEntityConfiguration<Review, int>
 {
+    [Obsolete]
     public override void Configure(EntityTypeBuilder<Review> builder)
     {
         base.Configure(builder);

@@ -36,21 +36,21 @@ public partial class ProductController
     }
 
     [AjaxOnly]
-    public async Task<IActionResult> Create()
+    public Task<IActionResult> Create()
     {
-        return PartialView("_Create.Modal");
+        return Task.FromResult<IActionResult>(PartialView("_Create.Modal"));
     }
 
     [AjaxOnly]
-    public async Task<IActionResult> Edit(int id)
+    public Task<IActionResult> Edit(int id)
     {
-        return PartialView("_Edit.Modal");
+        return Task.FromResult<IActionResult>(PartialView("_Edit.Modal"));
     }
 
 
     [AjaxOnly]
-    public async Task<IActionResult> Delete()
+    public Task<IActionResult> Delete()
     {
-        return PartialView("_Delete.Modal");
+        return Task.FromResult<IActionResult>(PartialView("_Delete.Modal"));
     }
 }

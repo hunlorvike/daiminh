@@ -1,42 +1,42 @@
 @model IEnumerable<domain.Entities.Folder>
 @{
-	var rootFolders = Model.Where(f => f.ParentId == null).ToList();
+    var rootFolders = Model.Where(f => f.ParentId == null).ToList();
 }
 
 @foreach (var folder in rootFolders)
 {
-	var hasChildren = Model.Any(f => f.ParentId == folder.Id);
-	var isActive = ViewBag.CurrentFolderId != null && ViewBag.CurrentFolderId == folder.Id;
+    var hasChildren = Model.Any(f => f.ParentId == folder.Id);
+    var isActive = ViewBag.CurrentFolderId != null && ViewBag.CurrentFolderId == folder.Id;
 
-	<li class="folder-tree-item @(isActive ? "active" : "")">
-		<div class="d-flex align-items-center">
-			@if (hasChildren)
-			{
-				<a href="#" class="folder-tree-toggle me-1">
-					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right folder-tree-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-						<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-						<path d="M9 6l6 6l-6 6"></path>
-					</svg>
-				</a>
-			}
-			else
-			{
-				<span class="folder-tree-spacer me-1" style="width: 24px;"></span>
-			}
-			<a asp-area="Admin" asp-controller="Gallery" asp-action="Index" asp-route-folderId="@folder.Id" class="folder-tree-link">
-				<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-					<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-					<path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
-				</svg>
-				@folder.Name
-			</a>
-		</div>
+    <li class="folder-tree-item @(isActive ? "active" : "")">
+        <div class="d-flex align-items-center">
+            @if (hasChildren)
+            {
+                <a href="#" class="folder-tree-toggle me-1">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right folder-tree-icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                        <path d="M9 6l6 6l-6 6"></path>
+                    </svg>
+                </a>
+            }
+            else
+            {
+                <span class="folder-tree-spacer me-1" style="width: 24px;"></span>
+            }
+            <a asp-area="Admin" asp-controller="Gallery" asp-action="Index" asp-route-folderId="@folder.Id" class="folder-tree-link">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-folder" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2"></path>
+                </svg>
+                @folder.Name
+            </a>
+        </div>
 
-		@if (hasChildren)
-		{
-			<ul class="folder-tree-children">
-				@await Html.PartialAsync("___FolderTreeChildren", new Tuple<IEnumerable<domain.Entities.Folder>, int>(Model, folder.Id))
-			</ul>
-		}
-	</li>
+        @if (hasChildren)
+        {
+            <ul class="folder-tree-children">
+                @await Html.PartialAsync("___FolderTreeChildren", new Tuple<IEnumerable<domain.Entities.Folder>, int>(Model, folder.Id))
+            </ul>
+        }
+    </li>
 }

@@ -8,7 +8,7 @@ public class ProductFieldValue : BaseEntity<int>
 {
     public int ProductId { get; set; }
     public int FieldId { get; set; }
-    public string Value { get; set; }
+    public string? Value { get; set; }
 
     // Navigation properties
     public virtual Product? Product { get; set; }
@@ -25,7 +25,7 @@ public class ProductFieldValueConfiguration : BaseEntityConfiguration<ProductFie
 
         builder.Property(e => e.ProductId).HasColumnName("product_id");
         builder.Property(e => e.FieldId).HasColumnName("field_id");
-        builder.Property(e => e.Value).HasColumnName("value");
+        builder.Property(e => e.Value).HasColumnName("value").IsRequired();
 
         builder.HasIndex(x => x.ProductId)
             .HasDatabaseName("idx_product_field_values_product_id");

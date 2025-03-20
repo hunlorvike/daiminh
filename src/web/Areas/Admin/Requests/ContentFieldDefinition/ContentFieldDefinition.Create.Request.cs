@@ -70,4 +70,3 @@ public class ContentFieldDefinitionCreateRequestValidator : AbstractValidator<Co
             .IsInEnum().WithMessage("Kiểu trường không hợp lệ. Vui lòng chọn một kiểu trường từ danh sách."); // Combined checks
     }
 }
-

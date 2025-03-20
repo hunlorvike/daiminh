@@ -1,240 +1,240 @@
 @model web.Areas.Admin.Requests.Product.ProductCreateRequest
 
 <div class="modal modal-blur fade" id="create-product--modal" tabindex="-1" role="dialog">
-	<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
-		<form asp-area="Admin" asp-controller="Product" asp-action="Create" class="modal-content border">
-			<div class="modal-header">
-				<h5 class="modal-title">Thêm sản phẩm mới</h5>
-				<button type="button" class="btn-close command-modal-close"></button>
-			</div>
-			<div class="modal-body">
-				@Html.AntiForgeryToken()
-				<div class="row">
-					<div class="col-lg-6">
-						<div class="mb-3">
-							<label asp-for="ProductTypeId" class="form-label"></label>
-							<select asp-for="ProductTypeId" class="form-select" asp-items="ViewBag.ProductTypes" id="productTypeSelect">
-								<option value="">Chọn loại sản phẩm</option>
-							</select>
-							<span asp-validation-for="ProductTypeId" class="text-danger"></span>
-						</div>
-					</div>
-					<div class="col-lg-6">
-						<div class="mb-3">
-							<label asp-for="Sku" class="form-label"></label>
-							<input asp-for="Sku" class="form-control" autocomplete="off">
-							<span asp-validation-for="Sku" class="text-danger"></span>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="mb-3">
-							<label asp-for="CategoryIds" class="form-label"></label>
-							<select asp-for="CategoryIds" class="form-select tom-select-tags" multiple asp-items="ViewBag.Categories"></select>
-							<span asp-validation-for="CategoryIds" class="text-danger"></span>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="mb-3">
-							<label asp-for="TagIds" class="form-label"></label>
-							<select asp-for="TagIds" class="form-select tom-select-tags" multiple asp-items="ViewBag.Tags">
-							</select>
-							<span asp-validation-for="TagIds" class="text-danger"></span>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="mb-3">
-							<label asp-for="Name" class="form-label"></label>
-							<input asp-for="Name" class="form-control" autocomplete="off">
-							<span asp-validation-for="Name" class="text-danger"></span>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-12">
-						<div class="mb-3">
-							<label asp-for="Slug" class="form-label"></label>
-							<input asp-for="Slug" class="form-control" autocomplete="off">
-							<span asp-validation-for="Slug" class="text-danger"></span>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-lg-6">
-						<div class="mb-3">
-							<label asp-for="BasePrice" class="form-label"></label>
-							<div class="input-group">
-								<input asp-for="BasePrice" type="number" class="form-control" autocomplete="off">
-								<span class="input-group-text">đ</span>
-							</div>
-							<span asp-validation-for="BasePrice" class="text-danger"></span>
-						</div>
-					</div>
-					<div class="col-lg-6">
-						<div class="mb-3">
-							<label asp-for="Status" class="form-label"></label>
-							<select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<shared.Enums.PublishStatus>()"></select>
-							<span asp-validation-for="Status" class="text-danger"></span>
-						</div>
-					</div>
-				</div>
-				<div class="row">
-					<div class="col-12">
-						<div class="mb-3">
-							<label asp-for="Description" class="form-label"></label>
-							<textarea asp-for="Description" class="form-control" rows="6"></textarea>
-							<span asp-validation-for="Description" class="text-danger"></span>
-						</div>
-					</div>
-				</div>
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable" role="document">
+        <form asp-area="Admin" asp-controller="Product" asp-action="Create" class="modal-content border">
+            <div class="modal-header">
+                <h5 class="modal-title">Thêm sản phẩm mới</h5>
+                <button type="button" class="btn-close command-modal-close"></button>
+            </div>
+            <div class="modal-body">
+                @Html.AntiForgeryToken()
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="ProductTypeId" class="form-label"></label>
+                            <select asp-for="ProductTypeId" class="form-select" asp-items="ViewBag.ProductTypes" id="productTypeSelect">
+                                <option value="">Chọn loại sản phẩm</option>
+                            </select>
+                            <span asp-validation-for="ProductTypeId" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="Sku" class="form-label"></label>
+                            <input asp-for="Sku" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Sku" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="CategoryIds" class="form-label"></label>
+                            <select asp-for="CategoryIds" class="form-select tom-select-tags" multiple asp-items="ViewBag.Categories"></select>
+                            <span asp-validation-for="CategoryIds" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="TagIds" class="form-label"></label>
+                            <select asp-for="TagIds" class="form-select tom-select-tags" multiple asp-items="ViewBag.Tags">
+                            </select>
+                            <span asp-validation-for="TagIds" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label"></label>
+                            <input asp-for="Name" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="mb-3">
+                            <label asp-for="Slug" class="form-label"></label>
+                            <input asp-for="Slug" class="form-control" autocomplete="off">
+                            <span asp-validation-for="Slug" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="BasePrice" class="form-label"></label>
+                            <div class="input-group">
+                                <input asp-for="BasePrice" type="number" class="form-control" autocomplete="off">
+                                <span class="input-group-text">đ</span>
+                            </div>
+                            <span asp-validation-for="BasePrice" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="mb-3">
+                            <label asp-for="Status" class="form-label"></label>
+                            <select asp-for="Status" class="form-select" asp-items="Html.GetEnumSelectList<shared.Enums.PublishStatus>()"></select>
+                            <span asp-validation-for="Status" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-12">
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label"></label>
+                            <textarea asp-for="Description" class="form-control" rows="6"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
 
-				<!-- Product Images Section -->
-				<div class="row">
-					<div class="col-12">
-						<div class="card mb-3">
-							<div class="card-header">
-								<h3 class="card-title">Hình ảnh sản phẩm</h3>
-							</div>
-							<div class="card-body">
-								<div class="row" id="productImagesContainer">
-									<div class="col-md-4 mb-3">
-										<div class="card">
-											<div class="card-body">
-												<div class="mb-3">
-													<label class="form-label">Hình ảnh</label>
-													<input type="url" name="Images[0].ImageUrl" class="form-control" placeholder="URL hình ảnh">
-												</div>
-												<div class="mb-3">
-													<label class="form-label">Mô tả hình ảnh</label>
-													<input type="text" name="Images[0].AltText" class="form-control" placeholder="Mô tả hình ảnh">
-												</div>
-												<div class="mb-3">
-													<div class="form-check">
-														<input class="form-check-input primary-image-checkbox" type="checkbox" name="Images[0].IsPrimary" value="true" id="primaryImage0">
-														<label class="form-check-label" for="primaryImage0">
-															Hình ảnh chính
-														</label>
-													</div>
-												</div>
-												<input type="hidden" name="Images[0].DisplayOrder" value="0">
-											</div>
-										</div>
-									</div>
-									<div class="col-md-4 mb-3">
-										<button type="button" class="btn btn-outline-primary w-100 h-100" id="addImageBtn">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M12 5l0 14"></path>
-												<path d="M5 12l14 0"></path>
-											</svg>
-											Thêm hình ảnh
-										</button>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+                <!-- Product Images Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h3 class="card-title">Hình ảnh sản phẩm</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row" id="productImagesContainer">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <div class="mb-3">
+                                                    <label class="form-label">Hình ảnh</label>
+                                                    <input type="url" name="Images[0].ImageUrl" class="form-control" placeholder="URL hình ảnh">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <label class="form-label">Mô tả hình ảnh</label>
+                                                    <input type="text" name="Images[0].AltText" class="form-control" placeholder="Mô tả hình ảnh">
+                                                </div>
+                                                <div class="mb-3">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input primary-image-checkbox" type="checkbox" name="Images[0].IsPrimary" value="true" id="primaryImage0">
+                                                        <label class="form-check-label" for="primaryImage0">
+                                                            Hình ảnh chính
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                                <input type="hidden" name="Images[0].DisplayOrder" value="0">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <button type="button" class="btn btn-outline-primary w-100 h-100" id="addImageBtn">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M12 5l0 14"></path>
+                                                <path d="M5 12l14 0"></path>
+                                            </svg>
+                                            Thêm hình ảnh
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-				<!-- Custom Fields Section (will be populated dynamically based on product type) -->
-				<div class="row">
-					<div class="col-12">
-						<div class="card mb-3">
-							<div class="card-header">
-								<h3 class="card-title">Thông tin bổ sung</h3>
-							</div>
-							<div class="card-body">
-								<div id="customFieldsContainer">
-									<div class="alert alert-info">
-										Vui lòng chọn loại sản phẩm để hiển thị các trường thông tin bổ sung.
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
+                <!-- Custom Fields Section (will be populated dynamically based on product type) -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h3 class="card-title">Thông tin bổ sung</h3>
+                            </div>
+                            <div class="card-body">
+                                <div id="customFieldsContainer">
+                                    <div class="alert alert-info">
+                                        Vui lòng chọn loại sản phẩm để hiển thị các trường thông tin bổ sung.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-				<!-- SEO Section -->
-				<div class="row">
-					<div class="col-12">
-						<div class="card mb-3">
-							<div class="card-header">
-								<h3 class="card-title">Thông tin SEO</h3>
-							</div>
-							<div class="card-body">
-								<div class="row">
-									<div class="col-12">
-										<div class="mb-3">
-											<label asp-for="MetaTitle" class="form-label"></label>
-											<input type="text" asp-for="MetaTitle" class="form-control" />
-											<span asp-validation-for="MetaTitle" class="text-danger"></span>
-										</div>
-									</div>
-									<div class="col-12">
-										<div class="mb-3">
-											<label asp-for="MetaDescription" class="form-label"></label>
-											<textarea asp-for="MetaDescription" class="form-control"></textarea>
-											<span asp-validation-for="MetaDescription" class="text-danger"></span>
-										</div>
-									</div>
-									<div class="col-12">
-										<div class="mb-3">
-											<label asp-for="CanonicalUrl" class="form-label"></label>
-											<input type="text" asp-for="CanonicalUrl" class="form-control" />
-											<span asp-validation-for="CanonicalUrl" class="text-danger"></span>
-										</div>
-									</div>
-									<div class="col-12">
-										<div class="mb-3">
-											<label asp-for="OgTitle" class="form-label"></label>
-											<input type="text" asp-for="OgTitle" class="form-control" />
-											<span asp-validation-for="OgTitle" class="text-danger"></span>
-										</div>
-									</div>
-									<div class="col-12">
-										<div class="mb-3">
-											<label asp-for="OgDescription" class="form-label"></label>
-											<textarea asp-for="OgDescription" class="form-control"></textarea>
-											<span asp-validation-for="OgDescription" class="text-danger"></span>
-										</div>
-									</div>
-									<div class="col-12">
-										<div class="mb-3">
-											<label asp-for="OgImage" class="form-label"></label>
-											<input type="text" asp-for="OgImage" class="form-control" />
-											<span asp-validation-for="OgImage" class="text-danger"></span>
-										</div>
-									</div>
-									<div class="col-12">
-										<div class="mb-3">
-											<label asp-for="StructuredData" class="form-label"></label>
-											<textarea asp-for="StructuredData" class="form-control"></textarea>
-											<span asp-validation-for="StructuredData" class="text-danger"></span>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button class="btn btn-link link-secondary command-modal-close">Hủy</button>
-				<button class="btn btn-primary command-submit ms-auto" type="button">
-					<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-						 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-						 stroke-linejoin="round">
-						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
-						<path d="M5 12l5 5l10 -10" />
-					</svg>
-					Lưu thông tin
-				</button>
-			</div>
-		</form>
-	</div>
+                <!-- SEO Section -->
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h3 class="card-title">Thông tin SEO</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="MetaTitle" class="form-label"></label>
+                                            <input type="text" asp-for="MetaTitle" class="form-control" />
+                                            <span asp-validation-for="MetaTitle" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="MetaDescription" class="form-label"></label>
+                                            <textarea asp-for="MetaDescription" class="form-control"></textarea>
+                                            <span asp-validation-for="MetaDescription" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="CanonicalUrl" class="form-label"></label>
+                                            <input type="text" asp-for="CanonicalUrl" class="form-control" />
+                                            <span asp-validation-for="CanonicalUrl" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="OgTitle" class="form-label"></label>
+                                            <input type="text" asp-for="OgTitle" class="form-control" />
+                                            <span asp-validation-for="OgTitle" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="OgDescription" class="form-label"></label>
+                                            <textarea asp-for="OgDescription" class="form-control"></textarea>
+                                            <span asp-validation-for="OgDescription" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="OgImage" class="form-label"></label>
+                                            <input type="text" asp-for="OgImage" class="form-control" />
+                                            <span asp-validation-for="OgImage" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <label asp-for="StructuredData" class="form-label"></label>
+                                            <textarea asp-for="StructuredData" class="form-control"></textarea>
+                                            <span asp-validation-for="StructuredData" class="text-danger"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-link link-secondary command-modal-close">Hủy</button>
+                <button class="btn btn-primary command-submit ms-auto" type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+                         stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+                         stroke-linejoin="round">
+                        <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                        <path d="M5 12l5 5l10 -10" />
+                    </svg>
+                    Lưu thông tin
+                </button>
+            </div>
+        </form>
+    </div>
 </div>

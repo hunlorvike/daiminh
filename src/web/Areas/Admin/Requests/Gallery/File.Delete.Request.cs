@@ -20,7 +20,7 @@ public class FileDeleteRequest
     /// </summary>
     [Display(Name = "Tên", Prompt = "Tên")]
     [Required(ErrorMessage = "Tên không được bỏ trống")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 }
 
 /// <summary>

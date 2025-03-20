@@ -1,41 +1,41 @@
 @model web.Areas.Admin.Requests.Gallery.FileCreateRequest
 
 <div class="modal modal-blur fade" id="modal-upload-file" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered" role="document">
-		<div class="modal-content border">
-			<form asp-area="Admin" asp-controller="Gallery" asp-action="CreateFile" method="post" enctype="multipart/form-data">
-				<div class="modal-header">
-					<h5 class="modal-title">Tải lên tệp mới</h5>
-					<button type="button" class="btn-close command-modal-close"></button>
-				</div>
-				<div class="modal-body">
-					@Html.AntiForgeryToken()
-					<div class="mb-3">
-						<label asp-for="File" class="form-label"></label>
-						<input asp-for="File" class="form-control" autocomplete="off">
-						<span asp-validation-for="File" class="text-danger"></span>	
-					</div>
-					<label asp-for="FolderId" class="form-label"></label>
-					<select asp-for="FolderId" class="form-select" asp-items="ViewBag.Folders">
-						<option value="">Chọn thư mục</option>
-					</select>
-					<span asp-validation-for="FolderId" class="text-danger"></span>
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
-						Hủy
-					</button>
-					<button type="button" class="btn btn-primary ms-auto command-submit">
-						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-							<path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
-							<path d="M7 9l5 -5l5 5"></path>
-							<path d="M12 4l0 12"></path>
-						</svg>
-						Tải lên
-					</button>
-				</div>
-			</form>
-		</div>
-	</div>
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border">
+            <form asp-area="Admin" asp-controller="Gallery" asp-action="CreateFile" method="post" enctype="multipart/form-data">
+                <div class="modal-header">
+                    <h5 class="modal-title">Tải lên tệp mới</h5>
+                    <button type="button" class="btn-close command-modal-close"></button>
+                </div>
+                <div class="modal-body">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label asp-for="File" class="form-label"></label>
+                        <input asp-for="File" class="form-control" autocomplete="off">
+                        <span asp-validation-for="File" class="text-danger"></span>
+                    </div>
+                    <label asp-for="FolderId" class="form-label"></label>
+                    <select asp-for="FolderId" class="form-select" asp-items="ViewBag.Folders">
+                        <option value="">Chọn thư mục</option>
+                    </select>
+                    <span asp-validation-for="FolderId" class="text-danger"></span>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">
+                        Hủy
+                    </button>
+                    <button type="button" class="btn btn-primary ms-auto command-submit">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-upload" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                            <path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2 -2v-2"></path>
+                            <path d="M7 9l5 -5l5 5"></path>
+                            <path d="M12 4l0 12"></path>
+                        </svg>
+                        Tải lên
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>

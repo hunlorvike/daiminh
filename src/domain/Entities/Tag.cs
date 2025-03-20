@@ -6,8 +6,8 @@ namespace domain.Entities;
 
 public class Tag : BaseEntity<int>
 {
-    public string Name { get; set; }
-    public string Slug { get; set; }
+    public string? Name { get; set; }
+    public string? Slug { get; set; }
 
     // Navigation properties
     public virtual ICollection<ContentTag>? ContentTags { get; set; }

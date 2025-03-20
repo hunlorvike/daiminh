@@ -7,8 +7,8 @@ namespace domain.Entities;
 
 public class Slider : BaseEntity<int>
 {
-    public string Title { get; set; }
-    public string ImageUrl { get; set; }
+    public string? Title { get; set; }
+    public string? ImageUrl { get; set; }
     public string? LinkUrl { get; set; }
     public int Order { get; set; }
     public string? OverlayHtml { get; set; }

@@ -8,10 +8,10 @@ public class SliderViewModel
 {
     public int Id { get; set; }
     [DisplayName("Tiêu đề")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [DisplayName("Hình ảnh")]
-    public string ImageUrl { get; set; }
+    public string? ImageUrl { get; set; }
 
     [DisplayName("Đường dẫn liên kết")]
     public string? LinkUrl { get; set; }

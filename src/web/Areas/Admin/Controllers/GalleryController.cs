@@ -295,7 +295,7 @@ public class GalleryController(
             }
 
             string oldPath = folder.Path;
-            string newPathSegment = model.Name.ToUrlSlug();
+            string newPathSegment = model.Name!.ToUrlSlug();
             string newPath = folder.ParentId.HasValue
                 ? Path.Combine(await GetFolderPathAsync(folder.ParentId), newPathSegment)
                 : newPathSegment;
