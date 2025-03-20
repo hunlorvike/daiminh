@@ -2,6 +2,7 @@ using application.Interfaces;
 using AutoMapper;
 using domain.Entities;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
@@ -16,8 +17,9 @@ public partial class SubscriberController(
     ISubscriberService subscriberService,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache);
 
 public partial class SubscriberController
 {

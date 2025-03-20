@@ -1,10 +1,18 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using web.Areas.Admin.Controllers.Shared;
 
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
 [Route("danh-muc")]
-public class CategoryController : Controller
+public class CategoryController(
+    IMapper mapper,
+    IServiceProvider serviceProvider,
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache)
 {
     [HttpGet]
     public IActionResult Index()

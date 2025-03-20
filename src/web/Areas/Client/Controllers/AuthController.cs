@@ -3,6 +3,7 @@ using AutoMapper;
 using domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
@@ -16,8 +17,9 @@ public partial class AuthController(
     IMapper mapper,
     IAuthService authService,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache);
 
 public partial class AuthController
 {

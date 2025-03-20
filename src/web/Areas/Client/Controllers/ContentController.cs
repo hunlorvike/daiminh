@@ -1,7 +1,7 @@
 using application.Interfaces;
-using application.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Client.Models.Content;
 using web.Areas.Client.Models.ContentType;
@@ -17,8 +17,9 @@ public partial class ContentController(
     IContentTypeService contentTypeService,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration)
-    : DaiminhController(mapper, serviceProvider, configuration);
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache);
 
 public partial class ContentController : DaiminhController
 {
@@ -33,7 +34,7 @@ public partial class ContentController : DaiminhController
 
         var latestContent = await contentService.GetLatestContentAsync();
         var latestContentModel = _mapper.Map<ContentViewModel>(latestContent);
-         var viewModel = new HomeViewModel
+        var viewModel = new HomeViewModel
         {
             Contents = contentModels,
             ContentTypes = contentTypeModels,

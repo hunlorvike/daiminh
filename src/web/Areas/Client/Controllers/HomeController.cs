@@ -1,9 +1,8 @@
 using application.Interfaces;
-using application.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Setting;
 using web.Areas.Client.Models.Category;
 using web.Areas.Client.Models.Home;
 using web.Areas.Client.Requests.Subscriber;
@@ -15,7 +14,9 @@ public partial class HomeController(
     ICategoryService categoryService,
     IMapper mapper,
     IServiceProvider serviceProvider,
-    IConfiguration configuration) : DaiminhController(mapper, serviceProvider, configuration);
+    IConfiguration configuration,
+    IDistributedCache cache)
+    : DaiminhController(mapper, serviceProvider, configuration, cache);
 
 public partial class HomeController
 {
