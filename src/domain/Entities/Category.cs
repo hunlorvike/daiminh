@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using shared.Enums;
 using shared.Models;
 
 namespace domain.Entities;
@@ -9,6 +10,7 @@ public class Category : BaseEntity<int>
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public int? ParentCategoryId { get; set; }
+    public EntityType EntityType { get; set; } = EntityType.Product;
 
     // Navigation properties
     public virtual Category? ParentCategory { get; set; }
@@ -28,6 +30,7 @@ public class CategoryConfiguration : BaseEntityConfiguration<Category, int>
         builder.Property(x => x.Name).HasColumnName("name").IsRequired().HasMaxLength(100);
         builder.Property(x => x.Slug).HasColumnName("slug").IsRequired().HasMaxLength(100);
         builder.Property(x => x.ParentCategoryId).HasColumnName("parent_category_id");
+        builder.Property(x => x.EntityType).HasColumnName("entity_type").IsRequired().HasDefaultValue(EntityType.Product);
 
         builder.HasIndex(e => e.Name).IsUnique().HasDatabaseName("idx_categories_name");
         builder.HasIndex(e => e.ParentCategoryId).HasDatabaseName("idx_categories_parent_category_id");

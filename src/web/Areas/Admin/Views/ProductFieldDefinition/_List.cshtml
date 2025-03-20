@@ -1,4 +1,3 @@
-@using domain.Entities
 @model List<ProductFieldDefinition>
 
 <div class="page-body">
@@ -23,8 +22,8 @@
                             {
                                 <tr>
                                     <td class="text-muted">@item.FieldName</td>
-                                    <td class="text-muted">@item.ProductType?.Name ?? "N/A"</td>
-                                    <td class="text-muted">@item.FieldType</td>
+                                    <td class="text-muted">@(item.ProductType?.Name ?? "N/A")</td>
+                                    <td class="text-muted">@item.FieldType.GetDisplayName()</td>
                                     <td class="text-muted">@(item.IsRequired ? "Có" : "Không")</td>
                                     <td class="text-muted">
                                         @(item?.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")

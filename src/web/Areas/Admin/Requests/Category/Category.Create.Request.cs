@@ -1,5 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using shared.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.Category;
 
@@ -28,6 +29,13 @@ public class CategoryCreateRequest
     /// <example>1</example>
     [Display(Name = "Danh mục cha", Prompt = "Chọn danh mục cha")]
     public int? ParentCategoryId { get; set; }
+
+    /// <summary>
+    /// Gets or sets the entity type of the tag.
+    /// </summary>
+    [Display(Name = "Loại danh mục", Prompt = "Chọn loại danh mục")]
+    public EntityType EntityType { get; set; } = EntityType.Product;
+
 }
 
 /// <summary>
@@ -53,5 +61,8 @@ public class CategoryCreateRequestValidator : AbstractValidator<CategoryCreateRe
         RuleFor(x => x.ParentCategoryId)
             .GreaterThan(0).When(x => x.ParentCategoryId.HasValue)
             .WithMessage("ID danh mục cha, nếu được cung cấp, phải là một số nguyên dương.");
+
+        RuleFor(x => x.EntityType)
+            .IsInEnum().WithMessage("Loại danh mục không hợp lệ.");
     }
 }

@@ -1,5 +1,5 @@
-@using domain.Entities
 @model List<Slider>
+
 <div class="page-body">
     <div class="container">
         <div class="card">
@@ -28,7 +28,7 @@
                                     <td class="text-muted">@item.LinkUrl</td>
                                     <td class="text-muted">@item.Order</td>
                                     <td class="text-muted">@item.OverlayHtml</td>
-                                    <td class="text-muted">@item.OverlayPosition</td>
+                                    <td class="text-muted">@item?.OverlayPosition?.GetDisplayName()</td>
                                     <td class="text-muted">
                                         @(item.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                     </td>

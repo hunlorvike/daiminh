@@ -1,4 +1,3 @@
-﻿@using domain.Entities
 @model List<Category>
 
 <div class="page-body">
@@ -13,6 +12,7 @@
                                 <th scope="col" class="text-nowrap">Tên danh mục</th>
                                 <th scope="col" class="text-nowrap">Đường dẫn (slug)</th>
                                 <th scope="col" class="text-nowrap">Danh mục cha</th>
+                                <th scope="col" class="text-nowrap">Loại danh mục</th>
                                 <th scope="col" class="text-nowrap">Ngày tạo</th>
                                 <th scope="col" class="w-1" data-orderable="false">Hành động</th>
                             </tr>
@@ -24,6 +24,7 @@
                                     <td class="text-muted">@item.Name</td>
                                     <td class="text-muted">@item.Slug</td>
                                     <td class="text-muted">@(item?.ParentCategory?.Name)</td>
+                                    <td class="text-muted">@item?.EntityType.GetDisplayName()</td>
                                     <td class="text-muted">
                                         @(item?.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                     </td>

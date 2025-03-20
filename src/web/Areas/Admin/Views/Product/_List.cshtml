@@ -1,4 +1,3 @@
-@using domain.Entities
 @model List<Product>
 
 <div class="page-body">
@@ -44,7 +43,7 @@
                                             <span>(No Image)</span>
                                         }
                                     </td>
-                                    <td class="text-muted">@item.Status</td>
+                                    <td class="text-muted">@item.Status.GetDisplayName()</td>
                                     <td class="text-muted">
                                         @(item?.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                     </td>
