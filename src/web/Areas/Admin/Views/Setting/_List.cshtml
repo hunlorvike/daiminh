@@ -10,12 +10,12 @@
                     <table id="table" class="table table-vcenter card-table">
                         <thead>
                             <tr>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Key)</th>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Value)</th>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Description)</th>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Group)</th>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Order)</th>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].CreatedAt)</th>
+                                <th scope="col" class="text-nowrap">Nhóm</th>
+                                <th scope="col" class="text-nowrap">Khóa</th>
+                                <th scope="col" class="text-nowrap">Giá trị</th>
+                                <th scope="col" class="text-nowrap">Mô tả</th>
+                                <th scope="col" class="text-nowrap">Thứ tự</th>
+                                <th scope="col" class="text-nowrap">Ngày tạo</th>
                                 <th scope="col" class="w-1" data-orderable="false">Hành động</th>
                             </tr>
                         </thead>
@@ -23,10 +23,10 @@
                             @foreach (var item in Model)
                             {
                                 <tr>
+                                    <td class="text-muted">@item.Group</td>
                                     <td class="text-muted">@item.Key</td>
                                     <td class="text-muted">@item.Value</td>
                                     <td class="text-muted">@item.Description</td>
-                                    <td class="text-muted">@item.Group</td>
                                     <td class="text-muted">@item.Order</td>
                                     <td class="text-muted">
                                         @(item.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
@@ -48,8 +48,6 @@
                                                     <path d="M16 5l3 3"></path>
                                                 </svg>
                                             </button>
-
-
                                             <button class="btn btn-icon btn-sm command-modal-detail" asp-area="Admin"
                                                     asp-controller="Setting" asp-action="Details"
                                                     asp-route-id="@item!.Id"
