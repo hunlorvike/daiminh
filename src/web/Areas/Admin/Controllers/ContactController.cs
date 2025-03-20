@@ -14,7 +14,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Contact;
 using web.Areas.Admin.Requests.Contact;
 
 namespace web.Areas.Admin.Controllers;
@@ -35,8 +34,7 @@ public class ContactController(
             .Where(x => x.DeletedAt == null)
             .ToListAsync();
 
-        List<ContactViewModel> models = _mapper.Map<List<ContactViewModel>>(contacts);
-        return View(models);
+        return View(contacts);
     }
 
     [AjaxOnly]
@@ -59,8 +57,7 @@ public class ContactController(
             .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
 
         if (contact == null) return NotFound();
-        var contactDetail = _mapper.Map<ContactViewModel>(contact);
-        return PartialView("_Detail.Modal", contactDetail);
+        return PartialView("_Detail.Modal", contact);
     }
 
     [HttpPost]

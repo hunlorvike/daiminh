@@ -14,7 +14,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Setting;
 using web.Areas.Admin.Requests.Setting;
 
 namespace web.Areas.Admin.Controllers;
@@ -35,8 +34,7 @@ public class SettingController(
             .Where(x => x.DeletedAt == null)
             .ToListAsync();
 
-        List<SettingViewModel> models = _mapper.Map<List<SettingViewModel>>(settings);
-        return View(models);
+        return View(settings);
     }
 
     [AjaxOnly]
@@ -65,8 +63,7 @@ public class SettingController(
             .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
 
         if (setting == null) return NotFound();
-        var settingDetail = _mapper.Map<SettingViewModel>(setting);
-        return PartialView("_Detail.Modal", settingDetail);
+        return PartialView("_Detail.Modal", setting);
     }
 
     [AjaxOnly]

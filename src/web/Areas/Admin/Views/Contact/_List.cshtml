@@ -1,4 +1,5 @@
-@model List<web.Areas.Admin.Models.Contact.ContactViewModel>
+@using domain.Entities
+@model List<Contact>
 
 <div class="page-body">
     <div class="container">
@@ -28,7 +29,7 @@
                                     <span class="badge bg-blue-lt">@item.Status</span>
                                 </td>
                                 <td class="text-muted">
-                                    @(item.CreatedAt?.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
+                                    @(item.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                 </td>
                                 <td>
                                     <div class="btn-list flex-nowrap">

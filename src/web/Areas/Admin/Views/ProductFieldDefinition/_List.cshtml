@@ -1,4 +1,5 @@
-@model List<web.Areas.Admin.Models.ProductFieldDefinition.ProductFieldDefinitionViewModel>
+@using domain.Entities
+@model List<ProductFieldDefinition>
 
 <div class="page-body">
     <div class="container">
@@ -11,7 +12,7 @@
                         <tr>
                             <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].FieldName)</th>
                             <th scope="col"
-                                class="text-nowrap">@Html.DisplayNameFor(model => model[0].ProductTypeName)</th>
+                                class="text-nowrap">Loại sản phẩm</th>
                             <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].FieldType)</th>
                             <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].IsRequired)</th>
                             <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].CreatedAt)</th>
@@ -23,11 +24,11 @@
                         {
                             <tr>
                                 <td class="text-muted">@item.FieldName</td>
-                                <td class="text-muted">@item.ProductTypeName</td>
+                                <td class="text-muted">@item.ProductType.Name</td>
                                 <td class="text-muted">@item.FieldType</td>
                                 <td class="text-muted">@(item.IsRequired ? "Có" : "Không")</td>
                                 <td class="text-muted">
-                                    @(item?.CreatedAt?.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
+                                    @(item?.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                 </td>
                                 <td>
                                     <div class="btn-list flex-nowrap">

@@ -1,4 +1,6 @@
-@model List<web.Areas.Admin.Models.Subscriber.SubscriberViewModel>
+@using domain.Entities
+
+@model List<Subscriber>
 
 @{
     const string title = "Quản lý mail liên hệ";
@@ -22,7 +24,7 @@
     <section class="dm-form form-edit-container"></section>
     <section class="dm-form form-delete-container"></section>
     <section class="paged-list">
-        <partial name="_List" model="Model"/>
+        <partial name="_List" model="Model" />
     </section>
 </div>
 

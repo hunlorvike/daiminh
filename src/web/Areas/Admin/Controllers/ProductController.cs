@@ -10,7 +10,6 @@ using shared.Attributes;
 using shared.Constants;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Product;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -33,23 +32,7 @@ public partial class ProductController
             .OrderByDescending(p => p.CreatedAt)
             .ToListAsync();
 
-        var viewModels = products.Select(p => new ProductViewModel
-        {
-            Id = p.Id,
-            Name = p.Name,
-            Slug = p.Slug,
-            BasePrice = p.BasePrice,
-            Sku = p.Sku,
-            Status = p.Status,
-            ProductTypeId = p.ProductTypeId,
-            ProductTypeName = p.ProductType?.Name ?? "N/A",
-            PrimaryImage = p.Images?.FirstOrDefault(i => i.IsPrimary)?.ImageUrl ??
-                              p.Images?.OrderBy(i => i.DisplayOrder).FirstOrDefault()?.ImageUrl,
-            CreatedAt = p.CreatedAt,
-            UpdatedAt = p.UpdatedAt
-        }).ToList();
-
-        return View(viewModels);
+        return View(products);
     }
 
     [AjaxOnly]

@@ -1,4 +1,5 @@
-@model List<web.Areas.Admin.Models.Account.UserViewModel>
+@using domain.Entities
+@model List<User>
 
 <div class="page-body">
     <div class="container">
@@ -11,7 +12,7 @@
                         <tr>
                             <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Username)</th>
                             <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Email)</th>
-                            <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].RoleName)</th>
+                            <th scope="col" class="text-nowrap">Vai trò</th>
                             <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].CreatedAt)</th>
                             <th scope="col" class="w-1" data-orderable="false">Hành động</th>
                         </tr>
@@ -32,10 +33,10 @@
                                 </td>
                                 <td class="text-muted">@item.Email</td>
                                 <td>
-                                    <span class="badge bg-blue-lt">@item.RoleName</span>
+                                    <span class="badge bg-blue-lt">@item?.Role?.Name</span>
                                 </td>
                                 <td class="text-muted">
-                                    @(item?.CreatedAt?.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
+                                    @(item?.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                 </td>
                                 <td>
                                     <div class="btn-list flex-nowrap">

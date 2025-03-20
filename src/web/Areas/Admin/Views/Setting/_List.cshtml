@@ -1,4 +1,5 @@
-@model List<web.Areas.Admin.Models.Setting.SettingViewModel>
+@using domain.Entities
+@model List<Setting>
 
 <div class="page-body">
     <div class="container">
@@ -28,7 +29,7 @@
                                 <td class="text-muted">@item.Group</td>
                                 <td class="text-muted">@item.Order</td>
                                 <td class="text-muted">
-                                    @(item.CreatedAt?.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
+                                    @(item.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                 </td>
                                 <td>
                                     <div class="btn-list flex-nowrap">

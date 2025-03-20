@@ -14,7 +14,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.ProductType;
 using web.Areas.Admin.Requests.ProductType;
 
 namespace web.Areas.Admin.Controllers;
@@ -35,8 +34,7 @@ public class ProductTypeController(
             .Where(x => x.DeletedAt == null)
             .ToListAsync();
 
-        List<ProductTypeViewModel> models = _mapper.Map<List<ProductTypeViewModel>>(productTypes);
-        return View(models);
+        return View(productTypes);
     }
 
     [AjaxOnly]

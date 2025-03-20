@@ -38,8 +38,7 @@ public partial class SubscriberController
             .Where(x => x.DeletedAt == null)
             .ToListAsync();
 
-        List<SubscriberViewModel> models = _mapper.Map<List<SubscriberViewModel>>(subscribers);
-        return View(models);
+        return View(subscribers);
     }
 
     [AjaxOnly]
@@ -50,8 +49,7 @@ public partial class SubscriberController
             .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
 
         if (subscriber == null) return NotFound();
-        var subscriberDetail = _mapper.Map<SubscriberViewModel>(subscriber);
-        return PartialView("_Detail.Modal", subscriberDetail);
+        return PartialView("_Detail.Modal", subscriber);
     }
 
     [AjaxOnly]

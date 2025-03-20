@@ -16,7 +16,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.ContentFieldDefinition;
 using web.Areas.Admin.Requests.ContentFieldDefinition;
 
 namespace web.Areas.Admin.Controllers;
@@ -38,8 +37,7 @@ public class ContentFieldDefinitionController(
             .Include(x => x.ContentType)
             .ToListAsync();
 
-        List<ContentFieldDefinitionViewModel> models = _mapper.Map<List<ContentFieldDefinitionViewModel>>(contentFieldDefinitions);
-        return View(models);
+        return View(contentFieldDefinitions);
     }
 
     [AjaxOnly]

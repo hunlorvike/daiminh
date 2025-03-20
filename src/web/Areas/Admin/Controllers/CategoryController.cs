@@ -15,7 +15,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Category;
 using web.Areas.Admin.Requests.Category;
 
 namespace web.Areas.Admin.Controllers;
@@ -37,8 +36,7 @@ public class CategoryController(
             .Include(x => x.ParentCategory)
             .ToListAsync();
 
-        List<CategoryViewModel> models = _mapper.Map<List<CategoryViewModel>>(categories);
-        return View(models);
+        return View(categories);
     }
 
     [AjaxOnly]

@@ -16,7 +16,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Slider;
 using web.Areas.Admin.Requests.Slider;
 
 namespace web.Areas.Admin.Controllers;
@@ -37,8 +36,7 @@ public class SliderController(
             .Where(x => x.DeletedAt == null)
             .ToListAsync();
 
-        List<SliderViewModel> models = _mapper.Map<List<SliderViewModel>>(sliders);
-        return View(models);
+        return View(sliders);
     }
 
     [AjaxOnly]

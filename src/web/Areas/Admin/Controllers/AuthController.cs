@@ -111,16 +111,12 @@ public partial class AuthController(
                 new ClaimsPrincipal(claimsIdentity),
                 authProperties);
 
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = true,
-                    message = "Đăng nhập thành công.",
-                    redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Admin" })
-                });
-
-            TempData["SuccessMessage"] = "Đăng nhập thành công.";
-            return RedirectToAction("Index", "Home", new { area = "Admin" });
+            return Json(new
+            {
+                success = true,
+                message = "Đăng nhập thành công.",
+                redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Admin" })
+            });
         }
         catch (Exception ex)
         {

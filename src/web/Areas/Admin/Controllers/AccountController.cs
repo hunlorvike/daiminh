@@ -15,7 +15,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Account;
 using web.Areas.Admin.Requests.Account;
 
 namespace web.Areas.Admin.Controllers;
@@ -33,12 +32,10 @@ public class AccountController(
     {
         var users = await dbContext.Users
             .AsNoTracking()
-            .Where(u => u.DeletedAt == null)
             .Include(u => u.Role)
             .ToListAsync();
 
-        List<UserViewModel> userViewModels = _mapper.Map<List<UserViewModel>>(users);
-        return View(userViewModels);
+        return View(users);
     }
 
     [AjaxOnly]

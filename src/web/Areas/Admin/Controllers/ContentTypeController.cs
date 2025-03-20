@@ -35,8 +35,7 @@ public class ContentTypeController(
             .Where(x => x.DeletedAt == null)
             .ToListAsync();
 
-        List<ContentTypeViewModel> models = _mapper.Map<List<ContentTypeViewModel>>(contentTypes);
-        return View(models);
+        return View(contentTypes);
     }
 
     [AjaxOnly]

@@ -15,7 +15,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.Content;
 using web.Areas.Admin.Requests.Content;
 
 namespace web.Areas.Admin.Controllers;
@@ -37,8 +36,7 @@ public class ContentController(
             .Include(c => c.Author)
             .ToListAsync();
 
-        List<ContentViewModel> models = _mapper.Map<List<ContentViewModel>>(contents);
-        return View(models);
+        return View(contents);
     }
 
     [AjaxOnly]

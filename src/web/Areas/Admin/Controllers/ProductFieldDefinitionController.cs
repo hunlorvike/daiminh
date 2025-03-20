@@ -16,7 +16,6 @@ using shared.Extensions;
 using shared.Models;
 
 using web.Areas.Admin.Controllers.Shared;
-using web.Areas.Admin.Models.ProductFieldDefinition;
 using web.Areas.Admin.Requests.ProductFieldDefinition;
 
 namespace web.Areas.Admin.Controllers;
@@ -38,8 +37,7 @@ public class ProductFieldDefinitionController(
             .Include(x => x.ProductType)
             .ToListAsync();
 
-        List<ProductFieldDefinitionViewModel> models = _mapper.Map<List<ProductFieldDefinitionViewModel>>(productFieldDefinitions);
-        return View(models);
+        return View(productFieldDefinitions);
     }
 
     [AjaxOnly]

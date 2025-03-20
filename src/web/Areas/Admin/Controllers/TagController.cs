@@ -35,11 +35,9 @@ public partial class TagController
     {
         var tags = await dbContext.Tags
             .AsNoTracking()
-            .Where(x => x.DeletedAt == null)
             .ToListAsync();
 
-        List<TagViewModel> models = _mapper.Map<List<TagViewModel>>(tags);
-        return View(models);
+        return View(tags);
     }
 
     [AjaxOnly]

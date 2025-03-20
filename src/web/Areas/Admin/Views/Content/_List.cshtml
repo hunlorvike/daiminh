@@ -1,4 +1,5 @@
-@model List<web.Areas.Admin.Models.Content.ContentViewModel>
+@using domain.Entities
+@model List<Content>
 
 <div class="page-body">
     <div class="container">
@@ -10,8 +11,8 @@
                         <thead>
                             <tr>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Title)</th>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].ContentTypeName)</th>
-                                <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].AuthorName)</th>
+                                <th scope="col" class="text-nowrap">Loại bài viết</th>
+                                <th scope="col" class="text-nowrap">Tác giả</th>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Slug)</th>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].CoverImageUrl)</th>
                                 <th scope="col" class="text-nowrap">@Html.DisplayNameFor(model => model[0].Status)</th>
@@ -24,8 +25,8 @@
                             {
                                 <tr>
                                     <td class="text-muted">@item.Title</td>
-                                    <td class="text-muted">@item.ContentTypeName</td>
-                                    <td class="text-muted">@item.AuthorName</td>
+                                    <td class="text-muted">@item.ContentType.Name</td>
+                                    <td class="text-muted">@item.Author.Username</td>
                                     <td class="text-muted">@item.Slug</td>
                                     <td class="text-muted">
                                         @if (!string.IsNullOrEmpty(item.CoverImageUrl))
@@ -39,7 +40,7 @@
                                     </td>
                                     <td class="text-muted">@item.Status</td>
                                     <td class="text-muted">
-                                        @(item?.CreatedAt?.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
+                                        @(item?.CreatedAt.ToString("dddd, dd MMMM yyyy", new CultureInfo("vi-VN")) ?? "N/A")
                                     </td>
                                     <td>
                                         <div class="btn-list flex-nowrap">
