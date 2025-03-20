@@ -12,8 +12,8 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250309174915_v1_init_create")]
-    partial class v1_init_create
+    [Migration("20250320101344_v0_refactor")]
+    partial class v0_refactor
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -41,6 +41,12 @@ namespace infrastructure.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
+
+                    b.Property<int>("EntityType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("entity_type");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
@@ -78,6 +84,229 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_categories_parent_category_id");
 
                     b.ToTable("categories", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5876),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn nội thất",
+                            Slug = "son-noi-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5876)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5878),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn ngoại thất",
+                            Slug = "son-ngoai-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5878)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5879),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn chống thấm",
+                            Slug = "son-chong-tham",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5879)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5880),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn lót",
+                            Slug = "son-lot",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5880)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5881),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn gỗ",
+                            Slug = "son-go",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5881)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5882),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn kim loại",
+                            Slug = "son-kim-loai",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5882)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5883),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Dụng cụ sơn",
+                            Slug = "dung-cu-son",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5884)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5884),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn bóng nội thất",
+                            ParentCategoryId = 1,
+                            Slug = "son-bong-noi-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5885)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5886),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn mờ nội thất",
+                            ParentCategoryId = 1,
+                            Slug = "son-mo-noi-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5886)
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5887),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn bóng ngoại thất",
+                            ParentCategoryId = 2,
+                            Slug = "son-bong-ngoai-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5888)
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5889),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn mờ ngoại thất",
+                            ParentCategoryId = 2,
+                            Slug = "son-mo-ngoai-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5889)
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5890),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn chống thấm gốc nước",
+                            ParentCategoryId = 3,
+                            Slug = "son-chong-tham-goc-nuoc",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5890)
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5891),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Sơn chống thấm gốc dầu",
+                            ParentCategoryId = 3,
+                            Slug = "son-chong-tham-goc-dau",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5891)
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5892),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Cọ sơn",
+                            ParentCategoryId = 7,
+                            Slug = "co-son",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5893)
+                        },
+                        new
+                        {
+                            Id = 15,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5893),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Con lăn sơn",
+                            ParentCategoryId = 7,
+                            Slug = "con-lan-son",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5894)
+                        },
+                        new
+                        {
+                            Id = 16,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5895),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Băng keo dán sơn",
+                            ParentCategoryId = 7,
+                            Slug = "bang-keo-dan-son",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5895)
+                        },
+                        new
+                        {
+                            Id = 101,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5896),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Dịch vụ thi công sơn trọn gói",
+                            Slug = "dich-vu-thi-cong-son-tron-goi",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5896)
+                        },
+                        new
+                        {
+                            Id = 102,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5897),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Tư vấn phối màu sơn",
+                            Slug = "tu-van-phoi-mau-son",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5897)
+                        },
+                        new
+                        {
+                            Id = 103,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5898),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Tư vấn kỹ thuật sơn",
+                            Slug = "tu-van-ky-thuat-son",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5898)
+                        },
+                        new
+                        {
+                            Id = 104,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5899),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Thi công sơn nội thất trọn gói",
+                            ParentCategoryId = 101,
+                            Slug = "thi-cong-son-noi-that-tron-goi",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5899)
+                        },
+                        new
+                        {
+                            Id = 105,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5900),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Thi công sơn ngoại thất trọn gói",
+                            ParentCategoryId = 101,
+                            Slug = "thi-cong-son-ngoai-that-tron-goi",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(5901)
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.Comment", b =>
@@ -230,9 +459,19 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(500)")
                         .HasColumnName("canonical_url");
 
+                    b.Property<string>("ContentBody")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("content_body");
+
                     b.Property<int>("ContentTypeId")
                         .HasColumnType("integer")
                         .HasColumnName("content_type_id");
+
+                    b.Property<string>("CoverImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("cover_image_url");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -415,6 +654,108 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_content_field_definitions_content_type_id");
 
                     b.ToTable("content_field_definitions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ContentTypeId = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5389),
+                            FieldName = "Mô tả ngắn",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = true,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5389)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ContentTypeId = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5391),
+                            FieldName = "Quy trình chi tiết",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = false,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5391)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ContentTypeId = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5392),
+                            FieldName = "Bảng giá tham khảo",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = false,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5392)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            ContentTypeId = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5393),
+                            FieldName = "Mô tả ngắn",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = true,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5393)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            ContentTypeId = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5394),
+                            FieldName = "Nội dung chi tiết",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = false,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5394)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            ContentTypeId = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5435),
+                            FieldName = "Hình thức tư vấn",
+                            FieldOptions = "[{\"value\":\"online\",\"label\":\"Tr\\u1EF1c tuy\\u1EBFn\"},{\"value\":\"offline\",\"label\":\"Tr\\u1EF1c ti\\u1EBFp\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(5435)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            ContentTypeId = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(6019),
+                            FieldName = "Thời lượng tư vấn (phút)",
+                            FieldType = "number",
+                            IsActive = true,
+                            IsRequired = true,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(6019)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            ContentTypeId = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(6021),
+                            FieldName = "Chi phí",
+                            FieldType = "number",
+                            IsActive = true,
+                            IsRequired = false,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(6021)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            ContentTypeId = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(6022),
+                            FieldName = "Ảnh minh họa",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = false,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 462, DateTimeKind.Utc).AddTicks(6023)
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.ContentFieldValue", b =>
@@ -552,6 +893,181 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_content_types_slug");
 
                     b.ToTable("content_types", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8892),
+                            IsActive = true,
+                            Name = "Bài viết",
+                            Slug = "bai-viet",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8893)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8902),
+                            IsActive = true,
+                            Name = "Trang tĩnh",
+                            Slug = "trang-tinh",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8902)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8903),
+                            IsActive = true,
+                            Name = "Dịch vụ",
+                            Slug = "dich-vu",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8904)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8905),
+                            IsActive = true,
+                            Name = "Tư vấn",
+                            Slug = "tu-van",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8905)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8906),
+                            IsActive = true,
+                            Name = "Chính sách",
+                            Slug = "chinh-sach",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 461, DateTimeKind.Utc).AddTicks(8906)
+                        });
+                });
+
+            modelBuilder.Entity("domain.Entities.Folder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("name");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_id");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("path");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.HasIndex("Path")
+                        .HasDatabaseName("idx_folders_path");
+
+                    b.ToTable("folders", (string)null);
+                });
+
+            modelBuilder.Entity("domain.Entities.MediaFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("Extension")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("extension");
+
+                    b.Property<int?>("FolderId")
+                        .HasColumnType("integer")
+                        .HasColumnName("folder_id");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("mime_type");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Path")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("path");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("url");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FolderId");
+
+                    b.HasIndex("Path")
+                        .HasDatabaseName("idx_media_files_path");
+
+                    b.ToTable("media_files", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>
@@ -733,7 +1249,6 @@ namespace infrastructure.Migrations
                         .HasColumnName("field_name");
 
                     b.Property<string>("FieldOptions")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("field_options");
 
@@ -771,6 +1286,125 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_product_field_definitions_product_type_id");
 
                     b.ToTable("product_field_definitions", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(4989),
+                            FieldName = "Độ bóng",
+                            FieldOptions = "[{\"value\":\"bong-mo\",\"label\":\"B\\u00F3ng m\\u1EDD\"},{\"value\":\"bong-nhe\",\"label\":\"B\\u00F3ng nh\\u1EB9\"},{\"value\":\"bong-cao\",\"label\":\"B\\u00F3ng cao\"},{\"value\":\"sieu-bong\",\"label\":\"Si\\u00EAu b\\u00F3ng\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 1,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(4989)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5666),
+                            FieldName = "Dung tích",
+                            FieldOptions = "[{\"value\":\"1-lit\",\"label\":\"1 L\\u00EDt\"},{\"value\":\"5-lit\",\"label\":\"5 L\\u00EDt\"},{\"value\":\"18-lit\",\"label\":\"18 L\\u00EDt\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 1,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5667)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5801),
+                            FieldName = "Màu sắc",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 1,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5802)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5804),
+                            FieldName = "Độ bóng",
+                            FieldOptions = "[{\"value\":\"bong\",\"label\":\"B\\u00F3ng\"},{\"value\":\"mo\",\"label\":\"M\\u1EDD\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 2,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5804)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5888),
+                            FieldName = "Dung tích",
+                            FieldOptions = "[{\"value\":\"0-5-lit\",\"label\":\"0.5 L\\u00EDt\"},{\"value\":\"1-lit\",\"label\":\"1 L\\u00EDt\"},{\"value\":\"4-lit\",\"label\":\"4 L\\u00EDt\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 2,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5889)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5986),
+                            FieldName = "Loại bề mặt",
+                            FieldOptions = "[{\"value\":\"go\",\"label\":\"G\\u1ED7\"},{\"value\":\"kim-loai\",\"label\":\"Kim lo\\u1EA1i\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 2,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(5986)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6065),
+                            FieldName = "Màu sắc",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 2,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6066)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6067),
+                            FieldName = "Loại chống thấm",
+                            FieldOptions = "[{\"value\":\"tuong-dung\",\"label\":\"T\\u01B0\\u1EDDng \\u0111\\u1EE9ng\"},{\"value\":\"san-mai\",\"label\":\"S\\u00E0n m\\u00E1i\"},{\"value\":\"nha-ve-sinh\",\"label\":\"Nh\\u00E0 v\\u1EC7 sinh\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 7,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6068)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6171),
+                            FieldName = "Dung tích",
+                            FieldOptions = "[{\"value\":\"1-kg\",\"label\":\"1 Kg\"},{\"value\":\"5-kg\",\"label\":\"5 Kg\"},{\"value\":\"20-kg\",\"label\":\"20 Kg\"}]",
+                            FieldType = "select",
+                            IsActive = true,
+                            IsRequired = true,
+                            ProductTypeId = 7,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6171)
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6242),
+                            FieldName = "Màu sắc",
+                            FieldType = "text",
+                            IsActive = true,
+                            IsRequired = false,
+                            ProductTypeId = 7,
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 469, DateTimeKind.Utc).AddTicks(6242)
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.ProductFieldValue", b =>
@@ -974,6 +1608,89 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_product_types_slug");
 
                     b.ToTable("product_types", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7886),
+                            IsActive = true,
+                            Name = "Sơn Nước",
+                            Slug = "son-nuoc",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7888)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7889),
+                            IsActive = true,
+                            Name = "Sơn Dầu",
+                            Slug = "son-dau",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7890)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7891),
+                            IsActive = true,
+                            Name = "Sơn Acrylic",
+                            Slug = "son-acrylic",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7891)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7892),
+                            IsActive = true,
+                            Name = "Sơn Epoxy",
+                            Slug = "son-epoxy",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7892)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7893),
+                            IsActive = true,
+                            Name = "Sơn Alkyd",
+                            Slug = "son-alkyd",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7893)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7894),
+                            IsActive = true,
+                            Name = "Sơn Lót",
+                            Slug = "son-lot",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7894)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7895),
+                            IsActive = true,
+                            Name = "Sơn Chống Thấm",
+                            Slug = "son-chong-tham",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7895)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7896),
+                            IsActive = true,
+                            Name = "Sơn Gỗ",
+                            Slug = "son-go",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7896)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7897),
+                            IsActive = true,
+                            Name = "Sơn Kim Loại",
+                            Slug = "son-kim-loai",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 468, DateTimeKind.Utc).AddTicks(7897)
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.Review", b =>
@@ -1091,29 +1808,29 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 378, DateTimeKind.Utc).AddTicks(1610),
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 458, DateTimeKind.Utc).AddTicks(7040),
                             IsActive = true,
                             Name = "Admin",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 378, DateTimeKind.Utc).AddTicks(1613)
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 458, DateTimeKind.Utc).AddTicks(7041)
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 378, DateTimeKind.Utc).AddTicks(1615),
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 458, DateTimeKind.Utc).AddTicks(7042),
                             IsActive = true,
                             Name = "User",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 378, DateTimeKind.Utc).AddTicks(1620)
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 458, DateTimeKind.Utc).AddTicks(7042)
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 378, DateTimeKind.Utc).AddTicks(1621),
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 458, DateTimeKind.Utc).AddTicks(7043),
                             IsActive = true,
                             Name = "Manager",
                             Permissions = "",
-                            UpdatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 378, DateTimeKind.Utc).AddTicks(1621)
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 458, DateTimeKind.Utc).AddTicks(7043)
                         });
                 });
 
@@ -1177,6 +1894,64 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_settings_key");
 
                     b.ToTable("settings", (string)null);
+                });
+
+            modelBuilder.Entity("domain.Entities.Slider", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityAlwaysColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("image_url");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("LinkUrl")
+                        .HasColumnType("text")
+                        .HasColumnName("link_url");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("integer")
+                        .HasColumnName("order_number");
+
+                    b.Property<string>("OverlayHtml")
+                        .HasColumnType("text")
+                        .HasColumnName("overlay_html");
+
+                    b.Property<string>("OverlayPosition")
+                        .HasColumnType("text")
+                        .HasColumnName("overlay_position");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("slider", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Subscriber", b =>
@@ -1245,6 +2020,12 @@ namespace infrastructure.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
+                    b.Property<int>("EntityType")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("entity_type");
+
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("boolean")
@@ -1273,6 +2054,248 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_tags_slug");
 
                     b.ToTable("tags", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9849),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Chống thấm",
+                            Slug = "chong-tham",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9850)
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9852),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Bền màu",
+                            Slug = "ben-mau",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9852)
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9853),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Dễ lau chùi",
+                            Slug = "de-lau-chui",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9853)
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9854),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Kháng khuẩn",
+                            Slug = "khang-khuan",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9855)
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9855),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Chống nấm mốc",
+                            Slug = "chong-nam-moc",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9856)
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9856),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Giá rẻ",
+                            Slug = "gia-re",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9857)
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9857),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Chất lượng",
+                            Slug = "chat-luong",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9858)
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9858),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Cao cấp",
+                            Slug = "cao-cap",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9859)
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9860),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Màu sắc bền đẹp",
+                            Slug = "mau-sac-ben-dep",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9860)
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9861),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Dễ thi công",
+                            Slug = "de-thi-cong",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9861)
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9862),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "An toàn",
+                            Slug = "an-toan",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9862)
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9863),
+                            EntityType = 0,
+                            IsActive = true,
+                            Name = "Thương hiệu nổi tiếng",
+                            Slug = "thuong-hieu-noi-tieng",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9863)
+                        },
+                        new
+                        {
+                            Id = 101,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9864),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Thi công nhanh chóng",
+                            Slug = "thi-cong-nhanh-chong",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9864)
+                        },
+                        new
+                        {
+                            Id = 102,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9865),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Thợ sơn tay nghề cao",
+                            Slug = "tho-son-tay-nghe-cao",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9865)
+                        },
+                        new
+                        {
+                            Id = 103,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9866),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Bảo hành dài hạn",
+                            Slug = "bao-hanh-dai-han",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9866)
+                        },
+                        new
+                        {
+                            Id = 104,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9867),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Tư vấn màu sắc miễn phí",
+                            Slug = "tu-van-mau-sac-mien-phi",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9867)
+                        },
+                        new
+                        {
+                            Id = 105,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9868),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Báo giá cạnh tranh",
+                            Slug = "bao-gia-canh-tranh",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9868)
+                        },
+                        new
+                        {
+                            Id = 106,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9869),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Thi công sơn nội thất",
+                            Slug = "thi-cong-son-noi-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9869)
+                        },
+                        new
+                        {
+                            Id = 107,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9870),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Thi công sơn ngoại thất",
+                            Slug = "thi-cong-son-ngoai-that",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9870)
+                        },
+                        new
+                        {
+                            Id = 108,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9871),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Tư vấn kỹ thuật chuyên nghiệp",
+                            Slug = "tu-van-ky-thuat-chuyen-nghiep",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9871)
+                        },
+                        new
+                        {
+                            Id = 109,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9872),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Thi công sơn trọn gói",
+                            Slug = "thi-cong-son-tron-goi",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9872)
+                        },
+                        new
+                        {
+                            Id = 110,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9873),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Tư vấn lựa chọn sơn",
+                            Slug = "tu-van-lua-chon-son",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9873)
+                        },
+                        new
+                        {
+                            Id = 111,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9874),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Đảm bảo chất lượng thi công",
+                            Slug = "dam-bao-chat-luong-thi-cong",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9874)
+                        },
+                        new
+                        {
+                            Id = 112,
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9875),
+                            EntityType = 1,
+                            IsActive = true,
+                            Name = "Hỗ trợ tận tâm",
+                            Slug = "ho-tro-tan-tam",
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 459, DateTimeKind.Utc).AddTicks(9875)
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.User", b =>
@@ -1341,34 +2364,34 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 3, 9, 17, 49, 14, 990, DateTimeKind.Utc).AddTicks(5012),
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 59, DateTimeKind.Utc).AddTicks(9884),
                             Email = "admin@admin.com",
                             IsActive = true,
-                            PasswordHash = "$2a$11$xPyAqsgv8RCO72cbRragQuyskW0yuPgorfpl4Nrw1.MHU3eT5YlXW",
+                            PasswordHash = "$2a$11$Z4lGO7u7lXj7PmulY2393u3QodblRNxqbPZ/UW0JiJAZQ59OgJbpO",
                             RoleId = 1,
-                            UpdatedAt = new DateTime(2025, 3, 9, 17, 49, 14, 990, DateTimeKind.Utc).AddTicks(5085),
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 59, DateTimeKind.Utc).AddTicks(9886),
                             Username = "admin"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 119, DateTimeKind.Utc).AddTicks(8474),
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 178, DateTimeKind.Utc).AddTicks(3133),
                             Email = "user@user.com",
                             IsActive = true,
-                            PasswordHash = "$2a$11$v8qL4XQTpJKKh.zvXbBT8.ty3k0rkMpxR.Yt9aUQPobuPz1WSEtYa",
+                            PasswordHash = "$2a$11$F/ZE0HaFXlSvfGTsguS3d.2iaTfKjfEDG4y/xxBalhYWTJK9Mzdoy",
                             RoleId = 2,
-                            UpdatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 119, DateTimeKind.Utc).AddTicks(8477),
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 178, DateTimeKind.Utc).AddTicks(3136),
                             Username = "user"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 250, DateTimeKind.Utc).AddTicks(3574),
+                            CreatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 327, DateTimeKind.Utc).AddTicks(9359),
                             Email = "manager@manager.com",
                             IsActive = true,
-                            PasswordHash = "$2a$11$6Nr2y/BvIyMIr.YGeZ.c5etdvjqOYi4uBbHoX4PH89Nhn0y.JTc/6",
+                            PasswordHash = "$2a$11$QvcQcI3zebftm./bAIJLPuVVs6823.MDSmRfND0k0HPqmyyAp9SV6",
                             RoleId = 3,
-                            UpdatedAt = new DateTime(2025, 3, 9, 17, 49, 15, 250, DateTimeKind.Utc).AddTicks(3575),
+                            UpdatedAt = new DateTime(2025, 3, 20, 10, 13, 43, 327, DateTimeKind.Utc).AddTicks(9363),
                             Username = "manager"
                         });
                 });
@@ -1492,6 +2515,28 @@ namespace infrastructure.Migrations
                     b.Navigation("Content");
 
                     b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("domain.Entities.Folder", b =>
+                {
+                    b.HasOne("domain.Entities.Folder", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_folders_parent_id");
+
+                    b.Navigation("Parent");
+                });
+
+            modelBuilder.Entity("domain.Entities.MediaFile", b =>
+                {
+                    b.HasOne("domain.Entities.Folder", "Folder")
+                        .WithMany("MediaFiles")
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_media_files_folder_id");
+
+                    b.Navigation("Folder");
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>
@@ -1648,6 +2693,13 @@ namespace infrastructure.Migrations
                     b.Navigation("Contents");
 
                     b.Navigation("FieldDefinitions");
+                });
+
+            modelBuilder.Entity("domain.Entities.Folder", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("MediaFiles");
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>

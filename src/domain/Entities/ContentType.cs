@@ -1,3 +1,4 @@
+using domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using shared.Models;
@@ -27,5 +28,23 @@ public class ContentTypeConfiguration : BaseEntityConfiguration<ContentType, int
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(50);
 
         builder.HasIndex(e => e.Slug).HasDatabaseName("idx_content_types_slug");
+
+        builder.HasData(new ContentTypeSeeder().DataSeeder());
+    }
+}
+
+public class ContentTypeSeeder : ISeeder<ContentType>
+{
+    public IEnumerable<ContentType> DataSeeder()
+    {
+        return
+        new List<ContentType>
+        {
+            new ContentType { Id = 1, Name = "Bài viết", Slug = "bai-viet" }, // Dùng cho các bài blog, tin tức
+            new ContentType { Id = 2, Name = "Trang tĩnh", Slug = "trang-tinh" }, // Dùng cho các trang giới thiệu, liên hệ, chính sách
+            new ContentType { Id = 3, Name = "Dịch vụ", Slug = "dich-vu" }, // Dùng để quản lý nội dung giới thiệu các dịch vụ
+            new ContentType { Id = 4, Name = "Tư vấn", Slug = "tu-van" }, // Dùng để quản lý nội dung giới thiệu các gói tư vấn
+            new ContentType { Id = 5, Name = "Chính sách", Slug = "chinh-sach" } // Dùng để quản lý nội dung giới thiệu các sản phẩm
+        };
     }
 }
