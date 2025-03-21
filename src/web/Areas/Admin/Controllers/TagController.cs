@@ -84,20 +84,6 @@ public partial class TagController
         try
         {
             var newTag = _mapper.Map<Tag>(model);
-
-            var existingTag = await dbContext.Tags
-                .FirstOrDefaultAsync(t => t.Slug == newTag.Slug && t.DeletedAt == null);
-
-            if (existingTag != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-
-                return BadRequest(new ErrorResponse(errors));
-            }
-
             await dbContext.Tags.AddAsync(newTag);
             await dbContext.SaveChangesAsync();
 
@@ -136,31 +122,10 @@ public partial class TagController
 
         try
         {
-            var existingSlug = await dbContext.Tags
-                .FirstOrDefaultAsync(t => t.Slug == model.Slug && t.Id != model.Id && t.DeletedAt == null);
-
-            if (existingSlug != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-
-                return BadRequest(new ErrorResponse(errors));
-            }
-
             var existingTag = await dbContext.Tags
                 .FirstOrDefaultAsync(t => t.Id == model.Id && t.DeletedAt == null);
 
-            if (existingTag == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Thẻ không tồn tại hoặc đã bị xóa."] }
-                };
-
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (existingTag == null) return NotFound();
 
             _mapper.Map(model, existingTag);
             await dbContext.SaveChangesAsync();

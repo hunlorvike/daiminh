@@ -1,4 +1,6 @@
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
@@ -43,11 +45,15 @@ public class CategoryCreateRequest
 /// </summary>
 public class CategoryCreateRequestValidator : AbstractValidator<CategoryCreateRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="CategoryCreateRequestValidator"/> class.
     /// </summary>
-    public CategoryCreateRequestValidator()
+    public CategoryCreateRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Tên danh mục không được bỏ trống.")
             .MaximumLength(100).WithMessage("Tên danh mục không được vượt quá 100 ký tự.");
@@ -56,13 +62,36 @@ public class CategoryCreateRequestValidator : AbstractValidator<CategoryCreateRe
             .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.")
             .MaximumLength(100).WithMessage("Đường dẫn (slug) không được vượt quá 100 ký tự.")
             .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$")
-            .WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.");
+            .WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.")
+            .MustAsync(BeUniqueSlug).WithMessage("Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác.");
 
         RuleFor(x => x.ParentCategoryId)
             .GreaterThan(0).When(x => x.ParentCategoryId.HasValue)
-            .WithMessage("ID danh mục cha, nếu được cung cấp, phải là một số nguyên dương.");
+            .WithMessage("ID danh mục cha, nếu được cung cấp, phải là một số nguyên dương.")
+            .MustAsync(BeValidParentCategory).When(x => x.ParentCategoryId.HasValue)
+            .WithMessage("Danh mục cha không tồn tại hoặc đã bị xóa.");
 
         RuleFor(x => x.EntityType)
             .IsInEnum().WithMessage("Loại danh mục không hợp lệ.");
+    }
+
+    /// <summary>
+    /// Checks if the slug is unique in the database.
+    /// </summary>
+    private async Task<bool> BeUniqueSlug(string slug, CancellationToken cancellationToken)
+    {
+        return !await _dbContext.Categories
+            .AnyAsync(c => c.Slug == slug && c.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the ParentCategoryId is valid and exists in the database.
+    /// </summary>
+    private async Task<bool> BeValidParentCategory(int? parentCategoryId, CancellationToken cancellationToken)
+    {
+        if (!parentCategoryId.HasValue) return true;
+
+        return await _dbContext.Categories
+            .AnyAsync(c => c.Id == parentCategoryId && c.DeletedAt == null, cancellationToken);
     }
 }

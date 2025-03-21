@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Areas.Admin.Requests.ContentType;
 
@@ -37,21 +39,46 @@ public class ContentTypeUpdateRequest
 /// </summary>
 public class ContentTypeUpdateRequestValidator : AbstractValidator<ContentTypeUpdateRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ContentTypeUpdateRequestValidator"/> class.
     /// </summary>
-    public ContentTypeUpdateRequestValidator()
+    public ContentTypeUpdateRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(request => request.Id)
-            .GreaterThan(0).WithMessage("ID loại nội dung phải là một số nguyên dương.");
+            .GreaterThan(0).WithMessage("ID loại nội dung phải là một số nguyên dương.")
+            .MustAsync(BeExistingContentType).WithMessage("Loại nội dung không tồn tại hoặc đã bị xóa.");
 
         RuleFor(request => request.Name)
-            .NotEmpty().WithMessage("Tên loại nội dung không được bỏ trống.")  // Improved message
-            .MaximumLength(50).WithMessage("Tên loại nội dung không được vượt quá 50 ký tự."); // Limit to 50, like the entity
+            .NotEmpty().WithMessage("Tên loại nội dung không được bỏ trống.")
+            .MaximumLength(50).WithMessage("Tên loại nội dung không được vượt quá 50 ký tự.");
 
         RuleFor(request => request.Slug)
-            .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.") // Improved message and terminology
-            .MaximumLength(50).WithMessage("Đường dẫn (slug) không được vượt quá 50 ký tự.") // Limit to 50, like the entity
-            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.");  // More descriptive
+            .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.")
+            .MaximumLength(50).WithMessage("Đường dẫn (slug) không được vượt quá 50 ký tự.")
+            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+            .WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.")
+            .MustAsync(BeUniqueSlug).WithMessage("Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác.");
+    }
+
+    /// <summary>
+    /// Checks if the ContentType exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingContentType(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ContentTypes
+            .AnyAsync(ct => ct.Id == id && ct.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the Slug is unique (excluding the current content type).
+    /// </summary>
+    private async Task<bool> BeUniqueSlug(ContentTypeUpdateRequest request, string slug, CancellationToken cancellationToken)
+    {
+        return !await _dbContext.ContentTypes
+            .AnyAsync(ct => ct.Slug == slug && ct.Id != request.Id && ct.DeletedAt == null, cancellationToken);
     }
 }

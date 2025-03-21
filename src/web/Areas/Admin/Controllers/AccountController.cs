@@ -49,48 +49,25 @@ public class AccountController(
 
         if (user == null) return NotFound();
 
-        var viewModel = _mapper.Map<UserRequest>(user);
+        var viewModel = _mapper.Map<AccountUpdateRequestValidator>(user);
         ViewBag.Roles = await GetRoleOptionsAsync(user.RoleId);
         return PartialView("_Edit.Modal", viewModel);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(UserRequest model)
+    public async Task<IActionResult> Edit(AccountUpdateRequest model)
     {
-        var validator = GetValidator<UserRequest>();
+        var validator = GetValidator<AccountUpdateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null)
-        {
-            ViewBag.Roles = await GetRoleOptionsAsync(model.RoleId);
-            return result;
-        }
+        if (result != null) return result;
 
         try
         {
-            var user = await dbContext.Users
+            User? user = await dbContext.Users
                 .FirstOrDefaultAsync(u => u.Id == model.Id && u.DeletedAt == null);
 
-            if (user == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Người dùng không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            var role = await dbContext.Roles
-                .FirstOrDefaultAsync(r => r.Id == model.RoleId && r.DeletedAt == null);
-            if (role == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                    {
-                        { nameof(model.RoleId), ["Vai trò không tồn tại hoặc đã bị xóa."] }
-                    };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
+            if (user == null) return NotFound();
             user.RoleId = model.RoleId;
 
             await dbContext.SaveChangesAsync();

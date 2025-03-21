@@ -9,7 +9,7 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
-        CreateMap<User, UserRequest>()
+        CreateMap<User, AccountUpdateRequest>()
             .ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role != null ? src.Role.Id : 0));
 
         CreateMap<LoginRequest, User>()

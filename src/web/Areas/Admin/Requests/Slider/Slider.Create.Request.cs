@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using infrastructure;
 using shared.Enums;
 
 namespace web.Areas.Admin.Requests.Slider;
@@ -60,32 +61,38 @@ public class SliderCreateRequest
 /// </summary>
 public class SliderCreateRequestValidator : AbstractValidator<SliderCreateRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SliderCreateRequestValidator"/> class.
     /// </summary>
-    public SliderCreateRequestValidator()
+    public SliderCreateRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(request => request.Title)
-            .NotEmpty().WithMessage("Tiêu đề slider không được bỏ trống.") // Improved message
+            .NotEmpty().WithMessage("Tiêu đề slider không được bỏ trống.")
             .MaximumLength(255).WithMessage("Tiêu đề slider không được vượt quá 255 ký tự.");
 
         RuleFor(request => request.ImageUrl)
-            .NotEmpty().WithMessage("Đường dẫn hình ảnh không được bỏ trống.") // Improved message
+            .NotEmpty().WithMessage("Đường dẫn hình ảnh không được bỏ trống.")
             .MaximumLength(500).WithMessage("Đường dẫn hình ảnh không được vượt quá 500 ký tự.")
-            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _)).WithMessage("Đường dẫn hình ảnh phải là một URL tuyệt đối và hợp lệ."); // More specific
+            .Must(uri => Uri.TryCreate(uri, UriKind.Absolute, out _))
+            .WithMessage("Đường dẫn hình ảnh phải là một URL tuyệt đối và hợp lệ.");
 
         RuleFor(request => request.LinkUrl)
             .MaximumLength(500).WithMessage("Đường dẫn liên kết không được vượt quá 500 ký tự.")
             .Must(uri => string.IsNullOrEmpty(uri) || Uri.TryCreate(uri, UriKind.Absolute, out _))
-            .WithMessage("Đường dẫn liên kết (nếu có) phải là một URL tuyệt đối và hợp lệ."); // More specific
+            .WithMessage("Đường dẫn liên kết (nếu có) phải là một URL tuyệt đối và hợp lệ.");
 
         RuleFor(request => request.Order)
-            .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải là một số nguyên không âm."); // Allow 0
+            .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải là một số nguyên không âm.");
 
         RuleFor(request => request.OverlayHtml)
             .MaximumLength(2000).WithMessage("Nội dung HTML overlay không được vượt quá 2000 ký tự.");
 
         RuleFor(request => request.OverlayPosition)
-            .IsInEnum().WithMessage("Vị trí overlay không hợp lệ. Vui lòng chọn một vị trí từ danh sách."); // More specific
+            .IsInEnum().WithMessage("Vị trí overlay không hợp lệ. Vui lòng chọn một vị trí từ danh sách.")
+            .When(request => request.OverlayPosition.HasValue); // Chỉ validate khi có giá trị
     }
 }

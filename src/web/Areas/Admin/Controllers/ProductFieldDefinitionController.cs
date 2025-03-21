@@ -107,28 +107,11 @@ public class ProductFieldDefinitionController(
     {
         var validator = GetValidator<ProductFieldDefinitionCreateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null)
-        {
-            await PopulateProductTypeDropdown();
-            PopulateFieldTypeDropdown();
-            return result;
-        }
+        if (result != null) return result;
 
         try
         {
             var newProductFieldDefinition = _mapper.Map<ProductFieldDefinition>(model);
-
-            var productType = await dbContext.ProductTypes
-                .FirstOrDefaultAsync(pt => pt.Id == model.ProductTypeId && pt.DeletedAt == null);
-            if (productType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.ProductTypeId), ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
             await dbContext.ProductFieldDefinitions.AddAsync(newProductFieldDefinition);
             await dbContext.SaveChangesAsync();
 
@@ -163,38 +146,14 @@ public class ProductFieldDefinitionController(
     {
         var validator = GetValidator<ProductFieldDefinitionUpdateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null)
-        {
-            await PopulateProductTypeDropdown();
-            PopulateFieldTypeDropdown();
-            return result;
-        }
+        if (result != null) return result;
 
         try
         {
             var productFieldDefinition = await dbContext.ProductFieldDefinitions
                 .FirstOrDefaultAsync(pfd => pfd.Id == model.Id && pfd.DeletedAt == null);
 
-            if (productFieldDefinition == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Định nghĩa trường sản phẩm không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra xem ProductTypeId có hợp lệ không
-            var productType = await dbContext.ProductTypes
-                .FirstOrDefaultAsync(pt => pt.Id == model.ProductTypeId && pt.DeletedAt == null);
-            if (productType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.ProductTypeId), ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (productFieldDefinition == null) return NotFound();
 
             _mapper.Map(model, productFieldDefinition);
             await dbContext.SaveChangesAsync();
@@ -216,17 +175,13 @@ public class ProductFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-
             await PopulateProductTypeDropdown();
             PopulateFieldTypeDropdown();
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 

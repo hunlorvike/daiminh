@@ -1,5 +1,7 @@
 
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
@@ -15,15 +17,15 @@ public class TagCreateRequest
     /// </summary>
     /// <example>Technology</example>
     [Display(Name = "Tên thẻ", Prompt = "Nhập tên thẻ")]
-    [Required(ErrorMessage = "Tên thẻ là bắt buộc.")] //DataAnnotations
+    [Required(ErrorMessage = "Tên thẻ là bắt buộc.")]
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the slug (URL-friendly name) of the tag.
     /// </summary>
     /// <example>technology</example>
-    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]  // Changed to "Đường dẫn thẻ"
-    [Required(ErrorMessage = "Đường dẫn thẻ là bắt buộc.")] //DataAnnotations, and changed to "Đường dẫn thẻ"
+    [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
+    [Required(ErrorMessage = "Đường dẫn thẻ là bắt buộc.")]
     public string Slug { get; set; } = string.Empty;
 
     /// <summary>
@@ -38,21 +40,36 @@ public class TagCreateRequest
 /// </summary>
 public class TagCreateRequestValidator : AbstractValidator<TagCreateRequest>
 {
+    private readonly ApplicationDbContext _context;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TagCreateRequestValidator"/> class.
     /// </summary>
-    public TagCreateRequestValidator()
+    public TagCreateRequestValidator(ApplicationDbContext context)
     {
+        _context = context;
+
         RuleFor(request => request.Name)
-            .NotEmpty().WithMessage("Tên thẻ không được bỏ trống.") // Improved message
+            .NotEmpty().WithMessage("Tên thẻ không được bỏ trống.")
             .MaximumLength(50).WithMessage("Tên thẻ không được vượt quá 50 ký tự.");
 
         RuleFor(request => request.Slug)
-            .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.") // Improved message and terminology
+            .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.")
             .MaximumLength(50).WithMessage("Đường dẫn (slug) không được vượt quá 50 ký tự.")
-            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang."); // More descriptive
+            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+            .WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.")
+            .MustAsync(BeUniqueSlug).WithMessage("Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác.");
 
         RuleFor(request => request.EntityType)
-            .IsInEnum().WithMessage("Loại thẻ không hợp lệ."); // More descriptive
+            .IsInEnum().WithMessage("Loại thẻ không hợp lệ.");
+    }
+
+    /// <summary>
+    /// Checks if the slug is unique in the database.
+    /// </summary>
+    private async Task<bool> BeUniqueSlug(string slug, CancellationToken cancellationToken)
+    {
+        return !await _context.Tags
+            .AnyAsync(t => t.Slug == slug && t.DeletedAt == null, cancellationToken);
     }
 }

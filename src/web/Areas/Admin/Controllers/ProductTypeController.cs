@@ -80,19 +80,6 @@ public class ProductTypeController(
         try
         {
             var newProductType = _mapper.Map<ProductType>(model);
-
-            var existingProductType = await dbContext.ProductTypes
-                .FirstOrDefaultAsync(pt => pt.Slug == newProductType.Slug && pt.DeletedAt == null);
-
-            if (existingProductType != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
             await dbContext.ProductTypes.AddAsync(newProductType);
             await dbContext.SaveChangesAsync();
 
@@ -134,26 +121,7 @@ public class ProductTypeController(
             var productType = await dbContext.ProductTypes
                 .FirstOrDefaultAsync(pt => pt.Id == model.Id && pt.DeletedAt == null);
 
-            if (productType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            var existingSlug = await dbContext.ProductTypes
-                .FirstOrDefaultAsync(pt => pt.Slug == model.Slug && pt.Id != model.Id && pt.DeletedAt == null);
-
-            if (existingSlug != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (productType == null) return NotFound();
 
             _mapper.Map(model, productType);
             await dbContext.SaveChangesAsync();

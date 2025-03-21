@@ -1,4 +1,6 @@
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
@@ -44,24 +46,49 @@ public class TagUpdateRequest
 /// </summary>
 public class TagUpdateRequestValidator : AbstractValidator<TagUpdateRequest>
 {
+    private readonly ApplicationDbContext _context;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="TagUpdateRequestValidator"/> class.
     /// </summary>
-    public TagUpdateRequestValidator()
+    public TagUpdateRequestValidator(ApplicationDbContext context)
     {
+        _context = context;
+
         RuleFor(request => request.Id)
-            .GreaterThan(0).WithMessage("ID tag phải là một số nguyên dương.");
+            .GreaterThan(0).WithMessage("ID tag phải là một số nguyên dương.")
+            .MustAsync(BeExistingTag).WithMessage("Thẻ không tồn tại hoặc đã bị xóa.");
 
         RuleFor(request => request.Name)
-            .NotEmpty().WithMessage("Tên thẻ không được bỏ trống.") // Improved message
+            .NotEmpty().WithMessage("Tên thẻ không được bỏ trống.")
             .MaximumLength(50).WithMessage("Tên thẻ không được vượt quá 50 ký tự.");
 
         RuleFor(request => request.Slug)
-            .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.") // Improved message and terminology
+            .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.")
             .MaximumLength(50).WithMessage("Đường dẫn (slug) không được vượt quá 50 ký tự.")
-            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang."); // More descriptive
+            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$")
+            .WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.")
+            .MustAsync(BeUniqueSlug).WithMessage("Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác.");
 
         RuleFor(request => request.EntityType)
-            .IsInEnum().WithMessage("Loại thẻ không hợp lệ."); // More descriptive
+            .IsInEnum().WithMessage("Loại thẻ không hợp lệ.");
+    }
+
+    /// <summary>
+    /// Checks if the tag exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingTag(int id, CancellationToken cancellationToken)
+    {
+        return await _context.Tags
+            .AnyAsync(t => t.Id == id && t.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the slug is unique (excluding the current tag).
+    /// </summary>
+    private async Task<bool> BeUniqueSlug(TagUpdateRequest request, string slug, CancellationToken cancellationToken)
+    {
+        return !await _context.Tags
+            .AnyAsync(t => t.Slug == slug && t.Id != request.Id && t.DeletedAt == null, cancellationToken);
     }
 }

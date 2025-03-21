@@ -117,19 +117,6 @@ public class ContentFieldDefinitionController(
         try
         {
             var newContentFieldDefinition = _mapper.Map<ContentFieldDefinition>(model);
-
-            // Kiểm tra ContentTypeId hợp lệ
-            var contentType = await dbContext.ContentTypes
-                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
-            if (contentType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
             await dbContext.ContentFieldDefinitions.AddAsync(newContentFieldDefinition);
             await dbContext.SaveChangesAsync();
 
@@ -176,26 +163,7 @@ public class ContentFieldDefinitionController(
             var contentFieldDefinition = await dbContext.ContentFieldDefinitions
                 .FirstOrDefaultAsync(cfd => cfd.Id == model.Id && cfd.DeletedAt == null);
 
-            if (contentFieldDefinition == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Định nghĩa trường nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra ContentTypeId hợp lệ
-            var contentType = await dbContext.ContentTypes
-                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
-            if (contentType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (contentFieldDefinition == null) return NotFound();
 
             _mapper.Map(model, contentFieldDefinition);
             await dbContext.SaveChangesAsync();
@@ -217,17 +185,13 @@ public class ContentFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-
             await PopulateContentTypeDropdown();
             PopulateFieldTypeDropdown();
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 

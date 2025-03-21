@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Areas.Admin.Requests.Setting;
 
@@ -53,26 +55,41 @@ public class SettingCreateRequest
 /// </summary>
 public class SettingCreateRequestValidator : AbstractValidator<SettingCreateRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="SettingCreateRequestValidator"/> class.
     /// </summary>
-    public SettingCreateRequestValidator()
+    public SettingCreateRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(request => request.Key)
-            .NotEmpty().WithMessage("Key cài đặt không được bỏ trống.") // Improved message
-            .MaximumLength(50).WithMessage("Key cài đặt không được vượt quá 50 ký tự.");
+            .NotEmpty().WithMessage("Key cài đặt không được bỏ trống.")
+            .MaximumLength(50).WithMessage("Key cài đặt không được vượt quá 50 ký tự.")
+            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Key cài đặt chỉ được chứa chữ cái, số và dấu gạch dưới (_).")
+            .MustAsync(BeUniqueKey).WithMessage("Key cài đặt đã tồn tại. Vui lòng chọn một key khác.");
 
         RuleFor(request => request.Value)
-            .NotEmpty().WithMessage("Giá trị cài đặt không được bỏ trống."); // Improved message
+            .NotEmpty().WithMessage("Giá trị cài đặt không được bỏ trống.");
 
         RuleFor(request => request.Group)
-            .NotEmpty().WithMessage("Nhóm cài đặt không được bỏ trống.") // Improved message
+            .NotEmpty().WithMessage("Nhóm cài đặt không được bỏ trống.")
             .MaximumLength(100).WithMessage("Nhóm cài đặt không được vượt quá 100 ký tự.");
 
         RuleFor(request => request.Description)
-            .MaximumLength(500).WithMessage("Mô tả cài đặt không được vượt quá 500 ký tự."); // Optional, but limited
+            .MaximumLength(500).WithMessage("Mô tả cài đặt không được vượt quá 500 ký tự.");
 
         RuleFor(request => request.Order)
-           .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải là một số nguyên không âm.");
+            .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải là một số nguyên không âm.");
+    }
+
+    /// <summary>
+    /// Checks if the Key is unique in the database.
+    /// </summary>
+    private async Task<bool> BeUniqueKey(string key, CancellationToken cancellationToken)
+    {
+        return !await _dbContext.Settings
+            .AnyAsync(s => s.Key == key && s.DeletedAt == null, cancellationToken);
     }
 }

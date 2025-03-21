@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 
 namespace web.Areas.Admin.Requests.ContentFieldDefinition;
@@ -59,24 +62,80 @@ public class ContentFieldDefinitionUpdateRequest
 /// </summary>
 public class ContentFieldDefinitionUpdateRequestValidator : AbstractValidator<ContentFieldDefinitionUpdateRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ContentFieldDefinitionUpdateRequestValidator"/> class.
     /// </summary>
-    public ContentFieldDefinitionUpdateRequestValidator()
+    public ContentFieldDefinitionUpdateRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(request => request.Id)
-            .GreaterThan(0).WithMessage("ID trường phải là một số nguyên dương."); // More precise
+            .GreaterThan(0).WithMessage("ID trường phải là một số nguyên dương.")
+            .MustAsync(BeExistingFieldDefinition).WithMessage("Định nghĩa trường nội dung không tồn tại hoặc đã bị xóa.");
 
         RuleFor(request => request.ContentTypeId)
-            .GreaterThan(0).WithMessage("ID loại nội dung phải là một số nguyên dương."); // More precise
+            .GreaterThan(0).WithMessage("ID loại nội dung phải là một số nguyên dương.")
+            .MustAsync(BeExistingContentType).WithMessage("Loại nội dung không tồn tại hoặc đã bị xóa.");
 
         RuleFor(request => request.FieldName)
             .NotEmpty().WithMessage("Tên trường không được bỏ trống.")
             .MaximumLength(50).WithMessage("Tên trường không được vượt quá 50 ký tự.")
-            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Tên trường chỉ được chứa chữ cái, số và dấu gạch dưới (_).");
+            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Tên trường chỉ được chứa chữ cái, số và dấu gạch dưới (_).")
+            .MustAsync(BeUniqueFieldName).WithMessage("Tên trường đã tồn tại trong loại nội dung này. Vui lòng chọn một tên khác.");
 
         RuleFor(request => request.FieldType)
-            .NotNull().WithMessage("Vui lòng chọn kiểu trường.") // Clearer message
-            .IsInEnum().WithMessage("Kiểu trường không hợp lệ. Vui lòng chọn một kiểu trường từ danh sách."); // Combined checks
+            .NotNull().WithMessage("Vui lòng chọn kiểu trường.")
+            .IsInEnum().WithMessage("Kiểu trường không hợp lệ. Vui lòng chọn một kiểu trường từ danh sách.");
+
+        RuleFor(request => request.FieldOptions)
+            .Must(BeValidValueLabelArrayJson).WithMessage("Tùy chọn trường phải là một chuỗi mảng JSON hợp lệ.")
+            .When(request => !string.IsNullOrEmpty(request.FieldOptions));
+    }
+
+    /// <summary>
+    /// Checks if the FieldDefinition exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingFieldDefinition(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ContentFieldDefinitions
+            .AnyAsync(cfd => cfd.Id == id && cfd.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the ContentType exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingContentType(int contentTypeId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ContentTypes
+            .AnyAsync(ct => ct.Id == contentTypeId && ct.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the FieldName is unique within the ContentType (excluding the current field).
+    /// </summary>
+    private async Task<bool> BeUniqueFieldName(ContentFieldDefinitionUpdateRequest request, string fieldName, CancellationToken cancellationToken)
+    {
+        return !await _dbContext.ContentFieldDefinitions
+            .AnyAsync(cfd => cfd.FieldName == fieldName && cfd.ContentTypeId == request.ContentTypeId && cfd.Id != request.Id && cfd.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the FieldOptions is a valid JSON array of objects with "value" and "label" properties.
+    /// </summary>
+    private bool BeValidValueLabelArrayJson(string? fieldOptions)
+    {
+        try
+        {
+            var options = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(fieldOptions!);
+            return options != null && options.All(opt =>
+                opt.ContainsKey("value") && opt["value"] is string &&
+                opt.ContainsKey("label") && opt["label"] is string);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

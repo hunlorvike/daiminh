@@ -54,7 +54,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly(), Assembly.Load("application")]);
 
 builder.Services.AddHttpContextAccessor();

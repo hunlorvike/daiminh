@@ -75,14 +75,7 @@ public class ContactController(
             var contact = await dbContext.Contacts
                 .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            if (contact == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Thông tin liên hệ không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (contact == null) return NotFound();
 
             _mapper.Map(model, contact);
             await dbContext.SaveChangesAsync();
@@ -104,15 +97,11 @@ public class ContactController(
         }
         catch (Exception ex)
         {
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 }

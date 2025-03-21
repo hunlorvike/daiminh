@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 
 namespace web.Areas.Admin.Requests.ProductFieldDefinition;
@@ -59,24 +62,80 @@ public class ProductFieldDefinitionUpdateRequest
 /// </summary>
 public class ProductFieldDefinitionUpdateRequestValidator : AbstractValidator<ProductFieldDefinitionUpdateRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ProductFieldDefinitionUpdateRequestValidator"/> class.
     /// </summary>
-    public ProductFieldDefinitionUpdateRequestValidator()
+    public ProductFieldDefinitionUpdateRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(request => request.Id)
-            .GreaterThan(0).WithMessage("ID trường phải là một số nguyên dương.");
+            .GreaterThan(0).WithMessage("ID trường phải là một số nguyên dương.")
+            .MustAsync(BeExistingFieldDefinition).WithMessage("Định nghĩa trường sản phẩm không tồn tại hoặc đã bị xóa.");
 
         RuleFor(request => request.ProductTypeId)
-            .GreaterThan(0).WithMessage("ID loại sản phẩm phải là một số nguyên dương.");
+            .GreaterThan(0).WithMessage("ID loại sản phẩm phải là một số nguyên dương.")
+            .MustAsync(BeExistingProductType).WithMessage("Loại sản phẩm không tồn tại hoặc đã bị xóa.");
 
         RuleFor(request => request.FieldName)
             .NotEmpty().WithMessage("Tên trường không được bỏ trống.")
             .MaximumLength(50).WithMessage("Tên trường không được vượt quá 50 ký tự.")
-            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Tên trường chỉ được chứa chữ cái, số và dấu gạch dưới (_).");
+            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Tên trường chỉ được chứa chữ cái, số và dấu gạch dưới (_).")
+            .MustAsync(BeUniqueFieldName).WithMessage("Tên trường đã tồn tại trong loại sản phẩm này. Vui lòng chọn một tên khác.");
 
         RuleFor(request => request.FieldType)
-            .NotNull().WithMessage("Vui lòng chọn kiểu trường.") // Clearer message
-            .IsInEnum().WithMessage("Kiểu trường không hợp lệ. Vui lòng chọn một kiểu trường từ danh sách."); // Combined check
+            .NotNull().WithMessage("Vui lòng chọn kiểu trường.")
+            .IsInEnum().WithMessage("Kiểu trường không hợp lệ. Vui lòng chọn một kiểu trường từ danh sách.");
+
+        RuleFor(request => request.FieldOptions)
+            .Must(BeValidValueLabelArrayJson).WithMessage("Tùy chọn trường phải là một mảng các object JSON với các thuộc tính 'value' và 'label' (ví dụ: [{\"value\": \"option1\", \"label\": \"Option 1\"}]) nếu được cung cấp.")
+            .When(request => !string.IsNullOrEmpty(request.FieldOptions));
+    }
+
+    /// <summary>
+    /// Checks if the FieldDefinition exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingFieldDefinition(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ProductFieldDefinitions
+            .AnyAsync(pfd => pfd.Id == id && pfd.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the ProductType exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingProductType(int productTypeId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ProductTypes
+            .AnyAsync(pt => pt.Id == productTypeId && pt.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the FieldName is unique within the ProductType (excluding the current field).
+    /// </summary>
+    private async Task<bool> BeUniqueFieldName(ProductFieldDefinitionUpdateRequest request, string fieldName, CancellationToken cancellationToken)
+    {
+        return !await _dbContext.ProductFieldDefinitions
+            .AnyAsync(pfd => pfd.FieldName == fieldName && pfd.ProductTypeId == request.ProductTypeId && pfd.Id != request.Id && pfd.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the FieldOptions is a valid JSON array of objects with "value" and "label" properties.
+    /// </summary>
+    private bool BeValidValueLabelArrayJson(string? fieldOptions)
+    {
+        try
+        {
+            var options = JsonSerializer.Deserialize<List<Dictionary<string, string>>>(fieldOptions!);
+            return options != null && options.All(opt =>
+                opt.ContainsKey("value") && opt["value"] is string &&
+                opt.ContainsKey("label") && opt["label"] is string);
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

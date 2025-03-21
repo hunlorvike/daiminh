@@ -80,19 +80,6 @@ public class ContentTypeController(
         try
         {
             var newContentType = _mapper.Map<ContentType>(model);
-
-            // Kiểm tra tính duy nhất của Slug
-            var existingContentType = await dbContext.ContentTypes
-                .FirstOrDefaultAsync(ct => ct.Slug == newContentType.Slug && ct.DeletedAt == null);
-            if (existingContentType != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
             await dbContext.ContentTypes.AddAsync(newContentType);
             await dbContext.SaveChangesAsync();
 
@@ -134,26 +121,7 @@ public class ContentTypeController(
             var contentType = await dbContext.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Id == model.Id && ct.DeletedAt == null);
 
-            if (contentType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra tính duy nhất của Slug
-            var existingContentType = await dbContext.ContentTypes
-                .FirstOrDefaultAsync(ct => ct.Slug == model.Slug && ct.Id != model.Id && ct.DeletedAt == null);
-            if (existingContentType != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (contentType == null) return NotFound();
 
             _mapper.Map(model, contentType);
             await dbContext.SaveChangesAsync();
@@ -175,15 +143,11 @@ public class ContentTypeController(
         }
         catch (Exception ex)
         {
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 

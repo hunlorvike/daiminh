@@ -1,5 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using domain.Entities;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
+using BC = BCrypt.Net.BCrypt;
 
 namespace web.Areas.Admin.Requests.Auth;
 
@@ -29,18 +33,31 @@ public class LoginRequest
 /// </summary>
 public class LoginRequestValidator : AbstractValidator<LoginRequest>
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="LoginRequestValidator"/> class.
-    /// </summary>
-    public LoginRequestValidator()
+    private readonly ApplicationDbContext _context;
+    private User? _cachedUser;
+
+    public LoginRequestValidator(ApplicationDbContext context)
     {
+        _context = context;
+
         RuleFor(request => request.Username)
             .NotEmpty().WithMessage("Tên đăng nhập không được bỏ trống.")
             .Length(3, 50).WithMessage("Tên đăng nhập phải có từ 3 đến 50 ký tự.")
-            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_).");
+            .Matches(@"^[a-zA-Z0-9_]+$").WithMessage("Tên đăng nhập chỉ được chứa chữ cái, số và dấu gạch dưới (_).")
+            .MustAsync(async (username, cancellation) =>
+            {
+                _cachedUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == username, cancellation);
+                return _cachedUser != null;
+            }).WithMessage("Tên đăng nhập không tồn tại trong hệ thống.");
 
-        RuleFor(x => x.Password)
+        RuleFor(request => request.Password)
             .NotEmpty().WithMessage("Mật khẩu không được bỏ trống.")
-            .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.");
+            .MinimumLength(6).WithMessage("Mật khẩu phải có ít nhất 6 ký tự.")
+            .Must(password =>
+            {
+                if (_cachedUser == null) return true;
+                return BC.Verify(password, _cachedUser.PasswordHash);
+            }).WithMessage("Mật khẩu không chính xác.");
     }
 }

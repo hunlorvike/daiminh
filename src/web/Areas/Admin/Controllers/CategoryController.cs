@@ -118,34 +118,6 @@ public class CategoryController(
         try
         {
             var newCategory = _mapper.Map<Category>(model);
-
-            // Kiểm tra tính duy nhất của Slug
-            var existingCategory = await dbContext.Categories
-                .FirstOrDefaultAsync(c => c.Slug == newCategory.Slug && c.DeletedAt == null);
-            if (existingCategory != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra ParentCategoryId hợp lệ
-            if (model.ParentCategoryId.HasValue)
-            {
-                var parentCategory = await dbContext.Categories
-                    .FirstOrDefaultAsync(c => c.Id == model.ParentCategoryId && c.DeletedAt == null);
-                if (parentCategory == null)
-                {
-                    var errors = new Dictionary<string, string[]>
-                    {
-                        { nameof(model.ParentCategoryId), ["Danh mục cha không tồn tại hoặc đã bị xóa."] }
-                    };
-                    return BadRequest(new ErrorResponse(errors));
-                }
-            }
-
             await dbContext.Categories.AddAsync(newCategory);
             await dbContext.SaveChangesAsync();
 
@@ -191,50 +163,7 @@ public class CategoryController(
             var category = await dbContext.Categories
                 .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            if (category == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Danh mục không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra tính duy nhất của Slug
-            var existingCategory = await dbContext.Categories
-                .FirstOrDefaultAsync(c => c.Slug == model.Slug && c.Id != model.Id && c.DeletedAt == null);
-            if (existingCategory != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra ParentCategoryId hợp lệ
-            if (model.ParentCategoryId.HasValue)
-            {
-                var parentCategory = await dbContext.Categories
-                    .FirstOrDefaultAsync(c => c.Id == model.ParentCategoryId && c.DeletedAt == null);
-                if (parentCategory == null)
-                {
-                    var errors = new Dictionary<string, string[]>
-                    {
-                        { nameof(model.ParentCategoryId), ["Danh mục cha không tồn tại hoặc đã bị xóa."] }
-                    };
-                    return BadRequest(new ErrorResponse(errors));
-                }
-                // Kiểm tra không cho phép danh mục cha là chính nó hoặc con của nó
-                if (model.ParentCategoryId == model.Id || await IsDescendant(model.Id, model.ParentCategoryId.Value))
-                {
-                    var errors = new Dictionary<string, string[]>
-                    {
-                        { nameof(model.ParentCategoryId), ["Danh mục cha không thể là chính nó hoặc danh mục con của nó."] }
-                    };
-                    return BadRequest(new ErrorResponse(errors));
-                }
-            }
+            if (category == null) return NotFound();
 
             _mapper.Map(model, category);
             await dbContext.SaveChangesAsync();

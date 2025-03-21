@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using shared.Constants;
 using shared.Extensions;
-using shared.Models;
 using System.Security.Claims;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Requests.Auth;
@@ -64,44 +63,27 @@ public partial class AuthController(
 
         try
         {
-            var user = _mapper.Map<User>(model);
+            User user = _mapper.Map<User>(model);
 
-            // Find user by username, including their role
-            var existingUser = await context.Users
+            User? existingUser = await context.Users
                 .Include(u => u.Role)
                 .Where(u => u.Username == user.Username)
                 .FirstOrDefaultAsync();
 
-            if (existingUser == null)
-                return BadRequest(new ErrorResponse(new Dictionary<string, string[]>
-                {
-                    { nameof(user.Username), ["Tên đăng nhập không tồn tại."] }
-                }));
-
-            // Verify password
-            var isValidPassword = BC.Verify(user.PasswordHash, existingUser.PasswordHash);
-            if (!isValidPassword)
-                return BadRequest(new ErrorResponse(new Dictionary<string, string[]>
-                {
-                    { "Password", ["Mật khẩu không chính xác."] }
-                }));
-
-            // Create claims for the authenticated user
             List<Claim> claims =
             [
-                new(ClaimTypes.NameIdentifier, existingUser.Id.ToString()),
+                new(ClaimTypes.NameIdentifier, existingUser!.Id.ToString()),
                 new(ClaimTypes.Email, existingUser.Email),
                 new(ClaimTypes.Role, existingUser.Role?.Name ?? string.Empty)
             ];
 
-            var claimsIdentity = new ClaimsIdentity(claims, CookiesConstants.AdminCookieSchema);
-            var authProperties = new AuthenticationProperties
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookiesConstants.AdminCookieSchema);
+            AuthenticationProperties authProperties = new()
             {
                 IsPersistent = true,
                 ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
             };
 
-            // Sign in the user
             await httpContextAccessor.HttpContext!.SignInAsync(
                 CookiesConstants.AdminCookieSchema,
                 new ClaimsPrincipal(claimsIdentity),
@@ -137,31 +119,14 @@ public partial class AuthController(
         {
             var user = _mapper.Map<User>(model);
 
-            // Check for existing users
-            var existingUsers = await context.Users
-                .Where(u => u.Username == user.Username || u.Email == user.Email)
-                .ToListAsync();
-
-            var errors = new Dictionary<string, string[]>();
-            if (existingUsers.Any(u => u.Username == user.Username))
-                errors.Add(nameof(user.Username), ["Tên đăng nhập này đã được sử dụng. Vui lòng chọn một tên khác."]);
-            if (existingUsers.Any(u => u.Email == user.Email))
-                errors.Add(nameof(user.Email), ["Địa chỉ email này đã được đăng ký. Vui lòng sử dụng một địa chỉ email khác."]);
-
-            if (errors.Count != 0)
-                return BadRequest(new ErrorResponse(errors));
-
-            // Retrieve default role
-            var defaultRole = await context.Roles
+            Role? defaultRole = await context.Roles
                 .Where(r => r.Name == RoleConstants.User)
                 .FirstOrDefaultAsync() ??
                 throw new Exception("Không tìm thấy role mặc định. Vui lòng kiểm tra lại cấu hình hệ thống.");
 
-            // Hash password and set role
             user.PasswordHash = BC.HashPassword(user.PasswordHash);
             user.RoleId = defaultRole.Id;
 
-            // Add user to database
             await context.Users.AddAsync(user);
             await context.SaveChangesAsync();
 

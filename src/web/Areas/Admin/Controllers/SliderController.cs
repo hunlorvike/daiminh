@@ -142,14 +142,7 @@ public class SliderController(
             var slider = await dbContext.Sliders
                 .FirstOrDefaultAsync(s => s.Id == model.Id && s.DeletedAt == null);
 
-            if (slider == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Slider không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (slider == null) return NotFound();
 
             _mapper.Map(model, slider);
             await dbContext.SaveChangesAsync();
@@ -171,15 +164,11 @@ public class SliderController(
         }
         catch (Exception ex)
         {
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            return BadRequest(new
+            {
+                Success = false,
+                Errors = ex.Message
+            });
         }
     }
 
