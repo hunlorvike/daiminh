@@ -1,9 +1,9 @@
+using System.Text.Json;
 using domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 
 namespace domain.Entities;
 

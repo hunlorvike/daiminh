@@ -1,5 +1,7 @@
-using FluentValidation;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Areas.Admin.Requests.Gallery;
 
@@ -28,12 +30,30 @@ public class FileDeleteRequest
 /// </summary>
 public class FileDeleteRequestValidator : AbstractValidator<FileDeleteRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FileDeleteRequestValidator"/> class.
     /// </summary>
-    public FileDeleteRequestValidator()
+    public FileDeleteRequestValidator(ApplicationDbContext dbContext)
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.Name).NotEmpty();
+        _dbContext = dbContext;
+
+        RuleFor(x => x.Id)
+            .GreaterThan(0).WithMessage("ID tệp phải là một số nguyên dương.")
+            .MustAsync(BeExistingFile).WithMessage("Tệp không tồn tại hoặc đã bị xóa.");
+
+        RuleFor(x => x.Name)
+            .MaximumLength(100).WithMessage("Tên tệp không được vượt quá 100 ký tự.")
+            .When(x => !string.IsNullOrEmpty(x.Name)); // Chỉ kiểm tra nếu Name được cung cấp
+    }
+
+    /// <summary>
+    /// Checks if the file exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingFile(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.MediaFiles
+            .AnyAsync(m => m.Id == id && m.DeletedAt == null, cancellationToken);
     }
 }

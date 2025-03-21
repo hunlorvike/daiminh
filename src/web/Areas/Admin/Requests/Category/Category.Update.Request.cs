@@ -1,8 +1,8 @@
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.Category;
 
@@ -123,7 +123,7 @@ public class CategoryUpdateRequestValidator : AbstractValidator<CategoryUpdateRe
                 .AsNoTracking()
                 .FirstOrDefaultAsync(c => c.Id == currentId && c.DeletedAt == null, cancellationToken);
 
-            if (category == null) return true; 
+            if (category == null) return true;
             if (category.Id == request.Id) return false;
             currentId = category.ParentCategoryId ?? 0;
         }

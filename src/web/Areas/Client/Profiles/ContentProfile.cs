@@ -12,6 +12,6 @@ public class ContentProfile : Profile
         CreateMap<Content, ContentViewModel>()
             .ForMember(dest => dest.ContentTypeName, opt => opt.MapFrom(src => src.ContentType!.Name))
             .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.Author!.Username));
-        
+
     }
 }

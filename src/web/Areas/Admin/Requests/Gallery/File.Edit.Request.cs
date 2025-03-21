@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Areas.Admin.Requests.Gallery;
 
@@ -26,27 +28,57 @@ public class FileEditRequest
 /// </summary>
 public class FileEditRequestValidator : AbstractValidator<FileEditRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
-    /// Initializes a new instance of the <see cref="FileEditRequestValidator"/> class. 
+    /// Initializes a new instance of the <see cref="FileEditRequestValidator"/> class.
     /// </summary>
-    public FileEditRequestValidator()
+    public FileEditRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(request => request.Id)
-            .NotEmpty().WithMessage("ID thư mục không được bỏ trống.");
+            .GreaterThan(0).WithMessage("ID tệp phải là một số nguyên dương.")
+            .MustAsync(BeExistingFile).WithMessage("Tệp không tồn tại hoặc đã bị xóa.");
 
         RuleFor(request => request.Name)
             .NotEmpty().WithMessage("Tên tệp không được bỏ trống.")
-            .MaximumLength(100).WithMessage("Tên tệp không được vượt quá 100 ký tự")
-            .Must(name => !string.IsNullOrWhiteSpace(name) &&
-                  !name.Contains("/") &&
-                  !name.Contains("\\") &&
-                  !name.Contains(":") &&
-                  !name.Contains("*") &&
-                  !name.Contains("?") &&
-                  !name.Contains("\"") &&
-                  !name.Contains("<") &&
-                  !name.Contains(">") &&
-                  !name.Contains("|"))
-            .WithMessage("Tên tệp không được chứa các ký tự đặc biệt không hợp lệ (/ \\ : * ? \" < > |)");
+            .MaximumLength(100).WithMessage("Tên tệp không được vượt quá 100 ký tự.")
+            .Must(BeValidFileName).WithMessage("Tên tệp không được chứa các ký tự đặc biệt không hợp lệ (/ \\ : * ? \" < > |)")
+            .MustAsync(BeUniqueFileNameInFolder).WithMessage("Tên tệp đã tồn tại trong cùng thư mục. Vui lòng chọn tên khác.");
+    }
+
+    /// <summary>
+    /// Checks if the file exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingFile(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.MediaFiles
+            .AnyAsync(f => f.Id == id && f.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the file name is unique within the same folder, excluding the current file.
+    /// </summary>
+    private async Task<bool> BeUniqueFileNameInFolder(FileEditRequest request, string name, CancellationToken cancellationToken)
+    {
+        var file = await _dbContext.MediaFiles
+            .AsNoTracking()
+            .FirstOrDefaultAsync(f => f.Id == request.Id && f.DeletedAt == null, cancellationToken);
+
+        if (file == null) return true; // Nếu tệp không tồn tại, để logic khác xử lý
+
+        return !await _dbContext.MediaFiles
+            .AnyAsync(f => f.Name == name && f.FolderId == file.FolderId && f.Id != request.Id && f.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the file name contains valid characters.
+    /// </summary>
+    private bool BeValidFileName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return false;
+        char[] invalidChars = { '/', '\\', ':', '*', '?', '"', '<', '>', '|' };
+        return !invalidChars.Any(c => name.Contains(c));
     }
 }

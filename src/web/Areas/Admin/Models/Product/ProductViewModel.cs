@@ -1,6 +1,5 @@
-using shared.Enums;
 using System.ComponentModel.DataAnnotations;
-using web.Areas.Admin.Models.Category;
+using shared.Enums;
 using web.Areas.Admin.Models.Tag;
 
 namespace web.Areas.Admin.Models.Product;

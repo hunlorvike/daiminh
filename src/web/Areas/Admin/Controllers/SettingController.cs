@@ -50,9 +50,7 @@ public class SettingController(
     {
         var setting = await dbContext.Settings
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
-
-        if (setting == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null) ?? throw new NotFoundException("Setting not found.");
         var request = _mapper.Map<SettingUpdateRequest>(setting);
         return PartialView("_Edit.Modal", request);
     }
@@ -62,9 +60,7 @@ public class SettingController(
     {
         var setting = await dbContext.Settings
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
-
-        if (setting == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null) ?? throw new NotFoundException("Setting not found.");
         return PartialView("_Detail.Modal", setting);
     }
 
@@ -73,9 +69,7 @@ public class SettingController(
     {
         var setting = await dbContext.Settings
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
-
-        if (setting == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null) ?? throw new NotFoundException("Setting not found.");
         var request = _mapper.Map<SettingDeleteRequest>(setting);
         return PartialView("_Delete.Modal", request);
     }
@@ -111,11 +105,7 @@ public class SettingController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating setting.", ex);
         }
     }
 
@@ -154,11 +144,7 @@ public class SettingController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating setting.", ex);
         }
     }
 
@@ -191,11 +177,7 @@ public class SettingController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting setting.", ex);
         }
     }
 }

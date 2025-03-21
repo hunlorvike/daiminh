@@ -6,12 +6,10 @@ using infrastructure;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using shared.Attributes;
 using shared.Constants;
-using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 
@@ -44,14 +42,6 @@ public class SliderController(
     [AjaxOnly]
     public IActionResult Create()
     {
-        ViewBag.OverlayPositionList = Enum.GetValues(typeof(OverlayPosition))
-            .Cast<OverlayPosition>()
-            .Select(op => new SelectListItem
-            {
-                Value = ((int)op).ToString(),
-                Text = op.ToString()
-            })
-            .ToList();
         return PartialView("_Create.Modal", new SliderCreateRequest());
     }
 
@@ -60,21 +50,8 @@ public class SliderController(
     {
         var slider = await dbContext.Sliders
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
-
-        if (slider == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null) ?? throw new NotFoundException("Slider not found.");
         var request = _mapper.Map<SliderUpdateRequest>(slider);
-
-        ViewBag.OverlayPositionList = Enum.GetValues(typeof(OverlayPosition))
-            .Cast<OverlayPosition>()
-            .Select(op => new SelectListItem
-            {
-                Value = ((int)op).ToString(),
-                Text = op.ToString(),
-                Selected = request.OverlayPosition == op
-            })
-            .ToList();
-
         return PartialView("_Edit.Modal", request);
     }
 
@@ -83,9 +60,7 @@ public class SliderController(
     {
         var slider = await dbContext.Sliders
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
-
-        if (slider == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null) ?? throw new NotFoundException("Slider not found.");
         var request = _mapper.Map<SliderDeleteRequest>(slider);
         return PartialView("_Delete.Modal", request);
     }
@@ -121,11 +96,7 @@ public class SliderController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating slider.", ex);
         }
     }
 
@@ -164,11 +135,7 @@ public class SliderController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating slider.", ex);
         }
     }
 
@@ -201,11 +168,7 @@ public class SliderController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting slider.", ex);
         }
     }
 }

@@ -1,4 +1,3 @@
-using shared.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Models.Product;

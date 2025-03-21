@@ -11,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using shared.Attributes;
 using shared.Constants;
-using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 
@@ -49,7 +48,6 @@ public class ProductFieldDefinitionController(
         if (productTypeId.HasValue) model.ProductTypeId = productTypeId.Value;
 
         await PopulateProductTypeDropdown();
-        PopulateFieldTypeDropdown();
         return PartialView("_Create.Modal", model);
     }
 
@@ -58,13 +56,9 @@ public class ProductFieldDefinitionController(
     {
         var productFieldDefinition = await dbContext.ProductFieldDefinitions
             .AsNoTracking()
-            .FirstOrDefaultAsync(pfd => pfd.Id == id && pfd.DeletedAt == null);
-
-        if (productFieldDefinition == null) return NotFound();
+            .FirstOrDefaultAsync(pfd => pfd.Id == id && pfd.DeletedAt == null) ?? throw new NotFoundException("Product field definition not found.");
         var request = _mapper.Map<ProductFieldDefinitionUpdateRequest>(productFieldDefinition);
-
         await PopulateProductTypeDropdown();
-        PopulateFieldTypeDropdown();
         return PartialView("_Edit.Modal", request);
     }
 
@@ -73,9 +67,7 @@ public class ProductFieldDefinitionController(
     {
         var productFieldDefinition = await dbContext.ProductFieldDefinitions
             .AsNoTracking()
-            .FirstOrDefaultAsync(pfd => pfd.Id == id && pfd.DeletedAt == null);
-
-        if (productFieldDefinition == null) return NotFound();
+            .FirstOrDefaultAsync(pfd => pfd.Id == id && pfd.DeletedAt == null) ?? throw new NotFoundException("Product field definition not found.");
         var request = _mapper.Map<ProductFieldDefinitionDeleteRequest>(productFieldDefinition);
         return PartialView("_Delete.Modal", request);
     }
@@ -87,18 +79,6 @@ public class ProductFieldDefinitionController(
             .Where(pt => pt.DeletedAt == null)
             .ToListAsync();
         ViewBag.ProductTypes = new SelectList(productTypes, "Id", "Name");
-    }
-
-    private void PopulateFieldTypeDropdown()
-    {
-        var fieldTypes = Enum.GetValues(typeof(FieldType))
-            .Cast<FieldType>()
-            .Select(ft => new SelectListItem
-            {
-                Value = ft.ToString(),
-                Text = ft.ToString()
-            });
-        ViewBag.FieldTypes = new SelectList(fieldTypes, "Value", "Text");
     }
 
     [HttpPost]
@@ -132,11 +112,7 @@ public class ProductFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating product field definition.", ex);
         }
     }
 
@@ -175,13 +151,7 @@ public class ProductFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            await PopulateProductTypeDropdown();
-            PopulateFieldTypeDropdown();
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating product field definition.", ex);
         }
     }
 
@@ -214,11 +184,7 @@ public class ProductFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting product field definition.", ex);
         }
     }
 }

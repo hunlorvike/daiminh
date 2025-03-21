@@ -50,9 +50,7 @@ public class ProductTypeController(
     {
         var productType = await dbContext.ProductTypes
             .AsNoTracking()
-            .FirstOrDefaultAsync(pt => pt.Id == id && pt.DeletedAt == null);
-
-        if (productType == null) return NotFound();
+            .FirstOrDefaultAsync(pt => pt.Id == id && pt.DeletedAt == null) ?? throw new NotFoundException("Product type not found.");
         var request = _mapper.Map<ProductTypeUpdateRequest>(productType);
         return PartialView("_Edit.Modal", request);
     }
@@ -62,9 +60,7 @@ public class ProductTypeController(
     {
         var productType = await dbContext.ProductTypes
             .AsNoTracking()
-            .FirstOrDefaultAsync(pt => pt.Id == id && pt.DeletedAt == null);
-
-        if (productType == null) return NotFound();
+            .FirstOrDefaultAsync(pt => pt.Id == id && pt.DeletedAt == null) ?? throw new NotFoundException("Product type not found.");
         var request = _mapper.Map<ProductTypeDeleteRequest>(productType);
         return PartialView("_Delete.Modal", request);
     }
@@ -100,11 +96,7 @@ public class ProductTypeController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating product type.", ex);
         }
     }
 
@@ -143,11 +135,7 @@ public class ProductTypeController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating product type.", ex);
         }
     }
 
@@ -180,11 +168,7 @@ public class ProductTypeController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting product type.", ex);
         }
     }
 }

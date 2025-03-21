@@ -54,7 +54,7 @@ public class FileCreateRequestValidator : AbstractValidator<FileCreateRequest>
         var provider = new FileExtensionContentTypeProvider();
         if (!provider.TryGetContentType(file.FileName, out var contentType))
         {
-            return false; // Nếu không xác định được loại file, từ chối
+            return false;
         }
 
         var allowedMimeTypes = new[]

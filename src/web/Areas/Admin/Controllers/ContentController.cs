@@ -68,10 +68,7 @@ public class ContentController(
             .Include(c => c.ContentCategories)
             .Include(c => c.ContentTags)
             .Include(c => c.FieldValues)
-            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
-
-        if (content == null) return NotFound();
-
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null) ?? throw new NotFoundException("Content not found.");
         await PopulateDropdowns(content);
         var request = _mapper.Map<ContentUpdateRequest>(content);
         return PartialView("_Edit.Modal", request);
@@ -82,9 +79,7 @@ public class ContentController(
     {
         var content = await dbContext.Contents
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
-
-        if (content == null) return NotFound();
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null) ?? throw new NotFoundException("Content not found.");
         var request = _mapper.Map<ContentDeleteRequest>(content);
         return PartialView("_Delete.Modal", request);
     }
@@ -106,45 +101,6 @@ public class ContentController(
             using var transaction = await dbContext.Database.BeginTransactionAsync();
 
             var newContent = _mapper.Map<Content>(model);
-
-            // Kiểm tra tính duy nhất của Slug
-            var existingContent = await dbContext.Contents
-                .FirstOrDefaultAsync(c => c.Slug == newContent.Slug && c.DeletedAt == null);
-            if (existingContent != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra ContentTypeId hợp lệ
-            var contentType = await dbContext.ContentTypes
-                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
-            if (contentType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra AuthorId hợp lệ (nếu có)
-            if (model.AuthorId.HasValue)
-            {
-                var author = await dbContext.Users
-                    .FirstOrDefaultAsync(u => u.Id == model.AuthorId.Value);
-                if (author == null)
-                {
-                    var errors = new Dictionary<string, string[]>
-                    {
-                        { nameof(model.AuthorId), ["Tác giả không tồn tại."] }
-                    };
-                    return BadRequest(new ErrorResponse(errors));
-                }
-            }
 
             // Add categories
             if (model.CategoryIds != null && model.CategoryIds.Any())
@@ -195,11 +151,7 @@ public class ContentController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating content.", ex);
         }
     }
 
@@ -239,45 +191,6 @@ public class ContentController(
                     { "General", ["Nội dung không tồn tại hoặc đã bị xóa."] }
                 };
                 return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra tính duy nhất của Slug
-            var existingContentWithSlug = await dbContext.Contents
-                .FirstOrDefaultAsync(c => c.Slug == model.Slug && c.Id != model.Id && c.DeletedAt == null);
-            if (existingContentWithSlug != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Slug), ["Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra ContentTypeId hợp lệ
-            var contentType = await dbContext.ContentTypes
-                .FirstOrDefaultAsync(ct => ct.Id == model.ContentTypeId && ct.DeletedAt == null);
-            if (contentType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.ContentTypeId), ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra AuthorId hợp lệ (nếu có)
-            if (model.AuthorId.HasValue)
-            {
-                var author = await dbContext.Users
-                    .FirstOrDefaultAsync(u => u.Id == model.AuthorId.Value);
-                if (author == null)
-                {
-                    var errors = new Dictionary<string, string[]>
-                    {
-                        { nameof(model.AuthorId), ["Tác giả không tồn tại."] }
-                    };
-                    return BadRequest(new ErrorResponse(errors));
-                }
             }
 
             // Cập nhật nội dung
@@ -337,23 +250,7 @@ public class ContentController(
         }
         catch (Exception ex)
         {
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-
-            var content = await dbContext.Contents
-                .AsNoTracking()
-                .Include(c => c.ContentType)
-                .Include(c => c.ContentCategories)
-                .Include(c => c.ContentTags)
-                .Include(c => c.FieldValues)
-                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
-            await PopulateDropdowns(content);
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            throw new SystemException2("Error updating content.", ex);
         }
     }
 
@@ -386,11 +283,7 @@ public class ContentController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting content.", ex);
         }
     }
 

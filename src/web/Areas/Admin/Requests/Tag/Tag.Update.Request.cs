@@ -1,8 +1,8 @@
+using System.ComponentModel.DataAnnotations;
 using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.Requests.Tag;
 

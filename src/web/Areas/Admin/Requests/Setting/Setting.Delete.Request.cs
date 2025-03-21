@@ -30,7 +30,7 @@ public class SettingDeleteRequestValidator : AbstractValidator<SettingDeleteRequ
     public SettingDeleteRequestValidator(ApplicationDbContext context)
     {
         _dbContext = context;
-        
+
         RuleFor(x => x.Id)
             .GreaterThan(0).WithMessage("ID cài đặt phải là một số nguyên dương.")
             .MustAsync(BeExistingSetting).WithMessage("Cài đặt không tồn tại hoặc đã bị xoá");

@@ -95,9 +95,7 @@ public class GalleryController(
     {
         var folder = await dbContext.Folders
             .AsNoTracking()
-            .FirstOrDefaultAsync(f => f.Id == id && f.DeletedAt == null);
-
-        if (folder == null) return NotFound();
+            .FirstOrDefaultAsync(f => f.Id == id && f.DeletedAt == null) ?? throw new NotFoundException("Folder not found.");
         var request = _mapper.Map<FolderEditRequest>(folder);
         await PopulateFolderDropdown();
         return PartialView("_EditFolder.Modal", request);
@@ -108,9 +106,7 @@ public class GalleryController(
     {
         var file = await dbContext.MediaFiles
             .AsNoTracking()
-            .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
-
-        if (file == null) return NotFound();
+            .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null) ?? throw new NotFoundException("File not found.");
         var request = _mapper.Map<FileEditRequest>(file);
         await PopulateFolderDropdown();
         return PartialView("_EditFile.Modal", request);
@@ -121,9 +117,7 @@ public class GalleryController(
     {
         var folder = await dbContext.Folders
             .AsNoTracking()
-            .FirstOrDefaultAsync(f => f.Id == id && f.DeletedAt == null);
-
-        if (folder == null) return NotFound();
+            .FirstOrDefaultAsync(f => f.Id == id && f.DeletedAt == null) ?? throw new NotFoundException("Folder not found.");
         var request = _mapper.Map<FolderDeleteRequest>(folder);
         return PartialView("_DeleteFolder.Modal", request);
     }
@@ -133,9 +127,7 @@ public class GalleryController(
     {
         var file = await dbContext.MediaFiles
             .AsNoTracking()
-            .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null);
-
-        if (file == null) return NotFound();
+            .FirstOrDefaultAsync(m => m.Id == id && m.DeletedAt == null) ?? throw new NotFoundException("File not found.");
         var request = _mapper.Map<FileDeleteRequest>(file);
         return PartialView("_DeleteFile.Modal", request);
     }
@@ -146,25 +138,13 @@ public class GalleryController(
     {
         var validator = GetValidator<FileCreateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null)
-        {
-            await PopulateFolderDropdown();
-            return result;
-        }
+        if (result != null) return result;
 
         try
         {
             var file = model.File;
-            if (file == null || file.Length == 0)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.File), ["Vui lòng chọn một tệp để tải lên."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
 
-            var fileName = Path.GetFileName(file.FileName);
+            var fileName = Path.GetFileName(file!.FileName);
             var uniqueFileName = $"{Guid.NewGuid()}_{fileName}";
             string folderPath = await GetFolderPathAsync(model.FolderId);
 
@@ -203,11 +183,7 @@ public class GalleryController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating file.", ex);
         }
     }
 
@@ -217,28 +193,12 @@ public class GalleryController(
     {
         var validator = GetValidator<FolderCreateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null)
-        {
-            await PopulateFolderDropdown();
-            return result;
-        }
+        if (result != null) return result;
 
         try
         {
             string parentFolderPath = await GetFolderPathAsync(model.ParentId);
             string folderPath = Path.Combine(parentFolderPath, model.Name.ToUrlSlug());
-
-            // Kiểm tra tính duy nhất của Path
-            var existingFolder = await dbContext.Folders
-                .FirstOrDefaultAsync(f => f.Path == folderPath && f.DeletedAt == null);
-            if (existingFolder != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Name), ["Tên thư mục này đã tồn tại trong thư mục cha."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
 
             var fullFolderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", folderPath);
             Directory.CreateDirectory(fullFolderPath);
@@ -262,11 +222,7 @@ public class GalleryController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating folder.", ex);
         }
     }
 
@@ -276,43 +232,18 @@ public class GalleryController(
     {
         var validator = GetValidator<FolderEditRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null)
-        {
-            await PopulateFolderDropdown();
-            return result;
-        }
+        if (result != null) return result;
 
         try
         {
             var folder = await dbContext.Folders
                 .FirstOrDefaultAsync(f => f.Id == model.Id && f.DeletedAt == null);
 
-            if (folder == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Thư mục không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            string oldPath = folder.Path;
+            string oldPath = folder!.Path;
             string newPathSegment = model.Name!.ToUrlSlug();
             string newPath = folder.ParentId.HasValue
                 ? Path.Combine(await GetFolderPathAsync(folder.ParentId), newPathSegment)
                 : newPathSegment;
-
-            // Kiểm tra tính duy nhất của Path
-            var existingFolder = await dbContext.Folders
-                .FirstOrDefaultAsync(f => f.Path == newPath && f.Id != model.Id && f.DeletedAt == null);
-            if (existingFolder != null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { nameof(model.Name), ["Tên thư mục này đã tồn tại trong thư mục cha."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
 
             folder.Name = model.Name;
             folder.Path = newPath;
@@ -343,11 +274,7 @@ public class GalleryController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error editing folder.", ex);
         }
     }
 
@@ -435,55 +362,34 @@ public class GalleryController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteFolder([FromForm] FolderDeleteRequest model)
     {
+        var validator = GetValidator<FolderDeleteRequest>();
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
+
         try
         {
             var folder = await dbContext.Folders
                 .FirstOrDefaultAsync(f => f.Id == model.Id && f.DeletedAt == null);
 
-            if (folder == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Thư mục không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            // Kiểm tra xem thư mục có chứa tệp hoặc thư mục con không
-            var hasChildren = await dbContext.Folders.AnyAsync(f => f.ParentId == model.Id && f.DeletedAt == null);
-            var hasFiles = await dbContext.MediaFiles.AnyAsync(m => m.FolderId == model.Id && m.DeletedAt == null);
-            if (hasChildren || hasFiles)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Không thể xóa thư mục vì vẫn còn tệp hoặc thư mục con bên trong."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", folder.Path);
+            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads", folder!.Path);
             if (Directory.Exists(fullPath))
             {
                 Directory.Delete(fullPath, true);
             }
 
-            dbContext.Folders.Remove(folder);
+            dbContext.Folders.Remove(folder!);
             await dbContext.SaveChangesAsync();
 
             return Json(new
             {
                 success = true,
                 message = "Xóa thư mục thành công.",
-                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = folder.ParentId })
+                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = folder!.ParentId })
             });
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting folder.", ex);
         }
     }
 
@@ -491,43 +397,34 @@ public class GalleryController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteFile([FromForm] FileDeleteRequest model)
     {
+        var validator = GetValidator<FileDeleteRequest>();
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
+
         try
         {
             var file = await dbContext.MediaFiles
                 .FirstOrDefaultAsync(m => m.Id == model.Id && m.DeletedAt == null);
 
-            if (file == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Tệp không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file.Path.TrimStart('/'));
+            string fullPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", file!.Path.TrimStart('/'));
             if (System.IO.File.Exists(fullPath))
             {
                 System.IO.File.Delete(fullPath);
             }
 
-            dbContext.MediaFiles.Remove(file);
+            dbContext.MediaFiles.Remove(file!);
             await dbContext.SaveChangesAsync();
 
             return Json(new
             {
                 success = true,
                 message = "Xóa tệp thành công.",
-                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = file.FolderId })
+                redirectUrl = Url.Action("Index", "Gallery", new { area = "Admin", folderId = file!.FolderId })
             });
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting file.", ex);
         }
     }
 

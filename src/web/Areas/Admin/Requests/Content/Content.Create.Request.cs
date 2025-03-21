@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 
 namespace web.Areas.Admin.Requests.Content;
@@ -22,7 +24,8 @@ public class ContentCreateRequest
     /// </summary>
     /// <example>2</example>
     [Display(Name = "Tác giả", Prompt = "Chọn tác giả")]
-    public int? AuthorId { get; set; }
+    [Required(ErrorMessage = "Tác giả là bắt buộc.")]
+    public int AuthorId { get; set; }
 
     /// <summary>
     /// Gets or set the CategoryIds 
@@ -52,7 +55,7 @@ public class ContentCreateRequest
     /// <example>my-awesome-blog-post</example>
     [Required(ErrorMessage = "Đường dẫn là bắt buộc.")]
     [Display(Name = "Đường dẫn", Prompt = "Nhập đường dẫn")]
-    public string Slug { get; set; } = string.Empty;
+    public string? Slug { get; set; }
 
     /// <summary>
     /// Gets or sets the body content of the content item.
@@ -129,16 +132,21 @@ public class ContentCreateRequest
 /// </summary>
 public class ContentCreateRequestValidator : AbstractValidator<ContentCreateRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
     /// <summary>
     /// Initializes a new instance of the <see cref="ContentCreateRequestValidator"/> class.
     /// </summary>
-    public ContentCreateRequestValidator()
+    public ContentCreateRequestValidator(ApplicationDbContext context)
     {
+        _dbContext = context;
+
         RuleFor(request => request.ContentTypeId)
-            .GreaterThan(0).WithMessage("ID loại nội dung phải là một số nguyên dương.");
+            .GreaterThan(0).WithMessage("ID loại nội dung phải là một số nguyên dương.")
+            .MustAsync(BeExistingContentType).WithMessage("Loại nội dung không tồn tại.");
 
         RuleFor(request => request.AuthorId)
-           .GreaterThan(0).When(x => x.AuthorId.HasValue).WithMessage("ID tác giả phải là một số nguyên dương.");
+           .GreaterThan(0).WithMessage("ID tác giả phải là một số nguyên dương.")
+           .MustAsync(BeExistingAuthor).WithMessage("Tác giả không tồn tại.");
 
         RuleForEach(x => x.CategoryIds)
             .GreaterThan(0).WithMessage("ID danh mục phải là một số nguyên dương.");
@@ -153,7 +161,8 @@ public class ContentCreateRequestValidator : AbstractValidator<ContentCreateRequ
         RuleFor(request => request.Slug)
             .NotEmpty().WithMessage("Đường dẫn (slug) không được bỏ trống.")
             .MaximumLength(255).WithMessage("Đường dẫn (slug) không được vượt quá 255 ký tự.")
-            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.");
+            .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.")
+            .MustAsync(BeUniqueSlug).WithMessage("Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác.");
 
         RuleFor(request => request.ContentBody)
             .NotEmpty().WithMessage("Nội dung bài viết không được để trống.");
@@ -191,5 +200,23 @@ public class ContentCreateRequestValidator : AbstractValidator<ContentCreateRequ
     {
         if (string.IsNullOrEmpty(url)) return true;
         return Uri.TryCreate(url, UriKind.Absolute, out _);
+    }
+
+    private async Task<bool> BeUniqueSlug(string slug, CancellationToken cancellationToken)
+    {
+        return !await _dbContext.Contents
+            .AnyAsync(ct => ct.Slug == slug && ct.DeletedAt == null, cancellationToken);
+    }
+
+    private async Task<bool> BeExistingContentType(int contentTypeId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.ContentTypes
+            .AnyAsync(ct => ct.Id == contentTypeId && ct.DeletedAt == null, cancellationToken);
+    }
+
+    private async Task<bool> BeExistingAuthor(int authorId, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Users
+            .AnyAsync(u => u.Id == authorId && u.DeletedAt == null, cancellationToken);
     }
 }

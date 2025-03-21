@@ -50,9 +50,7 @@ public class ContentTypeController(
     {
         var contentType = await dbContext.ContentTypes
             .AsNoTracking()
-            .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
-
-        if (contentType == null) return NotFound();
+            .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null) ?? throw new NotFoundException("Content type not found.");
         var request = _mapper.Map<ContentTypeUpdateRequest>(contentType);
         return PartialView("_Edit.Modal", request);
     }
@@ -62,9 +60,7 @@ public class ContentTypeController(
     {
         var contentType = await dbContext.ContentTypes
             .AsNoTracking()
-            .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null);
-
-        if (contentType == null) return NotFound();
+            .FirstOrDefaultAsync(ct => ct.Id == id && ct.DeletedAt == null) ?? throw new NotFoundException("Content type not found.");
         var request = _mapper.Map<ContentTypeDeleteRequest>(contentType);
         return PartialView("_Delete.Modal", request);
     }
@@ -100,11 +96,7 @@ public class ContentTypeController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating content type.", ex);
         }
     }
 
@@ -143,11 +135,7 @@ public class ContentTypeController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating content type.", ex);
         }
     }
 
@@ -180,11 +168,7 @@ public class ContentTypeController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting content type.", ex);
         }
     }
 }

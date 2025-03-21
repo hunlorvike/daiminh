@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using domain.Entities;
 using infrastructure;
@@ -8,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using shared.Constants;
 using shared.Extensions;
-using System.Security.Claims;
+using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Admin.Requests.Auth;
 using BC = BCrypt.Net.BCrypt;
@@ -98,11 +99,7 @@ public partial class AuthController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error during login.", ex);
         }
     }
 
@@ -120,9 +117,9 @@ public partial class AuthController(
             var user = _mapper.Map<User>(model);
 
             Role? defaultRole = await context.Roles
-                .Where(r => r.Name == RoleConstants.User)
-                .FirstOrDefaultAsync() ??
-                throw new Exception("Không tìm thấy role mặc định. Vui lòng kiểm tra lại cấu hình hệ thống.");
+                            .Where(r => r.Name == RoleConstants.User)
+                            .FirstOrDefaultAsync() ??
+                            throw new BusinessLogicException("Default role not found. Please check system configuration.");
 
             user.PasswordHash = BC.HashPassword(user.PasswordHash);
             user.RoleId = defaultRole.Id;
@@ -143,11 +140,7 @@ public partial class AuthController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error during registration.", ex);
         }
     }
 
@@ -163,11 +156,7 @@ public partial class AuthController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error during logout.", ex);
         }
     }
 }

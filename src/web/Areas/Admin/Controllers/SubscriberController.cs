@@ -46,9 +46,7 @@ public partial class SubscriberController
     {
         var subscriber = await dbContext.Subscribers
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
-
-        if (subscriber == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null) ?? throw new NotFoundException("Subscriber not found.");
         return PartialView("_Detail.Modal", subscriber);
     }
 
@@ -57,9 +55,7 @@ public partial class SubscriberController
     {
         var subscriber = await dbContext.Subscribers
             .AsNoTracking()
-            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null);
-
-        if (subscriber == null) return NotFound();
+            .FirstOrDefaultAsync(s => s.Id == id && s.DeletedAt == null) ?? throw new NotFoundException("Subscriber not found.");
         var request = _mapper.Map<SubscriberDeleteRequest>(subscriber);
         return PartialView("_Delete.Modal", request);
     }
@@ -96,11 +92,7 @@ public partial class SubscriberController
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting subscriber.", ex);
         }
     }
 }

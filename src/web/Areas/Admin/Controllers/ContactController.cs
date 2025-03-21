@@ -44,9 +44,7 @@ public class ContactController(
     {
         var contact = await dbContext.Contacts
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
-
-        if (contact == null) return NotFound();
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null) ?? throw new NotFoundException("Contact not found.");
         var request = _mapper.Map<ContactUpdateRequest>(contact);
         return PartialView("_Edit.Modal", request);
     }
@@ -56,9 +54,7 @@ public class ContactController(
     {
         var contact = await dbContext.Contacts
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
-
-        if (contact == null) return NotFound();
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null) ?? throw new NotFoundException("Contact not found.");
         return PartialView("_Detail.Modal", contact);
     }
 
@@ -75,12 +71,10 @@ public class ContactController(
             var contact = await dbContext.Contacts
                 .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            if (contact == null) return NotFound();
-
             _mapper.Map(model, contact);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Contact>(contact, "Cập nhật thông tin liên hệ thành công.");
+            var successResponse = new SuccessResponse<Contact>(contact!, "Cập nhật thông tin liên hệ thành công.");
 
             if (Request.IsAjaxRequest())
             {
@@ -97,11 +91,7 @@ public class ContactController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating contact.", ex);
         }
     }
 }

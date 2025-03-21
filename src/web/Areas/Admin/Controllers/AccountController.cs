@@ -45,10 +45,7 @@ public class AccountController(
     {
         var user = await dbContext.Users
             .AsNoTracking()
-            .FirstOrDefaultAsync(u => u.Id == id && u.DeletedAt == null);
-
-        if (user == null) return NotFound();
-
+            .FirstOrDefaultAsync(u => u.Id == id && u.DeletedAt == null) ?? throw new NotFoundException("User not found.");
         var viewModel = _mapper.Map<AccountUpdateRequestValidator>(user);
         ViewBag.Roles = await GetRoleOptionsAsync(user.RoleId);
         return PartialView("_Edit.Modal", viewModel);
@@ -66,14 +63,9 @@ public class AccountController(
         {
             User? user = await dbContext.Users
                 .FirstOrDefaultAsync(u => u.Id == model.Id && u.DeletedAt == null);
-
-            if (user == null) return NotFound();
-            user.RoleId = model.RoleId;
-
+            user!.RoleId = model.RoleId;
             await dbContext.SaveChangesAsync();
-
             var successResponse = new SuccessResponse<User>(user, "Cập nhật thông tin người dùng thành công.");
-
             if (Request.IsAjaxRequest())
             {
                 return Json(new
@@ -89,16 +81,7 @@ public class AccountController(
         }
         catch (Exception ex)
         {
-            if (Request.IsAjaxRequest())
-                return Json(new
-                {
-                    success = false,
-                    error = ex.Message
-                });
-
-            ViewBag.Roles = await GetRoleOptionsAsync(model.RoleId);
-            ModelState.AddModelError("", ex.Message);
-            return PartialView("_Edit.Modal", model);
+            throw new SystemException2("Error updating user.", ex);
         }
     }
 

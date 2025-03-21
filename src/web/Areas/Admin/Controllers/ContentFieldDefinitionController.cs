@@ -58,11 +58,8 @@ public class ContentFieldDefinitionController(
     {
         var contentFieldDefinition = await dbContext.ContentFieldDefinitions
             .AsNoTracking()
-            .FirstOrDefaultAsync(cfd => cfd.Id == id && cfd.DeletedAt == null);
-
-        if (contentFieldDefinition == null) return NotFound();
+            .FirstOrDefaultAsync(cfd => cfd.Id == id && cfd.DeletedAt == null) ?? throw new NotFoundException("Content field definition not found.");
         var request = _mapper.Map<ContentFieldDefinitionUpdateRequest>(contentFieldDefinition);
-
         await PopulateContentTypeDropdown();
         PopulateFieldTypeDropdown();
         return PartialView("_Edit.Modal", request);
@@ -73,9 +70,7 @@ public class ContentFieldDefinitionController(
     {
         var contentFieldDefinition = await dbContext.ContentFieldDefinitions
             .AsNoTracking()
-            .FirstOrDefaultAsync(cfd => cfd.Id == id && cfd.DeletedAt == null);
-
-        if (contentFieldDefinition == null) return NotFound();
+            .FirstOrDefaultAsync(cfd => cfd.Id == id && cfd.DeletedAt == null) ?? throw new NotFoundException("Content field definition not found.");
         var request = _mapper.Map<ContentFieldDefinitionDeleteRequest>(contentFieldDefinition);
         return PartialView("_Delete.Modal", request);
     }
@@ -137,11 +132,7 @@ public class ContentFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating content field definition.", ex);
         }
     }
 
@@ -161,10 +152,7 @@ public class ContentFieldDefinitionController(
         try
         {
             var contentFieldDefinition = await dbContext.ContentFieldDefinitions
-                .FirstOrDefaultAsync(cfd => cfd.Id == model.Id && cfd.DeletedAt == null);
-
-            if (contentFieldDefinition == null) return NotFound();
-
+                .FirstOrDefaultAsync(cfd => cfd.Id == model.Id && cfd.DeletedAt == null) ?? throw new NotFoundException("Content field definition not found.");
             _mapper.Map(model, contentFieldDefinition);
             await dbContext.SaveChangesAsync();
 
@@ -185,13 +173,7 @@ public class ContentFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            await PopulateContentTypeDropdown();
-            PopulateFieldTypeDropdown();
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error editing content field definition.", ex);
         }
     }
 
@@ -224,11 +206,7 @@ public class ContentFieldDefinitionController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting content field definition.", ex);
         }
     }
 }

@@ -1,7 +1,6 @@
 using System.Reflection;
 using application.Interfaces;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;

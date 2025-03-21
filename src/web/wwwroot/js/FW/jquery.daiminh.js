@@ -756,7 +756,7 @@ const jqueryDaiminh = (($, bootstrap) => {
                     });
                 } else {
                     // Show generic error if no specific errors returned
-                    Notification.show('error', 'Đã xảy ra lỗi khi xử lý yêu cầu.');
+                    Notification.show('error', response.message ?? 'Đã xảy ra lỗi khi xử lý yêu cầu.');
                 }
 
                 throw error;

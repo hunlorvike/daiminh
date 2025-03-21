@@ -53,10 +53,7 @@ public class CategoryController(
     {
         var category = await dbContext.Categories
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
-
-        if (category == null) return NotFound();
-
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null) ?? throw new NotFoundException("Category not found.");
         var categoryList = await dbContext.Categories
             .AsNoTracking()
             .Where(c => c.Id != id && c.DeletedAt == null)
@@ -79,9 +76,7 @@ public class CategoryController(
     {
         var category = await dbContext.Categories
             .AsNoTracking()
-            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null);
-
-        if (category == null) return NotFound();
+            .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null) ?? throw new NotFoundException("Category not found.");
         var request = _mapper.Map<CategoryDeleteRequest>(category);
         return PartialView("_Delete.Modal", request);
     }
@@ -138,11 +133,7 @@ public class CategoryController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating category.", ex);
         }
     }
 
@@ -163,12 +154,10 @@ public class CategoryController(
             var category = await dbContext.Categories
                 .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            if (category == null) return NotFound();
-
             _mapper.Map(model, category);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Category>(category, "Cập nhật danh mục thành công.");
+            var successResponse = new SuccessResponse<Category>(category!, "Cập nhật danh mục thành công.");
 
             if (Request.IsAjaxRequest())
             {
@@ -185,11 +174,7 @@ public class CategoryController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating category.", ex);
         }
     }
 
@@ -226,11 +211,7 @@ public class CategoryController(
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting category.", ex);
         }
     }
 

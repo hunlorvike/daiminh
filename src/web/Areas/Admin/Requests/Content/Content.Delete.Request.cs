@@ -40,5 +40,5 @@ public class ContentDeleteRequestValidator : AbstractValidator<ContentDeleteRequ
     {
         return await _dbContext.Contents
             .AnyAsync(s => s.Id == id && s.DeletedAt == null, cancellationToken);
-    }   
+    }
 }

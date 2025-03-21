@@ -61,8 +61,8 @@ public class ContentService(ApplicationDbContext context) : IContentService
                 .AsNoTracking()
                 .Include(c => c.ContentType) // Include related data
                 .Include(c => c.Author)
-                .Where(c => c.DeletedAt == null) 
-                .OrderByDescending(c => c.Id) 
+                .Where(c => c.DeletedAt == null)
+                .OrderByDescending(c => c.Id)
                 .FirstOrDefaultAsync();
         }
         catch (Exception ex)
@@ -190,5 +190,5 @@ public class ContentService(ApplicationDbContext context) : IContentService
         }
     }
 
-   
+
 }

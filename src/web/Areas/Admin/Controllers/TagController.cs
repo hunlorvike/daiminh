@@ -51,9 +51,7 @@ public partial class TagController
     {
         var response = await dbContext.Tags
             .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
-
-        if (response == null) return NotFound();
+            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null) ?? throw new NotFoundException("Tag not found.");
         var request = _mapper.Map<TagUpdateRequest>(response);
         return PartialView("_Edit.Modal", request);
     }
@@ -63,9 +61,7 @@ public partial class TagController
     {
         var response = await dbContext.Tags
             .AsNoTracking()
-            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null);
-
-        if (response == null) return NotFound();
+            .FirstOrDefaultAsync(t => t.Id == id && t.DeletedAt == null) ?? throw new NotFoundException("Tag not found.");
         var request = _mapper.Map<TagDeleteRequest>(response);
         return PartialView("_Delete.Modal", request);
     }
@@ -104,11 +100,7 @@ public partial class TagController
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating tag.", ex);
         }
     }
 
@@ -147,11 +139,7 @@ public partial class TagController
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error updating tag.", ex);
         }
     }
 
@@ -178,11 +166,7 @@ public partial class TagController
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error deleting tag.", ex);
         }
     }
 }

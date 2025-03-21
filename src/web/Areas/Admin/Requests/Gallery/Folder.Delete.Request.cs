@@ -1,5 +1,7 @@
-using FluentValidation;
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Areas.Admin.Requests.Gallery;
 
@@ -27,12 +29,43 @@ public class FolderDeleteRequest
 /// </summary>
 public class FolderDeleteRequestValidator : AbstractValidator<FolderDeleteRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FolderDeleteRequestValidator"/> class.
     /// </summary>
-    public FolderDeleteRequestValidator()
+    public FolderDeleteRequestValidator(ApplicationDbContext dbContext)
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.Name).NotEmpty();
+        _dbContext = dbContext;
+
+        RuleFor(x => x.Id)
+            .GreaterThan(0).WithMessage("ID thư mục phải là một số nguyên dương.")
+            .MustAsync(BeExistingFolder).WithMessage("Thư mục không tồn tại hoặc đã bị xóa.")
+            .MustAsync(HaveNoChildrenOrFiles).WithMessage("Không thể xóa thư mục vì vẫn còn tệp hoặc thư mục con bên trong.");
+
+        RuleFor(x => x.Name)
+            .NotEmpty().WithMessage("Tên thư mục không được bỏ trống.")
+            .MaximumLength(100).WithMessage("Tên thư mục không được vượt quá 100 ký tự.");
+    }
+
+    /// <summary>
+    /// Checks if the folder exists and is not deleted.
+    /// </summary>
+    private async Task<bool> BeExistingFolder(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Folders
+            .AnyAsync(f => f.Id == id && f.DeletedAt == null, cancellationToken);
+    }
+
+    /// <summary>
+    /// Checks if the folder has no child folders or files.
+    /// </summary>
+    private async Task<bool> HaveNoChildrenOrFiles(int id, CancellationToken cancellationToken)
+    {
+        var hasChildren = await _dbContext.Folders
+            .AnyAsync(f => f.ParentId == id && f.DeletedAt == null, cancellationToken);
+        var hasFiles = await _dbContext.MediaFiles
+            .AnyAsync(m => m.FolderId == id && m.DeletedAt == null, cancellationToken);
+        return !hasChildren && !hasFiles;
     }
 }
