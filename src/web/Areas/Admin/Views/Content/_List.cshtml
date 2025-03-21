@@ -24,8 +24,8 @@
                             {
                                 <tr>
                                     <td class="text-muted">@item.Title</td>
-                                    <td class="text-muted">@item.ContentType?.Name ?? "N/A"</td>
-                                    <td class="text-muted">@item.Author?.Username ?? "N/A"</td>
+                                    <td class="text-muted">@(item.ContentType?.Name ?? "N/A")</td>
+                                    <td class="text-muted">@(item.Author?.Username ?? "N/A")</td>
                                     <td class="text-muted">@item.Slug</td>
                                     <td class="text-muted">
                                         @if (!string.IsNullOrEmpty(item.CoverImageUrl))

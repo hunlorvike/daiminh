@@ -44,13 +44,6 @@ public partial class ContentController : DaiminhController
         return View(viewModel);
 
     }
-    /* [HttpGet]
-     public IActionResult Index()
-     {
-
-         return View();
-
-     }*/
 
     [HttpGet("ve-chung-toi")]
     public IActionResult AboutUs()
