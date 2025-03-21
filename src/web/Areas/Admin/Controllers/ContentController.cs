@@ -366,19 +366,10 @@ public class ContentController(
             var content = await dbContext.Contents
                 .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            if (content == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.Contents.Remove(content);
+            dbContext.Contents.Remove(content!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Content>(content, "Xóa nội dung thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<Content>(content!, "Xóa nội dung thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

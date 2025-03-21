@@ -160,19 +160,10 @@ public class ProductTypeController(
             var productType = await dbContext.ProductTypes
                 .FirstOrDefaultAsync(pt => pt.Id == model.Id && pt.DeletedAt == null);
 
-            if (productType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Loại sản phẩm không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.ProductTypes.Remove(productType);
+            dbContext.ProductTypes.Remove(productType!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<ProductType>(productType, "Xóa loại sản phẩm thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<ProductType>(productType!, "Xóa loại sản phẩm thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

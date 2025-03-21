@@ -160,19 +160,10 @@ public class ContentTypeController(
             var contentType = await dbContext.ContentTypes
                 .FirstOrDefaultAsync(ct => ct.Id == model.Id && ct.DeletedAt == null);
 
-            if (contentType == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Loại nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.ContentTypes.Remove(contentType);
+            dbContext.ContentTypes.Remove(contentType!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<ContentType>(contentType, "Xóa loại nội dung thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<ContentType>(contentType!, "Xóa loại nội dung thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

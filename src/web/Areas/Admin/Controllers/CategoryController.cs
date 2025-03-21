@@ -197,24 +197,19 @@ public class CategoryController(
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(CategoryDeleteRequest model)
     {
+        var validator = GetValidator<CategoryDeleteRequest>();
+        var result = await this.ValidateAndReturnBadRequest(validator, model);
+        if (result != null) return result;
+
         try
         {
-            var category = await dbContext.Categories
+            Category? category = await dbContext.Categories
                 .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            if (category == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Danh mục không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.Categories.Remove(category);
+            dbContext.Categories.Remove(category!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Category>(category, "Xóa danh mục thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<Category>(category!, "Xóa danh mục thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

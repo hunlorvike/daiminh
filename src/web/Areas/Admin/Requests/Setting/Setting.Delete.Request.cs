@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Areas.Admin.Requests.Setting;
 
@@ -21,12 +23,22 @@ public class SettingDeleteRequest
 /// </summary>
 public class SettingDeleteRequestValidator : AbstractValidator<SettingDeleteRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
     /// <summary>
     /// Initializer a new instance of the <see cref="SettingDeleteRequestValidator"/> class.
     /// </summary>
-    public SettingDeleteRequestValidator()
+    public SettingDeleteRequestValidator(ApplicationDbContext context)
     {
+        _dbContext = context;
+        
         RuleFor(x => x.Id)
-            .GreaterThan(0).WithMessage("ID cài đặt phải là một số nguyên dương.");
+            .GreaterThan(0).WithMessage("ID cài đặt phải là một số nguyên dương.")
+            .MustAsync(BeExistingSetting).WithMessage("Cài đặt không tồn tại hoặc đã bị xoá");
+    }
+
+    private async Task<bool> BeExistingSetting(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Settings
+            .AnyAsync(s => s.Id == id && s.DeletedAt == null, cancellationToken);
     }
 }

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using FluentValidation;
+using infrastructure;
+using Microsoft.EntityFrameworkCore;
 
 namespace web.Areas.Admin.Requests.Content;
 
@@ -21,12 +23,22 @@ public class ContentDeleteRequest
 /// </summary>
 public class ContentDeleteRequestValidator : AbstractValidator<ContentDeleteRequest>
 {
+    private readonly ApplicationDbContext _dbContext;
     /// <summary>
     /// Initializes a new instance of the <see cref="ContentDeleteRequestValidator"/> class.
     /// </summary>
-    public ContentDeleteRequestValidator()
+    public ContentDeleteRequestValidator(ApplicationDbContext dbContext)
     {
+        _dbContext = dbContext;
+
         RuleFor(x => x.Id)
-            .GreaterThan(0).WithMessage("ID nội dung phải là một số nguyên dương.");
+            .GreaterThan(0).WithMessage("ID nội dung phải là một số nguyên dương.")
+            .MustAsync(BeExistingContent).WithMessage("Nội dung không tồn tại hoặc đã bị xoá");
     }
+
+    private async Task<bool> BeExistingContent(int id, CancellationToken cancellationToken)
+    {
+        return await _dbContext.Contents
+            .AnyAsync(s => s.Id == id && s.DeletedAt == null, cancellationToken);
+    }   
 }

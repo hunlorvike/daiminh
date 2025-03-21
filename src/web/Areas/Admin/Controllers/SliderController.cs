@@ -181,19 +181,10 @@ public class SliderController(
             var slider = await dbContext.Sliders
                 .FirstOrDefaultAsync(s => s.Id == model.Id && s.DeletedAt == null);
 
-            if (slider == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Slider không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.Sliders.Remove(slider);
+            dbContext.Sliders.Remove(slider!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Slider>(slider, "Xóa slider thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<Slider>(slider!, "Xóa slider thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

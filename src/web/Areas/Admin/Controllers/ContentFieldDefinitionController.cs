@@ -204,19 +204,10 @@ public class ContentFieldDefinitionController(
             var contentFieldDefinition = await dbContext.ContentFieldDefinitions
                 .FirstOrDefaultAsync(cfd => cfd.Id == model.Id && cfd.DeletedAt == null);
 
-            if (contentFieldDefinition == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Định nghĩa trường nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.ContentFieldDefinitions.Remove(contentFieldDefinition);
+            dbContext.ContentFieldDefinitions.Remove(contentFieldDefinition!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<ContentFieldDefinition>(contentFieldDefinition, "Xóa định nghĩa trường nội dung thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<ContentFieldDefinition>(contentFieldDefinition!, "Xóa định nghĩa trường nội dung thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

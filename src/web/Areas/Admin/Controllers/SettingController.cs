@@ -171,19 +171,10 @@ public class SettingController(
             var setting = await dbContext.Settings
                 .FirstOrDefaultAsync(s => s.Id == model.Id && s.DeletedAt == null);
 
-            if (setting == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Cài đặt không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.Settings.Remove(setting);
+            dbContext.Settings.Remove(setting!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Setting>(setting, "Xóa cài đặt thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<Setting>(setting!, "Xóa cài đặt thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

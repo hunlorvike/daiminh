@@ -161,23 +161,13 @@ public partial class TagController
     {
         try
         {
-            var tag = await dbContext.Tags
+            Tag? tag = await dbContext.Tags
                 .FirstOrDefaultAsync(t => t.Id == model.Id && t.DeletedAt == null);
 
-            if (tag == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Thẻ không tồn tại hoặc đã bị xóa."] }
-                };
-
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.Tags.Remove(tag);
+            dbContext.Tags.Remove(tag!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Tag>(tag, "Xóa thẻ thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<Tag>(tag!, "Xóa thẻ thành công (đã ẩn).");
 
             return Json(new
             {

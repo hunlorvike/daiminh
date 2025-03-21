@@ -194,19 +194,10 @@ public class ProductFieldDefinitionController(
             var productFieldDefinition = await dbContext.ProductFieldDefinitions
                 .FirstOrDefaultAsync(pfd => pfd.Id == model.Id && pfd.DeletedAt == null);
 
-            if (productFieldDefinition == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Định nghĩa trường sản phẩm không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.ProductFieldDefinitions.Remove(productFieldDefinition);
+            dbContext.ProductFieldDefinitions.Remove(productFieldDefinition!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<ProductFieldDefinition>(productFieldDefinition, "Xóa định nghĩa trường sản phẩm thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<ProductFieldDefinition>(productFieldDefinition!, "Xóa định nghĩa trường sản phẩm thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {

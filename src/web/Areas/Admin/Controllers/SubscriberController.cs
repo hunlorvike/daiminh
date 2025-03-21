@@ -76,25 +76,10 @@ public partial class SubscriberController
             var subscriber = await dbContext.Subscribers
                 .FirstOrDefaultAsync(s => s.Id == model.Id && s.DeletedAt == null);
 
-            if (subscriber == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Người đăng ký không tồn tại hoặc đã bị xóa."] }
-                };
-
-                if (Request.IsAjaxRequest())
-                {
-                    return BadRequest(new ErrorResponse(errors));
-                }
-
-                return BadRequest(new ErrorResponse(errors));
-            }
-
-            dbContext.Subscribers.Remove(subscriber);
+            dbContext.Subscribers.Remove(subscriber!);
             await dbContext.SaveChangesAsync();
 
-            var successResponse = new SuccessResponse<Subscriber>(subscriber, "Xóa người đăng ký thành công (đã ẩn).");
+            var successResponse = new SuccessResponse<Subscriber>(subscriber!, "Xóa người đăng ký thành công (đã ẩn).");
 
             if (Request.IsAjaxRequest())
             {
