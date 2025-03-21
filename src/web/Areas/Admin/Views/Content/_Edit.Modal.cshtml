@@ -76,7 +76,28 @@
                     </div>
 
                     <div class="col-md-4">
-                        <div class="card">
+						<!-- Categories and Tags -->
+						<div class="card">
+							<div class="card-header">
+								<h3 class="card-title">Categories & Tags</h3>
+							</div>
+							<div class="card-body">
+								<div class="mb-3">
+									<label asp-for="CategoryIds" class="form-label"></label>
+									<select asp-for="CategoryIds" asp-items="ViewBag.Categories" class="form-select" multiple id="categoriesSelect">
+									</select>
+									<span asp-validation-for="CategoryIds" class="text-danger"></span>
+								</div>
+								<div class="mb-3">
+									<label asp-for="TagIds" class="form-label"></label>
+									<select asp-for="TagIds" asp-items="ViewBag.Tags" class="form-select" multiple id="tagsSelect">
+									</select>
+									<span asp-validation-for="TagIds" class="text-danger"></span>
+								</div>
+							</div>
+						</div>
+
+                        <div class="card mt-3">
                             <div class="card-header">
                                 <h3 class="card-title">SEO Settings</h3>
                             </div>
@@ -117,27 +138,6 @@
                                     <label asp-for="StructuredData" class="form-label"></label>
                                     <textarea asp-for="StructuredData" class="form-control"></textarea>
                                     <span asp-validation-for="StructuredData" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Categories and Tags -->
-                        <div class="card mt-3">
-                            <div class="card-header">
-                                <h3 class="card-title">Categories & Tags</h3>
-                            </div>
-                            <div class="card-body">
-                                <div class="mb-3">
-                                    <label asp-for="CategoryIds" class="form-label"></label>
-                                    <select asp-for="CategoryIds" asp-items="ViewBag.Categories" class="form-select" multiple id="categoriesSelect">
-                                    </select>
-                                    <span asp-validation-for="CategoryIds" class="text-danger"></span>
-                                </div>
-                                <div class="mb-3">
-                                    <label asp-for="TagIds" class="form-label"></label>
-                                    <select asp-for="TagIds" asp-items="ViewBag.Tags" class="form-select" multiple id="tagsSelect">
-                                    </select>
-                                    <span asp-validation-for="TagIds" class="text-danger"></span>
                                 </div>
                             </div>
                         </div>

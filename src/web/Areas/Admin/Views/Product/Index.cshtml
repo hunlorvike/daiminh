@@ -1,44 +1,267 @@
 @model List<Product>
-
 @{
-    const string title = "Quản lý sản phẩm";
-    const string screenCode = "product";
-    ViewBag.Title = title;
+	const string title = "Quản lý sản phẩm";
+	const string screenCode = "product";
+	ViewBag.Title = title;
 }
 
 <div class="screen @screenCode">
-    <section class="page-header d-print-none">
-        <div class="container">
-            <div class="row align-items-center">
-                <div class="col">
-                    <h2 class="page-title">@title</h2>
-                </div>
-                <div class="col-auto ms-auto">
-                    <button class="btn btn-primary command-modal-create" asp-area="Admin" asp-controller="Product"
-                            asp-action="Create" data-bs-toggle="modal" data-bs-target="#create-product--modal">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                            <path d="M12 5l0 14" />
-                            <path d="M5 12l14 0" />
-                        </svg>
-                        Thêm sản phẩm mới
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
+	<section class="page-header d-print-none">
+		<div class="container">
+			<div class="row align-items-center">
+				<div class="col">
+					<h2 class="page-title">@title</h2>
+				</div>
+				<div class="col-auto ms-auto">
+					<button class="btn btn-primary command-modal-create" asp-area="Admin" asp-controller="Product"
+							asp-action="Create" data-bs-toggle="modal" data-bs-target="#create-product--modal">
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
+							 stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
+							 stroke-linejoin="round">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+							<path d="M12 5l0 14" />
+							<path d="M5 12l14 0" />
+						</svg>
+						Thêm sản phẩm mới
+					</button>
+				</div>
+			</div>
+		</div>
+	</section>
 
-    <section class="dm-form form-create-container"></section>
-    <section class="dm-form form-details-container"></section>
-    <section class="dm-form form-edit-container"></section>
-    <section class="dm-form form-delete-container"></section>
-    <section class="paged-list">
-        <partial name="_List" model="Model" />
-    </section>
+	<section class="dm-form form-create-container"></section>
+	<section class="dm-form form-details-container"></section>
+	<section class="dm-form form-edit-container"></section>
+	<section class="dm-form form-delete-container"></section>
+	<section class="paged-list">
+		<partial name="_List" model="Model" />
+	</section>
 </div>
 
 @section FootScripts {
-    <script></script>
+	<script>
+		$(document).ready(function () {
+			$(document).on('shown.bs.modal', '#create-product--modal, #edit-product--modal', function (e) {
+				let optionsSummernote = {
+					lang: 'vi-VN',
+					placeholder: 'Nhập mô tả sản phẩm',
+					tabsize: 2,
+					height: 300,
+					minHeight: 200,
+					maxHeight: 500
+				};
+				$('#Description').summernote(optionsSummernote);
+
+				new TomSelect('#categoriesSelect', {
+					plugins: ['remove_button'],
+					placeholder: 'Chọn danh mục'
+				});
+
+				new TomSelect('#tagsSelect', {
+					plugins: ['remove_button'],
+					placeholder: 'Chọn thẻ'
+				});
+
+				// Handle product type selection to load dynamic fields
+				$('#productTypeSelect').on('change', function () {
+					var productTypeId = $(this).val();
+					if (!productTypeId) {
+						$('#customFieldsContainer').html(`
+							<div class="alert alert-info">
+								Vui lòng chọn loại sản phẩm để hiển thị các trường thông tin bổ sung.
+							</div>
+						`);
+						return;
+					}
+
+					// Show loading indicator
+					$('#customFieldsContainer').html(`
+						<div class="text-center">
+							<div class="spinner-border text-primary" role="status">
+								<span class="visually-hidden">Loading...</span>
+							</div>
+							<p>Đang tải thông tin...</p>
+						</div>
+					`);
+
+					// Fetch field definitions for the selected product type
+					$.ajax({
+						url: '@Url.Action("GetFieldDefinitions", "Product", new { area = "Admin" })',
+						type: 'GET',
+						data: { productTypeId: productTypeId },
+						success: function (fields) {
+							if (fields && fields.length > 0) {
+								var fieldsHtml = '';
+
+								fields.forEach(function (field, index) {
+									fieldsHtml += '<div class="mb-3">';
+									fieldsHtml += '<label class="form-label">' + field.fieldName + (field.isRequired ? ' <span class="text-danger">*</span>' : '') + '</label>';
+
+									switch (parseInt(field.fieldType)) {
+										case @((int)FieldType.Text):
+											fieldsHtml += '<input type="text" class="form-control" name="FieldValues[' + index + '].Value" ' + (field.isRequired ? 'required' : '') + '>';
+											fieldsHtml += '<input type="hidden" name="FieldValues[' + index + '].FieldId" value="' + field.id + '">';
+											break;
+
+										case @((int)FieldType.Number):
+											fieldsHtml += '<input type="number" class="form-control" name="FieldValues[' + index + '].Value" ' + (field.isRequired ? 'required' : '') + '>';
+											fieldsHtml += '<input type="hidden" name="FieldValues[' + index + '].FieldId" value="' + field.id + '">';
+											break;
+
+										case @((int)FieldType.Date):
+											fieldsHtml += '<input type="date" class="form-control" name="FieldValues[' + field.id + ']" ' + (field.isRequired ? 'required' : '') + '>';
+											break;
+
+										case @((int)FieldType.Select):
+											fieldsHtml += '<select class="form-select" name="FieldValues[' + index + '].Value" ' + (field.isRequired ? 'required' : '') + '>';
+											fieldsHtml += '<option value="">-- Chọn ' + field.fieldName + ' --</option>';
+
+											if (field.fieldOptions) {
+												try {
+													var options = JSON.parse(field.fieldOptions);
+													options.forEach(function (option) {
+														fieldsHtml += '<option value="' + option.value + '">' + option.label + '</option>';
+													});
+												} catch (e) {
+													console.error('Error parsing field options:', e);
+												}
+											}
+
+											fieldsHtml += '</select>';
+											fieldsHtml += '<input type="hidden" name="FieldValues[' + index + '].FieldId" value="' + field.id + '">';
+											break;
+
+										default:
+											fieldsHtml += '<input type="text" class="form-control" name="FieldValues[' + index + '].Value" ' + (field.isRequired ? 'required' : '') + '>';
+											fieldsHtml += '<input type="hidden" name="FieldValues[' + index + '].FieldId" value="' + field.id + '">';
+									}
+
+									fieldsHtml += '</div>';
+								});
+
+								$('#customFieldsContainer').html(fieldsHtml);
+							} else {
+								$('#customFieldsContainer').html(`
+									<div class="alert alert-info">
+										Không có trường thông tin bổ sung cho loại sản phẩm này.
+									</div>
+								`);
+							}
+						},
+						error: function (error) {
+							console.error('Error loading product type fields:', error);
+							$('#customFieldsContainer').html(`
+								<div class="alert alert-danger">
+									Đã xảy ra lỗi khi tải thông tin. Vui lòng thử lại sau.
+								</div>
+							`);
+						}
+					});
+				});
+
+				// Handle image management
+				let imageIndex = $('.product-image-card').length;
+
+				$('#addImageBtn').on('click', function() {
+					const newImageHtml = `
+						<div class="col-md-4 mb-3 product-image-card">
+							<div class="card">
+								<div class="card-body">
+									<div class="mb-3">
+										<label class="form-label">Hình ảnh</label>
+										<input type="url" name="Images[${imageIndex}].ImageUrl" class="form-control" placeholder="URL hình ảnh" required>
+									</div>
+									<div class="mb-3">
+										<label class="form-label">Mô tả hình ảnh</label>
+										<input type="text" name="Images[${imageIndex}].AltText" class="form-control" placeholder="Mô tả hình ảnh" required>
+									</div>
+									<div class="mb-3">
+										<div class="form-check">
+											<input class="form-check-input primary-image-checkbox" type="checkbox" name="Images[${imageIndex}].IsPrimary" value="true" id="primaryImage${imageIndex}">
+											<label class="form-check-label" for="primaryImage${imageIndex}">
+												Hình ảnh chính
+											</label>
+										</div>
+									</div>
+									<div class="mb-3">
+										<button type="button" class="btn btn-outline-danger btn-sm remove-image-btn">
+											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M4 7l16 0"></path>
+												<path d="M10 11l0 6"></path>
+												<path d="M14 11l0 6"></path>
+												<path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path>
+												<path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path>
+											</svg>
+											Xóa
+										</button>
+									</div>
+									<input type="hidden" name="Images[${imageIndex}].DisplayOrder" value="${imageIndex}">
+								</div>
+							</div>
+						</div>
+					`;
+
+					$(this).closest('.col-md-4').before(newImageHtml);
+					imageIndex++;
+
+					// Ensure only one primary image is selected
+					updatePrimaryImageCheckboxes();
+				});
+
+				// Handle removing images
+				$(document).on('click', '.remove-image-btn', function() {
+					$(this).closest('.product-image-card').remove();
+					updateImageIndices();
+					updatePrimaryImageCheckboxes();
+				});
+
+				// Handle primary image selection
+				$(document).on('change', '.primary-image-checkbox', function() {
+					if ($(this).is(':checked')) {
+						$('.primary-image-checkbox').not(this).prop('checked', false);
+					} else {
+						// If no primary image is selected, select the first one
+						updatePrimaryImageCheckboxes();
+					}
+				});
+
+				// Update image indices after removal
+				function updateImageIndices() {
+					$('.product-image-card').each(function(idx) {
+						const inputs = $(this).find('input');
+						inputs.each(function() {
+							const name = $(this).attr('name');
+							if (name) {
+								$(this).attr('name', name.replace(/Images\[\d+\]/, `Images[${idx}]`));
+							}
+
+							const id = $(this).attr('id');
+							if (id && id.startsWith('primaryImage')) {
+								$(this).attr('id', `primaryImage${idx}`);
+								$(this).next('label').attr('for', `primaryImage${idx}`);
+							}
+						});
+
+						// Update display order
+						$(this).find('input[name$=".DisplayOrder"]').val(idx);
+					});
+
+					// Reset image index
+					imageIndex = $('.product-image-card').length;
+				}
+
+				// Ensure at least one primary image is selected
+				function updatePrimaryImageCheckboxes() {
+					const checkedCount = $('.primary-image-checkbox:checked').length;
+					if (checkedCount === 0 && $('.primary-image-checkbox').length > 0) {
+						$('.primary-image-checkbox').first().prop('checked', true);
+					}
+				}
+
+				// Initialize - ensure one primary image is selected
+				updatePrimaryImageCheckboxes();
+			});
+		});
+	</script>
 }
