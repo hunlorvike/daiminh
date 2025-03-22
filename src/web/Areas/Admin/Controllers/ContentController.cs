@@ -45,18 +45,21 @@ public class ContentController(
     public async Task<IActionResult> Create()
     {
         await PopulateDropdowns();
-        return PartialView("_Create.Modal", new ContentCreateRequest());
-    }
 
-    [AjaxOnly]
-    public async Task<IActionResult> GetContentTypeFields(int contentTypeId)
-    {
-        var fields = await dbContext.ContentFieldDefinitions
+        // Load all field definitions for all content types
+        var allContentTypeFields = await dbContext.ContentFieldDefinitions
             .AsNoTracking()
-            .Where(f => f.ContentTypeId == contentTypeId && f.DeletedAt == null)
+            .Where(f => f.DeletedAt == null)
             .ToListAsync();
 
-        return Json(fields);
+        // Group field definitions by content type ID
+        //var fieldsByContentType = allContentTypeFields
+        //    .GroupBy(f => f.ContentTypeId)
+        //    .ToDictionary(g => g.Key, g => g.ToList());
+
+        ViewBag.FieldsByContentType = allContentTypeFields;
+
+        return PartialView("_Create.Modal", new ContentCreateRequest());
     }
 
     [AjaxOnly]
@@ -67,10 +70,26 @@ public class ContentController(
             .Include(c => c.ContentType)
             .Include(c => c.ContentCategories)
             .Include(c => c.ContentTags)
-            .Include(c => c.FieldValues)
+            .Include(c => c.FieldValues!)
+            .ThenInclude(fv => fv.Field!)
             .FirstOrDefaultAsync(c => c.Id == id && c.DeletedAt == null) ?? throw new NotFoundException("Content not found.");
+
         await PopulateDropdowns(content);
         var request = _mapper.Map<ContentUpdateRequest>(content);
+
+        // Load all field definitions for all content types
+        var allContentTypeFields = await dbContext.ContentFieldDefinitions
+            .AsNoTracking()
+            .Where(f => f.DeletedAt == null)
+            .ToListAsync();
+
+        // Create a dictionary of field values
+        var fieldValues = content.FieldValues?
+            .ToDictionary(fv => fv.FieldId, fv => fv.Value) ?? new Dictionary<int, string>();
+
+        ViewBag.FieldsByContentType = allContentTypeFields;
+        ViewBag.FieldValues = fieldValues;
+
         return PartialView("_Edit.Modal", request);
     }
 
@@ -313,3 +332,4 @@ public class ContentController(
         ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", content?.ContentCategories?.Select(ct => ct.CategoryId).ToList());
     }
 }
+
