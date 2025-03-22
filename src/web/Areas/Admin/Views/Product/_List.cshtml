@@ -25,7 +25,7 @@
                             {
                                 <tr>
                                     <td class="text-muted">@item.Name</td>
-                                    <td class="text-muted">@item.ProductType?.Name ?? "N/A"</td>
+                                    <td class="text-muted">@(item.ProductType?.Name ?? "N/A")</td>
                                     <td class="text-muted">@item.Slug</td>
                                     <td class="text-muted">@item.BasePrice.ToString("N0") đ</td>
                                     <td class="text-muted">@item.Sku</td>

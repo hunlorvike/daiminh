@@ -48,18 +48,15 @@ public class ProductController : DaiminhController
     public async Task<IActionResult> Create()
     {
         await PopulateDropdowns();
-        return PartialView("_Create.Modal", new ProductCreateRequest());
-    }
 
-    [AjaxOnly]
-    public async Task<IActionResult> GetFieldDefinitions(int productTypeId)
-    {
-        var fields = await _dbContext.ProductFieldDefinitions
+        var allProductTypeFields = await _dbContext.ProductFieldDefinitions
             .AsNoTracking()
-            .Where(f => f.ProductTypeId == productTypeId && f.DeletedAt == null)
+            .Where(f => f.DeletedAt == null)
             .ToListAsync();
 
-        return Json(fields);
+        ViewBag.FieldsByProductType = allProductTypeFields;
+
+        return PartialView("_Create.Modal", new ProductCreateRequest());
     }
 
     [AjaxOnly]
@@ -70,12 +67,25 @@ public class ProductController : DaiminhController
             .Include(p => p.ProductType)
             .Include(p => p.ProductCategories)
             .Include(p => p.ProductTags)
-            .Include(p => p.FieldValues)
+            .Include(p => p.FieldValues!)
+            .ThenInclude(fv => fv.Field)
             .Include(p => p.Images)
             .FirstOrDefaultAsync(p => p.Id == id && p.DeletedAt == null) ?? throw new NotFoundException("Product not found.");
 
         await PopulateDropdowns(product);
         var request = _mapper.Map<ProductUpdateRequest>(product);
+
+        var allProductTypeFields = await _dbContext.ProductFieldDefinitions
+            .AsNoTracking()
+            .Where(f => f.DeletedAt == null)
+            .ToListAsync();
+
+        var fieldValues = product.FieldValues?
+            .ToDictionary(fv => fv.FieldId, fv => fv.Value ?? string.Empty) ?? new Dictionary<int, string>();
+
+        ViewBag.FieldsByProductType = allProductTypeFields;
+        ViewBag.FieldValues = fieldValues;
+
         return PartialView("_Edit.Modal", request);
     }
 
@@ -336,3 +346,4 @@ public class ProductController : DaiminhController
         ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", product?.ProductCategories?.Select(pc => pc.CategoryId).ToList());
     }
 }
+

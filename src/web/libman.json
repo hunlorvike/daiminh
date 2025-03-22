@@ -30,10 +30,10 @@
       "library": "@tabler/icons@3.31.0",
       "destination": "wwwroot/lib/tabler/icons"
     },
-    {
-      "library": "@tabler/icons-webfont@3.31.0",
-      "destination": "wwwroot/lib/tabler/icons-webfont/"
-    },
+    //{
+    //  "library": "@tabler/icons-webfont@3.31.0",
+    //  "destination": "wwwroot/lib/tabler/icons-webfont/"
+    //},
     {
       "library": "datatables.net@2.2.2",
       "destination": "wwwroot/lib/datatables"
