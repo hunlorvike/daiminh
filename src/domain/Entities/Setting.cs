@@ -27,8 +27,6 @@ public class SettingConfiguration : BaseEntityConfiguration<Setting, int>
         builder.Property(e => e.Description).HasColumnName("description").IsRequired();
         builder.Property(x => x.Order).HasColumnName("order_number").IsRequired();
 
-        builder.HasIndex(e => e.Key)
-            .HasDatabaseName("idx_settings_key")
-            .IsUnique();
+        builder.HasIndex(e => e.Key).HasDatabaseName("idx_settings_key");
     }
 }

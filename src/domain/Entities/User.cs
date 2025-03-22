@@ -33,8 +33,8 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
         builder.Property(x => x.PasswordHash).HasColumnName("password_hash").IsRequired();
         builder.Property(x => x.RoleId).HasColumnName("role_id");
 
-        builder.HasIndex(x => x.Username).HasDatabaseName("idx_users_username").IsUnique();
-        builder.HasIndex(x => x.Email).HasDatabaseName("idx_users_email").IsUnique();
+        builder.HasIndex(x => x.Username).HasDatabaseName("idx_users_username");
+        builder.HasIndex(x => x.Email).HasDatabaseName("idx_users_email");
 
         builder.HasOne(x => x.Role)
             .WithMany(r => r.Users)

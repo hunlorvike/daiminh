@@ -37,24 +37,9 @@ public class RoleSeeder : ISeeder<Role>
     {
         return
         [
-            new Role
-            {
-                Id = 1,
-                Name = RoleConstants.Admin,
-                Permissions = ""
-            },
-            new Role
-            {
-                Id = 2,
-                Name = RoleConstants.User,
-                Permissions = ""
-            },
-            new Role
-            {
-                Id = 3,
-                Name = RoleConstants.Manager,
-                Permissions = ""
-            }
+            new Role { Id = 1, Name = RoleConstants.Admin, Permissions = "" },
+            new Role {Id = 2, Name = RoleConstants.User, Permissions = "" },
+            new Role { Id = 3, Name = RoleConstants.Manager, Permissions = "" }
         ];
     }
 }

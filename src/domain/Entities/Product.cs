@@ -47,8 +47,8 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
             .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
 
-        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_products_slug").IsUnique();
-        builder.HasIndex(e => e.Sku).IsUnique();
+        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_products_slug");
+        builder.HasIndex(e => e.Sku).HasDatabaseName("idx_products_sku");
 
         builder.HasIndex(p => p.ProductTypeId)
             .HasDatabaseName("idx_products_product_type_id");

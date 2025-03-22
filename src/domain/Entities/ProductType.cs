@@ -26,8 +26,8 @@ public class ProductTypeConfiguration : BaseEntityConfiguration<ProductType, int
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(50);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(50);
 
-        builder.HasIndex(e => e.Name).HasDatabaseName("idx_product_types_name").IsUnique();
-        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_product_types_slug").IsUnique();
+        builder.HasIndex(e => e.Name).HasDatabaseName("idx_product_types_name");
+        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_product_types_slug");
 
         builder.HasData(new ProductTypeSeeder().DataSeeder());
     }

@@ -33,7 +33,7 @@ public class CategoryConfiguration : BaseEntityConfiguration<Category, int>
         builder.Property(x => x.ParentCategoryId).HasColumnName("parent_category_id");
         builder.Property(x => x.EntityType).HasColumnName("entity_type").IsRequired().HasDefaultValue(EntityType.Product);
 
-        builder.HasIndex(e => e.Name).IsUnique().HasDatabaseName("idx_categories_name");
+        builder.HasIndex(e => e.Name).HasDatabaseName("idx_categories_name");
         builder.HasIndex(e => e.ParentCategoryId).HasDatabaseName("idx_categories_parent_category_id");
 
         builder.HasOne(x => x.ParentCategory)

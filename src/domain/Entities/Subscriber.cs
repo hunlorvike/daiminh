@@ -30,7 +30,6 @@ public class SubscriberConfiguration : BaseEntityConfiguration<Subscriber, int>
             .HasMaxLength(20)
             .HasDefaultValue(SubscriberStatus.Pending);
 
-
         builder.HasIndex(e => e.Email).HasDatabaseName("idx_subscriber_email");
     }
 }
