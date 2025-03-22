@@ -1,21 +1,26 @@
-using application.Interfaces;
+using System.Security.Claims;
 using AutoMapper;
 using domain.Entities;
+using infrastructure;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using shared.Constants;
 using shared.Extensions;
 using shared.Models;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Client.Requests.Auth;
+using BC = BCrypt.Net.BCrypt;
 
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
 public partial class AuthController(
     IMapper mapper,
-    IAuthService authService,
+    ApplicationDbContext context,
+    IHttpContextAccessor httpContextAccessor,
     IServiceProvider serviceProvider,
     IConfiguration configuration,
     IDistributedCache cache)
@@ -24,7 +29,6 @@ public partial class AuthController(
 public partial class AuthController
 {
     [HttpGet("dang-nhap")]
-    [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
         if (User.Identity is { IsAuthenticated: true })
@@ -35,7 +39,6 @@ public partial class AuthController
     }
 
     [HttpGet("dang-ky")]
-    [AllowAnonymous]
     public IActionResult Register(string? returnUrl = null)
     {
         if (User.Identity is { IsAuthenticated: true })
@@ -59,39 +62,42 @@ public partial class AuthController
 
         try
         {
-            var user = _mapper.Map<User>(model);
+            User user = _mapper.Map<User>(model);
 
-            var response = await authService.SignInAsync(user, CookiesConstants.UserCookieSchema);
+            User? existingUser = await context.Users
+                .Include(u => u.Role)
+                .Where(u => u.Username == user.Username)
+                .FirstOrDefaultAsync();
 
-            switch (response)
+            List<Claim> claims =
+            [
+                new(ClaimTypes.NameIdentifier, existingUser!.Id.ToString()),
+                new(ClaimTypes.Email, existingUser.Email),
+                new(ClaimTypes.Role, existingUser.Role?.Name ?? string.Empty)
+            ];
+
+            ClaimsIdentity claimsIdentity = new ClaimsIdentity(claims, CookiesConstants.UserCookieSchema);
+            AuthenticationProperties authProperties = new()
             {
-                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Client" })
-                    });
-                case SuccessResponse<User> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Home", new { area = "Client" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
-            }
+                IsPersistent = true,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddHours(24)
+            };
 
-            return View(model);
+            await httpContextAccessor.HttpContext!.SignInAsync(
+                CookiesConstants.AdminCookieSchema,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            return Json(new
+            {
+                success = true,
+                message = "Đăng nhập thành công.",
+                redirectUrl = returnUrl ?? Url.Action("Index", "Home", new { area = "Client" })
+            });
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error during login.", ex);
         }
     }
 
@@ -101,7 +107,6 @@ public partial class AuthController
     public async Task<IActionResult> Register(RegisterRequest model, string? returnUrl = null)
     {
         var validator = GetValidator<RegisterRequest>();
-
         var result = await this.ValidateAndReturnBadRequest(validator, model);
         if (result != null) return result;
 
@@ -109,44 +114,47 @@ public partial class AuthController
         {
             var user = _mapper.Map<User>(model);
 
-            var response = await authService.SignUpAsync(user);
+            Role? defaultRole = await context.Roles
+                            .Where(r => r.Name == RoleConstants.User)
+                            .FirstOrDefaultAsync() ??
+                            throw new BusinessLogicException("Default role not found. Please check system configuration.");
 
-            switch (response)
-            {
-                case SuccessResponse<User> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Login", "Auth", new { area = "Client" })
-                    });
-                case SuccessResponse<User> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Login", "Auth", new { area = "Client" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
-            }
+            user.PasswordHash = BC.HashPassword(user.PasswordHash);
+            user.RoleId = defaultRole.Id;
 
-            return View(model);
+            await context.Users.AddAsync(user);
+            await context.SaveChangesAsync();
+
+            if (Request.IsAjaxRequest())
+                return Json(new
+                {
+                    success = true,
+                    message = "Đăng ký tài khoản thành công.",
+                    redirectUrl = Url.Action("Login", "Auth", new { area = "Client" })
+                });
+
+            TempData["SuccessMessage"] = "Đăng ký tài khoản thành công.";
+            return RedirectToAction("Login", "Auth", new { area = "Client" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error during registration.", ex);
         }
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     [Authorize(AuthenticationSchemes = CookiesConstants.UserCookieSchema)]
     public async Task<IActionResult> Logout()
     {
-        await authService.SignOutAsync(CookiesConstants.UserCookieSchema);
-        return RedirectToAction("Login", "Auth", new { area = "Client" });
+        try
+        {
+            await httpContextAccessor.HttpContext!.SignOutAsync(CookiesConstants.UserCookieSchema);
+            return RedirectToAction("Login", "Auth", new { area = "Client" });
+        }
+        catch (Exception ex)
+        {
+            throw new SystemException2("Error during logout.", ex);
+        }
     }
 }

@@ -1,6 +1,7 @@
-using application.Interfaces;
 using AutoMapper;
+using infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Client.Models.Content;
@@ -13,8 +14,7 @@ namespace web.Areas.Client.Controllers;
 [Area("Client")]
 [Route("bai-viet")]
 public partial class ContentController(
-    IContentService contentService,
-    IContentTypeService contentTypeService,
+    ApplicationDbContext context,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration,
@@ -26,14 +26,22 @@ public partial class ContentController : DaiminhController
     [HttpGet]
     public async Task<IActionResult> Index()
     {
-        var contents = await contentService.GetAllAsync();
+        var contents = await context.Contents
+            .AsNoTracking()
+            .ToListAsync();
         List<ContentViewModel> contentModels = _mapper.Map<List<ContentViewModel>>(contents);
 
-        var contentTypes = await contentTypeService.GetAllAsync();
+        var contentTypes = await context.ContentTypes
+            .AsNoTracking()
+            .ToListAsync();
         List<ContentTypeViewModel> contentTypeModels = _mapper.Map<List<ContentTypeViewModel>>(contentTypes);
 
-        var latestContent = await contentService.GetLatestContentAsync();
+        var latestContent = await context.Contents
+            .AsNoTracking()
+            .OrderByDescending(c => c.CreatedAt)
+            .FirstOrDefaultAsync();
         var latestContentModel = _mapper.Map<ContentViewModel>(latestContent);
+
         var viewModel = new HomeViewModel
         {
             Contents = contentModels,
@@ -42,7 +50,6 @@ public partial class ContentController : DaiminhController
             Subscriber = new SubscriberCreateRequest()
         };
         return View(viewModel);
-
     }
 
     [HttpGet("ve-chung-toi")]

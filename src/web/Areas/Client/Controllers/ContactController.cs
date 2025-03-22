@@ -1,6 +1,6 @@
-using application.Interfaces;
 using AutoMapper;
 using domain.Entities;
+using infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using shared.Extensions;
@@ -13,7 +13,7 @@ namespace web.Areas.Client.Controllers;
 [Area("Client")]
 [Route("/lien-he")]
 public partial class ContactController(
-    IContactService contactService,
+    ApplicationDbContext context,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration,
@@ -42,38 +42,27 @@ public partial class ContactController
         try
         {
             var contact = _mapper.Map<Contact>(model);
+            await context.Contacts.AddAsync(contact);
+            await context.SaveChangesAsync();
 
-            var response = await contactService.AddAsync(contact);
+            var successResponse = new SuccessResponse<Contact>(contact, "Thêm liên hệ thành công.");
 
-            switch (response)
+            if (Request.IsAjaxRequest())
             {
-                case SuccessResponse<Contact> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Contact", new { area = "Client" })
-                    });
-                case SuccessResponse<Contact> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Contact", new { area = "Client" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Contact", new { area = "Client" })
+                });
             }
 
+            TempData["SuccessMessage"] = successResponse.Message;
             return RedirectToAction("Index", "Contact", new { area = "Client" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating contact.", ex);
         }
     }
 }

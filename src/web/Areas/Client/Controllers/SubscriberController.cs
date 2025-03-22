@@ -1,6 +1,6 @@
-using application.Interfaces;
 using AutoMapper;
 using domain.Entities;
+using infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using shared.Extensions;
@@ -14,7 +14,7 @@ namespace web.Areas.Client.Controllers;
 [Area("Client")]
 [Route("/Subscriber")]
 public partial class SubscriberController(
-    ISubscriberService subscriberService,
+    ApplicationDbContext context,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration,
@@ -34,36 +34,28 @@ public partial class SubscriberController
         try
         {
             var newSubscriber = _mapper.Map<Subscriber>(model.Subscriber);
-            var response = await subscriberService.AddAsync(newSubscriber);
-            switch (response)
+            await context.Subscribers.AddAsync(newSubscriber);
+            await context.SaveChangesAsync();
+
+            var successResponse = new SuccessResponse<Subscriber>(newSubscriber, "Đăng ký nhận tin thành công.");
+
+            if (Request.IsAjaxRequest())
             {
-                case SuccessResponse<Subscriber> successResponse when Request.IsAjaxRequest():
-                    return Json(new
-                    {
-                        success = true,
-                        message = successResponse.Message,
-                        redirectUrl = Url.Action("Index", "Home", new { area = "Client" })
-                    });
-                case SuccessResponse<Subscriber> successResponse:
-                    TempData["SuccessMessage"] = successResponse.Message;
-                    return RedirectToAction("Index", "Home", new { area = "Client" });
-                case ErrorResponse errorResponse when Request.IsAjaxRequest():
-                    return BadRequest(errorResponse);
-                case ErrorResponse errorResponse:
-                    {
-                        return BadRequest(errorResponse);
-                    }
+                return Json(new
+                {
+                    success = true,
+                    message = successResponse.Message,
+                    redirectUrl = Url.Action("Index", "Home", new { area = "Client" })
+                });
             }
 
+            TempData["SuccessMessage"] = successResponse.Message;
             return RedirectToAction("Index", "Home", new { area = "Client" });
         }
         catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                Success = false,
-                Errors = ex.Message
-            });
+            throw new SystemException2("Error creating subscriber.", ex);
+
         }
     }
 }

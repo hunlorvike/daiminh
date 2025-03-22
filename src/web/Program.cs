@@ -1,5 +1,4 @@
 using System.Reflection;
-using application.Interfaces;
 using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -92,11 +91,11 @@ builder.Services.AddAuthentication()
 
 #region Dependency Injection (Services Registration)
 
-builder.Services.Scan(scan => scan
-    .FromAssemblyOf<IAuthService>() // Scan from the assembly containing IAuthService
-    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service"))) // Filter classes ending with "Service"
-    .AsImplementedInterfaces() // Register as their implemented interfaces
-    .WithScopedLifetime()); // Use scoped lifetime
+//builder.Services.Scan(scan => scan
+//    .FromAssemblyOf<IAuthService>() // Scan from the assembly containing IAuthService
+//    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service"))) // Filter classes ending with "Service"
+//    .AsImplementedInterfaces() // Register as their implemented interfaces
+//    .WithScopedLifetime()); // Use scoped lifetime
 
 #endregion
 

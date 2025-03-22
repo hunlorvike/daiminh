@@ -1,6 +1,7 @@
-using application.Interfaces;
 using AutoMapper;
+using infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using web.Areas.Admin.Controllers.Shared;
 using web.Areas.Client.Models.Category;
@@ -11,7 +12,7 @@ namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
 public partial class HomeController(
-    ICategoryService categoryService,
+    ApplicationDbContext context,
     IMapper mapper,
     IServiceProvider serviceProvider,
     IConfiguration configuration,
@@ -22,8 +23,8 @@ public partial class HomeController
 {
     public async Task<IActionResult> Index()
     {
-        var cate = await categoryService.GetAllAsync();
-        List<CategoryViewModel> categoryModels = _mapper.Map<List<CategoryViewModel>>(cate);
+        var categories = await context.Categories.ToListAsync();
+        List<CategoryViewModel> categoryModels = _mapper.Map<List<CategoryViewModel>>(categories);
         var viewModel = new HomeViewModel
         {
             Categories = categoryModels,
@@ -33,10 +34,4 @@ public partial class HomeController
         return View(viewModel);
 
     }
-    /*public IActionResult Index()
-    {
-       
-        return View();
-
-    }*/
 }
