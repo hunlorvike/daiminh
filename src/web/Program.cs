@@ -52,7 +52,7 @@ builder.Services.AddStackExchangeRedisCache(options =>
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly(), Assembly.Load("application")]);
+builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()]);
 
 builder.Services.AddHttpContextAccessor();
 
