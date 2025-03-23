@@ -39,16 +39,15 @@
 </div>
 
 @section FootScripts {
-	<script type="application/json">
+	<script>
 		$(document).ready(function () {
 			$(document).on('shown.bs.modal', '#create-content--modal, #edit-content--modal', function (e) {
 				let optionsSummernote = {
 					lang: 'vi-VN',
-					placeholder: 'Nhập nội dung bài viết',
+					placeholder: 'Nhập mô tả sản phẩm',
 					tabsize: 2,
 					height: 300,
 					minHeight: 200,
-					maxHeight: 500
 				};
 				$('#ContentBody').summernote(optionsSummernote);
 			});

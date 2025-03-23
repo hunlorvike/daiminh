@@ -34,6 +34,35 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{6FB2BA
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "database", "database", "{FE37EC30-7D35-401B-90A7-3F10FFB844FC}"
+	ProjectSection(SolutionItems) = preProject
+		docs\db\categories.sql = docs\db\categories.sql
+		docs\db\comments.sql = docs\db\comments.sql
+		docs\db\contacts.sql = docs\db\contacts.sql
+		docs\db\contents.sql = docs\db\contents.sql
+		docs\db\content_categories.sql = docs\db\content_categories.sql
+		docs\db\content_field_definitions.sql = docs\db\content_field_definitions.sql
+		docs\db\content_field_values.sql = docs\db\content_field_values.sql
+		docs\db\content_tags.sql = docs\db\content_tags.sql
+		docs\db\content_types.sql = docs\db\content_types.sql
+		docs\db\folders.sql = docs\db\folders.sql
+		docs\db\media_files.sql = docs\db\media_files.sql
+		docs\db\products.sql = docs\db\products.sql
+		docs\db\product_categories.sql = docs\db\product_categories.sql
+		docs\db\product_field_definitions.sql = docs\db\product_field_definitions.sql
+		docs\db\product_field_values.sql = docs\db\product_field_values.sql
+		docs\db\product_image.sql = docs\db\product_image.sql
+		docs\db\product_tags.sql = docs\db\product_tags.sql
+		docs\db\product_types.sql = docs\db\product_types.sql
+		docs\db\reviews.sql = docs\db\reviews.sql
+		docs\db\roles.sql = docs\db\roles.sql
+		docs\db\settings.sql = docs\db\settings.sql
+		docs\db\slider.sql = docs\db\slider.sql
+		docs\db\subscriber.sql = docs\db\subscriber.sql
+		docs\db\tags.sql = docs\db\tags.sql
+		docs\db\users.sql = docs\db\users.sql
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,18 +73,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Debug|x64.Build.0 = Debug|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Debug|x86.Build.0 = Debug|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Release|x64.ActiveCfg = Release|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Release|x64.Build.0 = Release|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Release|x86.ActiveCfg = Release|Any CPU
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354}.Release|x86.Build.0 = Release|Any CPU
 		{27D665F8-B1E9-4AE8-BACC-65452A52FE33}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{27D665F8-B1E9-4AE8-BACC-65452A52FE33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{27D665F8-B1E9-4AE8-BACC-65452A52FE33}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -104,18 +121,6 @@ Global
 		{BAE0833B-A9FF-41DF-80ED-97139700452F}.Release|x64.Build.0 = Release|Any CPU
 		{BAE0833B-A9FF-41DF-80ED-97139700452F}.Release|x86.ActiveCfg = Release|Any CPU
 		{BAE0833B-A9FF-41DF-80ED-97139700452F}.Release|x86.Build.0 = Release|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Debug|x64.Build.0 = Debug|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Debug|x86.Build.0 = Debug|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Release|Any CPU.Build.0 = Release|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Release|x64.ActiveCfg = Release|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Release|x64.Build.0 = Release|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Release|x86.ActiveCfg = Release|Any CPU
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744}.Release|x86.Build.0 = Release|Any CPU
 		{F399CED7-AF65-46BB-8112-EC4993AAF64A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F399CED7-AF65-46BB-8112-EC4993AAF64A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F399CED7-AF65-46BB-8112-EC4993AAF64A}.Debug|x64.ActiveCfg = Debug|Any CPU
@@ -157,12 +162,10 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{9205160F-4F1E-4197-9A24-18BC7F2B6354} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{27D665F8-B1E9-4AE8-BACC-65452A52FE33} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{35714BAD-1904-4336-8BD8-B9B4A7251985} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{3AEF466E-CD17-4D51-ADB8-4563529AD59A} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
 		{BAE0833B-A9FF-41DF-80ED-97139700452F} = {827E0CD3-B72D-47B6-A68D-7590B98EB39B}
-		{ECD1EEDC-A92B-47DB-AED3-28BEF51F0744} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{F399CED7-AF65-46BB-8112-EC4993AAF64A} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{507DCC72-3148-4302-876D-7111EDE56822} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{E6B73CAB-D88F-4C36-BFD7-5984D8ED51D5} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
