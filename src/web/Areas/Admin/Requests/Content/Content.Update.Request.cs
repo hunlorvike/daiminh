@@ -68,6 +68,13 @@ public class ContentUpdateRequest
     public string Slug { get; set; } = string.Empty;
 
     /// <summary>
+    /// Gets or sets the summary or excerpt of the content item.
+    /// </summary>
+    [Required(ErrorMessage = "Tóm tắt là bắt buộc.")]
+    [Display(Name = "Tóm tắt", Prompt = "Nhập tóm tắt")]
+    public string? Summary { get; set; }
+
+    /// <summary>
     /// Gets or sets the body content of the content item.
     /// </summary>
     [Required(ErrorMessage = "Nội dung bài viết là bắt buộc.")]
@@ -176,17 +183,20 @@ public class ContentUpdateRequestValidator : AbstractValidator<ContentUpdateRequ
             .MaximumLength(255).WithMessage("Đường dẫn (slug) không được vượt quá 255 ký tự.")
             .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.")
             .MustAsync(BeUniqueSlug).WithMessage("Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác.");
+        
+        RuleFor(request => request.Summary)
+            .NotEmpty().WithMessage("Tóm tắt không được bỏ trống.")
+            .MaximumLength(500).WithMessage("Tóm tắt không được vượt quá 500 ký tự.");
 
         RuleFor(request => request.ContentBody)
             .NotEmpty().WithMessage("Nội dung bài viết không được để trống.");
 
         RuleFor(request => request.CoverImageUrl)
-           .MaximumLength(500).WithMessage("Đường dẫn ảnh bìa không được vượt quá 500 ký tự.")
-           .Must(BeAValidUrl).When(x => !string.IsNullOrEmpty(x.CoverImageUrl)).WithMessage("Đường dẫn ảnh bìa không hợp lệ.");
+            .NotEmpty().WithMessage("Ảnh bìa không được bỏ trống.")
+            .MaximumLength(500).WithMessage("Ảnh bìa không được vượt quá 500 ký tự.");
 
         RuleFor(x => x.Status)
            .IsInEnum().WithMessage("Trạng thái xuất bản không hợp lệ.");
-
 
         // SEO Field Validations (same as Create)
         RuleFor(request => request.MetaTitle)
