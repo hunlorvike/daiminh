@@ -11,6 +11,7 @@ public class Content : SeoEntity<int>
     public int? AuthorId { get; set; }
     public string Title { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
+    public string Summary { get; set; } = string.Empty;
     public string ContentBody { get; set; } = string.Empty;
     public string? CoverImageUrl { get; set; }
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
@@ -36,6 +37,7 @@ public class ContentConfiguration : SeoEntityConfiguration<Content, int>
         builder.Property(e => e.AuthorId).HasColumnName("author_id");
         builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Summary).HasColumnName("summary").IsRequired().HasMaxLength(500);
         builder.Property(e => e.ContentBody).HasColumnName("content_body").IsRequired();
         builder.Property(e => e.CoverImageUrl).HasColumnName("cover_image_url").HasMaxLength(500);
         builder.Property(e => e.Status)

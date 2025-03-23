@@ -17,8 +17,8 @@ public enum EntityType
     Product = 0,
 
     /// <summary>
-    /// The entity is a service.
+    /// The entity is a content.
     /// </summary>
-    [Display(Name = "Dịch vụ")] // English: "Service"
-    Service = 1
+    [Display(Name = "Bài viết")] // English: "Content"
+    Content = 1
 }

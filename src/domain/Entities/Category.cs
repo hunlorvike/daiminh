@@ -78,12 +78,12 @@ public class CategorySeeder : ISeeder<Category>
             new Category{ Id = 16, Name = "Băng keo dán sơn", Slug = "bang-keo-dan-son", EntityType = EntityType.Product, ParentCategoryId = 7 },
 
             // Danh mục dịch vụ
-            new Category{ Id = 101, Name = "Dịch vụ thi công sơn trọn gói", Slug = "dich-vu-thi-cong-son-tron-goi", EntityType = EntityType.Service },
-            new Category{ Id = 102, Name = "Tư vấn phối màu sơn", Slug = "tu-van-phoi-mau-son", EntityType = EntityType.Service },
-            new Category{ Id = 103, Name = "Tư vấn kỹ thuật sơn", Slug = "tu-van-ky-thuat-son", EntityType = EntityType.Service },
+            new Category{ Id = 101, Name = "Dịch vụ thi công sơn trọn gói", Slug = "dich-vu-thi-cong-son-tron-goi", EntityType = EntityType.Content },
+            new Category{ Id = 102, Name = "Tư vấn phối màu sơn", Slug = "tu-van-phoi-mau-son", EntityType = EntityType.Content },
+            new Category{ Id = 103, Name = "Tư vấn kỹ thuật sơn", Slug = "tu-van-ky-thuat-son", EntityType = EntityType.Content },
             // Bạn có thể thêm các danh mục con cho dịch vụ nếu cần
-            new Category{ Id = 104, Name = "Thi công sơn nội thất trọn gói", Slug = "thi-cong-son-noi-that-tron-goi", EntityType = EntityType.Service, ParentCategoryId = 101 },
-            new Category{ Id = 105, Name = "Thi công sơn ngoại thất trọn gói", Slug = "thi-cong-son-ngoai-that-tron-goi", EntityType = EntityType.Service, ParentCategoryId = 101 },
+            new Category{ Id = 104, Name = "Thi công sơn nội thất trọn gói", Slug = "thi-cong-son-noi-that-tron-goi", EntityType = EntityType.Content, ParentCategoryId = 101 },
+            new Category{ Id = 105, Name = "Thi công sơn ngoại thất trọn gói", Slug = "thi-cong-son-ngoai-that-tron-goi", EntityType = EntityType.Content, ParentCategoryId = 101 },
         ];
     }
 }

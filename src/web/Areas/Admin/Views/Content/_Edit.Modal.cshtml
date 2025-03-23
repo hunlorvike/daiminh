@@ -53,6 +53,11 @@
 									<span asp-validation-for="CoverImageUrl" class="text-danger"></span>
 								</div>
 								<div class="mb-3">
+									<label asp-for="Summary" class="form-label"></label>
+									<textarea asp-for="Summary" class="form-control" rows="5"></textarea>
+									<span asp-validation-for="Summary" class="text-danger"></span>
+								</div>
+								<div class="mb-3">
 									<label asp-for="ContentBody" class="form-label"></label>
 									<textarea asp-for="ContentBody" class="form-control" rows="10"></textarea>
 									<span asp-validation-for="ContentBody" class="text-danger"></span>
