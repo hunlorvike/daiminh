@@ -1,397 +1,276 @@
 <header>
-    <!-- Top Bar -->
-    <div class="navbar-expand-md border border-bottom-1 d-none d-md-block">
-        <div class="container-xl">
-            <div class="row w-100 align-items-center justify-content-between py-2">
-                <div class="col-auto">
-                    <p class="text-muted mb-0">Chất lượng vượt niềm tin</p>
-                </div>
-                <div class="col-auto">
-                    <p class="text-muted mb-0">
-                        Hotline: <a href="tel:0359021323"
-                                    class="text-decoration-none text-primary">035 902 1323</a>
-                        <span class="mx-2">|</span>
-                        Mail: <a href="mailto:viethung0106.developer@gmail.com"
-                                 class="text-decoration-none text-primary">viethung0106.developer@gmail.com</a>
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
+	<!-- Top Bar -->
+	<div class="navbar-expand-md border border-bottom-1 d-none d-md-block">
+		<div class="container-xl">
+			<div class="row w-100 align-items-center justify-content-between py-2">
+				<div class="col-auto">
+					<p class="text-muted mb-0">Chất lượng vượt niềm tin</p>
+				</div>
+				<div class="col-auto">
+					<p class="text-muted mb-0">
+						Hotline: <a href="tel:0359021323" class="text-decoration-none text-primary">035 902 1323</a>
+						<span class="mx-2">|</span>
+						Mail: <a href="mailto:viethung0106.developer@gmail.com" class="text-decoration-none text-primary">viethung0106.developer@gmail.com</a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
 
-    <!-- Main Header -->
-    <div class="navbar navbar-expand-md sticky-top">
-        <div class="container-xl p-3">
-            <!-- Brand -->
-            <a href="#" class="navbar-brand d-flex align-items-center text-decoration-none text-dark">
-                <span class="bg-primary rounded-3 d-flex justify-content-center align-items-center p-sm-3 p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
-                         stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="icon icon-tabler icons-tabler-outline icon-tabler-paint">
+	<!-- Main Header - Redesigned with more interactive elements -->
+	<div class="navbar navbar-expand-md sticky-top bg-white shadow-sm" style="box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+		<div class="container-xl py-2">
+			<!-- Brand - Enhanced with better spacing and animation -->
+			<a href="#" class="navbar-brand d-flex align-items-center text-decoration-none text-dark me-4">
+				<span class="bg-primary rounded-3 d-flex justify-content-center align-items-center p-sm-3 p-2 shadow-sm"
+					  style="transition: all 0.3s ease;">
+					<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+						 stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+						 class="icon icon-tabler icons-tabler-outline icon-tabler-paint">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z" />
+						<path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2" />
+						<path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z" />
+					</svg>
+				</span>
+				<span class="fw-bold h2 text-uppercase text-primary m-0 ms-2" style="letter-spacing: 0.5px;">Daiminh</span>
+			</a>
+
+			<!-- Search - Desktop - Improved with better styling -->
+			<div class="d-none d-md-block mx-4 flex-grow-1">
+				<form action="#" method="get" class="input-group">
+					<input type="text" class="form-control border-end-0" placeholder="Tìm kiếm sản phẩm..."
+						   style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+					<button class="btn btn-primary" type="submit" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+							 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+							 class="icon icon-tabler icons-tabler-outline icon-tabler-search m-0">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+							<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+							<path d="M21 21l-6 -6" />
+						</svg>
+					</button>
+				</form>
+			</div>
+
+			<!-- NEW: Quick Action Buttons -->
+			<div class="d-none d-md-flex me-3 gap-2">
+				<!-- Language Selector -->
+				@*<div class="dropdown">
+                <button class="btn btn-outline-secondary btn-sm rounded-pill px-3 d-flex align-items-center gap-2" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M5 3m0 2a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v2a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2z"/>
-                        <path d="M19 6h1a2 2 0 0 1 2 2a5 5 0 0 1 -5 5l-5 0v2"/>
-                        <path d="M10 15m0 1a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1z"/>
+                        <path d="M5 7h7m-2 -2v2a5 8 0 0 1 -5 8m1 -4a7 4 0 0 0 6.7 4"/>
+                        <path d="M11 19l4 -9l4 9m-.9 -2h-6.2"/>
                     </svg>
-                </span>
-                <span class="fw-bold h2 text-uppercase text-primary m-0">Daiminh</span>
-            </a>
-
-            <!-- Search - Desktop -->
-            <div class="d-none d-md-block mx-4 flex-grow-1">
-                <form action="#" method="get" class="input-group">
-                    <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
-                    <button class="btn btn-primary" type="submit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="icon icon-tabler icons-tabler-outline icon-tabler-search m-0">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/>
-                            <path d="M21 21l-6 -6"/>
-                        </svg>
-                    </button>
-                </form>
-            </div>
-
-            <!-- Actions -->
-            <div class="d-flex align-items-center gap-3">
-                <!-- Search button for mobile -->
-                <div class="nav-item d-md-none" type="button"
-                     data-bs-toggle="collapse" data-bs-target="#mobile-search" aria-expanded="false"
-                     aria-controls="mobile-search">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                         viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="icon icon-tabler icons-tabler-outline icon-tabler-search fs-2">
+                    Tiếng Việt
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/>
-                        <path d="M21 21l-6 -6"/>
+                        <path d="M6 9l6 6l6 -6"/>
                     </svg>
-                </div>
+                </button>
+                <ul class="dropdown-menu shadow-sm border-0">
+                    <li><a class="dropdown-item active" href="#">Tiếng Việt</a></li>
+                    <li><a class="dropdown-item" href="#">English</a></li>
+                </ul>
+            </div>*@
+			</div>
 
-                <!-- Cart -->
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link px-0 position-relative" data-bs-toggle="dropdown"
-                       data-bs-auto-close="outside">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="icon icon-tabler icons-tabler-outline icon-tabler-shopping-cart fs-2">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                            <path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/>
-                            <path d="M17 17h-11v-14h-2"/>
-                            <path d="M6 5l14 1l-1 7h-13"/>
-                        </svg>
-                        <span
-                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger text-white">
-                            3
-                        </span>
-                        <span class="d-none d-md-inline h4 m-0 ms-2">Giỏ hàng</span>
-                    </a>
+			<!-- Actions - Enhanced with more options -->
+			<div class="d-flex align-items-center gap-3">
+				<!-- User Account - Mobile -->
+				<div class="nav-item d-md-none">
+					<a href="#" class="nav-link px-0" data-bs-toggle="offcanvas" data-bs-target="#mobile-account">
+						<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon text-muted">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+							<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+							<path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+							<path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
+						</svg>
+					</a>
+				</div>
 
-                    <div class="dropdown-menu dropdown-menu-end p-2" style="width: 350px">
-                        <div class="dropdown-header">
-                            <strong>Giỏ hàng</strong>
-                        </div>
-                        <div class="list-group list-group-flush">
-                            <!-- Item 1 -->
-                            <div class="list-group-item d-flex align-items-center py-2">
-                                <img src="~/img/placeholder.svg" alt="Product 1" class="me-2 rounded"
-                                     style="width: 50px; height: auto;">
-                                <div class="flex-fill">
-                                    <div class="text-truncate">Áo thun nam</div>
-                                    <small class="text-muted">1 x 200.000đ</small>
-                                </div>
-                                <a href="#" class="btn btn-link text-danger">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="icon icon-tabler icons-tabler-outline icon-tabler-trash m-0">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M4 7l16 0"/>
-                                        <path d="M10 11l0 6"/>
-                                        <path d="M14 11l0 6"/>
-                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/>
-                                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/>
-                                    </svg>
-                                </a>
-                            </div>
-                            <!-- Item 2 -->
-                            <div class="list-group-item d-flex align-items-center py-2">
-                                <img src="~/img/placeholder.svg" alt="Product 2" class="me-2 rounded"
-                                     style="width: 50px; height: auto;">
-                                <div class="flex-fill">
-                                    <div class="text-truncate">Quần jean nữ</div>
-                                    <small class="text-muted">1 x 350.000đ</small>
-                                </div>
-                                <a href="#" class="btn btn-link text-danger">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="icon icon-tabler icons-tabler-outline icon-tabler-trash m-0">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M4 7l16 0"/>
-                                        <path d="M10 11l0 6"/>
-                                        <path d="M14 11l0 6"/>
-                                        <path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"/>
-                                        <path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="dropdown-footer text-center">
-                            <a href="#" class="btn btn-primary w-100">Xem giỏ hàng</a>
-                        </div>
-                    </div>
-                </div>
+				<!-- User Account - Desktop -->
+				<div class="nav-item dropdown d-none d-md-block">
+					<a href="#" class="nav-link px-0 d-flex align-items-center gap-2" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+						<div class="position-relative">
+							<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon text-muted">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+								<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+								<path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+								<path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
+							</svg>
+						</div>
+						<div class="d-none d-lg-block">
+							<div class="fw-medium lh-1">Tài khoản</div>
+							<div class="text-muted small">Đăng nhập/Đăng ký</div>
+						</div>
+					</a>
+					<div class="dropdown-menu dropdown-menu-end shadow-sm border-0 p-3" style="width: 280px;">
+						<div class="text-center mb-3">
+							<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon text-primary mb-2">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+								<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+								<path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+								<path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
+							</svg>
+							<h5 class="mb-1">Chào mừng bạn</h5>
+							<p class="text-muted small">Đăng nhập để truy cập tài khoản của bạn</p>
+						</div>
+						<div class="d-grid gap-2">
+							<a href="@Url.Action("Login", "Auth", new { area = "Client" })" class="btn btn-primary">Đăng nhập</a>
+							<a href="@Url.Action("Register", "Auth", new { area = "Client" })" class="btn btn-outline-secondary">Đăng ký</a>
+						</div>
+					</div>
+				</div>
 
-                <!-- Wishlist -->
-                <div class="nav-item dropdown">
-                    <a href="#" class="nav-link px-0 position-relative" data-bs-toggle="dropdown"
-                       data-bs-auto-close="outside">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="icon icon-tabler icons-tabler-outline icon-tabler-heart fs-2">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"/>
-                        </svg>
-                        <span
-                            class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-white">
-                            2
-                        </span>
-                        <span class="d-none d-md-inline h4 m-0 ms-2">Yêu thích</span>
-                    </a>
-                    <div class="dropdown-menu dropdown-menu-end p-2" style="width: 350px">
-                        <div class="dropdown-header">
-                            <strong>Yêu thích</strong>
-                        </div>
-                        <div class="list-group list-group-flush">
-                            <!-- Item 1 -->
-                            <div class="list-group-item d-flex align-items-center py-2">
-                                <img src="~/img/placeholder.svg" alt="Product 3" class="me-2 rounded"
-                                     style="width: 50px; height: auto;">
-                                <div class="flex-fill">
-                                    <div class="text-truncate">Đồng hồ thông minh</div>
-                                    <small class="text-muted">500.000đ</small>
-                                </div>
-                                <a href="#" class="btn btn-link text-danger">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="icon icon-tabler icons-tabler-outline icon-tabler-heart-off m-0">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M3 3l18 18"/>
-                                        <path
-                                            d="M19.5 12.572l-1.5 1.428m-2 2l-4 4l-7.5 -7.428a5 5 0 0 1 -1.288 -5.068a4.976 4.976 0 0 1 1.788 -2.504m3 -1c1.56 0 3.05 .727 4 2a5 5 0 1 1 7.5 6.572"/>
-                                    </svg>
-                                </a>
-                            </div>
-                            <!-- Item 2 -->
-                            <div class="list-group-item d-flex align-items-center py-2">
-                                <img src="~/img/placeholder.svg" alt="Product 4" class="me-2 rounded"
-                                     style="width: 50px; height: auto;">
-                                <div class="flex-fill">
-                                    <div class="text-truncate">Giày thể thao</div>
-                                    <small class="text-muted">750.000đ</small>
-                                </div>
-                                <a href="#" class="btn btn-link text-danger">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                         fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                         stroke-linejoin="round"
-                                         class="icon icon-tabler icons-tabler-outline icon-tabler-heart-off m-0">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                                        <path d="M3 3l18 18"/>
-                                        <path
-                                            d="M19.5 12.572l-1.5 1.428m-2 2l-4 4l-7.5 -7.428a5 5 0 0 1 -1.288 -5.068a4.976 4.976 0 0 1 1.788 -2.504m3 -1c1.56 0 3.05 .727 4 2a5 5 0 1 1 7.5 6.572"/>
-                                    </svg>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="dropdown-footer text-center">
-                            <a href="#" class="btn btn-primary w-100">Xem yêu thích</a>
-                        </div>
-                    </div>
-                </div>
+				<!-- Search button for mobile -->
+				<div class="nav-item d-md-none btn btn-light rounded-circle p-2" type="button"
+					 data-bs-toggle="collapse" data-bs-target="#mobile-search" aria-expanded="false"
+					 aria-controls="mobile-search" style="transition: all 0.2s ease;">
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22"
+						 viewBox="0 0 24 24" fill="none"
+						 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+						 class="icon icon-tabler icons-tabler-outline icon-tabler-search">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+						<path d="M21 21l-6 -6" />
+					</svg>
+				</div>
 
-                <!-- Mobile Toggle -->
-                <div class="nav-item dropdown d-md-none" type="button" data-bs-toggle="collapse"
-                     data-bs-target="#navbar-menu">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                         class="icon icon-tabler icons-tabler-outline icon-tabler-menu-2">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                        <path d="M4 6l16 0"/>
-                        <path d="M4 12l16 0"/>
-                        <path d="M4 18l16 0"/>
-                    </svg>
-                </div>
-            </div>
-        </div>
+				<!-- Mobile Toggle -->
+				<div class="nav-item d-md-none btn btn-light rounded-circle p-2" type="button" data-bs-toggle="collapse"
+					 data-bs-target="#navbar-menu" style="transition: all 0.2s ease;">
+					<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+						 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+						 class="icon icon-tabler icons-tabler-outline icon-tabler-menu-2">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+						<path d="M4 6l16 0" />
+						<path d="M4 12l16 0" />
+						<path d="M4 18l16 0" />
+					</svg>
+				</div>
+			</div>
+		</div>
 
-        <!-- Search - Mobile -->
-        <div class="collapse w-100 mt-2" id="mobile-search">
-            <div class="d-md-none px-3 pb-3">
-                <form action="#" method="get" class="input-group input-group-flat">
-                    <input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
-                    <button class="btn btn-primary" type="submit">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                             class="icon icon-tabler icons-tabler-outline icon-tabler-search m-0">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-                            <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/>
-                            <path d="M21 21l-6 -6"/>
-                        </svg>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+		<!-- Search - Mobile -->
+		<div class="collapse w-100 mt-2" id="mobile-search">
+			<div class="d-md-none px-3 pb-3">
+				<form action="#" method="get" class="input-group">
+					<input type="text" class="form-control border-end-0" placeholder="Tìm kiếm sản phẩm..."
+						   style="border-top-right-radius: 0; border-bottom-right-radius: 0;">
+					<button class="btn btn-primary" type="submit" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+						<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+							 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+							 class="icon icon-tabler icons-tabler-outline icon-tabler-search m-0">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+							<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" />
+							<path d="M21 21l-6 -6" />
+						</svg>
+					</button>
+				</form>
+			</div>
+		</div>
 
-    <!-- Navbar -->
-    <div class="navbar-expand-md">
-        <div class="collapse navbar-collapse" id="navbar-menu">
-            <div class="navbar">
-                <div class="container-xl">
-                    <div class="row flex-fill align-items-center">
-                        <div class="col">
-                            <ul class="navbar-nav">
-                                <li class="nav-item active">
-                                    <a class="nav-link" href="./">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/home -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none"
-                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round"
-                                                 class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-                                                    d="M5 12l-2 0l9 -9l9 9l-2 0"></path><path
-                                                    d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path><path
-                                                    d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6"></path></svg>
-                                        </span>
-                                        <span class="nav-link-title">
-                                            Home
-                                        </span>
-                                    </a>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#navbar-layout" data-bs-toggle="dropdown"
-                                       data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/layout-2 -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none"
-                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round"
-                                                 class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-                                                    d="M4 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path><path
-                                                    d="M4 13m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path><path
-                                                    d="M14 4m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v3a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path><path
-                                                    d="M14 15m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v1a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path></svg>
-                                        </span>
-                                        <span class="nav-link-title">
-                                            Layout
-                                        </span>
-                                    </a>
-                                    <div class="dropdown-menu">
-                                        <div class="dropdown-menu-columns">
-                                            <div class="dropdown-menu-column">
-                                                <a class="dropdown-item" href="./layout-boxed.html">
-                                                    Boxed
-                                                    <span
-                                                        class="badge badge-sm bg-green-lt text-uppercase ms-auto">New</span>
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-combo.html">
-                                                    Combined
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-condensed.html">
-                                                    Condensed
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-fluid.html">
-                                                    Fluid
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-fluid-vertical.html">
-                                                    Fluid vertical
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-horizontal.html">
-                                                    Horizontal
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-navbar-dark.html">
-                                                    Navbar dark
-                                                </a>
-                                            </div>
-                                            <div class="dropdown-menu-column">
-                                                <a class="dropdown-item" href="./layout-navbar-overlap.html">
-                                                    Navbar overlap
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-navbar-sticky.html">
-                                                    Navbar sticky
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-vertical-right.html">
-                                                    Right vertical
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-rtl.html">
-                                                    RTL mode
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-vertical.html">
-                                                    Vertical
-                                                </a>
-                                                <a class="dropdown-item" href="./layout-vertical-transparent.html">
-                                                    Vertical transparent
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </li>
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#navbar-help" data-bs-toggle="dropdown"
-                                       data-bs-auto-close="outside" role="button" aria-expanded="false">
-                                        <span class="nav-link-icon d-md-none d-lg-inline-block"><!-- Download SVG icon from http://tabler.io/icons/icon/lifebuoy -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none"
-                                                 stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                 stroke-linejoin="round"
-                                                 class="icon"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path
-                                                    d="M12 12m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path><path
-                                                    d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path
-                                                    d="M15 15l3.35 3.35"></path><path d="M9 15l-3.35 3.35"></path><path
-                                                    d="M5.65 5.65l3.35 3.35"></path><path
-                                                    d="M18.35 5.65l-3.35 3.35"></path></svg>
-                                        </span>
-                                        <span class="nav-link-title">
-                                            Help
-                                        </span>
-                                    </a>
-                                    <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="https://tabler.io/docs" target="_blank"
-                                           rel="noopener">
-                                            Documentation
-                                        </a>
-                                        <a class="dropdown-item" href="./changelog.html">
-                                            Changelog
-                                        </a>
-                                        <a class="dropdown-item" href="https://github.com/tabler/tabler" target="_blank"
-                                           rel="noopener">
-                                            Source code
-                                        </a>
-                                        <a class="dropdown-item text-pink" href="https://github.com/sponsors/codecalm"
-                                           target="_blank" rel="noopener">
-                                            <!-- Download SVG icon from http://tabler.io/icons/icon/heart -->
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                 stroke-linecap="round" stroke-linejoin="round"
-                                                 class="icon icon-inline me-1">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <path
-                                                    d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
-                                            </svg>
-                                            Sponsor project!
-                                        </a>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	</div>
+
+	<!-- Navbar -->
+	<div class="navbar-expand-md">
+		<div class="collapse navbar-collapse" id="navbar-menu">
+			<div class="navbar">
+				<div class="container-xl">
+					<div class="row flex-fill align-items-center">
+						<div class="col">
+							<ul class="navbar-nav">
+								<li class="nav-item">
+									<a class="nav-link" href="@Url.Action("Index", "Home", new { area = "Client" })">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+												<path d="M5 12l-2 0l9 -9l9 9l-2 0" />
+												<path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+												<path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+											</svg>
+										</span>
+										<span class="nav-link-title">Trang chủ</span>
+									</a>
+								</li>
+								<li class="nav-item dropdown">
+									<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+												<path d="M3 3h18v18h-18z" />
+												<path d="M3 9h18" />
+												<path d="M9 21v-6" />
+												<path d="M15 21v-6" />
+											</svg>
+										</span>
+										<span class="nav-link-title">Sản phẩm</span>
+									</a>
+									<div class="dropdown-menu">
+										<!-- TODO: thực hiện lấy toàn bộ loại sản phẩm -->
+									</div>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="@Url.Action("Index", "Content", new { area = "Client" })">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+												<path d="M14 3v4a1 1 0 0 1 -1 1h-4" />
+												<path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z" />
+											</svg>
+										</span>
+										<span class="nav-link-title">Bài viết</span>
+									</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="@Url.Action("Index", "Contact", new { area = "Client" })">
+										<span class="nav-link-icon d-md-none d-lg-inline-block">
+											<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+												<path d="M3 21l1.9 -5.7a8.5 8.5 0 0 0 3.4 2.9l4.7 1.3" />
+												<path d="M9 10l0 3" />
+												<path d="M15 10l0 3" />
+												<path d="M18 21v-3a8 8 0 0 0 -16 0v3" />
+												<path d="M8 7v1" />
+												<path d="M16 7v1" />
+												<path d="M12 7v1" />
+											</svg>
+										</span>
+										<span class="nav-link-title">Liên hệ</span>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 
 </header>
+
+<!-- Mobile Account Offcanvas -->
+<div class="offcanvas offcanvas-end" tabindex="-1" id="mobile-account">
+	<div class="offcanvas-header">
+		<h5 class="offcanvas-title">Tài khoản</h5>
+		<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+	</div>
+	<div class="offcanvas-body">
+		<div class="text-center mb-4">
+			<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon text-primary mb-2">
+				<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+				<path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0" />
+				<path d="M12 10m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+				<path d="M6.168 18.849a4 4 0 0 1 3.832 -2.849h4a4 4 0 0 1 3.834 2.855" />
+			</svg>
+			<h5 class="mb-1">Chào mừng bạn</h5>
+			<p class="text-muted small">Đăng nhập để truy cập tài khoản của bạn</p>
+		</div>
+		<div class="d-grid gap-2">
+			<a href="@Url.Action("Login", "Auth", new { area = "Client" })" class="btn btn-primary">Đăng nhập</a>
+			<a href="@Url.Action("Register", "Auth", new { area = "Client" })" class="btn btn-outline-secondary">Đăng ký</a>
+		</div>
+	</div>
+</div>

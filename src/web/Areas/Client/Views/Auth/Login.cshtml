@@ -15,13 +15,6 @@
             <div class="card-body">
                 <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản của bạn</h2>
 
-                @if (ViewData["SuccessMessage"] != null)
-                {
-                    <div class="alert alert-success mb-3">
-                        @ViewData["SuccessMessage"]
-                    </div>
-                }
-
                 <form asp-area="Client" asp-controller="Auth" asp-action="Login"
                       asp-route-returnUrl="@ViewData["ReturnUrl"]"
                       method="post" autocomplete="off" novalidate>
@@ -35,9 +28,9 @@
                     <div class="mb-2">
                         <label asp-for="Password" class="form-label">
                             Mật khẩu
-                            <span class="form-label-description">
-                                <a href="#">Quên mật khẩu?</a>
-                            </span>
+                            @* <span class="form-label-description"> *@
+                            @*     <a href="#">Quên mật khẩu?</a> *@
+                            @* </span> *@
                         </label>
                         <div class="input-group input-group-flat">
                             <input asp-for="Password" type="password" class="form-control"
