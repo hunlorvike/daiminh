@@ -1,401 +1,243 @@
+@model web.Areas.Client.Models.Content.ContentDetailViewModel
 @{
-    ViewBag.Title = "Cách chọn sơn phù hợp cho ngôi nhà của bạn";
+	ViewData["Title"] = Model.Content.Title;
 }
 
 <div class="page-header d-print-none">
-    <div class="container-xl">
-        <!-- Article Cover -->
-        <div class="card mb-3">
-            <div class="card-img-top img-responsive img-responsive-21x9"
-                 style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></div>
-        </div>
-
-        <!-- Article Header -->
-        <div class="row align-items-center">
-            <div class="col">
-                <div class="mb-1">
-                    <ol class="breadcrumb" aria-label="breadcrumbs">
-                        <li class="breadcrumb-item"><a href="#">Trang chủ</a></li>
-                        <li class="breadcrumb-item"><a href="#">Blog</a></li>
-                        <li class="breadcrumb-item active" aria-current="page">Hướng dẫn</li>
-                    </ol>
-                </div>
-                <h1 class="page-title">
-                    Cách chọn sơn phù hợp cho ngôi nhà của bạn
-                </h1>
-                <div class="mt-2 d-flex align-items-center">
-                    <div class="avatar avatar-sm me-2"
-                         style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></div>
-                    <div>
-                        <a href="#" class="text-reset">Nguyễn Văn A</a>
-                        <div class="text-muted">
-                            <time datetime="2024-01-15">15/01/2024</time>
-                            · 5 phút đọc
-                        </div>
-                    </div>
-                    <div class="ms-auto">
-                        <div class="d-flex gap-2">
-                            <a href="#" class="btn btn-outline-primary btn-icon" data-bs-toggle="tooltip"
-                               title="Chia sẻ Facebook">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="icon icon-tabler icon-tabler-brand-facebook" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path
-                                        d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"></path>
-                                </svg>
-                            </a>
-                            <a href="#" class="btn btn-outline-info btn-icon" data-bs-toggle="tooltip"
-                               title="Chia sẻ Twitter">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="icon icon-tabler icon-tabler-brand-twitter" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path
-                                        d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c0 -.249 1.51 -2.772 1.818 -4.013z"></path>
-                                </svg>
-                            </a>
-                            <a href="#" class="btn btn-outline-success btn-icon" data-bs-toggle="tooltip"
-                               title="Chia sẻ LinkedIn">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="icon icon-tabler icon-tabler-brand-linkedin" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path
-                                        d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                                    <path d="M8 11l0 5"></path>
-                                    <path d="M8 8l0 .01"></path>
-                                    <path d="M12 16l0 -5"></path>
-                                    <path d="M16 16v-3a2 2 0 0 0 -4 0"></path>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="container-xl">
+		<div class="row g-2 align-items-center">
+			<div class="col">
+				<div class="page-pretitle">
+					@if (Model.Content.ContentCategories != null && Model.Content.ContentCategories.Any())
+					{
+						var category = Model.Content.ContentCategories.FirstOrDefault()?.Category;
+						if (category != null)
+						{
+							<a href="@Url.Action("Index", new { category = category.Slug })" class="text-muted">
+								@category.Name
+							</a>
+						}
+					}
+					else
+					{
+						<span>Bài viết</span>
+					}
+				</div>
+				<h2 class="page-title">@Model.Content.Title</h2>
+			</div>
+			<div class="col-auto ms-auto">
+				<div class="btn-list">
+					<a href="@Url.Action("Index")" class="btn btn-outline-primary d-none d-sm-inline-block">
+						<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+							<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+							<path d="M5 12l14 0"></path>
+							<path d="M5 12l6 6"></path>
+							<path d="M5 12l6 -6"></path>
+						</svg>
+						Quay lại danh sách
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
 
 <div class="page-body">
-    <div class="container-xl">
-        <div class="row g-4">
-            <!-- Article Content -->
-            <div class="col-lg-8">
-                <div class="card">
-                    <div class="card-body">
-                        <!-- Table of Contents -->
-                        <div class="mb-4">
-                            <div class="rounded p-3">
-                                <h2 class="h5 mb-3">Mục lục</h2>
-                                <nav>
-                                    <ul class="list-unstyled mb-0">
-                                        <li class="mb-2">
-                                            <a href="#section-1" class="text-reset d-block">1. Xác định loại bề mặt cần
-                                                sơn</a>
-                                        </li>
-                                        <li class="mb-2">
-                                            <a href="#section-2" class="text-reset d-block">2. Chọn loại sơn phù hợp</a>
-                                        </li>
-                                        <li class="mb-2">
-                                            <a href="#section-3" class="text-reset d-block">3. Lựa chọn màu sắc</a>
-                                        </li>
-                                        <li>
-                                            <a href="#section-4" class="text-reset d-block">4. Tính toán chi phí</a>
-                                        </li>
-                                    </ul>
-                                </nav>
-                            </div>
-                        </div>
+	<div class="container-xl">
+		<div class="row g-4">
+			<div class="col-lg-8">
+				<div class="card">
+					<div class="card-body">
+						<div class="d-flex align-items-center mb-4">
+							<span class="avatar avatar-md me-3" style="background-image: url('/img/icon.jpg');"></span>
+							<div>
+								<div>@((Model.Content?.Author?.Email) ?? "Đại Minh")</div>
+								<div class="text-muted">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+										<path d="M16 3v4"></path>
+										<path d="M8 3v4"></path>
+										<path d="M4 11h16"></path>
+										<path d="M11 15h1"></path>
+										<path d="M12 15v3"></path>
+									</svg>
+									@Model.Content.CreatedAt.ToString("dd/MM/yyyy")
+								</div>
+							</div>
+							<div class="ms-auto">
+								@if (Model.Content.ContentTags != null && Model.Content.ContentTags.Any())
+								{
+									<div class="d-flex flex-wrap gap-2">
+										@foreach (var contentTag in Model.Content.ContentTags)
+										{
+											if (contentTag.Tag != null)
+											{
+												<a href="@Url.Action("Index", new { tag = contentTag.Tag.Slug })" class="badge bg-azure-lt">
+													#@contentTag.Tag.Slug
+												</a>
+											}
+										}
+									</div>
+								}
+							</div>
+						</div>
 
-                        <!-- Article Content -->
-                        <div class="markdown">
-                            <h2 id="section-1">1. Xác định loại bề mặt cần sơn</h2>
-                            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt
-                                ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation
-                                ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+						@if (!string.IsNullOrEmpty(Model.Content.CoverImageUrl))
+						{
+							<div class="mb-4">
+								<img src="@Model.Content.CoverImageUrl" class="img-fluid rounded" alt="@Model.Content.Title">
+							</div>
+						}
 
-                            <div class="my-4">
-                                <img src="/img/placeholder.svg" class="img-fluid rounded" alt="Bề mặt tường nhà">
-                                <figcaption class="text-muted text-center mt-2">Các loại bề mặt tường phổ biến
-                                </figcaption>
-                            </div>
+						<div class="markdown">
+							@Html.Raw(Model.Content.ContentBody)
+						</div>
 
-                            <h2 id="section-2">2. Chọn loại sơn phù hợp</h2>
-                            <p>Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                                nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui
-                                officia deserunt mollit anim id est laborum.</p>
+						<div class="mt-5 pt-4 border-top">
+							<div class="d-flex align-items-center">
+								<div class="me-auto">
+									<h3 class="mb-0">Chia sẻ bài viết</h3>
+								</div>
+								<div class="d-flex gap-2">
+									<a href="javascript:void(0)" class="btn btn-facebook btn-icon" aria-label="Facebook">
+										<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+											<path d="M7 10v4h3v7h4v-7h3l1 -4h-4v-2a1 1 0 0 1 1 -1h3v-4h-3a5 5 0 0 0 -5 5v2h-3"></path>
+										</svg>
+									</a>
+									<a href="javascript:void(0)" class="btn btn-twitter btn-icon" aria-label="Twitter">
+										<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+											<path d="M22 4.01c-1 .49 -1.98 .689 -3 .99c-1.121 -1.265 -2.783 -1.335 -4.38 -.737s-2.643 2.06 -2.62 3.737v1c-3.245 .083 -6.135 -1.395 -8 -4c0 0 -4.182 7.433 4 11c-1.872 1.247 -3.739 2.088 -6 2c3.308 1.803 6.913 2.423 10.034 1.517c3.58 -1.04 6.522 -3.723 7.651 -7.742a13.84 13.84 0 0 0 .497 -3.753c0 -.249 1.51 -2.772 1.818 -4.013z"></path>
+										</svg>
+									</a>
+									<a href="javascript:void(0)" class="btn btn-linkedin btn-icon" aria-label="LinkedIn">
+										<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+											<path d="M4 4m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+											<path d="M8 11l0 5"></path>
+											<path d="M8 8l0 .01"></path>
+											<path d="M12 16l0 -5"></path>
+											<path d="M16 16v-3a2 2 0 0 0 -4 0"></path>
+										</svg>
+									</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-                            <div class="table-responsive my-4">
-                                <table class="table table-vcenter">
-                                    <thead>
-                                    <tr>
-                                        <th>Loại sơn</th>
-                                        <th>Ưu điểm</th>
-                                        <th>Nhược điểm</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <tr>
-                                        <td>Sơn nước</td>
-                                        <td>Dễ thi công, an toàn</td>
-                                        <td>Độ bền thấp hơn</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Sơn dầu</td>
-                                        <td>Độ bền cao</td>
-                                        <td>Mùi khó chịu</td>
-                                    </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+				@if (Model.RelatedContents.Any())
+				{
+					<div class="card mt-4">
+						<div class="card-header">
+							<h3 class="card-title">Bài viết liên quan</h3>
+						</div>
+						<div class="card-body">
+							<div class="row row-cards">
+								@foreach (var relatedContent in Model.RelatedContents)
+								{
+									<div class="col-md-6">
+										<div class="card card-sm">
+											<a href="@Url.Action("Detail", new { slug = relatedContent.Slug })" class="d-block">
+												<img src="@relatedContent.CoverImageUrl" class="card-img-top" alt="@relatedContent.Title">
+											</a>
+											<div class="card-body">
+												<h3 class="card-title">
+													<a href="@Url.Action("Detail", new { slug = relatedContent.Slug })">@relatedContent.Title</a>
+												</h3>
+												<div class="text-muted">@relatedContent.CreatedAt.ToString("dd/MM/yyyy")</div>
+											</div>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+					</div>
+				}
+			</div>
 
-                            <h2 id="section-3">3. Lựa chọn màu sắc</h2>
-                            <p>Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque
-                                laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi
-                                architecto beatae vitae dicta sunt explicabo.</p>
+			<div class="col-lg-4">
+				<div class="card mb-4">
+					<div class="card-header">
+						<h3 class="card-title">Chủ đề</h3>
+					</div>
+					<div class="list-group list-group-flush">
+						<a href="@Url.Action("Index")" class="list-group-item list-group-item-action d-flex align-items-center">
+							<span class="avatar avatar-xs bg-primary-lt me-3">T</span>
+							<div class="flex-fill">Tất cả bài viết</div>
+						</a>
+						@if (Model.Content.ContentCategories != null)
+						{
+							foreach (var contentCategory in Model.Content.ContentCategories)
+							{
+								if (contentCategory.Category != null)
+								{
+									<a href="@Url.Action("Index", new { category = contentCategory.Category.Slug })"
+									   class="list-group-item list-group-item-action d-flex align-items-center active">
+										<span class="avatar avatar-xs bg-primary-lt me-3">
+											@(contentCategory.Category.Name.Length > 0 ? contentCategory.Category.Name[0] : 'C')
+										</span>
+										<div class="flex-fill">@contentCategory.Category.Name</div>
+									</a>
+								}
+							}
+						}
+					</div>
+				</div>
 
-                            <div class="alert alert-info my-4" role="alert">
-                                <div class="d-flex">
-                                    <div>
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="icon alert-icon" width="24"
-                                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                             fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
-                                            <path d="M12 9h.01"></path>
-                                            <path d="M11 12h1v4h1"></path>
-                                        </svg>
-                                    </div>
-                                    <div class="ms-3">
-                                        Lưu ý: Màu sắc thực tế có thể khác với màu hiển thị trên màn hình. Hãy thử mẫu
-                                        thử trước khi quyết định.
-                                    </div>
-                                </div>
-                            </div>
-
-                            <h2 id="section-4">4. Tính toán chi phí</h2>
-                            <p>Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia
-                                consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.</p>
-
-                            <!-- Calculator Widget -->
-                            <div class="card my-4">
-                                <div class="card-body">
-                                    <h3 class="card-title">Công cụ tính chi phí sơn</h3>
-                                    <div class="mb-3">
-                                        <label class="form-label">Diện tích cần sơn (m²)</label>
-                                        <input type="number" class="form-control" placeholder="Nhập diện tích">
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label">Loại sơn</label>
-                                        <select class="form-select">
-                                            <option>Sơn nước cao cấp</option>
-                                            <option>Sơn nước thường</option>
-                                            <option>Sơn dầu</option>
-                                        </select>
-                                    </div>
-                                    <button class="btn btn-primary">Tính toán</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Tags -->
-                        <div class="mt-4">
-                            <div class="d-flex flex-wrap gap-2">
-                                <a href="#" class="badge bg-blue-lt">Sơn nhà</a>
-                                <a href="#" class="badge bg-blue-lt">Trang trí</a>
-                                <a href="#" class="badge bg-blue-lt">Hướng dẫn</a>
-                                <a href="#" class="badge bg-blue-lt">Tips</a>
-                            </div>
-                        </div>
-
-                        <!-- Author Bio -->
-                        <div class="card mt-4">
-                            <div class="card-body">
-                                <div class="row">
-                                    <div class="col-auto">
-                                        <span class="avatar avatar-lg"
-                                              style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
-                                    </div>
-                                    <div class="col">
-                                        <div class="mb-2">
-                                            <h3 class="card-title mb-1">
-                                                <a href="#" class="text-reset">Nguyễn Văn A</a>
-                                            </h3>
-                                            <div class="text-muted">Chuyên gia tư vấn sơn</div>
-                                        </div>
-                                        <div class="text-muted">
-                                            Với hơn 10 năm kinh nghiệm trong lĩnh vực sơn và trang trí nội thất, tôi
-                                            luôn mong muốn mang đến những giải pháp tốt nhất cho khách hàng.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar -->
-            <div class="col-lg-4">
-                <!-- Related Articles -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Bài viết liên quan</h3>
-                    </div>
-                    <div class="list-group list-group-flush">
-                        @for (var i = 1; i <= 3; i++)
-                        {
-                            <div class="list-group-item">
-                                <div class="row align-items-center">
-                                    <div class="col-auto">
-                                        <img src="/img/placeholder.svg" class="rounded" width="80" height="80"
-                                             alt="Thumbnail">
-                                    </div>
-                                    <div class="col">
-                                        <a href="#" class="text-reset d-block">Cách phối màu sơn cho phòng ngủ</a>
-                                        <div class="text-muted mt-1">10/01/2024 · 3 phút đọc</div>
-                                    </div>
-                                </div>
-                            </div>
-                        }
-                    </div>
-                </div>
-
-                <!-- Popular Tags -->
-                <div class="card mt-3">
-                    <div class="card-header">
-                        <h3 class="card-title">Chủ đề phổ biến</h3>
-                    </div>
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="#" class="badge bg-blue-lt">Sơn nhà</a>
-                            <a href="#" class="badge bg-blue-lt">Trang trí</a>
-                            <a href="#" class="badge bg-blue-lt">Nội thất</a>
-                            <a href="#" class="badge bg-blue-lt">Phối màu</a>
-                            <a href="#" class="badge bg-blue-lt">Tips</a>
-                            <a href="#" class="badge bg-blue-lt">Hướng dẫn</a>
-                            <a href="#" class="badge bg-blue-lt">Xu hướng</a>
-                            <a href="#" class="badge bg-blue-lt">Kinh nghiệm</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Newsletter -->
-                <div class="card mt-3">
-                    <div class="card-body">
-                        <h3 class="card-title">Đăng ký nhận tin</h3>
-                        <p class="text-muted">Nhận các bài viết mới nhất về trang trí và sơn nhà.</p>
-                        <div class="input-group">
-                            <input type="email" class="form-control" placeholder="Email của bạn">
-                            <button class="btn btn-primary" type="button">Đăng ký</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Comments Section -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h3 class="card-title">Bình luận (5)</h3>
-            </div>
-            <div class="card-body">
-                <!-- Comment Form -->
-                <div class="mb-4">
-                    <div class="row">
-                        <div class="col-auto">
-                            <span class="avatar"
-                                  style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
-                        </div>
-                        <div class="col">
-                            <div class="mb-3">
-                                <textarea class="form-control" rows="3" placeholder="Viết bình luận của bạn"></textarea>
-                            </div>
-                            <div class="d-flex justify-content-end">
-                                <button class="btn btn-primary">
-                                    Gửi bình luận
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Comments List -->
-                @for (var i = 1; i <= 3; i++)
-                {
-                    <div class="mb-4">
-                        <div class="row">
-                            <div class="col-auto">
-                                <span class="avatar"
-                                      style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
-                            </div>
-                            <div class="col">
-                                <div class="mb-1">
-                                    <span class="strong">Người dùng @i</span>
-                                    <span class="text-muted">· 2 giờ trước</span>
-                                </div>
-                                <div class="text-muted mb-2">
-                                    Bài viết rất hữu ích. Cảm ơn tác giả đã chia sẻ!
-                                </div>
-                                <div class="d-flex gap-3">
-                                    <a href="#" class="text-muted text-decoration-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                             class="icon icon-tabler icon-tabler-thumb-up" width="24" height="24"
-                                             viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                             stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path
-                                                d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3"></path>
-                                        </svg>
-                                        Thích
-                                    </a>
-                                    <a href="#" class="text-muted text-decoration-none">
-                                        <svg xmlns="http://www.w3.org/2000/svg"
-                                             class="icon icon-tabler icon-tabler-message-circle-2" width="24"
-                                             height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                             fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                            <path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1"></path>
-                                        </svg>
-                                        Trả lời
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-
-                <!-- Load More -->
-                <div class="text-center">
-                    <button class="btn btn-link">Xem thêm bình luận</button>
-                </div>
-            </div>
-        </div>
-    </div>
+				@if (Model.RelatedContents.Any())
+				{
+					<div class="card mb-4">
+						<div class="card-header">
+							<h3 class="card-title">Bài viết cùng chủ đề</h3>
+						</div>
+						<div class="list-group list-group-flush">
+							@foreach (var relatedContent in Model.RelatedContents)
+							{
+								<a href="@Url.Action("Detail", new { slug = relatedContent.Slug })" class="list-group-item list-group-item-action">
+									<div class="row align-items-center">
+										<div class="col-auto">
+											<span class="avatar" style="background-image: url('@relatedContent.CoverImageUrl')"></span>
+										</div>
+										<div class="col">
+											<div class="text-truncate">@relatedContent.Title</div>
+											<div class="text-muted">@relatedContent.CreatedAt.ToString("dd/MM/yyyy")</div>
+										</div>
+									</div>
+								</a>
+							}
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
 </div>
 
 @section FootScripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
+	<script>
+		$(document).ready(function () {
+			const pageUrl = encodeURIComponent(window.location.href);
+			const pageTitle = encodeURIComponent(document.title);
 
-            // Smooth scroll for table of contents
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
-            });
-        });
-    </script>
+			$('.btn-facebook, .btn-twitter, .btn-linkedin').on('click', function (e) {
+				e.preventDefault();
+				let shareUrl = '';
+
+				if ($(this).hasClass('btn-facebook')) {
+					shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${pageUrl}`;
+				} else if ($(this).hasClass('btn-twitter')) {
+					shareUrl = `https://twitter.com/intent/tweet?url=${pageUrl}&text=${pageTitle}`;
+				} else if ($(this).hasClass('btn-linkedin')) {
+					shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${pageUrl}`;
+				}
+
+				if (shareUrl) {
+					window.open(shareUrl, '_blank', 'width=600,height=400');
+				}
+			});
+		});
+	</script>
 }

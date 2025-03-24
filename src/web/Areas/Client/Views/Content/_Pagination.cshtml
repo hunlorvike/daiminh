@@ -1,0 +1,107 @@
+@model web.Areas.Client.Models.Content.ContentViewModel
+
+@if (Model.TotalPages > 1)
+{
+    <div class="d-flex justify-content-center mt-5">
+        <div class="card">
+            <div class="card-body">
+                <ul class="pagination pagination-separated">
+                    @if (Model.CurrentPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = Model.CurrentPage - 1, category = Model.CategorySlug, tag = Model.TagSlug, search = Model.Search })">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M15 6l-6 6l6 6  d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M15 6l-6 6l6 6"></path>
+                                </svg>
+                                Trước
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M15 6l-6 6l6 6"></path>
+                                </svg>
+                                Trước
+                            </a>
+                        </li>
+                    }
+
+                    @{
+                        const int maxPagesToShow = 5;
+                        int startPage = Math.Max(1, Model.CurrentPage - maxPagesToShow / 2);
+                        int endPage = Math.Min(Model.TotalPages, startPage + maxPagesToShow - 1);
+
+                        if (endPage - startPage + 1 < maxPagesToShow)
+                        {
+                            startPage = Math.Max(1, endPage - maxPagesToShow + 1);
+                        }
+                    }
+
+                    @if (startPage > 1)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = 1, category = Model.CategorySlug, tag = Model.TagSlug, search = Model.Search })">1</a>
+                        </li>
+                        @if (startPage > 2)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                    }
+
+                    @for (int i = startPage; i <= endPage; i++)
+                    {
+                        <li class="page-item @(i == Model.CurrentPage ? "active" : "")">
+                            <a class="page-link" href="@Url.Action("Index", new { page = i, category = Model.CategorySlug, tag = Model.TagSlug, search = Model.Search })">@i</a>
+                        </li>
+                    }
+
+                    @if (endPage < Model.TotalPages)
+                    {
+                        @if (endPage < Model.TotalPages - 1)
+                        {
+                            <li class="page-item disabled">
+                                <span class="page-link">...</span>
+                            </li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = Model.TotalPages, category = Model.CategorySlug, tag = Model.TagSlug, search = Model.Search })">@Model.TotalPages</a>
+                        </li>
+                    }
+
+                    @if (Model.CurrentPage < Model.TotalPages)
+                    {
+                        <li class="page-item">
+                            <a class="page-link" href="@Url.Action("Index", new { page = Model.CurrentPage + 1, category = Model.CategorySlug, tag = Model.TagSlug, search = Model.Search })">
+                                Sau
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M9 6l6 6l-6 6"></path>
+                                </svg>
+                            </a>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="page-item disabled">
+                            <a class="page-link" href="#">
+                                Sau
+                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                    <path d="M9 6l6 6l-6 6"></path>
+                                </svg>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
+}
