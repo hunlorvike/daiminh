@@ -180,73 +180,114 @@ public class ContentController(
     {
         var validator = GetValidator<ContentUpdateRequest>();
         var result = await this.ValidateAndReturnBadRequest(validator, model);
-        if (result != null)
-        {
-            var content = await dbContext.Contents
-                .AsNoTracking()
-                .Include(c => c.ContentType)
-                .Include(c => c.ContentCategories)
-                .Include(c => c.ContentTags)
-                .Include(c => c.FieldValues)
-                .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
-            await PopulateDropdowns(content);
-            return result;
-        }
+        if (result != null) return result;
 
         try
         {
             using var transaction = await dbContext.Database.BeginTransactionAsync();
 
             var existingContent = await dbContext.Contents
-                .Include(c => c.ContentCategories)
-                .Include(c => c.ContentTags)
-                .Include(c => c.FieldValues)
                 .FirstOrDefaultAsync(c => c.Id == model.Id && c.DeletedAt == null);
 
-            if (existingContent == null)
-            {
-                var errors = new Dictionary<string, string[]>
-                {
-                    { "General", ["Nội dung không tồn tại hoặc đã bị xóa."] }
-                };
-                return BadRequest(new ErrorResponse(errors));
-            }
+            if (existingContent == null) throw new NotFoundException("Content not found.");
 
-            // Cập nhật nội dung
             _mapper.Map(model, existingContent);
 
-            // Update categories
-            dbContext.ContentCategories.RemoveRange(existingContent.ContentCategories ?? Enumerable.Empty<ContentCategory>());
-            if (model.CategoryIds != null && model.CategoryIds.Any())
+            // 1. Update Categories
+            var existingCategoryIds = await dbContext.ContentCategories
+                .Where(cc => cc.ContentId == model.Id)
+                .Select(cc => cc.CategoryId)
+                .ToListAsync();
+
+            var newCategoryIds = model.CategoryIds ?? new List<int>();
+
+            var categoriesToRemove = existingCategoryIds.Except(newCategoryIds).ToList();
+            if (categoriesToRemove.Any())
             {
-                existingContent.ContentCategories = model.CategoryIds.Select(categoryId => new ContentCategory
+                var categoriesRemove = await dbContext.ContentCategories
+                    .Where(cc => cc.ContentId == model.Id && categoriesToRemove.Contains(cc.CategoryId))
+                    .ToListAsync();
+
+                dbContext.ContentCategories.RemoveRange(categoriesRemove);
+            }
+
+            var categoriesToAdd = newCategoryIds.Except(existingCategoryIds).ToList();
+            if (categoriesToAdd.Any())
+            {
+                var newCategories = categoriesToAdd.Select(categoryId => new ContentCategory
                 {
                     ContentId = model.Id,
                     CategoryId = categoryId
                 }).ToList();
+
+                await dbContext.ContentCategories.AddRangeAsync(newCategories);
             }
 
-            // Update tags
-            dbContext.ContentTags.RemoveRange(existingContent.ContentTags ?? Enumerable.Empty<ContentTag>());
-            if (model.TagIds != null && model.TagIds.Any())
+            // 2. Update Tags
+            var existingTagIds = await dbContext.ContentTags
+                .Where(ct => ct.ContentId == model.Id)
+                .Select(ct => ct.TagId)
+                .ToListAsync();
+
+            var newTagIds = model.TagIds ?? new List<int>();
+
+            var tagsToRemove = existingTagIds.Except(newTagIds).ToList();
+            if (tagsToRemove.Any())
             {
-                existingContent.ContentTags = model.TagIds.Select(tagId => new ContentTag
+                var tagsRemove = await dbContext.ContentTags
+                    .Where(ct => ct.ContentId == model.Id && tagsToRemove.Contains(ct.TagId))
+                    .ToListAsync();
+
+                dbContext.ContentTags.RemoveRange(tagsRemove);
+            }
+
+            var tagsToAdd = newTagIds.Except(existingTagIds).ToList();
+            if (tagsToAdd.Any())
+            {
+                var newTags = tagsToAdd.Select(tagId => new ContentTag
                 {
                     ContentId = model.Id,
                     TagId = tagId
                 }).ToList();
+
+                await dbContext.ContentTags.AddRangeAsync(newTags);
             }
 
-            // Update field values
-            dbContext.ContentFieldValues.RemoveRange(existingContent.FieldValues ?? Enumerable.Empty<ContentFieldValue>());
-            if (model.FieldValues != null && model.FieldValues.Any())
+            // 3. Update FieldValues
+            var existingFieldValues = await dbContext.ContentFieldValues
+                .Where(fv => fv.ContentId == model.Id)
+                .ToListAsync();
+
+            var newFieldValuesDict = model.FieldValues ?? new Dictionary<int, string>();
+
+            foreach (var existingField in existingFieldValues)
             {
-                existingContent.FieldValues = model.FieldValues.Select(kv => new ContentFieldValue
+                if (newFieldValuesDict.TryGetValue(existingField.FieldId, out var newValue))
+                {
+                    if (existingField.Value != newValue)
+                    {
+                        existingField.Value = newValue;
+                    }
+                }
+                else
+                {
+                    dbContext.ContentFieldValues.Remove(existingField);
+                }
+            }
+
+            var existingFieldIds = existingFieldValues.Select(fv => fv.FieldId).ToList();
+            var fieldsToAdd = newFieldValuesDict
+                .Where(kv => !existingFieldIds.Contains(kv.Key))
+                .Select(kv => new ContentFieldValue
                 {
                     ContentId = model.Id,
                     FieldId = kv.Key,
                     Value = kv.Value
                 }).ToList();
+
+            if (fieldsToAdd.Any())
+            {
+                await dbContext.ContentFieldValues.AddRangeAsync(fieldsToAdd);
             }
 
             await dbContext.SaveChangesAsync();
@@ -272,6 +313,7 @@ public class ContentController(
             throw new SystemException2("Error updating content.", ex);
         }
     }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -332,4 +374,3 @@ public class ContentController(
         ViewBag.Categories = new MultiSelectList(categories, "Id", "Name", content?.ContentCategories?.Select(ct => ct.CategoryId).ToList());
     }
 }
-
