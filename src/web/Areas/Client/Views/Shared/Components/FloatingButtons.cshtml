@@ -1,5 +1,5 @@
 <section class="position-fixed d-flex flex-column align-items-center gap-2 z-3" style="right: 20px; bottom: 20px;">
-    <button class="btn btn-outline-primary btn-icon shadow-sm mb-2 rounded-circle" onclick="scrollToTop()">
+    <button class="btn btn-outline-primary btn-icon shadow-sm mb-2 rounded-circle floating-btn" onclick="scrollToTop()" style="width: 45px; height: 45px; transition: all 0.3s ease;">
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
              class="icon icon-tabler icon-tabler-arrow-up">
@@ -12,12 +12,13 @@
 
     <div class="position-relative mb-2">
         <button
-            class="btn btn-danger shadow-sm btn-icon rounded-circle"
+            class="btn btn-danger shadow-sm btn-icon rounded-circle floating-btn"
             type="button"
             data-bs-toggle="collapse"
             data-bs-target="#contactMenu"
             aria-expanded="false"
-            aria-controls="contactMenu">
+            aria-controls="contactMenu"
+            style="width: 45px; height: 45px; transition: all 0.3s ease;">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                  class="icon icon-tabler icon-tabler-phone-call">
@@ -31,19 +32,19 @@
 
         <!-- Contact Popup Menu -->
         <div id="contactMenu" class="position-absolute card border shadow-lg collapse"
-             style="width: 270px; bottom: 0; right: 10px;">
-            <div class="card-header d-flex justify-content-between align-items-center">
+             style="width: 270px; bottom: 0; right: 10px; border-radius: 15px; overflow: hidden;">
+            <div class="card-header d-flex justify-content-between align-items-center bg-danger text-white">
                 <span class="fw-bold">Liên hệ với chúng tôi</span>
-                <button class="btn-close" type="button"
+                <button class="btn-close btn-close-white" type="button"
                         data-bs-toggle="collapse"
                         data-bs-target="#contactMenu"
                 ></button>
             </div>
             <div class="card-body p-3">
-                <a href="tel:0359021323" class="contact-item d-flex align-items-center text-decoration-none mb-3">
+                <a href="tel:0359021323" class="contact-item d-flex align-items-center text-decoration-none mb-3 hover-effect">
                     <div
                         class="icon-wrapper bg-danger text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                        style="width: 40px; height: 40px;">
+                        style="width: 45px; height: 45px; transition: all 0.3s ease;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
                              class="icon icon-tabler icons-tabler-outline icon-tabler-phone-call">
@@ -54,13 +55,13 @@
                             <path d="M15 3a6 6 0 0 1 6 6"/>
                         </svg>
                     </div>
-                    <span class="ms-2">Gọi ngay cho chúng tôi</span>
+                    <span class="ms-3 fw-medium">Gọi ngay cho chúng tôi</span>
                 </a>
                 <a href="https://zalo.me/0359021323"
-                   class="contact-item d-flex align-items-center text-decoration-none mb-3">
+                   class="contact-item d-flex align-items-center text-decoration-none mb-3 hover-effect">
                     <div
                         class="icon-wrapper bg-primary text-white rounded-circle d-flex justify-content-center align-items-center shadow-sm"
-                        style="width: 40px; height: 40px;">
+                        style="width: 45px; height: 45px; transition: all 0.3s ease;">
                         <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0,0,256,256"
                              class="icon icon-tabler">
                             <g transform="">
@@ -91,9 +92,40 @@
                             </g>
                         </svg>
                     </div>
-                    <span class="ms-2">Chat với chúng tôi qua Zalo</span>
+                    <span class="ms-3 fw-medium">Chat với chúng tôi qua Zalo</span>
                 </a>
             </div>
         </div>
     </div>
 </section>
+
+<style>
+    .floating-btn {
+        transform: translateY(0);
+        transition: all 0.3s ease;
+    }
+    
+    .floating-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2) !important;
+    }
+
+    .hover-effect {
+        transition: all 0.3s ease;
+        padding: 8px;
+        border-radius: 10px;
+    }
+
+    .hover-effect:hover {
+        background-color: rgba(0,0,0,0.05);
+        transform: translateX(5px);
+    }
+
+    .contact-item {
+        color: #333;
+    }
+
+    .contact-item:hover {
+        color: inherit;
+    }
+</style>
