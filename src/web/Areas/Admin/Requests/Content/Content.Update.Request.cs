@@ -183,7 +183,7 @@ public class ContentUpdateRequestValidator : AbstractValidator<ContentUpdateRequ
             .MaximumLength(255).WithMessage("Đường dẫn (slug) không được vượt quá 255 ký tự.")
             .Matches(@"^[a-z0-9]+(?:-[a-z0-9]+)*$").WithMessage("Đường dẫn (slug) chỉ được chứa chữ cái thường, số và dấu gạch ngang (-), và không được bắt đầu hoặc kết thúc bằng dấu gạch ngang.")
             .MustAsync(BeUniqueSlug).WithMessage("Đường dẫn (slug) đã tồn tại. Vui lòng chọn một đường dẫn khác.");
-        
+
         RuleFor(request => request.Summary)
             .NotEmpty().WithMessage("Tóm tắt không được bỏ trống.")
             .MaximumLength(500).WithMessage("Tóm tắt không được vượt quá 500 ký tự.");

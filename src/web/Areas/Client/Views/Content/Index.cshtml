@@ -1,332 +1,64 @@
-@model web.Areas.Client.Models.Home.HomeViewModel
+@model web.Areas.Client.Models.Content.ContentViewModel
 @{
-    ViewBag.Title = "Tin tức & Bài viết";
+	ViewData["Title"] = ViewBag.Title ?? "Bài viết";
+	const string screenCode = "content";
 }
 
-<div class="page-header d-print-none">
-    <div class="container-xl">
-        <div class="row g-2 align-items-center">
-            <div class="col">
-                <h2 class="page-title">
-                    Tin tức & Bài viết
-                </h2>
-                <div class="text-muted mt-1">Hiển thị 1-12 trong tổng số 46 bài viết</div>
-            </div>
-            <!-- Page title actions -->
-            <div class="col-auto ms-auto d-print-none">
-                <div class="d-flex">
-                    <div class="me-3">
-                        <div class="input-icon">
-                            <input type="text" class="form-control" placeholder="Tìm kiếm...">
-                            <span class="input-icon-addon">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                                    <path d="M21 21l-6 -6"></path>
-                                </svg>
-                            </span>
-                        </div>
-                    </div>
-                    <div class="dropdown">
-                        <button class="btn btn-primary dropdown-toggle align-text-top" data-bs-toggle="dropdown">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-filter"
-                                 width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                 fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                <path
-                                    d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.414 -4.414a2 2 0 0 1 -.586 -1.414v-2.172z"></path>
-                            </svg>
-                            Lọc
-                        </button>
-                        <div class="dropdown-menu dropdown-menu-end">
-                            <h6 class="dropdown-header">Sắp xếp theo</h6>
-                            <a class="dropdown-item" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="icon icon-tabler icon-tabler-sort-ascending" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M4 6l7 0"></path>
-                                    <path d="M4 12l7 0"></path>
-                                    <path d="M4 18l9 0"></path>
-                                    <path d="M15 9l3 -3l3 3"></path>
-                                    <path d="M18 6l0 12"></path>
-                                </svg>
-                                Mới nhất
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                     class="icon icon-tabler icon-tabler-sort-descending" width="24" height="24"
-                                     viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                     stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M4 6l9 0"></path>
-                                    <path d="M4 12l7 0"></path>
-                                    <path d="M4 18l7 0"></path>
-                                    <path d="M15 15l3 3l3 -3"></path>
-                                    <path d="M18 6l0 12"></path>
-                                </svg>
-                                Cũ nhất
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trending-up"
-                                     width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                     fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M3 17l6 -6l4 4l8 -8"></path>
-                                    <path d="M14 7l7 0l0 7"></path>
-                                </svg>
-                                Phổ biến nhất
-                            </a>
-                            <div class="dropdown-divider"></div>
-                            <h6 class="dropdown-header">Chủ đề</h6>
-                            <a class="dropdown-item" href="#">
-                                Tất cả chủ đề
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                Hướng dẫn
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                Tin tức
-                            </a>
-                            <a class="dropdown-item" href="#">
-                                Mẹo vặt
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="screen @screenCode">
+	<!-- Page header -->
+	<section class="page-header d-print-none">
+		<div class="container-xl">
+			<div class="row g-2 align-items-center">
+				<div class="col">
+					<div class="page-pretitle">Trang tin tức</div>
+					<h2 class="page-title">@ViewBag.Title</h2>
+					<div class="text-muted mt-1">
+						Hiển thị @(Model.Contents.Count) trong tổng số @Model.TotalContents bài viết
+					</div>
+				</div>
+				<div class="col-auto ms-auto">
+					<div class="d-flex">
+						<div class="me-2">
+							<form action="@Url.Action("Index")" method="get" class="d-flex">
+								@if (!string.IsNullOrEmpty(Model.CategorySlug))
+								{
+									<input type="hidden" name="category" value="@Model.CategorySlug" />
+								}
+								@if (!string.IsNullOrEmpty(Model.TagSlug))
+								{
+									<input type="hidden" name="tag" value="@Model.TagSlug" />
+								}
+								<div class="input-group">
+									<input type="text" name="search" value="@Model.Search" class="form-control" placeholder="Tìm kiếm...">
+									<button type="submit" class="btn btn-primary">
+										<svg xmlns="http://www.w3.org/2000/svg" class="icon m-0" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+											<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+											<path d="M21 21l-6 -6"></path>
+										</svg>
+									</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="page-body">
+		<div class="container-xl">
+			<div class="row g-4">
+				<div class="col-lg-8">
+					<partial name="_FeaturedContent" model="Model" />
+					<partial name="_ContentsGrid" model="Model" />
+					<partial name="_Pagination" model="Model" />
+				</div>
+				<div class="col-lg-4">
+					<partial name="_Sidebar" model="Model" />
+				</div>
+			</div>
+		</div>
+	</section>
 </div>
 
-<div class="page-body">
-    <div class="container-xl">
-        <!-- Featured Content -->
-        <div class="card mb-4">
-            <div class="card-body p-0">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        <img src="/img/placeholder.svg" class="w-100 h-100 object-cover" alt="Featured Article"
-                             style="min-height: 300px;">
-                    </div>
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <div class="badge bg-primary mb-2">Nổi bật</div>
-                            <h2 class="card-title mb-3">
-                                <a href="@Url.Action("Detail", "Content", new { id = @Model.LatestContent.Id, area = "Client" })" class="text-reset">@Model.LatestContent.Title</a>
-                            </h2>
-                            <p class="card-text">@Model.LatestContent.MetaDescription</p>
-                            <div class="d-flex align-items-center mt-4">
-                                <span class="avatar avatar-sm me-2"
-                                      style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
-                                <div class="me-auto">
-                                    <a href="#" class="text-reset">@Model.LatestContent.AuthorName</a>
-                                    <div class="text-muted">15/01/2024 · 5 phút đọc</div>
-                                </div>
-                                <a href="#" class="btn btn-primary">Đọc tiếp</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Articles Grid -->
-        <div class="row row-cards">
-            @foreach (var content in Model.Contents)
-            {
-                <div class="col-md-6 col-lg-4">
-                    <div class="card">
-                        <div class="img-responsive img-responsive-21x9 card-img-top"
-                             style="background-image: url('@Url.Content(content.CoverImageUrl ?? "~/img/placeholder.svg")')">
-                         </div>
-                        <div class="card-body">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-purple-lt me-2">@content.ContentTypeName</span>
-                                <div class="text-muted">@content.CreatedAt?.ToString("dd/MM/yyyy")</div>
-                            </div>
-                            <h3 class="card-title mb-3">
-                                <a href="@Url.Action("Details", "Content", new { id = content.Id, area = "Client" })" class="text-reset">
-                                    @content.Title
-                                </a>
-                            </h3>
-                            <p class="text-muted">@content.MetaDescription</p>
-                            <div class="d-flex align-items-center mt-4">
-                                <span class="avatar avatar-sm me-2"
-                                      style="background-image: url('@Url.Content("~/img/avatar-placeholder.png")')">
-                                </span>
-                                <div>
-                                    <a href="#" class="text-reset">@content.AuthorName</a>
-                                    <div class="text-muted">5 phút đọc</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer bg-transparent">
-                            <div class="d-flex align-items-center">
-                                <div class="d-flex align-items-center me-auto">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted me-2" width="24"
-                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path
-                                            d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
-                                    </svg>
-                                    <span class="text-muted">28</span>
-                                </div>
-                                <div class="d-flex align-items-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted me-2" width="24"
-                                         height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                         fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                        <path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1"></path>
-                                        <path d="M12 12l0 .01"></path>
-                                        <path d="M8 12l0 .01"></path>
-                                        <path d="M16 12l0 .01"></path>
-                                    </svg>
-                                    <span class="text-muted">12</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-           
-@*             @for (var i = 1; i <= 9; i++)
-            {
-            <div class="col-md-6 col-lg-4">
-                <div class="card">
-                    <div class="img-responsive img-responsive-21x9 card-img-top"
-                            style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></div>
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-purple-lt me-2">Hướng dẫn</span>
-                            <div class="text-muted">15/01/2024</div>
-                        </div>
-                        <h3 class="card-title mb-3">
-                            <a href="#" class="text-reset">Cách chọn sơn phù hợp cho từng không gian trong nhà</a>
-                        </h3>
-                        <p class="text-muted">
-                            Hướng dẫn chi tiết giúp bạn lựa chọn đúng loại sơn cho từng không
-                            gian, đảm bảo độ bền và tính thẩm mỹ cao.
-                        </p>
-                        <div class="d-flex align-items-center mt-4">
-                            <span class="avatar avatar-sm me-2"
-                                    style="background-image: url('@Url.Content("~/img/placeholder.svg")')"></span>
-                            <div>
-                                <a href="#" class="text-reset">Nguyễn Văn A</a>
-                                <div class="text-muted">5 phút đọc</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-footer bg-transparent">
-                        <div class="d-flex align-items-center">
-                            <div class="d-flex align-items-center me-auto">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
-                                </svg>
-                                <span class="text-muted">28</span>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon text-muted me-2" width="24"
-                                        height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"
-                                        fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                    <path d="M3 20l1.3 -3.9a9 8 0 1 1 3.4 2.9l-4.7 1"></path>
-                                    <path d="M12 12l0 .01"></path>
-                                    <path d="M8 12l0 .01"></path>
-                                    <path d="M16 12l0 .01"></path>
-                                </svg>
-                                <span class="text-muted">12</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            } *@
-        
-        </div>
-
-        <!-- Categories -->
-        <div class="my-5">
-            <h2 class="mb-4">Khám phá theo chủ đề</h2>
-            <div class="row g-3">
-                @foreach (var contentType in Model.ContentTypes)
-                {
-                    <div class="col-sm-6 col-lg-3">
-                        <div class="card card-sm">
-                            <div class="card-body">
-                                <div class="row align-items-center">
-                                    <div class="col-auto">
-                                        <span class="bg-primary text-white avatar">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
-                                                 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
-                                                 stroke-linecap="round" stroke-linejoin="round">
-                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                                                <path
-                                                    d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572"></path>
-                                            </svg>
-                                        </span>
-                                    </div>
-                                    <div class="col">
-                                        <div class="font-weight-medium">@contentType.Name</div>
-                                        <div class="text-muted">12 bài viết</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                }
-            </div>
-        </div>
-
-        <!-- Pagination -->
-        <div class="d-flex justify-content-center mt-4">
-            <ul class="pagination">
-                <li class="page-item disabled">
-                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M15 6l-6 6l6 6"></path>
-                        </svg>
-                        Trước
-                    </a>
-                </li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">3</a></li>
-                <li class="page-item"><a class="page-link" href="#">4</a></li>
-                <li class="page-item">
-                    <a class="page-link" href="#">
-                        Sau
-                        <svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24"
-                             stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round"
-                             stroke-linejoin="round">
-                            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                            <path d="M9 6l6 6l-6 6"></path>
-                        </svg>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
-</div>
-
-@section FootScripts {
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Initialize tooltips
-            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
-            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-                return new bootstrap.Tooltip(tooltipTriggerEl)
-            });
-        });
-    </script>
-}

@@ -46,7 +46,7 @@
         @RenderBody()
     </div>
     <partial name="Components/FloatingButtons"/>
-    <partial name="Components/Footer"/>
+		<partial name="Components/Footer" model="new web.Areas.Client.Requests.Subscriber.SubscriberCreateRequest()"/>
 </div>
 <partial name="__LibScripts"/>
 @await RenderSectionAsync("FootScripts", false)

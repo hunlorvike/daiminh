@@ -1,48 +1,37 @@
-using System.ComponentModel;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace web.Areas.Client.Models.Content;
 
 public class ContentViewModel
 {
-    public int Id { get; set; }
-    [DisplayName("Loại nội dung")]
-    public string? ContentTypeName { get; set; }
+    // Content items
+    public List<domain.Entities.Content> Contents { get; set; } = new();
 
-    [DisplayName("Tác giả")]
-    public string? AuthorName { get; set; }
+    // Pagination properties
+    public int CurrentPage { get; set; } = 1;
+    public int PageSize { get; set; } = 10;
+    public int TotalPages { get; set; }
+    public int TotalContents { get; set; }
 
-    [DisplayName("Tiêu đề")]
-    public string? Title { get; set; }
+    // Filter properties
+    public string Search { get; set; } = string.Empty;
+    public string CategorySlug { get; set; } = string.Empty;
+    public string TagSlug { get; set; } = string.Empty;
+    public string[] CategorySlugs { get; set; } = Array.Empty<string>();
+    public string[] TagSlugs { get; set; } = Array.Empty<string>();
 
-    [DisplayName("Đường dẫn")]
-    public string? Slug { get; set; }
-    [DisplayName("Ảnh bìa")]
-    public string? CoverImageUrl { get; set; }
-    [DisplayName("Trạng thái")]
-    public string? Status { get; set; }
+    // Filter options
+    public List<domain.Entities.Category> Categories { get; set; } = new();
+    public List<SelectListItem> CategoriesSelectList { get; set; } = new();
+    public List<string> Tags { get; set; } = new();
 
-    [DisplayName("Meta Title")]
-    public string? MetaTitle { get; set; }
+    // Content type
+    public domain.Entities.ContentType? ContentType { get; set; }
 
-    [DisplayName("Meta Description")]
-    public string? MetaDescription { get; set; }
-    [DisplayName("Canonical Url")]
-    public string? CanonicalUrl { get; set; }
-    [DisplayName("Og Title")]
-    public string? OgTitle { get; set; }
-    [DisplayName("Og Description")]
-    public string? OgDescription { get; set; }
-
-    [DisplayName("Og Image")]
-    public string? OgImage { get; set; }
-
-    [DisplayName("Structured Data")]
-    public string? StructuredData { get; set; }
-
-    [DisplayName("Ngày tạo")]
-    public DateTime? CreatedAt { get; set; }
-
-    [DisplayName("Ngày cập nhật")]
-    public DateTime? UpdatedAt { get; set; }
-
+    // Helper properties for UI
+    public bool HasFilters => !string.IsNullOrEmpty(Search) ||
+                             !string.IsNullOrEmpty(CategorySlug) ||
+                             !string.IsNullOrEmpty(TagSlug) ||
+                             (CategorySlugs != null && CategorySlugs.Length > 0) ||
+                             (TagSlugs != null && TagSlugs.Length > 0);
 }

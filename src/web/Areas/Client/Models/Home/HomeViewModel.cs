@@ -7,9 +7,9 @@ namespace web.Areas.Client.Models.Home;
 
 public class HomeViewModel
 {
-    public List<CategoryViewModel> Categories { get; set; }
-    public List<ContentViewModel> Contents { get; set; }
-    public List<ContentTypeViewModel> ContentTypes { get; set; }
-    public ContentViewModel LatestContent { get; set; }
+    public required List<CategoryViewModel> Categories { get; set; }
+    public required List<ContentViewModel> Contents { get; set; }
+    public required List<ContentTypeViewModel> ContentTypes { get; set; }
+    public required ContentViewModel LatestContent { get; set; }
     public SubscriberCreateRequest Subscriber { get; set; } = new SubscriberCreateRequest();
 }

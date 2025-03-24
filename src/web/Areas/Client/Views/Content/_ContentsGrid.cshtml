@@ -1,0 +1,101 @@
+@model web.Areas.Client.Models.Content.ContentViewModel
+
+@if (!Model.Contents.Any())
+{
+	<div class="empty">
+		<div class="empty-icon">
+			<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-article" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+				<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+				<path d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path>
+				<path d="M7 8h10"></path>
+				<path d="M7 12h10"></path>
+				<path d="M7 16h10"></path>
+			</svg>
+		</div>
+		<p class="empty-title">Không tìm thấy bài viết nào</p>
+		<p class="empty-subtitle text-muted">
+			Hãy thử tìm kiếm với từ khóa khác hoặc xóa bộ lọc hiện tại.
+		</p>
+		<div class="empty-action">
+			<a href="@Url.Action("Index")" class="btn btn-primary">
+				<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+					<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+					<path d="M9 13l-4 -4l4 -4m-4 4h11a4 4 0 0 1 0 8h-1"></path>
+				</svg>
+				Quay lại tất cả bài viết
+			</a>
+		</div>
+	</div>
+}
+else
+{
+	<div class="row row-cards">
+		@foreach (var content in Model.Contents.Skip(1))
+		{
+			<div class="col-md-6 col-lg-6">
+				<div class="card card-stacked">
+					<div class="ribbon ribbon-top ribbon-start bg-azure">
+						@if (content.ContentCategories != null && content.ContentCategories.Any())
+						{
+							var category = content.ContentCategories.FirstOrDefault()?.Category;
+							if (category != null)
+							{
+								<a href="@Url.Action("Index", new { category = category.Slug })" class="text-white">
+									@category.Name
+								</a>
+							}
+						}
+						else
+						{
+							<span>Bài viết</span>
+						}
+					</div>
+					<div class="img-responsive img-responsive-21x9 card-img-top" style="background-image: url('@content.CoverImageUrl')"></div>
+					<div class="card-body">
+						<div class="d-flex align-items-center mb-3">
+							<div class="text-muted">
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+									<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+									<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+									<path d="M16 3v4"></path>
+									<path d="M8 3v4"></path>
+									<path d="M4 11h16"></path>
+									<path d="M11 15h1"></path>
+									<path d="M12 15v3"></path>
+								</svg>
+								@content.CreatedAt.ToString("dd/MM/yyyy")
+							</div>
+							<div class="ms-auto">
+								@if (content.ContentTags != null && content.ContentTags.Any())
+								{
+									var tag = content.ContentTags.FirstOrDefault()?.Tag;
+									if (tag != null)
+									{
+										<a href="@Url.Action("Index", new { tag = tag.Slug })" class="badge bg-purple-lt">
+											#@tag.Slug
+										</a>
+									}
+								}
+							</div>
+						</div>
+						<h3 class="card-title mb-3">
+							<a href="@Url.Action("Detail", new { slug = content.Slug })" class="text-reset">@content.Title</a>
+						</h3>
+						<p class="text-muted">@content.Summary</p>
+						<div class="d-flex align-items-center mt-4">
+							<span class="avatar avatar-sm me-2" style="background-image: url('/img/icon.jpg');"></span>
+							<div class="me-auto">
+								<a href="#" class="text-reset text-truncate">
+									@((content?.Author?.Email) ?? "Đại Minh")
+								</a>
+							</div>
+							<a href="@Url.Action("Detail", new { slug = content.Slug })" class="btn btn-sm btn-primary">
+								Đọc tiếp
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
+}
