@@ -31,10 +31,10 @@ public class ContentController : DaiminhController
             string? category = null,
             string? tag = null,
             string? search = null,
-            int[] categoryIds = null,
-            int[] tagIds = null,
+            int[]? categoryIds = null,
+            int[]? tagIds = null,
             string sortBy = "newest",
-            string status = null,
+            string? status = null,
             DateTime? fromDate = null,
             DateTime? toDate = null,
             int page = 1,
@@ -102,7 +102,7 @@ public class ContentController : DaiminhController
                                     c.Summary.ToLower().Contains(search) ||
                                     c.ContentBody.ToLower().Contains(search));
         }
-        
+
         if (fromDate.HasValue)
         {
             query = query.Where(c => c.CreatedAt >= fromDate.Value);
@@ -422,8 +422,8 @@ public class ContentController : DaiminhController
             .Include(c => c.ContentType)
             .Include(c => c.ContentCategories)
                 .ThenInclude(cc => cc.Category)
-            .FirstOrDefaultAsync(c => c.Slug == slug && 
-                                    c.ContentTypeId == contentType.Id && 
+            .FirstOrDefaultAsync(c => c.Slug == slug &&
+                                    c.ContentTypeId == contentType.Id &&
                                     c.Status == PublishStatus.Published);
 
         if (content == null)
