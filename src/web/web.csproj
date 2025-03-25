@@ -10,9 +10,6 @@
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 
-	<ItemGroup>
-	  <Content Include="Areas\Client\Views\Content\Detail.txt" />
-	</ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="12.0.0" />

@@ -13,7 +13,7 @@
 					<div class="page-pretitle">Trang tin tức</div>
 					<h2 class="page-title">@ViewBag.Title</h2>
 					<div class="text-muted mt-1">
-						Hiển thị @(Model.Contents.Count) trong tổng số @Model.TotalContents bài viết
+						Hiển thị @Model.StartItem-@Model.EndItem trong tổng số @Model.TotalContents bài viết
 					</div>
 				</div>
 				<div class="col-auto ms-auto">
@@ -39,6 +39,81 @@
 									</button>
 								</div>
 							</form>
+						</div>
+						<div class="dropdown">
+							<button class="btn btn-primary dropdown-toggle align-text-top" data-bs-toggle="dropdown">
+								<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24"
+									 viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+									 stroke-linecap="round" stroke-linejoin="round">
+									<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+									<path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.414 -4.414a2 2 0 0 1 -.586 -1.414v-2.172z" />
+								</svg>
+								Lọc
+							</button>
+							<div class="dropdown-menu dropdown-menu-end">
+								<h6 class="dropdown-header">Sắp xếp theo</h6>
+								<a class="dropdown-item @(Model.SortBy == "newest" ? "active" : "")" href="@Url.Action("Index", new { sortBy = "newest" })">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24"
+										 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+										 stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+										<path d="M4 6l9 0" />
+										<path d="M4 12l7 0" />
+										<path d="M4 18l7 0" />
+										<path d="M15 15l3 3l3 -3" />
+										<path d="M18 6l0 12" />
+									</svg>
+									Mới nhất
+								</a>
+								<a class="dropdown-item @(Model.SortBy == "oldest" ? "active" : "")" href="@Url.Action("Index", new { sortBy = "oldest" })">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24"
+										 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+										 stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+										<path d="M4 6l7 0" />
+										<path d="M4 12l7 0" />
+										<path d="M4 18l9 0" />
+										<path d="M15 9l3 -3l3 3" />
+										<path d="M18 6l0 12" />
+									</svg>
+									Cũ nhất
+								</a>
+								<a class="dropdown-item @(Model.SortBy == "title_asc" ? "active" : "")" href="@Url.Action("Index", new { sortBy = "title_asc" })">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24"
+										 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+										 stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+										<path d="M4 6l7 0" />
+										<path d="M4 12l7 0" />
+										<path d="M4 18l9 0" />
+										<path d="M15 9l3 -3l3 3" />
+										<path d="M18 6l0 12" />
+									</svg>
+									Tiêu đề A-Z
+								</a>
+								<a class="dropdown-item @(Model.SortBy == "title_desc" ? "active" : "")" href="@Url.Action("Index", new { sortBy = "title_desc" })">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24"
+										 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none"
+										 stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none" />
+										<path d="M4 6l9 0" />
+										<path d="M4 12l7 0" />
+										<path d="M4 18l7 0" />
+										<path d="M15 15l3 3l3 -3" />
+										<path d="M18 6l0 12" />
+									</svg>
+									Tiêu đề Z-A
+								</a>
+								@* <a class="dropdown-item @(Model.SortBy == "popular" ? "active" : "")" href="@Url.Action("Index", new { sortBy = "popular" })"> *@
+								@* 	<svg xmlns="http://www.w3.org/2000/svg" class="icon dropdown-item-icon" width="24" *@
+								@* 		 height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" *@
+								@* 		 stroke-linecap="round" stroke-linejoin="round"> *@
+								@* 		<path stroke="none" d="M0 0h24v24H0z" fill="none" /> *@
+								@* 		<path d="M19.5 12.572l-7.5 7.428l-7.5 -7.428a5 5 0 1 1 7.5 -6.566a5 5 0 1 1 7.5 6.572" /> *@
+								@* 	</svg> *@
+								@* 	Phổ biến nhất *@
+								@* </a> *@
+							</div>
 						</div>
 					</div>
 				</div>

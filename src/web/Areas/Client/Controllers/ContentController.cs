@@ -28,13 +28,18 @@ public class ContentController : DaiminhController
 
     [HttpGet("bai-viet")]
     public async Task<IActionResult> Index(
-        string? category = null,
-        string? tag = null,
-        string? search = null,
-        int page = 1,
-        int pageSize = 10)
+            string? category = null,
+            string? tag = null,
+            string? search = null,
+            int[] categoryIds = null,
+            int[] tagIds = null,
+            string sortBy = "newest",
+            string status = null,
+            DateTime? fromDate = null,
+            DateTime? toDate = null,
+            int page = 1,
+            int pageSize = 10)
     {
-        // Get content type for "bai-viet"
         var contentType = await _context.ContentTypes
             .FirstOrDefaultAsync(ct => ct.Slug == "bai-viet");
 
@@ -43,9 +48,8 @@ public class ContentController : DaiminhController
             return NotFound("Không tìm thấy loại nội dung.");
         }
 
-        // Base query for published content of type "bai-viet"
         var query = _context.Contents
-            .Where(c => c.ContentTypeId == contentType.Id && c.Status == PublishStatus.Published)
+            .Where(c => c.ContentTypeId == contentType.Id)
             .Include(c => c.Author)
             .Include(c => c.ContentType)
             .Include(c => c.ContentCategories)
@@ -54,7 +58,17 @@ public class ContentController : DaiminhController
                 .ThenInclude(ct => ct.Tag)
             .AsQueryable();
 
-        // Apply category filter
+        PublishStatus? statusEnum = null;
+        if (!string.IsNullOrEmpty(status) && Enum.TryParse<PublishStatus>(status, true, out var parsedStatus))
+        {
+            statusEnum = parsedStatus;
+            query = query.Where(c => c.Status == parsedStatus);
+        }
+        else
+        {
+            query = query.Where(c => c.Status == PublishStatus.Published);
+        }
+
         if (!string.IsNullOrEmpty(category))
         {
             query = query.Where(c => c.ContentCategories != null &&
@@ -62,7 +76,12 @@ public class ContentController : DaiminhController
                                                                 cc.Category.Slug == category));
         }
 
-        // Apply tag filter
+        if (categoryIds != null && categoryIds.Length > 0)
+        {
+            query = query.Where(c => c.ContentCategories != null &&
+                                    c.ContentCategories.Any(cc => categoryIds.Contains(cc.CategoryId)));
+        }
+
         if (!string.IsNullOrEmpty(tag))
         {
             query = query.Where(c => c.ContentTags != null &&
@@ -70,7 +89,12 @@ public class ContentController : DaiminhController
                                                           ct.Tag.Slug == tag));
         }
 
-        // Apply search filter
+        if (tagIds != null && tagIds.Length > 0)
+        {
+            query = query.Where(c => c.ContentTags != null &&
+                                    c.ContentTags.Any(ct => tagIds.Contains(ct.TagId)));
+        }
+
         if (!string.IsNullOrEmpty(search))
         {
             search = search.ToLower();
@@ -78,62 +102,85 @@ public class ContentController : DaiminhController
                                     c.Summary.ToLower().Contains(search) ||
                                     c.ContentBody.ToLower().Contains(search));
         }
+        
+        if (fromDate.HasValue)
+        {
+            query = query.Where(c => c.CreatedAt >= fromDate.Value);
+        }
 
-        // Count total contents for pagination
+        if (toDate.HasValue)
+        {
+            var endDate = toDate.Value.AddDays(1);
+            query = query.Where(c => c.CreatedAt < endDate);
+        }
+
+        query = sortBy switch
+        {
+            "title_asc" => query.OrderBy(c => c.Title),
+            "title_desc" => query.OrderByDescending(c => c.Title),
+            "oldest" => query.OrderBy(c => c.CreatedAt),
+            "newest" => query.OrderByDescending(c => c.CreatedAt),
+            _ => query.OrderByDescending(c => c.CreatedAt)
+        };
+
         var totalContents = await query.CountAsync();
 
-        // Calculate total pages
         var totalPages = (int)Math.Ceiling(totalContents / (double)pageSize);
 
-        // Ensure page is within valid range
         page = Math.Max(1, Math.Min(page, Math.Max(1, totalPages)));
 
-        // Get paginated contents
         var contents = await query
-            .OrderByDescending(c => c.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
 
-        // Get all categories for content type
-        var categories = await _context.Categories
+        var allCategories = await _context.Categories
             .Where(cat => cat.EntityType == EntityType.Content)
             .OrderBy(cat => cat.Name)
             .ToListAsync();
 
-        // Create select list for categories
-        var categoriesSelectList = categories
+        var parentCategories = allCategories
+            .Where(c => c.ParentCategoryId == null)
+            .ToList();
+
+        var childCategories = allCategories
+            .Where(c => c.ParentCategoryId != null)
+            .ToList();
+
+        var categoriesSelectList = allCategories
             .Select(c => new SelectListItem
             {
-                Text = c.Name,
-                Value = c.Slug,
-                Selected = c.Slug == category
+                Text = c.ParentCategoryId.HasValue
+                    ? $"-- {c.Name}"
+                    : c.Name,
+                Value = c.Id.ToString(),
+                Selected = categoryIds != null && categoryIds.Contains(c.Id) || c.Slug == category
             })
             .ToList();
 
-        // Insert "All Categories" option at the beginning
         categoriesSelectList.Insert(0, new SelectListItem
         {
             Text = "Tất cả chủ đề",
             Value = "",
-            Selected = string.IsNullOrEmpty(category)
+            Selected = string.IsNullOrEmpty(category) && (categoryIds == null || categoryIds.Length == 0)
         });
 
-        // Get popular tags
-        var popularTags = await _context.Tags
+        var tags = await _context.Tags
             .Where(t => t.EntityType == EntityType.Content)
             .OrderBy(t => t.Name)
-            .Select(t => t.Slug)
-            .Take(20)
             .ToListAsync();
 
-        // Create view model
+
         var model = new ContentViewModel
         {
             Contents = contents,
-            Categories = categories,
+            Categories = allCategories,
+            ParentCategories = parentCategories,
+            ChildCategories = childCategories,
             CategoriesSelectList = categoriesSelectList,
-            Tags = popularTags,
+            Tags = tags,
+            SelectedCategoryIds = categoryIds?.ToList() ?? new List<int>(),
+            SelectedTagIds = tagIds?.ToList() ?? new List<int>(),
             CurrentPage = page,
             PageSize = pageSize,
             TotalPages = totalPages,
@@ -141,13 +188,16 @@ public class ContentController : DaiminhController
             Search = search ?? "",
             CategorySlug = category ?? "",
             TagSlug = tag ?? "",
+            SortBy = sortBy,
+            Status = statusEnum,
+            FromDate = fromDate,
+            ToDate = toDate,
             ContentType = contentType
         };
 
-        // Set view title based on filters
         if (!string.IsNullOrEmpty(category))
         {
-            var categoryName = categories.FirstOrDefault(c => c.Slug == category)?.Name ?? category;
+            var categoryName = allCategories.FirstOrDefault(c => c.Slug == category)?.Name ?? category;
             ViewBag.Title = $"Bài viết về {categoryName}";
         }
         else if (!string.IsNullOrEmpty(tag))
@@ -188,7 +238,6 @@ public class ContentController : DaiminhController
             return NotFound();
         }
 
-        // Get related contents
         var relatedContents = new List<domain.Entities.Content>();
 
         if (content.ContentCategories != null && content.ContentCategories.Any())
