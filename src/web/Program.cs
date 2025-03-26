@@ -4,7 +4,6 @@ using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
-using shared.Constants;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
@@ -24,14 +23,11 @@ builder.Host.UseSerilog();
 
 #region Database Configuration
 
-builder.Services.AddScoped<AuditSaveChangesInterceptor>();
-
 builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
 {
     options.UseNpgsql(
             builder.Configuration.GetConnectionString("DefaultConnection")
-            ?? throw new InvalidOperationException("Connection string not found."))
-        .AddInterceptors(serviceProvider.GetRequiredService<AuditSaveChangesInterceptor>());
+            ?? throw new InvalidOperationException("Connection string not found."));
 });
 
 #endregion
@@ -62,9 +58,9 @@ builder.Services.AddHttpContextAccessor();
 #region Authentication and Authorization
 
 builder.Services.AddAuthentication()
-    .AddCookie(CookiesConstants.AdminCookieSchema, options =>
+    .AddCookie("DaiMinhCookies", options =>
     {
-        options.Cookie.Name = CookiesConstants.AdminCookieSchema;
+        options.Cookie.Name = "DaiMinhCookies";
         options.Cookie.HttpOnly = true;
         options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
         options.Cookie.SameSite = SameSiteMode.Strict;
@@ -73,29 +69,11 @@ builder.Services.AddAuthentication()
         options.LoginPath = "/Admin/Auth/Login";
         options.LogoutPath = "/Admin/Auth/Logout";
         options.AccessDeniedPath = "/Admin/Auth/AccessDenied";
-    })
-    .AddCookie(CookiesConstants.UserCookieSchema, options =>
-    {
-        options.Cookie.Name = CookiesConstants.UserCookieSchema;
-        options.Cookie.HttpOnly = true;
-        options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-        options.Cookie.SameSite = SameSiteMode.Strict;
-        options.ExpireTimeSpan = TimeSpan.FromHours(24);
-        options.SlidingExpiration = true;
-        options.LoginPath = "/Auth/Login";
-        options.LogoutPath = "/Auth/Logout";
-        options.AccessDeniedPath = "/Auth/AccessDenied";
     });
 
 #endregion
 
 #region Dependency Injection (Services Registration)
-
-//builder.Services.Scan(scan => scan
-//    .FromAssemblyOf<IAuthService>() // Scan from the assembly containing IAuthService
-//    .AddClasses(classes => classes.Where(type => type.Name.EndsWith("Service"))) // Filter classes ending with "Service"
-//    .AsImplementedInterfaces() // Register as their implemented interfaces
-//    .WithScopedLifetime()); // Use scoped lifetime
 
 #endregion
 
@@ -137,20 +115,15 @@ app.UseAuthorization(); // Enable authorization
 
 // Define routes
 app.MapControllerRoute(
-    "default",
-    "{controller=Home}/{action=Index}/{id?}",
-    new { area = "Client" } // Default route for the Client area
-);
+    name: "areas",
+    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
-    "areas",
-    "{area:exists}/{controller=Home}/{action=Index}/{id?}" // Route for other areas
-);
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 #endregion
 
 #endregion
 
 app.Run();
-
-// (routing → static files → authentication → authorization → endpoint mapping)

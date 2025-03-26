@@ -10,18 +10,31 @@ public class Product : SeoEntity<int>
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
-    public decimal BasePrice { get; set; }
-    public string Sku { get; set; } = string.Empty;
-    public PublishStatus Status { get; set; } = PublishStatus.Draft;
+    public string? ShortDescription { get; set; }
+    public string? Manufacturer { get; set; }
+    public string? Origin { get; set; } // Xuất xứ
+    public string? Specifications { get; set; } // Thông số kỹ thuật
+    public string? Usage { get; set; } // Hướng dẫn sử dụng
+    public string? Features { get; set; } // Tính năng nổi bật
+    public string? PackagingInfo { get; set; } // Thông tin đóng gói
+    public string? StorageInstructions { get; set; } // Hướng dẫn bảo quản
+    public string? SafetyInfo { get; set; } // Thông tin an toàn
+    public string? ApplicationAreas { get; set; } // Khu vực ứng dụng
+    public string? TechnicalDocuments { get; set; } // Tài liệu kỹ thuật (JSON)
+    public int ViewCount { get; set; } = 0;
+    public bool IsFeatured { get; set; } = false;
+    public bool IsActive { get; set; } = true;
     public int ProductTypeId { get; set; }
-
+    public PublishStatus Status { get; set; } = PublishStatus.Draft;
+    
     // Navigation properties
     public virtual ProductType? ProductType { get; set; }
     public virtual ICollection<ProductFieldValue>? FieldValues { get; set; }
     public virtual ICollection<ProductImage>? Images { get; set; }
     public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
     public virtual ICollection<ProductTag>? ProductTags { get; set; }
-    public virtual ICollection<Review>? Reviews { get; set; }
+    public virtual ICollection<ProjectProduct>? ProjectProducts { get; set; }
+    public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
 }
 
 public class ProductConfiguration : SeoEntityConfiguration<Product, int>
@@ -35,9 +48,21 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
         builder.Property(e => e.ProductTypeId).HasColumnName("product_type_id");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Description).HasColumnName("description");
-        builder.Property(e => e.BasePrice).HasColumnName("base_price").HasPrecision(10, 2);
-        builder.Property(e => e.Sku).HasColumnName("sku").HasMaxLength(50);
+        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
+        builder.Property(e => e.ShortDescription).HasColumnName("short_description").HasMaxLength(500);
+        builder.Property(e => e.Manufacturer).HasColumnName("manufacturer").HasMaxLength(255);
+        builder.Property(e => e.Origin).HasColumnName("origin").HasMaxLength(100);
+        builder.Property(e => e.Specifications).HasColumnName("specifications").HasColumnType("text");
+        builder.Property(e => e.Usage).HasColumnName("usage").HasColumnType("text");
+        builder.Property(e => e.Features).HasColumnName("features").HasColumnType("text");
+        builder.Property(e => e.PackagingInfo).HasColumnName("packaging_info").HasColumnType("text");
+        builder.Property(e => e.StorageInstructions).HasColumnName("storage_instructions").HasColumnType("text");
+        builder.Property(e => e.SafetyInfo).HasColumnName("safety_info").HasColumnType("text");
+        builder.Property(e => e.ApplicationAreas).HasColumnName("application_areas").HasColumnType("text");
+        builder.Property(e => e.TechnicalDocuments).HasColumnName("technical_documents").HasColumnType("json");
+        builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
+        builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
+        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .HasConversion(
@@ -47,11 +72,11 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
             .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
 
-        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_products_slug");
-        builder.HasIndex(e => e.Sku).HasDatabaseName("idx_products_sku");
-
-        builder.HasIndex(p => p.ProductTypeId)
-            .HasDatabaseName("idx_products_product_type_id");
+        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_products_slug").IsUnique();
+        builder.HasIndex(e => e.Status).HasDatabaseName("idx_products_status");
+        builder.HasIndex(e => e.ViewCount).HasDatabaseName("idx_products_view_count");
+        builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_products_is_featured");
+        builder.HasIndex(e => e.ProductTypeId).HasDatabaseName("idx_products_product_type_id");
 
         builder.HasOne(p => p.ProductType)
             .WithMany(pt => pt.Products)
@@ -59,3 +84,4 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
+

@@ -1,0 +1,29 @@
+@using shared.Models
+@model ErrorViewModel
+@{
+	ViewData["Title"] = "Forbidden";
+}
+
+<div class="page page-center">
+	<div class="container-tight py-4">
+		<div class="empty">
+			<div class="empty-header">403</div>
+			<p class="empty-title">Không có quyền truy cập</p>
+			<p class="empty-subtitle text-muted">
+				Bạn không có quyền truy cập vào trang này.
+			</p>
+			<div class="empty-action">
+				<a href="/" class="btn btn-primary">
+					<i class="ti ti-arrow-left me-2"></i>Quay lại trang chủ
+				</a>
+			</div>
+			@if (Model.ShowRequestId)
+			{
+				<div class="text-muted mt-3">
+					<small>Request ID: <code>@Model.RequestId</code></small>
+				</div>
+			}
+		</div>
+	</div>
+</div>
+

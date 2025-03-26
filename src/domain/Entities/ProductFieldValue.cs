@@ -7,12 +7,12 @@ namespace domain.Entities;
 public class ProductFieldValue : BaseEntity<int>
 {
     public int ProductId { get; set; }
-    public int FieldId { get; set; }
+    public int FieldDefinitionId { get; set; }
     public string? Value { get; set; }
-
+    
     // Navigation properties
     public virtual Product? Product { get; set; }
-    public virtual ProductFieldDefinition? Field { get; set; }
+    public virtual ProductFieldDefinition? FieldDefinition { get; set; }
 }
 
 public class ProductFieldValueConfiguration : BaseEntityConfiguration<ProductFieldValue, int>
@@ -24,22 +24,24 @@ public class ProductFieldValueConfiguration : BaseEntityConfiguration<ProductFie
         builder.ToTable("product_field_values");
 
         builder.Property(e => e.ProductId).HasColumnName("product_id");
-        builder.Property(e => e.FieldId).HasColumnName("field_id");
-        builder.Property(e => e.Value).HasColumnName("value").IsRequired();
+        builder.Property(e => e.FieldDefinitionId).HasColumnName("field_definition_id");
+        builder.Property(e => e.Value).HasColumnName("value").HasColumnType("text");
 
-        builder.HasIndex(x => x.ProductId)
-            .HasDatabaseName("idx_product_field_values_product_id");
-        builder.HasIndex(x => x.FieldId)
-            .HasDatabaseName("idx_product_field_values_field_id");
+        builder.HasIndex(e => new { e.ProductId, e.FieldDefinitionId })
+            .HasDatabaseName("idx_product_field_values_product_field")
+            .IsUnique();
+        builder.HasIndex(e => e.ProductId).HasDatabaseName("idx_product_field_values_product_id");
+        builder.HasIndex(e => e.FieldDefinitionId).HasDatabaseName("idx_product_field_values_field_definition_id");
 
-        builder.HasOne(x => x.Product)
-            .WithMany(x => x.FieldValues)
-            .HasForeignKey(x => x.ProductId)
+        builder.HasOne(e => e.Product)
+            .WithMany(p => p.FieldValues)
+            .HasForeignKey(e => e.ProductId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        builder.HasOne(x => x.Field)
-            .WithMany(x => x.FieldValues)
-            .HasForeignKey(x => x.FieldId)
-            .OnDelete(DeleteBehavior.Cascade);
+        builder.HasOne(e => e.FieldDefinition)
+            .WithMany(fd => fd.FieldValues)
+            .HasForeignKey(e => e.FieldDefinitionId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }
+
