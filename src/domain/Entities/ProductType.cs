@@ -11,7 +11,7 @@ public class ProductType : BaseEntity<int>
     public string? Description { get; set; }
     public string? Icon { get; set; }
     public bool IsActive { get; set; } = true;
-    
+
     // Navigation properties
     public virtual ICollection<Product>? Products { get; set; }
     public virtual ICollection<ProductFieldDefinition>? FieldDefinitions { get; set; }

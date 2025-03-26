@@ -11,7 +11,7 @@ public class FAQCategory : BaseEntity<int>
     public string Slug { get; set; } = string.Empty;
     public int OrderIndex { get; set; } = 0;
     public bool IsActive { get; set; } = true;
-    
+
     // Navigation properties
     public virtual ICollection<FAQ>? FAQs { get; set; }
 }

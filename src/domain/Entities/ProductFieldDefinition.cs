@@ -19,7 +19,7 @@ public class ProductFieldDefinition : BaseEntity<int>
     public bool IsFilterable { get; set; } = false;
     public bool IsVisibleInList { get; set; } = false;
     public int ProductTypeId { get; set; }
-    
+
     // Navigation properties
     public virtual ProductType? ProductType { get; set; }
     public virtual ICollection<ProductFieldValue>? FieldValues { get; set; }

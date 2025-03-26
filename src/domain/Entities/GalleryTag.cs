@@ -8,7 +8,7 @@ public class GalleryTag : BaseEntity<int>
 {
     public int GalleryId { get; set; }
     public int TagId { get; set; }
-    
+
     // Navigation properties
     public virtual Gallery? Gallery { get; set; }
     public virtual Tag? Tag { get; set; }

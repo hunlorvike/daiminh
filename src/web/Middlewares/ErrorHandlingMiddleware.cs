@@ -46,7 +46,7 @@ public class ExceptionHandlingMiddleware
         }
         else
         {
-            await HandleWebExceptionAsync(context, exception);
+            HandleWebException(context, exception);
         }
     }
 
@@ -107,7 +107,7 @@ public class ExceptionHandlingMiddleware
         await response.WriteAsync(json);
     }
 
-    private async Task HandleWebExceptionAsync(HttpContext context, Exception exception)
+    private void HandleWebException(HttpContext context, Exception exception)
     {
         var response = context.Response;
 

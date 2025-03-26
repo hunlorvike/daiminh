@@ -13,7 +13,7 @@ public class GalleryImage : BaseEntity<int>
     public string? Title { get; set; }
     public string? Description { get; set; }
     public int OrderIndex { get; set; } = 0;
-    
+
     // Navigation properties
     public virtual Gallery? Gallery { get; set; }
 }

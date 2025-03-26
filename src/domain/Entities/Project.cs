@@ -22,7 +22,7 @@ public class Project : SeoEntity<int>
     public bool IsFeatured { get; set; } = false;
     public ProjectStatus Status { get; set; } = ProjectStatus.InProgress;
     public PublishStatus PublishStatus { get; set; } = PublishStatus.Draft;
-    
+
     // Navigation properties
     public virtual ICollection<ProjectImage>? Images { get; set; }
     public virtual ICollection<ProjectCategory>? ProjectCategories { get; set; }

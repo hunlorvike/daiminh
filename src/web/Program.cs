@@ -19,10 +19,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog();
 
-#region Services Configuration
-
-#region Database Configuration
-
 builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
 {
     options.UseNpgsql(
@@ -30,9 +26,6 @@ builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =
             ?? throw new InvalidOperationException("Connection string not found."));
 });
 
-#endregion
-
-#region Redis Configuration
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -40,22 +33,11 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "DaiMinhCache_";
 });
 
-#endregion
-
-#region MVC and Validation
 
 // Add services to the container.
-builder.Services.AddAutoMapper(typeof(Program).Assembly);
-
 builder.Services.AddControllersWithViews();
 builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()]);
-
-builder.Services.AddHttpContextAccessor();
-
-#endregion
-#endregion
-
-#region Authentication and Authorization
+builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
 builder.Services.AddAuthentication()
     .AddCookie("DaiMinhCookies", options =>
@@ -71,19 +53,10 @@ builder.Services.AddAuthentication()
         options.AccessDeniedPath = "/Admin/Auth/AccessDenied";
     });
 
-#endregion
-
-#region Dependency Injection (Services Registration)
-
-#endregion
 
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
-
-#region Middleware Configuration
-
-#region Error Handling and Security
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -92,38 +65,21 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts(); // HSTS settings for production
 }
 
-#endregion
-
-#region HTTPS and Static Files
-
 app.UseHttpsRedirection(); // Redirect HTTP to HTTPS
 app.UseStaticFiles();
-
-#endregion
-
-#region Routing, Authentication, and Authorization
 
 app.UseRouting(); // Enable routing
 
 app.UseAuthentication(); // Enable authentication
 app.UseAuthorization(); // Enable authorization
 
-
-#endregion
-
-#region Endpoint Mapping
-
 // Define routes
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
-
-#endregion
-
-#endregion
 
 app.Run();

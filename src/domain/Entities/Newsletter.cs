@@ -8,8 +8,6 @@ public class Newsletter : BaseEntity<int>
 {
     public string Email { get; set; } = string.Empty;
     public string? Name { get; set; }
-    public bool IsActive { get; set; } = true;  } = string.Empty;
-    public string? Name { get; set; }
     public bool IsActive { get; set; } = true;
     public string? IpAddress { get; set; }
     public string? UserAgent { get; set; }

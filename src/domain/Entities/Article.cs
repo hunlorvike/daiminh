@@ -22,7 +22,7 @@ public class Article : SeoEntity<int>
     public int EstimatedReadingMinutes { get; set; } = 0;
     public ArticleType Type { get; set; } = ArticleType.Knowledge;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
-    
+
     // Navigation properties
     public virtual ICollection<ArticleCategory>? ArticleCategories { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }

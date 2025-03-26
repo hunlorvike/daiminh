@@ -15,7 +15,7 @@ public class Comment : BaseEntity<int>
     public bool IsApproved { get; set; } = false;
     public int? ParentId { get; set; }
     public int ArticleId { get; set; }
-    
+
     // Navigation properties
     public virtual Comment? Parent { get; set; }
     public virtual ICollection<Comment>? Replies { get; set; }

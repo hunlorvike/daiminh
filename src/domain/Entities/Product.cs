@@ -26,7 +26,7 @@ public class Product : SeoEntity<int>
     public bool IsActive { get; set; } = true;
     public int ProductTypeId { get; set; }
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
-    
+
     // Navigation properties
     public virtual ProductType? ProductType { get; set; }
     public virtual ICollection<ProductFieldValue>? FieldValues { get; set; }

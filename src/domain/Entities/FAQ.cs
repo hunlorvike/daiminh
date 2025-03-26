@@ -11,7 +11,7 @@ public class FAQ : BaseEntity<int>
     public int CategoryId { get; set; }
     public int OrderIndex { get; set; } = 0;
     public bool IsActive { get; set; } = true;
-    
+
     // Navigation properties
     public virtual FAQCategory? Category { get; set; }
 }

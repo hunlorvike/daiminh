@@ -13,7 +13,7 @@ public class ProductImage : BaseEntity<int>
     public string? Title { get; set; }
     public int OrderIndex { get; set; } = 0;
     public bool IsMain { get; set; } = false;
-    
+
     // Navigation properties
     public virtual Product? Product { get; set; }
 }

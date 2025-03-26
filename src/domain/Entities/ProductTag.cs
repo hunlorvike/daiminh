@@ -8,7 +8,7 @@ public class ProductTag : BaseEntity<int>
 {
     public int ProductId { get; set; }
     public int TagId { get; set; }
-    
+
     // Navigation properties
     public virtual Product? Product { get; set; }
     public virtual Tag? Tag { get; set; }

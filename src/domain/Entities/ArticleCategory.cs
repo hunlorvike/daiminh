@@ -8,7 +8,7 @@ public class ArticleCategory : BaseEntity<int>
 {
     public int ArticleId { get; set; }
     public int CategoryId { get; set; }
-    
+
     // Navigation properties
     public virtual Article? Article { get; set; }
     public virtual Category? Category { get; set; }

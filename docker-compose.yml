@@ -8,11 +8,11 @@ services:
     environment:
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=daiminh
+      - POSTGRES_DB=daiminh2
     ports:
       - "5432:5432"
     volumes:
-      - postgres-daiminh:/var/lib/postgresql/data
+      - postgres-daiminh2:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
@@ -21,26 +21,9 @@ services:
       timeout: 5s
       retries: 5 
 
-  redis:
-    image: redis:7-alpine
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - "6380:6379"
-    volumes:
-      - redis-daiminh:/data
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
 networks:
   app-network:
     driver: bridge
 
 volumes:
-  postgres-daiminh:
-  redis-daiminh:
+  postgres-daiminh2:

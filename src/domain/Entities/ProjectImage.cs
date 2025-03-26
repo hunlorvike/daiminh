@@ -14,7 +14,7 @@ public class ProjectImage : BaseEntity<int>
     public string? Description { get; set; }
     public int OrderIndex { get; set; } = 0;
     public bool IsMain { get; set; } = false;
-    
+
     // Navigation properties
     public virtual Project? Project { get; set; }
 }

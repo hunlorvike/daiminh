@@ -8,7 +8,7 @@ public class ProjectCategory : BaseEntity<int>
 {
     public int ProjectId { get; set; }
     public int CategoryId { get; set; }
-    
+
     // Navigation properties
     public virtual Project? Project { get; set; }
     public virtual Category? Category { get; set; }

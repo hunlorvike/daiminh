@@ -14,7 +14,7 @@ public class Gallery : SeoEntity<int>
     public int ViewCount { get; set; } = 0;
     public bool IsFeatured { get; set; } = false;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
-    
+
     // Navigation properties
     public virtual ICollection<GalleryImage>? Images { get; set; }
     public virtual ICollection<GalleryCategory>? GalleryCategories { get; set; }

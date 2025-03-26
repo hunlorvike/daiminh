@@ -10,7 +10,7 @@ public class ProjectProduct : BaseEntity<int>
     public int ProductId { get; set; }
     public string? Usage { get; set; } // Cách sử dụng sản phẩm trong dự án
     public int OrderIndex { get; set; } = 0;
-    
+
     // Navigation properties
     public virtual Project? Project { get; set; }
     public virtual Product? Product { get; set; }

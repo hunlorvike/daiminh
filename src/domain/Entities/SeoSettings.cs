@@ -10,7 +10,7 @@ public class SeoSettings : BaseEntity<int>
     public string? Value { get; set; }
     public string? Description { get; set; }
     public bool IsActive { get; set; } = true;
-    
+
     // Các cài đặt SEO toàn trang
     public static string DefaultTitle = "default_title";
     public static string DefaultDescription = "default_description";
