@@ -1,0 +1,83 @@
+@using Microsoft.AspNetCore.Http.Extensions
+@using domain.Entities
+@using web.Areas.Admin.Services
+@inject ISeoService SeoService
+@{
+	var metaTags = await SeoService.GenerateMetaTagsAsync(
+		title: ViewData["Title"]?.ToString(),
+		description: ViewData["Description"]?.ToString(),
+		keywords: ViewData["Keywords"]?.ToString(),
+		imageUrl: ViewData["ImageUrl"]?.ToString(),
+		canonicalUrl: Context.Request.GetEncodedUrl()
+	);
+
+	var structuredDataOrganization = await SeoService.GetSeoSettingValueAsync(SeoSettings.StructuredDataOrganization);
+	var structuredDataWebsite = await SeoService.GetSeoSettingValueAsync(SeoSettings.StructuredDataWebsite);
+}
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+	@Html.Raw(metaTags)
+
+	@if (!string.IsNullOrEmpty(structuredDataOrganization))
+	{
+		<script type="application/ld+json">
+			@Html.Raw(structuredDataOrganization)
+		</script>
+	}
+
+	@if (!string.IsNullOrEmpty(structuredDataWebsite))
+	{
+		<script type="application/ld+json">
+			@Html.Raw(structuredDataWebsite)
+		</script>
+	}
+
+	<!-- Các thẻ CSS và JavaScript khác -->
+</head>
+<body>
+	<!-- Chèn mã Google Analytics hoặc Google Tag Manager -->
+	@{
+		var googleAnalyticsId = await SeoService.GetSeoSettingValueAsync(SeoSettings.GoogleAnalyticsId);
+		var googleTagManagerId = await SeoService.GetSeoSettingValueAsync(SeoSettings.GoogleTagManagerId);
+		var customFooterCode = await SeoService.GetSeoSettingValueAsync(SeoSettings.CustomFooterCode);
+	}
+
+	@if (!string.IsNullOrEmpty(googleAnalyticsId))
+	{
+		<script async src="https://www.googletagmanager.com/gtag/js?id=@googleAnalyticsId"></script>
+		<script>
+			window.dataLayer = window.dataLayer || [];
+			function gtag(){dataLayer.push(arguments);}
+			gtag('js', new Date());
+			gtag('config', '@googleAnalyticsId');
+		</script>
+	}
+
+	@if (!string.IsNullOrEmpty(googleTagManagerId))
+	{
+		<script>
+			(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+			new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+			j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+			'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+			})(window,document,'script','dataLayer','@googleTagManagerId');
+		</script>
+
+		<!-- Noscript fallback cho Google Tag Manager -->
+		<noscript>
+			<iframe src="https://www.googletagmanager.com/ns.html?id=@googleTagManagerId" height="0" width="0" style="display:none;visibility:hidden"></iframe>
+		</noscript>
+	}
+
+	@if (!string.IsNullOrEmpty(customFooterCode))
+	{
+		@Html.Raw(customFooterCode)
+	}
+	<!-- Nội dung trang -->
+</body>
+</html>

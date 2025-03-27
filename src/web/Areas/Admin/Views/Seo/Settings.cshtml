@@ -1,0 +1,252 @@
+@using web.Areas.Admin.ViewModels.Seo
+@model SeoGeneralSettingsViewModel
+@{
+    ViewData["Title"] = "Cài đặt SEO chung";
+}
+
+<div class="container-fluid">
+    <div class="d-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0">Cài đặt SEO chung</h1>
+        <a asp-action="Index" class="btn btn-secondary btn-sm">
+            <i class="fa fa-arrow-left fa-sm"></i> Quay lại danh sách
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible" role="alert">
+            <div class="d-flex">
+                <div>
+                    <i class="fa fa-check icon"></i>
+                </div>
+                <div>
+                    @TempData["SuccessMessage"]
+                </div>
+            </div>
+            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Cài đặt SEO chung</h3>
+        </div>
+        <div class="card-body">
+            <form asp-action="Settings" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <div class="card">
+                    <div class="card-body">
+                        <div class="tabs">
+                            <ul class="nav nav-tabs" data-bs-toggle="tabs">
+                                <li class="nav-item">
+                                    <a href="#basic" class="nav-link active" data-bs-toggle="tab">
+                                        <i class="fa fa-cog me-2"></i>Cơ bản
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#social" class="nav-link" data-bs-toggle="tab">
+                                        <i class="fa fa-share-alt me-2"></i>Mạng xã hội
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#structured-data" class="nav-link" data-bs-toggle="tab">
+                                        <i class="fa fa-code me-2"></i>Dữ liệu có cấu trúc
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="#advanced" class="nav-link" data-bs-toggle="tab">
+                                        <i class="fa fa-sliders me-2"></i>Nâng cao
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content">
+                                <!-- Tab Cơ bản -->
+                                <div class="tab-pane active show" id="basic">
+                                    <div class="mb-3">
+                                        <label asp-for="DefaultTitle" class="form-label"></label>
+                                        <input asp-for="DefaultTitle" class="form-control" />
+                                        <span asp-validation-for="DefaultTitle" class="text-danger"></span>
+                                        <div class="form-text text-muted">Tiêu đề mặc định cho trang web, nên giới hạn trong khoảng 50-60 ký tự.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="DefaultDescription" class="form-label"></label>
+                                        <textarea asp-for="DefaultDescription" class="form-control" rows="3"></textarea>
+                                        <span asp-validation-for="DefaultDescription" class="text-danger"></span>
+                                        <div class="form-text text-muted">Mô tả mặc định cho trang web, nên giới hạn trong khoảng 150-160 ký tự.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="DefaultKeywords" class="form-label"></label>
+                                        <textarea asp-for="DefaultKeywords" class="form-control" rows="2"></textarea>
+                                        <span asp-validation-for="DefaultKeywords" class="text-danger"></span>
+                                        <div class="form-text text-muted">Các từ khóa mặc định, phân cách bằng dấu phẩy.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="SiteName" class="form-label"></label>
+                                        <input asp-for="SiteName" class="form-control" />
+                                        <span asp-validation-for="SiteName" class="text-danger"></span>
+                                        <div class="form-text text-muted">Tên trang web của bạn.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="RobotsContent" class="form-label"></label>
+                                        <input asp-for="RobotsContent" class="form-control" />
+                                        <span asp-validation-for="RobotsContent" class="text-danger"></span>
+                                        <div class="form-text text-muted">Nội dung thẻ meta robots, mặc định là "index, follow".</div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab Mạng xã hội -->
+                                <div class="tab-pane" id="social">
+                                    <div class="mb-3">
+                                        <label asp-for="FacebookAppId" class="form-label"></label>
+                                        <input asp-for="FacebookAppId" class="form-control" />
+                                        <span asp-validation-for="FacebookAppId" class="text-danger"></span>
+                                        <div class="form-text text-muted">ID ứng dụng Facebook của bạn.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="TwitterUsername" class="form-label"></label>
+                                        <div class="input-group">
+                                            <span class="input-group-text">@@</span>
+                                            <input asp-for="TwitterUsername" class="form-control" />
+                                        </div>
+                                        <span asp-validation-for="TwitterUsername" class="text-danger"></span>
+                                        <div class="form-text text-muted">Tên người dùng Twitter của bạn, không cần thêm @@.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab Dữ liệu có cấu trúc -->
+                                <div class="tab-pane" id="structured-data">
+                                    <div class="mb-3">
+                                        <label asp-for="StructuredDataOrganization" class="form-label"></label>
+                                        <textarea asp-for="StructuredDataOrganization" class="form-control json-editor" rows="10"></textarea>
+                                        <span asp-validation-for="StructuredDataOrganization" class="text-danger"></span>
+                                        <div class="form-text text-muted">Dữ liệu có cấu trúc JSON-LD cho tổ chức của bạn.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="StructuredDataWebsite" class="form-label"></label>
+                                        <textarea asp-for="StructuredDataWebsite" class="form-control json-editor" rows="10"></textarea>
+                                        <span asp-validation-for="StructuredDataWebsite" class="text-danger"></span>
+                                        <div class="form-text text-muted">Dữ liệu có cấu trúc JSON-LD cho website của bạn.</div>
+                                    </div>
+                                </div>
+
+                                <!-- Tab Nâng cao -->
+                                <div class="tab-pane" id="advanced">
+                                    <div class="mb-3">
+                                        <label asp-for="GoogleAnalyticsId" class="form-label"></label>
+                                        <input asp-for="GoogleAnalyticsId" class="form-control" />
+                                        <span asp-validation-for="GoogleAnalyticsId" class="text-danger"></span>
+                                        <div class="form-text text-muted">ID Google Analytics của bạn (ví dụ: UA-XXXXX-Y hoặc G-XXXXXXXX).</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="GoogleTagManagerId" class="form-label"></label>
+                                        <input asp-for="GoogleTagManagerId" class="form-control" />
+                                        <span asp-validation-for="GoogleTagManagerId" class="text-danger"></span>
+                                        <div class="form-text text-muted">ID Google Tag Manager của bạn (ví dụ: GTM-XXXXXX).</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="SitemapSettings" class="form-label"></label>
+                                        <textarea asp-for="SitemapSettings" class="form-control json-editor" rows="5"></textarea>
+                                        <span asp-validation-for="SitemapSettings" class="text-danger"></span>
+                                        <div class="form-text text-muted">Cài đặt Sitemap dạng JSON.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="CustomHeadCode" class="form-label"></label>
+                                        <textarea asp-for="CustomHeadCode" class="form-control code-editor" rows="5"></textarea>
+                                        <span asp-validation-for="CustomHeadCode" class="text-danger"></span>
+                                        <div class="form-text text-muted">Mã tùy chỉnh sẽ được chèn vào thẻ head.</div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label asp-for="CustomFooterCode" class="form-label"></label>
+                                        <textarea asp-for="CustomFooterCode" class="form-control code-editor" rows="5"></textarea>
+                                        <span asp-validation-for="CustomFooterCode" class="text-danger"></span>
+                                        <div class="form-text text-muted">Mã tùy chỉnh sẽ được chèn vào cuối trang.</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-save me-2"></i> Lưu cài đặt
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="fa fa-arrow-left me-2"></i> Quay lại
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Auto-dismiss alerts
+            window.setTimeout(function() {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    const bsAlert = new bootstrap.Alert(alert);
+                    setTimeout(() => {
+                        bsAlert.close();
+                    }, 4000);
+                });
+            }, 4000);
+
+            // Initialize JSON editors
+            document.querySelectorAll('.json-editor').forEach(function(textarea) {
+                const editDiv = document.createElement('div');
+                editDiv.style.width = '100%';
+                editDiv.style.height = '300px';
+                editDiv.className = 'mb-3';
+                
+                textarea.parentNode.insertBefore(editDiv, textarea);
+                textarea.style.display = 'none';
+                
+                const editor = ace.edit(editDiv);
+                editor.setTheme("ace/theme/monokai");
+                editor.session.setMode("ace/mode/json");
+                editor.session.setValue(textarea.value);
+                
+                // Update textarea when editor changes
+                editor.getSession().on('change', function() {
+                    textarea.value = editor.getSession().getValue();
+                });
+            });
+
+            // Initialize code editors
+            document.querySelectorAll('.code-editor').forEach(function(textarea) {
+                const editDiv = document.createElement('div');
+                editDiv.style.width = '100%';
+                editDiv.style.height = '300px';
+                editDiv.className = 'mb-3';
+                
+                textarea.parentNode.insertBefore(editDiv, textarea);
+                textarea.style.display = 'none';
+                
+                const editor = ace.edit(editDiv);
+                editor.setTheme("ace/theme/monokai");
+                editor.session.setMode("ace/mode/html");
+                editor.session.setValue(textarea.value);
+                
+                // Update textarea when editor changes
+                editor.getSession().on('change', function() {
+                    textarea.value = editor.getSession().getValue();
+                });
+            });
+        });
+    </script>
+}

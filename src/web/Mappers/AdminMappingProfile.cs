@@ -4,6 +4,7 @@ using web.Areas.Admin.ViewModels.Category;
 using web.Areas.Admin.ViewModels.FAQ;
 using web.Areas.Admin.ViewModels.Media;
 using web.Areas.Admin.ViewModels.Redirect;
+using web.Areas.Admin.ViewModels.Seo;
 using web.Areas.Admin.ViewModels.Tag;
 using web.Areas.Admin.ViewModels.Testimonial;
 using web.Areas.Admin.ViewModels.User;
@@ -96,6 +97,20 @@ public class AdminMappingProfile : Profile
         // Redirect mappings
         CreateMap<Redirect, RedirectListItemViewModel>();
         CreateMap<Redirect, RedirectViewModel>().ReverseMap();
+
+        // SeoSettings mappings
+        CreateMap<SeoSettings, SeoSettingsViewModel>();
+        CreateMap<SeoSettingsViewModel, SeoSettings>();
+        CreateMap<SeoSettings, SeoSettingsListItemViewModel>();
+
+        // SeoAnalytics mappings
+        CreateMap<SeoAnalytics, SeoAnalyticsViewModel>()
+            .ForMember(dest => dest.TopKeywords, opt => opt.MapFrom(src => src.TopKeywords ?? "[]"));
+
+        CreateMap<SeoAnalyticsViewModel, SeoAnalytics>()
+            .ForMember(dest => dest.TopKeywords, opt => opt.MapFrom(src => src.TopKeywords ?? "[]"));
+
+        CreateMap<SeoAnalytics, SeoAnalyticsListItemViewModel>();
 
     }
 }

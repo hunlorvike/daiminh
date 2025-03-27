@@ -1,0 +1,391 @@
+@using web.Areas.Admin.ViewModels.Seo
+@model SeoAnalyticsSummaryViewModel
+@{
+	ViewData["Title"] = "Phân tích SEO";
+}
+
+<div class="container-fluid">
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800">Phân tích SEO</h1>
+		<div>
+			<a asp-action="AnalyticsDetails" class="btn btn-info btn-sm">
+				<i class="fas fa-table fa-sm"></i> Xem chi tiết
+			</a>
+			<a asp-action="ImportAnalytics" class="btn btn-primary btn-sm">
+				<i class="fas fa-file-import fa-sm"></i> Nhập dữ liệu
+			</a>
+			<a asp-action="ExportAnalytics" asp-route-entityType="@ViewBag.SelectedEntityType" asp-route-startDate="@ViewBag.StartDate" asp-route-endDate="@ViewBag.EndDate" class="btn btn-success btn-sm">
+				<i class="fas fa-file-export fa-sm"></i> Xuất Excel
+			</a>
+		</div>
+	</div>
+
+	@if (TempData["SuccessMessage"] != null)
+	{
+		<div class="alert alert-success alert-dismissible fade show" role="alert">
+			@TempData["SuccessMessage"]
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	}
+
+	<!-- Bộ lọc -->
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-primary">Bộ lọc</h6>
+		</div>
+		<div class="card-body">
+			<form asp-action="Analytics" method="get" class="form-inline">
+				<div class="form-group mb-2 mr-2">
+					<label for="entityType" class="mr-2">Loại đối tượng:</label>
+					<select name="entityType" id="entityType" class="form-control">
+						<option value="">Tất cả</option>
+						@foreach (var type in ViewBag.EntityTypes)
+						{
+							<option value="@type" selected="@(type == ViewBag.SelectedEntityType)">@type</option>
+						}
+					</select>
+				</div>
+				<div class="form-group mb-2 mr-2">
+					<label for="startDate" class="mr-2">Từ ngày:</label>
+					<input type="date" name="startDate" id="startDate" class="form-control" value="@ViewBag.StartDate" />
+				</div>
+				<div class="form-group mb-2 mr-2">
+					<label for="endDate" class="mr-2">Đến ngày:</label>
+					<input type="date" name="endDate" id="endDate" class="form-control" value="@ViewBag.EndDate" />
+				</div>
+				<button type="submit" class="btn btn-primary mb-2">Lọc</button>
+			</form>
+		</div>
+	</div>
+
+	<!-- Tổng quan -->
+	<div class="row">
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-primary shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+								Số lần hiển thị
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalImpressions.ToString("N0")</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-eye fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-success shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+								Số lần click
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">@Model.TotalClicks.ToString("N0")</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-mouse-pointer fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-info shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+								Tỷ lệ click (CTR)
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AverageCTR.ToString("N2")%</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-percentage fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xl-3 col-md-6 mb-4">
+			<div class="card border-left-warning shadow h-100 py-2">
+				<div class="card-body">
+					<div class="row no-gutters align-items-center">
+						<div class="col mr-2">
+							<div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+								Vị trí trung bình
+							</div>
+							<div class="h5 mb-0 font-weight-bold text-gray-800">@Model.AveragePosition.ToString("N1")</div>
+						</div>
+						<div class="col-auto">
+							<i class="fas fa-sort-numeric-down fa-2x text-gray-300"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Biểu đồ -->
+	<div class="row">
+		<div class="col-xl-8 col-lg-7">
+			<div class="card shadow mb-4">
+				<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+					<h6 class="m-0 font-weight-bold text-primary">Hiệu suất theo thời gian</h6>
+				</div>
+				<div class="card-body">
+					<div class="chart-area">
+						<canvas id="performanceChart"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="col-xl-4 col-lg-5">
+			<div class="card shadow mb-4">
+				<div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+					<h6 class="m-0 font-weight-bold text-primary">Phân bố click và hiển thị</h6>
+				</div>
+				<div class="card-body">
+					<div class="chart-pie">
+						<canvas id="clicksVsImpressions"></canvas>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Từ khóa hàng đầu -->
+	<div class="card shadow mb-4">
+		<div class="card-header py-3 d-flex justify-content-between align-items-center">
+			<h6 class="m-0 font-weight-bold text-primary">Từ khóa hàng đầu</h6>
+			<div class="dropdown no-arrow">
+				<a class="dropdown-toggle" href="#" role="button" id="keywordsDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="keywordsDropdown">
+					<div class="dropdown-header">Tùy chọn:</div>
+					<a class="dropdown-item" href="#">
+						<i class="fas fa-file-export fa-sm fa-fw mr-2 text-gray-400"></i>
+						Xuất Excel
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-hover" width="100%" cellspacing="0">
+					<thead class="thead-light">
+						<tr>
+							<th>Từ khóa</th>
+							<th>Hiển thị</th>
+							<th>Click</th>
+							<th>CTR</th>
+							<th>Vị trí</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var keyword in Model.TopKeywords)
+						{
+							<tr>
+								<td>@keyword.Keyword</td>
+								<td>@keyword.Impressions.ToString("N0")</td>
+								<td>@keyword.Clicks.ToString("N0")</td>
+								<td>@keyword.CTR.ToString("N2")%</td>
+								<td>@keyword.AveragePosition.ToString("N1")</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- Trang hiệu suất cao nhất -->
+	<div class="card shadow mb-4">
+		<div class="card-header py-3 d-flex justify-content-between align-items-center">
+			<h6 class="m-0 font-weight-bold text-primary">Trang hiệu suất cao nhất</h6>
+			<div class="dropdown no-arrow">
+				<a class="dropdown-toggle" href="#" role="button" id="pagesDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+				</a>
+				<div class="dropdown-menu dropdown-menu-right shadow animated--fade-in" aria-labelledby="pagesDropdown">
+					<div class="dropdown-header">Tùy chọn:</div>
+					<a class="dropdown-item" href="#">
+						<i class="fas fa-file-export fa-sm fa-fw mr-2 text-gray-400"></i>
+						Xuất Excel
+					</a>
+				</div>
+			</div>
+		</div>
+		<div class="card-body">
+			<div class="table-responsive">
+				<table class="table table-hover" width="100%" cellspacing="0">
+					<thead class="thead-light">
+						<tr>
+							<th>Tiêu đề</th>
+							<th>URL</th>
+							<th>Hiển thị</th>
+							<th>Click</th>
+							<th>CTR</th>
+							<th>Vị trí</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model.TopPages)
+						{
+							<tr>
+								<td>@item.Title</td>
+								<td><a href="@item.Url" target="_blank">@item.Url</a></td>
+								<td>@item.Impressions.ToString("N0")</td>
+								<td>@item.Clicks.ToString("N0")</td>
+								<td>@item.CTR.ToString("N2")%</td>
+								<td>@item.AveragePosition.ToString("N1")</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+	<script>
+		$(document).ready(function() {
+			// Auto-dismiss alerts
+			window.setTimeout(function() {
+				$(".alert").fadeTo(500, 0).slideUp(500, function() {
+					$(this).remove();
+				});
+			}, 4000);
+
+			// Prepare data for charts
+			const dates = @Html.Raw(Json.Serialize(Model.DailyData.Select(d => d.Date.ToString("dd/MM"))));
+			const impressions = @Html.Raw(Json.Serialize(Model.DailyData.Select(d => d.Impressions)));
+			const clicks = @Html.Raw(Json.Serialize(Model.DailyData.Select(d => d.Clicks)));
+			const ctr = @Html.Raw(Json.Serialize(Model.DailyData.Select(d => d.CTR)));
+			const positions = @Html.Raw(Json.Serialize(Model.DailyData.Select(d => d.AveragePosition)));
+
+			// Performance Chart
+			const performanceCtx = document.getElementById('performanceChart').getContext('2d');
+			const performanceChart = new Chart(performanceCtx, {
+				type: 'line',
+				data: {
+					labels: dates,
+					datasets: [
+						{
+							label: 'Hiển thị',
+							data: impressions,
+							backgroundColor: 'rgba(78, 115, 223, 0.05)',
+							borderColor: 'rgba(78, 115, 223, 1)',
+							pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+							pointBorderColor: '#fff',
+							pointRadius: 3,
+							pointHoverRadius: 5,
+							fill: true,
+							tension: 0.3,
+							yAxisID: 'y'
+						},
+						{
+							label: 'Click',
+							data: clicks,
+							backgroundColor: 'rgba(28, 200, 138, 0.05)',
+							borderColor: 'rgba(28, 200, 138, 1)',
+							pointBackgroundColor: 'rgba(28, 200, 138, 1)',
+							pointBorderColor: '#fff',
+							pointRadius: 3,
+							pointHoverRadius: 5,
+							fill: true,
+							tension: 0.3,
+							yAxisID: 'y'
+						},
+						{
+							label: 'Vị trí',
+							data: positions,
+							backgroundColor: 'rgba(246, 194, 62, 0.05)',
+							borderColor: 'rgba(246, 194, 62, 1)',
+							pointBackgroundColor: 'rgba(246, 194, 62, 1)',
+							pointBorderColor: '#fff',
+							pointRadius: 3,
+							pointHoverRadius: 5,
+							fill: false,
+							tension: 0.3,
+							yAxisID: 'y1'
+						}
+					]
+				},
+				options: {
+					maintainAspectRatio: false,
+					scales: {
+						y: {
+							position: 'left',
+							title: {
+								display: true,
+								text: 'Hiển thị / Click'
+							}
+						},
+						y1: {
+							position: 'right',
+							title: {
+								display: true,
+								text: 'Vị trí'
+							},
+							reverse: true,
+							min: 0,
+							max: 10,
+							grid: {
+								drawOnChartArea: false
+							}
+						}
+					}
+				}
+			});
+
+			// Clicks vs Impressions Chart
+			const clicksVsImpressionsCtx = document.getElementById('clicksVsImpressions').getContext('2d');
+			const clicksVsImpressionsChart = new Chart(clicksVsImpressionsCtx, {
+				type: 'doughnut',
+				data: {
+					labels: ['Hiển thị', 'Click'],
+					datasets: [{
+						data: [@Model.TotalImpressions - @Model.TotalClicks, @Model.TotalClicks],
+						backgroundColor: ['rgba(78, 115, 223, 0.8)', 'rgba(28, 200, 138, 0.8)'],
+						hoverBackgroundColor: ['rgba(78, 115, 223, 1)', 'rgba(28, 200, 138, 1)'],
+						hoverBorderColor: "rgba(234, 236, 244, 1)",
+					}]
+				},
+				options: {
+					maintainAspectRatio: false,
+					plugins: {
+						legend: {
+							position: 'bottom'
+						},
+						tooltip: {
+							callbacks: {
+								label: function(context) {
+									const label = context.label || '';
+									const value = context.raw || 0;
+									const total = context.dataset.data.reduce((a, b) => a + b, 0);
+									const percentage = Math.round((value / total) * 100);
+									return `${label}: ${value.toLocaleString()} (${percentage}%)`;
+								}
+							}
+						}
+					}
+				}
+			});
+		});
+	</script>
+}
+

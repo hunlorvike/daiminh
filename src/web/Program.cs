@@ -4,6 +4,7 @@ using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using web;
 using web.Areas.Admin.Services;
 using web.Middlewares;
 
@@ -44,7 +45,8 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
 builder.Services.AddScoped<IMediaService, MediaService>();
 builder.Services.AddScoped<IRedirectService, RedirectService>();
-
+builder.Services.AddScoped<ISeoService, SeoService>();
+builder.Services.AddHostedService<SeoAnalyticsBackgroundService>();
 builder.Services.AddAuthentication()
     .AddCookie("DaiMinhCookies", options =>
     {

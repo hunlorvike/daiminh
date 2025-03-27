@@ -1,0 +1,93 @@
+@using web.Areas.Admin.ViewModels.Seo
+@model GoogleSearchConsoleImportViewModel
+@{
+	ViewData["Title"] = "Nhập dữ liệu từ Google Search Console";
+}
+
+<div class="container-fluid">
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800">Nhập dữ liệu từ Google Search Console</h1>
+		<a asp-action="Analytics" class="btn btn-secondary btn-sm">
+			<i class="fas fa-arrow-left fa-sm"></i> Quay lại phân tích
+		</a>
+	</div>
+
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-primary">Nhập dữ liệu phân tích SEO</h6>
+		</div>
+		<div class="card-body">
+			<div class="alert alert-info">
+				<h5 class="alert-heading"><i class="fas fa-info-circle"></i> Hướng dẫn</h5>
+				<p>Để nhập dữ liệu từ Google Search Console, hãy làm theo các bước sau:</p>
+				<ol>
+					<li>Đăng nhập vào <a href="https://search.google.com/search-console" target="_blank">Google Search Console</a></li>
+					<li>Chọn trang web của bạn</li>
+					<li>Chọn "Hiệu suất" từ menu bên trái</li>
+					<li>Chọn khoảng thời gian bạn muốn xuất dữ liệu</li>
+					<li>Nhấp vào nút "Xuất" ở góc trên bên phải và chọn "JSON"</li>
+					<li>Tải lên file JSON đã xuất vào form bên dưới</li>
+				</ol>
+			</div>
+
+			<form asp-action="ImportAnalytics" method="post" enctype="multipart/form-data">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+				<div class="form-group">
+					<label asp-for="JsonFile" class="font-weight-bold">File JSON từ Google Search Console</label>
+					<div class="custom-file">
+						<input asp-for="JsonFile" class="custom-file-input" />
+						<label class="custom-file-label">Chọn file...</label>
+						<span asp-validation-for="JsonFile" class="text-danger"></span>
+					</div>
+				</div>
+
+				<div class="row">
+					<div class="col-md-6">
+						<div class="form-group">
+							<label asp-for="StartDate" class="font-weight-bold"></label>
+							<input asp-for="StartDate" class="form-control" type="date" />
+							<span asp-validation-for="StartDate" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+							<label asp-for="EndDate" class="font-weight-bold"></label>
+							<input asp-for="EndDate" class="form-control" type="date" />
+							<span asp-validation-for="EndDate" class="text-danger"></span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<div class="custom-control custom-checkbox">
+						<input asp-for="OverwriteExistingData" class="custom-control-input" />
+						<label asp-for="OverwriteExistingData" class="custom-control-label font-weight-bold"></label>
+						<small class="form-text text-muted">Nếu bật, dữ liệu hiện có trong khoảng thời gian đã chọn sẽ bị xóa và thay thế bằng dữ liệu mới.</small>
+					</div>
+				</div>
+
+				<div class="mt-4">
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-file-import"></i> Nhập dữ liệu
+					</button>
+					<a asp-action="Analytics" class="btn btn-secondary">
+						<i class="fas fa-times"></i> Hủy
+					</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			// Hiển thị tên file khi chọn
+			$('.custom-file-input').on('change', function() {
+				var fileName = $(this).val().split('\\').pop();
+				$(this).next('.custom-file-label').html(fileName);
+			});
+		});
+	</script>
+}

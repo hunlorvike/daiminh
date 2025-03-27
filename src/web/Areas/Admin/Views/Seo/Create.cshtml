@@ -1,0 +1,57 @@
+@using web.Areas.Admin.ViewModels.Seo
+@model SeoSettingsViewModel
+@{
+	ViewData["Title"] = "Thêm cài đặt SEO mới";
+}
+
+<div class="container-fluid">
+	<div class="d-sm-flex align-items-center justify-content-between mb-4">
+		<h1 class="h3 mb-0 text-gray-800">Thêm cài đặt SEO mới</h1>
+		<a asp-action="Index" class="btn btn-secondary btn-sm">
+			<i class="fas fa-arrow-left fa-sm"></i> Quay lại danh sách
+		</a>
+	</div>
+
+	<div class="card shadow mb-4">
+		<div class="card-header py-3">
+			<h6 class="m-0 font-weight-bold text-primary">Thông tin cài đặt</h6>
+		</div>
+		<div class="card-body">
+			<form asp-action="Create" method="post">
+				<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+				<div class="form-group">
+					<label asp-for="Key"></label>
+					<input asp-for="Key" class="form-control" />
+					<span asp-validation-for="Key" class="text-danger"></span>
+					<small class="form-text text-muted">Khóa cài đặt, ví dụ: "home_page_title"</small>
+				</div>
+
+				<div class="form-group">
+					<label asp-for="Value"></label>
+					<textarea asp-for="Value" class="form-control" rows="5"></textarea>
+					<span asp-validation-for="Value" class="text-danger"></span>
+				</div>
+
+				<div class="form-group">
+					<label asp-for="Description"></label>
+					<input asp-for="Description" class="form-control" />
+					<span asp-validation-for="Description" class="text-danger"></span>
+					<small class="form-text text-muted">Mô tả ngắn về mục đích của cài đặt này</small>
+				</div>
+
+				<div class="form-group form-check">
+					<input asp-for="IsActive" class="form-check-input" />
+					<label asp-for="IsActive" class="form-check-label"></label>
+				</div>
+
+				<div>
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-save"></i> Lưu
+					</button>
+					<a asp-action="Index" class="btn btn-secondary">Hủy</a>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
