@@ -8,7 +8,7 @@ namespace web.Areas.Admin.Controllers;
 
 
 [Area("Admin")]
-[Authorize]
+//[Authorize]
 public class DashboardController : Controller
 {
     private readonly ApplicationDbContext _context;
