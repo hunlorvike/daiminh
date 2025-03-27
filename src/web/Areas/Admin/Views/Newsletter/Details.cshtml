@@ -1,0 +1,68 @@
+@model web.Areas.Admin.ViewModels.Newsletter.NewsletterViewModel
+
+@{
+	ViewData["Title"] = "Chi tiết đăng ký nhận tin - Hệ thống quản trị";
+}
+
+@section PageActions {
+	<div class="btn-list">
+		<a asp-action="Index" class="btn btn-outline-secondary d-sm-inline-block">
+			<i class="fas fa-arrow-left me-2"></i> Quay lại
+		</a>
+		<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary d-sm-inline-block">
+			<i class="fas fa-edit me-2"></i> Sửa
+		</a>
+	</div>
+}
+
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">Thông tin đăng ký</h3>
+	</div>
+	<div class="card-body">
+		<div class="row">
+			<div class="col-md-6 mb-3">
+				<label class="form-label">Email:</label>
+				<div class="form-control-plaintext">@Model.Email</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label">Tên:</label>
+				<div class="form-control-plaintext">@(Model.Name ?? "Không có")</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label">Trạng thái:</label>
+				<div class="form-control-plaintext">
+					@if (Model.IsActive)
+					{
+						<span class="badge bg-green">Đang hoạt động</span>
+					}
+					else
+					{
+						<span class="badge bg-red">Đã hủy đăng ký</span>
+					}
+				</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label">Ngày đăng ký:</label>
+				<div class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label">Ngày xác nhận:</label>
+				<div class="form-control-plaintext">@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa xác nhận")</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label">Ngày hủy đăng ký:</label>
+				<div class="form-control-plaintext">@(Model.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label">Địa chỉ IP:</label>
+				<div class="form-control-plaintext">@(Model.IpAddress ?? "Không có")</div>
+			</div>
+			<div class="col-md-6 mb-3">
+				<label class="form-label">User Agent:</label>
+				<div class="form-control-plaintext text-truncate" title="@Model.UserAgent">@(Model.UserAgent ?? "Không có")</div>
+			</div>
+		</div>
+	</div>
+</div>
+

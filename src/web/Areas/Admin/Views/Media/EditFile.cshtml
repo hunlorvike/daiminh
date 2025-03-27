@@ -1,0 +1,130 @@
+@using web.Areas.Admin.ViewModels.Media
+@model MediaFileViewModel
+@{
+	ViewData["Title"] = "Chỉnh sửa file - Hệ thống quản trị";
+}
+
+<div class="card">
+	<div class="card-body">
+		<form asp-action="EditFile" method="post" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input type="hidden" asp-for="Id" />
+
+			<div class="row mb-3">
+				<div class="col-md-4">
+					<div class="card mb-3">
+						<div class="card-body text-center">
+							@switch (Model.MediaType)
+							{
+								case shared.Enums.MediaType.Image:
+									<img src="@Model.ThumbnailPath" alt="@Model.AltText" class="img-fluid mb-3" style="max-height: 200px;">
+									break;
+								case shared.Enums.MediaType.Video:
+									<div class="d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+										<i class="fas fa-film fa-5x text-muted"></i>
+									</div>
+									break;
+								case shared.Enums.MediaType.Audio:
+									<div class="d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+										<i class="fas fa-music fa-5x text-muted"></i>
+									</div>
+									break;
+								case shared.Enums.MediaType.Document:
+									<div class="d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+										<i class="fas fa-file-alt fa-5x text-muted"></i>
+									</div>
+									break;
+								case shared.Enums.MediaType.Archive:
+									<div class="d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+										<i class="fas fa-file-archive fa-5x text-muted"></i>
+									</div>
+									break;
+								default:
+									<div class="d-flex align-items-center justify-content-center mb-3" style="height: 200px;">
+										<i class="fas fa-file fa-5x text-muted"></i>
+									</div>
+									break;
+							}
+
+							<div class="text-muted mb-3">
+								<div>Loại file: @Model.MimeType</div>
+								<div>Kích thước: @(Model.FileSize / 1024) KB</div>
+								@if (Model.Width.HasValue && Model.Height.HasValue)
+								{
+									<div>Kích thước: @Model.Width x @Model.Height px</div>
+								}
+								@if (Model.Duration.HasValue)
+								{
+									<div>Thời lượng: @TimeSpan.FromSeconds(Model.Duration.Value).ToString(@"hh\:mm\:ss")</div>
+								}
+							</div>
+
+							<div class="btn-group">
+								<a href="@Model.FilePath" target="_blank" class="btn btn-outline-primary">
+									<i class="fas fa-eye me-2"></i> Xem
+								</a>
+								<a href="@Model.FilePath" download="@Model.OriginalFileName" class="btn btn-outline-secondary">
+									<i class="fas fa-download me-2"></i> Tải xuống
+								</a>
+							</div>
+						</div>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="FileUpload" class="form-label">Thay thế file</label>
+						<input asp-for="FileUpload" class="form-control" type="file" />
+						<span asp-validation-for="FileUpload" class="text-danger"></span>
+						<small class="form-hint">Tải lên file mới để thay thế file hiện tại</small>
+					</div>
+				</div>
+
+				<div class="col-md-8">
+					<div class="form-group mb-3">
+						<label asp-for="FileName" class="form-label required">Tên file</label>
+						<input asp-for="FileName" class="form-control" />
+						<span asp-validation-for="FileName" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="Description" class="form-label">Mô tả</label>
+						<textarea asp-for="Description" class="form-control" rows="3"></textarea>
+						<span asp-validation-for="Description" class="text-danger"></span>
+						<small class="form-hint">Mô tả ngắn về file (tối đa 255 ký tự)</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="AltText" class="form-label">Alt Text (cho hình ảnh)</label>
+						<input asp-for="AltText" class="form-control" />
+						<span asp-validation-for="AltText" class="text-danger"></span>
+						<small class="form-hint">Văn bản thay thế cho hình ảnh, hỗ trợ SEO và trình đọc màn hình</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="FolderId" class="form-label">Thư mục</label>
+						<select asp-for="FolderId" class="form-select">
+							<option value="">-- Thư mục gốc --</option>
+							@if (Model.AvailableFolders != null)
+							{
+								@foreach (var folder in Model.AvailableFolders)
+								{
+									<option value="@folder.Id">@folder.DisplayName</option>
+								}
+							}
+						</select>
+						<span asp-validation-for="FolderId" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-between mt-4">
+				<a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-2"></i> Quay lại
+				</a>
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-save me-2"></i> Cập nhật file
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+

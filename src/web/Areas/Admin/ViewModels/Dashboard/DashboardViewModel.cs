@@ -1,6 +1,6 @@
 using shared.Enums;
 
-namespace web.Areas.Admin.ViewModels;
+namespace web.Areas.Admin.ViewModels.Dashboard;
 
 public class DashboardViewModel
 {

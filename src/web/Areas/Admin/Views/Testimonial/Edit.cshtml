@@ -1,0 +1,125 @@
+@using web.Areas.Admin.ViewModels.Testimonial
+@model TestimonialViewModel
+@{
+	ViewData["Title"] = "Chỉnh sửa đánh giá khách hàng - Hệ thống quản trị";
+}
+
+<div class="card">
+	<div class="card-body">
+		<form asp-action="Edit" method="post" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input type="hidden" asp-for="Id" />
+
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<div class="form-group mb-3">
+						<label asp-for="ClientName" class="form-label required">Tên khách hàng</label>
+						<input asp-for="ClientName" class="form-control" />
+						<span asp-validation-for="ClientName" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="ClientTitle" class="form-label">Chức danh</label>
+						<input asp-for="ClientTitle" class="form-control" />
+						<span asp-validation-for="ClientTitle" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="ClientCompany" class="form-label">Công ty</label>
+						<input asp-for="ClientCompany" class="form-control" />
+						<span asp-validation-for="ClientCompany" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="AvatarFile" class="form-label">Ảnh đại diện</label>
+						@if (!string.IsNullOrEmpty(Model.ClientAvatar))
+						{
+							<div class="mb-2">
+								<img src="@Model.ClientAvatar" alt="@Model.ClientName" class="img-thumbnail" style="max-height: 100px;" />
+							</div>
+						}
+						<input asp-for="AvatarFile" class="form-control" type="file" accept="image/*" />
+						<span asp-validation-for="AvatarFile" class="text-danger"></span>
+						<small class="form-hint">Kích thước tối đa: 2MB. Định dạng: jpg, jpeg, png, gif</small>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="form-group mb-3">
+						<label asp-for="Content" class="form-label required">Nội dung đánh giá</label>
+						<textarea asp-for="Content" class="form-control" rows="5"></textarea>
+						<span asp-validation-for="Content" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="Rating" class="form-label">Đánh giá (1-5 sao)</label>
+						<div class="rating-input">
+							<div class="d-flex align-items-center">
+								<input type="range" asp-for="Rating" min="1" max="5" class="form-range" id="ratingSlider" />
+								<div class="ms-3 d-flex" id="ratingStars">
+									@for (int i = 1; i <= 5; i++)
+									{
+										<i class="@(i <= Model.Rating ? "fas" : "far") fa-star text-warning me-1"></i>
+									}
+								</div>
+							</div>
+						</div>
+						<span asp-validation-for="Rating" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="ProjectReference" class="form-label">Tham chiếu dự án</label>
+						<input asp-for="ProjectReference" class="form-control" />
+						<span asp-validation-for="ProjectReference" class="text-danger"></span>
+						<small class="form-hint">Tên dự án hoặc mã dự án mà khách hàng đã sử dụng</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="OrderIndex" class="form-label">Thứ tự hiển thị</label>
+						<input asp-for="OrderIndex" class="form-control" type="number" min="0" />
+						<span asp-validation-for="OrderIndex" class="text-danger"></span>
+						<small class="form-hint">Số thấp hơn sẽ hiển thị trước</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<div class="form-check form-switch">
+							<input asp-for="IsActive" class="form-check-input" type="checkbox" />
+							<label asp-for="IsActive" class="form-check-label">Hiển thị đánh giá</label>
+						</div>
+						<span asp-validation-for="IsActive" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-between mt-4">
+				<a asp-action="Index" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-2"></i> Quay lại
+				</a>
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-save me-2"></i> Cập nhật đánh giá
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			// Update star display based on rating slider
+			function updateStars(rating) {
+				$('#ratingStars').empty();
+				for (var i = 1; i <= 5; i++) {
+					var starClass = i <= rating ? 'fas fa-star text-warning' : 'far fa-star text-warning';
+					$('#ratingStars').append('<i class="' + starClass + ' me-1"></i>');
+				}
+			}
+
+			// Update stars when slider changes
+			$('#ratingSlider').on('input', function() {
+				updateStars($(this).val());
+			});
+		});
+	</script>
+}
+

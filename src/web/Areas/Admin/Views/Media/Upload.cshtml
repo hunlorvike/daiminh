@@ -1,0 +1,81 @@
+@using web.Areas.Admin.ViewModels.Media
+@model MediaUploadViewModel
+@{
+	ViewData["Title"] = "Tải lên file - Hệ thống quản trị";
+}
+
+<div class="card">
+	<div class="card-body">
+		<form asp-action="Upload" method="post" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+			<div class="row mb-3">
+				<div class="col-md-8">
+					<div class="form-group mb-3">
+						<label asp-for="Files" class="form-label required">Chọn file</label>
+						<input asp-for="Files" class="form-control" type="file" multiple />
+						<span asp-validation-for="Files" class="text-danger"></span>
+						<small class="form-hint">Kích thước tối đa: 20MB mỗi file. Bạn có thể chọn nhiều file cùng lúc.</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="Description" class="form-label">Mô tả</label>
+						<textarea asp-for="Description" class="form-control" rows="3"></textarea>
+						<span asp-validation-for="Description" class="text-danger"></span>
+						<small class="form-hint">Mô tả ngắn về file (tối đa 255 ký tự)</small>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="form-group mb-3">
+						<label asp-for="FolderId" class="form-label">Thư mục</label>
+						<select asp-for="FolderId" class="form-select">
+							<option value="">-- Thư mục gốc --</option>
+							@if (Model.AvailableFolders != null)
+							{
+								@foreach (var folder in Model.AvailableFolders)
+								{
+									<option value="@folder.Id">@folder.DisplayName</option>
+								}
+							}
+						</select>
+						<span asp-validation-for="FolderId" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="AltText" class="form-label">Alt Text (cho hình ảnh)</label>
+						<input asp-for="AltText" class="form-control" />
+						<span asp-validation-for="AltText" class="text-danger"></span>
+						<small class="form-hint">Văn bản thay thế cho hình ảnh, hỗ trợ SEO và trình đọc màn hình</small>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-between mt-4">
+				<a asp-action="Index" asp-route-folderId="@Model.FolderId" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-2"></i> Quay lại
+				</a>
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-upload me-2"></i> Tải lên
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			// Preview selected files
+			$('input[type="file"]').on('change', function() {
+				var fileCount = this.files.length;
+				if (fileCount > 0) {
+					$(this).next('.form-hint').html('Đã chọn ' + fileCount + ' file.');
+				} else {
+					$(this).next('.form-hint').html('Kích thước tối đa: 20MB mỗi file. Bạn có thể chọn nhiều file cùng lúc.');
+				}
+			});
+		});
+	</script>
+}
+

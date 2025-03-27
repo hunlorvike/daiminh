@@ -6,5 +6,6 @@ public enum MediaType
     Video = 2,
     Document = 3,
     Audio = 4,
-    Other = 5
+    Archive = 5,
+    Other = 6
 }

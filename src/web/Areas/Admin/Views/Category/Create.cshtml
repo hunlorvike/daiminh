@@ -1,0 +1,181 @@
+@using web.Areas.Admin.ViewModels.Category
+@model CategoryViewModel
+@{
+	ViewData["Title"] = "Thêm danh mục - Hệ thống quản trị";
+}
+
+<div class="card">
+	<div class="card-body">
+		<form asp-action="Create" method="post" enctype="multipart/form-data">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input type="hidden" asp-for="Type" />
+
+			<div class="row mb-3">
+				<div class="col-md-8">
+					<div class="form-group mb-3">
+						<label asp-for="Name" class="form-label required">Tên danh mục</label>
+						<input asp-for="Name" class="form-control" id="categoryName" />
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="Slug" class="form-label required">Slug</label>
+						<div class="input-group">
+							<input asp-for="Slug" class="form-control" id="categorySlug" />
+							<button class="btn btn-outline-secondary" type="button" id="generateSlug">
+								<i class="fas fa-sync-alt"></i>
+							</button>
+						</div>
+						<span asp-validation-for="Slug" class="text-danger"></span>
+						<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="Description" class="form-label">Mô tả</label>
+						<textarea asp-for="Description" class="form-control" rows="3"></textarea>
+						<span asp-validation-for="Description" class="text-danger"></span>
+						<small class="form-hint">Mô tả ngắn về danh mục (tối đa 255 ký tự)</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="ParentId" class="form-label">Danh mục cha</label>
+						<select asp-for="ParentId" class="form-select">
+							<option value="">-- Không có danh mục cha --</option>
+							@if (Model.AvailableParents != null)
+							{
+								@foreach (var parent in Model.AvailableParents)
+								{
+									<option value="@parent.Id">@parent.DisplayName</option>
+								}
+							}
+						</select>
+						<span asp-validation-for="ParentId" class="text-danger"></span>
+					</div>
+				</div>
+
+				<div class="col-md-4">
+					<div class="form-group mb-3">
+						<label asp-for="Icon" class="form-label">Icon (CSS class)</label>
+						<input asp-for="Icon" class="form-control" />
+						<span asp-validation-for="Icon" class="text-danger"></span>
+						<small class="form-hint">Ví dụ: fas fa-home (Font Awesome)</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="ImageFile" class="form-label">Hình ảnh</label>
+						<input asp-for="ImageFile" class="form-control" type="file" accept="image/*" />
+						<span asp-validation-for="ImageFile" class="text-danger"></span>
+						<small class="form-hint">Kích thước tối đa: 2MB. Định dạng: jpg, jpeg, png, gif</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="OrderIndex" class="form-label">Thứ tự hiển thị</label>
+						<input asp-for="OrderIndex" class="form-control" type="number" min="0" />
+						<span asp-validation-for="OrderIndex" class="text-danger"></span>
+						<small class="form-hint">Số thấp hơn sẽ hiển thị trước</small>
+					</div>
+
+					<div class="form-group mb-3">
+						<div class="form-check form-switch">
+							<input asp-for="IsActive" class="form-check-input" type="checkbox" />
+							<label asp-for="IsActive" class="form-check-label">Hiển thị danh mục</label>
+						</div>
+						<span asp-validation-for="IsActive" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- SEO Section -->
+			<div class="card mt-4 mb-3">
+				<div class="card-header">
+					<h3 class="card-title">Thông tin SEO</h3>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group mb-3">
+								<label asp-for="MetaTitle" class="form-label">Meta Title</label>
+								<input asp-for="MetaTitle" class="form-control" />
+								<span asp-validation-for="MetaTitle" class="text-danger"></span>
+								<small class="form-hint">Tiêu đề hiển thị trên kết quả tìm kiếm (để trống sẽ dùng tên danh mục)</small>
+							</div>
+
+							<div class="form-group mb-3">
+								<label asp-for="MetaDescription" class="form-label">Meta Description</label>
+								<textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+								<span asp-validation-for="MetaDescription" class="text-danger"></span>
+								<small class="form-hint">Mô tả hiển thị trên kết quả tìm kiếm (để trống sẽ dùng mô tả danh mục)</small>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group mb-3">
+								<label asp-for="MetaKeywords" class="form-label">Meta Keywords</label>
+								<textarea asp-for="MetaKeywords" class="form-control" rows="3"></textarea>
+								<span asp-validation-for="MetaKeywords" class="text-danger"></span>
+								<small class="form-hint">Từ khóa cho công cụ tìm kiếm (phân cách bằng dấu phẩy)</small>
+							</div>
+
+							<div class="form-group mb-3">
+								<div class="form-check form-switch">
+									<input asp-for="NoIndex" class="form-check-input" type="checkbox" />
+									<label asp-for="NoIndex" class="form-check-label">Không cho phép Google lập chỉ mục</label>
+								</div>
+								<span asp-validation-for="NoIndex" class="text-danger"></span>
+								<small class="form-hint">Khi bật, trang này sẽ không xuất hiện trong kết quả tìm kiếm</small>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-between mt-4">
+				<a asp-action="Index" asp-route-type="@Model.Type" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-2"></i> Quay lại
+				</a>
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-save me-2"></i> Lưu danh mục
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			// Auto-generate slug from name
+			$('#categoryName').on('input', function() {
+				if ($('#categorySlug').val() === '') {
+					generateSlug();
+				}
+			});
+
+			// Generate slug button
+			$('#generateSlug').on('click', function() {
+				generateSlug();
+			});
+
+			function generateSlug() {
+				var name = $('#categoryName').val();
+				if (name) {
+					// Convert to lowercase
+					var slug = name.toLowerCase();
+
+					// Remove accents/diacritics from Vietnamese characters
+					slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+					// Replace spaces with dashes and remove special characters
+					slug = slug.replace(/\s+/g, '-')
+						.replace(/[^\w\-]+/g, '')
+						.replace(/\-\-+/g, '-')
+						.replace(/^-+/, '')
+						.replace(/-+$/, '');
+
+					$('#categorySlug').val(slug);
+				}
+			}
+		});
+	</script>
+}
+

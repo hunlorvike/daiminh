@@ -1,0 +1,118 @@
+@model web.Areas.Admin.ViewModels.Contact.ContactViewModel
+
+@{
+	ViewData["Title"] = "Cập nhật liên hệ - Hệ thống quản trị";
+}
+
+@section PageActions {
+	<div class="btn-list">
+		<a asp-action="Index" class="btn btn-outline-secondary d-sm-inline-block">
+			<i class="fas fa-arrow-left me-2"></i> Quay lại
+		</a>
+	</div>
+}
+
+<form asp-action="Edit" method="post">
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<input type="hidden" asp-for="Id" />
+	<input type="hidden" asp-for="FullName" />
+	<input type="hidden" asp-for="Email" />
+	<input type="hidden" asp-for="Phone" />
+	<input type="hidden" asp-for="Subject" />
+	<input type="hidden" asp-for="Message" />
+	<input type="hidden" asp-for="CompanyName" />
+	<input type="hidden" asp-for="ProjectDetails" />
+	<input type="hidden" asp-for="IpAddress" />
+	<input type="hidden" asp-for="UserAgent" />
+	<input type="hidden" asp-for="CreatedAt" />
+	<input type="hidden" asp-for="UpdatedAt" />
+
+	<div class="row">
+		<div class="col-md-8">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">Thông tin liên hệ</h3>
+				</div>
+				<div class="card-body">
+					<div class="row">
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Họ tên:</label>
+							<div class="form-control-plaintext">@Model.FullName</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Email:</label>
+							<div class="form-control-plaintext">@Model.Email</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Điện thoại:</label>
+							<div class="form-control-plaintext">@(Model.Phone ?? "Không có")</div>
+						</div>
+						<div class="col-md-6 mb-3">
+							<label class="form-label">Công ty:</label>
+							<div class="form-control-plaintext">@(Model.CompanyName ?? "Không có")</div>
+						</div>
+						<div class="col-12 mb-3">
+							<label class="form-label">Tiêu đề:</label>
+							<div class="form-control-plaintext">@Model.Subject</div>
+						</div>
+						<div class="col-12 mb-3">
+							<label class="form-label">Nội dung:</label>
+							<div class="form-control-plaintext border p-3 rounded bg-light">@Model.Message</div>
+						</div>
+						@if (!string.IsNullOrEmpty(Model.ProjectDetails))
+						{
+							<div class="col-12 mb-3">
+								<label class="form-label">Chi tiết dự án:</label>
+								<div class="form-control-plaintext border p-3 rounded bg-light">@Model.ProjectDetails</div>
+							</div>
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-4">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">Cập nhật trạng thái</h3>
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label asp-for="Status" class="form-label">Trạng thái</label>
+						<select asp-for="Status" asp-items="Model.StatusOptions" class="form-select">
+						</select>
+						<span asp-validation-for="Status" class="text-danger"></span>
+					</div>
+					<div class="mb-3">
+						<label asp-for="AdminNotes" class="form-label">Ghi chú</label>
+						<textarea asp-for="AdminNotes" class="form-control" rows="5"></textarea>
+						<span asp-validation-for="AdminNotes" class="text-danger"></span>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Ngày tạo:</label>
+						<div class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">Địa chỉ IP:</label>
+						<div class="form-control-plaintext">@(Model.IpAddress ?? "Không có")</div>
+					</div>
+					<div class="mb-3">
+						<label class="form-label">User Agent:</label>
+						<div class="form-control-plaintext text-truncate" title="@Model.UserAgent">@(Model.UserAgent ?? "Không có")</div>
+					</div>
+				</div>
+				<div class="card-footer text-end">
+					<button type="submit" class="btn btn-primary">
+						<i class="fas fa-save me-2"></i> Lưu thay đổi
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</form>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}
+

@@ -1,0 +1,93 @@
+@using web.Areas.Admin.ViewModels.Tag
+@model TagViewModel
+@{
+	ViewData["Title"] = "Thêm thẻ - Hệ thống quản trị";
+}
+
+<div class="card">
+	<div class="card-body">
+		<form asp-action="Create" method="post">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input type="hidden" asp-for="Type" />
+
+			<div class="row mb-3">
+				<div class="col-md-6">
+					<div class="form-group mb-3">
+						<label asp-for="Name" class="form-label required">Tên thẻ</label>
+						<input asp-for="Name" class="form-control" id="tagName" />
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
+
+					<div class="form-group mb-3">
+						<label asp-for="Slug" class="form-label required">Slug</label>
+						<div class="input-group">
+							<input asp-for="Slug" class="form-control" id="tagSlug" />
+							<button class="btn btn-outline-secondary" type="button" id="generateSlug">
+								<i class="fas fa-sync-alt"></i>
+							</button>
+						</div>
+						<span asp-validation-for="Slug" class="text-danger"></span>
+						<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
+					</div>
+				</div>
+
+				<div class="col-md-6">
+					<div class="form-group mb-3">
+						<label asp-for="Description" class="form-label">Mô tả</label>
+						<textarea asp-for="Description" class="form-control" rows="5"></textarea>
+						<span asp-validation-for="Description" class="text-danger"></span>
+						<small class="form-hint">Mô tả ngắn về thẻ (tối đa 255 ký tự)</small>
+					</div>
+				</div>
+			</div>
+
+			<div class="d-flex justify-content-between mt-4">
+				<a asp-action="Index" asp-route-type="@Model.Type" class="btn btn-outline-secondary">
+					<i class="fas fa-arrow-left me-2"></i> Quay lại
+				</a>
+				<button type="submit" class="btn btn-primary">
+					<i class="fas fa-save me-2"></i> Lưu thẻ
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			// Auto-generate slug from name
+			$('#tagName').on('input', function() {
+				if ($('#tagSlug').val() === '') {
+					generateSlug();
+				}
+			});
+
+			// Generate slug button
+			$('#generateSlug').on('click', function() {
+				generateSlug();
+			});
+
+			function generateSlug() {
+				var name = $('#tagName').val();
+				if (name) {
+					// Convert to lowercase
+					var slug = name.toLowerCase();
+
+					// Remove accents/diacritics from Vietnamese characters
+					slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+					// Replace spaces with dashes and remove special characters
+					slug = slug.replace(/\s+/g, '-')
+						.replace(/[^\w\-]+/g, '')
+						.replace(/\-\-+/g, '-')
+						.replace(/^-+/, '')
+						.replace(/-+$/, '');
+
+					$('#tagSlug').val(slug);
+				}
+			}
+		});
+	</script>
+}
+

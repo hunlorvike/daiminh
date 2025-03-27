@@ -1,0 +1,78 @@
+@model web.Areas.Admin.ViewModels.Newsletter.NewsletterViewModel
+
+@{
+	ViewData["Title"] = "Sửa đăng ký nhận tin - Hệ thống quản trị";
+}
+
+@section PageActions {
+	<div class="btn-list">
+		<a asp-action="Index" class="btn btn-outline-secondary d-sm-inline-block">
+			<i class="fas fa-arrow-left me-2"></i> Quay lại
+		</a>
+	</div>
+}
+
+<form asp-action="Edit" method="post">
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<input type="hidden" asp-for="Id" />
+	<input type="hidden" asp-for="IpAddress" />
+	<input type="hidden" asp-for="UserAgent" />
+	<input type="hidden" asp-for="ConfirmedAt" />
+	<input type="hidden" asp-for="UnsubscribedAt" />
+	<input type="hidden" asp-for="CreatedAt" />
+	<input type="hidden" asp-for="UpdatedAt" />
+
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Thông tin đăng ký</h3>
+		</div>
+		<div class="card-body">
+			<div class="row">
+				<div class="col-md-6 mb-3">
+					<label asp-for="Email" class="form-label required">Email</label>
+					<input asp-for="Email" class="form-control" />
+					<span asp-validation-for="Email" class="text-danger"></span>
+				</div>
+				<div class="col-md-6 mb-3">
+					<label asp-for="Name" class="form-label">Tên</label>
+					<input asp-for="Name" class="form-control" />
+					<span asp-validation-for="Name" class="text-danger"></span>
+				</div>
+				<div class="col-md-6 mb-3">
+					<div class="form-check form-switch">
+						<input asp-for="IsActive" class="form-check-input" />
+						<label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+					</div>
+					<small class="text-muted">
+						@if (Model.IsActive)
+						{
+							<span>Hủy kích hoạt sẽ đánh dấu người dùng đã hủy đăng ký</span>
+						}
+						else
+						{
+							<span>Kích hoạt sẽ đánh dấu người dùng đã xác nhận đăng ký</span>
+						}
+					</small>
+				</div>
+				<div class="col-md-6 mb-3">
+					<label class="form-label">Ngày đăng ký:</label>
+					<div class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+				</div>
+				<div class="col-md-6 mb-3">
+					<label class="form-label">Ngày xác nhận:</label>
+					<div class="form-control-plaintext">@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa xác nhận")</div>
+				</div>
+				<div class="col-md-6 mb-3">
+					<label class="form-label">Ngày hủy đăng ký:</label>
+					<div class="form-control-plaintext">@(Model.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+				</div>
+			</div>
+		</div>
+		<div class="card-footer text-end">
+			<button type="submit" class="btn btn-primary">
+				<i class="fas fa-save me-2"></i> Lưu thay đổi
+			</button>
+		</div>
+	</div>
+</form>
+

@@ -9,9 +9,6 @@
 <!-- Tabler Scripts -->
 <script src="~/lib/tabler/core/dist/js/tabler.min.js" asp-append-version="true"></script>
 
-<!-- Datatables Scripts -->
-<script src="~/lib/datatables/js/dataTables.min.js" asp-append-version="true"></script>
-
 <!-- Summernote Scripts -->
 <script src="~/lib/summernote/dist/summernote-bs5.min.js" asp-append-version="true"></script>
 <script src="~/lib/summernote/dist/lang/summernote-vi-vn.js" asp-append-version="true"></script>
@@ -19,5 +16,32 @@
 <!-- Tom-select Scripts -->
 <script src="~/lib/tom-select/dist/js/tom-select.complete.min.js" asp-append-version="true"></script>
 
+<!-- Font Awesome -->
+<script src="~/lib/font-awesome/js/all.min.js"></script>
+
 <!-- Daiminh modules -->
 <script src="~/js/FW/jquery.daiminh.js" asp-append-version="true"></script>
+
+<!-- Toastr -->
+<script src="~/lib/toastr/build/toastr.min.js" asp-append-version="true"></script>
+<script>
+	$(document).ready(() => {
+	  // Media browser popup
+	  window.openMediaBrowser = (callback, fileType) => {
+		let url = `/Admin/Media/Browser?callback=${callback}`
+		if (fileType) {
+		  url += `&fileType=${fileType}`
+		}
+		window.open(url, "MediaBrowser", "width=900,height=600")
+	  }
+
+	  // Example callback function
+	  window.selectMedia = (file) => {
+		console.log("Selected file:", file)
+		// Implement your logic here to handle the selected file
+		// For example, update an input field with the file URL
+		$("#selectedMediaUrl").val(file.url)
+		$("#selectedMediaPreview").attr("src", file.thumbnail).show()
+	  }
+	})
+</script>

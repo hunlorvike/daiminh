@@ -1,0 +1,145 @@
+@using web.Areas.Admin.ViewModels.User
+@model IEnumerable<UserListItemViewModel>
+@{
+	ViewData["Title"] = "Quản lý người dùng - Hệ thống quản trị";
+}
+
+@section PageActions {
+	<div class="btn-list">
+		<a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+			<i class="fas fa-plus me-2"></i> Thêm người dùng
+		</a>
+	</div>
+}
+
+<!-- Filter form -->
+<div class="card mb-3">
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-6">
+				<label class="form-label">Tìm kiếm</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Tìm người dùng..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch">
+						<i class="fas fa-times"></i>
+					</button>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<button type="submit" class="btn btn-primary w-100">
+					<i class="fas fa-search me-2"></i> Tìm kiếm
+				</button>
+			</div>
+			<div class="col-md-3">
+				<a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+					<i class="fas fa-redo me-2"></i> Đặt lại
+				</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- Content -->
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">Danh sách người dùng</h3>
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Any())
+		{
+			<div class="empty">
+				<div class="empty-img">
+					<i class="fas fa-users fa-5x text-muted"></i>
+				</div>
+				<p class="empty-title">Không tìm thấy người dùng nào</p>
+				<p class="empty-subtitle text-muted">
+					Hãy thêm người dùng để quản lý hệ thống
+				</p>
+				<div class="empty-action">
+					<a asp-action="Create" class="btn btn-primary">
+						<i class="fas fa-plus me-2"></i> Thêm người dùng mới
+					</a>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+							<th class="w-1">STT</th>
+							<th>Tên đăng nhập</th>
+							<th>Email</th>
+							<th style="width: 20%">Ngày tạo</th>
+							<th style="width: 20%">Cập nhật lúc</th>
+							<th style="width: 15%">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@{
+							int index = 1;
+						}
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td class="text-muted">@(index++)</td>
+								<td>
+									<div class="d-flex align-items-center">
+										<span class="avatar me-2 bg-primary">
+											@item.Username.Substring(0, 1).ToUpper()
+										</span>
+										<span>@item.Username</span>
+									</div>
+								</td>
+								<td>@item.Email</td>
+								<td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+								<td>@item.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+								<td>
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
+											<i class="fas fa-edit"></i>
+										</a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
+												data-bs-toggle="modal"
+												data-bs-target="#delete-modal"
+												data-id="@item.Id"
+												data-name="@item.Username"
+												data-delete-url="@Url.Action("Delete", "User")">
+											<i class="fas fa-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			// Delete item setup
+			$('.delete-item').on('click', function () {
+				var id = $(this).data('id');
+				var name = $(this).data('name');
+				var deleteUrl = $(this).data('delete-url');
+
+				$('#delete-item-id').val(id);
+				$('#delete-item-name').val(name);
+				$('#delete-url').val(deleteUrl);
+				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa người dùng "' + name + '" không?');
+			});
+
+			// Clear search
+			$('#clearSearch').on('click', function() {
+				$('input[name="searchTerm"]').val('');
+				$('#filterForm').submit();
+			});
+		});
+	</script>
+}
+

@@ -55,6 +55,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<SeoSettings> SeoSettings { get; set; }
     public DbSet<Redirect> Redirects { get; set; }
     public DbSet<SeoAnalytics> SeoAnalytics { get; set; }
+    public DbSet<MediaFolder> MediaFolders { get; set; }
+    public DbSet<MediaFile> MediaFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

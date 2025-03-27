@@ -1,0 +1,290 @@
+@using web.Areas.Admin.ViewModels.Redirect
+@model IEnumerable<RedirectListItemViewModel>
+@{
+	ViewData["Title"] = "Quản lý chuyển hướng URL - Hệ thống quản trị";
+}
+
+@section PageActions {
+	<div class="btn-list">
+		<a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+			<i class="fas fa-plus me-2"></i> Thêm chuyển hướng
+		</a>
+		<div class="dropdown d-inline-block">
+			<button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<i class="fas fa-file-export me-2"></i> Nhập/Xuất
+			</button>
+			<ul class="dropdown-menu">
+				<li>
+					<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#import-modal">
+						<i class="fas fa-file-import me-2"></i> Nhập từ CSV
+					</a>
+				</li>
+				<li>
+					<a class="dropdown-item" asp-action="ExportToCsv">
+						<i class="fas fa-file-export me-2"></i> Xuất ra CSV
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+}
+
+<!-- Filter form -->
+<div class="card mb-3">
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-4">
+				<label class="form-label">Tìm kiếm</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Tìm URL..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch">
+						<i class="fas fa-times"></i>
+					</button>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<label class="form-label">Loại chuyển hướng</label>
+				<select class="form-select" name="type" id="typeFilter">
+					<option value="">Tất cả</option>
+					<option value="@((int)shared.Enums.RedirectType.Permanent)" selected="@(ViewBag.SelectedType == shared.Enums.RedirectType.Permanent ? "selected" : "")">301 (Permanent)</option>
+					<option value="@((int)shared.Enums.RedirectType.Temporary)" selected="@(ViewBag.SelectedType == shared.Enums.RedirectType.Temporary ? "selected" : "")">302 (Temporary)</option>
+				</select>
+			</div>
+			<div class="col-md-2">
+				<label class="form-label">Trạng thái</label>
+				<select class="form-select" name="isActive" id="statusFilter">
+					<option value="">Tất cả</option>
+					<option value="true" selected="@(ViewBag.SelectedIsActive == true ? "selected" : "")">Hoạt động</option>
+					<option value="false" selected="@(ViewBag.SelectedIsActive == false ? "selected" : "")">Không hoạt động</option>
+				</select>
+			</div>
+			<div class="col-md-1">
+				<button type="submit" class="btn btn-primary w-100">
+					<i class="fas fa-search"></i>
+				</button>
+			</div>
+			<div class="col-md-2">
+				<a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+					<i class="fas fa-redo me-2"></i> Đặt lại
+				</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- Content -->
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">Danh sách chuyển hướng URL</h3>
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Any())
+		{
+			<div class="empty">
+				<div class="empty-img">
+					<i class="fas fa-exchange-alt fa-5x text-muted"></i>
+				</div>
+				<p class="empty-title">Không tìm thấy chuyển hướng nào</p>
+				<p class="empty-subtitle text-muted">
+					Hãy thêm chuyển hướng URL để quản lý việc điều hướng người dùng
+				</p>
+				<div class="empty-action">
+					<a asp-action="Create" class="btn btn-primary">
+						<i class="fas fa-plus me-2"></i> Thêm chuyển hướng mới
+					</a>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+							<th class="w-1">STT</th>
+							<th>URL nguồn</th>
+							<th>URL đích</th>
+							<th style="width: 10%">Loại</th>
+							<th style="width: 10%">Regex</th>
+							<th style="width: 10%">Trạng thái</th>
+							<th style="width: 10%">Lượt truy cập</th>
+							<th style="width: 15%">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@{
+							int index = 1;
+						}
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td class="text-muted">@(index++)</td>
+								<td>
+									<div class="text-truncate" style="max-width: 250px;" title="@item.SourceUrl">@item.SourceUrl</div>
+								</td>
+								<td>
+									<div class="text-truncate" style="max-width: 250px;" title="@item.TargetUrl">@item.TargetUrl</div>
+								</td>
+								<td>@item.TypeName</td>
+								<td>
+									@if (item.IsRegex)
+									{
+										<span class="badge bg-primary">Có</span>
+									}
+									else
+									{
+										<span class="badge bg-secondary">Không</span>
+									}
+								</td>
+								<td>
+									<label class="form-check form-switch">
+										<input class="form-check-input toggle-active" type="checkbox" data-id="@item.Id" @(item.IsActive ? "checked" : "")>
+										<span class="form-check-label"></span>
+									</label>
+								</td>
+								<td>
+									<div class="d-flex align-items-center">
+										<span class="me-2">@item.HitCount</span>
+										<button type="button" class="btn btn-sm btn-icon btn-ghost-secondary reset-hit-count" data-id="@item.Id" title="Đặt lại số lượt truy cập">
+											<i class="fas fa-redo"></i>
+										</button>
+									</div>
+								</td>
+								<td>
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
+											<i class="fas fa-edit"></i>
+										</a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
+												data-bs-toggle="modal"
+												data-bs-target="#delete-modal"
+												data-id="@item.Id"
+												data-name="@item.SourceUrl"
+												data-delete-url="@Url.Action("Delete", "Redirect")">
+											<i class="fas fa-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+</div>
+
+<!-- Import Modal -->
+<div class="modal modal-blur fade" id="import-modal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title">Nhập chuyển hướng từ CSV</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<form asp-action="ImportFromCsv" method="post" enctype="multipart/form-data">
+				<div class="modal-body">
+					<div class="mb-3">
+						<label class="form-label">Chọn file CSV</label>
+						<input type="file" class="form-control" name="csvFile" accept=".csv" required>
+						<small class="form-hint">
+							File CSV phải có định dạng: SourceUrl,TargetUrl,Notes (tùy chọn)
+						</small>
+					</div>
+					<div class="alert alert-info">
+						<h4 class="alert-title">Lưu ý</h4>
+						<p>
+							- Dòng đầu tiên sẽ được bỏ qua (header)<br>
+							- Các chuyển hướng sẽ được tạo với loại 301 (Permanent) và trạng thái Hoạt động<br>
+							- URL nguồn không được trùng lặp với các chuyển hướng đã có
+						</p>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Hủy</button>
+					<button type="submit" class="btn btn-primary">Nhập</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			// Active toggle
+			$('.toggle-active').on('change', function () {
+				var id = $(this).data('id');
+				var isChecked = $(this).prop('checked');
+
+				$.ajax({
+					url: '@Url.Action("ToggleActive", "Redirect")',
+					type: 'POST',
+					data: { id: id },
+					success: function (result) {
+						if (result.success) {
+							toastr.success('Cập nhật trạng thái thành công');
+						} else {
+							toastr.error(result.message);
+							// Revert the checkbox state
+							$(this).prop('checked', !isChecked);
+						}
+					},
+					error: function () {
+						toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái');
+						// Revert the checkbox state
+						$(this).prop('checked', !isChecked);
+					}
+				});
+			});
+
+			// Reset hit count
+			$('.reset-hit-count').on('click', function () {
+				var id = $(this).data('id');
+				var button = $(this);
+
+				$.ajax({
+					url: '@Url.Action("ResetHitCount", "Redirect")',
+					type: 'POST',
+					data: { id: id },
+					success: function (result) {
+						if (result.success) {
+							toastr.success(result.message);
+							// Update the hit count display to 0
+							button.closest('td').find('span').text('0');
+						} else {
+							toastr.error(result.message);
+						}
+					},
+					error: function () {
+						toastr.error('Đã xảy ra lỗi khi đặt lại số lượt truy cập');
+					}
+				});
+			});
+
+			// Delete item setup
+			$('.delete-item').on('click', function () {
+				var id = $(this).data('id');
+				var name = $(this).data('name');
+				var deleteUrl = $(this).data('delete-url');
+
+				$('#delete-item-id').val(id);
+				$('#delete-item-name').val(name);
+				$('#delete-url').val(deleteUrl);
+				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa chuyển hướng từ "' + name + '" không?');
+			});
+
+			// Clear search
+			$('#clearSearch').on('click', function() {
+				$('input[name="searchTerm"]').val('');
+				$('#filterForm').submit();
+			});
+
+			// Auto submit on filter change
+			$('#typeFilter, #statusFilter').on('change', function() {
+				$('#filterForm').submit();
+			});
+		});
+	</script>
+}
+

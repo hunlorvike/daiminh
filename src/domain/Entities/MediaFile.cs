@@ -15,10 +15,10 @@ public class MediaFile : BaseEntity<int>
     public string ThumbnailPath { get; set; } = string.Empty;
     public string MediumSizePath { get; set; } = string.Empty;
     public string LargeSizePath { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty; 
+    public string Description { get; set; } = string.Empty;
     public long FileSize { get; set; } = 0;
     public string AltText { get; set; } = string.Empty;
-    
+
     public int? Width { get; set; }
     public int? Height { get; set; }
     public int? Duration { get; set; }

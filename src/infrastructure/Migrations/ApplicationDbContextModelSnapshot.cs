@@ -1313,6 +1313,132 @@ namespace infrastructure.Migrations
                     b.ToTable("gallery_tags", (string)null);
                 });
 
+            modelBuilder.Entity("domain.Entities.MediaFile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AltText")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Duration")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("FileExtension")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<long>("FileSize")
+                        .HasColumnType("bigint");
+
+                    b.Property<int?>("FolderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int?>("Height")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("LargeSizePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("MediaFolderId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("MediaType")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("MediumSizePath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("OriginalFileName")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ThumbnailPath")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("Width")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MediaFolderId");
+
+                    b.ToTable("MediaFiles");
+                });
+
+            modelBuilder.Entity("domain.Entities.MediaFolder", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int?>("ParentId")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ParentId");
+
+                    b.ToTable("MediaFolders");
+                });
+
             modelBuilder.Entity("domain.Entities.Newsletter", b =>
                 {
                     b.Property<int>("Id")
@@ -3132,6 +3258,24 @@ namespace infrastructure.Migrations
                     b.Navigation("Tag");
                 });
 
+            modelBuilder.Entity("domain.Entities.MediaFile", b =>
+                {
+                    b.HasOne("domain.Entities.MediaFolder", "MediaFolder")
+                        .WithMany("Files")
+                        .HasForeignKey("MediaFolderId");
+
+                    b.Navigation("MediaFolder");
+                });
+
+            modelBuilder.Entity("domain.Entities.MediaFolder", b =>
+                {
+                    b.HasOne("domain.Entities.MediaFolder", "Parent")
+                        .WithMany("Children")
+                        .HasForeignKey("ParentId");
+
+                    b.Navigation("Parent");
+                });
+
             modelBuilder.Entity("domain.Entities.Product", b =>
                 {
                     b.HasOne("domain.Entities.ProductType", "ProductType")
@@ -3331,6 +3475,13 @@ namespace infrastructure.Migrations
                     b.Navigation("GalleryTags");
 
                     b.Navigation("Images");
+                });
+
+            modelBuilder.Entity("domain.Entities.MediaFolder", b =>
+                {
+                    b.Navigation("Children");
+
+                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>

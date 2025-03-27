@@ -1,0 +1,215 @@
+@using web.Areas.Admin.ViewModels.Category
+@model IEnumerable<CategoryListItemViewModel>
+@{
+	ViewData["Title"] = "Quản lý danh mục - Hệ thống quản trị";
+}
+
+@section PageActions {
+	<div class="btn-list">
+		<a asp-action="Create" asp-route-type="@ViewBag.CategoryType" class="btn btn-primary d-sm-inline-block">
+			<i class="fas fa-plus me-2"></i> Thêm danh mục
+		</a>
+	</div>
+}
+
+<!-- Filter form -->
+<div class="card mb-3">
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-4">
+				<label class="form-label">Loại danh mục</label>
+				<select class="form-select" name="type" id="categoryTypeFilter">
+					@foreach (var type in ViewBag.CategoryTypes)
+					{
+						<option value="@type.Value" selected="@(ViewBag.CategoryType.ToString() == type.Value.ToString() ? "selected" : null)">@type.Text</option>
+					}
+				</select>
+			</div>
+			<div class="col-md-4">
+				<label class="form-label">Tìm kiếm</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Tìm danh mục..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch">
+						<i class="fas fa-times"></i>
+					</button>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<button type="submit" class="btn btn-primary w-100">
+					<i class="fas fa-search me-2"></i> Lọc
+				</button>
+			</div>
+			<div class="col-md-2">
+				<a href="@Url.Action("Index", new { type = ViewBag.CategoryType })" class="btn btn-outline-secondary w-100">
+					<i class="fas fa-redo me-2"></i> Đặt lại
+				</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<!-- Content -->
+<div class="card">
+	<div class="card-header">
+		<h3 class="card-title">@ViewData["PageTitle"]</h3>
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Any())
+		{
+			<div class="empty">
+				<div class="empty-img">
+					<i class="fas fa-folder-open fa-5x text-muted"></i>
+				</div>
+				<p class="empty-title">Không tìm thấy danh mục nào</p>
+				<p class="empty-subtitle text-muted">
+					Hãy tạo danh mục để phân loại nội dung của bạn
+				</p>
+				<div class="empty-action">
+					<a asp-action="Create" asp-route-type="@ViewBag.CategoryType" class="btn btn-primary">
+						<i class="fas fa-plus me-2"></i> Thêm danh mục mới
+					</a>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+							<th class="w-1">STT</th>
+							<th style="width: 30%">Tên danh mục</th>
+							<th style="width: 15%">Slug</th>
+							<th style="width: 15%">Danh mục cha</th>
+							<th style="width: 10%">Số mục</th>
+							<th style="width: 10%">Thứ tự</th>
+							<th style="width: 10%">Trạng thái</th>
+							<th style="width: 15%">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@{
+							int index = 1;
+						}
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td class="text-muted">@(index++)</td>
+								<td>
+									<div class="d-flex align-items-center">
+										@if (!string.IsNullOrEmpty(item.ImageUrl))
+										{
+											<span class="avatar me-2" style="background-image: url(@item.ImageUrl)"></span>
+										}
+										else if (!string.IsNullOrEmpty(item.Icon))
+										{
+											<span class="avatar me-2">
+												<i class="@item.Icon"></i>
+											</span>
+										}
+										<div class="d-flex flex-column">
+											<span class="font-weight-medium">@item.Name</span>
+											@if (!string.IsNullOrEmpty(item.Description))
+											{
+												<small class="text-muted text-truncate" style="max-width: 250px;" title="@item.Description">@item.Description</small>
+											}
+										</div>
+									</div>
+								</td>
+								<td>@item.Slug</td>
+								<td>@(item.ParentName ?? "-")</td>
+								<td>
+									<div class="d-flex flex-column">
+										<span>@item.ItemCount mục</span>
+										@if (item.ChildrenCount > 0)
+										{
+											<small class="text-muted">@item.ChildrenCount danh mục con</small>
+										}
+									</div>
+								</td>
+								<td>@item.OrderIndex</td>
+								<td>
+									<label class="form-check form-switch">
+										<input class="form-check-input toggle-active" type="checkbox" data-id="@item.Id" @(item.IsActive ? "checked" : "")>
+										<span class="form-check-label"></span>
+									</label>
+								</td>
+								<td>
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
+											<i class="fas fa-edit"></i>
+										</a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
+												data-bs-toggle="modal"
+												data-bs-target="#delete-modal"
+												data-id="@item.Id"
+												data-name="@item.Name"
+												data-delete-url="@Url.Action("Delete", "Category")">
+											<i class="fas fa-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			// Active toggle
+			$('.toggle-active').on('change', function () {
+				var id = $(this).data('id');
+				var isChecked = $(this).prop('checked');
+
+				$.ajax({
+					url: '@Url.Action("ToggleActive", "Category")',
+					type: 'POST',
+					data: { id: id },
+					success: function (result) {
+						if (result.success) {
+							toastr.success('Cập nhật trạng thái thành công');
+						} else {
+							toastr.error(result.message);
+							// Revert the checkbox state
+							$(this).prop('checked', !isChecked);
+						}
+					},
+					error: function () {
+						toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái');
+						// Revert the checkbox state
+						$(this).prop('checked', !isChecked);
+					}
+				});
+			});
+
+			// Delete item setup
+			$('.delete-item').on('click', function () {
+				var id = $(this).data('id');
+				var name = $(this).data('name');
+				var deleteUrl = $(this).data('delete-url');
+
+				$('#delete-item-id').val(id);
+				$('#delete-item-name').val(name);
+				$('#delete-url').val(deleteUrl);
+				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa danh mục "' + name + '" không?');
+			});
+
+			// Clear search
+			$('#clearSearch').on('click', function() {
+				$('input[name="searchTerm"]').val('');
+				$('#filterForm').submit();
+			});
+
+			// Auto submit on category type change
+			$('#categoryTypeFilter').on('change', function() {
+				$('#filterForm').submit();
+			});
+		});
+	</script>
+}
+
