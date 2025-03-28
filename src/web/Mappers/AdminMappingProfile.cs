@@ -1,5 +1,6 @@
 using AutoMapper;
 using domain.Entities;
+using web.Areas.Admin.ViewModels.Article;
 using web.Areas.Admin.ViewModels.Category;
 using web.Areas.Admin.ViewModels.Comment;
 using web.Areas.Admin.ViewModels.FAQ;
@@ -159,5 +160,30 @@ public class AdminMappingProfile : Profile
             .ForMember(dest => dest.ParentAuthorName, opt => opt.Ignore());
 
         CreateMap<CommentViewModel, Comment>();
+
+        // Article mappings
+        CreateMap<Article, ArticleListItemViewModel>()
+            .ForMember(dest => dest.Categories, opt => opt.Ignore())
+            .ForMember(dest => dest.Tags, opt => opt.Ignore())
+            .ForMember(dest => dest.CommentCount, opt => opt.Ignore());
+
+        CreateMap<Article, ArticleViewModel>()
+            .ForMember(dest => dest.CategoryIds, opt => opt.Ignore())
+            .ForMember(dest => dest.TagIds, opt => opt.Ignore())
+            .ForMember(dest => dest.ProductIds, opt => opt.Ignore())
+            .ForMember(dest => dest.AvailableCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.AvailableTags, opt => opt.Ignore())
+            .ForMember(dest => dest.AvailableProducts, opt => opt.Ignore())
+            .ForMember(dest => dest.CommentCount, opt => opt.Ignore())
+            .ForMember(dest => dest.FeaturedImageFile, opt => opt.Ignore())
+            .ForMember(dest => dest.ThumbnailImageFile, opt => opt.Ignore());
+
+        CreateMap<ArticleViewModel, Article>()
+            .ForMember(dest => dest.ArticleCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.ArticleTags, opt => opt.Ignore())
+            .ForMember(dest => dest.ArticleProducts, opt => opt.Ignore())
+            .ForMember(dest => dest.Comments, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
     }
 }

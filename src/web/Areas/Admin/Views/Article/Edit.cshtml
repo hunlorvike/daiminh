@@ -1,0 +1,265 @@
+@using web.Areas.Admin.ViewModels.Article
+@model ArticleViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa bài viết - Hệ thống quản trị";
+}
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+
+    @await Html.PartialAsync("_ArticleForm", Model)
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Initialize Summernote
+            $('.summernote').summernote({
+                height: 300,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                lang: 'vi-VN',
+                placeholder: 'Nhập nội dung câu trả lời...'
+            });
+
+            // Initialize Tom Select for tags
+            var tagSelect = new TomSelect('#tagSelect', {
+                plugins: ['remove_button'],
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                create: false,
+                maxItems: null,
+                placeholder: 'Chọn thẻ...',
+                render: {
+                    option: function(data, escape) {
+                        return '<div>' + escape(data.name) + '</div>';
+                    },
+                    item: function(data, escape) {
+                        return '<div>' + escape(data.name) + '</div>';
+                    }
+                },
+                onChange: function(values) {
+                    // Clear existing tags
+                    $('#selectedTags').empty();
+
+                    // Add selected tags
+                    values.forEach(function(value) {
+                        var option = this.options[value];
+                        if (option) {
+                            $('#selectedTags').append(`
+                                <input type="hidden" name="TagIds" value="${option.id}" />
+                                <div class="selected-item" data-id="${option.id}">
+                                    <span>${option.name}</span>
+                                    <button type="button" class="btn btn-sm btn-icon remove-item">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `);
+                        }
+                    }, this);
+                }
+            });
+
+            // Prepare data for Tom Select
+            var tagOptions = [];
+            $('#tagSelect option').each(function() {
+                if ($(this).val()) {
+                    tagOptions.push({
+                        id: $(this).val(),
+                        name: $(this).text(),
+                        selected: $(this).is(':selected')
+                    });
+                }
+            });
+
+            // Set initial values for tags
+            tagSelect.clear();
+            tagSelect.clearOptions();
+            tagSelect.addOptions(tagOptions);
+
+            var selectedTagIds = @Html.Raw(Json.Serialize(Model.TagIds));
+            if (selectedTagIds && selectedTagIds.length) {
+                tagSelect.setValue(selectedTagIds);
+            }
+
+            // Initialize Tom Select for products
+            var productSelect = new TomSelect('#productSelect', {
+                plugins: ['remove_button'],
+                valueField: 'id',
+                labelField: 'name',
+                searchField: 'name',
+                create: false,
+                maxItems: null,
+                placeholder: 'Chọn sản phẩm liên quan...',
+                render: {
+                    option: function(data, escape) {
+                        return '<div>' + escape(data.name) + '</div>';
+                    },
+                    item: function(data, escape) {
+                        return '<div>' + escape(data.name) + '</div>';
+                    }
+                },
+                onChange: function(values) {
+                    // Clear existing products
+                    $('#selectedProducts').empty();
+
+                    // Add selected products
+                    values.forEach(function(value) {
+                        var option = this.options[value];
+                        if (option) {
+                            $('#selectedProducts').append(`
+                                <input type="hidden" name="ProductIds" value="${option.id}" />
+                                <div class="selected-item" data-id="${option.id}">
+                                    <span>${option.name}</span>
+                                    <button type="button" class="btn btn-sm btn-icon remove-item">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            `);
+                        }
+                    }, this);
+                }
+            });
+
+            // Prepare data for Tom Select
+            var productOptions = [];
+            $('#productSelect option').each(function() {
+                if ($(this).val()) {
+                    productOptions.push({
+                        id: $(this).val(),
+                        name: $(this).text(),
+                        selected: $(this).is(':selected')
+                    });
+                }
+            });
+
+            // Set initial values for products
+            productSelect.clear();
+            productSelect.clearOptions();
+            productSelect.addOptions(productOptions);
+
+            var selectedProductIds = @Html.Raw(Json.Serialize(Model.ProductIds));
+            if (selectedProductIds && selectedProductIds.length) {
+                productSelect.setValue(selectedProductIds);
+            }
+
+            // Remove selected item
+            $(document).on('click', '.remove-item', function() {
+                var item = $(this).closest('.selected-item');
+                var id = item.data('id');
+
+                // Remove from Tom Select
+                if (item.parent().attr('id') === 'selectedTags') {
+                    tagSelect.removeItem(id.toString());
+                } else if (item.parent().attr('id') === 'selectedProducts') {
+                    productSelect.removeItem(id.toString());
+                }
+
+                // Remove item
+                item.remove();
+            });
+
+            // Generate slug from title
+            $('#generateSlug').on('click', function() {
+                var title = $('#articleTitle').val();
+                if (!title) {
+                    toastr.error('Vui lòng nhập tiêu đề trước');
+                    return;
+                }
+
+                $.ajax({
+                    url: '@Url.Action("GenerateSlug", "Article")',
+                    type: 'POST',
+                    data: { title: title },
+                    success: function(result) {
+                        $('#articleSlug').val(result.slug);
+                    },
+                    error: function() {
+                        toastr.error('Đã xảy ra lỗi khi tạo slug');
+                    }
+                });
+            });
+
+            // Auto-generate slug when title changes
+            $('#articleTitle').on('blur', function() {
+                if ($('#articleSlug').val() === '') {
+                    $('#generateSlug').click();
+                }
+            });
+        });
+    </script>
+
+    <style>
+        /* Tom Select customizations */
+        .ts-wrapper {
+            width: 100%;
+        }
+
+        .ts-control {
+            border: 1px solid #dee2e6;
+            padding: 0.375rem 0.75rem;
+            border-radius: 0.25rem;
+        }
+
+        .ts-dropdown {
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+        }
+
+        /* Selected items styling */
+        .selected-item {
+            display: inline-flex;
+            align-items: center;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+            padding: 4px 8px;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+
+            .selected-item .btn {
+                padding: 0;
+                margin-left: 8px;
+                color: #999;
+            }
+
+                .selected-item .btn:hover {
+                    color: #dc3545;
+                }
+
+        .category-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+        }
+
+        /* Summernote customizations */
+        .note-editor {
+            border-color: #dee2e6 !important;
+        }
+
+        .note-toolbar {
+            background-color: #f8f9fa;
+        }
+
+        .note-btn {
+            background-color: #fff;
+            border-color: #dee2e6;
+        }
+
+            .note-btn:hover {
+                background-color: #e9ecef;
+            }
+    </style>
+}
