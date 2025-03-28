@@ -1,0 +1,532 @@
+@{
+	ViewData["Title"] = "Hướng dẫn chống thấm ban công hiệu quả";
+}
+
+<div class="page-wrapper">
+	<div class="page-body">
+		<div class="container-xl py-4">
+			<!-- Breadcrumb -->
+			<div class="mb-4">
+				<ol class="breadcrumb text-muted small">
+					<li class="breadcrumb-item"><a href="/" class="text-reset hover-text-primary">Trang chủ</a></li>
+					<li class="breadcrumb-item"><a href="/kien-thuc" class="text-reset hover-text-primary">Kiến thức</a></li>
+					<li class="breadcrumb-item"><a href="/kien-thuc/huong-dan" class="text-reset hover-text-primary">Hướng dẫn thi công</a></li>
+					<li class="breadcrumb-item active">Hướng dẫn chống thấm ban công hiệu quả</li>
+				</ol>
+			</div>
+
+			<div class="row g-4">
+				<!-- Table of Contents - Desktop -->
+				<div class="col-lg-3 d-none d-lg-block">
+					<div class="sticky-top pt-3" style="top: 80px;">
+						<div class="card mb-4">
+							<div class="card-body">
+								<h2 class="card-title">Mục lục</h2>
+								<div class="list-group list-group-flush">
+									<a href="#intro" class="list-group-item list-group-item-action text-primary fw-medium">1. Giới thiệu</a>
+									<a href="#materials" class="list-group-item list-group-item-action text-muted">2. Vật liệu cần chuẩn bị</a>
+									<a href="#preparation" class="list-group-item list-group-item-action text-muted">3. Chuẩn bị bề mặt</a>
+									<a href="#steps" class="list-group-item list-group-item-action text-muted">4. Các bước thi công</a>
+									<div class="ms-3">
+										<a href="#step1" class="list-group-item list-group-item-action border-0 py-1 px-3 text-muted">4.1. Xử lý vết nứt</a>
+										<a href="#step2" class="list-group-item list-group-item-action border-0 py-1 px-3 text-muted">4.2. Quét lớp sơn lót</a>
+										<a href="#step3" class="list-group-item list-group-item-action border-0 py-1 px-3 text-muted">4.3. Thi công lớp chống thấm</a>
+										<a href="#step4" class="list-group-item list-group-item-action border-0 py-1 px-3 text-muted">4.4. Hoàn thiện</a>
+									</div>
+									<a href="#tips" class="list-group-item list-group-item-action text-muted">5. Lưu ý quan trọng</a>
+									<a href="#conclusion" class="list-group-item list-group-item-action text-muted">6. Kết luận</a>
+								</div>
+							</div>
+						</div>
+
+						<div class="card bg-light">
+							<div class="card-body">
+								<h3 class="card-subtitle mb-3 small fw-medium">Đánh giá bài viết</h3>
+								<div class="d-flex mb-3">
+									@for (int i = 0; i < 5; i++)
+									{
+										<button class="btn btn-sm btn-link text-warning p-0 me-1">
+											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-star-filled" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" stroke-width="0" fill="currentColor"></path>
+											</svg>
+										</button>
+									}
+								</div>
+								<p class="text-muted small">
+									Bài viết này có hữu ích không? Hãy đánh giá để chúng tôi cải thiện nội dung.
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Article Content -->
+				<div class="col-lg-9">
+					<div class="card overflow-hidden">
+						<div class="img-responsive img-responsive-21x9 card-img-top" style="background-image: url('/img/placeholder.svg?text=Hướng+dẫn+chống+thấm+ban+công')"></div>
+
+						<div class="card-body p-lg-5">
+							<div class="d-flex flex-wrap gap-2 mb-4">
+								<span class="badge bg-light text-primary">Hướng dẫn thi công</span>
+								<span class="badge bg-light text-primary">Chống thấm</span>
+								<span class="badge bg-light text-primary">Độ khó: ★★☆</span>
+							</div>
+
+							<h1 class="display-6 font-serif mb-4">Hướng dẫn chống thấm ban công hiệu quả</h1>
+
+							<div class="d-flex flex-wrap gap-3 text-muted small mb-5">
+								<div class="d-flex align-items-center">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M8 7a4 4 0 1 0 8 0a4 4 0 0 0 -8 0"></path>
+										<path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2"></path>
+									</svg>
+									<span>Nguyễn Văn A</span>
+								</div>
+								<div class="d-flex align-items-center">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12z"></path>
+										<path d="M16 3v4"></path>
+										<path d="M8 3v4"></path>
+										<path d="M4 11h16"></path>
+									</svg>
+									<span>15/03/2023</span>
+								</div>
+								<div class="d-flex align-items-center">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+										<path d="M12 7v5l3 3"></path>
+									</svg>
+									<span>10 phút đọc</span>
+								</div>
+							</div>
+
+							<div class="article-content">
+								<div id="intro">
+									<h2 class="h3 mb-3">1. Giới thiệu</h2>
+									<p class="mb-3">
+										Ban công là một trong những khu vực dễ bị thấm nước nhất trong nhà, đặc biệt là trong mùa mưa.
+										Nước thấm qua ban công không chỉ gây mất thẩm mỹ mà còn ảnh hưởng đến kết cấu của công trình,
+										gây nguy hiểm cho người sử dụng. Bài viết này sẽ hướng dẫn chi tiết cách chống thấm ban công
+										hiệu quả, giúp bạn bảo vệ ngôi nhà của mình.
+									</p>
+									<p class="mb-3">
+										Chống thấm ban công đúng cách sẽ giúp kéo dài tuổi thọ của công trình, tiết kiệm chi phí sửa
+										chữa về sau và đảm bảo an toàn cho người sử dụng. Hãy cùng tìm hiểu các bước thực hiện dưới đây.
+									</p>
+								</div>
+
+								<div id="materials">
+									<h2 class="h3 mb-3">2. Vật liệu cần chuẩn bị</h2>
+									<div class="card bg-light mb-4">
+										<div class="card-body">
+											<ul class="mb-0">
+												<li>Sơn lót chống thấm gốc nước</li>
+												<li>Sơn chống thấm đàn hồi (2 thành phần)</li>
+												<li>Lưới sợi thủy tinh (nếu cần)</li>
+												<li>Keo trám khe đàn hồi</li>
+												<li>Vữa sửa chữa (nếu có vết nứt lớn)</li>
+												<li>Cọ sơn, ru-lô</li>
+												<li>Máy mài (nếu cần)</li>
+												<li>Dụng cụ vệ sinh: chổi, bàn chải</li>
+											</ul>
+										</div>
+									</div>
+
+									<div class="mb-4">
+										<h3 class="h4 mb-3">So sánh các loại sơn chống thấm</h3>
+										<div class="table-responsive">
+											<table class="table table-bordered">
+												<thead class="table-primary">
+													<tr>
+														<th>Loại sơn</th>
+														<th>Ưu điểm</th>
+														<th>Nhược điểm</th>
+														<th>Giá thành</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td class="fw-medium">Sơn chống thấm gốc nước</td>
+														<td>Dễ thi công, an toàn, thân thiện môi trường</td>
+														<td>Độ bền thấp hơn, không phù hợp với khu vực ngâm nước thường xuyên</td>
+														<td>Thấp</td>
+													</tr>
+													<tr>
+														<td class="fw-medium">Sơn chống thấm gốc dầu</td>
+														<td>Độ bền cao, chống thấm tốt</td>
+														<td>Mùi khó chịu, cần thời gian khô lâu</td>
+														<td>Trung bình</td>
+													</tr>
+													<tr>
+														<td class="fw-medium">Sơn chống thấm đàn hồi 2 thành phần</td>
+														<td>Độ bền rất cao, đàn hồi tốt, chịu được co giãn</td>
+														<td>Thi công phức tạp hơn, cần trộn đúng tỷ lệ</td>
+														<td>Cao</td>
+													</tr>
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+
+								<div id="preparation">
+									<h2 class="h3 mb-3">3. Chuẩn bị bề mặt</h2>
+									<p class="mb-3">
+										Bước chuẩn bị bề mặt là bước quan trọng nhất quyết định đến hiệu quả của công tác chống thấm. Bề
+										mặt cần được làm sạch và xử lý đúng cách trước khi thi công lớp chống thấm.
+									</p>
+
+									<div class="row mb-4">
+										<div class="col-md-6">
+											<div class="img-responsive img-responsive-1x1 rounded" style="background-image: url('/img/placeholder.svg?text=Trước+khi+xử+lý')"></div>
+										</div>
+										<div class="col-md-6">
+											<div class="img-responsive img-responsive-1x1 rounded" style="background-image: url('/img/placeholder.svg?text=Sau+khi+xử+lý')"></div>
+										</div>
+									</div>
+
+									<ol class="mb-4">
+										<li class="mb-2">
+											<strong>Vệ sinh bề mặt:</strong> Quét dọn sạch bụi bẩn, rêu mốc, và các vật liệu rời rạc trên
+											bề mặt ban công.
+										</li>
+										<li class="mb-2">
+											<strong>Kiểm tra và đánh dấu:</strong> Kiểm tra kỹ các vết nứt, vết rạn và đánh dấu lại để xử
+											lý.
+										</li>
+										<li class="mb-2">
+											<strong>Mài nhám bề mặt:</strong> Nếu bề mặt quá nhẵn, cần mài nhám để tăng độ bám dính cho
+											lớp chống thấm.
+										</li>
+										<li class="mb-2">
+											<strong>Xử lý vết nứt:</strong> Mở rộng các vết nứt thành hình chữ V và làm sạch bằng bàn
+											chải.
+										</li>
+										<li>
+											<strong>Làm khô bề mặt:</strong> Đảm bảo bề mặt hoàn toàn khô ráo trước khi thi công lớp chống
+											thấm.
+										</li>
+									</ol>
+
+									<div class="alert alert-warning mb-4">
+										<div class="d-flex">
+											<div>
+												<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+													<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+													<path d="M12 9v2m0 4v.01"></path>
+													<path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
+												</svg>
+											</div>
+											<div class="ms-2">
+												<h4 class="alert-title">Lưu ý quan trọng</h4>
+												<div class="text-muted">
+													Không thi công chống thấm khi trời đang mưa hoặc độ ẩm không khí quá cao. Điều kiện thời
+													tiết lý tưởng là ngày nắng ráo, nhiệt độ từ 15-35°C.
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div id="steps">
+									<h2 class="h3 mb-3">4. Các bước thi công</h2>
+
+									<div id="step1">
+										<h3 class="h4 mb-3">4.1. Xử lý vết nứt</h3>
+										<p class="mb-3">
+											Các vết nứt cần được xử lý triệt để trước khi tiến hành chống thấm toàn bộ bề mặt.
+										</p>
+										<ul class="mb-3">
+											<li>Đối với vết nứt nhỏ (dưới 2mm): Sử dụng keo trám khe đàn hồi để trám kín.</li>
+											<li>
+												Đối với vết nứt lớn: Sử dụng vữa sửa chữa chuyên dụng, đục rộng vết nứt và trám kín. Có thể
+												cần đặt lưới sợi thủy tinh để tăng cường độ bền.
+											</li>
+										</ul>
+										<div class="img-responsive img-responsive-21x9 rounded mb-4" style="background-image: url('/img/placeholder.svg?text=Xử+lý+vết+nứt')"></div>
+									</div>
+
+									<div id="step2">
+										<h3 class="h4 mb-3">4.2. Quét lớp sơn lót</h3>
+										<p class="mb-3">Lớp sơn lót giúp tăng độ bám dính giữa bề mặt và lớp chống thấm chính.</p>
+										<ol class="mb-4">
+											<li>Pha sơn lót theo đúng tỷ lệ hướng dẫn của nhà sản xuất.</li>
+											<li>Sử dụng cọ hoặc ru-lô quét đều lên toàn bộ bề mặt cần chống thấm.</li>
+											<li>Đặc biệt chú ý các góc, cạnh, khu vực tiếp giáp giữa sàn và tường.</li>
+											<li>Để khô trong khoảng 2-4 giờ (tùy theo hướng dẫn của nhà sản xuất).</li>
+										</ol>
+									</div>
+
+									<div id="step3">
+										<h3 class="h4 mb-3">4.3. Thi công lớp chống thấm</h3>
+										<p class="mb-3">
+											Đây là lớp quan trọng nhất trong hệ thống chống thấm, cần được thi công cẩn thận và đúng kỹ
+											thuật.
+										</p>
+
+										<div class="row mb-4">
+											<div class="col-md-4">
+												<div class="position-relative">
+													<div class="img-responsive img-responsive-1x1 rounded" style="background-image: url('/img/placeholder.svg?text=Bước+1')"></div>
+													<div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white p-1 small">
+														Bước 1: Chuẩn bị sơn
+													</div>
+												</div>
+											</div>
+											<div class="col-md-4">
+												<div class="position-relative">
+													<div class="img-responsive img-responsive-1x1 rounded" style="background-image: url('/img/placeholder.svg?text=Bước+2')"></div>
+													<div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white p-1 small">
+														Bước 2: Quét lớp thứ nhất
+													</div>
+												</div>
+											</div>
+											<div class="col-md-4">
+												<div class="position-relative">
+													<div class="img-responsive img-responsive-1x1 rounded" style="background-image: url('/img/placeholder.svg?text=Bước+3')"></div>
+													<div class="position-absolute bottom-0 start-0 end-0 bg-dark bg-opacity-50 text-white p-1 small">
+														Bước 3: Hoàn thiện
+													</div>
+												</div>
+											</div>
+										</div>
+
+										<ol class="mb-4">
+											<li class="mb-2">
+												<strong>Chuẩn bị sơn chống thấm:</strong> Nếu sử dụng sơn 2 thành phần, trộn đều theo đúng
+												tỷ lệ và thời gian quy định.
+											</li>
+											<li class="mb-2">
+												<strong>Quét lớp thứ nhất:</strong> Quét đều lớp sơn chống thấm lên toàn bộ bề mặt, đảm bảo
+												độ dày đồng đều.
+											</li>
+											<li class="mb-2">
+												<strong>Đặt lưới gia cường (nếu cần):</strong> Đối với khu vực có nhiều vết nứt hoặc góc
+												tiếp giáp, đặt lưới sợi thủy tinh lên lớp sơn còn ướt và ấn nhẹ để lưới bám dính.
+											</li>
+											<li class="mb-2">
+												<strong>Để khô:</strong> Chờ lớp thứ nhất khô hoàn toàn (thường từ 4-6 giờ).
+											</li>
+											<li class="mb-2">
+												<strong>Quét lớp thứ hai:</strong> Quét lớp thứ hai vuông góc với hướng quét của lớp thứ
+												nhất để đảm bảo phủ kín hoàn toàn.
+											</li>
+											<li>
+												<strong>Quét lớp thứ ba (nếu cần):</strong> Đối với khu vực chịu tải trọng lớn hoặc ngâm
+												nước thường xuyên, nên quét thêm lớp thứ ba.
+											</li>
+										</ol>
+
+										<div class="card bg-light mb-4">
+											<div class="card-body">
+												<h4 class="card-title">Mẹo thi công:</h4>
+												<ul class="mb-0">
+													<li>Quét từ trong ra ngoài, từ thấp lên cao để tránh bỏ sót.</li>
+													<li>Chú ý các góc, cạnh, khu vực tiếp giáp cần được quét kỹ hơn.</li>
+													<li>Không pha loãng sơn chống thấm quá mức quy định.</li>
+													<li>Đảm bảo độ dày lớp sơn đồng đều trên toàn bộ bề mặt.</li>
+												</ul>
+											</div>
+										</div>
+									</div>
+
+									<div id="step4">
+										<h3 class="h4 mb-3">4.4. Hoàn thiện</h3>
+										<p class="mb-3">
+											Sau khi thi công lớp chống thấm, cần thực hiện các bước hoàn thiện để đảm bảo hiệu quả và độ
+											bền của công trình.
+										</p>
+										<ul class="mb-4">
+											<li class="mb-2">
+												<strong>Bảo dưỡng:</strong> Để lớp chống thấm khô hoàn toàn trong ít nhất 24-48 giờ trước
+												khi cho phép đi lại hoặc thi công các lớp tiếp theo.
+											</li>
+											<li class="mb-2">
+												<strong>Kiểm tra:</strong> Sau khi khô, kiểm tra lại toàn bộ bề mặt để đảm bảo không có khu
+												vực nào bị bỏ sót hoặc không đồng đều.
+											</li>
+											<li class="mb-2">
+												<strong>Thử nghiệm chống thấm:</strong> Có thể tiến hành thử nghiệm bằng cách tưới nước lên
+												bề mặt và kiểm tra xem có hiện tượng thấm không.
+											</li>
+											<li>
+												<strong>Lớp bảo vệ (nếu cần):</strong> Đối với ban công ngoài trời, nên thi công thêm lớp
+												sơn phủ UV để bảo vệ lớp chống thấm khỏi tác động của tia cực tím.
+											</li>
+										</ul>
+									</div>
+								</div>
+
+								<div id="tips">
+									<h2 class="h3 mb-3">5. Lưu ý quan trọng</h2>
+									<div class="card bg-light mb-4">
+										<div class="card-body">
+											<ul class="mb-0">
+												<li>
+													<strong>Thời tiết:</strong> Không thi công khi trời mưa hoặc độ ẩm không khí quá cao (> 85%).
+												</li>
+												<li>
+													<strong>Nhiệt độ:</strong> Nhiệt độ lý tưởng để thi công là 15-35°C.
+												</li>
+												<li>
+													<strong>Bảo quản vật liệu:</strong> Bảo quản sơn và vật liệu chống thấm ở nơi khô ráo,
+													thoáng mát, tránh ánh nắng trực tiếp.
+												</li>
+												<li>
+													<strong>An toàn:</strong> Đeo găng tay, khẩu trang khi thi công để bảo vệ sức khỏe.
+												</li>
+												<li>
+													<strong>Bảo dưỡng định kỳ:</strong> Kiểm tra và bảo dưỡng lớp chống thấm định kỳ 6 tháng/lần
+													để phát hiện và xử lý sớm các vấn đề.
+												</li>
+											</ul>
+										</div>
+									</div>
+
+									<div class="alert alert-warning mb-4">
+										<div class="d-flex">
+											<div>
+												<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-alert-triangle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+													<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+													<path d="M12 9v2m0 4v.01"></path>
+													<path d="M5 19h14a2 2 0 0 0 1.84 -2.75l-7.1 -12.25a2 2 0 0 0 -3.5 0l-7.1 12.25a2 2 0 0 0 1.75 2.75"></path>
+												</svg>
+											</div>
+											<div class="ms-2">
+												<h4 class="alert-title">Lưu ý khi thi công vào mùa mưa</h4>
+												<div class="text-muted">
+													Nếu bắt buộc phải thi công trong mùa mưa, cần chuẩn bị bạt che để bảo vệ khu vực thi
+													công khỏi mưa. Đồng thời, nên chọn những ngày dự báo không mưa liên tục ít nhất 3 ngày
+													để đảm bảo lớp chống thấm khô hoàn toàn.
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+
+								<div id="conclusion">
+									<h2 class="h3 mb-3">6. Kết luận</h2>
+									<p class="mb-3">
+										Chống thấm ban công là một công việc quan trọng, đòi hỏi sự tỉ mỉ và tuân thủ đúng quy trình kỹ
+										thuật. Với hướng dẫn chi tiết trên đây, bạn có thể tự thực hiện việc chống thấm ban công một
+										cách hiệu quả, giúp bảo vệ ngôi nhà của mình khỏi những tác hại của nước mưa và độ ẩm.
+									</p>
+									<p class="mb-3">
+										Tuy nhiên, đối với những công trình lớn hoặc những trường hợp thấm nước nghiêm trọng, bạn nên
+										tham khảo ý kiến của chuyên gia hoặc thuê đơn vị chuyên nghiệp để đảm bảo hiệu quả tối ưu.
+									</p>
+									<p>
+										Hy vọng bài viết này sẽ giúp ích cho bạn trong việc chống thấm ban công. Nếu có bất kỳ thắc mắc
+										nào, đừng ngần ngại liên hệ với chúng tôi để được tư vấn chi tiết hơn.
+									</p>
+								</div>
+							</div>
+
+							<div class="border-top pt-4 mt-5">
+								<div class="d-flex flex-wrap justify-content-between align-items-center mb-4">
+									<div class="d-flex flex-wrap gap-2 mb-3 mb-sm-0">
+										<button class="btn btn-outline-secondary btn-sm">
+											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-thumb-up" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3"></path>
+											</svg>
+											Hữu ích (24)
+										</button>
+										<button class="btn btn-outline-secondary btn-sm">
+											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-share" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M6 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+												<path d="M18 6m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+												<path d="M18 18m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0"></path>
+												<path d="M8.7 10.7l6.6 -3.4"></path>
+												<path d="M8.7 13.3l6.6 3.4"></path>
+											</svg>
+											Chia sẻ
+										</button>
+										<button class="btn btn-outline-secondary btn-sm">
+											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bookmark" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M9 4h6a2 2 0 0 1 2 2v14l-5 -3l-5 3v-14a2 2 0 0 1 2 -2"></path>
+											</svg>
+											Lưu
+										</button>
+									</div>
+									<div class="d-none d-sm-block">
+										<a href="#" class="btn btn-outline-primary btn-sm">
+											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M5 12l14 0"></path>
+												<path d="M13 18l6 -6"></path>
+												<path d="M13 6l6 6"></path>
+											</svg>
+											Bài viết tiếp theo
+										</a>
+									</div>
+								</div>
+
+								<div class="card bg-light">
+									<div class="card-body">
+										<h3 class="card-title">Bài viết liên quan</h3>
+										<div class="row g-3">
+											@foreach (var article in new[] {
+											new { Title = "5 nguyên nhân phổ biến gây thấm dột ban công và cách khắc phục", Image = "/img/placeholder.svg?text=Bài+1", Date = "10/03/2023" },
+											new { Title = "So sánh các loại vật liệu chống thấm phổ biến trên thị trường", Image = "/img/placeholder.svg?text=Bài+2", Date = "05/03/2023" },
+											new { Title = "Hướng dẫn chống thấm sân thượng hiệu quả", Image = "/img/placeholder.svg?text=Bài+3", Date = "01/03/2023" },
+											new { Title = "Cách xử lý tường bị thấm nước từ bên ngoài vào", Image = "/img/placeholder.svg?text=Bài+4", Date = "25/02/2023" }
+											})
+											{
+												<div class="col-sm-6">
+													<div class="d-flex gap-3">
+														<div class="flex-shrink-0">
+															<img src="@article.Image" class="rounded" width="80" height="80" alt="@article.Title" style="object-fit: cover;">
+														</div>
+														<div>
+															<h4 class="h6 mb-1">
+																<a href="#" class="text-reset hover-text-primary">@article.Title</a>
+															</h4>
+															<div class="text-muted small">@article.Date</div>
+														</div>
+													</div>
+												</div>
+											}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="mt-4">
+						<a href="#" class="btn btn-primary w-100">
+							<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-phone me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+								<path d="M5 4h4l2 5l-2.5 1.5a11 11 0 0 0 5 5l1.5 -2.5l5 2v4a2 2 0 0 1 -2 2a16 16 0 0 1 -15 -15a2 2 0 0 1 2 -2"></path>
+							</svg>
+							Nhận tư vấn từ chuyên gia
+						</a>
+					</div>
+
+					<!-- Table of Contents - Mobile -->
+					<div class="card d-lg-none mt-4">
+						<div class="card-body">
+							<h2 class="card-title">Mục lục</h2>
+							<div class="list-group list-group-flush">
+								<a href="#intro" class="list-group-item list-group-item-action text-primary fw-medium">1. Giới thiệu</a>
+								<a href="#materials" class="list-group-item list-group-item-action text-muted">2. Vật liệu cần chuẩn bị</a>
+								<a href="#preparation" class="list-group-item list-group-item-action text-muted">3. Chuẩn bị bề mặt</a>
+								<a href="#steps" class="list-group-item list-group-item-action text-muted">4. Các bước thi công</a>
+								<a href="#tips" class="list-group-item list-group-item-action text-muted">5. Lưu ý quan trọng</a>
+								<a href="#conclusion" class="list-group-item list-group-item-action text-muted">6. Kết luận</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+

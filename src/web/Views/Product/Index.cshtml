@@ -1,0 +1,259 @@
+@{
+	ViewData["Title"] = "Sản phẩm";
+}
+
+<div class="page-wrapper">
+	<div class="page-body">
+		<div class="container-xl py-4">
+			<!-- Header -->
+			<div class="mb-4">
+				<h1 class="h2 mb-2 font-serif">Sản phẩm</h1>
+				<div class="text-muted small">
+					<a href="/" class="text-reset hover-text-primary">Trang chủ</a>
+					<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+						<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+						<path d="M9 6l6 6l-6 6"></path>
+					</svg>
+					<span>Sản phẩm</span>
+				</div>
+			</div>
+
+			<div class="row g-4">
+				<!-- Filters -->
+				<div class="col-lg-3">
+					<div class="sticky-top pt-3" style="top: 80px;">
+						<div class="card">
+							<div class="card-body">
+								<div class="d-flex justify-content-between align-items-center mb-4">
+									<h2 class="card-title d-flex align-items-center">
+										<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-filter me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+											<path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z"></path>
+										</svg>
+										Bộ lọc
+									</h2>
+									<button class="btn btn-ghost btn-sm text-muted">Xóa bộ lọc</button>
+								</div>
+
+								<div class="space-y-4">
+									<!-- Search -->
+									<div>
+										<div class="input-icon mb-2">
+											<span class="input-icon-addon">
+												<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+													<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+													<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+													<path d="M21 21l-6 -6"></path>
+												</svg>
+											</span>
+											<input type="text" class="form-control" placeholder="Tìm kiếm sản phẩm...">
+										</div>
+									</div>
+
+									<!-- Product Type -->
+									<div>
+										<h3 class="fw-medium mb-3">Loại sản phẩm</h3>
+										<div class="space-y-2">
+											@foreach (var type in new[] { "Sơn nội thất", "Sơn ngoại thất", "Sơn chống thấm", "Sơn lót", "Bột trét", "Keo chống thấm" })
+											{
+												<label class="form-check">
+													<input class="form-check-input" type="checkbox">
+													<span class="form-check-label">@type</span>
+												</label>
+											}
+										</div>
+									</div>
+
+									<!-- Brand -->
+									<div>
+										<h3 class="fw-medium mb-3">Thương hiệu</h3>
+										<div class="space-y-2">
+											@foreach (var brand in new[] { "Dulux", "Jotun", "Nippon", "Kova", "Mykolor", "Spec" })
+											{
+												<label class="form-check">
+													<input class="form-check-input" type="checkbox">
+													<span class="form-check-label">@brand</span>
+												</label>
+											}
+										</div>
+									</div>
+
+									<!-- Features -->
+									<div>
+										<h3 class="fw-medium mb-3">Đặc tính</h3>
+										<div class="space-y-2">
+											@foreach (var feature in new[] { "Kháng khuẩn", "Chống nắng", "Chống thấm nước", "Chống bám bẩn", "Kháng kiềm", "Không mùi" })
+											{
+												<label class="form-check">
+													<input class="form-check-input" type="checkbox">
+													<span class="form-check-label">@feature</span>
+												</label>
+											}
+										</div>
+									</div>
+
+									<!-- Price Range -->
+									<div>
+										<h3 class="fw-medium mb-3">Khoảng giá</h3>
+										<div class="space-y-2">
+											@foreach (var price in new[] { "Dưới 500.000đ", "500.000đ - 1.000.000đ", "1.000.000đ - 2.000.000đ", "Trên 2.000.000đ" })
+											{
+												<label class="form-check">
+													<input class="form-check-input" type="checkbox">
+													<span class="form-check-label">@price</span>
+												</label>
+											}
+										</div>
+									</div>
+
+									<button class="btn btn-primary w-100">Áp dụng bộ lọc</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Products -->
+				<div class="col-lg-9">
+					<div class="card mb-4">
+						<div class="card-body">
+							<div class="d-flex flex-column flex-sm-row justify-content-between align-items-start align-items-sm-center gap-3">
+								<div>
+									<p class="text-muted small mb-0">Hiển thị 1-12 trong số 36 sản phẩm</p>
+								</div>
+								<div class="d-flex align-items-center gap-2">
+									<span class="text-muted small">Sắp xếp theo:</span>
+									<select class="form-select form-select-sm">
+										<option>Phổ biến nhất</option>
+										<option>Giá: Thấp đến cao</option>
+										<option>Giá: Cao đến thấp</option>
+										<option>Đánh giá cao nhất</option>
+										<option>Mới nhất</option>
+									</select>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="row row-cards">
+						@{
+							string[] productNames = {
+						"Sơn nội thất cao cấp kháng khuẩn",
+						"Sơn ngoại thất chống thấm và chống nắng",
+						"Sơn lót chống kiềm",
+						"Sơn chống thấm đàn hồi",
+						"Bột trét tường nội thất",
+						"Keo chống thấm đa năng",
+						"Sơn nội thất lau chùi hiệu quả",
+						"Sơn ngoại thất bền màu",
+						"Sơn chống thấm sàn"
+										};
+
+							string[] brands = { "Dulux", "Jotun", "Nippon", "Kova", "Mykolor" };
+
+							string[] prices = {
+						"650.000₫",
+						"850.000₫",
+						"450.000₫",
+						"750.000₫",
+						"350.000₫",
+						"550.000₫",
+						"950.000₫",
+						"1.250.000₫",
+						"1.450.000₫"
+										};
+
+							string[] oldPrices = {
+						"800.000₫",
+						"1.050.000₫",
+						"600.000₫",
+						"900.000₫",
+						"500.000₫"
+										};
+
+							Random rnd = new Random();
+						}
+
+						@for (int i = 0; i < 9; i++)
+						{
+							<div class="col-sm-6 col-lg-4">
+								<div class="card card-sm h-100">
+									<div class="position-relative">
+										<div class="img-responsive img-responsive-4x3 card-img-top" style="background-image: url('/img/placeholder.svg?text=Sản+phẩm+@(i+1)')"></div>
+										@if (i % 3 == 0)
+										{
+											<div class="ribbon bg-orange">Bán chạy</div>
+										}
+										@if (i % 4 == 0)
+										{
+											<div class="ribbon bg-primary">Mới</div>
+										}
+									</div>
+									<div class="card-body d-flex flex-column">
+										<div class="text-muted small mb-1">@brands[i % brands.Length]</div>
+										<h3 class="card-title mb-1">
+											<a href="#" class="text-reset hover-text-primary">@productNames[i % productNames.Length]</a>
+										</h3>
+										<div class="d-flex align-items-center mb-2">
+											@for (int star = 0; star < 5; star++)
+											{
+												bool filled = star < 4 || (i % 2 == 0 && star < 5);
+												<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler @(filled ? "text-warning" : "text-muted")" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="@(filled ? "currentColor" : "none")" stroke-linecap="round" stroke-linejoin="round">
+													<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+													<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
+												</svg>
+											}
+											<span class="text-muted small ms-1">(@(rnd.Next(10, 100)))</span>
+										</div>
+										<div class="d-flex align-items-baseline gap-2 mb-3">
+											<span class="h4 text-primary mb-0">@prices[i % prices.Length]</span>
+											@if (i % 3 == 0)
+											{
+												<span class="text-muted small text-decoration-line-through">@oldPrices[i % oldPrices.Length]</span>
+											}
+										</div>
+										<div class="d-flex align-items-center text-muted small mb-3">
+											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-check text-success me-1" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M5 12l5 5l10 -10"></path>
+											</svg>
+											<span>Còn hàng</span>
+										</div>
+										<div class="mt-auto">
+											<a href="#" class="btn btn-primary w-100">Xem chi tiết</a>
+										</div>
+									</div>
+								</div>
+							</div>
+						}
+					</div>
+
+					<!-- Pagination -->
+					<div class="d-flex justify-content-center mt-4">
+						<ul class="pagination">
+							<li class="page-item disabled">
+								<a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M15 6l-6 6l6 6"></path>
+									</svg>
+								</a>
+							</li>
+							<li class="page-item active"><a class="page-link" href="#">1</a></li>
+							<li class="page-item"><a class="page-link" href="#">2</a></li>
+							<li class="page-item"><a class="page-link" href="#">3</a></li>
+							<li class="page-item">
+								<a class="page-link" href="#">
+									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M9 6l6 6l-6 6"></path>
+									</svg>
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
