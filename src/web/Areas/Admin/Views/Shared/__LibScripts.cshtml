@@ -156,3 +156,18 @@
 		  })
 	})
 </script>
+
+<script>
+    $(document).ready(function() {
+        // Load pending comments count
+        $.ajax({
+            url: '/Admin/Comment/GetPendingCount',
+            type: 'GET',
+            success: function(result) {
+                if (result > 0) {
+                    $('#pendingCommentsCount').text(result);
+                }
+            }
+        });
+    });
+</script>

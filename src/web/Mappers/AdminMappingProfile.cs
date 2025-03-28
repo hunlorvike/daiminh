@@ -1,6 +1,7 @@
 using AutoMapper;
 using domain.Entities;
 using web.Areas.Admin.ViewModels.Category;
+using web.Areas.Admin.ViewModels.Comment;
 using web.Areas.Admin.ViewModels.FAQ;
 using web.Areas.Admin.ViewModels.Media;
 using web.Areas.Admin.ViewModels.Product;
@@ -144,6 +145,19 @@ public class AdminMappingProfile : Profile
 
         CreateMap<ProductType, ProductTypeViewModel>().ReverseMap();
         CreateMap<ProductType, ProductTypeListItemViewModel>();
+
         CreateMap<ProductImage, ProductImageViewModel>().ReverseMap();
+
+        // Comment mappings
+        CreateMap<Comment, CommentListItemViewModel>()
+            .ForMember(dest => dest.ArticleTitle, opt => opt.MapFrom(src => src.Article != null ? src.Article.Title : ""))
+            .ForMember(dest => dest.ArticleSlug, opt => opt.MapFrom(src => src.Article != null ? src.Article.Slug : ""))
+            .ForMember(dest => dest.ReplyCount, opt => opt.Ignore());
+
+        CreateMap<Comment, CommentViewModel>()
+            .ForMember(dest => dest.ArticleTitle, opt => opt.Ignore())
+            .ForMember(dest => dest.ParentAuthorName, opt => opt.Ignore());
+
+        CreateMap<CommentViewModel, Comment>();
     }
 }
