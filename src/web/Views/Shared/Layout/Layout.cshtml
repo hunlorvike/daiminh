@@ -1,0 +1,24 @@
+@{
+	ViewData.TryGetValue("Title", out var title);
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+	<title>@ViewData["Title"]</title>
+	<partial name="__LibStyles" />
+	@await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+	<div class="page">
+		<partial name="Components/Header" />
+		<div class="page-wrapper">
+			@RenderBody()
+		</div>
+		<partial name="Components/Footer" />
+	</div>
+	<partial name="__LibScripts" />
+	@await RenderSectionAsync("Scripts", false)
+</body>
+</html>

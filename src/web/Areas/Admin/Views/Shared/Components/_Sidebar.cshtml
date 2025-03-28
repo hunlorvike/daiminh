@@ -12,77 +12,76 @@
 		<div class="collapse navbar-collapse" id="sidebar-menu">
 			<ul class="navbar-nav pt-lg-3">
 				<!-- Dashboard -->
-				<li class="nav-item">
+				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Home Icon -->
-							<i class="fas fa-home"></i>
+							<!-- Tabler Home Icon -->
+							<i class="ti ti-home"></i>
 						</span>
 						<span class="nav-link-title">Dashboard</span>
 					</a>
 				</li>
 
 				<!-- Media -->
-				<li class="nav-item">
+				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Media" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Media" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<i class="fas fa-image"></i>
+							<i class="ti ti-photo"></i>
 						</span>
 						<span class="nav-link-title">Quản lý Media</span>
 					</a>
 				</li>
 
+				<!-- Sản phẩm -->
+				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" || ViewContext.RouteData.Values["controller"]?.ToString() == "ProductType" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-products" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+						<span class="nav-link-icon d-md-none d-lg-inline-block">
+							<!-- Tabler Paint Brush Icon -->
+							<i class="ti ti-brush"></i>
+						</span>
+						<span class="nav-link-title">Sản phẩm</span>
+					</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">
+							Danh sách sản phẩm
+						</a>
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Create">
+							Thêm sản phẩm mới
+						</a>
+						<a class="dropdown-item" asp-area="Admin" asp-controller="ProductType" asp-action="Index">
+							Loại sản phẩm
+						</a>
+					</div>
+				</li>
 
-                <!-- Sản phẩm -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#navbar-products" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <!-- Font Awesome Paint Brush Icon -->
-                            <i class="fas fa-paint-brush"></i>
-                        </span>
-                        <span class="nav-link-title">Sản phẩm</span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Index">
-                            Danh sách sản phẩm
-                        </a>
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="Product" asp-action="Create">
-                            Thêm sản phẩm mới
-                        </a>
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="ProductType" asp-action="Index">
-                            Loại sản phẩm
-                        </a>
-                    </div>
-                </li>
-
-                <!-- Bài viết -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#navbar-articles" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="fas fa-newspaper"></i>
-                        </span>
-                        <span class="nav-link-title">Bài viết</span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="Article" asp-action="Index">
-                            Danh sách bài viết
-                        </a>
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="Article" asp-action="Create">
-                            Thêm bài viết mới
-                        </a>
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="Comment" asp-action="Index">
-                            Bình luận
-                            <span class="badge bg-warning ms-auto" id="pendingCommentsCount"></span>
-                        </a>
-                    </div>
-                </li>
+				<!-- Bài viết -->
+				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Article" || ViewContext.RouteData.Values["controller"]?.ToString() == "Comment" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-articles" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+						<span class="nav-link-icon d-md-none d-lg-inline-block">
+							<i class="ti ti-news"></i>
+						</span>
+						<span class="nav-link-title">Bài viết</span>
+					</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Article" asp-action="Index">
+							Danh sách bài viết
+						</a>
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Article" asp-action="Create">
+							Thêm bài viết mới
+						</a>
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Comment" asp-action="Index">
+							Bình luận
+							<span class="badge bg-warning ms-auto" id="pendingCommentsCount"></span>
+						</a>
+					</div>
+				</li>
 
 				<!-- Dự án -->
-				<li class="nav-item dropdown">
+				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Project" ? "active" : "")">
 					<a class="nav-link dropdown-toggle" href="#navbar-projects" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Building Icon -->
-							<i class="fas fa-building"></i>
+							<!-- Tabler Building Icon -->
+							<i class="ti ti-building"></i>
 						</span>
 						<span class="nav-link-title">Dự án</span>
 					</a>
@@ -96,30 +95,30 @@
 					</div>
 				</li>
 
-                <!-- Thư viện ảnh -->
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#navbar-galleries" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block">
-                            <i class="fas fa-images"></i>
-                        </span>
-                        <span class="nav-link-title">Thư viện ảnh</span>
-                    </a>
-                    <div class="dropdown-menu">
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="Gallery" asp-action="Index">
-                            Danh sách thư viện
-                        </a>
-                        <a class="dropdown-item" asp-area="Admin" asp-controller="Gallery" asp-action="Create">
-                            Thêm thư viện mới
-                        </a>
-                    </div>
-                </li>
+				<!-- Thư viện ảnh -->
+				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Gallery" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-galleries" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+						<span class="nav-link-icon d-md-none d-lg-inline-block">
+							<i class="ti ti-photo"></i>
+						</span>
+						<span class="nav-link-title">Thư viện ảnh</span>
+					</a>
+					<div class="dropdown-menu">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Gallery" asp-action="Index">
+							Danh sách thư viện
+						</a>
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Gallery" asp-action="Create">
+							Thêm thư viện mới
+						</a>
+					</div>
+				</li>
 
 				<!-- FAQ -->
-				<li class="nav-item dropdown">
+				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "FAQ" || ViewContext.RouteData.Values["controller"]?.ToString() == "FAQCategory" ? "active" : "")">
 					<a class="nav-link dropdown-toggle" href="#navbar-faqs" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Question Circle Icon -->
-							<i class="fas fa-question-circle"></i>
+							<!-- Tabler Question Circle Icon -->
+							<i class="ti ti-help"></i>
 						</span>
 						<span class="nav-link-title">FAQ</span>
 					</a>
@@ -134,11 +133,11 @@
 				</li>
 
 				<!-- Danh mục & Thẻ -->
-				<li class="nav-item dropdown">
+				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Category" || ViewContext.RouteData.Values["controller"]?.ToString() == "Tag" ? "active" : "")">
 					<a class="nav-link dropdown-toggle" href="#navbar-categories" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Folder Icon -->
-							<i class="fas fa-folder"></i>
+							<!-- Tabler Folder Icon -->
+							<i class="ti ti-folder"></i>
 						</span>
 						<span class="nav-link-title">Danh mục & Thẻ</span>
 					</a>
@@ -171,51 +170,48 @@
 				</li>
 
 				<!-- Đánh giá khách hàng -->
-				<li class="nav-item">
+				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Testimonial" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Testimonial" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Stars Icon -->
-							<i class="fas fa-star"></i>
+							<!-- Tabler Stars Icon -->
+							<i class="ti ti-star"></i>
 						</span>
 						<span class="nav-link-title">Đánh giá khách hàng</span>
 					</a>
 				</li>
 
 				<!-- Liên hệ -->
-				<li class="nav-item">
+				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contact" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Contact" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Envelope Icon -->
-							<i class="fas fa-envelope"></i>
+							<!-- Tabler Envelope Icon -->
+							<i class="ti ti-mail"></i>
 						</span>
 						<span class="nav-link-title">Liên hệ</span>
 					</a>
 				</li>
 
 				<!-- Đăng ký nhận tin -->
-				<li class="nav-item">
+				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Newsletter" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Newsletter" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Paper Plane Icon -->
-							<i class="fas fa-paper-plane"></i>
+							<!-- Tabler Paper Plane Icon -->
+							<i class="ti ti-send"></i>
 						</span>
 						<span class="nav-link-title">Đăng ký nhận tin</span>
 					</a>
 				</li>
 
 				<!-- Cài đặt -->
-				<li class="nav-item dropdown">
+				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Setting" || ViewContext.RouteData.Values["controller"]?.ToString() == "Seo" || ViewContext.RouteData.Values["controller"]?.ToString() == "Redirect" || ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
 					<a class="nav-link dropdown-toggle" href="#navbar-settings" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome Cog Icon -->
-							<i class="fas fa-cog"></i>
+							<!-- Tabler Cog Icon -->
+							<i class="ti ti-settings"></i>
 						</span>
 						<span class="nav-link-title">Cài đặt</span>
 					</a>
 					<div class="dropdown-menu">
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Setting" asp-action="General">
-							Cài đặt chung
-						</a>
 						<a class="dropdown-item" asp-area="Admin" asp-controller="Seo" asp-action="Index">
 							Cài đặt SEO
 						</a>
@@ -232,8 +228,8 @@
 				<li class="nav-item">
 					<a class="nav-link" href="/" target="_blank">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
-							<!-- Font Awesome External Link Icon -->
-							<i class="fas fa-external-link-alt"></i>
+							<!-- Tabler External Link Icon -->
+							<i class="ti ti-external-link"></i>
 						</span>
 						<span class="nav-link-title">Xem trang web</span>
 					</a>
