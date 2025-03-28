@@ -31,7 +31,7 @@ public class SeoAnalyticsBackgroundService : BackgroundService
 
                     // Lấy dữ liệu từ Google Search Console API
                     // và cập nhật vào cơ sở dữ liệu
-                    await UpdateSearchConsoleData(seoService);
+                    UpdateSearchConsoleData(seoService);
                 }
             }
             catch (Exception ex)
@@ -51,7 +51,7 @@ public class SeoAnalyticsBackgroundService : BackgroundService
         _logger.LogInformation("SEO Analytics Background Service is stopping.");
     }
 
-    private async Task UpdateSearchConsoleData(ISeoService seoService)
+    private void UpdateSearchConsoleData(ISeoService seoService)
     {
         // Triển khai logic để lấy dữ liệu từ Google Search Console API
         // và cập nhật vào cơ sở dữ liệu

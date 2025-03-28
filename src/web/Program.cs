@@ -1,9 +1,9 @@
-using System.Reflection;
 using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using System.Reflection;
 using web;
 using web.Areas.Admin.Services;
 using web.Middlewares;

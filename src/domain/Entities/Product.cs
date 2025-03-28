@@ -29,7 +29,6 @@ public class Product : SeoEntity<int>
 
     // Navigation properties
     public virtual ProductType? ProductType { get; set; }
-    public virtual ICollection<ProductFieldValue>? FieldValues { get; set; }
     public virtual ICollection<ProductImage>? Images { get; set; }
     public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
     public virtual ICollection<ProductTag>? ProductTags { get; set; }

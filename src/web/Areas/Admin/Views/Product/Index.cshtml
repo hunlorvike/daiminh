@@ -1,0 +1,322 @@
+@using shared.Enums
+@using web.Areas.Admin.ViewModels.Product
+@model IEnumerable<ProductListItemViewModel>
+@{
+    ViewData["Title"] = "Quản lý sản phẩm - Hệ thống quản trị";
+}
+
+@section PageActions {
+    <div class="btn-list">
+        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+            <i class="fas fa-plus me-2"></i> Thêm sản phẩm
+        </a>
+    </div>
+}
+
+<!-- Filter form -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label">Tìm kiếm</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Tìm sản phẩm..." name="searchTerm" value="@ViewBag.SearchTerm">
+                    <button class="btn btn-icon" type="button" id="clearSearch">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Loại sản phẩm</label>
+                <select class="form-select" name="productTypeId" id="productTypeFilter">
+                    <option value="">Tất cả loại</option>
+                    @if (ViewBag.ProductTypes != null)
+                    {
+                        foreach (var type in ViewBag.ProductTypes)
+                        {
+                            <option value="@type.Value" selected="@(ViewBag.SelectedProductTypeId != null && ViewBag.SelectedProductTypeId == int.Parse(type.Value) ? "selected" : null)">@type.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" name="status" id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    @if (ViewBag.StatusList != null)
+                    {
+                        foreach (var status in ViewBag.StatusList)
+                        {
+                            <option value="@status.Value" selected="@(ViewBag.SelectedStatus != null && (int)ViewBag.SelectedStatus == int.Parse(status.Value) ? "selected" : null)">@status.Text</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Nổi bật</label>
+                <select class="form-select" name="isFeatured" id="featuredFilter">
+                    <option value="">Tất cả</option>
+                    <option value="true" selected="@(ViewBag.SelectedIsFeatured == true ? "selected" : null)">Nổi bật</option>
+                    <option value="false" selected="@(ViewBag.SelectedIsFeatured == false ? "selected" : null)">Không nổi bật</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="fas fa-search me-2"></i> Lọc
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+                    <i class="fas fa-redo me-2"></i> Đặt lại
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Danh sách sản phẩm</h3>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="empty">
+                <div class="empty-img">
+                    <i class="fas fa-box-open fa-5x text-muted"></i>
+                </div>
+                <p class="empty-title">Không tìm thấy sản phẩm nào</p>
+                <p class="empty-subtitle text-muted">
+                    Hãy thêm sản phẩm để hiển thị trên website của bạn
+                </p>
+                <div class="empty-action">
+                    <a asp-action="Create" class="btn btn-primary">
+                        <i class="fas fa-plus me-2"></i> Thêm sản phẩm mới
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="w-1">STT</th>
+                            <th style="width: 80px">Ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th style="width: 15%">Loại</th>
+                            <th style="width: 10%">Trạng thái</th>
+                            <th style="width: 10%">Nổi bật</th>
+                            <th style="width: 10%">Hiển thị</th>
+                            <th style="width: 15%">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int index = 1;
+                        }
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-muted">@(index++)</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.MainImageUrl))
+                                    {
+                                        <img src="@item.MainImageUrl" alt="@item.Name" class="img-fluid rounded" style="max-height: 50px; max-width: 80px;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="text-center text-muted">
+                                            <i class="fas fa-image fa-2x"></i>
+                                        </div>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="font-weight-medium">@item.Name</span>
+                                        @if (!string.IsNullOrEmpty(item.ShortDescription))
+                                        {
+                                            <small class="text-muted text-truncate" style="max-width: 300px;" title="@item.ShortDescription">@item.ShortDescription</small>
+                                        }
+                                        <div class="mt-1">
+                                            <span class="badge bg-primary me-1">@item.CategoryCount danh mục</span>
+                                            <span class="badge bg-info me-1">@item.TagCount thẻ</span>
+                                            <span class="badge bg-secondary">@item.ImageCount ảnh</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@item.ProductTypeName</td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm dropdown-toggle status-dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-id="@item.Id">
+                                            @switch (item.Status)
+                                            {
+                                                case PublishStatus.Published:
+                                                    <span class="badge bg-success">Đã xuất bản</span>
+                                                    break;
+                                                case PublishStatus.Draft:
+                                                    <span class="badge bg-secondary">Bản nháp</span>
+                                                    break;
+                                                case PublishStatus.Scheduled:
+                                                    <span class="badge bg-info">Đã lên lịch</span>
+                                                    break;
+                                                case PublishStatus.Archived:
+                                                    <span class="badge bg-warning">Đã lưu trữ</span>
+                                                    break;
+                                            }
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item status-item" href="#" data-status="@PublishStatus.Published">Đã xuất bản</a></li>
+                                            <li><a class="dropdown-item status-item" href="#" data-status="@PublishStatus.Draft">Bản nháp</a></li>
+                                            <li><a class="dropdown-item status-item" href="#" data-status="@PublishStatus.Scheduled">Đã lên lịch</a></li>
+                                            <li><a class="dropdown-item status-item" href="#" data-status="@PublishStatus.Archived">Đã lưu trữ</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                                <td>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input toggle-featured" type="checkbox" data-id="@item.Id" @(item.IsFeatured ? "checked" : "")>
+                                        <span class="form-check-label"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <label class="form-check form-switch">
+                                        <input class="form-check-input toggle-active" type="checkbox" data-id="@item.Id" @(item.IsActive ? "checked" : "")>
+                                        <span class="form-check-label"></span>
+                                    </label>
+                                </td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <a href="#" class="btn btn-sm btn-icon btn-outline-secondary" target="_blank" title="Xem trước">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#delete-modal"
+                                                data-id="@item.Id"
+                                                data-name="@item.Name"
+                                                data-delete-url="@Url.Action("Delete", "Product")"
+                                                title="Xóa">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            // Active toggle
+            $('.toggle-active').on('change', function () {
+                var id = $(this).data('id');
+                var isChecked = $(this).prop('checked');
+
+                $.ajax({
+                    url: '@Url.Action("ToggleActive", "Product")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (result) {
+                        if (result.success) {
+                            toastr.success('Cập nhật trạng thái hiển thị thành công');
+                        } else {
+                            toastr.error(result.message);
+                            // Revert the checkbox state
+                            $(this).prop('checked', !isChecked);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái');
+                        // Revert the checkbox state
+                        $(this).prop('checked', !isChecked);
+                    }
+                });
+            });
+
+            // Featured toggle
+            $('.toggle-featured').on('change', function () {
+                var id = $(this).data('id');
+                var isChecked = $(this).prop('checked');
+
+                $.ajax({
+                    url: '@Url.Action("ToggleFeatured", "Product")',
+                    type: 'POST',
+                    data: { id: id },
+                    success: function (result) {
+                        if (result.success) {
+                            toastr.success('Cập nhật trạng thái nổi bật thành công');
+                        } else {
+                            toastr.error(result.message);
+                            // Revert the checkbox state
+                            $(this).prop('checked', !isChecked);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái');
+                        // Revert the checkbox state
+                        $(this).prop('checked', !isChecked);
+                    }
+                });
+            });
+
+            // Status change
+            $('.status-item').on('click', function (e) {
+                e.preventDefault();
+                var status = $(this).data('status');
+                var id = $(this).closest('.dropdown').find('.status-dropdown').data('id');
+
+                $.ajax({
+                    url: '@Url.Action("UpdateStatus", "Product")',
+                    type: 'POST',
+                    data: { id: id, status: status },
+                    success: function (result) {
+                        if (result.success) {
+                            toastr.success('Cập nhật trạng thái xuất bản thành công');
+                            // Reload page to reflect changes
+                            location.reload();
+                        } else {
+                            toastr.error(result.message);
+                        }
+                    },
+                    error: function () {
+                        toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái');
+                    }
+                });
+            });
+
+            // Delete item setup
+            $('.delete-item').on('click', function () {
+                var id = $(this).data('id');
+                var name = $(this).data('name');
+                var deleteUrl = $(this).data('delete-url');
+
+                $('#delete-item-id').val(id);
+                $('#delete-item-name').val(name);
+                $('#delete-url').val(deleteUrl);
+                $('#delete-modal-message').text('Bạn có chắc chắn muốn xóa sản phẩm "' + name + '" không?');
+            });
+
+            // Clear search
+            $('#clearSearch').on('click', function() {
+                $('input[name="searchTerm"]').val('');
+                $('#filterForm').submit();
+            });
+
+            // Auto submit on filter change
+            $('#productTypeFilter, #statusFilter, #featuredFilter').on('change', function() {
+                $('#filterForm').submit();
+            });
+        });
+    </script>
+}

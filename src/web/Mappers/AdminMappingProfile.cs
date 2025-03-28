@@ -3,6 +3,8 @@ using domain.Entities;
 using web.Areas.Admin.ViewModels.Category;
 using web.Areas.Admin.ViewModels.FAQ;
 using web.Areas.Admin.ViewModels.Media;
+using web.Areas.Admin.ViewModels.Product;
+using web.Areas.Admin.ViewModels.ProductType;
 using web.Areas.Admin.ViewModels.Redirect;
 using web.Areas.Admin.ViewModels.Seo;
 using web.Areas.Admin.ViewModels.Tag;
@@ -112,5 +114,36 @@ public class AdminMappingProfile : Profile
 
         CreateMap<SeoAnalytics, SeoAnalyticsListItemViewModel>();
 
+        // Product mappings
+        CreateMap<Product, ProductListItemViewModel>()
+            .ForMember(dest => dest.ProductTypeName, opt => opt.MapFrom(src => src.ProductType != null ? src.ProductType.Name : string.Empty))
+            .ForMember(dest => dest.CategoryCount, opt => opt.MapFrom(src => src.ProductCategories != null ? src.ProductCategories.Count : 0))
+            .ForMember(dest => dest.TagCount, opt => opt.MapFrom(src => src.ProductTags != null ? src.ProductTags.Count : 0))
+            .ForMember(dest => dest.ImageCount, opt => opt.MapFrom(src => src.Images != null ? src.Images.Count : 0))
+            .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src =>
+                src.Images != null && src.Images.Any(i => i.IsMain) ?
+                src.Images.First(i => i.IsMain).ImageUrl :
+                (src.Images != null && src.Images.Any() ? src.Images.First().ImageUrl : null)));
+
+        CreateMap<Product, ProductViewModel>()
+            .ForMember(dest => dest.CategoryIds, opt => opt.MapFrom(src =>
+                src.ProductCategories != null ?
+                src.ProductCategories.Select(pc => pc.CategoryId).ToList() :
+                new List<int>()))
+            .ForMember(dest => dest.TagIds, opt => opt.MapFrom(src =>
+                src.ProductTags != null ?
+                src.ProductTags.Select(pt => pt.TagId).ToList() :
+                new List<int>()))
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+            .ForMember(dest => dest.ImageFiles, opt => opt.Ignore());
+
+        CreateMap<ProductViewModel, Product>()
+            .ForMember(dest => dest.ProductCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
+            .ForMember(dest => dest.Images, opt => opt.Ignore());
+
+        CreateMap<ProductType, ProductTypeViewModel>().ReverseMap();
+        CreateMap<ProductType, ProductTypeListItemViewModel>();
+        CreateMap<ProductImage, ProductImageViewModel>().ReverseMap();
     }
 }

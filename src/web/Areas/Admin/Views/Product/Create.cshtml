@@ -1,0 +1,405 @@
+@using shared.Enums
+@using web.Areas.Admin.ViewModels.Product
+@model ProductViewModel
+@{
+    ViewData["Title"] = "Thêm sản phẩm - Hệ thống quản trị";
+}
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="row">
+        <!-- Main content column -->
+        <div class="col-lg-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Thông tin cơ bản</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label required">Tên sản phẩm</label>
+                        <input asp-for="Name" class="form-control" id="productName" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label required">Slug</label>
+                        <div class="input-group">
+                            <input asp-for="Slug" class="form-control" id="productSlug" />
+                            <button class="btn btn-outline-secondary" type="button" id="generateSlug">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                        <small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ShortDescription" class="form-label">Mô tả ngắn</label>
+                        <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="ShortDescription" class="text-danger"></span>
+                        <small class="form-hint">Mô tả ngắn gọn về sản phẩm (tối đa 500 ký tự)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label required">Mô tả chi tiết</label>
+                        <textarea asp-for="Description" class="form-control summernote" rows="10"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Thông tin kỹ thuật</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Manufacturer" class="form-label">Nhà sản xuất</label>
+                            <input asp-for="Manufacturer" class="form-control" />
+                            <span asp-validation-for="Manufacturer" class="text-danger"></span>
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Origin" class="form-label">Xuất xứ</label>
+                            <input asp-for="Origin" class="form-control" />
+                            <span asp-validation-for="Origin" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Specifications" class="form-label">Thông số kỹ thuật</label>
+                        <textarea asp-for="Specifications" class="form-control summernote" rows="5"></textarea>
+                        <span asp-validation-for="Specifications" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Features" class="form-label">Tính năng nổi bật</label>
+                        <textarea asp-for="Features" class="form-control summernote" rows="5"></textarea>
+                        <span asp-validation-for="Features" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="ApplicationAreas" class="form-label">Khu vực ứng dụng</label>
+                        <textarea asp-for="ApplicationAreas" class="form-control summernote" rows="5"></textarea>
+                        <span asp-validation-for="ApplicationAreas" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Hướng dẫn sử dụng & Bảo quản</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Usage" class="form-label">Hướng dẫn sử dụng</label>
+                        <textarea asp-for="Usage" class="form-control summernote" rows="5"></textarea>
+                        <span asp-validation-for="Usage" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="PackagingInfo" class="form-label">Thông tin đóng gói</label>
+                        <textarea asp-for="PackagingInfo" class="form-control summernote" rows="5"></textarea>
+                        <span asp-validation-for="PackagingInfo" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="StorageInstructions" class="form-label">Hướng dẫn bảo quản</label>
+                        <textarea asp-for="StorageInstructions" class="form-control summernote" rows="5"></textarea>
+                        <span asp-validation-for="StorageInstructions" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="SafetyInfo" class="form-label">Thông tin an toàn</label>
+                        <textarea asp-for="SafetyInfo" class="form-control summernote" rows="5"></textarea>
+                        <span asp-validation-for="SafetyInfo" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">SEO</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+                        <input asp-for="MetaTitle" class="form-control" />
+                        <span asp-validation-for="MetaTitle" class="text-danger"></span>
+                        <small class="form-hint">Tiêu đề hiển thị trên kết quả tìm kiếm (để trống sẽ sử dụng tên sản phẩm)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+                        <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="MetaDescription" class="text-danger"></span>
+                        <small class="form-hint">Mô tả hiển thị trên kết quả tìm kiếm (để trống sẽ sử dụng mô tả ngắn)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="MetaKeywords" class="form-label">Meta Keywords</label>
+                        <input asp-for="MetaKeywords" class="form-control" />
+                        <span asp-validation-for="MetaKeywords" class="text-danger"></span>
+                        <small class="form-hint">Các từ khóa phân cách bằng dấu phẩy</small>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-3">
+                                <input asp-for="NoIndex" class="form-check-input" type="checkbox" />
+                                <label asp-for="NoIndex" class="form-check-label">Không lập chỉ mục (noindex)</label>
+                                <small class="form-hint d-block">Ngăn công cụ tìm kiếm lập chỉ mục trang này</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch mb-3">
+                                <input asp-for="NoFollow" class="form-check-input" type="checkbox" />
+                                <label asp-for="NoFollow" class="form-check-label">Không theo dõi liên kết (nofollow)</label>
+                                <small class="form-hint d-block">Ngăn công cụ tìm kiếm theo dõi các liên kết trên trang này</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar column -->
+        <div class="col-lg-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Xuất bản</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Status" class="form-label">Trạng thái</label>
+                        <select asp-for="Status" class="form-select">
+                            <option value="@PublishStatus.Draft">Bản nháp</option>
+                            <option value="@PublishStatus.Published">Xuất bản</option>
+                            <option value="@PublishStatus.Scheduled">Lên lịch</option>
+                            <option value="@PublishStatus.Archived">Lưu trữ</option>
+                        </select>
+                        <span asp-validation-for="Status" class="text-danger"></span>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">Hiển thị sản phẩm</label>
+                        <small class="form-hint d-block">Sản phẩm sẽ hiển thị trên website</small>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsFeatured" class="form-check-label">Sản phẩm nổi bật</label>
+                        <small class="form-hint d-block">Sản phẩm sẽ được hiển thị ở các vị trí nổi bật</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Lưu sản phẩm
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Loại sản phẩm</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="ProductTypeId" class="form-label required">Loại sản phẩm</label>
+                        <select asp-for="ProductTypeId" class="form-select">
+                            <option value="">-- Chọn loại sản phẩm --</option>
+                            @if (Model.ProductTypes != null)
+                            {
+                                @foreach (var type in Model.ProductTypes)
+                                {
+                                    <option value="@type.Id">@type.Name</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="ProductTypeId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Danh mục</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Chọn danh mục</label>
+                        <select id="categorySelect" multiple placeholder="Chọn danh mục...">
+                            @if (Model.Categories != null)
+                            {
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            }
+                        </select>
+                        <div id="categoryIds-container">
+                            @if (Model.CategoryIds != null)
+                            {
+                                @foreach (var categoryId in Model.CategoryIds)
+                                {
+                                    <input type="hidden" name="CategoryIds" value="@categoryId" />
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Thẻ</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Chọn thẻ</label>
+                        <select id="tagSelect" multiple placeholder="Chọn thẻ...">
+                            @if (Model.Tags != null)
+                            {
+                                @foreach (var tag in Model.Tags)
+                                {
+                                    <option value="@tag.Id">@tag.Name</option>
+                                }
+                            }
+                        </select>
+                        <div id="tagIds-container">
+                            @if (Model.TagIds != null)
+                            {
+                                @foreach (var tagId in Model.TagIds)
+                                {
+                                    <input type="hidden" name="TagIds" value="@tagId" />
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3 class="card-title">Hình ảnh sản phẩm</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">Tải lên hình ảnh</label>
+                        <input type="file" class="form-control" name="ImageFiles" multiple accept="image/*" />
+                        <small class="form-hint">Có thể chọn nhiều hình ảnh. Hình ảnh đầu tiên sẽ là hình ảnh chính.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize Summernote WYSIWYG editor
+            $('.summernote').summernote({
+                height: 200,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'underline', 'clear']],
+                    ['color', ['color']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['table', ['table']],
+                    ['insert', ['link', 'picture']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ],
+                lang: 'vi-VN',
+                placeholder: 'Nhập nội dung...'
+            });
+
+            // Initialize Tom Select for categories
+            var categorySelect = new TomSelect('#categorySelect', {
+                plugins: ['remove_button'],
+                valueField: 'value',
+                labelField: 'text',
+                searchField: 'text',
+                create: false,
+                onItemAdd: function(value) {
+                    $('#categoryIds-container').append('<input type="hidden" name="CategoryIds" value="' + value + '" />');
+                },
+                onItemRemove: function(value) {
+                    $('#categoryIds-container').find('input[value="' + value + '"]').remove();
+                }
+            });
+
+            // Initialize Tom Select for tags
+            var tagSelect = new TomSelect('#tagSelect', {
+                plugins: ['remove_button'],
+                valueField: 'value',
+                labelField: 'text',
+                searchField: 'text',
+                create: false,
+                onItemAdd: function(value) {
+                    $('#tagIds-container').append('<input type="hidden" name="TagIds" value="' + value + '" />');
+                },
+                onItemRemove: function(value) {
+                    $('#tagIds-container').find('input[value="' + value + '"]').remove();
+                }
+            });
+
+            // Set initial values for categories
+        @if (Model.CategoryIds != null && Model.CategoryIds.Any())
+        {
+            foreach (var categoryId in Model.CategoryIds)
+            {
+                <text>categorySelect.addItem('@categoryId');</text>
+            }
+        }
+
+            // Set initial values for tags
+        @if (Model.TagIds != null && Model.TagIds.Any())
+        {
+            foreach (var tagId in Model.TagIds)
+            {
+                <text>tagSelect.addItem('@tagId');</text>
+            }
+        }
+
+            // Auto-generate slug from name
+            $('#productName').on('input', function() {
+                if ($('#productSlug').val() === '') {
+                    generateSlug();
+                }
+            });
+
+            // Generate slug button
+            $('#generateSlug').on('click', function() {
+                generateSlug();
+            });
+
+            function generateSlug() {
+                var name = $('#productName').val();
+                if (name) {
+                    // Convert to lowercase
+                    var slug = name.toLowerCase();
+
+                    // Remove accents/diacritics from Vietnamese characters
+                    slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+                    // Replace spaces with dashes and remove special characters
+                    slug = slug.replace(/\s+/g, '-')
+                        .replace(/[^\w\-]+/g, '')
+                        .replace(/\-\-+/g, '-')
+                        .replace(/^-+/, '')
+                        .replace(/-+$/, '');
+
+                    $('#productSlug').val(slug);
+                }
+            }
+        });
+    </script>
+}

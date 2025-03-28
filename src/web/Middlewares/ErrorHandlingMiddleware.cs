@@ -1,7 +1,7 @@
-using System.Net;
-using System.Text.Json;
 using shared.Exceptions;
 using shared.Models;
+using System.Net;
+using System.Text.Json;
 
 namespace web.Middlewares;
 

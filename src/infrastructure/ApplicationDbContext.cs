@@ -14,8 +14,6 @@ public class ApplicationDbContext : DbContext
     // Sản phẩm
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductType> ProductTypes { get; set; }
-    public DbSet<ProductFieldDefinition> ProductFieldDefinitions { get; set; }
-    public DbSet<ProductFieldValue> ProductFieldValues { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<ProductCategory> ProductCategories { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }
@@ -67,8 +65,6 @@ public class ApplicationDbContext : DbContext
         // Sản phẩm
         modelBuilder.ApplyConfiguration(new ProductConfiguration());
         modelBuilder.ApplyConfiguration(new ProductTypeConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductFieldDefinitionConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductFieldValueConfiguration());
         modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
         modelBuilder.ApplyConfiguration(new ProductCategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ProductTagConfiguration());

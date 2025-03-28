@@ -1,0 +1,190 @@
+@using web.Areas.Admin.ViewModels.ProductType
+@model ProductTypeViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa loại sản phẩm - Hệ thống quản trị";
+}
+
+<form asp-action="Edit" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="row">
+        <!-- Main content column -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Thông tin loại sản phẩm</h3>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label asp-for="Name" class="form-label required">Tên loại sản phẩm</label>
+                        <input asp-for="Name" class="form-control" id="productTypeName" />
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Slug" class="form-label required">Slug</label>
+                        <div class="input-group">
+                            <input asp-for="Slug" class="form-control" id="productTypeSlug" />
+                            <button class="btn btn-outline-secondary" type="button" id="generateSlug">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <span asp-validation-for="Slug" class="text-danger"></span>
+                        <small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Description" class="form-label">Mô tả</label>
+                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Icon" class="form-label">Icon (Font Awesome)</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i id="iconPreview" class="@(string.IsNullOrEmpty(Model.Icon) ? "fas fa-box" : Model.Icon)"></i>
+                            </span>
+                            <input asp-for="Icon" class="form-control" id="iconInput" placeholder="fas fa-box" />
+                        </div>
+                        <span asp-validation-for="Icon" class="text-danger"></span>
+                        <small class="form-hint">Nhập class của Font Awesome icon (ví dụ: fas fa-box)</small>
+                    </div>
+
+                    <div class="form-check form-switch mb-3">
+                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
+                        <label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+                        <small class="form-hint d-block">Loại sản phẩm sẽ hiển thị trên website</small>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="fas fa-arrow-left me-2"></i> Quay lại
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i> Cập nhật
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar column -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Font Awesome Icons</h3>
+                </div>
+                <div class="card-body">
+                    <p>Một số icon phổ biến:</p>
+                    <div class="row row-cols-3 g-3 mb-3">
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-box">
+                                <i class="fas fa-box fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-box</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-boxes">
+                                <i class="fas fa-boxes fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-boxes</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-paint-brush">
+                                <i class="fas fa-paint-brush fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-paint-brush</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-tools">
+                                <i class="fas fa-tools fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-tools</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-hammer">
+                                <i class="fas fa-hammer fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-hammer</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-wrench">
+                                <i class="fas fa-wrench fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-wrench</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-spray-can">
+                                <i class="fas fa-spray-can fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-spray-can</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-brush">
+                                <i class="fas fa-brush fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-brush</div>
+                        </div>
+                        <div class="col text-center">
+                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-fill-drip">
+                                <i class="fas fa-fill-drip fa-2x"></i>
+                            </button>
+                            <div class="mt-1 small">fa-fill-drip</div>
+                        </div>
+                    </div>
+                    <p class="small text-muted">Xem thêm icons tại <a href="https://fontawesome.com/icons" target="_blank">Font Awesome</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Generate slug button
+            $('#generateSlug').on('click', function() {
+                generateSlug();
+            });
+
+            function generateSlug() {
+                var name = $('#productTypeName').val();
+                if (name) {
+                    // Convert to lowercase
+                    var slug = name.toLowerCase();
+
+                    // Remove accents/diacritics from Vietnamese characters
+                    slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+                    // Replace spaces with dashes and remove special characters
+                    slug = slug.replace(/\s+/g, '-')
+                        .replace(/[^\w\-]+/g, '')
+                        .replace(/\-\-+/g, '-')
+                        .replace(/^-+/, '')
+                        .replace(/-+$/, '');
+
+                    $('#productTypeSlug').val(slug);
+                }
+            }
+
+            // Icon preview
+            $('#iconInput').on('input', function() {
+                var iconClass = $(this).val();
+                if (iconClass) {
+                    $('#iconPreview').attr('class', iconClass);
+                } else {
+                    $('#iconPreview').attr('class', 'fas fa-box');
+                }
+            });
+
+            // Icon selection
+            $('.icon-btn').on('click', function() {
+                var iconClass = $(this).data('icon');
+                $('#iconInput').val(iconClass);
+                $('#iconPreview').attr('class', iconClass);
+            });
+        });
+    </script>
+}
