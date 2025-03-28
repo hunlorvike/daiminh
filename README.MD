@@ -1,205 +1,292 @@
 # Daiminh
 
-A .NET 8 web application with a multi-layer architecture.
+Daiminh là một ứng dụng web .NET 8 thể hiện mô hình kiến trúc đa tầng.
 
-## Project Structure
+## Cấu trúc Dự án
+
+Dự án tuân theo cách tiếp cận Clean Architecture / Đa tầng tiêu chuẩn:
 
 ```text
 daiminh/
-├── docs/                     # Documentation files
-│   ├── DATABASE.MD           # Database schema information
-│   └── database.mermaid      # Mermaid diagram of the database
-├── src/                      # Source code
-│   ├── application/          # Application layer (business logic, services)
-│   │   ├── Services/         # Application services
-│   │   │   ├── AuthService.cs
-│   │   │   ├── CategoryService.cs
-│   │   │   ├── ... (other services)
-│   │   │   └── UserService.cs
+├── docs/                     # Các tệp tài liệu
+│   ├── DATABASE.MD           # Thông tin lược đồ cơ sở dữ liệu
+│   └── database.mermaid      # Sơ đồ Mermaid của cơ sở dữ liệu
+├── src/                      # Mã nguồn
+│   ├── application/          # Lớp Application: Chứa logic nghiệp vụ, dịch vụ, use case. Điều phối các thực thể miền.
+│   │   ├── Services/         # Các dịch vụ ứng dụng triển khai luồng nghiệp vụ
 │   │   └── application.csproj
-│   ├── domain/               # Domain layer (entities, core business rules)
-│   │   ├── Entities/         # Domain entities
-│   │   │   ├── Shared/       # Shared entities
-│   │   │   ├── Category.cs
-│   │   │   ├── ... (other entities)
-│   │   │   └── User.cs
-│   ├── infrastructure/       # Infrastructure layer (data access, external services)
-│   │   ├── Migrations/       # Database migrations
-│   │   ├── Repositories/     # Data repositories
-│   │   ├── UnitOfWork/       # Unit of Work implementation
-│   │   ├── ApplicationDbContext.cs
-│   │   ├── AuditSaveChangesInterceptor.cs
+│   ├── domain/               # Lớp Domain: Các mô hình, thực thể và quy tắc nghiệp vụ cốt lõi. Độc lập với các lớp khác.
+│   │   ├── Entities/         # Các thực thể miền đại diện cho các khái niệm cốt lõi
+│   │   └── domain.csproj
+│   ├── infrastructure/       # Lớp Infrastructure: Xử lý các mối quan tâm kỹ thuật như truy cập dữ liệu, tích hợp dịch vụ bên ngoài.
+│   │   ├── Migrations/       # Các migration cơ sở dữ liệu của Entity Framework Core
+│   │   ├── Repositories/     # Các repository truy cập dữ liệu triển khai các interface được định nghĩa trong Application/Domain
+│   │   ├── UnitOfWork/       # Triển khai mô hình Unit of Work
+│   │   ├── ApplicationDbContext.cs # DbContext của EF Core
+│   │   ├── AuditSaveChangesInterceptor.cs # Interceptor SaveChanges của EF Core cho việc kiểm toán
 │   │   └── infrastructure.csproj
-│   ├── shared/               # Shared components, utilities, and models
-│   │   ├── Attributes/       # Custom attributes
-│   │   ├── Constants/        # Constants
-│   │   ├── Enums/            # Enumerations
-│   │   ├── Extensions/       # Extension methods
-│   │   ├── Interfaces/       # Shared interfaces
-│   │   ├── Models/           # Shared models (e.g., DTOs, ViewModels)
+│   ├── shared/               # Shared Kernel: Các mối quan tâm xuyên suốt, tiện ích chung, DTO, enum được sử dụng bởi nhiều lớp.
+│   │   ├── Attributes/       # Các attribute tùy chỉnh
+│   │   ├── Constants/        # Các hằng số toàn ứng dụng
+│   │   ├── Enums/            # Các Enumeration
+│   │   ├── Extensions/       # Các phương thức mở rộng (extension methods)
+│   │   ├── Interfaces/       # Các interface dùng chung
+│   │   ├── Models/           # Các model dùng chung (DTO, ViewModel, v.v.)
 │   │   └── shared.csproj
-│   └── web/                  # Presentation layer (ASP.NET Core Web App)
-│       ├── Areas/            # Areas (e.g., Admin, Client)
-│       │   ├── Admin/        # Admin area
-│       │   │   ├── Controllers/
-│       │   │   ├── Models/
-│       │   │   ├── Profiles/      # AutoMapper Profiles
-│       │   │   ├── Requests/      # Request Models
-│       │   │   └── Views/
-│       │   └── Client/       # Client area
-│       │       ├── Controllers/
-│       │       ├── Models/
-│       │       ├── Profiles/      # AutoMapper Profiles
-│       │       ├── Requests/      # Request Models
-│       │       └── Views/
+│   └── web/                  # Lớp Presentation: Ứng dụng Web ASP.NET Core xử lý giao diện người dùng và yêu cầu API.
+│       ├── Areas/            # Các khu vực chức năng (ví dụ: Admin, Client)
 │       ├── Properties/
-│       ├── wwwroot/          # Static files (CSS, JavaScript, images)
+│       ├── wwwroot/          # Các tài sản web tĩnh (CSS, JavaScript, hình ảnh)
 │       ├── appsettings.Development.json
 │       ├── appsettings.json
-|       ├── libman.json       # Client-side library configuration 
-│       ├── Program.cs
+│       ├── libman.json       # Cấu hình thư viện phía client (LibMan)
+│       ├── Program.cs        # Điểm vào ứng dụng và cấu hình dịch vụ
 │       └── web.csproj
-├── .dockerignore            # Files/folders to ignore in Docker builds
-├── .editorconfig           # Editor configuration
-├── .gitignore              # Files/folders to ignore in Git
-├── daiminh.sln             # Solution file
-├── docker-compose.yml      # Docker Compose configuration
-├── Dockerfile              # Dockerfile for building the application image
-└── README.MD               # This file
+├── .dockerignore            # Chỉ định các tệp/thư mục cần bỏ qua trong quá trình build Docker
+├── .editorconfig           # Định nghĩa kiểu và định dạng code để đảm bảo code nhất quán
+├── .gitignore              # Chỉ định các tệp không được theo dõi cố ý mà Git nên bỏ qua
+├── daiminh.sln             # Tệp Solution của Visual Studio
+├── docker-compose.yml      # Định nghĩa các dịch vụ ứng dụng Docker đa container
+├── Dockerfile              # Hướng dẫn để build image Docker của ứng dụng
+└── README.MD               # Tệp này (phiên bản tiếng Việt)
 ```
 
-## Prerequisites
+## Điều kiện tiên quyết
 
-Before you begin, ensure you have the following installed:
+Trước khi bắt đầu, hãy đảm bảo bạn đã cài đặt các công cụ sau:
 
 -   [.NET SDK 8.0](https://dotnet.microsoft.com/download/dotnet/8.0)
 -   [Docker](https://www.docker.com/products/docker-desktop/)
 -   [Docker Compose](https://docs.docker.com/compose/install/)
--   (Optional, but recommended) LibMan CLI:  `dotnet tool install -g Microsoft.Web.LibraryManager.Cli`
+-   [Git](https://git-scm.com/downloads)
+-   (Tùy chọn, nhưng khuyến nghị) LibMan CLI: `dotnet tool install -g Microsoft.Web.LibraryManager.Cli`
+-   (Tùy chọn, cho EF Migrations) EF Core Tools: `dotnet tool install --global dotnet-ef`
 
 ---
 
-## Local Development Setup
+## Cài đặt Môi trường Phát triển Cục bộ
 
-### 1. Clone the Repository
+### 1. Sao chép Repository
 
 ```bash
 git clone https://github.com/hunlorvike/daiminh.git daiminh
 cd daiminh
 ```
 
-### 2. Setup and Run the Project
+### 2. Chọn Phương pháp Cài đặt của Bạn
 
-#### **Option 1: Using Docker Compose (Recommended)**
+#### **Cách 1: Sử dụng Docker Compose (Khuyến nghị)**
 
-1.  **Start the Services (database, application, etc.)**
-    Run the following command to start all necessary containers:
+Phương pháp này sử dụng Docker để quản lý cơ sở dữ liệu và container ứng dụng.
+
+1.  **Khởi chạy Dịch vụ:**
+    Chạy lệnh sau để build các image (nếu cần) và khởi chạy các container được định nghĩa trong `docker-compose.yml` (bao gồm cơ sở dữ liệu PostgreSQL và ứng dụng web) ở chế độ detached (chạy nền).
 
     ```bash
-    docker compose up -d
+    docker compose up -d --build
     ```
+    *Lưu ý: Chờ một lát để container cơ sở dữ liệu khởi tạo xong.*
 
-2.  **Apply Database Migrations**
-    Run the following command to update the database:
+2.  **Áp dụng Database Migrations:**
+    Chạy lệnh sau từ máy host của bạn để áp dụng các migration của Entity Framework vào cơ sở dữ liệu đang chạy bên trong container Docker. Lệnh này nhắm vào dự án `web` để lấy cấu hình (như chuỗi kết nối) và dự án `infrastructure` nơi chứa các migration.
 
     ```bash
      dotnet ef database update --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
     ```
+    *Đảm bảo chuỗi kết nối trong `src/web/appsettings.Development.json` trỏ đúng đến dịch vụ PostgreSQL được định nghĩa trong `docker-compose.yml` (ví dụ: `Host=localhost;Port=5432...` nếu cổng 5432 được map).*
 
-3. **Clean, Restore, Build, and Run**
+3.  **Truy cập Ứng dụng:**
+    Ứng dụng bây giờ sẽ đang chạy. Truy cập nó qua trình duyệt của bạn, thường là tại `http://localhost:8080` (hoặc cổng được map trong `docker-compose.yml` cho dịch vụ `api`).
 
-   ```bash
-   dotnet clean daiminh.sln
-   dotnet restore daiminh.sln
-   dotnet build daiminh.sln
-   libman clean  # Clean client-side libraries
-   libman restore # Restore client-side libraries
-   dotnet run --project ./src/web/web.csproj
-   ```
+4.  **Xem Logs (Tùy chọn):**
+    ```bash
+    docker compose logs -f
+    ```
+
+5.  **Dừng Dịch vụ:**
+    ```bash
+    docker compose down
+    ```
 
 ---
 
-#### **Option 2: Running Manually without Docker**
+#### **Cách 2: Chạy Thủ công không cần Docker**
 
-If you don't want to use Docker, you can run the project manually:
+Phương pháp này yêu cầu bạn phải có một instance PostgreSQL đang chạy cục bộ.
 
-1.  **Configure the Database**
-    -   Ensure you have PostgreSQL installed.
-    -   Update the connection string in `src/web/appsettings.json`.
+1.  **Cấu hình Cơ sở dữ liệu:**
+    -   Đảm bảo bạn đã cài đặt và đang chạy PostgreSQL cục bộ.
+    -   Cập nhật mục `ConnectionStrings` trong `src/web/appsettings.Development.json` để trỏ đến instance PostgreSQL cục bộ của bạn.
 
-2.  **Apply Database Migrations**
+2.  **Áp dụng Database Migrations:**
+    Chạy lệnh sau để tạo hoặc cập nhật lược đồ cơ sở dữ liệu:
     ```bash
     dotnet ef database update --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
     ```
 
-3. **Clean, Restore, Build, and Run**
+3.  **Build và Chạy Ứng dụng:**
+    Thực thi các lệnh sau để khôi phục các dependency, build và chạy ứng dụng web:
 
-   ```bash
-    dotnet clean daiminh.sln       # Clean the solution
-    dotnet restore daiminh.sln    # Restore NuGet packages
-    dotnet build daiminh.sln       # Build the solution
-    libman clean                  # Clean client-side libraries
-    libman restore                # Restore client-side libraries (using libman.json)
-    dotnet run --project ./src/web/web.csproj
-   ```
+    ```bash
+    # Khôi phục các gói NuGet cho solution
+    dotnet restore daiminh.sln
+
+    # Khôi phục các thư viện phía client được định nghĩa trong libman.json
+    libman restore
+
+    # Build solution
+    dotnet build daiminh.sln --no-restore
+
+    # Chạy ứng dụng web
+    dotnet run --project ./src/web/web.csproj --no-build
+    ```
+
+4.  **Truy cập Ứng dụng:**
+    Ứng dụng bây giờ sẽ đang chạy. Truy cập nó qua trình duyệt của bạn, thường là tại `https://localhost:7001` hoặc `http://localhost:5001` (kiểm tra output của console để biết URL chính xác).
+
+---
+
+## Quản lý Thư viện Phía Client (LibMan)
+
+Dự án này sử dụng LibMan (`libman.json`) để quản lý các thư viện front-end (JavaScript, CSS). Các thư viện này được khôi phục vào thư mục `wwwroot`.
+
+-   **Khôi phục Thư viện:** (Tải xuống/cài đặt các thư viện như được định nghĩa trong `libman.json`)
+    ```bash
+    libman restore
+    ```
+    *Thường được thực hiện một lần sau khi clone hoặc pull các thay đổi, hoặc sau khi sửa đổi `libman.json`. Lệnh `dotnet restore` cũng có thể kích hoạt hành động này nếu được cấu hình.*
+
+-   **Dọn dẹp Thư viện:** (Xóa các thư viện do LibMan cài đặt khỏi `wwwroot`)
+    ```bash
+    libman clean
+    ```
+
+-   **Cập nhật Thư viện:** (Cập nhật một thư viện cụ thể lên phiên bản mới nhất được phép)
+    ```bash
+    libman update <tên-thư-viện>
+    ```
+    *(Ví dụ: `libman update jquery`)*
+
+-   **Cài đặt Thư viện Mới:**
+    Sử dụng LibMan CLI hoặc chỉnh sửa trực tiếp `libman.json`.
+    ```bash
+    # Ví dụ: Cài đặt Bootstrap 5.3.3 từ jsDelivr
+    libman install bootstrap@5.3.3 -p jsdelivr -d wwwroot/lib/bootstrap --files css/bootstrap.min.css,js/bootstrap.bundle.min.js
+    ```
+    Sau khi cài đặt qua CLI hoặc chỉnh sửa `libman.json`, chạy `libman restore`.
 
 ---
 
-##  Managing Client-Side Libraries (LibMan)
+## Entity Framework Core Migrations
 
-This project uses LibMan to manage client-side libraries (JavaScript, CSS, etc.).  The `libman.json` file at the root of the project defines these libraries.
+Nếu bạn thực hiện các thay đổi đối với các thực thể miền hoặc `ApplicationDbContext`:
 
-- **Restore Libraries:**
-  ```bash
-  libman restore
-  ```
-  This command downloads and installs the libraries specified in `libman.json` into the `wwwroot` folder.
+1.  **Thêm một Migration:**
+    Tạo một tệp migration mới ghi lại các thay đổi.
+    ```bash
+    dotnet ef migrations add <TênMigrationCủaBạn> --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
+    ```
 
-- **Clean Libraries:**
-  ```bash
-  libman clean
-  ```
-  This command removes all library files managed by LibMan from the `wwwroot` folder.  It's a good practice to run this before restoring to ensure you have a clean slate.
+2.  **Áp dụng Migration:**
+    Áp dụng các migration đang chờ xử lý vào cơ sở dữ liệu.
+    ```bash
+    dotnet ef database update --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
+    ```
 
-- **Update a Specific Library:**
-  ```bash
-  libman update <library-name>
-  ```
-  This command updates a specific library to the latest version (or the version specified in `libman.json`).
-
-- **Install a New Library:**
-    -  You can use the LibMan CLI:
-        ```bash
-        libman install <library-name>@<version> -p <provider> -d <destination>
-        ```
-        (e.g., `libman install jquery@3.7.1 -p unpkg -d wwwroot/lib/jquery`)
-    -  Or, you can directly edit the `libman.json` file and then run `libman restore`.  Visual Studio also provides a GUI for managing LibMan.
-
-**Important:** Always run `libman restore` after cloning the repository, pulling changes, or modifying `libman.json`.  This ensures your `wwwroot` folder contains the correct library files.
+3.  **Xóa Migration Cuối cùng (nếu cần):**
+    ```bash
+    dotnet ef migrations remove --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
+    ```
 
 ---
+
 ## EditorConfig
--   Configure .editorconfig settings in your editor to maintain consistent coding styles across the project.
-  - Remove unnecessary imports or usings
-  - Apply namespace matches folder preferences
-  - Fix analyzer warnings and errors set in EditorConfig
-  - Sort Imports or usings
-  - Format document
+
+Dự án này bao gồm một tệp `.editorconfig` để giúp duy trì các kiểu code nhất quán. Vui lòng cấu hình IDE của bạn (Visual Studio, VS Code, Rider) để tuân thủ các cài đặt `.editorconfig`. Điều này thường bao gồm:
+
+-   Xóa các câu lệnh `using` không cần thiết.
+-   Đảm bảo namespace khớp với cấu trúc thư mục.
+-   Áp dụng các quy tắc định dạng code.
+-   Sắp xếp các câu lệnh `using`.
+-   Sửa các cảnh báo/lỗi của analyzer được định nghĩa trong tệp.
+
 ---
 
-## Notes
+## Triển khai Docker lên Docker Hub
 
--   If you encounter errors related to Entity Framework, ensure you have the `dotnet-ef` tool installed globally:
+Các bước để build và push image Docker của ứng dụng lên Docker Hub:
 
+1.  **Đăng nhập vào Docker Hub:**
+    Xác thực bằng thông tin đăng nhập Docker Hub của bạn.
     ```bash
-    dotnet tool install --global dotnet-ef
+    docker login
+    # Nhập tên người dùng và mật khẩu Docker Hub của bạn khi được yêu cầu
     ```
 
--   If you make changes to the migrations, run the following commands:
-
+2.  **Build Docker Image:**
+    Build image bằng cách sử dụng `Dockerfile` trong thư mục gốc. Gắn thẻ (tag) image một cách thích hợp với tên người dùng Docker Hub, tên repository và (các) phiên bản của bạn.
     ```bash
-    dotnet ef migrations add <MigrationName> --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
-    dotnet ef database update --project ./src/infrastructure/infrastructure.csproj --startup-project ./src/web/web.csproj
+    # Thay 'your-dockerhub-username' bằng tên người dùng Docker Hub thực tế của bạn
+    # Định dạng: docker build -t <username>/<repository>:<tag> .
+
+    # Ví dụ sử dụng 'daiminh-repo' làm tên repository:
+    docker build -t your-dockerhub-username/daiminh-repo:latest .
+    docker build -t your-dockerhub-username/daiminh-repo:1.0.0 . # Nên sử dụng phiên bản cụ thể
     ```
 
-Happy coding! 🚀
+3.  **Push Image lên Docker Hub:**
+    Tải các image đã được gắn thẻ lên repository Docker Hub của bạn.
+    ```bash
+    # Thay 'your-dockerhub-username' và 'daiminh-repo' tương ứng
+    docker push your-dockerhub-username/daiminh-repo:latest
+    docker push your-dockerhub-username/daiminh-repo:1.0.0
+    ```
+
+4.  **(Tùy chọn) Cập nhật `docker-compose.yml` cho Triển khai:**
+    Nếu bạn triển khai bằng Docker Compose, bạn có thể thay đổi dịch vụ `api` để sử dụng image đã push thay vì build cục bộ.
+    ```yaml
+    # docker-compose.yml (đoạn mã ví dụ)
+    services:
+      api:
+        # Thay 'build: .' bằng 'image:'
+        image: your-dockerhub-username/daiminh-repo:latest # Hoặc một thẻ phiên bản cụ thể
+        # build: . # Xóa hoặc comment dòng build context này
+        ports:
+          - "8080:8080" # Hoặc các cổng thích hợp
+        environment:
+          # Đảm bảo các biến môi trường triển khai (như chuỗi kết nối) được thiết lập
+          - ASPNETCORE_ENVIRONMENT=Production
+          - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=daiminh_db;Username=user;Password=password # Ví dụ trỏ đến dịch vụ 'postgres'
+        depends_on:
+          - postgres
+        # ... các cấu hình dịch vụ khác
+
+      postgres:
+        image: postgres:latest
+        # ... các cấu hình postgres khác
+    ```
+
+5.  **Pull và Chạy trên Máy chủ:**
+    Trên máy chủ triển khai của bạn:
+    ```bash
+    # Đăng nhập nếu repository là private
+    # docker login
+
+    # Pull image về
+    docker pull your-dockerhub-username/daiminh-repo:latest
+
+    # Chạy bằng docker run hoặc docker compose
+    # Ví dụ sử dụng docker compose (đảm bảo docker-compose.yml có trên máy chủ và đã được cấu hình)
+    docker compose up -d
+    ```
+
+**Lưu ý khi Triển khai:**
+
+-   Thay thế `your-dockerhub-username` và `daiminh-repo` bằng thông tin chi tiết thực tế của bạn.
+-   Đảm bảo repository Docker Hub của bạn là public nếu người khác cần pull image mà không cần đăng nhập, hoặc là private nếu dùng cho nội bộ (yêu cầu `docker login` trên máy chủ).
+-   Sử dụng các thẻ phiên bản cụ thể (ví dụ: `1.0.0`) thay vì `latest` cho các môi trường production để đảm bảo tính dự đoán được.
+-   Cấu hình các biến môi trường một cách thích hợp cho môi trường triển khai (kết nối cơ sở dữ liệu, secrets, v.v.), thường được thực hiện qua `docker-compose.yml`, manifest của Kubernetes, hoặc biến môi trường hệ thống.
+
+---
+
+Chúc bạn coding vui vẻ! 🚀
