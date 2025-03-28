@@ -1,0 +1,12 @@
+@using web.Areas.Admin.ViewModels.Gallery
+@model GalleryViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa thư viện ảnh - Hệ thống quản trị";
+}
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <input type="hidden" asp-for="Id" />
+
+    @await Html.PartialAsync("_GalleryForm", Model)
+</form>

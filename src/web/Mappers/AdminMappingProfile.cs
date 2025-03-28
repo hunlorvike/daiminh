@@ -4,6 +4,7 @@ using web.Areas.Admin.ViewModels.Article;
 using web.Areas.Admin.ViewModels.Category;
 using web.Areas.Admin.ViewModels.Comment;
 using web.Areas.Admin.ViewModels.FAQ;
+using web.Areas.Admin.ViewModels.Gallery;
 using web.Areas.Admin.ViewModels.Media;
 using web.Areas.Admin.ViewModels.Product;
 using web.Areas.Admin.ViewModels.ProductType;
@@ -185,5 +186,32 @@ public class AdminMappingProfile : Profile
             .ForMember(dest => dest.Comments, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+
+        // Gallery mappings
+        CreateMap<Gallery, GalleryListItemViewModel>()
+            .ForMember(dest => dest.Categories, opt => opt.Ignore())
+            .ForMember(dest => dest.Tags, opt => opt.Ignore())
+            .ForMember(dest => dest.ImageCount, opt => opt.Ignore());
+
+        CreateMap<Gallery, GalleryViewModel>()
+            .ForMember(dest => dest.CategoryIds, opt => opt.Ignore())
+            .ForMember(dest => dest.TagIds, opt => opt.Ignore())
+            .ForMember(dest => dest.AvailableCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.AvailableTags, opt => opt.Ignore())
+            .ForMember(dest => dest.Images, opt => opt.Ignore())
+            .ForMember(dest => dest.CoverImageFile, opt => opt.Ignore());
+
+        CreateMap<GalleryViewModel, Gallery>()
+            .ForMember(dest => dest.GalleryCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.GalleryTags, opt => opt.Ignore())
+            .ForMember(dest => dest.Images, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+
+        CreateMap<GalleryImage, GalleryImageViewModel>();
+        CreateMap<GalleryImageViewModel, GalleryImage>()
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.Gallery, opt => opt.Ignore());
     }
 }
