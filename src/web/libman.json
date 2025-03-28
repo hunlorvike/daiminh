@@ -4,48 +4,80 @@
   "libraries": [
     {
       "library": "jquery@3.7.1",
-      "destination": "wwwroot/lib/jquery"
+      "destination": "wwwroot/lib/jquery",
+      "files": [
+        "dist/jquery.min.js"
+      ]
     },
     {
       "library": "jquery-validation@1.21.0",
-      "destination": "wwwroot/lib/jquery-validation"
+      "destination": "wwwroot/lib/jquery-validation",
+      "files": [
+        "dist/jquery.validate.min.js"
+      ]
     },
     {
       "library": "jquery-validation-unobtrusive@4.0.0",
-      "destination": "wwwroot/lib/jquery-validation-unobtrusive"
+      "destination": "wwwroot/lib/jquery-validation-unobtrusive",
+      "files": [
+        "dist/jquery.validate.unobtrusive.min.js"
+      ]
     },
     {
       "library": "swiper@11.2.5",
-      "destination": "wwwroot/lib/swiper"
+      "destination": "wwwroot/lib/swiper",
+      "files": [
+        "swiper-bundle.min.js",
+        "swiper-bundle.min.css"
+      ]
     },
     {
       "library": "@tabler/core@1.1.1",
-      "destination": "wwwroot/lib/tabler/core"
-    },
-    {
-      "library": "@tabler/icons@3.31.0",
-      "destination": "wwwroot/lib/tabler/icons"
+      "destination": "wwwroot/lib/tabler/core",
+      "files": [
+        "dist/js/tabler.min.js",
+        "dist/css/tabler.min.css"
+      ]
     },
     {
       "library": "summernote@0.9.1",
-      "destination": "wwwroot/lib/summernote/"
+      "destination": "wwwroot/lib/summernote/",
+      "files": [
+        "dist/summernote-bs5.min.js",
+        "dist/summernote-bs5.min.css",
+        "dist/lang/summernote-vi-VN.min.js"
+      ]
     },
     {
       "library": "tom-select@2.4.3",
-      "destination": "wwwroot/lib/tom-select/"
-    },
-    {
-      "provider": "cdnjs",
-      "library": "font-awesome@6.4.2",
-      "destination": "wwwroot/lib/font-awesome/"
+      "destination": "wwwroot/lib/tom-select/",
+      "files": [
+        "dist/js/tom-select.complete.min.js",
+        "dist/css/tom-select.bootstrap5.min.css"
+      ]
     },
     {
       "library": "toastr@2.1.4",
-      "destination": "wwwroot/lib/toastr/"
+      "destination": "wwwroot/lib/toastr/",
+      "files": [
+        "build/toastr.min.js",
+        "build/toastr.min.css"
+      ]
     },
     {
-      "library": "datatables.net@2.2.2",
-      "destination": "wwwroot/lib/datatables"
+      "provider": "jsdelivr",
+      "library": "@fortawesome/fontawesome-free@6.1.1",
+      "destination": "wwwroot/lib/font-awesome/",
+      "files": [
+        "css/all.min.css",
+        "js/all.min.js",
+        "webfonts/fa-brands-400.ttf",
+        "webfonts/fa-brands-400.woff2",
+        "webfonts/fa-regular-400.ttf",
+        "webfonts/fa-regular-400.woff2",
+        "webfonts/fa-solid-900.ttf",
+        "webfonts/fa-solid-900.woff2"
+      ]
     }
   ]
 }

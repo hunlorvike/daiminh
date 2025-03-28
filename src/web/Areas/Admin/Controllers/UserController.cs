@@ -1,3 +1,5 @@
+using System.Security.Cryptography;
+using System.Text;
 using AutoMapper;
 using domain.Entities;
 using FluentValidation;
@@ -5,8 +7,6 @@ using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 using web.Areas.Admin.ViewModels.User;
 
 namespace web.Areas.Admin.Controllers;

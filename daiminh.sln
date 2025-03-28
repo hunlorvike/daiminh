@@ -23,8 +23,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web.tests", "tests\web.test
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
-		docs\DATABASE.MD = docs\DATABASE.MD
-		docs\database.mermaid = docs\database.mermaid
+		docs\DEPLOY.MD = docs\DEPLOY.MD
 		README.MD = README.MD
 	EndProjectSection
 EndProject
@@ -32,35 +31,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{6FB2BA
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "database", "database", "{FE37EC30-7D35-401B-90A7-3F10FFB844FC}"
-	ProjectSection(SolutionItems) = preProject
-		docs\db\categories.sql = docs\db\categories.sql
-		docs\db\comments.sql = docs\db\comments.sql
-		docs\db\contacts.sql = docs\db\contacts.sql
-		docs\db\contents.sql = docs\db\contents.sql
-		docs\db\content_categories.sql = docs\db\content_categories.sql
-		docs\db\content_field_definitions.sql = docs\db\content_field_definitions.sql
-		docs\db\content_field_values.sql = docs\db\content_field_values.sql
-		docs\db\content_tags.sql = docs\db\content_tags.sql
-		docs\db\content_types.sql = docs\db\content_types.sql
-		docs\db\folders.sql = docs\db\folders.sql
-		docs\db\media_files.sql = docs\db\media_files.sql
-		docs\db\products.sql = docs\db\products.sql
-		docs\db\product_categories.sql = docs\db\product_categories.sql
-		docs\db\product_field_definitions.sql = docs\db\product_field_definitions.sql
-		docs\db\product_field_values.sql = docs\db\product_field_values.sql
-		docs\db\product_image.sql = docs\db\product_image.sql
-		docs\db\product_tags.sql = docs\db\product_tags.sql
-		docs\db\product_types.sql = docs\db\product_types.sql
-		docs\db\reviews.sql = docs\db\reviews.sql
-		docs\db\roles.sql = docs\db\roles.sql
-		docs\db\settings.sql = docs\db\settings.sql
-		docs\db\slider.sql = docs\db\slider.sql
-		docs\db\subscriber.sql = docs\db\subscriber.sql
-		docs\db\tags.sql = docs\db\tags.sql
-		docs\db\users.sql = docs\db\users.sql
 	EndProjectSection
 EndProject
 Global

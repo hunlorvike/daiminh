@@ -8,16 +8,8 @@
 
 	<PropertyGroup>
 		<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+        <StaticWebAssetPathCasing>Preserve</StaticWebAssetPathCasing>
 	</PropertyGroup>
-
-	<ItemGroup>
-	  <None Include="Areas\Admin\Views\Shared\Components\_DeleteModal.cshtml" />
-	  <None Include="Areas\Admin\Views\Shared\Components\_Sidebar.cshtml" />
-	  <None Include="Areas\Admin\Views\Shared\Layout\_Layout.Main.cshtml" />
-	  <None Include="Areas\Admin\Views\Shared\__LibScripts.cshtml" />
-	  <None Include="Areas\Admin\Views\Shared\__LibStyles.cshtml" />
-	</ItemGroup>
-
 
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="12.0.0" />

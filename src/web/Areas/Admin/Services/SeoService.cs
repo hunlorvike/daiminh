@@ -1,9 +1,9 @@
+using System.Text;
+using System.Text.Json;
 using AutoMapper;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using System.Text;
-using System.Text.Json;
 using web.Areas.Admin.ViewModels.Seo;
 
 namespace web.Areas.Admin.Services;

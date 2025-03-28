@@ -1,7 +1,7 @@
 // ArticleViewModelValidator.cs
+using System.Text.RegularExpressions;
 using FluentValidation;
 using shared.Enums;
-using System.Text.RegularExpressions;
 using web.Areas.Admin.ViewModels.Article;
 
 namespace web.Areas.Admin.Validators;

@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.Net;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace shared.Exceptions;
 
