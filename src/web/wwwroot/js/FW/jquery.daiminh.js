@@ -1428,9 +1428,9 @@ const jqueryDaiminh = (($, bootstrap) => {
                 Config.update(customConfig);
             }
 
-            Main.instances.dataTables.main = DataTable.initialize(Config.selectors.dataTable);
-            Form.init();
-            Modal.init();
+            //Main.instances.dataTables.main = DataTable.initialize(Config.selectors.dataTable);
+            //Form.init();
+            //Modal.init();
             Theme.init();
 
             Utils.log('daiminhjs v2.0.0 initialized');
