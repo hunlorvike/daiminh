@@ -3,6 +3,7 @@ using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
@@ -12,6 +13,7 @@ using web.Areas.Admin.ViewModels.Category;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize]
 public class CategoryController : Controller
 {
     private readonly ApplicationDbContext _context;

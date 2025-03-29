@@ -1,4 +1,5 @@
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Dashboard;
@@ -6,7 +7,7 @@ using web.Areas.Admin.ViewModels.Dashboard;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-//[Authorize]
+[Authorize]
 public class DashboardController : Controller
 {
     private readonly ApplicationDbContext _context;

@@ -1,0 +1,82 @@
+@using web.Areas.Admin.ViewModels.Account
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Đăng nhập - Hệ thống quản trị";
+    Layout = "Layout/_Layout.Blank";
+}
+
+<div class="container-tight py-4">
+    <div class="text-center mb-4">
+        <a href="." class="navbar-brand navbar-brand-autodark">
+            DAIMINH
+        </a>
+    </div>
+    <div class="card card-md">
+        <div class="card-body">
+            <h2 class="h2 text-center mb-4">Đăng nhập vào hệ thống quản trị</h2>
+            <form asp-action="Login" method="post" autocomplete="off" novalidate>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                <input type="hidden" asp-for="ReturnUrl" />
+
+                <div class="mb-3">
+                    <label class="form-label required">Tên đăng nhập hoặc Email</label>
+                    <input type="text" asp-for="Username" class="form-control" placeholder="Nhập tên đăng nhập hoặc email" autocomplete="off">
+                    <span asp-validation-for="Username" class="text-danger"></span>
+                </div>
+                <div class="mb-2">
+                    <label class="form-label required">
+                        Mật khẩu
+                        <span class="form-label-description">
+                            <a href="/Admin/Account/ForgotPassword">Quên mật khẩu?</a>
+                        </span>
+                    </label>
+                    <div class="input-group input-group-flat">
+                        <input type="password" asp-for="Password" class="form-control" placeholder="Mật khẩu" autocomplete="off">
+                        <span class="input-group-text">
+                            <a href="#" class="link-secondary" title="Hiển thị mật khẩu" data-bs-toggle="tooltip" id="togglePassword">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                        </span>
+                    </div>
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+                <div class="mb-2">
+                    <label class="form-check">
+                        <input type="checkbox" asp-for="RememberMe" class="form-check-input" />
+                        <span class="form-check-label">Ghi nhớ đăng nhập</span>
+                    </label>
+                </div>
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="text-center text-muted mt-3">
+        Chưa có tài khoản? <a href="#" tabindex="-1">Liên hệ quản trị viên</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Toggle password visibility
+            $('#togglePassword').on('click', function(e) {
+                e.preventDefault();
+
+                var passwordInput = $('input[name="Password"]');
+                var icon = $(this).find('i');
+
+                if (passwordInput.attr('type') === 'password') {
+                    passwordInput.attr('type', 'text');
+                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
+                } else {
+                    passwordInput.attr('type', 'password');
+                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
+                }
+            });
+        });
+    </script>
+}

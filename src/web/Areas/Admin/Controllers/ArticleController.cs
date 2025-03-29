@@ -4,6 +4,7 @@ using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +14,7 @@ using web.Areas.Admin.ViewModels.Article;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize]
 public class ArticleController : Controller
 {
     private readonly ApplicationDbContext _context;

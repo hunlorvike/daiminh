@@ -3,6 +3,7 @@ using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Newsletter;
@@ -10,6 +11,7 @@ using web.Areas.Admin.ViewModels.Newsletter;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize]
 public class NewsletterController : Controller
 {
     private readonly ApplicationDbContext _context;

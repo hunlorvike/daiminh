@@ -3,6 +3,7 @@ using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.FAQ;
@@ -10,7 +11,7 @@ using web.Areas.Admin.ViewModels.FAQ;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-//[Authorize(Roles = "Admin")]
+[Authorize]
 public class FAQController : Controller
 {
     private readonly ApplicationDbContext _context;

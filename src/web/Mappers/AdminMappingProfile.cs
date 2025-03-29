@@ -20,6 +20,9 @@ public class AdminMappingProfile : Profile
 {
     public AdminMappingProfile()
     {
+        // Login mappings
+        CreateMap<User, UserViewModel>();
+
         // FAQ mappings
         CreateMap<FAQ, FAQListItemViewModel>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : string.Empty));

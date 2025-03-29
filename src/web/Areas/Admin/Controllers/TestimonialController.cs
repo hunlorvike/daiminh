@@ -3,6 +3,7 @@ using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.Services;
@@ -11,6 +12,7 @@ using web.Areas.Admin.ViewModels.Testimonial;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
+[Authorize]
 public class TestimonialController : Controller
 {
     private readonly ApplicationDbContext _context;

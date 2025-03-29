@@ -56,9 +56,9 @@ builder.Services.AddAuthentication()
         options.Cookie.SameSite = SameSiteMode.Strict;
         options.ExpireTimeSpan = TimeSpan.FromHours(24);
         options.SlidingExpiration = true;
-        options.LoginPath = "/Admin/Auth/Login";
-        options.LogoutPath = "/Admin/Auth/Logout";
-        options.AccessDeniedPath = "/Admin/Auth/AccessDenied";
+        options.LoginPath = "/Admin/Account/Login";
+        options.LogoutPath = "/Admin/Account/Logout";
+        options.AccessDeniedPath = "/Error/Forbidden";
     });
 
 
