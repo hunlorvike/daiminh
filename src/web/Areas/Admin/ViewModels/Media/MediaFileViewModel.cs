@@ -1,6 +1,7 @@
 using shared.Enums;
 
 namespace web.Areas.Admin.ViewModels.Media;
+
 public class MediaFileViewModel
 {
     public int Id { get; set; }

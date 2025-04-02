@@ -94,11 +94,28 @@ public class AdminMappingProfile : Profile
         CreateMap<MediaFile, MediaFileListItemViewModel>()
             .ForMember(dest => dest.FolderName, opt => opt.MapFrom(src => src.MediaFolder != null ? src.MediaFolder.Name : null));
 
-        CreateMap<MediaFile, MediaFileViewModel>().ReverseMap()
-            .ForMember(dest => dest.FilePath, opt => opt.Condition(src => src.FileUpload == null))
-            .ForMember(dest => dest.ThumbnailPath, opt => opt.Condition(src => src.FileUpload == null))
-            .ForMember(dest => dest.MediumSizePath, opt => opt.Condition(src => src.FileUpload == null))
-            .ForMember(dest => dest.LargeSizePath, opt => opt.Condition(src => src.FileUpload == null));
+        CreateMap<MediaFile, MediaFileViewModel>();
+
+        CreateMap<MediaFileViewModel, MediaFile>()
+            .ForMember(dest => dest.FileName, opt => opt.MapFrom(src => src.FileName))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => src.AltText))
+            .ForMember(dest => dest.FolderId, opt => opt.MapFrom(src => src.FolderId))
+            .ForMember(dest => dest.OriginalFileName, opt => opt.Ignore())
+            .ForMember(dest => dest.MimeType, opt => opt.Ignore())
+            .ForMember(dest => dest.FileExtension, opt => opt.Ignore())
+            .ForMember(dest => dest.FilePath, opt => opt.Ignore())
+            .ForMember(dest => dest.ThumbnailPath, opt => opt.Ignore())
+            .ForMember(dest => dest.MediumSizePath, opt => opt.Ignore())
+            .ForMember(dest => dest.LargeSizePath, opt => opt.Ignore())
+            .ForMember(dest => dest.FileSize, opt => opt.Ignore())
+            .ForMember(dest => dest.Width, opt => opt.Ignore())
+            .ForMember(dest => dest.Height, opt => opt.Ignore())
+            .ForMember(dest => dest.Duration, opt => opt.Ignore())
+            .ForMember(dest => dest.MediaType, opt => opt.Ignore())
+            .ForMember(dest => dest.MediaFolder, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
         // Product mappings
         CreateMap<Product, ProductListItemViewModel>()
