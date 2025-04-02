@@ -196,10 +196,10 @@
 								<td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
 								<td>
 									<div class="btn-list flex-nowrap justify-content-center">
-										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-icon btn-outline-primary" title="Chi tiết">
+										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chi tiết">
 											<i class="ti ti-eye"></i>
 										</a>
-										<button type="button" class="btn btn-icon btn-outline-dange"
+										<button type="button" class="btn btn-sm btn-icon btn-outline-dange"
 												data-bs-toggle="modal"
 												data-bs-target="#delete-modal"
 												data-id="@item.Id"

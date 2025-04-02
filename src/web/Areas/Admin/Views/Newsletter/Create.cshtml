@@ -2,47 +2,52 @@
 
 @{
 	ViewData["Title"] = "Thêm đăng ký nhận tin - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Thêm đăng ký nhận tin"; 
 }
 
 @section PageActions {
 	<div class="btn-list">
 		<a asp-action="Index" class="btn btn-outline-secondary d-sm-inline-block">
-			<i class="fas fa-arrow-left me-2"></i> Quay lại
+			<i class="ti ti-arrow-left me-2"></i> Quay lại
 		</a>
 	</div>
 }
 
 <form asp-action="Create" method="post">
-	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
 
 	<div class="card">
 		<div class="card-header">
-			<h3 class="card-title">Thông tin đăng ký</h3>
+			<h3 class="card-title">Thêm mới thông tin đăng ký</h3>
 		</div>
 		<div class="card-body">
 			<div class="row">
 				<div class="col-md-6 mb-3">
 					<label asp-for="Email" class="form-label required">Email</label>
-					<input asp-for="Email" class="form-control" />
+					<input asp-for="Email" class="form-control" placeholder="Nhập địa chỉ email..." />
 					<span asp-validation-for="Email" class="text-danger"></span>
 				</div>
 				<div class="col-md-6 mb-3">
-					<label asp-for="Name" class="form-label">Tên</label>
-					<input asp-for="Name" class="form-control" />
+					<label asp-for="Name" class="form-label">Tên (Không bắt buộc)</label>
+					<input asp-for="Name" class="form-control" placeholder="Nhập tên người đăng ký..." />
 					<span asp-validation-for="Name" class="text-danger"></span>
 				</div>
-				<div class="col-md-6 mb-3">
+				<div class="col-md-12 mb-3">
 					<div class="form-check form-switch">
-						<input asp-for="IsActive" class="form-check-input" />
-						<label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+						<input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" checked />
+						<label asp-for="IsActive" class="form-check-label" for="isActiveSwitch">Kích hoạt đăng ký</label>
 					</div>
-					<small class="text-muted">Đăng ký từ admin sẽ tự động được xác nhận</small>
+					<div class="form-text">
+						Các đăng ký được thêm thủ công từ khu vực quản trị sẽ tự động được coi là đã xác nhận và ở trạng thái hoạt động (nếu được chọn).
+					</div>
+					<span asp-validation-for="IsActive" class="text-danger"></span>
 				</div>
 			</div>
 		</div>
 		<div class="card-footer text-end">
+			<a asp-action="Index" class="btn btn-link text-secondary">Hủy bỏ</a> 
 			<button type="submit" class="btn btn-primary">
-				<i class="fas fa-save me-2"></i> Lưu
+				<i class="ti ti-device-floppy me-2"></i> Thêm đăng ký
 			</button>
 		</div>
 	</div>

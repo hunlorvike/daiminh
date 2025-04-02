@@ -7,6 +7,7 @@ using web.Areas.Admin.ViewModels.Contact;
 using web.Areas.Admin.ViewModels.FAQ;
 using web.Areas.Admin.ViewModels.Gallery;
 using web.Areas.Admin.ViewModels.Media;
+using web.Areas.Admin.ViewModels.Newsletter;
 using web.Areas.Admin.ViewModels.Product;
 using web.Areas.Admin.ViewModels.ProductType;
 using web.Areas.Admin.ViewModels.Tag;
@@ -26,6 +27,14 @@ public class AdminMappingProfile : Profile
         CreateMap<Contact, ContactListItemViewModel>();
 
         CreateMap<Contact, ContactViewModel>().ReverseMap();
+
+        // Newsletter mappings
+
+        CreateMap<Newsletter, NewsletterListItemViewModel>();
+
+        // Newsletter to NewsletterViewModel
+        CreateMap<Newsletter, NewsletterViewModel>().ReverseMap();
+
 
         // FAQ mappings
         CreateMap<FAQ, FAQListItemViewModel>()

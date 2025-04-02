@@ -2,25 +2,27 @@
 
 @{
 	ViewData["Title"] = "Sửa đăng ký nhận tin - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Sửa đăng ký nhận tin"; 
 }
 
 @section PageActions {
 	<div class="btn-list">
 		<a asp-action="Index" class="btn btn-outline-secondary d-sm-inline-block">
-			<i class="fas fa-arrow-left me-2"></i> Quay lại
+			<i class="ti ti-arrow-left me-2"></i> Quay lại
 		</a>
 	</div>
 }
 
 <form asp-action="Edit" method="post">
-	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
 	<input type="hidden" asp-for="Id" />
 	<input type="hidden" asp-for="IpAddress" />
 	<input type="hidden" asp-for="UserAgent" />
 	<input type="hidden" asp-for="ConfirmedAt" />
 	<input type="hidden" asp-for="UnsubscribedAt" />
 	<input type="hidden" asp-for="CreatedAt" />
-	<input type="hidden" asp-for="UpdatedAt" />
+
 
 	<div class="card">
 		<div class="card-header">
@@ -34,45 +36,59 @@
 					<span asp-validation-for="Email" class="text-danger"></span>
 				</div>
 				<div class="col-md-6 mb-3">
-					<label asp-for="Name" class="form-label">Tên</label>
-					<input asp-for="Name" class="form-control" />
+					<label asp-for="Name" class="form-label">Tên (Không bắt buộc)</label>
+					<input asp-for="Name" class="form-control" placeholder="Nhập tên người đăng ký..." />
 					<span asp-validation-for="Name" class="text-danger"></span>
 				</div>
-				<div class="col-md-6 mb-3">
+				<div class="col-md-12 mb-4">
 					<div class="form-check form-switch">
-						<input asp-for="IsActive" class="form-check-input" />
-						<label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+						<input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="isActiveSwitch" />
+						<label asp-for="IsActive" class="form-check-label" for="isActiveSwitch">Kích hoạt đăng ký</label>
 					</div>
-					<small class="text-muted">
+					<div class="form-text">
 						@if (Model.IsActive)
 						{
-							<span>Hủy kích hoạt sẽ đánh dấu người dùng đã hủy đăng ký</span>
+							<span>Tắt công tắc này sẽ đánh dấu người dùng là <strong>đã hủy đăng ký</strong> (Unsubscribed).</span>
 						}
 						else
 						{
-							<span>Kích hoạt sẽ đánh dấu người dùng đã xác nhận đăng ký</span>
+							<span>Bật công tắc này sẽ đánh dấu người dùng là <strong>đang hoạt động</strong> (Active/Subscribed).</span>
 						}
-					</small>
+						<br />
+						<small>Lưu ý: Hành động này chỉ cập nhật trạng thái trong hệ thống, không tự động gửi email xác nhận lại.</small>
+					</div>
+					<span asp-validation-for="IsActive" class="text-danger"></span>
+				</div>
+
+				<hr class="my-3">
+
+				<div class="col-md-6 mb-3">
+					<label class="form-label text-muted">Ngày đăng ký:</label>
+					<div class="form-control-plaintext" title="@Model.CreatedAt.ToString("F")">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
 				</div>
 				<div class="col-md-6 mb-3">
-					<label class="form-label">Ngày đăng ký:</label>
-					<div class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+					<label class="form-label text-muted">Ngày xác nhận:</label>
+					<div class="form-control-plaintext" title="@(Model.ConfirmedAt?.ToString("F"))">@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa xác nhận")</div>
 				</div>
 				<div class="col-md-6 mb-3">
-					<label class="form-label">Ngày xác nhận:</label>
-					<div class="form-control-plaintext">@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa xác nhận")</div>
+					<label class="form-label text-muted">Ngày hủy đăng ký:</label>
+					<div class="form-control-plaintext" title="@(Model.UnsubscribedAt?.ToString("F"))">@(Model.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm") ?? "Chưa hủy")</div>
 				</div>
 				<div class="col-md-6 mb-3">
-					<label class="form-label">Ngày hủy đăng ký:</label>
-					<div class="form-control-plaintext">@(Model.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</div>
+					<label class="form-label text-muted">Địa chỉ IP (khi đăng ký):</label>
+					<div class="form-control-plaintext">@(Model.IpAddress ?? "N/A")</div>
 				</div>
+                <div class="col-md-12 mb-3">
+                    <label class="form-label text-muted">User Agent (khi đăng ký):</label>
+                    <div class="form-control-plaintext small">@(Model.UserAgent ?? "N/A")</div>
+                </div>
 			</div>
 		</div>
 		<div class="card-footer text-end">
+			<a asp-action="Index" class="btn btn-link text-secondary">Hủy bỏ</a> @* Optional cancel link *@
 			<button type="submit" class="btn btn-primary">
-				<i class="fas fa-save me-2"></i> Lưu thay đổi
+				<i class="ti ti-device-floppy me-2"></i> Lưu thay đổi
 			</button>
 		</div>
 	</div>
 </form>
-

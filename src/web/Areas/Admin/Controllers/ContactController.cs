@@ -221,6 +221,7 @@ public class ContactController : Controller
     // GET: Admin/Contact/Export
     public async Task<IActionResult> Export(ContactStatus? status = null, string? searchTerm = null)
     {
+        // Xây dựng query tương tự như trong Index
         IQueryable<Contact> query = _context.Set<Contact>().AsQueryable();
 
         if (status.HasValue)
@@ -241,28 +242,30 @@ public class ContactController : Controller
             .OrderByDescending(c => c.CreatedAt)
             .ToListAsync();
 
+        // Tạo file Excel
         using (var package = new OfficeOpenXml.ExcelPackage())
         {
-            var worksheet = package.Workbook.Worksheets.Add("Liên hệ");
+            // Worksheet dữ liệu chi tiết
+            var detailsSheet = package.Workbook.Worksheets.Add("Chi tiết liên hệ");
 
             // Thiết lập header
-            worksheet.Cells[1, 1].Value = "ID";
-            worksheet.Cells[1, 2].Value = "Họ tên";
-            worksheet.Cells[1, 3].Value = "Email";
-            worksheet.Cells[1, 4].Value = "Điện thoại";
-            worksheet.Cells[1, 5].Value = "Tiêu đề";
-            worksheet.Cells[1, 6].Value = "Nội dung";
-            worksheet.Cells[1, 7].Value = "Công ty";
-            worksheet.Cells[1, 8].Value = "Chi tiết dự án";
-            worksheet.Cells[1, 9].Value = "Trạng thái";
-            worksheet.Cells[1, 10].Value = "Ghi chú admin";
-            worksheet.Cells[1, 11].Value = "IP";
-            worksheet.Cells[1, 12].Value = "User Agent";
-            worksheet.Cells[1, 13].Value = "Ngày tạo";
-            worksheet.Cells[1, 14].Value = "Ngày cập nhật";
+            detailsSheet.Cells[1, 1].Value = "ID";
+            detailsSheet.Cells[1, 2].Value = "Họ tên";
+            detailsSheet.Cells[1, 3].Value = "Email";
+            detailsSheet.Cells[1, 4].Value = "Điện thoại";
+            detailsSheet.Cells[1, 5].Value = "Tiêu đề";
+            detailsSheet.Cells[1, 6].Value = "Nội dung";
+            detailsSheet.Cells[1, 7].Value = "Công ty";
+            detailsSheet.Cells[1, 8].Value = "Chi tiết dự án";
+            detailsSheet.Cells[1, 9].Value = "Trạng thái";
+            detailsSheet.Cells[1, 10].Value = "Ghi chú admin";
+            detailsSheet.Cells[1, 11].Value = "IP";
+            detailsSheet.Cells[1, 12].Value = "User Agent";
+            detailsSheet.Cells[1, 13].Value = "Ngày tạo";
+            detailsSheet.Cells[1, 14].Value = "Ngày cập nhật";
 
             // Định dạng header
-            using (var range = worksheet.Cells[1, 1, 1, 14])
+            using (var range = detailsSheet.Cells[1, 1, 1, 14])
             {
                 range.Style.Font.Bold = true;
                 range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
@@ -276,23 +279,23 @@ public class ContactController : Controller
                 var contact = contacts[i];
                 int row = i + 2; // Bắt đầu từ dòng 2 (sau header)
 
-                worksheet.Cells[row, 1].Value = contact.Id;
-                worksheet.Cells[row, 2].Value = contact.FullName;
-                worksheet.Cells[row, 3].Value = contact.Email;
-                worksheet.Cells[row, 4].Value = contact.Phone;
-                worksheet.Cells[row, 5].Value = contact.Subject;
-                worksheet.Cells[row, 6].Value = contact.Message;
-                worksheet.Cells[row, 7].Value = contact.CompanyName;
-                worksheet.Cells[row, 8].Value = contact.ProjectDetails;
-                worksheet.Cells[row, 9].Value = GetStatusDisplayName(contact.Status);
-                worksheet.Cells[row, 10].Value = contact.AdminNotes;
-                worksheet.Cells[row, 11].Value = contact.IpAddress;
-                worksheet.Cells[row, 12].Value = contact.UserAgent;
-                worksheet.Cells[row, 13].Value = contact.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss");
-                worksheet.Cells[row, 14].Value = contact.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss");
+                detailsSheet.Cells[row, 1].Value = contact.Id;
+                detailsSheet.Cells[row, 2].Value = contact.FullName;
+                detailsSheet.Cells[row, 3].Value = contact.Email;
+                detailsSheet.Cells[row, 4].Value = contact.Phone;
+                detailsSheet.Cells[row, 5].Value = contact.Subject;
+                detailsSheet.Cells[row, 6].Value = contact.Message;
+                detailsSheet.Cells[row, 7].Value = contact.CompanyName;
+                detailsSheet.Cells[row, 8].Value = contact.ProjectDetails;
+                detailsSheet.Cells[row, 9].Value = GetStatusDisplayName(contact.Status);
+                detailsSheet.Cells[row, 10].Value = contact.AdminNotes;
+                detailsSheet.Cells[row, 11].Value = contact.IpAddress;
+                detailsSheet.Cells[row, 12].Value = contact.UserAgent;
+                detailsSheet.Cells[row, 13].Value = contact.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss");
+                detailsSheet.Cells[row, 14].Value = contact.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss");
 
                 // Định dạng trạng thái với màu sắc
-                var statusCell = worksheet.Cells[row, 9];
+                var statusCell = detailsSheet.Cells[row, 9];
                 switch (contact.Status)
                 {
                     case ContactStatus.New:
@@ -311,16 +314,132 @@ public class ContactController : Controller
             }
 
             // Tự động điều chỉnh độ rộng cột
-            worksheet.Cells.AutoFitColumns();
+            detailsSheet.Cells.AutoFitColumns();
 
             // Giới hạn độ rộng tối đa cho một số cột
-            worksheet.Column(6).Width = 50; // Nội dung
-            worksheet.Column(8).Width = 50; // Chi tiết dự án
-            worksheet.Column(10).Width = 50; // Ghi chú admin
-            worksheet.Column(12).Width = 50; // User Agent
+            detailsSheet.Column(6).Width = 50; // Nội dung
+            detailsSheet.Column(8).Width = 50; // Chi tiết dự án
+            detailsSheet.Column(10).Width = 50; // Ghi chú admin
+            detailsSheet.Column(12).Width = 50; // User Agent
+
+            // Tạo worksheet tổng hợp
+            var summarySheet = package.Workbook.Worksheets.Add("Tổng hợp");
+
+            // Tiêu đề báo cáo
+            summarySheet.Cells[1, 1].Value = "BÁO CÁO TỔNG HỢP LIÊN HỆ";
+            using (var range = summarySheet.Cells[1, 1, 1, 5])
+            {
+                range.Merge = true;
+                range.Style.Font.Bold = true;
+                range.Style.Font.Size = 16;
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Thông tin báo cáo
+            summarySheet.Cells[3, 1].Value = "Ngày xuất báo cáo:";
+            summarySheet.Cells[3, 2].Value = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+
+            if (status.HasValue)
+            {
+                summarySheet.Cells[4, 1].Value = "Lọc theo trạng thái:";
+                summarySheet.Cells[4, 2].Value = GetStatusDisplayName(status.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                summarySheet.Cells[5, 1].Value = "Từ khóa tìm kiếm:";
+                summarySheet.Cells[5, 2].Value = searchTerm;
+            }
+
+            summarySheet.Cells[6, 1].Value = "Tổng số liên hệ:";
+            summarySheet.Cells[6, 2].Value = contacts.Count;
+
+            // Thống kê theo trạng thái
+            summarySheet.Cells[8, 1].Value = "THỐNG KÊ THEO TRẠNG THÁI";
+            using (var range = summarySheet.Cells[8, 1, 8, 5])
+            {
+                range.Merge = true;
+                range.Style.Font.Bold = true;
+                range.Style.Font.Size = 14;
+                range.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            }
+
+            // Header thống kê
+            summarySheet.Cells[10, 1].Value = "Trạng thái";
+            summarySheet.Cells[10, 2].Value = "Số lượng";
+            summarySheet.Cells[10, 3].Value = "Tỷ lệ";
+
+            using (var range = summarySheet.Cells[10, 1, 10, 3])
+            {
+                range.Style.Font.Bold = true;
+                range.Style.Fill.PatternType = OfficeOpenXml.Style.ExcelFillStyle.Solid;
+                range.Style.Fill.BackgroundColor.SetColor(System.Drawing.Color.LightGray);
+            }
+
+            // Dữ liệu thống kê
+            var newCount = contacts.Count(c => c.Status == ContactStatus.New);
+            var inProgressCount = contacts.Count(c => c.Status == ContactStatus.InProgress);
+            var completedCount = contacts.Count(c => c.Status == ContactStatus.Completed);
+            var spamCount = contacts.Count(c => c.Status == ContactStatus.Spam);
+            var totalCount = contacts.Count;
+
+            // Mới
+            summarySheet.Cells[11, 1].Value = "Mới";
+            summarySheet.Cells[11, 2].Value = newCount;
+            summarySheet.Cells[11, 3].Value = totalCount > 0 ? (double)newCount / totalCount : 0;
+            summarySheet.Cells[11, 3].Style.Numberformat.Format = "0.00%";
+            summarySheet.Cells[11, 1].Style.Font.Color.SetColor(System.Drawing.Color.Blue);
+
+            // Đang xử lý
+            summarySheet.Cells[12, 1].Value = "Đang xử lý";
+            summarySheet.Cells[12, 2].Value = inProgressCount;
+            summarySheet.Cells[12, 3].Value = totalCount > 0 ? (double)inProgressCount / totalCount : 0;
+            summarySheet.Cells[12, 3].Style.Numberformat.Format = "0.00%";
+            summarySheet.Cells[12, 1].Style.Font.Color.SetColor(System.Drawing.Color.Orange);
+
+            // Đã xử lý
+            summarySheet.Cells[13, 1].Value = "Đã xử lý";
+            summarySheet.Cells[13, 2].Value = completedCount;
+            summarySheet.Cells[13, 3].Value = totalCount > 0 ? (double)completedCount / totalCount : 0;
+            summarySheet.Cells[13, 3].Style.Numberformat.Format = "0.00%";
+            summarySheet.Cells[13, 1].Style.Font.Color.SetColor(System.Drawing.Color.Green);
+
+            // Spam
+            summarySheet.Cells[14, 1].Value = "Spam";
+            summarySheet.Cells[14, 2].Value = spamCount;
+            summarySheet.Cells[14, 3].Value = totalCount > 0 ? (double)spamCount / totalCount : 0;
+            summarySheet.Cells[14, 3].Style.Numberformat.Format = "0.00%";
+            summarySheet.Cells[14, 1].Style.Font.Color.SetColor(System.Drawing.Color.Red);
+
+            // Tổng
+            summarySheet.Cells[15, 1].Value = "Tổng cộng";
+            summarySheet.Cells[15, 2].Value = totalCount;
+            summarySheet.Cells[15, 3].Value = 1;
+            summarySheet.Cells[15, 3].Style.Numberformat.Format = "0.00%";
+            summarySheet.Cells[15, 1].Style.Font.Bold = true;
+            summarySheet.Cells[15, 2].Style.Font.Bold = true;
+
+            // Tạo biểu đồ
+            if (totalCount > 0)
+            {
+                var chart = summarySheet.Drawings.AddChart("pieChart", OfficeOpenXml.Drawing.Chart.eChartType.Pie);
+                chart.SetPosition(10, 0, 4, 0); // Vị trí của biểu đồ
+                chart.SetSize(500, 300); // Kích thước biểu đồ
+
+                // Dữ liệu cho biểu đồ
+                var series = chart.Series.Add(summarySheet.Cells[11, 2, 14, 2], summarySheet.Cells[11, 1, 14, 1]);
+                series.Header = "Phân bố trạng thái";
+
+                // Tiêu đề biểu đồ
+                chart.Title.Text = "Biểu đồ phân bố trạng thái liên hệ";
+                chart.Legend.Position = OfficeOpenXml.Drawing.Chart.eLegendPosition.Bottom;
+            }
+
+            // Điều chỉnh độ rộng cột cho sheet tổng hợp
+            summarySheet.Cells.AutoFitColumns();
 
             // Tạo tên file với timestamp
-            string fileName = $"Lien_he_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
+            string fileName = $"Bao_cao_lien_he_{DateTime.Now:yyyyMMdd_HHmmss}.xlsx";
 
             // Trả về file Excel
             var contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
