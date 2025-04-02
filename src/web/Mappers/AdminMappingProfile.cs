@@ -8,8 +8,6 @@ using web.Areas.Admin.ViewModels.Gallery;
 using web.Areas.Admin.ViewModels.Media;
 using web.Areas.Admin.ViewModels.Product;
 using web.Areas.Admin.ViewModels.ProductType;
-using web.Areas.Admin.ViewModels.Redirect;
-using web.Areas.Admin.ViewModels.Seo;
 using web.Areas.Admin.ViewModels.Tag;
 using web.Areas.Admin.ViewModels.Testimonial;
 using web.Areas.Admin.ViewModels.User;
@@ -101,24 +99,6 @@ public class AdminMappingProfile : Profile
             .ForMember(dest => dest.ThumbnailPath, opt => opt.Condition(src => src.FileUpload == null))
             .ForMember(dest => dest.MediumSizePath, opt => opt.Condition(src => src.FileUpload == null))
             .ForMember(dest => dest.LargeSizePath, opt => opt.Condition(src => src.FileUpload == null));
-
-        // Redirect mappings
-        CreateMap<Redirect, RedirectListItemViewModel>();
-        CreateMap<Redirect, RedirectViewModel>().ReverseMap();
-
-        // SeoSettings mappings
-        CreateMap<SeoSettings, SeoSettingsViewModel>();
-        CreateMap<SeoSettingsViewModel, SeoSettings>();
-        CreateMap<SeoSettings, SeoSettingsListItemViewModel>();
-
-        // SeoAnalytics mappings
-        CreateMap<SeoAnalytics, SeoAnalyticsViewModel>()
-            .ForMember(dest => dest.TopKeywords, opt => opt.MapFrom(src => src.TopKeywords ?? "[]"));
-
-        CreateMap<SeoAnalyticsViewModel, SeoAnalytics>()
-            .ForMember(dest => dest.TopKeywords, opt => opt.MapFrom(src => src.TopKeywords ?? "[]"));
-
-        CreateMap<SeoAnalytics, SeoAnalyticsListItemViewModel>();
 
         // Product mappings
         CreateMap<Product, ProductListItemViewModel>()

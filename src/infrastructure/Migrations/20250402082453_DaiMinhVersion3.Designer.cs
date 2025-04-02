@@ -12,8 +12,8 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250327182028_v2_media")]
-    partial class v2_media
+    [Migration("20250402082453_DaiMinhVersion3")]
+    partial class DaiMinhVersion3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -423,6 +423,176 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_article_tags_article_tag");
 
                     b.ToTable("article_tags", (string)null);
+                });
+
+            modelBuilder.Entity("domain.Entities.Brand", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("BreadcrumbJson")
+                        .HasColumnType("text")
+                        .HasColumnName("breadcrumb_json");
+
+                    b.Property<string>("CanonicalUrl")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("canonical_url");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("LogoUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("logo_url");
+
+                    b.Property<string>("MetaDescription")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("meta_description");
+
+                    b.Property<string>("MetaKeywords")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("meta_keywords");
+
+                    b.Property<string>("MetaTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("meta_title");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<bool>("NoFollow")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("no_follow");
+
+                    b.Property<bool>("NoIndex")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("no_index");
+
+                    b.Property<string>("OgDescription")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("og_description");
+
+                    b.Property<string>("OgImage")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("og_image");
+
+                    b.Property<string>("OgTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("og_title");
+
+                    b.Property<string>("OgType")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("website")
+                        .HasColumnName("og_type");
+
+                    b.Property<string>("SchemaMarkup")
+                        .HasColumnType("text")
+                        .HasColumnName("schema_markup");
+
+                    b.Property<string>("SitemapChangeFrequency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasDefaultValue("monthly")
+                        .HasColumnName("sitemap_change_frequency");
+
+                    b.Property<double>("SitemapPriority")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(0.5)
+                        .HasColumnName("sitemap_priority");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("slug");
+
+                    b.Property<string>("TwitterCard")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("summary_large_image")
+                        .HasColumnName("twitter_card");
+
+                    b.Property<string>("TwitterDescription")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("twitter_description");
+
+                    b.Property<string>("TwitterImage")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("twitter_image");
+
+                    b.Property<string>("TwitterTitle")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("twitter_title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("updated_by");
+
+                    b.Property<string>("Website")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("website");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("idx_brands_is_active");
+
+                    b.HasIndex("Slug")
+                        .IsUnique()
+                        .HasDatabaseName("idx_brands_slug");
+
+                    b.ToTable("brands", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Category", b =>
@@ -1326,82 +1496,113 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("AltText")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("alt_text");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("description");
 
                     b.Property<int?>("Duration")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("duration");
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(10)
+                        .HasColumnType("character varying(10)")
+                        .HasColumnName("file_extension");
 
                     b.Property<string>("FileName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("file_name");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_path");
 
                     b.Property<long>("FileSize")
-                        .HasColumnType("bigint");
+                        .HasColumnType("bigint")
+                        .HasColumnName("file_size");
 
                     b.Property<int?>("FolderId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("folder_id");
 
                     b.Property<int?>("Height")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("height");
 
                     b.Property<string>("LargeSizePath")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int?>("MediaFolderId")
-                        .HasColumnType("integer");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("large_size_path");
 
                     b.Property<int>("MediaType")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("media_type");
 
                     b.Property<string>("MediumSizePath")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("medium_size_path");
 
                     b.Property<string>("MimeType")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("mime_type");
 
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("original_file_name");
 
                     b.Property<string>("ThumbnailPath")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("thumbnail_path");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("updated_by");
 
                     b.Property<int?>("Width")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("width");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MediaFolderId");
+                    b.HasIndex("FolderId");
 
-                    b.ToTable("MediaFiles");
+                    b.ToTable("media_files", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.MediaFolder", b =>
@@ -1413,33 +1614,46 @@ namespace infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("parent_id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ParentId");
 
-                    b.ToTable("MediaFolders");
+                    b.ToTable("media_folders", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Newsletter", b =>
@@ -1528,6 +1742,10 @@ namespace infrastructure.Migrations
                     b.Property<string>("ApplicationAreas")
                         .HasColumnType("text")
                         .HasColumnName("application_areas");
+
+                    b.Property<int?>("BrandId")
+                        .HasColumnType("integer")
+                        .HasColumnName("brand_id");
 
                     b.Property<string>("BreadcrumbJson")
                         .HasColumnType("text")
@@ -1739,6 +1957,9 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BrandId")
+                        .HasDatabaseName("idx_products_brand_id");
+
                     b.HasIndex("IsFeatured")
                         .HasDatabaseName("idx_products_is_featured");
 
@@ -1807,178 +2028,6 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_product_categories_product_category");
 
                     b.ToTable("product_categories", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductFieldDefinition", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("DefaultValue")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("default_value");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
-
-                    b.Property<bool>("IsFilterable")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_filterable");
-
-                    b.Property<bool>("IsRequired")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_required");
-
-                    b.Property<bool>("IsVisibleInList")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_visible_in_list");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("key");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Options")
-                        .HasColumnType("json")
-                        .HasColumnName("options");
-
-                    b.Property<int>("OrderIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
-
-                    b.Property<int>("ProductTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_type_id");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("text")
-                        .HasColumnName("type");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_product_field_definitions_is_active");
-
-                    b.HasIndex("IsFilterable")
-                        .HasDatabaseName("idx_product_field_definitions_is_filterable");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_product_field_definitions_order_index");
-
-                    b.HasIndex("ProductTypeId")
-                        .HasDatabaseName("idx_product_field_definitions_product_type_id");
-
-                    b.HasIndex("ProductTypeId", "Key")
-                        .IsUnique()
-                        .HasDatabaseName("idx_product_field_definitions_type_key");
-
-                    b.ToTable("product_field_definitions", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductFieldValue", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("FieldDefinitionId")
-                        .HasColumnType("integer")
-                        .HasColumnName("field_definition_id");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("text")
-                        .HasColumnName("value");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("FieldDefinitionId")
-                        .HasDatabaseName("idx_product_field_values_field_definition_id");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("idx_product_field_values_product_id");
-
-                    b.HasIndex("ProductId", "FieldDefinitionId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_product_field_values_product_field");
-
-                    b.ToTable("product_field_values", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.ProductImage", b =>
@@ -2177,6 +2226,93 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_product_types_slug");
 
                     b.ToTable("product_types", (string)null);
+                });
+
+            modelBuilder.Entity("domain.Entities.ProductVariant", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Color")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("color");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("image_url");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("name");
+
+                    b.Property<string>("Packaging")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("packaging");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)")
+                        .HasColumnName("price");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer")
+                        .HasColumnName("product_id");
+
+                    b.Property<string>("Size")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("size");
+
+                    b.Property<string>("Sku")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("sku");
+
+                    b.Property<int>("StockQuantity")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasColumnName("stock_quantity");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IsActive")
+                        .HasDatabaseName("idx_product_variants_is_active");
+
+                    b.HasIndex("ProductId")
+                        .HasDatabaseName("idx_product_variants_product_id");
+
+                    b.HasIndex("Sku")
+                        .IsUnique()
+                        .HasDatabaseName("idx_product_variants_sku");
+
+                    b.ToTable("product_variants", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Project", b =>
@@ -2664,7 +2800,7 @@ namespace infrastructure.Migrations
                     b.ToTable("project_tags", (string)null);
                 });
 
-            modelBuilder.Entity("domain.Entities.Redirect", b =>
+            modelBuilder.Entity("domain.Entities.Setting", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2672,199 +2808,25 @@ namespace infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
+                    b.Property<string>("Category")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("HitCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("hit_count");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
-
-                    b.Property<bool>("IsRegex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_regex");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("notes");
-
-                    b.Property<string>("SourceUrl")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("source_url");
-
-                    b.Property<string>("TargetUrl")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("target_url");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("permanent")
-                        .HasColumnName("type");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_redirects_is_active");
-
-                    b.HasIndex("SourceUrl")
-                        .HasDatabaseName("idx_redirects_source_url");
-
-                    b.ToTable("redirects", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.SeoAnalytics", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<double>("AveragePosition")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(5, 2)
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.0)
-                        .HasColumnName("average_position");
-
-                    b.Property<double>("CTR")
-                        .ValueGeneratedOnAdd()
-                        .HasPrecision(5, 2)
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.0)
-                        .HasColumnName("ctr");
-
-                    b.Property<int>("Clicks")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("clicks");
+                        .HasColumnName("category");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
+                        .HasColumnType("text");
 
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("date");
-
-                    b.Property<int>("EntityId")
-                        .HasColumnType("integer")
-                        .HasColumnName("entity_id");
-
-                    b.Property<string>("EntityTitle")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("entity_title");
-
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("entity_type");
-
-                    b.Property<string>("EntityUrl")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("entity_url");
-
-                    b.Property<int>("Impressions")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("impressions");
-
-                    b.Property<string>("TopKeywords")
-                        .HasColumnType("json")
-                        .HasColumnName("top_keywords");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Date")
-                        .HasDatabaseName("idx_seo_analytics_date");
-
-                    b.HasIndex("EntityType")
-                        .HasDatabaseName("idx_seo_analytics_entity_type");
-
-                    b.HasIndex("EntityType", "EntityId", "Date")
-                        .IsUnique()
-                        .HasDatabaseName("idx_seo_analytics_entity_date");
-
-                    b.ToTable("seo_analytics", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.SeoSettings", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
+                    b.Property<string>("DefaultValue")
+                        .HasColumnType("text")
+                        .HasColumnName("default_value");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasColumnName("description");
 
                     b.Property<bool>("IsActive")
@@ -2879,14 +2841,17 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("key");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
+                    b.Property<string>("Type")
+                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
+                        .HasColumnName("type");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
 
                     b.Property<string>("Value")
                         .HasColumnType("text")
@@ -2894,14 +2859,20 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Category")
+                        .HasDatabaseName("idx_settings_category");
+
                     b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_seo_settings_is_active");
+                        .HasDatabaseName("idx_settings_is_active");
 
                     b.HasIndex("Key")
                         .IsUnique()
-                        .HasDatabaseName("idx_seo_settings_key");
+                        .HasDatabaseName("idx_settings_key");
 
-                    b.ToTable("seo_settings", (string)null);
+                    b.HasIndex("Type")
+                        .HasDatabaseName("idx_settings_type");
+
+                    b.ToTable("settings", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Tag", b =>
@@ -3265,7 +3236,8 @@ namespace infrastructure.Migrations
                 {
                     b.HasOne("domain.Entities.MediaFolder", "MediaFolder")
                         .WithMany("Files")
-                        .HasForeignKey("MediaFolderId");
+                        .HasForeignKey("FolderId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("MediaFolder");
                 });
@@ -3274,18 +3246,26 @@ namespace infrastructure.Migrations
                 {
                     b.HasOne("domain.Entities.MediaFolder", "Parent")
                         .WithMany("Children")
-                        .HasForeignKey("ParentId");
+                        .HasForeignKey("ParentId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>
                 {
+                    b.HasOne("domain.Entities.Brand", "Brand")
+                        .WithMany("Products")
+                        .HasForeignKey("BrandId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("domain.Entities.ProductType", "ProductType")
                         .WithMany("Products")
                         .HasForeignKey("ProductTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Brand");
 
                     b.Navigation("ProductType");
                 });
@@ -3305,36 +3285,6 @@ namespace infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductFieldDefinition", b =>
-                {
-                    b.HasOne("domain.Entities.ProductType", "ProductType")
-                        .WithMany("FieldDefinitions")
-                        .HasForeignKey("ProductTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("ProductType");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductFieldValue", b =>
-                {
-                    b.HasOne("domain.Entities.ProductFieldDefinition", "FieldDefinition")
-                        .WithMany("FieldValues")
-                        .HasForeignKey("FieldDefinitionId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Product", "Product")
-                        .WithMany("FieldValues")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("FieldDefinition");
 
                     b.Navigation("Product");
                 });
@@ -3367,6 +3317,17 @@ namespace infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Tag");
+                });
+
+            modelBuilder.Entity("domain.Entities.ProductVariant", b =>
+                {
+                    b.HasOne("domain.Entities.Product", "Product")
+                        .WithMany("Variants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("domain.Entities.ProjectCategory", b =>
@@ -3448,6 +3409,11 @@ namespace infrastructure.Migrations
                     b.Navigation("Comments");
                 });
 
+            modelBuilder.Entity("domain.Entities.Brand", b =>
+                {
+                    b.Navigation("Products");
+                });
+
             modelBuilder.Entity("domain.Entities.Category", b =>
                 {
                     b.Navigation("ArticleCategories");
@@ -3491,8 +3457,6 @@ namespace infrastructure.Migrations
                 {
                     b.Navigation("ArticleProducts");
 
-                    b.Navigation("FieldValues");
-
                     b.Navigation("Images");
 
                     b.Navigation("ProductCategories");
@@ -3500,17 +3464,12 @@ namespace infrastructure.Migrations
                     b.Navigation("ProductTags");
 
                     b.Navigation("ProjectProducts");
-                });
 
-            modelBuilder.Entity("domain.Entities.ProductFieldDefinition", b =>
-                {
-                    b.Navigation("FieldValues");
+                    b.Navigation("Variants");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductType", b =>
                 {
-                    b.Navigation("FieldDefinitions");
-
                     b.Navigation("Products");
                 });
 

@@ -26,14 +26,17 @@ public class Product : SeoEntity<int>
     public bool IsActive { get; set; } = true;
     public int ProductTypeId { get; set; }
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
+    public int? BrandId { get; set; } // Nullable Foreign Key
 
     // Navigation properties
     public virtual ProductType? ProductType { get; set; }
+    public virtual Brand? Brand { get; set; }
     public virtual ICollection<ProductImage>? Images { get; set; }
     public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
     public virtual ICollection<ProductTag>? ProductTags { get; set; }
     public virtual ICollection<ProjectProduct>? ProjectProducts { get; set; }
     public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
+    public virtual ICollection<ProductVariant>? Variants { get; set; }
 }
 
 public class ProductConfiguration : SeoEntityConfiguration<Product, int>
@@ -45,6 +48,7 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
         builder.ToTable("products");
 
         builder.Property(e => e.ProductTypeId).HasColumnName("product_type_id");
+        builder.Property(e => e.BrandId).HasColumnName("brand_id");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
@@ -76,10 +80,16 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
         builder.HasIndex(e => e.ViewCount).HasDatabaseName("idx_products_view_count");
         builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_products_is_featured");
         builder.HasIndex(e => e.ProductTypeId).HasDatabaseName("idx_products_product_type_id");
+        builder.HasIndex(e => e.BrandId).HasDatabaseName("idx_products_brand_id");
 
         builder.HasOne(p => p.ProductType)
             .WithMany(pt => pt.Products)
             .HasForeignKey(p => p.ProductTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.Brand)
+            .WithMany(b => b.Products)
+            .HasForeignKey(p => p.BrandId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

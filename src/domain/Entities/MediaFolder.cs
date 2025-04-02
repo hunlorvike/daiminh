@@ -23,14 +23,18 @@ public class MediaFolderConfiguration : BaseEntityConfiguration<MediaFolder, int
     public override void Configure(EntityTypeBuilder<MediaFolder> builder)
     {
         base.Configure(builder);
+
         builder.ToTable("media_folders");
+
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(100);
         builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
         builder.Property(e => e.ParentId).HasColumnName("parent_id");
+
         builder.HasOne(e => e.Parent)
             .WithMany(e => e!.Children)
             .HasForeignKey(e => e.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
+
         builder.HasMany(e => e.Files)
             .WithOne(e => e.MediaFolder)
             .HasForeignKey(e => e.FolderId)
