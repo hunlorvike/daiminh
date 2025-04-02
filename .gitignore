@@ -118,3 +118,4 @@ $RECYCLE.BIN/
 
 # Ignore wwwroot/lib directory
 src/web/wwwroot/lib/
+/src/web/wwwroot/uploads

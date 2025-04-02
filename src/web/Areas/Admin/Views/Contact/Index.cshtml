@@ -1,14 +1,28 @@
 @model IEnumerable<web.Areas.Admin.ViewModels.Contact.ContactListItemViewModel>
 @using shared.Enums
+@using Microsoft.AspNetCore.Mvc.Rendering
 
 @{
 	ViewData["Title"] = "Quản lý liên hệ - Hệ thống quản trị";
+	var currentStatusFilter = ViewBag.StatusFilter as ContactStatus?;
+	var currentSearchTerm = ViewBag.SearchTerm as string;
+
+	var statusListItems = Enum.GetValues(typeof(ContactStatus)).Cast<ContactStatus>()
+		.Select(e => new SelectListItem
+				{
+					Value = e.ToString(),
+					Text = e == ContactStatus.New ? "Mới" :
+								   e == ContactStatus.InProgress ? "Đang xử lý" :
+								   e == ContactStatus.Completed ? "Đã xử lý" :
+								   e == ContactStatus.Spam ? "Spam" : e.ToString(),
+					Selected = currentStatusFilter.HasValue && currentStatusFilter.Value == e
+				}).ToList();
 }
 
 @section PageActions {
 	<div class="btn-list">
 		<a href="javascript:void(0)" class="btn btn-outline-primary d-sm-inline-block" onclick="exportContacts()">
-			<i class="fas fa-file-export me-2"></i> Xuất Excel
+			<i class="ti ti-file-export me-2"></i> Xuất Excel
 		</a>
 	</div>
 }
@@ -18,55 +32,45 @@
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
 			<div class="col-md-4">
-				<label class="form-label">Trạng thái</label>
-				<select class="form-select" name="status" id="statusFilter">
-					<option value="">Tất cả trạng thái</option>
-					<option value="@ContactStatus.New" selected="@(ViewBag.StatusFilter == ContactStatus.New ? "selected" : "")">Mới</option>
-					<option value="@ContactStatus.InProgress" selected="@(ViewBag.StatusFilter==ContactStatus.InProgress ? "selected" : "" )">Đang xử lý</option>
-					<option value="@ContactStatus.Completed" selected="@(ViewBag.StatusFilter==ContactStatus.Completed ? "selected" : "" )">Đã xử lý</option>
-					<option value="@ContactStatus.Spam" selected="@(ViewBag.StatusFilter==ContactStatus.Spam ? "selected" : "" )">Spam</option>
-				</select>
-			</div>
-			<div class="col-md-4">
-				<label class="form-label">Tìm kiếm</label>
+				<label class="form-label" for="searchTermInput">Tìm kiếm</label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm kiếm..." name="searchTerm" value="@ViewBag.SearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch">
-						<i class="fas fa-times"></i>
+					<input type="text" class="form-control" placeholder="Tìm kiếm..." name="searchTerm" id="searchTermInput" value="@currentSearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+						<i class="ti ti-x"></i>
 					</button>
 				</div>
 			</div>
+			<div class="col-md-4">
+				<label class="form-label" for="statusFilter">Trạng thái</label>
+				<select class="form-select" name="status" id="statusFilter" asp-for="@currentStatusFilter" asp-items="statusListItems">
+					<option value="">Tất cả trạng thái</option>
+				</select>
+			</div>
 			<div class="col-md-2">
 				<button type="submit" class="btn btn-primary w-100">
-					<i class="fas fa-search me-2"></i> Lọc
+					<i class="ti ti-filter me-2"></i> Lọc
 				</button>
 			</div>
 			<div class="col-md-2">
-				<a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
-					<i class="fas fa-redo me-2"></i> Đặt lại
+				<a asp-action="Index" class="btn btn-outline-secondary w-100">
+					<i class="ti ti-refresh me-2"></i> Đặt lại
 				</a>
 			</div>
 		</form>
 	</div>
 </div>
 
-<!-- Status summary -->
-<div class="row mb-3">
+<div class="row mb-3 g-3">
 	<div class="col-md-3">
 		<div class="card">
 			<div class="card-body p-2 text-center">
 				<div class="text-end text-blue">
-					<span class="badge bg-blue">@ViewBag.NewCount</span>
+					<span class="badge bg-blue text-white">@ViewBag.NewCount</span>
 				</div>
-				<div class="h1 m-0">
-					<i class="fas fa-envelope-open text-blue"></i>
+				<div class="h1 m-0 text-blue">
+					<i class="ti ti-mail-opened"></i>
 				</div>
-				<div class="text-muted mb-3">Liên hệ mới</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-blue" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-						<span class="visually-hidden">100% Complete</span>
-					</div>
-				</div>
+				<div class="text-muted mb-1">Liên hệ mới</div>
 			</div>
 		</div>
 	</div>
@@ -74,17 +78,12 @@
 		<div class="card">
 			<div class="card-body p-2 text-center">
 				<div class="text-end text-yellow">
-					<span class="badge bg-yellow">@ViewBag.InProgressCount</span>
+					<span class="badge bg-yellow text-white">@ViewBag.InProgressCount</span>
 				</div>
-				<div class="h1 m-0">
-					<i class="fas fa-spinner text-yellow"></i>
+				<div class="h1 m-0 text-yellow">
+					<i class="ti ti-loader-2"></i>
 				</div>
-				<div class="text-muted mb-3">Đang xử lý</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-yellow" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-						<span class="visually-hidden">100% Complete</span>
-					</div>
-				</div>
+				<div class="text-muted mb-1">Đang xử lý</div>
 			</div>
 		</div>
 	</div>
@@ -92,17 +91,12 @@
 		<div class="card">
 			<div class="card-body p-2 text-center">
 				<div class="text-end text-green">
-					<span class="badge bg-green">@ViewBag.CompletedCount</span>
+					<span class="badge bg-green text-white">@ViewBag.CompletedCount</span>
 				</div>
-				<div class="h1 m-0">
-					<i class="fas fa-check-circle text-green"></i>
+				<div class="h1 m-0 text-green">
+					<i class="ti ti-circle-check"></i>
 				</div>
-				<div class="text-muted mb-3">Đã xử lý</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-green" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-						<span class="visually-hidden">100% Complete</span>
-					</div>
-				</div>
+				<div class="text-muted mb-1">Đã xử lý</div>
 			</div>
 		</div>
 	</div>
@@ -110,41 +104,43 @@
 		<div class="card">
 			<div class="card-body p-2 text-center">
 				<div class="text-end text-red">
-					<span class="badge bg-red">@ViewBag.SpamCount</span>
+					<span class="badge bg-red text-white">@ViewBag.SpamCount</span>
 				</div>
-				<div class="h1 m-0">
-					<i class="fas fa-ban text-red"></i>
+				<div class="h1 m-0 text-red">
+					<i class="ti ti-ban"></i>
 				</div>
-				<div class="text-muted mb-3">Spam</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-red" style="width: 100%" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-						<span class="visually-hidden">100% Complete</span>
-					</div>
-				</div>
+				<div class="text-muted mb-1">Spam</div>
 			</div>
 		</div>
 	</div>
 </div>
 
-<!-- Content -->
+<form>
+	@Html.AntiForgeryToken()
+</form>
+
+
 <div class="card">
 	<div class="card-header">
 		<h3 class="card-title">Danh sách liên hệ</h3>
+		<div class="ms-auto text-muted">
+			Tổng cộng: <span class="badge bg-secondary text-white">@Model.Count()</span>
+		</div>
 	</div>
 	<div class="card-body p-0">
 		@if (!Model.Any())
 		{
 			<div class="empty">
-				<div class="empty-img">
-					<i class="fas fa-envelope fa-5x text-muted"></i>
+				<div class="empty-icon">
+					<i class="ti ti-mail-off text-muted" style="font-size: 3rem;"></i>
 				</div>
 				<p class="empty-title">Không tìm thấy liên hệ nào</p>
 				<p class="empty-subtitle text-muted">
-					Không có liên hệ nào phù hợp với điều kiện tìm kiếm
+					Không có liên hệ nào phù hợp với điều kiện lọc hoặc chưa có liên hệ nào được gửi.
 				</p>
 				<div class="empty-action">
 					<a asp-action="Index" class="btn btn-primary">
-						<i class="fas fa-redo me-2"></i> Xem tất cả
+						<i class="ti ti-refresh me-2"></i> Tải lại / Xem tất cả
 					</a>
 				</div>
 			</div>
@@ -162,7 +158,7 @@
 							<th>Tiêu đề</th>
 							<th>Trạng thái</th>
 							<th>Ngày tạo</th>
-							<th class="w-1">Thao tác</th>
+							<th class="w-1 text-center">Thao tác</th> 
 						</tr>
 					</thead>
 					<tbody>
@@ -171,7 +167,7 @@
 							<tr>
 								<td>@item.Id</td>
 								<td>@item.FullName</td>
-								<td>@item.Email</td>
+								<td><a href="mailto:@item.Email">@item.Email</a></td>
 								<td>@(item.Phone ?? "-")</td>
 								<td>
 									<div class="text-truncate" style="max-width: 200px;" title="@item.Subject">@item.Subject</div>
@@ -182,37 +178,34 @@
 											@item.StatusDisplayName
 										</a>
 										<div class="dropdown-menu dropdown-menu-end">
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.New">
-												<i class="fas fa-envelope-open me-2 text-blue"></i> Mới
+											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.New.ToString()">
+												<i class="ti ti-mail-opened me-2 text-blue"></i> Mới
 											</a>
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.InProgress">
-												<i class="fas fa-spinner me-2 text-yellow"></i> Đang xử lý
+											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.InProgress.ToString()">
+												<i class="ti ti-loader-2 me-2 text-yellow"></i> Đang xử lý
 											</a>
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.Completed">
-												<i class="fas fa-check-circle me-2 text-green"></i> Đã xử lý
+											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.Completed.ToString()">
+												<i class="ti ti-circle-check me-2 text-green"></i> Đã xử lý
 											</a>
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.Spam">
-												<i class="fas fa-ban me-2 text-red"></i> Spam
+											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.Spam.ToString()">
+												<i class="ti ti-ban me-2 text-red"></i> Spam
 											</a>
 										</div>
 									</div>
 								</td>
 								<td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
 								<td>
-									<div class="btn-list flex-nowrap">
-										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chi tiết">
-											<i class="fas fa-eye"></i>
+									<div class="btn-list flex-nowrap justify-content-center">
+										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-icon btn-outline-primary" title="Chi tiết">
+											<i class="ti ti-eye"></i>
 										</a>
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-warning" title="Cập nhật">
-											<i class="fas fa-edit"></i>
-										</a>
-										<button type="button" class="btn btn-sm btn-icon btn-outline-danger delete-item"
+										<button type="button" class="btn btn-icon btn-outline-dange"
 												data-bs-toggle="modal"
 												data-bs-target="#delete-modal"
 												data-id="@item.Id"
-												data-name="@item.FullName"
+												data-name="@item.Subject" 
 												title="Xóa">
-											<i class="fas fa-trash"></i>
+											<i class="ti ti-trash"></i>
 										</button>
 									</div>
 								</td>
@@ -225,129 +218,64 @@
 	</div>
 </div>
 
-<!-- Delete Modal -->
-<div class="modal modal-blur fade" id="delete-modal" tabindex="-1" role="dialog" aria-hidden="true">
-	<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
-		<div class="modal-content">
-			<div class="modal-body">
-				<div class="modal-title" id="delete-modal-message">Bạn có chắc chắn muốn xóa?</div>
-				<div>Thao tác này không thể hoàn tác.</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Hủy</button>
-				<form id="deleteForm" asp-action="Delete" method="post">
-					<input type="hidden" id="delete-item-id" name="id" />
-					@Html.AntiForgeryToken()
-					<button type="submit" class="btn btn-danger" id="confirm-delete-btn">Xóa</button>
-				</form>
-			</div>
-		</div>
-	</div>
-</div>
-
 @section Scripts {
 	<script>
-				// JavaScript for Contact and Newsletter management
 		$(document).ready(() => {
-		  // Handle delete modal
-		  $(".delete-item").on("click", function () {
-			var id = $(this).data("id")
-			var name = $(this).data("name")
 
-			$("#delete-item-id").val(id)
-			$("#delete-modal-message").text('Bạn có chắc chắn muốn xóa "' + name + '"?')
-		  })
+			$("#clearSearch").on("click", () => {
+				$('#searchTermInput').val("");
+			});
 
-		  // Clear search button
-		  $("#clearSearch").on("click", () => {
-			$('input[name="searchTerm"]').val("")
-			$("#filterForm").submit()
-		  })
+			$(".change-status").on("click", function () {
+				var id = $(this).data("id");
+				var status = $(this).data("status");
+				var token = getAntiForgeryToken();
 
-		  // Auto submit on status change
-		  $("#statusFilter").on("change", () => {
-			$("#filterForm").submit()
-		  })
+				var badgeElement = $(this).closest('td').find('.badge');
 
-		  // Contact status change
-		  $(".change-status").on("click", function () {
-			var id = $(this).data("id")
-			var status = $(this).data("status")
+				$(this).closest('.dropdown').find('.dropdown-toggle').addClass('disabled');
 
-			$.ajax({
-			  url: "/Admin/Contact/ChangeStatus",
-			  type: "POST",
-			  data: { id: id, status: status },
-			  success: (result) => {
-				if (result.success) {
-				  toastr.success(result.message)
-				  setTimeout(() => {
-					window.location.reload()
-				  }, 1000)
-				} else {
-				  toastr.error(result.message)
-				}
-			  },
-			  error: () => {
-				toastr.error("Đã xảy ra lỗi khi thay đổi trạng thái")
-			  },
-			})
-		  })
 
-		  // Newsletter toggle status
-		  $(".toggle-status").on("click", function () {
-			var id = $(this).data("id")
+				$.ajax({
+					url: "@Url.Action("ChangeStatus", "Contact", new { area = "Admin" })", 
+					type: "POST",
+					data: {
+						id: id,
+						status: status,
+						__RequestVerificationToken: token 
+					},
+					success: (result) => {
+						if (result.success) {
+							toastr.success(result.message || "Cập nhật trạng thái thành công.");
+							 setTimeout(() => { window.location.reload(); }, 800); 
+						} else {
+							toastr.error(result.message || "Không thể cập nhật trạng thái.");
+							 $(this).closest('.dropdown').find('.dropdown-toggle').removeClass('disabled');
+						}
+					},
+					error: (jqXHR, textStatus, errorThrown) => {
+						 console.error("ChangeStatus Error:", textStatus, errorThrown);
+						 toastr.error("Đã xảy ra lỗi khi thay đổi trạng thái. Vui lòng thử lại.");
+						 $(this).closest('.dropdown').find('.dropdown-toggle').removeClass('disabled');
+					},
+				});
+			});
+		});
 
-			$.ajax({
-			  url: "/Admin/Newsletter/ToggleStatus",
-			  type: "POST",
-			  data: { id: id, __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() },
-			  success: (result) => {
-				if (result.success) {
-				  toastr.success(result.message)
-				  setTimeout(() => {
-					window.location.reload()
-				  }, 1000)
-				} else {
-				  toastr.error(result.message)
-				}
-			  },
-			  error: () => {
-				toastr.error("Đã xảy ra lỗi khi thay đổi trạng thái")
-			  },
-			})
-		  })
-		})
+		function getAntiForgeryToken() {
+			return $('input[name="__RequestVerificationToken"]').val();
+		}
 
-		// Export functions
 		function exportContacts() {
-		  // Get current filter parameters
-		  var status = $("#statusFilter").val()
-		  var searchTerm = $('input[name="searchTerm"]').val()
+			var status = $("#statusFilter").val();
+			var searchTerm = $('#searchTermInput').val();
+			var exportUrl = "@Url.Action("Export", "Contact", new { area = "Admin" })?";
 
-		  // Build export URL with current filters
-		  var exportUrl = "/Admin/Contact/Export?"
-		  if (status) exportUrl += "status=" + status + "&"
-		  if (searchTerm) exportUrl += "searchTerm=" + encodeURIComponent(searchTerm)
+			var queryParams = [];
+			if (status) queryParams.push("status=" + encodeURIComponent(status));
+			if (searchTerm) queryParams.push("searchTerm=" + encodeURIComponent(searchTerm));
 
-		  // Redirect to export URL
-		  window.location.href = exportUrl
+			window.location.href = exportUrl + queryParams.join('&');
 		}
-
-		function exportNewsletters() {
-		  // Get current filter parameters
-		  var isActive = $("#statusFilter").val()
-		  var searchTerm = $('input[name="searchTerm"]').val()
-
-		  // Build export URL with current filters
-		  var exportUrl = "/Admin/Newsletter/Export?"
-		  if (isActive !== "") exportUrl += "isActive=" + isActive + "&"
-		  if (searchTerm) exportUrl += "searchTerm=" + encodeURIComponent(searchTerm)
-
-		  // Redirect to export URL
-		  window.location.href = exportUrl
-		}
-
-
-</script>
+	</script>
 }

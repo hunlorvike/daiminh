@@ -3,6 +3,7 @@ using domain.Entities;
 using web.Areas.Admin.ViewModels.Article;
 using web.Areas.Admin.ViewModels.Category;
 using web.Areas.Admin.ViewModels.Comment;
+using web.Areas.Admin.ViewModels.Contact;
 using web.Areas.Admin.ViewModels.FAQ;
 using web.Areas.Admin.ViewModels.Gallery;
 using web.Areas.Admin.ViewModels.Media;
@@ -20,6 +21,11 @@ public class AdminMappingProfile : Profile
     {
         // Login mappings
         CreateMap<User, UserViewModel>();
+
+        // Contact mappings
+        CreateMap<Contact, ContactListItemViewModel>();
+
+        CreateMap<Contact, ContactViewModel>().ReverseMap();
 
         // FAQ mappings
         CreateMap<FAQ, FAQListItemViewModel>()

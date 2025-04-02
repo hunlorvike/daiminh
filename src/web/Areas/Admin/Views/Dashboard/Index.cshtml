@@ -18,7 +18,7 @@
 					<div>Tỷ lệ hoạt động</div>
 					<div class="ms-auto">
 						<span class="text-green d-inline-flex align-items-center lh-1">
-							<i class="fas fa-arrow-up"></i>
+							<i class="ti ti-arrow-up"></i>
 						</span>
 					</div>
 				</div>
@@ -41,7 +41,7 @@
 					<div>Tỷ lệ hoạt động</div>
 					<div class="ms-auto">
 						<span class="text-green d-inline-flex align-items-center lh-1">
-							<i class="fas fa-arrow-up"></i>
+							<i class="ti ti-arrow-up"></i>
 						</span>
 					</div>
 				</div>
@@ -64,7 +64,7 @@
 					<div>Tỷ lệ hoạt động</div>
 					<div class="ms-auto">
 						<span class="text-green d-inline-flex align-items-center lh-1">
-							<i class="fas fa-arrow-up"></i>
+							<i class="ti ti-arrow-up"></i>
 						</span>
 					</div>
 				</div>
@@ -87,7 +87,7 @@
 					<div>Tỷ lệ phản hồi</div>
 					<div class="ms-auto">
 						<span class="text-yellow d-inline-flex align-items-center lh-1">
-							<i class="fas fa-minus"></i>
+							<i class="ti ti-minus"></i>
 						</span>
 					</div>
 				</div>
@@ -105,49 +105,54 @@
 			<div class="card-header">
 				<h3 class="card-title">Bài viết gần đây</h3>
 				<div class="card-actions">
-					<a href="/admin/article" class="btn btn-primary btn-sm">
+					<a asp-area="Admin" asp-controller="Article" asp-action="Index" class="btn btn-primary btn-sm">
 						Xem tất cả
 					</a>
 				</div>
 			</div>
 			<div class="list-group list-group-flush">
-				@foreach (var article in Model.RecentArticles)
+				@if (Model.RecentArticles != null)
 				{
-					<div class="list-group-item">
-						<div class="row align-items-center">
-							<div class="col-auto">
-								<span class="badge bg-@(article.Status == PublishStatus.Published ? "green" : article.Status == PublishStatus.Draft ? "yellow" : "blue")">
-									@article.Status.ToString()
-								</span>
-							</div>
-							<div class="col">
-								<a href="/admin/article/edit/@article.Id" class="text-reset d-block">@article.Title</a>
-								<div class="text-muted mt-1">
-									<div class="d-inline-block">
-										<span class="text-muted">@article.AuthorName</span>
-									</div>
-									<div class="d-inline-block ms-3">
-										<i class="far fa-calendar me-1"></i> @article.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+					@foreach (var article in Model.RecentArticles)
+					{
+						<div class="list-group-item">
+							<div class="row align-items-center">
+								<div class="col-auto">
+									<span class="badge bg-@(article.Status == PublishStatus.Published ? "green" : article.Status == PublishStatus.Draft ? "yellow" : "blue")">
+										@article.Status.ToString()
+									</span>
+								</div>
+								<div class="col">
+									<a asp-area="Admin" asp-controller="Article" asp-action="Edit" asp-route-id="@article.Id" class="text-reset d-block">@article.Title</a>
+									<div class="text-muted mt-1">
+										<div class="d-inline-block">
+											<span class="text-muted">@article.AuthorName</span>
+										</div>
+										<div class="d-inline-block ms-3">
+											<i class="ti ti-calendar me-1"></i>
+											@article.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-auto">
-								<div class="dropdown">
-									<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="fas fa-ellipsis-v"></i>
-									</a>
-									<div class="dropdown-menu dropdown-menu-end">
-										<a href="/admin/article/edit/@article.Id" class="dropdown-item">
-											<i class="fas fa-edit me-2"></i> Chỉnh sửa
+								<div class="col-auto">
+									<div class="dropdown">
+										<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="ti ti-dots-vertical"></i>
 										</a>
-										<a href="/bai-viet/@article.Slug" target="_blank" class="dropdown-item">
-											<i class="fas fa-eye me-2"></i> Xem
-										</a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<a asp-area="Admin" asp-controller="Article" asp-action="Edit" asp-route-id="@article.Id" class="dropdown-item">
+												<i class="ti ti-edit me-2"></i> Chỉnh sửa
+											</a>
+											@*TODO: sửa lại sau khi xây dựng giao diện client*@
+											<a href="/bai-viet/@article.Slug" target="_blank" class="dropdown-item">
+												<i class="ti ti-eye me-2"></i> Xem
+											</a>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
+					}
 				}
 			</div>
 		</div>
@@ -158,51 +163,52 @@
 			<div class="card-header">
 				<h3 class="card-title">Liên hệ gần đây</h3>
 				<div class="card-actions">
-					<a href="/admin/contact" class="btn btn-primary btn-sm">
+					<a asp-area="Admin" asp-controller="Contact" asp-action="Index" class="btn btn-primary btn-sm">
 						Xem tất cả
 					</a>
 				</div>
 			</div>
 			<div class="list-group list-group-flush">
-				@foreach (var contact in Model.RecentContacts)
+				@if (Model.RecentContacts != null)
 				{
-					<div class="list-group-item">
-						<div class="row align-items-center">
-							<div class="col-auto">
-								<span class="badge bg-@(contact.Status == ContactStatus.New ? "red" : contact.Status == ContactStatus.InProgress ? "yellow" : contact.Status == ContactStatus.Completed ? "green" : "gray")">
-									@(contact.Status == ContactStatus.New ? "Mới" :
-																contact.Status == ContactStatus.InProgress ? "Đang xử lý" :
-																contact.Status == ContactStatus.Completed ? "Hoàn thành" : "Spam")
-								</span>
-							</div>
-							<div class="col">
-								<a href="/admin/contact/detail/@contact.Id" class="text-reset d-block">@contact.Subject</a>
-								<div class="text-muted mt-1">
-									<div class="d-inline-block">
-										<span class="text-muted">@contact.FullName</span>
-									</div>
-									<div class="d-inline-block ms-3">
-										<i class="far fa-calendar me-1"></i> @contact.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+					@foreach (var contact in Model.RecentContacts)
+					{
+						<div class="list-group-item">
+							<div class="row align-items-center">
+								<div class="col-auto">
+									<span class="badge bg-@(contact.Status == ContactStatus.New ? "red" : contact.Status == ContactStatus.InProgress ? "yellow" : contact.Status == ContactStatus.Completed ? "green" : "gray")">
+										@(contact.Status == ContactStatus.New ? "Mới" :
+																	contact.Status == ContactStatus.InProgress ? "Đang xử lý" :
+																	contact.Status == ContactStatus.Completed ? "Hoàn thành" : "Spam")
+									</span>
+								</div>
+								<div class="col">
+									<a asp-area="Admin" asp-controller="Contact" asp-action="Detail" asp-route-id="@contact.Id" class="text-reset d-block">@contact.Subject</a>
+									<div class="text-muted mt-1">
+										<div class="d-inline-block">
+											<span class="text-muted">@contact.FullName</span>
+										</div>
+										<div class="d-inline-block ms-3">
+											<i class="ti ti-calendar me-1"></i>
+											@contact.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+										</div>
 									</div>
 								</div>
-							</div>
-							<div class="col-auto">
-								<div class="dropdown">
-									<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-										<i class="fas fa-ellipsis-v"></i>
-									</a>
-									<div class="dropdown-menu dropdown-menu-end">
-										<a href="/admin/contact/detail/@contact.Id" class="dropdown-item">
-											<i class="fas fa-eye me-2"></i> Xem chi tiết
+								<div class="col-auto">
+									<div class="dropdown">
+										<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
+											<i class="ti ti-dots-vertical"></i>
 										</a>
-										<a href="mailto:@contact.Email" class="dropdown-item">
-											<i class="fas fa-reply me-2"></i> Phản hồi
-										</a>
+										<div class="dropdown-menu dropdown-menu-end">
+											<a asp-area="Admin" asp-controller="Contact" asp-action="Detail" asp-route-id="@contact.Id" class="dropdown-item">
+												<i class="ti ti-eye me-2"></i> Xem chi tiết
+											</a>
+										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-					</div>
+					}
 				}
 			</div>
 		</div>

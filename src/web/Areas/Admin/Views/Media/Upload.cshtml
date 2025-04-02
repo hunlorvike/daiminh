@@ -18,6 +18,11 @@
                         <small class="form-hint">Kích thước tối đa: 20MB mỗi file. Bạn có thể chọn nhiều file cùng lúc.</small>
                     </div>
 
+					<div class="file-preview-container mt-3 mb-3" style="display: none;">
+						<h4>Xem trước</h4>
+						<div class="row" id="file-preview-list"></div>
+					</div>
+
                     <div class="form-group mb-3">
                         <label asp-for="Description" class="form-label">Mô tả</label>
                         <textarea asp-for="Description" class="form-control" rows="3"></textarea>
@@ -64,19 +69,71 @@
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Preview selected files or update hint
-            $('input[type="file"][asp-for="Files"]').on('change', function() {
-                var fileCount = this.files ? this.files.length : 0;
-                var $hint = $(this).closest('.form-group').find('.form-hint');
-                if (fileCount > 0) {
-                    $hint.text('Đã chọn ' + fileCount + ' file.');
-                } else {
-                    // Reset to original hint text
-                    $hint.text('Kích thước tối đa: 20MB mỗi file. Bạn có thể chọn nhiều file cùng lúc.');
-                }
-            });
-        });
-    </script>
+	<script>
+		$(document).ready(function() {
+			$('#Files').on('change', function() {
+				var fileCount = this.files ? this.files.length : 0;
+				var $hint = $(this).closest('.form-group').find('.form-hint');
+				var $previewContainer = $('.file-preview-container');
+				var $previewList = $('#file-preview-list');
+
+				if (fileCount > 0) {
+					$hint.text('Đã chọn ' + fileCount + ' file.');
+					$previewList.empty();
+					$previewContainer.show();
+
+					for (var i = 0; i < fileCount; i++) {
+						var file = this.files[i];
+						var reader = new FileReader();
+						var $preview = $('<div class="col-md-3 mb-3"></div>');
+						var $card = $('<div class="card"></div>');
+						var $cardBody = $('<div class="card-body p-2"></div>');
+
+						reader.onload = (function(file, $card) {
+							return function(e) {
+								var fileType = file.type.split('/')[0];
+								var $content = $('<div class="text-center"></div>');
+
+								if (fileType === 'image') {
+									$content.append('<img src="' + e.target.result + '" class="img-fluid mb-2" style="max-height: 100px;">');
+								} else {
+									var icon = 'ti-file';
+									if (fileType === 'video') icon = 'ti-movie';
+									else if (fileType === 'audio') icon = 'ti-music';
+									else if (file.type === 'application/pdf') icon = 'ti-file-text';
+
+									$content.append('<i class="' + icon + ' text-muted" style="font-size: 3rem;"></i>');
+								}
+
+								$content.append('<div class="text-truncate small">' + file.name + '</div>');
+								$content.append('<div class="text-muted small">' + formatFileSize(file.size) + '</div>');
+
+								$card.append($content);
+							};
+						})(file, $card);
+
+						reader.readAsDataURL(file);
+						$cardBody.append($card);
+						$preview.append($cardBody);
+						$previewList.append($preview);
+					}
+				} else {
+					$hint.text('Kích thước tối đa: 20MB mỗi file. Bạn có thể chọn nhiều file cùng lúc.');
+					$previewContainer.hide();
+				}
+			});
+
+			$('#clear-files').on('click', function() {
+				$('#file-upload').val('').trigger('change');
+			});
+
+			function formatFileSize(bytes) {
+				if (bytes === 0) return '0 Bytes';
+				var k = 1024;
+				var sizes = ['Bytes', 'KB', 'MB', 'GB'];
+				var i = Math.floor(Math.log(bytes) / Math.log(k));
+				return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+			}
+		});
+	</script>
 }

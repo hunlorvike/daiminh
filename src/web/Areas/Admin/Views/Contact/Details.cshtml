@@ -1,16 +1,18 @@
 @model web.Areas.Admin.ViewModels.Contact.ContactViewModel
+@using shared.Enums 
 
 @{
 	ViewData["Title"] = "Chi tiết liên hệ - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Chi tiết liên hệ"; 
 }
 
 @section PageActions {
 	<div class="btn-list">
 		<a asp-action="Index" class="btn btn-outline-secondary d-sm-inline-block">
-			<i class="fas fa-arrow-left me-2"></i> Quay lại
+			<i class="ti ti-arrow-left me-2"></i> Quay lại
 		</a>
 		<a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary d-sm-inline-block">
-			<i class="fas fa-edit me-2"></i> Cập nhật
+			<i class="ti ti-edit me-2"></i> Cập nhật
 		</a>
 	</div>
 }
@@ -18,83 +20,101 @@
 <div class="card">
 	<div class="card-header">
 		<h3 class="card-title">Thông tin liên hệ</h3>
+		<div class="card-actions">
+			<a href="mailto:@Model.Email" class="btn btn-outline-info">
+				<i class="ti ti-mail me-2"></i> Gửi Email Phản hồi
+			</a>
+		</div>
 	</div>
 	<div class="card-body">
 		<div class="row">
 			<div class="col-md-6 mb-3">
-				<label class="form-label">Họ tên:</label>
+				<label class="form-label fw-bold">Họ tên:</label> 
 				<div class="form-control-plaintext">@Model.FullName</div>
 			</div>
 			<div class="col-md-6 mb-3">
-				<label class="form-label">Email:</label>
-				<div class="form-control-plaintext">@Model.Email</div>
+				<label class="form-label fw-bold">Email:</label>
+				<div class="form-control-plaintext"><a href="mailto:@Model.Email">@Model.Email</a></div> 
 			</div>
 			<div class="col-md-6 mb-3">
-				<label class="form-label">Điện thoại:</label>
-				<div class="form-control-plaintext">@(Model.Phone ?? "Không có")</div>
+				<label class="form-label fw-bold">Điện thoại:</label>
+				<div class="form-control-plaintext">@(Model.Phone ?? "N/A")</div>
 			</div>
 			<div class="col-md-6 mb-3">
-				<label class="form-label">Công ty:</label>
-				<div class="form-control-plaintext">@(Model.CompanyName ?? "Không có")</div>
+				<label class="form-label fw-bold">Công ty:</label>
+				<div class="form-control-plaintext">@(Model.CompanyName ?? "N/A")</div>
+			</div>
+			<div class="col-12 mb-3">
+				<label class="form-label fw-bold">Tiêu đề:</label>
+				<div class="form-control-plaintext">@Model.Subject</div>
 			</div>
 			<div class="col-md-6 mb-3">
-				<label class="form-label">Trạng thái:</label>
+				<label class="form-label fw-bold">Trạng thái:</label>
 				<div class="form-control-plaintext">
 					@switch (Model.Status)
 					{
-						case shared.Enums.ContactStatus.New:
-							<span class="badge bg-blue">Mới</span>
+						case ContactStatus.New:
+							<span class="badge bg-blue-lt">
+								<i class="ti ti-mail-opened me-1"></i> Mới
+							</span>
 							break;
-						case shared.Enums.ContactStatus.InProgress:
-							<span class="badge bg-yellow">Đang xử lý</span>
+						case ContactStatus.InProgress:
+							<span class="badge bg-yellow-lt">
+								<i class="ti ti-loader-2 me-1"></i> Đang xử lý
+							</span>
 							break;
-						case shared.Enums.ContactStatus.Completed:
-							<span class="badge bg-green">Đã xử lý</span>
+						case ContactStatus.Completed:
+							<span class="badge bg-green-lt">
+								<i class="ti ti-circle-check me-1"></i> Đã xử lý
+							</span>
 							break;
-						case shared.Enums.ContactStatus.Spam:
-							<span class="badge bg-red">Spam</span>
+						case ContactStatus.Spam:
+							<span class="badge bg-red-lt">
+								<i class="ti ti-ban me-1"></i> Spam
+							</span>
 							break;
 						default:
-							<span class="badge bg-secondary">@Model.Status</span>
+							<span class="badge bg-secondary-lt">@Model.Status</span>
 							break;
 					}
 				</div>
 			</div>
 			<div class="col-md-6 mb-3">
-				<label class="form-label">Ngày tạo:</label>
-				<div class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div>
+				<label class="form-label fw-bold">Ngày nhận:</label>
+				<div class="form-control-plaintext" title="@Model.CreatedAt.ToString("F")">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</div> 
 			</div>
+
 			<div class="col-12 mb-3">
-				<label class="form-label">Tiêu đề:</label>
-				<div class="form-control-plaintext">@Model.Subject</div>
+				<label class="form-label fw-bold">Nội dung:</label>
+				<div class="form-control-plaintext border p-3 rounded bg-light" style="white-space: pre-wrap;">@Model.Message</div> 
 			</div>
-			<div class="col-12 mb-3">
-				<label class="form-label">Nội dung:</label>
-				<div class="form-control-plaintext border p-3 rounded bg-light">@Model.Message</div>
-			</div>
+
 			@if (!string.IsNullOrEmpty(Model.ProjectDetails))
 			{
 				<div class="col-12 mb-3">
-					<label class="form-label">Chi tiết dự án:</label>
-					<div class="form-control-plaintext border p-3 rounded bg-light">@Model.ProjectDetails</div>
+					<label class="form-label fw-bold">Chi tiết dự án (Nếu có):</label>
+					<div class="form-control-plaintext border p-3 rounded bg-light" style="white-space: pre-wrap;">@Model.ProjectDetails</div>
 				</div>
 			}
+
 			@if (!string.IsNullOrEmpty(Model.AdminNotes))
 			{
 				<div class="col-12 mb-3">
-					<label class="form-label">Ghi chú:</label>
-					<div class="form-control-plaintext border p-3 rounded bg-light">@Model.AdminNotes</div>
+					<label class="form-label fw-bold">Ghi chú (Nội bộ):</label>
+					<div class="form-control-plaintext border p-3 rounded bg-light" style="white-space: pre-wrap;">@Model.AdminNotes</div>
 				</div>
 			}
+
+			<hr class="my-4">
+
 			<div class="col-md-6 mb-3">
-				<label class="form-label">Địa chỉ IP:</label>
-				<div class="form-control-plaintext">@(Model.IpAddress ?? "Không có")</div>
+				<label class="form-label text-muted">Địa chỉ IP:</label> 
+				<div class="form-control-plaintext">@(Model.IpAddress ?? "N/A")</div>
 			</div>
 			<div class="col-md-6 mb-3">
-				<label class="form-label">User Agent:</label>
-				<div class="form-control-plaintext">@(Model.UserAgent ?? "Không có")</div>
+				<label class="form-label text-muted">User Agent:</label>
+				<div class="form-control-plaintext">@(Model.UserAgent ?? "N/A")</div>
 			</div>
 		</div>
 	</div>
 </div>
-
