@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using shared.Models;
-using System.ComponentModel.DataAnnotations;
 
 namespace domain.Entities;
 
@@ -42,4 +41,4 @@ public class SettingConfiguration : IEntityTypeConfiguration<Setting>
         builder.HasIndex(s => s.Type).HasDatabaseName("idx_settings_type");
         builder.HasIndex(s => s.IsActive).HasDatabaseName("idx_settings_is_active");
     }
-} 
+}

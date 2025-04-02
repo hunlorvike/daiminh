@@ -1,316 +1,298 @@
 @using web.Areas.Admin.ViewModels.Media
 @model MediaBrowserViewModel
 @{
-	ViewData["Title"] = "Quản lý Media - Hệ thống quản trị";
+    ViewData["Title"] = "Quản lý Media - Hệ thống quản trị";
 }
 
 @section PageActions {
-	<div class="btn-list">
-		<a asp-action="Upload" asp-route-folderId="@Model.CurrentFolderId" class="btn btn-primary d-sm-inline-block">
-			<i class="fas fa-upload me-2"></i> Tải lên file
-		</a>
-		<a asp-action="CreateFolder" asp-route-parentId="@Model.CurrentFolderId" class="btn btn-secondary d-sm-inline-block">
-			<i class="fas fa-folder-plus me-2"></i> Tạo thư mục
-		</a>
-	</div>
+    <div class="btn-list">
+        <a asp-action="Upload" asp-route-folderId="@Model.CurrentFolderId" class="btn btn-primary d-sm-inline-block">
+            <i class="ti ti-upload me-2"></i>
+            Tải lên file
+        </a>
+        <a asp-action="CreateFolder" asp-route-parentId="@Model.CurrentFolderId"
+           class="btn btn-secondary d-sm-inline-block">
+            <i class="ti ti-folder-plus me-2"></i>
+            Tạo thư mục
+        </a>
+    </div>
 }
 
 <!-- Filter form -->
 <div class="card mb-3">
-	<div class="card-body">
-		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<input type="hidden" name="folderId" value="@Model.CurrentFolderId" />
-
-			<div class="col-md-4">
-				<label class="form-label">Tìm kiếm</label>
-				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm file hoặc thư mục..." name="searchTerm" value="@Model.SearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch">
-						<i class="fas fa-times"></i>
-					</button>
-				</div>
-			</div>
-			<div class="col-md-3">
-				<label class="form-label">Loại file</label>
-				<select class="form-select" name="fileType" id="fileTypeFilter">
-					<option value="">Tất cả loại file</option>
-					<option value="Image" selected="@(Model.FileType == "Image" ? "selected" : "")">Hình ảnh</option>
-					<option value="Video" selected="@(Model.FileType == "Video" ? "selected" : "")">Video</option>
-					<option value="Audio" selected="@(Model.FileType == "Audio" ? "selected" : "")">Âm thanh</option>
-					<option value="Document" selected="@(Model.FileType == "Document" ? "selected" : "")">Tài liệu</option>
-					<option value="Archive" selected="@(Model.FileType == "Archive" ? "selected" : "")">Nén</option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<button type="submit" class="btn btn-primary w-100">
-					<i class="fas fa-search me-2"></i> Lọc
-				</button>
-			</div>
-			<div class="col-md-3">
-				<a href="@Url.Action("Index", new { folderId = Model.CurrentFolderId })" class="btn btn-outline-secondary w-100">
-					<i class="fas fa-redo me-2"></i> Đặt lại
-				</a>
-			</div>
-		</form>
-	</div>
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <input type="hidden" name="folderId" value="@Model.CurrentFolderId" />
+            <div class="col-md-4">
+                <label asp-for="SearchTerm" class="form-label">
+                    Tìm kiếm
+                </label>
+                <div class="input-group">
+                    <input asp-for="SearchTerm" type="text" class="form-control"
+                           placeholder="Tìm file hoặc thư mục...">
+                    <button class="btn btn-icon command-clear-search" type="button" title="Xóa tìm kiếm"
+                            onclick="$('#SearchTerm').val('')">
+                        <i class="ti ti-x"></i>
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <label asp-for="FileType" class="form-label">
+                    Loại file
+                </label>
+                <select class="form-select" asp-for="FileType">
+                    <option value="">Tất cả loại file</option>
+                    <option value="Image">Hình ảnh</option>
+                    <option value="Video">Video</option>
+                    <option value="Audio">Âm thanh</option>
+                    <option value="Document">Tài liệu</option>
+                    <option value="Archive">Nén</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100">
+                    <i class="ti ti-search me-2"></i> Lọc
+                </button>
+            </div>
+            <div class="col-md-3">
+                <a href="@Url.Action("Index", new { folderId = Model.CurrentFolderId })"
+                   class="btn btn-outline-secondary w-100">
+                    <i class="ti ti-reload me-2"></i> Đặt lại
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Breadcrumb navigation -->
 @if (Model.Breadcrumbs.Any())
 {
-	<div class="card mb-3">
-		<div class="card-body py-2">
-			<nav aria-label="breadcrumb">
-				<ol class="breadcrumb mb-0">
-					<li class="breadcrumb-item">
-						<a asp-action="Index"><i class="fas fa-home"></i> Root</a>
-					</li>
-					@for (int i = 0; i < Model.Breadcrumbs.Count; i++)
-					{
-						var (id, name) = Model.Breadcrumbs[i];
-						if (i == Model.Breadcrumbs.Count - 1)
-						{
-							<li class="breadcrumb-item active" aria-current="page">@name</li>
-						}
-						else
-						{
-							<li class="breadcrumb-item">
-								<a asp-action="Index" asp-route-folderId="@id">@name</a>
-							</li>
-						}
-					}
-				</ol>
-			</nav>
-		</div>
-	</div>
+    <div class="card mb-3">
+        <div class="card-body py-2">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-arrows mb-0">
+                    <li class="breadcrumb-item">
+                        <a asp-action="Index"><i class="ti ti-home me-1"></i> Root</a>
+                    </li>
+                    @for (int i = 0; i < Model.Breadcrumbs.Count; i++)
+                    {
+                        var (id, name) = Model.Breadcrumbs[i];
+                        if (i == Model.Breadcrumbs.Count - 1)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">@name</li>
+                        }
+                        else
+                        {
+                            <li class="breadcrumb-item">
+                                <a asp-action="Index" asp-route-folderId="@id">@name</a>
+                            </li>
+                        }
+                    }
+                </ol>
+            </nav>
+        </div>
+    </div>
 }
 
 <!-- Content -->
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">
-			@if (Model.CurrentFolderId.HasValue)
-			{
-				<span>Thư mục: @Model.CurrentFolderName</span>
-			}
-			else
-			{
-				<span>Thư mục gốc</span>
-			}
-		</h3>
-		@if (Model.ParentFolderId.HasValue)
-		{
-			<div class="card-actions">
-				<a asp-action="Index" asp-route-folderId="@Model.ParentFolderId" class="btn btn-outline-secondary btn-sm">
-					<i class="fas fa-arrow-up me-2"></i> Lên một cấp
-				</a>
-			</div>
-		}
-	</div>
-	<div class="card-body">
-		@if (!Model.Folders.Any() && !Model.Files.Any())
-		{
-			<div class="empty">
-				<div class="empty-img">
-					<i class="fas fa-folder-open fa-5x text-muted"></i>
-				</div>
-				<p class="empty-title">Không có nội dung nào</p>
-				<p class="empty-subtitle text-muted">
-					Thư mục này trống hoặc không tìm thấy kết quả phù hợp với tìm kiếm của bạn
-				</p>
-				<div class="empty-action">
-					<a asp-action="Upload" asp-route-folderId="@Model.CurrentFolderId" class="btn btn-primary">
-						<i class="fas fa-upload me-2"></i> Tải lên file
-					</a>
-					<a asp-action="CreateFolder" asp-route-parentId="@Model.CurrentFolderId" class="btn btn-secondary ms-2">
-						<i class="fas fa-folder-plus me-2"></i> Tạo thư mục
-					</a>
-				</div>
-			</div>
-		}
-		else
-		{
-			<div class="row row-cards">
-				<!-- Folders -->
-				@foreach (var folder in Model.Folders)
-				{
-					<div class="col-sm-6 col-lg-4 col-xl-3">
-						<div class="card card-sm">
-							<div class="card-body">
-								<div class="d-flex align-items-center">
-									<span class="avatar me-3 bg-yellow-lt">
-										<i class="fas fa-folder"></i>
-									</span>
-									<div>
-										<div class="font-weight-medium">@folder.Name</div>
-										<div class="text-muted">
-											@folder.FilesCount file(s), @folder.SubFoldersCount folder(s)
-										</div>
-									</div>
-									<div class="dropdown ms-auto">
-										<a href="#" class="btn btn-icon btn-ghost-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="fas fa-ellipsis-v"></i>
-										</a>
-										<div class="dropdown-menu dropdown-menu-end">
-											<a asp-action="Index" asp-route-folderId="@folder.Id" class="dropdown-item">
-												<i class="fas fa-folder-open me-2"></i> Mở thư mục
-											</a>
-											<a asp-action="EditFolder" asp-route-id="@folder.Id" class="dropdown-item">
-												<i class="fas fa-edit me-2"></i> Chỉnh sửa
-											</a>
-											<a href="#" class="dropdown-item text-danger delete-folder"
-											   data-bs-toggle="modal"
-											   data-bs-target="#delete-modal"
-											   data-id="@folder.Id"
-											   data-name="@folder.Name"
-											   data-delete-url="@Url.Action("DeleteFolder", "Media")">
-												<i class="fas fa-trash me-2"></i> Xóa
-											</a>
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="card-footer">
-								<a asp-action="Index" asp-route-folderId="@folder.Id" class="btn btn-outline-primary btn-sm">
-									<i class="fas fa-folder-open me-2"></i> Mở
-								</a>
-							</div>
-						</div>
-					</div>
-				}
+    <div class="card-header">
+        <h3 class="card-title">
+            @if (Model.CurrentFolderId.HasValue)
+            {
+                <span>Thư mục: @Model.CurrentFolderName</span>
+            }
+            else
+            {
+                <span>Thư mục gốc</span>
+            }
+        </h3>
+        @if (Model.ParentFolderId.HasValue)
+        {
+            <div class="card-actions">
+                <a asp-action="Index" asp-route-folderId="@Model.ParentFolderId" class="btn btn-outline-secondary btn-sm">
+                    <i class="ti ti-arrow-up me-2"></i> Lên một cấp
+                </a>
+            </div>
+        }
+    </div>
+    <div class="card-body">
+        @if (!Model.Folders.Any() && !Model.Files.Any())
+        {
+            <div class="empty">
+                <div class="empty-icon">
+                    <i class="ti ti-folder-off text-muted" style="font-size: 3rem;"></i>
+                </div>
+                <p class="empty-title">Không có nội dung nào</p>
+                <p class="empty-subtitle text-muted">
+                    Thư mục này trống hoặc không tìm thấy kết quả phù hợp với tìm kiếm của bạn
+                </p>
+                <div class="empty-action">
+                    <a asp-action="Upload" asp-route-folderId="@Model.CurrentFolderId" class="btn btn-primary">
+                        <i class="ti ti-upload me-2"></i> Tải lên file
+                    </a>
+                    <a asp-action="CreateFolder" asp-route-parentId="@Model.CurrentFolderId" class="btn btn-secondary ms-2">
+                        <i class="ti ti-folder-plus me-2"></i> Tạo thư mục
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cards">
+                <!-- Folders -->
+                @foreach (var folder in Model.Folders)
+                {
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <div class="card card-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <span class="avatar me-3 bg-yellow-lt">
+                                        <i class="ti ti-folder"></i>
+                                    </span>
+                                    <div>
+                                        <div class="font-weight-medium text-truncate" title="@folder.Name">@folder.Name</div>
+                                        <div class="text-muted">
+                                            @folder.FilesCount file(s), @folder.SubFoldersCount folder(s)
+                                        </div>
+                                    </div>
+                                    <div class="dropdown ms-auto">
+                                        <a href="#" class="btn btn-icon btn-ghost-secondary" data-bs-toggle="dropdown"
+                                           aria-expanded="false">
+                                            <i class="ti ti-dots-vertical"></i>
+                                        </a>
+                                        <div class="dropdown-menu dropdown-menu-end">
+                                            <a asp-action="Index" asp-route-folderId="@folder.Id" class="dropdown-item">
+                                                <i class="ti ti-folder-open me-2"></i> Mở thư mục
+                                            </a>
+                                            <a asp-action="EditFolder" asp-route-id="@folder.Id" class="dropdown-item">
+                                                <i class="ti ti-pencil me-2"></i> Chỉnh sửa
+                                            </a>
+                                            <a href="#" class="dropdown-item text-danger delete-folder" data-bs-toggle="modal"
+                                               data-bs-target="#delete-modal" data-id="@folder.Id" data-name="@folder.Name"
+                                               data-delete-url="@Url.Action("DeleteFolder", "Media")">
+                                                <i class="ti ti-trash me-2"></i> Xóa
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
 
-				<!-- Files -->
-				@foreach (var file in Model.Files)
-				{
-					<div class="col-sm-6 col-lg-4 col-xl-3">
-						<div class="card card-sm">
-							<div class="card-img-top img-responsive img-responsive-16x9" style="background-color: #f5f7fb;">
-								@switch (file.MediaType)
-								{
-									case shared.Enums.MediaType.Image:
-										<img src="@file.ThumbnailPath" alt="@file.AltText" class="img-thumbnail" style="max-height: 150px; margin: 0 auto; display: block; object-fit: contain;">
-										break;
-									case shared.Enums.MediaType.Video:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-film fa-3x text-muted"></i>
-										</div>
-										break;
-									case shared.Enums.MediaType.Audio:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-music fa-3x text-muted"></i>
-										</div>
-										break;
-									case shared.Enums.MediaType.Document:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-file-alt fa-3x text-muted"></i>
-										</div>
-										break;
-									default:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-file fa-3x text-muted"></i>
-										</div>
-										break;
-								}
-							</div>
-							<div class="card-body">
-								<div class="d-flex align-items-center">
-									<div>
-										<div class="font-weight-medium text-truncate" title="@file.FileName">@file.FileName</div>
-										<div class="text-muted">
-											@file.FormattedFileSize
-											@if (file.Width.HasValue && file.Height.HasValue)
-											{
-												<span> - @file.Width x @file.Height</span>
-											}
-										</div>
-									</div>
-									<div class="dropdown ms-auto">
-										<a href="#" class="btn btn-icon btn-ghost-secondary" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="fas fa-ellipsis-v"></i>
-										</a>
-										<div class="dropdown-menu dropdown-menu-end">
-											<a href="@file.FilePath" target="_blank" class="dropdown-item">
-												<i class="fas fa-eye me-2"></i> Xem
-											</a>
-											<a href="@file.FilePath" download="@file.OriginalFileName" class="dropdown-item">
-												<i class="fas fa-download me-2"></i> Tải xuống
-											</a>
-											<a asp-action="EditFile" asp-route-id="@file.Id" class="dropdown-item">
-												<i class="fas fa-edit me-2"></i> Chỉnh sửa
-											</a>
-											<button type="button" class="dropdown-item copy-url" data-url="@file.FilePath">
-												<i class="fas fa-copy me-2"></i> Sao chép URL
-											</button>
-											<a href="#" class="dropdown-item text-danger delete-file"
-											   data-bs-toggle="modal"
-											   data-bs-target="#delete-modal"
-											   data-id="@file.Id"
-											   data-name="@file.FileName"
-											   data-delete-url="@Url.Action("DeleteFile", "Media")">
-												<i class="fas fa-trash me-2"></i> Xóa
-											</a>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-				}
-			</div>
-		}
-	</div>
+                <!-- Files -->
+                @foreach (var file in Model.Files)
+                {
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <div class="card card-sm">
+                            <a href="@file.FilePath" target="_blank" class="d-block">
+                                <div class="card-img-top d-flex align-items-center justify-content-center"
+                                     style="background-color: #f5f7fb; overflow: hidden;">
+                                    @switch (file.MediaType)
+                                    {
+                                        case shared.Enums.MediaType.Image:
+                                            <img src="@file.ThumbnailPath" alt="@file.AltText"
+                                                 style="width: 100%; height: 100%; object-fit: contain; display: block;">
+                                            break;
+                                        case shared.Enums.MediaType.Video:
+                                            <i class="ti ti-movie text-muted" style="font-size: 3rem;"></i>
+                                            break;
+                                        case shared.Enums.MediaType.Audio:
+                                            <i class="ti ti-music text-muted" style="font-size: 3rem;"></i>
+                                            break;
+                                        case shared.Enums.MediaType.Document:
+                                            <i class="ti ti-file-text text-muted" style="font-size: 3rem;"></i>
+                                            break;
+                                        default:
+                                            <i class="ti ti-file text-muted" style="font-size: 3rem;"></i>
+                                            break;
+                                    }
+                                </div>
+                            </a>
+                            <div class="card-body row">
+                                <div class="col-10">
+                                    <div class="font-weight-medium text-truncate" title="@file.FileName">
+                                        @file.FileName
+                                    </div>
+                                    <div class="text-muted small">
+                                        @file.FormattedFileSize
+                                        @if (file.Width.HasValue && file.Height.HasValue)
+                                        {
+                                            <span> - @file.Width x @file.Height</span>
+                                        }
+                                    </div>
+                                </div>
+                                <div class="col-2 dropdown ms-auto">
+                                    <a href="#" class="btn btn-icon btn-ghost-secondary" data-bs-toggle="dropdown"
+                                       aria-expanded="false">
+                                        <i class="ti ti-dots-vertical"></i>
+                                    </a>
+                                    <div class="dropdown-menu dropdown-menu-end">
+                                        <a href="@file.FilePath" target="_blank" class="dropdown-item">
+                                            <i class="ti ti-eye me-2"></i> Xem
+                                        </a>
+                                        <a href="@file.FilePath" download="@file.OriginalFileName" class="dropdown-item">
+                                            <i class="ti ti-download me-2"></i> Tải xuống
+                                        </a>
+                                        <a asp-action="EditFile" asp-route-id="@file.Id" class="dropdown-item">
+                                            <i class="ti ti-pencil me-2"></i> Chỉnh sửa
+                                        </a>
+                                        <button type="button" class="dropdown-item copy-url" data-url="@file.FilePath">
+                                            <i class="ti ti-copy me-2"></i> Sao chép URL
+                                        </button>
+                                        <a href="#" class="dropdown-item text-danger delete-file" data-bs-toggle="modal"
+                                           data-bs-target="#delete-modal" data-id="@file.Id" data-name="@file.FileName"
+                                           data-delete-url="@Url.Action("DeleteFile", "Media")">
+                                            <i class="ti ti-trash me-2"></i> Xóa
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			// Delete folder setup
-			$('.delete-folder').on('click', function () {
-				var id = $(this).data('id');
-				var name = $(this).data('name');
-				var deleteUrl = $(this).data('delete-url');
+    <script>
+        $(document).ready(function () {
+            // Copy URL
+            $(document).on('click','.copy-url', function () {
+                var url = $(this).data('url');
+                var fullUrl = window.location.origin + url;
 
-				$('#delete-item-id').val(id);
-				$('#delete-item-name').val(name);
-				$('#delete-url').val(deleteUrl);
-				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa thư mục "' + name + '" không?');
-			});
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                     navigator.clipboard.writeText(fullUrl).then(function () {
+                        toastr.success('Đã sao chép URL vào clipboard');
+                    }, function (err) {
+                        console.error('Async: Could not copy text: ', err);
+                        toastr.error('Không thể sao chép URL (lỗi)');
+                    });
+                } else {
+                    try {
+                        var textArea = document.createElement("textarea");
+                        textArea.value = fullUrl;
+                        textArea.style.position = "fixed";
+                        document.body.appendChild(textArea);
+                        textArea.focus();
+                        textArea.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(textArea);
+                        toastr.success('Đã sao chép URL vào clipboard (fallback)');
+                    } catch (err) {
+                         console.error('Fallback: Oops, unable to copy', err);
+                         toastr.error('Không thể sao chép URL (trình duyệt cũ?)');
+                    }
+                }
+            });
 
-			// Delete file setup
-			$('.delete-file').on('click', function () {
-				var id = $(this).data('id');
-				var name = $(this).data('name');
-				var deleteUrl = $(this).data('delete-url');
-
-				$('#delete-item-id').val(id);
-				$('#delete-item-name').val(name);
-				$('#delete-url').val(deleteUrl);
-				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa file "' + name + '" không?');
-			});
-
-			// Clear search
-			$('#clearSearch').on('click', function() {
-				$('input[name="searchTerm"]').val('');
-				$('#filterForm').submit();
-			});
-
-			// Auto submit on file type change
-			$('#fileTypeFilter').on('change', function() {
-				$('#filterForm').submit();
-			});
-
-			// Copy URL to clipboard
-			$('.copy-url').on('click', function() {
-				var url = $(this).data('url');
-				var fullUrl = window.location.origin + url;
-
-				navigator.clipboard.writeText(fullUrl).then(function() {
-					toastr.success('Đã sao chép URL vào clipboard');
-				}, function() {
-					toastr.error('Không thể sao chép URL');
-				});
-			});
-		});
-	</script>
+            $('.command-clear-search').on('click', function() {
+                $('#SearchTerm').val('').focus();
+            });
+        });
+    </script>
 }
-

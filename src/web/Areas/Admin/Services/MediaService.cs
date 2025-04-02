@@ -1,7 +1,7 @@
-using System.Text.RegularExpressions;
 using shared.Enums;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using System.Text.RegularExpressions;
 
 namespace web.Areas.Admin.Services;
 

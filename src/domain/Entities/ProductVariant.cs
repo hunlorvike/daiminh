@@ -46,4 +46,4 @@ public class ProductVariantConfiguration : IEntityTypeConfiguration<ProductVaria
                .HasForeignKey(v => v.ProductId)
                .OnDelete(DeleteBehavior.Cascade);
     }
-} 
+}

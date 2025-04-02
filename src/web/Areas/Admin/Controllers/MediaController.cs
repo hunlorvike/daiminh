@@ -430,7 +430,6 @@ public class MediaController : Controller
         {
             validationResult.AddToModelState(ModelState, string.Empty);
 
-            // Reload available folders
             viewModel.AvailableFolders = await GetAvailableParentFoldersAsync();
 
             return View(viewModel);
@@ -453,28 +452,22 @@ public class MediaController : Controller
 
             _mapper.Map(viewModel, file);
 
-            // Handle file upload if provided
             if (viewModel.FileUpload != null)
             {
-                // Delete old files
                 await _mediaService.DeleteMediaFileAsync(currentFilePath);
                 await _mediaService.DeleteMediaFileAsync(currentThumbnailPath);
                 await _mediaService.DeleteMediaFileAsync(currentMediumSizePath);
                 await _mediaService.DeleteMediaFileAsync(currentLargeSizePath);
 
-                // Update file properties
                 file.OriginalFileName = viewModel.FileUpload.FileName;
                 file.FileExtension = _mediaService.GetFileExtension(viewModel.FileUpload.FileName);
                 file.MimeType = _mediaService.GetMimeType(viewModel.FileUpload.FileName);
                 file.FileSize = viewModel.FileUpload.Length;
 
-                // Generate a sanitized file name
                 file.FileName = Path.GetFileNameWithoutExtension(viewModel.FileUpload.FileName).Replace(" ", "_") + file.FileExtension;
 
-                // Determine media type
                 file.MediaType = _mediaService.DetermineMediaType(file.MimeType, file.FileExtension);
 
-                // Process file based on media type
                 string subFolder = file.MediaType switch
                 {
                     MediaType.Image => "images",

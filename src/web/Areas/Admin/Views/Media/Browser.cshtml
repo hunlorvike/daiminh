@@ -1,212 +1,222 @@
 @using web.Areas.Admin.ViewModels.Media
+@using shared.Enums
 @model MediaBrowserViewModel
 @{
-	ViewData["Title"] = "Chọn file - Hệ thống quản trị";
-	var callback = ViewData["Callback"] as string;
-	var fileType = ViewData["FileType"] as string;
+    ViewData["Title"] = "Chọn file - Hệ thống quản trị";
+    Layout = "Layout/_Layout.Blank";
+    var callback = ViewData["Callback"] as string;
+    var fileType = ViewData["FileType"] as string;
 }
 
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">
-			@if (Model.CurrentFolderId.HasValue)
-			{
-				<span>Thư mục: @Model.CurrentFolderName</span>
-			}
-			else
-			{
-				<span>Thư mục gốc</span>
-			}
-		</h3>
-		@if (Model.ParentFolderId.HasValue)
-		{
-			<div class="card-actions">
-				<a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = Model.ParentFolderId })" class="btn btn-outline-secondary btn-sm">
-					<i class="fas fa-arrow-up me-2"></i> Lên một cấp
-				</a>
-			</div>
-		}
-	</div>
-	<div class="card-body">
-		<!-- Breadcrumb navigation -->
-		@if (Model.Breadcrumbs.Any())
-		{
-			<nav aria-label="breadcrumb" class="mb-3">
-				<ol class="breadcrumb">
-					<li class="breadcrumb-item">
-						<a href="@Url.Action("Browser", new { callback = callback, fileType = fileType })"><i class="fas fa-home"></i> Root</a>
-					</li>
-					@for (int i = 0; i < Model.Breadcrumbs.Count; i++)
-					{
-						var (id, name) = Model.Breadcrumbs[i];
-						if (i == Model.Breadcrumbs.Count - 1)
-						{
-							<li class="breadcrumb-item active" aria-current="page">@name</li>
-						}
-						else
-						{
-							<li class="breadcrumb-item">
-								<a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = id })">@name</a>
-							</li>
-						}
-					}
-				</ol>
-			</nav>
-		}
+    <div class="card-header">
+        <h3 class="card-title">
+            @if (Model.CurrentFolderId.HasValue)
+            {
+                <span>Thư mục: @Model.CurrentFolderName</span>
+            }
+            else
+            {
+                <span>Thư mục gốc</span>
+            }
+        </h3>
+        @if (Model.ParentFolderId.HasValue)
+        {
+            <div class="card-actions">
+                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = Model.ParentFolderId })" class="btn btn-outline-secondary btn-sm">
+                    <i class="ti ti-arrow-up me-2"></i> Lên một cấp 
+                </a>
+            </div>
+        }
+    </div>
+    <div class="card-body">
+        <!-- Breadcrumb navigation -->
+        @if (Model.Breadcrumbs.Any())
+        {
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType })"><i class="ti ti-home me-1"></i> Root</a>
+                    </li>
+                    @for (int i = 0; i < Model.Breadcrumbs.Count; i++)
+                    {
+                        var (id, name) = Model.Breadcrumbs[i];
+                        if (i == Model.Breadcrumbs.Count - 1)
+                        {
+                            <li class="breadcrumb-item active" aria-current="page">@name</li>
+                        }
+                        else
+                        {
+                            <li class="breadcrumb-item">
+                                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = id })">@name</a>
+                            </li>
+                        }
+                    }
+                </ol>
+            </nav>
+        }
 
-		@if (!Model.Folders.Any() && !Model.Files.Any())
-		{
-			<div class="empty">
-				<div class="empty-img">
-					<i class="fas fa-folder-open fa-5x text-muted"></i>
-				</div>
-				<p class="empty-title">Không có nội dung nào</p>
-				<p class="empty-subtitle text-muted">
-					Thư mục này trống hoặc không tìm thấy kết quả phù hợp
-				</p>
-				<div class="empty-action">
-					<a asp-action="Upload" asp-route-folderId="@Model.CurrentFolderId" class="btn btn-primary">
-						<i class="fas fa-upload me-2"></i> Tải lên file
-					</a>
-				</div>
-			</div>
-		}
-		else
-		{
-			<div class="row row-cards">
-				<!-- Folders -->
-				@foreach (var folder in Model.Folders)
-				{
-					<div class="col-sm-6 col-lg-4 col-xl-3">
-						<div class="card card-sm">
-							<div class="card-body">
-								<div class="d-flex align-items-center">
-									<span class="avatar me-3 bg-yellow-lt">
-										<i class="fas fa-folder"></i>
-									</span>
-									<div>
-										<div class="font-weight-medium">@folder.Name</div>
-										<div class="text-muted">
-											@folder.FilesCount file(s), @folder.SubFoldersCount folder(s)
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="card-footer">
-								<a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = folder.Id })" class="btn btn-outline-primary btn-sm">
-									<i class="fas fa-folder-open me-2"></i> Mở
-								</a>
-							</div>
-						</div>
-					</div>
-				}
+        @if (!Model.Folders.Any() && !Model.Files.Any())
+        {
+            <div class="empty">
+                <div class="empty-img">
+                    <i class="ti ti-folder-open icon-xl text-muted"></i> 
+                </div>
+                <p class="empty-title">Không có nội dung nào</p>
+                <p class="empty-subtitle text-muted">
+                    Thư mục này trống hoặc không tìm thấy kết quả phù hợp
+                </p>
+                <div class="empty-action">
+                    <a asp-action="Upload" asp-route-folderId="@Model.CurrentFolderId" class="btn btn-primary">
+                        <i class="ti ti-upload me-2"></i> Tải lên file
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cards">
+                <!-- Folders -->
+                @foreach (var folder in Model.Folders)
+                {
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <div class="card card-sm">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <span class="avatar me-3 bg-yellow-lt">
+                                        <i class="ti ti-folder"></i> 
+                                    </span>
+                                    <div>
+                                        <div class="font-weight-medium">@folder.Name</div>
+                                        <div class="text-muted">
+                                            @folder.FilesCount file(s), @folder.SubFoldersCount folder(s)
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = folder.Id })" class="btn btn-outline-primary btn-sm">
+                                    <i class="ti ti-folder-open me-2"></i> Mở
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                }
 
-				<!-- Files -->
-				@foreach (var file in Model.Files)
-				{
-					<div class="col-sm-6 col-lg-4 col-xl-3">
-						<div class="card card-sm">
-							<div class="card-img-top img-responsive img-responsive-16x9" style="background-color: #f5f7fb;">
-								@switch (file.MediaType)
-								{
-									case shared.Enums.MediaType.Image:
-										<img src="@file.ThumbnailPath" alt="@file.AltText" class="img-thumbnail" style="max-height: 150px; margin: 0 auto; display: block; object-fit: contain;">
-										break;
-									case shared.Enums.MediaType.Video:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-film fa-3x text-muted"></i>
-										</div>
-										break;
-									case shared.Enums.MediaType.Audio:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-music fa-3x text-muted"></i>
-										</div>
-										break;
-									case shared.Enums.MediaType.Document:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-file-alt fa-3x text-muted"></i>
-										</div>
-										break;
-									case shared.Enums.MediaType.Archive:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-file-archive fa-3x text-muted"></i>
-										</div>
-										break;
-									default:
-										<div class="d-flex align-items-center justify-content-center h-100">
-											<i class="fas fa-file fa-3x text-muted"></i>
-										</div>
-										break;
-								}
-							</div>
-							<div class="card-body">
-								<div class="d-flex align-items-center">
-									<div>
-										<div class="font-weight-medium text-truncate" title="@file.FileName">@file.FileName</div>
-										<div class="text-muted">
-											@file.FormattedFileSize
-											@if (file.Width.HasValue && file.Height.HasValue)
-											{
-												<span> - @file.Width x @file.Height</span>
-											}
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="card-footer">
-								<button type="button" class="btn btn-primary btn-sm select-file"
-										data-id="@file.Id"
-										data-url="@file.FilePath"
-										data-thumbnail="@file.ThumbnailPath"
-										data-filename="@file.FileName"
-										data-callback="@callback">
-									<i class="fas fa-check me-2"></i> Chọn
-								</button>
-							</div>
-						</div>
-					</div>
-				}
-			</div>
-		}
-	</div>
+                <!-- Files -->
+                @foreach (var file in Model.Files)
+                {
+                    <div class="col-sm-6 col-lg-4 col-xl-3">
+                        <div class="card card-sm">
+                            <div class="card-img-top d-flex align-items-center justify-content-center"
+                                 style="background-color: #f5f7fb; overflow: hidden;">
+                                @switch (file.MediaType)
+                                {
+                                    case MediaType.Image:
+                                        <img src="@file.ThumbnailPath" alt="@file.AltText"
+                                             style="width: 100%; height: 100%; object-fit: contain; display: block;">
+                                        break;
+                                    case MediaType.Video:
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="ti ti-movie icon-lg text-muted"></i>
+                                        </div>
+                                        break;
+                                    case MediaType.Audio:
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="ti ti-music icon-lg text-muted"></i> 
+                                        </div>
+                                        break;
+                                    case MediaType.Document:
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="ti ti-file-text icon-lg text-muted"></i>
+                                        </div>
+                                        break;
+                                    case MediaType.Archive:
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="ti ti-file-zip icon-lg text-muted"></i> 
+                                        </div>
+                                        break;
+                                    default: // Other file types
+                                        <div class="d-flex align-items-center justify-content-center h-100">
+                                            <i class="ti ti-file icon-lg text-muted"></i>
+                                        </div>
+                                        break;
+                                }
+                            </div>
+                            <div class="card-body">
+                                <div class="font-weight-medium text-truncate" title="@file.FileName">@file.FileName</div>
+                                <div class="text-muted">
+                                    @file.FormattedFileSize
+                                    @if (file.Width.HasValue && file.Height.HasValue)
+                                    {
+                                        <span> - @file.Width x @file.Height</span>
+                                    }
+                                </div>
+                            </div>
+                            <div class="card-footer">
+                                <button type="button" class="btn btn-primary select-file"
+                                        data-id="@file.Id"
+                                        data-url="@file.FilePath"
+                                        data-thumbnail="@file.ThumbnailPath"
+                                        data-filename="@file.FileName"
+                                        data-callback="@callback">
+                                    <i class="ti ti-check me-2"></i> Chọn
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
 </div>
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			// Handle file selection
-			$('.select-file').on('click', function () {
-				var id = $(this).data('id');
-				var url = $(this).data('url');
-				var thumbnail = $(this).data('thumbnail');
-				var filename = $(this).data('filename');
-				var callback = $(this).data('callback');
+    <script>
+        $(document).ready(function () {
+            $('.select-file').on('click', function () {
+                var id = $(this).data('id');
+                var url = $(this).data('url');
+                var thumbnail = $(this).data('thumbnail');
+                var filename = $(this).data('filename');
+                var callback = $(this).data('callback');
 
-				if (callback && window.opener && !window.opener.closed) {
-					// Call the callback function in the parent window
-					if (typeof window.opener[callback] === 'function') {
-						window.opener[callback]({
-							id: id,
-							url: url,
-							thumbnail: thumbnail,
-							filename: filename
-						});
-						window.close();
-					} else {
-						alert('Callback function not found in parent window');
-					}
-				} else {
-					// Fallback if no callback is provided
-					window.opener.postMessage({
-						id: id,
-						url: url,
-						thumbnail: thumbnail,
-						filename: filename
-					}, '*');
-					window.close();
-				}
-			});
-		});
-	</script>
-	}
-
+                if (callback && window.opener && !window.opener.closed) {
+                    // Call the callback function in the parent window
+                    if (typeof window.opener[callback] === 'function') {
+                        window.opener[callback]({
+                            id: id,
+                            url: url,
+                            thumbnail: thumbnail,
+                            filename: filename
+                        });
+                        window.close();
+                    } else {
+                        console.error('Callback function "' + callback + '" not found in parent window.'); // Use console.error for better debugging
+                        toastr.error('Lỗi: Không tìm thấy hàm callback trong cửa sổ cha.'); // User-friendly error
+                    }
+                } else if (window.opener && !window.opener.closed) {
+                     console.warn('No callback function name provided. Attempting postMessage fallback.');
+                     try {
+                        window.opener.postMessage({
+                            messageType: 'fileSelected', // Add a type for better handling in the parent
+                            data: {
+                                id: id,
+                                url: url,
+                                thumbnail: thumbnail,
+                                filename: filename
+                            }
+                        }, '*'); // Consider specifying the target origin instead of '*' for security
+                        window.close();
+                    } catch (e) {
+                        console.error("Error using postMessage fallback:", e);
+                        toastr.error('Lỗi: Không thể gửi thông tin tệp về cửa sổ cha.');
+                    }
+                } else {
+                    console.error('Cannot send data: Parent window (opener) is not available or closed, or no callback specified.');
+                     toastr.error('Lỗi: Không thể liên lạc với cửa sổ đã mở trình duyệt file này.');
+                }
+            });
+        });
+    </script>
+}

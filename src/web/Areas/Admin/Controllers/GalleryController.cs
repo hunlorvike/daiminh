@@ -1,5 +1,4 @@
 // GalleryController.cs
-using System.Text.RegularExpressions;
 using AutoMapper;
 using domain.Entities;
 using FluentValidation;
@@ -10,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
+using System.Text.RegularExpressions;
 using web.Areas.Admin.ViewModels.Article;
 using web.Areas.Admin.ViewModels.Gallery;
 

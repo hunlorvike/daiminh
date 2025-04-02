@@ -34,4 +34,4 @@ public class BrandConfiguration : SeoEntityConfiguration<Brand, int>
         builder.HasIndex(e => e.Slug).HasDatabaseName("idx_brands_slug").IsUnique();
         builder.HasIndex(e => e.IsActive).HasDatabaseName("idx_brands_is_active");
     }
-} 
+}

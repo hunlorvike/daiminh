@@ -1,4 +1,3 @@
-using System.Reflection;
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,7 +10,7 @@ public class ApplicationDbContext : DbContext
     }
     // Người dùng
     public DbSet<User> Users { get; set; }
-    
+
     // Sản phẩm
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductType> ProductTypes { get; set; }
@@ -60,7 +59,7 @@ public class ApplicationDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Product).Assembly); 
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Product).Assembly);
     }
 }
 
