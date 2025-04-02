@@ -1,196 +1,207 @@
 @using web.Areas.Admin.ViewModels.ProductType
 @model ProductTypeViewModel
 @{
-    ViewData["Title"] = "Thêm loại sản phẩm - Hệ thống quản trị";
+	ViewData["Title"] = "Thêm loại sản phẩm - Hệ thống quản trị";
 }
 
 <form asp-action="Create" method="post">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+	<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-    <div class="row">
-        <!-- Main content column -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Thông tin loại sản phẩm</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="Name" class="form-label required">Tên loại sản phẩm</label>
-                        <input asp-for="Name" class="form-control" id="productTypeName" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
+	<div class="row">
+		<!-- Main content column -->
+		<div class="col-lg-8">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">Thông tin loại sản phẩm</h3>
+				</div>
+				<div class="card-body">
+					<div class="mb-3">
+						<label asp-for="Name" class="form-label required">Tên loại sản phẩm</label>
+						<input asp-for="Name" class="form-control" id="productTypeName" />
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
 
-                    <div class="mb-3">
-                        <label asp-for="Slug" class="form-label required">Slug</label>
-                        <div class="input-group">
-                            <input asp-for="Slug" class="form-control" id="productTypeSlug" />
-                            <button class="btn btn-outline-secondary" type="button" id="generateSlug">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                        <span asp-validation-for="Slug" class="text-danger"></span>
-                        <small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
-                    </div>
+					<div class="mb-3">
+						<label asp-for="Slug" class="form-label required">Slug</label>
+						<div class="input-group">
+							<input asp-for="Slug" class="form-control" id="productTypeSlug" />
+							<button class="btn btn-outline-secondary" type="button" id="generateSlug">
+								<i class="ti ti-refresh"></i>
+							</button>
+						</div>
+						<span asp-validation-for="Slug" class="text-danger"></span>
+						<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
+					</div>
 
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label">Mô tả</label>
-                        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
+					<div class="mb-3">
+						<label asp-for="Description" class="form-label">Mô tả</label>
+						<textarea asp-for="Description" class="form-control" rows="3"></textarea>
+						<span asp-validation-for="Description" class="text-danger"></span>
+					</div>
 
-                    <div class="mb-3">
-                        <label asp-for="Icon" class="form-label">Icon (Font Awesome)</label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i id="iconPreview" class="fas fa-box"></i>
-                            </span>
-                            <input asp-for="Icon" class="form-control" id="iconInput" placeholder="fas fa-box" />
-                        </div>
-                        <span asp-validation-for="Icon" class="text-danger"></span>
-                        <small class="form-hint">Nhập class của Font Awesome icon (ví dụ: fas fa-box)</small>
-                    </div>
+					<div class="mb-3">
+						<label asp-for="Icon" class="form-label">Icon (Tabler)</label>
+						<div class="input-group">
+							<span class="input-group-text">
+								<i id="iconPreview" class="ti ti-box"></i>
+							</span>
+							<input asp-for="Icon" class="form-control" id="iconInput" placeholder="ti ti-box" />
+						</div>
+						<span asp-validation-for="Icon" class="text-danger"></span>
+						<small class="form-hint">Nhập class của Tabler icon (ví dụ: ti ti-box)</small>
+					</div>
 
-                    <div class="form-check form-switch mb-3">
-                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-                        <label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
-                        <small class="form-hint d-block">Loại sản phẩm sẽ hiển thị trên website</small>
-                    </div>
+					<div class="form-check form-switch mb-3">
+						<input asp-for="IsActive" class="form-check-input" type="checkbox" checked />
+						<label asp-for="IsActive" class="form-check-label">Kích hoạt</label>
+						<small class="form-hint d-block">Loại sản phẩm sẽ hiển thị trên website</small>
+					</div>
 
-                    <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i> Quay lại
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i> Lưu loại sản phẩm
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+					<div class="d-flex justify-content-between mt-4">
+						<a asp-action="Index" class="btn btn-outline-secondary">
+							<i class="ti ti-arrow-left me-2"></i> Quay lại
+						</a>
+						<button type="submit" class="btn btn-primary">
+							<i class="ti ti-device-floppy me-2"></i> Lưu loại sản phẩm
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- Sidebar column -->
-        <div class="col-lg-4">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Font Awesome Icons</h3>
-                </div>
-                <div class="card-body">
-                    <p>Một số icon phổ biến:</p>
-                    <div class="row row-cols-3 g-3 mb-3">
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-box">
-                                <i class="fas fa-box fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-box</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-boxes">
-                                <i class="fas fa-boxes fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-boxes</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-paint-brush">
-                                <i class="fas fa-paint-brush fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-paint-brush</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-tools">
-                                <i class="fas fa-tools fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-tools</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-hammer">
-                                <i class="fas fa-hammer fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-hammer</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-wrench">
-                                <i class="fas fa-wrench fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-wrench</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-spray-can">
-                                <i class="fas fa-spray-can fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-spray-can</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-brush">
-                                <i class="fas fa-brush fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-brush</div>
-                        </div>
-                        <div class="col text-center">
-                            <button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="fas fa-fill-drip">
-                                <i class="fas fa-fill-drip fa-2x"></i>
-                            </button>
-                            <div class="mt-1 small">fa-fill-drip</div>
-                        </div>
-                    </div>
-                    <p class="small text-muted">Xem thêm icons tại <a href="https://fontawesome.com/icons" target="_blank">Font Awesome</a></p>
-                </div>
-            </div>
-        </div>
-    </div>
+		<!-- Sidebar column -->
+		<div class="col-lg-4">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">Tabler Icons</h3>
+				</div>
+				<div class="card-body">
+					<p>Một số icon phổ biến:</p>
+					<div class="row row-cols-3 g-3 mb-3">
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-box">
+								<i class="ti ti-box" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-box</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-box-multiple">
+								<i class="ti ti-box-multiple" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-box-multiple</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-brush">
+								<i class="ti ti-brush" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-brush</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-tool">
+								<i class="ti ti-tool" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-tool</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-hammer">
+								<i class="ti ti-hammer" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-hammer</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-activity-heartbeat">
+								<i class="ti ti-activity-heartbeat" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-activity-heartbeat</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-spray">
+								<i class="ti ti-spray" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-spray</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-paint">
+								<i class="ti ti-paint" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-paint</div>
+						</div>
+						<div class="col text-center">
+							<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-color-picker">
+								<i class="ti ti-color-picker" style="font-size: 1.5rem;"></i>
+							</button>
+							<div class="mt-1 small">ti-color-picker</div>
+						</div>
+					</div>
+					<p class="small text-muted">Xem thêm icons tại <a href="https://tabler-icons.io/" target="_blank">Tabler Icons</a></p>
+				</div>
+			</div>
+		</div>
+	</div>
 </form>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Auto-generate slug from name
-            $('#productTypeName').on('input', function() {
-                if ($('#productTypeSlug').val() === '') {
-                    generateSlug();
-                }
-            });
+	<script>
+		$(document).ready(function() {
+			// Function to generate slug
+			function generateSlug() {
+				var name = $('#productTypeName').val();
+				if (name) {
+					var slug = name.toLowerCase();
 
-            // Generate slug button
-            $('#generateSlug').on('click', function() {
-                generateSlug();
-            });
+					// Convert Vietnamese characters to basic Latin characters
+					slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+					slug = slug.replace(/đ/g, 'd').replace(/Đ/g, 'D'); // Handle 'đ' character
 
-            function generateSlug() {
-                var name = $('#productTypeName').val();
-                if (name) {
-                    // Convert to lowercase
-                    var slug = name.toLowerCase();
+					slug = slug.replace(/\s+/g, '-') // Replace spaces with hyphens
+						.replace(/[^\w\-]+/g, '') // Remove all non-word chars except hyphens
+						.replace(/\-\-+/g, '-') // Replace multiple hyphens with a single one
+						.replace(/^-+/, '') // Trim hyphens from start
+						.replace(/-+$/, ''); // Trim hyphens from end
 
-                    // Remove accents/diacritics from Vietnamese characters
-                    slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+					$('#productTypeSlug').val(slug);
+				} else {
+					 $('#productTypeSlug').val(''); // Clear slug if name is empty
+				}
+			}
 
-                    // Replace spaces with dashes and remove special characters
-                    slug = slug.replace(/\s+/g, '-')
-                        .replace(/[^\w\-]+/g, '')
-                        .replace(/\-\-+/g, '-')
-                        .replace(/^-+/, '')
-                        .replace(/-+$/, '');
+			// Auto-generate slug from name if slug field is empty
+			$('#productTypeName').on('input', function() {
+				// Only auto-update if the slug field is currently empty
+				if ($('#productTypeSlug').val() === '') {
+					 generateSlug();
+				}
+			});
 
-                    $('#productTypeSlug').val(slug);
-                }
-            }
+			// Generate slug button click
+			$('#generateSlug').on('click', function() {
+				generateSlug();
+			});
 
-            // Icon preview
-            $('#iconInput').on('input', function() {
-                var iconClass = $(this).val();
-                if (iconClass) {
-                    $('#iconPreview').attr('class', iconClass);
-                } else {
-                    $('#iconPreview').attr('class', 'fas fa-box');
-                }
-            });
+			// Icon preview based on input
+			$('#iconInput').on('input', function() {
+				var iconClass = $(this).val().trim(); // Trim whitespace
+				// Basic validation for Tabler format (starts with 'ti ti-')
+				if (iconClass && iconClass.startsWith('ti ti-')) {
+					$('#iconPreview').attr('class', iconClass);
+				} else {
+					// Reset to default if input is empty or invalid format
+					$('#iconPreview').attr('class', 'ti ti-box');
+				}
+			});
 
-            // Icon selection
-            $('.icon-btn').on('click', function() {
-                var iconClass = $(this).data('icon');
-                $('#iconInput').val(iconClass);
-                $('#iconPreview').attr('class', iconClass);
-            });
-        });
-    </script>
+			// Icon selection from buttons
+			$('.icon-btn').on('click', function() {
+				var iconClass = $(this).data('icon');
+				$('#iconInput').val(iconClass).trigger('input'); // Set value and trigger input event for preview update
+			});
+
+			// Ensure IsActive checkbox is checked by default on load for Create view
+			 if ($('form').length > 0) { // Check if it's the create form
+				 if (!$('#IsActive').prop('checked')) { // If not already checked by model binding
+					$('#IsActive').prop('checked', true);
+				 }
+			 }
+		});
+	</script>
 }

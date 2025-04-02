@@ -1,160 +1,159 @@
 @using web.Areas.Admin.ViewModels.Tag
 @model IEnumerable<TagListItemViewModel>
 @{
-    ViewData["Title"] = "Quản lý thẻ - Hệ thống quản trị";
+	ViewData["Title"] = "Quản lý thẻ - Hệ thống quản trị";
 }
 
 @section PageActions {
-    <div class="btn-list">
-        <a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary d-sm-inline-block">
-            <i class="fas fa-plus me-2"></i> Thêm thẻ
-        </a>
-    </div>
+	<div class="btn-list">
+		<a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary d-sm-inline-block">
+			<i class="ti ti-plus me-2"></i> Thêm thẻ
+		</a>
+	</div>
 }
 
 <!-- Filter form -->
 <div class="card mb-3">
-    <div class="card-body">
-        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label class="form-label">Loại thẻ</label>
-                <select class="form-select" name="type" id="tagTypeFilter">
-                    @foreach (var type in ViewBag.TagTypes)
-                    {
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-4">
+				<label class="form-label">Loại thẻ</label>
+				<select class="form-select" name="type" id="tagTypeFilter">
+					@foreach (var type in ViewBag.TagTypes)
+					{
 						<option value="@type.Value" selected="@(ViewBag.TagType.ToString() == type.Value.ToString() ? "selected" : null)">@type.Text</option>
 					}
-                </select>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Tìm kiếm</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Tìm thẻ..." name="searchTerm" value="@ViewBag.SearchTerm">
-                    <button class="btn btn-icon" type="button" id="clearSearch">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-search me-2"></i> Lọc
-                </button>
-            </div>
-            <div class="col-md-2">
-                <a href="@Url.Action("Index", new { type = ViewBag.TagType })" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-redo me-2"></i> Đặt lại
-                </a>
-            </div>
-        </form>
-    </div>
+				</select>
+			</div>
+			<div class="col-md-4">
+				<label class="form-label">Tìm kiếm</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Tìm thẻ..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch">
+						<i class="ti ti-x"></i> 
+					</button>
+				</div>
+			</div>
+			<div class="col-md-2">
+				<button type="submit" class="btn btn-primary w-100">
+					<i class="ti ti-search me-2"></i> Lọc
+				</button>
+			</div>
+			<div class="col-md-2">
+				<a href="@Url.Action("Index", new { type = ViewBag.TagType })" class="btn btn-outline-secondary w-100">
+					<i class="ti ti-reload me-2"></i> Đặt lại
+				</a>
+			</div>
+		</form>
+	</div>
 </div>
 
 <!-- Content -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">@ViewData["PageTitle"]</h3>
-    </div>
-    <div class="card-body p-0">
-        @if (!Model.Any())
-        {
-            <div class="empty">
-                <div class="empty-img">
-                    <i class="fas fa-tags fa-5x text-muted"></i>
-                </div>
-                <p class="empty-title">Không tìm thấy thẻ nào</p>
-                <p class="empty-subtitle text-muted">
-                    Hãy tạo thẻ để phân loại nội dung của bạn
-                </p>
-                <div class="empty-action">
-                    <a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary">
-                        <i class="fas fa-plus me-2"></i> Thêm thẻ mới
-                    </a>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="w-1">STT</th>
-                            <th>Tên thẻ</th>
-                            <th style="width: 20%">Slug</th>
-                            <th style="width: 15%">Số mục</th>
-                            <th style="width: 15%">Cập nhật lúc</th>
-                            <th style="width: 15%">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            int index = 1;
-                        }
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="text-muted">@(index++)</td>
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        <span class="font-weight-medium">@item.Name</span>
-                                        @if (!string.IsNullOrEmpty(item.Description))
-                                        {
-                                            <small class="text-muted text-truncate" style="max-width: 300px;" title="@item.Description">@item.Description</small>
-                                        }
-                                    </div>
-                                </td>
-                                <td>@item.Slug</td>
-                                <td>@item.ItemCount mục</td>
-                                <td>@item.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item" 
-                                                data-bs-toggle="modal" 
-                                                data-bs-target="#delete-modal" 
-                                                data-id="@item.Id" 
-                                                data-name="@item.Name" 
-                                                data-delete-url="@Url.Action("Delete", "Tag")">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </div>
+	<div class="card-header">
+		<h3 class="card-title">@ViewData["PageTitle"]</h3>
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Any())
+		{
+			<div class="empty">
+				<div class="empty-img" style="font-size: 5rem;">
+					<i class="ti ti-tags text-muted"></i> 
+				</div>
+				<p class="empty-title">Không tìm thấy thẻ nào</p>
+				<p class="empty-subtitle text-muted">
+					Hãy tạo thẻ để phân loại nội dung của bạn
+				</p>
+				<div class="empty-action">
+					<a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary">
+						<i class="ti ti-plus me-2"></i> 
+					</a>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+							<th class="w-1">STT</th>
+							<th>Tên thẻ</th>
+							<th style="width: 20%">Slug</th>
+							<th style="width: 15%">Số mục</th>
+							<th style="width: 15%">Cập nhật lúc</th>
+							<th style="width: 15%">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@{
+							int index = 1;
+						}
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td class="text-muted">@(index++)</td>
+								<td>
+									<div class="d-flex flex-column">
+										<span class="font-weight-medium">@item.Name</span>
+										@if (!string.IsNullOrEmpty(item.Description))
+										{
+											<small class="text-muted text-truncate" style="max-width: 300px;" title="@item.Description">@item.Description</small>
+										}
+									</div>
+								</td>
+								<td>@item.Slug</td>
+								<td>@item.ItemCount mục</td>
+								<td>@item.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+								<td>
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
+											<i class="ti ti-pencil"></i> 
+										</a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
+												data-bs-toggle="modal"
+												data-bs-target="#delete-modal"
+												data-id="@item.Id"
+												data-name="@item.Name"
+												data-delete-url="@Url.Action("Delete", "Tag")">
+											<i class="ti ti-trash"></i> 
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            // Delete item setup
-            $('.delete-item').on('click', function () {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                var deleteUrl = $(this).data('delete-url');
-                
-                $('#delete-item-id').val(id);
-                $('#delete-item-name').val(name);
-                $('#delete-url').val(deleteUrl);
-                $('#delete-modal-message').text('Bạn có chắc chắn muốn xóa thẻ "' + name + '" không?');
-            });
-            
-            // Clear search
-            $('#clearSearch').on('click', function() {
-                $('input[name="searchTerm"]').val('');
-                $('#filterForm').submit();
-            });
-            
-            // Auto submit on tag type change
-            $('#tagTypeFilter').on('change', function() {
-                $('#filterForm').submit();
-            });
-        });
-    </script>
-}
+	<script>
+		$(document).ready(function () {
+			// Delete item setup
+			$('.delete-item').on('click', function () {
+				var id = $(this).data('id');
+				var name = $(this).data('name');
+				var deleteUrl = $(this).data('delete-url');
 
+				$('#delete-item-id').val(id);
+				$('#delete-item-name').val(name);
+				$('#delete-url').val(deleteUrl);
+				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa thẻ "' + name + '" không?');
+			});
+
+			// Clear search
+			$('#clearSearch').on('click', function() {
+				$('input[name="searchTerm"]').val('');
+				$('#filterForm').submit();
+			});
+
+			// Auto submit on tag type change
+			$('#tagTypeFilter').on('change', function() {
+				$('#filterForm').submit();
+			});
+		});
+	</script>
+}
