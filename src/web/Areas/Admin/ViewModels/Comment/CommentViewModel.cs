@@ -15,4 +15,5 @@ public class CommentViewModel
     // For display purposes
     public string? ParentAuthorName { get; set; }
     public string ArticleTitle { get; set; } = string.Empty;
+    public DateTime CreatedAt { get; set; }
 }
