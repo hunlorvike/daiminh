@@ -45,7 +45,10 @@
       "files": [
         "dist/summernote-bs5.min.js",
         "dist/summernote-bs5.min.css",
-        "dist/lang/summernote-vi-VN.min.js"
+        "dist/lang/summernote-vi-VN.min.js",
+        "dist/font/summernote.ttf",
+        "dist/font/summernote.woff",
+        "dist/font/summernote.woff2"
       ]
     },
     {
