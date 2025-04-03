@@ -28,24 +28,5 @@ public class TestimonialViewModelValidator : AbstractValidator<TestimonialViewMo
 
         RuleFor(x => x.ProjectReference)
             .MaximumLength(255).WithMessage("Tham chiếu dự án không được vượt quá 255 ký tự");
-
-        RuleFor(x => x.AvatarFile)
-            .Must(x => x == null || IsValidImage(x))
-            .WithMessage("Chỉ chấp nhận file ảnh (jpg, jpeg, png, gif) và kích thước không quá 2MB");
-    }
-
-    private bool IsValidImage(Microsoft.AspNetCore.Http.IFormFile file)
-    {
-        if (file == null)
-            return true;
-
-        // Check file size (max 2MB)
-        if (file.Length > 2 * 1024 * 1024)
-            return false;
-
-        // Check file extension
-        var validExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-        var fileExtension = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
-        return validExtensions.Contains(fileExtension);
     }
 }

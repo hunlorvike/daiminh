@@ -80,9 +80,7 @@ public class AdminMappingProfile : Profile
         // Testimonial mappings
         CreateMap<Testimonial, TestimonialListItemViewModel>();
 
-        CreateMap<Testimonial, TestimonialViewModel>()
-            .ReverseMap()
-            .ForMember(dest => dest.ClientAvatar, opt => opt.Condition(src => src.AvatarFile == null));
+        CreateMap<Testimonial, TestimonialViewModel>().ReverseMap();
 
         // User mappings
         CreateMap<User, UserListItemViewModel>();

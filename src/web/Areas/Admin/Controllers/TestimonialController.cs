@@ -6,7 +6,6 @@ using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using web.Areas.Admin.Services;
 using web.Areas.Admin.ViewModels.Testimonial;
 
 namespace web.Areas.Admin.Controllers;
@@ -18,18 +17,15 @@ public class TestimonialController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IValidator<TestimonialViewModel> _validator;
-    private readonly IFileStorageService _fileStorage;
 
     public TestimonialController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<TestimonialViewModel> validator,
-        IFileStorageService fileStorage)
+        IValidator<TestimonialViewModel> validator)
     {
         _context = context;
         _mapper = mapper;
         _validator = validator;
-        _fileStorage = fileStorage;
     }
 
     // GET: Admin/Testimonial
@@ -98,12 +94,6 @@ public class TestimonialController : Controller
 
         var testimonial = _mapper.Map<Testimonial>(viewModel);
 
-        // Handle avatar upload
-        if (viewModel.AvatarFile != null)
-        {
-            testimonial.ClientAvatar = await _fileStorage.SaveFileAsync(viewModel.AvatarFile, "testimonials");
-        }
-
         _context.Add(testimonial);
         await _context.SaveChangesAsync();
 
@@ -160,27 +150,7 @@ public class TestimonialController : Controller
                 return NotFound();
             }
 
-            // Save the current avatar URL before mapping
-            var currentAvatarUrl = testimonial.ClientAvatar;
-
             _mapper.Map(viewModel, testimonial);
-
-            // Handle avatar upload
-            if (viewModel.AvatarFile != null)
-            {
-                // Delete old avatar if exists
-                if (!string.IsNullOrEmpty(currentAvatarUrl))
-                {
-                    await _fileStorage.DeleteFileAsync(currentAvatarUrl);
-                }
-
-                testimonial.ClientAvatar = await _fileStorage.SaveFileAsync(viewModel.AvatarFile, "testimonials");
-            }
-            else
-            {
-                // Restore the current avatar URL if no new avatar is uploaded
-                testimonial.ClientAvatar = currentAvatarUrl;
-            }
 
             _context.Update(testimonial);
             await _context.SaveChangesAsync();
@@ -212,12 +182,6 @@ public class TestimonialController : Controller
         if (testimonial == null)
         {
             return Json(new { success = false, message = "Không tìm thấy đánh giá khách hàng" });
-        }
-
-        // Delete avatar if exists
-        if (!string.IsNullOrEmpty(testimonial.ClientAvatar))
-        {
-            await _fileStorage.DeleteFileAsync(testimonial.ClientAvatar);
         }
 
         _context.Set<Testimonial>().Remove(testimonial);

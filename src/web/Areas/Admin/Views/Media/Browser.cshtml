@@ -6,6 +6,7 @@
     Layout = "Layout/_Layout.Blank";
     var callback = ViewData["Callback"] as string;
     var fileType = ViewData["FileType"] as string;
+    var multiple = ViewData["Multiple"] as bool? ?? false;
 }
 
 <div class="card">
@@ -23,11 +24,12 @@
         @if (Model.ParentFolderId.HasValue)
         {
             <div class="card-actions">
-                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = Model.ParentFolderId })" class="btn btn-outline-secondary btn-sm">
+                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = Model.ParentFolderId, multiple = multiple })" class="btn btn-outline-secondary btn-sm">
                     <i class="ti ti-arrow-up me-2"></i> Lên một cấp 
                 </a>
             </div>
         }
+
     </div>
     <div class="card-body">
         <!-- Breadcrumb navigation -->
@@ -48,7 +50,7 @@
                         else
                         {
                             <li class="breadcrumb-item">
-                                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = id })">@name</a>
+                                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = id, multiple = multiple })">@name</a>
                             </li>
                         }
                     }
@@ -95,7 +97,7 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = folder.Id })" class="btn btn-outline-primary btn-sm">
+                                <a href="@Url.Action("Browser", new { callback = callback, fileType = fileType, folderId = folder.Id, multiple = multiple })" class="btn btn-outline-primary btn-sm">
                                     <i class="ti ti-folder-open me-2"></i> Mở
                                 </a>
                             </div>
@@ -154,13 +156,13 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button type="button" class="btn btn-primary select-file"
+                                <button type="button" class="btn @(multiple ? "btn-outline-primary select-file-multiple" : "btn-primary select-file")"
                                         data-id="@file.Id"
                                         data-url="@file.FilePath"
                                         data-thumbnail="@file.ThumbnailPath"
                                         data-filename="@file.FileName"
                                         data-callback="@callback">
-                                    <i class="ti ti-check me-2"></i> Chọn
+                                    <i class="ti ti-check me-2"></i> @(multiple ? "Chọn" : "Chọn")
                                 </button>
                             </div>
                         </div>

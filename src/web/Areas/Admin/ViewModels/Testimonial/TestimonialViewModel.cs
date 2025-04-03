@@ -7,7 +7,6 @@ public class TestimonialViewModel
     public string? ClientTitle { get; set; }
     public string? ClientCompany { get; set; }
     public string? ClientAvatar { get; set; }
-    public IFormFile? AvatarFile { get; set; }
     public string Content { get; set; } = string.Empty;
     public int Rating { get; set; } = 5;
     public bool IsActive { get; set; } = true;

@@ -6,7 +6,7 @@
 
 <div class="card">
     <div class="card-body">
-        <form asp-action="Edit" method="post" enctype="multipart/form-data">
+        <form asp-action="Edit" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <input type="hidden" asp-for="Id" />
 
@@ -31,16 +31,31 @@
                     </div>
 
                     <div class="form-group mb-3">
-                        <label asp-for="AvatarFile" class="form-label">Ảnh đại diện</label>
-                        @if (!string.IsNullOrEmpty(Model.ClientAvatar))
-                        {
-                            <div class="mb-2">
-                                <img src="@Model.ClientAvatar" alt="@Model.ClientName" class="img-thumbnail" style="max-height: 100px;" />
+                        <label asp-for="ClientAvatar" class="form-label">Ảnh đại diện</label>
+                        @* Hidden input to store the selected media URL *@
+                        <input asp-for="ClientAvatar" id="ClientAvatarInput" class="form-control" type="hidden" />
+                        <span asp-validation-for="ClientAvatar" class="text-danger"></span>
+
+                        @* Media Preview Area *@
+                        <div id="media-preview-container" class="border rounded p-3 mb-2 text-center d-flex align-items-center justify-content-center" style="min-height: 150px;">
+                            @* Placeholder - Content will be managed by JavaScript *@
+                            <div class="media-placeholder">
+                                <i class="ti ti-photo text-muted" style="font-size: 3rem;"></i>
+                                <p class="mt-2 mb-0 text-muted">Chưa có ảnh nào được chọn</p>
+                                <small class="d-block text-muted">Nhấp vào nút bên dưới để chọn</small>
                             </div>
-                        }
-                        <input asp-for="AvatarFile" class="form-control" type="file" accept="image/*" />
-                        <span asp-validation-for="AvatarFile" class="text-danger"></span>
-                        <small class="form-hint">Kích thước tối đa: 2MB. Định dạng: jpg, jpeg, png, gif</small>
+                        </div>
+
+                        @* Action Buttons *@
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="button" class="btn btn-outline-primary btn-sm" onclick="openMediaBrowser('handleSelectedMedia', 'image')">
+                                <i class="ti ti-folder-open me-1"></i> Chọn/Thay đổi ảnh
+                            </button>
+                            <button type="button" id="remove-media-button" class="btn btn-outline-danger btn-sm d-none" onclick="removeSelectedMedia()">
+                                <i class="ti ti-trash me-1"></i> Xóa ảnh
+                            </button>
+                        </div>
+                        <small class="form-hint mt-1 d-block">Kích thước tối đa: 2MB. Định dạng: jpg, jpeg, png, gif</small>
                     </div>
                 </div>
 
@@ -56,7 +71,8 @@
                         <div class="rating-input">
                             <div class="d-flex align-items-center">
                                 <input type="range" asp-for="Rating" min="1" max="5" class="form-range" id="ratingSlider" />
-                                <div class="ms-3 d-flex text-warning" id="ratingStars">
+                                <div class="ms-3 d-flex text-warning" id="ratingStars" style="font-size: 1.25rem;">
+                                    @* Initial state rendered by server, JS will handle updates *@
                                     @for (int i = 1; i <= 5; i++)
                                     {
                                         <i class="ti @(i <= Model.Rating ? "ti-star-filled" : "ti-star") me-1"></i>
@@ -105,21 +121,97 @@
 
 @section Scripts {
     <script>
-        $(document).ready(function() {
-            // Update star display based on rating slider
-            function updateStars(rating) {
-                $('#ratingStars').empty();
-                for (var i = 1; i <= 5; i++) {
-                     // Use Tabler icon classes: ti-star-filled for filled, ti-star for empty
-                    var starClass = i <= rating ? 'ti ti-star-filled text-warning' : 'ti ti-star text-warning';
-                    $('#ratingStars').append('<i class="' + starClass + ' me-1"></i>');
+        function updateStars(rating) {
+            const ratingStarsContainer = document.getElementById('ratingStars');
+            if (!ratingStarsContainer) return;
+
+            ratingStarsContainer.innerHTML = '';
+            for (let i = 1; i <= 5; i++) {
+                const starClass = i <= rating ? 'ti ti-star-filled text-warning' : 'ti ti-star text-warning';
+                ratingStarsContainer.innerHTML += `<i class="${starClass} me-1"></i>`;
+            }
+        }
+
+        function handleSelectedMedia(fileData) {
+            console.log('File đã chọn:', fileData);
+            const previewContainer = document.getElementById('media-preview-container');
+            const fileInput = document.getElementById('ClientAvatarInput');
+            const removeButton = document.getElementById('remove-media-button');
+
+            if (fileData && fileData.url && fileInput && previewContainer && removeButton) {
+                const fileExt = fileData.url.split('.').pop().toLowerCase();
+                const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
+                if (!imageExts.includes(fileExt)) {
+                    toastr.error('Vui lòng chọn một file hình ảnh (jpg, png, gif, etc).');
+                    return; 
                 }
+
+                fileInput.value = fileData.url;
+
+                previewContainer.innerHTML = `
+                    <div class="media-item d-flex flex-column align-items-center">
+                        <img src="${fileData.url}" alt="${fileData.filename || 'Preview'}" class="img-thumbnail mb-2" style="max-height: 120px; max-width: 100%;">
+                        <small class="text-muted text-truncate" style="max-width: 100%;" title="${fileData.filename || ''}">${fileData.filename || 'Selected Image'}</small>
+                    </div>
+                `;
+                previewContainer.classList.remove('text-center');
+
+                removeButton.classList.remove('d-none');
+            } else {
+                console.error("Missing required elements or file data for media handling.");
+                 toastr.error('Có lỗi xảy ra khi chọn ảnh.');
+            }
+        }
+
+        function removeSelectedMedia() {
+            const previewContainer = document.getElementById('media-preview-container');
+            const fileInput = document.getElementById('ClientAvatarInput');
+            const removeButton = document.getElementById('remove-media-button');
+
+            if (previewContainer && fileInput && removeButton) {
+                fileInput.value = '';
+
+                previewContainer.innerHTML = `
+                    <div class="media-placeholder">
+                        <i class="ti ti-photo text-muted" style="font-size: 3rem;"></i>
+                        <p class="mt-2 mb-0 text-muted">Chưa có ảnh nào được chọn</p>
+                        <small class="d-block text-muted">Nhấp vào nút bên dưới để chọn</small>
+                    </div>
+                `;
+                 previewContainer.classList.add('text-center');
+
+                removeButton.classList.add('d-none');
+            } else {
+                console.error("Missing required elements for media removal.");
+            }
+        }
+
+        $(document).ready(function() {
+            const ratingSlider = document.getElementById('ratingSlider');
+
+            if (ratingSlider) {
+                 let initialRating = parseInt(ratingSlider.value);
+                 if (isNaN(initialRating) || initialRating < 1 || initialRating > 5) {
+                     initialRating = 5;
+                     ratingSlider.value = initialRating;
+                 }
+                 updateStars(initialRating);
+
+                ratingSlider.addEventListener('input', function() {
+                    updateStars(parseInt(this.value));
+                });
             }
 
-            // Update stars when slider changes
-            $('#ratingSlider').on('input', function() {
-                updateStars(parseInt($(this).val()));
-            });
+            const initialAvatarUrl = $('#ClientAvatarInput').val();
+            if (initialAvatarUrl) {
+                handleSelectedMedia({
+                     url: initialAvatarUrl,
+                     filename: initialAvatarUrl.substring(initialAvatarUrl.lastIndexOf('/') + 1)
+                 });
+             } else {
+                 removeSelectedMedia();
+             }
         });
     </script>
 }
