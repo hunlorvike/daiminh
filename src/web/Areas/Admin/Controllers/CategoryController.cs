@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using web.Areas.Admin.Services;
 using web.Areas.Admin.ViewModels.Category;
 
 namespace web.Areas.Admin.Controllers;
@@ -19,18 +18,15 @@ public class CategoryController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IValidator<CategoryViewModel> _validator;
-    private readonly IFileStorageService _fileStorage;
 
     public CategoryController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<CategoryViewModel> validator,
-        IFileStorageService fileStorage)
+        IValidator<CategoryViewModel> validator)
     {
         _context = context;
         _mapper = mapper;
         _validator = validator;
-        _fileStorage = fileStorage;
     }
 
     // GET: Admin/Category
@@ -135,12 +131,6 @@ public class CategoryController : Controller
 
         var category = _mapper.Map<Category>(viewModel);
 
-        // Handle image upload
-        if (viewModel.ImageFile != null)
-        {
-            category.ImageUrl = await _fileStorage.SaveFileAsync(viewModel.ImageFile, "categories");
-        }
-
         _context.Add(category);
         await _context.SaveChangesAsync();
 
@@ -191,27 +181,18 @@ public class CategoryController : Controller
         if (!validationResult.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
-
-            // Reload available parent categories
             viewModel.AvailableParents = await GetAvailableParentCategories(viewModel.Type, viewModel.Id);
-
             ViewBag.CategoryType = viewModel.Type;
             ViewBag.CategoryTypeName = GetCategoryTypeName(viewModel.Type);
-
             return View(viewModel);
         }
 
-        // Check if slug is unique for this category type (excluding current category)
         if (await _context.Set<Category>().AnyAsync(c => c.Slug == viewModel.Slug && c.Type == viewModel.Type && c.Id != id))
         {
             ModelState.AddModelError("Slug", "Slug đã tồn tại cho loại danh mục này, vui lòng chọn slug khác");
-
-            // Reload available parent categories
             viewModel.AvailableParents = await GetAvailableParentCategories(viewModel.Type, viewModel.Id);
-
             ViewBag.CategoryType = viewModel.Type;
             ViewBag.CategoryTypeName = GetCategoryTypeName(viewModel.Type);
-
             return View(viewModel);
         }
 
@@ -224,45 +205,20 @@ public class CategoryController : Controller
                 return NotFound();
             }
 
-            // Check for circular reference in parent-child relationship
             if (viewModel.ParentId.HasValue)
             {
                 var childIds = await GetAllChildCategoryIds(id);
                 if (childIds.Contains(viewModel.ParentId.Value))
                 {
                     ModelState.AddModelError("ParentId", "Không thể chọn danh mục con làm danh mục cha");
-
-                    // Reload available parent categories
                     viewModel.AvailableParents = await GetAvailableParentCategories(viewModel.Type, viewModel.Id);
-
                     ViewBag.CategoryType = viewModel.Type;
                     ViewBag.CategoryTypeName = GetCategoryTypeName(viewModel.Type);
-
                     return View(viewModel);
                 }
             }
 
-            // Save the current image URL before mapping
-            var currentImageUrl = category.ImageUrl;
-
             _mapper.Map(viewModel, category);
-
-            // Handle image upload
-            if (viewModel.ImageFile != null)
-            {
-                // Delete old image if exists
-                if (!string.IsNullOrEmpty(currentImageUrl))
-                {
-                    await _fileStorage.DeleteFileAsync(currentImageUrl);
-                }
-
-                category.ImageUrl = await _fileStorage.SaveFileAsync(viewModel.ImageFile, "categories");
-            }
-            else
-            {
-                // Restore the current image URL if no new image is uploaded
-                category.ImageUrl = currentImageUrl;
-            }
 
             _context.Update(category);
             await _context.SaveChangesAsync();
@@ -335,12 +291,6 @@ public class CategoryController : Controller
         if (hasItems)
         {
             return Json(new { success = false, message = $"Không thể xóa danh mục có chứa {itemType}. Vui lòng xóa hoặc chuyển các {itemType} sang danh mục khác trước." });
-        }
-
-        // Delete image if exists
-        if (!string.IsNullOrEmpty(category.ImageUrl))
-        {
-            await _fileStorage.DeleteFileAsync(category.ImageUrl);
         }
 
         _context.Set<Category>().Remove(category);

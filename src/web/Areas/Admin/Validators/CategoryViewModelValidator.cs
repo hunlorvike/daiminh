@@ -22,10 +22,6 @@ public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
         RuleFor(x => x.Icon)
             .MaximumLength(50).WithMessage("Icon không được vượt quá 50 ký tự");
 
-        RuleFor(x => x.ImageFile)
-            .Must(x => x == null || IsValidImage(x))
-            .WithMessage("Chỉ chấp nhận file ảnh (jpg, jpeg, png, gif) và kích thước không quá 2MB");
-
         RuleFor(x => x.OrderIndex)
             .GreaterThanOrEqualTo(0).WithMessage("Thứ tự hiển thị phải là số không âm");
 
@@ -41,20 +37,5 @@ public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
 
         RuleFor(x => x.MetaKeywords)
             .MaximumLength(200).WithMessage("Meta keywords không được vượt quá 200 ký tự");
-    }
-
-    private bool IsValidImage(Microsoft.AspNetCore.Http.IFormFile file)
-    {
-        if (file == null)
-            return true;
-
-        // Check file size (max 2MB)
-        if (file.Length > 2 * 1024 * 1024)
-            return false;
-
-        // Check file extension
-        var validExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
-        var fileExtension = System.IO.Path.GetExtension(file.FileName).ToLowerInvariant();
-        return validExtensions.Contains(fileExtension);
     }
 }

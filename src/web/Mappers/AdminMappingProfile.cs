@@ -28,13 +28,15 @@ public class AdminMappingProfile : Profile
 
         CreateMap<Contact, ContactViewModel>().ReverseMap();
 
-        // Newsletter mappings
+        // Testimonial mappings
+        CreateMap<Testimonial, TestimonialListItemViewModel>();
 
+        CreateMap<Testimonial, TestimonialViewModel>().ReverseMap();
+
+        // Newsletter mappings
         CreateMap<Newsletter, NewsletterListItemViewModel>();
 
-        // Newsletter to NewsletterViewModel
         CreateMap<Newsletter, NewsletterViewModel>().ReverseMap();
-
 
         // FAQ mappings
         CreateMap<FAQ, FAQListItemViewModel>()
@@ -42,7 +44,6 @@ public class AdminMappingProfile : Profile
 
         CreateMap<FAQ, FAQViewModel>().ReverseMap();
 
-        // FAQ Category mappings
         CreateMap<FAQCategory, FAQCategoryListItemViewModel>()
             .ForMember(dest => dest.FAQCount, opt => opt.MapFrom(src => src.FAQs != null ? src.FAQs.Count : 0));
 
@@ -60,8 +61,7 @@ public class AdminMappingProfile : Profile
             ));
 
         CreateMap<Category, CategoryViewModel>()
-            .ReverseMap()
-            .ForMember(dest => dest.ImageUrl, opt => opt.Condition(src => src.ImageFile == null));
+            .ReverseMap();
 
         CreateMap<Category, CategorySelectViewModel>()
             .ForMember(dest => dest.Level, opt => opt.Ignore());
@@ -76,11 +76,6 @@ public class AdminMappingProfile : Profile
             ));
 
         CreateMap<Tag, TagViewModel>().ReverseMap();
-
-        // Testimonial mappings
-        CreateMap<Testimonial, TestimonialListItemViewModel>();
-
-        CreateMap<Testimonial, TestimonialViewModel>().ReverseMap();
 
         // User mappings
         CreateMap<User, UserListItemViewModel>();

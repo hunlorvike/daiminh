@@ -7,7 +7,7 @@
 @section PageActions {
 	<div class="btn-list">
 		<a asp-action="Create" asp-route-type="@ViewBag.CategoryType" class="btn btn-primary d-sm-inline-block">
-			<i class="fas fa-plus me-2"></i> Thêm danh mục
+			<i class="ti ti-plus me-2"></i> Thêm danh mục
 		</a>
 	</div>
 }
@@ -30,18 +30,18 @@
 				<div class="input-group">
 					<input type="text" class="form-control" placeholder="Tìm danh mục..." name="searchTerm" value="@ViewBag.SearchTerm">
 					<button class="btn btn-icon" type="button" id="clearSearch">
-						<i class="fas fa-times"></i>
+						<i class="ti ti-x"></i>
 					</button>
 				</div>
 			</div>
 			<div class="col-md-2">
 				<button type="submit" class="btn btn-primary w-100">
-					<i class="fas fa-search me-2"></i> Lọc
+					<i class="ti ti-search me-2"></i> Lọc
 				</button>
 			</div>
 			<div class="col-md-2">
 				<a href="@Url.Action("Index", new { type = ViewBag.CategoryType })" class="btn btn-outline-secondary w-100">
-					<i class="fas fa-redo me-2"></i> Đặt lại
+					<i class="ti ti-reload me-2"></i> Đặt lại
 				</a>
 			</div>
 		</form>
@@ -57,8 +57,8 @@
 		@if (!Model.Any())
 		{
 			<div class="empty">
-				<div class="empty-img">
-					<i class="fas fa-folder-open fa-5x text-muted"></i>
+				<div class="empty-img" style="font-size: 5rem;">
+					<i class="ti ti-folder-open text-muted"></i>
 				</div>
 				<p class="empty-title">Không tìm thấy danh mục nào</p>
 				<p class="empty-subtitle text-muted">
@@ -66,7 +66,7 @@
 				</p>
 				<div class="empty-action">
 					<a asp-action="Create" asp-route-type="@ViewBag.CategoryType" class="btn btn-primary">
-						<i class="fas fa-plus me-2"></i> Thêm danh mục mới
+						<i class="ti ti-plus me-2"></i> Thêm danh mục mới
 					</a>
 				</div>
 			</div>
@@ -103,8 +103,8 @@
 										}
 										else if (!string.IsNullOrEmpty(item.Icon))
 										{
-											<span class="avatar me-2">
-												<i class="@item.Icon"></i>
+											<span class="avatar me-2 d-flex align-items-center justify-content-center">
+												<i class="@item.Icon"></i> 
 											</span>
 										}
 										<div class="d-flex flex-column">
@@ -136,16 +136,17 @@
 								</td>
 								<td>
 									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
-											<i class="fas fa-edit"></i>
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
+											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
+										<button class="btn btn-sm btn-icon btn-outline-danger"
 												data-bs-toggle="modal"
 												data-bs-target="#delete-modal"
 												data-id="@item.Id"
 												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Category")">
-											<i class="fas fa-trash"></i>
+												data-delete-url="@Url.Action("Delete", "Category")"
+												title="Xóa">
+											<i class="ti ti-trash"></i>
 										</button>
 									</div>
 								</td>
@@ -161,10 +162,10 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			// Active toggle
 			$('.toggle-active').on('change', function () {
-				var id = $(this).data('id');
-				var isChecked = $(this).prop('checked');
+				var checkbox = $(this); 
+				var id = checkbox.data('id');
+				var isChecked = checkbox.prop('checked');
 
 				$.ajax({
 					url: '@Url.Action("ToggleActive", "Category")',
@@ -174,42 +175,20 @@
 						if (result.success) {
 							toastr.success('Cập nhật trạng thái thành công');
 						} else {
-							toastr.error(result.message);
-							// Revert the checkbox state
-							$(this).prop('checked', !isChecked);
+							toastr.error(result.message || 'Cập nhật trạng thái thất bại');
+							checkbox.prop('checked', !isChecked);
 						}
 					},
 					error: function () {
-						toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái');
-						// Revert the checkbox state
-						$(this).prop('checked', !isChecked);
+						toastr.error('Đã xảy ra lỗi khi gửi yêu cầu');
+						checkbox.prop('checked', !isChecked);
 					}
 				});
 			});
 
-			// Delete item setup
-			$('.delete-item').on('click', function () {
-				var id = $(this).data('id');
-				var name = $(this).data('name');
-				var deleteUrl = $(this).data('delete-url');
-
-				$('#delete-item-id').val(id);
-				$('#delete-item-name').val(name);
-				$('#delete-url').val(deleteUrl);
-				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa danh mục "' + name + '" không?');
-			});
-
-			// Clear search
 			$('#clearSearch').on('click', function() {
 				$('input[name="searchTerm"]').val('');
-				$('#filterForm').submit();
-			});
-
-			// Auto submit on category type change
-			$('#categoryTypeFilter').on('change', function() {
-				$('#filterForm').submit();
 			});
 		});
 	</script>
 }
-

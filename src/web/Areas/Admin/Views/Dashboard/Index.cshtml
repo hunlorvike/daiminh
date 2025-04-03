@@ -183,7 +183,7 @@
 									</span>
 								</div>
 								<div class="col">
-									<a asp-area="Admin" asp-controller="Contact" asp-action="Detail" asp-route-id="@contact.Id" class="text-reset d-block">@contact.Subject</a>
+									<a asp-area="Admin" asp-controller="Contact" asp-action="Details" asp-route-id="@contact.Id" class="text-reset d-block">@contact.Subject</a>
 									<div class="text-muted mt-1">
 										<div class="d-inline-block">
 											<span class="text-muted">@contact.FullName</span>
@@ -200,7 +200,7 @@
 											<i class="ti ti-dots-vertical"></i>
 										</a>
 										<div class="dropdown-menu dropdown-menu-end">
-											<a asp-area="Admin" asp-controller="Contact" asp-action="Detail" asp-route-id="@contact.Id" class="dropdown-item">
+											<a asp-area="Admin" asp-controller="Contact" asp-action="Details" asp-route-id="@contact.Id" class="dropdown-item">
 												<i class="ti ti-eye me-2"></i> Xem chi tiết
 											</a>
 										</div>

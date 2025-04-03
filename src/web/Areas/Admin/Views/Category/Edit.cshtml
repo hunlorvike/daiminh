@@ -6,7 +6,7 @@
 
 <div class="card">
 	<div class="card-body">
-		<form asp-action="Edit" method="post" enctype="multipart/form-data">
+		<form asp-action="Edit" method="post">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<input type="hidden" asp-for="Id" />
 			<input type="hidden" asp-for="Type" />
@@ -24,7 +24,7 @@
 						<div class="input-group">
 							<input asp-for="Slug" class="form-control" id="categorySlug" />
 							<button class="btn btn-outline-secondary" type="button" id="generateSlug">
-								<i class="fas fa-sync-alt"></i>
+								<i class="ti ti-refresh"></i>
 							</button>
 						</div>
 						<span asp-validation-for="Slug" class="text-danger"></span>
@@ -44,12 +44,10 @@
 							<option value="">-- Không có danh mục cha --</option>
 							@if (Model.AvailableParents != null)
 							{
-
 								@foreach (var parent in Model.AvailableParents)
 								{
 									<option value="@parent.Id">@parent.DisplayName</option>
 								}
-
 							}
 						</select>
 						<span asp-validation-for="ParentId" class="text-danger"></span>
@@ -58,23 +56,37 @@
 
 				<div class="col-md-4">
 					<div class="form-group mb-3">
-						<label asp-for="Icon" class="form-label">Icon (CSS class)</label>
+						<label asp-for="Icon" class="form-label">Icon (Tabler Class)</label>
 						<input asp-for="Icon" class="form-control" />
 						<span asp-validation-for="Icon" class="text-danger"></span>
-						<small class="form-hint">Ví dụ: fas fa-home (Font Awesome)</small>
+						<small class="form-hint">Ví dụ: ti ti-home (<a href="https://tabler-icons.io/" target="_blank">Tabler Icons</a>)</small>
 					</div>
 
 					<div class="form-group mb-3">
-						<label asp-for="ImageFile" class="form-label">Hình ảnh</label>
-						@if (!string.IsNullOrEmpty(Model.ImageUrl))
-						{
-							<div class="mb-2">
-								<img src="@Model.ImageUrl" alt="@Model.Name" class="img-thumbnail" style="max-height: 100px;" />
+						<label asp-for="ImageUrl" class="form-label">Hình ảnh</label>
+						@* Hidden input to store the selected media URL *@
+						<input asp-for="ImageUrl" id="categoryImageUrlInput" class="form-control" type="hidden" />
+						<span asp-validation-for="ImageUrl" class="text-danger"></span>
+
+						@* Media Preview Area *@
+						<div id="category-image-preview-container" class="border rounded p-3 mb-2 text-center d-flex align-items-center justify-content-center" style="min-height: 120px;">
+							@* Placeholder - Content managed by JS *@
+							<div class="media-placeholder">
+								<i class="ti ti-photo text-muted" style="font-size: 2.5rem;"></i>
+								<p class="mt-2 mb-0 text-muted small">Chưa có ảnh</p>
 							</div>
-						}
-						<input asp-for="ImageFile" class="form-control" type="file" accept="image/*" />
-						<span asp-validation-for="ImageFile" class="text-danger"></span>
-						<small class="form-hint">Kích thước tối đa: 2MB. Định dạng: jpg, jpeg, png, gif</small>
+						</div>
+
+						@* Action Buttons *@
+						<div class="d-flex justify-content-between align-items-center">
+							<button type="button" class="btn btn-outline-primary btn-sm" onclick="openMediaBrowser('handleSelectedCategoryImage', 'image')">
+								<i class="ti ti-folder-open me-1"></i> Chọn/Thay đổi
+							</button>
+							<button type="button" id="remove-category-image-button" class="btn btn-outline-danger btn-sm d-none" onclick="removeSelectedCategoryImage()">
+								<i class="ti ti-trash me-1"></i> Xóa
+							</button>
+						</div>
+						<small class="form-hint mt-1 d-block">Ảnh đại diện cho danh mục</small>
 					</div>
 
 					<div class="form-group mb-3">
@@ -140,10 +152,10 @@
 
 			<div class="d-flex justify-content-between mt-4">
 				<a asp-action="Index" asp-route-type="@Model.Type" class="btn btn-outline-secondary">
-					<i class="fas fa-arrow-left me-2"></i> Quay lại
+					<i class="ti ti-arrow-left me-2"></i> Quay lại
 				</a>
 				<button type="submit" class="btn btn-primary">
-					<i class="fas fa-save me-2"></i> Cập nhật danh mục
+					<i class="ti ti-device-floppy me-2"></i> Cập nhật danh mục
 				</button>
 			</div>
 		</form>
@@ -152,28 +164,107 @@
 
 @section Scripts {
 	<script>
-		$(document).ready(function() {
-			// Generate slug button
-			$('#generateSlug').on('click', function() {
-				var name = $('#categoryName').val();
-				if (name) {
-					// Convert to lowercase
-					var slug = name.toLowerCase();
+		// Function to generate slug
+		function generateSlug() {
+			var name = $('#categoryName').val();
+			if (name) {
+				var slug = name.toLowerCase();
 
-					// Remove accents/diacritics from Vietnamese characters
-					slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				// Convert Vietnamese characters to basic Latin characters
+				slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+				slug = slug.replace(/đ/g, 'd').replace(/Đ/g, 'D'); // Handle 'đ' character
 
-					// Replace spaces with dashes and remove special characters
-					slug = slug.replace(/\s+/g, '-')
-						.replace(/[^\w\-]+/g, '')
-						.replace(/\-\-+/g, '-')
-						.replace(/^-+/, '')
-						.replace(/-+$/, '');
+				slug = slug.replace(/\s+/g, '-') // Replace spaces with hyphens
+					.replace(/[^\w\-]+/g, '') // Remove all non-word chars except hyphens
+					.replace(/\-\-+/g, '-') // Replace multiple hyphens with a single one
+					.replace(/^-+/, '') // Trim hyphens from start
+					.replace(/-+$/, ''); // Trim hyphens from end
 
-					$('#categorySlug').val(slug);
+				$('#categorySlug').val(slug);
+			} else {
+				$('#categorySlug').val(''); // Clear slug if name is empty
+			}
+		}
+
+		// Function to handle the selected category image
+		function handleSelectedCategoryImage(fileData) {
+			console.log('Category Image Selected:', fileData);
+			const previewContainer = document.getElementById('category-image-preview-container');
+			const fileInput = document.getElementById('categoryImageUrlInput'); // Use the correct ID
+			const removeButton = document.getElementById('remove-category-image-button');
+
+			if (fileData && fileData.url && fileInput && previewContainer && removeButton) {
+				// Check if the selected file is an image
+				const fileExt = fileData.url.split('.').pop().toLowerCase();
+				const imageExts = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
+
+				if (!imageExts.includes(fileExt)) {
+					toastr.error('Vui lòng chọn một file hình ảnh (jpg, png, gif, etc).');
+					return; // Stop if not an image
 				}
+
+				// Update hidden input with the file URL
+				fileInput.value = fileData.url;
+
+				// Update the preview area
+				previewContainer.innerHTML = `
+					<div class="media-item d-flex flex-column align-items-center">
+						<img src="${fileData.url}" alt="${fileData.filename || 'Preview'}" class="img-thumbnail mb-2" style="max-height: 100px; max-width: 100%;">
+						<small class="text-muted text-truncate" style="max-width: 100%;" title="${fileData.filename || ''}">${fileData.filename || 'Selected Image'}</small>
+					</div>
+				`;
+				previewContainer.classList.remove('text-center'); // Adjust alignment
+
+				// Show the remove button
+				removeButton.classList.remove('d-none');
+			} else {
+				console.error("Missing elements or file data for category image handling.");
+				 toastr.error('Có lỗi xảy ra khi chọn ảnh danh mục.');
+			}
+		}
+
+		// Function to remove the selected category image
+		function removeSelectedCategoryImage() {
+			const previewContainer = document.getElementById('category-image-preview-container');
+			const fileInput = document.getElementById('categoryImageUrlInput'); // Use the correct ID
+			const removeButton = document.getElementById('remove-category-image-button');
+
+			if (previewContainer && fileInput && removeButton) {
+				// Clear the hidden input
+				fileInput.value = '';
+
+				// Reset the preview area
+				previewContainer.innerHTML = `
+					<div class="media-placeholder">
+						<i class="ti ti-photo text-muted" style="font-size: 2.5rem;"></i>
+						<p class="mt-2 mb-0 text-muted small">Chưa có ảnh</p>
+					</div>
+				`;
+				previewContainer.classList.add('text-center'); // Ensure placeholder is centered
+
+				// Hide the remove button
+				removeButton.classList.add('d-none');
+			} else {
+				console.error("Missing elements for category image removal.");
+			}
+		}
+
+		$(document).ready(function() {
+			// Generate slug button click
+			$('#generateSlug').on('click', function() {
+				generateSlug();
 			});
+
+			 // Initial setup for category image preview based on Model's ImageUrl
+			const initialImageUrl = $('#categoryImageUrlInput').val();
+			if (initialImageUrl) {
+				handleSelectedCategoryImage({
+					 url: initialImageUrl,
+					 filename: initialImageUrl.substring(initialImageUrl.lastIndexOf('/') + 1)
+				 });
+			 } else {
+				 removeSelectedCategoryImage(); // Ensure placeholder is shown if no image initially
+			 }
 		});
 	</script>
 }
-

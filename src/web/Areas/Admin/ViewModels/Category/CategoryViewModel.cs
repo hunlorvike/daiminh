@@ -10,7 +10,6 @@ public class CategoryViewModel
     public string? Description { get; set; }
     public string? Icon { get; set; }
     public string? ImageUrl { get; set; }
-    public IFormFile? ImageFile { get; set; }
     public int? ParentId { get; set; }
     public int OrderIndex { get; set; } = 0;
     public bool IsActive { get; set; } = true;
