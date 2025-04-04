@@ -37,13 +37,11 @@ try
         options.InstanceName = "DaiMinhCache_";
     });
 
-
     // Add services to the container.
     builder.Services.AddControllersWithViews();
     builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()]);
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
-    builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
     builder.Services.AddScoped<IMediaService, MediaService>();
 
     builder.Services.AddAuthentication()
