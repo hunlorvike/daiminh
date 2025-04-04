@@ -1,10 +1,11 @@
 <aside class="navbar navbar-vertical navbar-expand-lg">
 	<div class="container-fluid">
-		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu" aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+			aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
 		<h1 class="navbar-brand">
-			<a asp-area="Admin" asp-controller="Home" asp-action="Index">
+			<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
 				DAIMINH
 			</a>
 		</h1>
@@ -12,7 +13,8 @@
 		<div class="collapse navbar-collapse" id="sidebar-menu">
 			<ul class="navbar-nav pt-lg-3">
 				<!-- Dashboard -->
-				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
+				<li
+					class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Dashboard" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Home Icon -->
@@ -23,7 +25,8 @@
 				</li>
 
 				<!-- Media -->
-				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Media" ? "active" : "")">
+				<li
+					class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Media" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Media" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<i class="ti ti-photo"></i>
@@ -33,8 +36,10 @@
 				</li>
 
 				<!-- Sản phẩm -->
-				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" || ViewContext.RouteData.Values["controller"]?.ToString() == "ProductType" ? "active" : "")">
-					<a class="nav-link dropdown-toggle" href="#navbar-products" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+				<li
+					class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Product" || ViewContext.RouteData.Values["controller"]?.ToString() == "ProductType" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-products" data-bs-toggle="dropdown"
+						data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Paint Brush Icon -->
 							<i class="ti ti-brush"></i>
@@ -55,8 +60,10 @@
 				</li>
 
 				<!-- Bài viết -->
-				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Article" || ViewContext.RouteData.Values["controller"]?.ToString() == "Comment" ? "active" : "")">
-					<a class="nav-link dropdown-toggle" href="#navbar-articles" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+				<li
+					class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Article" || ViewContext.RouteData.Values["controller"]?.ToString() == "Comment" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-articles" data-bs-toggle="dropdown"
+						data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<i class="ti ti-news"></i>
 						</span>
@@ -77,8 +84,10 @@
 				</li>
 
 				<!-- Dự án -->
-				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Project" ? "active" : "")">
-					<a class="nav-link dropdown-toggle" href="#navbar-projects" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+				<li
+					class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Project" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-projects" data-bs-toggle="dropdown"
+						data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Building Icon -->
 							<i class="ti ti-building"></i>
@@ -96,8 +105,10 @@
 				</li>
 
 				<!-- Thư viện ảnh -->
-				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Gallery" ? "active" : "")">
-					<a class="nav-link dropdown-toggle" href="#navbar-galleries" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+				<li
+					class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Gallery" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-galleries" data-bs-toggle="dropdown"
+						data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<i class="ti ti-photo"></i>
 						</span>
@@ -114,8 +125,10 @@
 				</li>
 
 				<!-- FAQ -->
-				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "FAQ" || ViewContext.RouteData.Values["controller"]?.ToString() == "FAQCategory" ? "active" : "")">
-					<a class="nav-link dropdown-toggle" href="#navbar-faqs" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+				<li
+					class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "FAQ" || ViewContext.RouteData.Values["controller"]?.ToString() == "FAQCategory" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-faqs" data-bs-toggle="dropdown"
+						data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Question Circle Icon -->
 							<i class="ti ti-help"></i>
@@ -133,8 +146,10 @@
 				</li>
 
 				<!-- Danh mục & Thẻ -->
-				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Category" || ViewContext.RouteData.Values["controller"]?.ToString() == "Tag" ? "active" : "")">
-					<a class="nav-link dropdown-toggle" href="#navbar-categories" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+				<li
+					class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Category" || ViewContext.RouteData.Values["controller"]?.ToString() == "Tag" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-categories" data-bs-toggle="dropdown"
+						data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Folder Icon -->
 							<i class="ti ti-folder"></i>
@@ -142,35 +157,44 @@
 						<span class="nav-link-title">Danh mục & Thẻ</span>
 					</a>
 					<div class="dropdown-menu">
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="Product">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index"
+							asp-route-type="Product">
 							Danh mục sản phẩm
 						</a>
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="Article">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index"
+							asp-route-type="Article">
 							Danh mục bài viết
 						</a>
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="Project">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index"
+							asp-route-type="Project">
 							Danh mục dự án
 						</a>
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="Gallery">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Category" asp-action="Index"
+							asp-route-type="Gallery">
 							Danh mục thư viện
 						</a>
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="Product">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index"
+							asp-route-type="Product">
 							Thẻ sản phẩm
 						</a>
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="Article">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index"
+							asp-route-type="Article">
 							Thẻ bài viết
 						</a>
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="Project">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index"
+							asp-route-type="Project">
 							Thẻ dự án
 						</a>
-						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="Gallery">
+						<a class="dropdown-item" asp-area="Admin" asp-controller="Tag" asp-action="Index"
+							asp-route-type="Gallery">
 							Thẻ thư viện
 						</a>
 					</div>
 				</li>
 
 				<!-- Đánh giá khách hàng -->
-				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Testimonial" ? "active" : "")">
+				<li
+					class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Testimonial" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Testimonial" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Stars Icon -->
@@ -181,7 +205,8 @@
 				</li>
 
 				<!-- Liên hệ -->
-				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contact" ? "active" : "")">
+				<li
+					class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Contact" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Contact" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Envelope Icon -->
@@ -192,7 +217,8 @@
 				</li>
 
 				<!-- Đăng ký nhận tin -->
-				<li class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Newsletter" ? "active" : "")">
+				<li
+					class="nav-item @(ViewContext.RouteData.Values["controller"]?.ToString() == "Newsletter" ? "active" : "")">
 					<a class="nav-link" asp-area="Admin" asp-controller="Newsletter" asp-action="Index">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Paper Plane Icon -->
@@ -203,8 +229,10 @@
 				</li>
 
 				<!-- Cài đặt -->
-				<li class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Setting" || ViewContext.RouteData.Values["controller"]?.ToString() == "Seo" || ViewContext.RouteData.Values["controller"]?.ToString() == "Redirect" || ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
-					<a class="nav-link dropdown-toggle" href="#navbar-settings" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="false">
+				<li
+					class="nav-item dropdown @(ViewContext.RouteData.Values["controller"]?.ToString() == "Setting" || ViewContext.RouteData.Values["controller"]?.ToString() == "Seo" || ViewContext.RouteData.Values["controller"]?.ToString() == "Redirect" || ViewContext.RouteData.Values["controller"]?.ToString() == "User" ? "active" : "")">
+					<a class="nav-link dropdown-toggle" href="#navbar-settings" data-bs-toggle="dropdown"
+						data-bs-auto-close="false" role="button" aria-expanded="false">
 						<span class="nav-link-icon d-md-none d-lg-inline-block">
 							<!-- Tabler Cog Icon -->
 							<i class="ti ti-settings"></i>
