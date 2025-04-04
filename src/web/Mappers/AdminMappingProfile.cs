@@ -13,6 +13,7 @@ using web.Areas.Admin.ViewModels.ProductType;
 using web.Areas.Admin.ViewModels.Tag;
 using web.Areas.Admin.ViewModels.Testimonial;
 using web.Areas.Admin.ViewModels.User;
+using web.Areas.Admin.ViewModels.Brand;
 
 namespace web.Mappers;
 
@@ -285,6 +286,12 @@ public class AdminMappingProfile : Profile
             .ForMember(dest => dest.MediaFolder, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+
+        // Brand Mappings
+        CreateMap<Brand, BrandListItemViewModel>()
+            .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products != null ? src.Products.Count : 0));
+
+        CreateMap<Brand, BrandViewModel>().ReverseMap();
 
     }
 }
