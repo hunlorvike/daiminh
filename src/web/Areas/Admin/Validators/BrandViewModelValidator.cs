@@ -37,4 +37,4 @@ public class BrandViewModelValidator : AbstractValidator<BrandViewModel>
         RuleFor(x => x.MetaKeywords)
             .MaximumLength(255).WithMessage("Meta keywords không được vượt quá 255 ký tự");
     }
-} 
+}

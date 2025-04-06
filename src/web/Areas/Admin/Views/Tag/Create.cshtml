@@ -7,39 +7,11 @@
 <div class="card">
 	<div class="card-body">
 		<form asp-action="Create" method="post">
+			@Html.AntiForgeryToken()
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 			<input type="hidden" asp-for="Type" />
 
-			<div class="row mb-3">
-				<div class="col-md-6">
-					<div class="form-group mb-3">
-						<label asp-for="Name" class="form-label required">Tên thẻ</label>
-						<input asp-for="Name" class="form-control" id="tagName" />
-						<span asp-validation-for="Name" class="text-danger"></span>
-					</div>
-
-					<div class="form-group mb-3">
-						<label asp-for="Slug" class="form-label required">Slug</label>
-						<div class="input-group">
-							<input asp-for="Slug" class="form-control" id="tagSlug" />
-							<button class="btn btn-outline-secondary" type="button" id="generateSlug">
-								<i class="ti ti-refresh"></i> 
-							</button>
-						</div>
-						<span asp-validation-for="Slug" class="text-danger"></span>
-						<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
-					</div>
-				</div>
-
-				<div class="col-md-6">
-					<div class="form-group mb-3">
-						<label asp-for="Description" class="form-label">Mô tả</label>
-						<textarea asp-for="Description" class="form-control" rows="5"></textarea>
-						<span asp-validation-for="Description" class="text-danger"></span>
-						<small class="form-hint">Mô tả ngắn về thẻ (tối đa 255 ký tự)</small>
-					</div>
-				</div>
-			</div>
+			<partial name="_TagFormFields" model="Model" />
 
 			<div class="d-flex justify-content-between mt-4">
 				<a asp-action="Index" asp-route-type="@Model.Type" class="btn btn-outline-secondary">
@@ -54,36 +26,21 @@
 </div>
 
 @section Scripts {
+	<script src="~/js/slug.js"></script>
 	<script>
 		$(document).ready(function() {
-			function generateSlug() {
-				var name = $('#tagName').val();
-				if (name) {
-					var slug = name.toLowerCase();
+			const tagNameInput = $('#Name');
+			const tagSlugInput = $('#Slug');
+			const generateSlugBtn = $('#generateSlugButton');
 
-					slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
-					slug = slug.replace(/đ/g, 'd').replace(/Đ/g, 'D'); // Handle 'đ' character
-
-					slug = slug.replace(/\s+/g, '-') // Replace spaces with hyphens
-						.replace(/[^\w\-]+/g, '') // Remove all non-word chars except hyphens
-						.replace(/\-\-+/g, '-') // Replace multiple hyphens with a single one
-						.replace(/^-+/, '') // Trim hyphens from start
-						.replace(/-+$/, ''); // Trim hyphens from end
-
-					$('#tagSlug').val(slug);
-				} else {
-					 $('#tagSlug').val(''); 
-				}
-			}
-
-			$('#tagName').on('input', function() {
-				if ($('#tagSlug').val() === '') {
-					 generateSlug();
+			tagNameInput.on('input', function() {
+				if (tagSlugInput.val() === '') {
+					tagSlugInput.val(generateVietnameseSlug(tagNameInput.val()));
 				}
 			});
 
-			$('#generateSlug').on('click', function() {
-				generateSlug();
+			generateSlugBtn.on('click', function() {
+				tagSlugInput.val(generateVietnameseSlug(tagNameInput.val()));
 			});
 		});
 	</script>

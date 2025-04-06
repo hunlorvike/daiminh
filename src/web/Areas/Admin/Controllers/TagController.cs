@@ -13,7 +13,7 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
-public class TagController : Controller
+public partial class TagController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -264,7 +264,10 @@ public class TagController : Controller
 
         return Json(new { success = true, message = "Xóa thẻ thành công" });
     }
+}
 
+public partial class TagController
+{
     private async Task<bool> TagExists(int id)
     {
         return await _context.Set<Tag>().AnyAsync(e => e.Id == id);
@@ -294,4 +297,3 @@ public class TagController : Controller
         };
     }
 }
-

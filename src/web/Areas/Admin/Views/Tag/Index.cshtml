@@ -66,7 +66,7 @@
 				</p>
 				<div class="empty-action">
 					<a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary">
-						<i class="ti ti-plus me-2"></i> 
+						<i class="ti ti-plus"></i> 
 					</a>
 				</div>
 			</div>
@@ -110,13 +110,11 @@
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
 											<i class="ti ti-pencil"></i> 
 										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
-												data-bs-toggle="modal"
-												data-bs-target="#delete-modal"
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
 												data-id="@item.Id"
 												data-name="@item.Name"
 												data-delete-url="@Url.Action("Delete", "Tag")">
-											<i class="ti ti-trash"></i> 
+											<i class="ti ti-trash"></i>
 										</button>
 									</div>
 								</td>
@@ -132,27 +130,8 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			// Delete item setup
-			$('.delete-item').on('click', function () {
-				var id = $(this).data('id');
-				var name = $(this).data('name');
-				var deleteUrl = $(this).data('delete-url');
-
-				$('#delete-item-id').val(id);
-				$('#delete-item-name').val(name);
-				$('#delete-url').val(deleteUrl);
-				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa thẻ "' + name + '" không?');
-			});
-
-			// Clear search
 			$('#clearSearch').on('click', function() {
 				$('input[name="searchTerm"]').val('');
-				$('#filterForm').submit();
-			});
-
-			// Auto submit on tag type change
-			$('#tagTypeFilter').on('change', function() {
-				$('#filterForm').submit();
 			});
 		});
 	</script>

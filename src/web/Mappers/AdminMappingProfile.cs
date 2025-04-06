@@ -1,6 +1,7 @@
 using AutoMapper;
 using domain.Entities;
 using web.Areas.Admin.ViewModels.Article;
+using web.Areas.Admin.ViewModels.Brand;
 using web.Areas.Admin.ViewModels.Category;
 using web.Areas.Admin.ViewModels.Comment;
 using web.Areas.Admin.ViewModels.Contact;
@@ -13,7 +14,6 @@ using web.Areas.Admin.ViewModels.ProductType;
 using web.Areas.Admin.ViewModels.Tag;
 using web.Areas.Admin.ViewModels.Testimonial;
 using web.Areas.Admin.ViewModels.User;
-using web.Areas.Admin.ViewModels.Brand;
 
 namespace web.Mappers;
 

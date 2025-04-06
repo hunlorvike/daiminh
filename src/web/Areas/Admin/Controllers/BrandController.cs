@@ -209,4 +209,4 @@ public class BrandController : Controller
     {
         return await _context.Set<Brand>().AnyAsync(e => e.Id == id);
     }
-} 
+}

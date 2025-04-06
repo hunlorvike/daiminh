@@ -1,10 +1,11 @@
-using System.Reflection;
 using FluentValidation;
+using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 using web.Areas.Admin.Services;
+using web.Areas.Admin.Validators;
 using web.Middlewares;
 
 Log.Logger = new LoggerConfiguration()
@@ -39,7 +40,12 @@ try
 
     // Add services to the container.
     builder.Services.AddControllersWithViews();
-    builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()]);
+    builder.Services.AddFluentValidationAutoValidation(config =>
+    {
+        config.DisableDataAnnotationsValidation = true;
+    }).AddFluentValidationClientsideAdapters();
+    builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
+
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
     builder.Services.AddScoped<IMediaService, MediaService>();

@@ -60,17 +60,32 @@
 				</div>
 			</div>
 
-			<!-- Delete -->
-			<div class="modal modal-blur fade" id="delete-modal" tabindex="-1" role="dialog" aria-hidden="true">
+			<!-- Delete Confirmation Modal -->
+			<div class="modal modal-blur fade" id="delete-confirmation-modal" tabindex="-1" role="dialog" aria-hidden="true">
 				<div class="modal-dialog modal-sm modal-dialog-centered" role="document">
 					<div class="modal-content">
-						<div class="modal-body">
-							<div class="modal-title">Bạn có chắc chắn muốn xóa?</div>
-							<div>Hành động này không thể hoàn tác.</div>
+						<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						<div class="modal-status bg-danger"></div>
+						<div class="modal-body text-center py-4">
+							<i class="ti ti-alert-triangle icon mb-2 text-danger icon-lg"></i>
+							<h3>Bạn có chắc chắn?</h3>
+							<div class="text-muted" id="delete-modal-message">Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa mục này không?</div>
 						</div>
 						<div class="modal-footer">
-							<button type="button" class="btn btn-link link-secondary me-auto" data-bs-dismiss="modal">Hủy</button>
-							<button type="button" class="btn btn-danger" id="confirm-delete">Xóa</button>
+							<div class="w-100">
+								<div class="row">
+									<div class="col">
+										<button type="button" class="btn w-100" data-bs-dismiss="modal">
+											Hủy
+										</button>
+									</div>
+									<div class="col">
+										<button type="button" class="btn btn-danger w-100" id="confirm-delete-button">
+											Xóa
+										</button>
+									</div>
+								</div>
+							</div>
 						</div>
 					</div>
 				</div>
