@@ -186,13 +186,13 @@
 				{
 					<div class="col-sm-6 col-lg-4 col-xl-3">
 						<div class="card card-sm">
-							<a href="@file.FilePath" target="_blank" class="d-block">
+							<a href="@file.FileUrl" target="_blank" class="d-block">
 								<div class="card-img-top d-flex align-items-center justify-content-center"
 									 style="background-color: #f5f7fb; overflow: hidden;">
 									@switch (file.MediaType)
 									{
 										case shared.Enums.MediaType.Image:
-											<img src="@file.ThumbnailPath" alt="@file.AltText"
+											<img src="@file.ThumbnailUrl" alt="@file.AltText"
 												 style="width: 100%; height: 100%; object-fit: contain; display: block;">
 											break;
 										case shared.Enums.MediaType.Video:
@@ -235,10 +235,7 @@
 										<a href="@file.FilePath" download="@file.OriginalFileName" class="dropdown-item">
 											<i class="ti ti-download me-2"></i> Tải xuống
 										</a>
-										<a asp-action="EditFile" asp-route-id="@file.Id" class="dropdown-item">
-											<i class="ti ti-pencil me-2"></i> Chỉnh sửa
-										</a>
-										<button type="button" class="dropdown-item copy-url" data-url="@file.FilePath">
+										<button type="button" class="dropdown-item copy-url" data-url="@file.FileUrl">
 											<i class="ti ti-copy me-2"></i> Sao chép URL
 										</button>
 										<a href="#" class="dropdown-item text-danger delete-file" data-bs-toggle="modal"
@@ -311,15 +308,13 @@
 					}
 				});
 			});
-		});
 
 			// Copy URL
 			$(document).on('click','.copy-url', function () {
 				var url = $(this).data('url');
-				var fullUrl = window.location.origin + url;
 
 				if (navigator.clipboard && navigator.clipboard.writeText) {
-					 navigator.clipboard.writeText(fullUrl).then(function () {
+					 navigator.clipboard.writeText(url).then(function () {
 						toastr.success('Đã sao chép URL vào clipboard');
 					}, function (err) {
 						console.error('Async: Could not copy text: ', err);
@@ -328,7 +323,7 @@
 				} else {
 					try {
 						var textArea = document.createElement("textarea");
-						textArea.value = fullUrl;
+						textArea.value = url;
 						textArea.style.position = "fixed";
 						document.body.appendChild(textArea);
 						textArea.focus();
@@ -347,5 +342,6 @@
 				$('#SearchTerm').val('').focus();
 			});
 		});
+
 	</script>
 }

@@ -357,26 +357,35 @@ public class MediaController : Controller
                 case MediaType.Image:
                     var imageResult = await _mediaService.ProcessImageAsync(file, "images");
                     mediaFile.FilePath = imageResult.FilePath;
+                    mediaFile.FileUrl = imageResult.FileUrl;
                     mediaFile.ThumbnailPath = imageResult.ThumbnailPath;
+                    mediaFile.ThumbnailUrl = imageResult.ThumbnailUrl;
                     mediaFile.MediumSizePath = imageResult.MediumPath;
+                    mediaFile.MediumSizeUrl = imageResult.MediumUrl;
                     mediaFile.LargeSizePath = imageResult.LargePath;
+                    mediaFile.LargeSizeUrl = imageResult.LargeUrl;
                     mediaFile.Width = imageResult.Width;
                     mediaFile.Height = imageResult.Height;
                     break;
                 case MediaType.Video:
                     var videoResult = await _mediaService.ProcessVideoAsync(file, "videos");
                     mediaFile.FilePath = videoResult.FilePath;
+                    mediaFile.FileUrl = videoResult.FileUrl;
                     mediaFile.ThumbnailPath = videoResult.ThumbnailPath;
+                    mediaFile.ThumbnailUrl = videoResult.ThumbnailUrl;
                     mediaFile.Duration = videoResult.Duration;
                     break;
                 case MediaType.Audio:
                     mediaFile.FilePath = await _mediaService.SaveMediaFileAsync(file, "audio");
+                    mediaFile.FileUrl = _mediaService.GetFileUrl(mediaFile.FilePath);
                     break;
                 case MediaType.Document:
                     mediaFile.FilePath = await _mediaService.SaveMediaFileAsync(file, "documents");
+                    mediaFile.FileUrl = _mediaService.GetFileUrl(mediaFile.FilePath);
                     break;
                 default:
                     mediaFile.FilePath = await _mediaService.SaveMediaFileAsync(file, "other");
+                    mediaFile.FileUrl = _mediaService.GetFileUrl(mediaFile.FilePath);
                     break;
             }
 
@@ -386,137 +395,6 @@ public class MediaController : Controller
         await _context.SaveChangesAsync();
 
         TempData["SuccessMessage"] = $"Đã tải lên {viewModel.Files.Count} file thành công";
-        return RedirectToAction(nameof(Index), new { folderId = viewModel.FolderId });
-    }
-
-    // GET: Admin/Media/EditFile/5
-    public async Task<IActionResult> EditFile(int id)
-    {
-        var file = await _context.Set<MediaFile>().FindAsync(id);
-
-        if (file == null)
-        {
-            return NotFound();
-        }
-
-        ViewData["PageTitle"] = "Chỉnh sửa file";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Media", "/Admin/Media"),
-            ("Chỉnh sửa file", "")
-        };
-
-        var viewModel = _mapper.Map<MediaFileViewModel>(file);
-
-        // Load available folders
-        viewModel.AvailableFolders = await GetAvailableParentFoldersAsync();
-
-        return View(viewModel);
-    }
-
-    // POST: Admin/Media/EditFile/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> EditFile(int id, MediaFileViewModel viewModel)
-    {
-        if (id != viewModel.Id)
-        {
-            return NotFound();
-        }
-
-        var validationResult = await _fileValidator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty);
-
-            viewModel.AvailableFolders = await GetAvailableParentFoldersAsync();
-
-            return View(viewModel);
-        }
-
-        try
-        {
-            var file = await _context.Set<MediaFile>().FindAsync(id);
-
-            if (file == null)
-            {
-                return NotFound();
-            }
-
-            // Save the current paths before mapping
-            var currentFilePath = file.FilePath;
-            var currentThumbnailPath = file.ThumbnailPath;
-            var currentMediumSizePath = file.MediumSizePath;
-            var currentLargeSizePath = file.LargeSizePath;
-
-            _mapper.Map(viewModel, file);
-
-            if (viewModel.FileUpload != null)
-            {
-                await _mediaService.DeleteMediaFileAsync(currentFilePath);
-                await _mediaService.DeleteMediaFileAsync(currentThumbnailPath);
-                await _mediaService.DeleteMediaFileAsync(currentMediumSizePath);
-                await _mediaService.DeleteMediaFileAsync(currentLargeSizePath);
-
-                file.OriginalFileName = viewModel.FileUpload.FileName;
-                file.FileExtension = _mediaService.GetFileExtension(viewModel.FileUpload.FileName);
-                file.MimeType = _mediaService.GetMimeType(viewModel.FileUpload.FileName);
-                file.FileSize = viewModel.FileUpload.Length;
-
-                file.FileName = Path.GetFileNameWithoutExtension(viewModel.FileUpload.FileName).Replace(" ", "_") + file.FileExtension;
-
-                file.MediaType = _mediaService.DetermineMediaType(file.MimeType, file.FileExtension);
-
-                string subFolder = file.MediaType switch
-                {
-                    MediaType.Image => "images",
-                    MediaType.Video => "videos",
-                    MediaType.Audio => "audio",
-                    MediaType.Document => "documents",
-                    _ => "other"
-                };
-
-                switch (file.MediaType)
-                {
-                    case MediaType.Image:
-                        var imageResult = await _mediaService.ProcessImageAsync(viewModel.FileUpload, subFolder);
-                        file.FilePath = imageResult.FilePath;
-                        file.ThumbnailPath = imageResult.ThumbnailPath;
-                        file.MediumSizePath = imageResult.MediumPath;
-                        file.LargeSizePath = imageResult.LargePath;
-                        file.Width = imageResult.Width;
-                        file.Height = imageResult.Height;
-                        break;
-                    case MediaType.Video:
-                        var videoResult = await _mediaService.ProcessVideoAsync(viewModel.FileUpload, subFolder);
-                        file.FilePath = videoResult.FilePath;
-                        file.ThumbnailPath = videoResult.ThumbnailPath;
-                        file.Duration = videoResult.Duration;
-                        break;
-                    default:
-                        file.FilePath = await _mediaService.SaveMediaFileAsync(viewModel.FileUpload, subFolder);
-                        break;
-                }
-            }
-
-            _context.Update(file);
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Cập nhật file thành công";
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await FileExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
-        }
-
         return RedirectToAction(nameof(Index), new { folderId = viewModel.FolderId });
     }
 

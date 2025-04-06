@@ -106,68 +106,68 @@
                 }
 
                 <!-- Files -->
-                @foreach (var file in Model.Files)
-                {
-                    <div class="col-sm-6 col-lg-4 col-xl-3">
-                        <div class="card card-sm">
-                            <div class="card-img-top d-flex align-items-center justify-content-center"
-                                 style="background-color: #f5f7fb; overflow: hidden;">
-                                @switch (file.MediaType)
-                                {
-                                    case MediaType.Image:
-                                        <img src="@file.ThumbnailPath" alt="@file.AltText"
-                                             style="width: 100%; height: 100%; object-fit: contain; display: block;">
-                                        break;
-                                    case MediaType.Video:
-                                        <div class="d-flex align-items-center justify-content-center h-100">
-                                            <i class="ti ti-movie icon-lg text-muted"></i>
-                                        </div>
-                                        break;
-                                    case MediaType.Audio:
-                                        <div class="d-flex align-items-center justify-content-center h-100">
-                                            <i class="ti ti-music icon-lg text-muted"></i> 
-                                        </div>
-                                        break;
-                                    case MediaType.Document:
-                                        <div class="d-flex align-items-center justify-content-center h-100">
-                                            <i class="ti ti-file-text icon-lg text-muted"></i>
-                                        </div>
-                                        break;
-                                    case MediaType.Archive:
-                                        <div class="d-flex align-items-center justify-content-center h-100">
-                                            <i class="ti ti-file-zip icon-lg text-muted"></i> 
-                                        </div>
-                                        break;
-                                    default: // Other file types
-                                        <div class="d-flex align-items-center justify-content-center h-100">
-                                            <i class="ti ti-file icon-lg text-muted"></i>
-                                        </div>
-                                        break;
-                                }
-                            </div>
-                            <div class="card-body">
-                                <div class="font-weight-medium text-truncate" title="@file.FileName">@file.FileName</div>
-                                <div class="text-muted">
-                                    @file.FormattedFileSize
-                                    @if (file.Width.HasValue && file.Height.HasValue)
-                                    {
-                                        <span> - @file.Width x @file.Height</span>
-                                    }
-                                </div>
-                            </div>
-                            <div class="card-footer">
-                                <button type="button" class="btn @(multiple ? "btn-outline-primary select-file-multiple" : "btn-primary select-file")"
-                                        data-id="@file.Id"
-                                        data-url="@file.FilePath"
-                                        data-thumbnail="@file.ThumbnailPath"
-                                        data-filename="@file.FileName"
-                                        data-callback="@callback">
-                                    <i class="ti ti-check me-2"></i> @(multiple ? "Chọn" : "Chọn")
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                }
+				@foreach (var file in Model.Files)
+				{
+					<div class="col-sm-6 col-lg-4 col-xl-3">
+						<div class="card card-sm">
+							<div class="card-img-top d-flex align-items-center justify-content-center"
+								 style="background-color: #f5f7fb; overflow: hidden;">
+								@switch (file.MediaType)
+								{
+									case MediaType.Image:
+										<img src="@file.ThumbnailUrl" alt="@file.AltText"
+											 style="width: 100%; height: 100%; object-fit: contain; display: block;">
+										break;
+									case MediaType.Video:
+										<div class="d-flex align-items-center justify-content-center h-100">
+											<i class="ti ti-movie icon-lg text-muted"></i>
+										</div>
+										break;
+									case MediaType.Audio:
+										<div class="d-flex align-items-center justify-content-center h-100">
+											<i class="ti ti-music icon-lg text-muted"></i>
+										</div>
+										break;
+									case MediaType.Document:
+										<div class="d-flex align-items-center justify-content-center h-100">
+											<i class="ti ti-file-text icon-lg text-muted"></i>
+										</div>
+										break;
+									case MediaType.Archive:
+										<div class="d-flex align-items-center justify-content-center h-100">
+											<i class="ti ti-file-zip icon-lg text-muted"></i>
+										</div>
+										break;
+									default: // Other file types
+										<div class="d-flex align-items-center justify-content-center h-100">
+											<i class="ti ti-file icon-lg text-muted"></i>
+										</div>
+										break;
+								}
+							</div>
+							<div class="card-body">
+								<div class="font-weight-medium text-truncate" title="@file.FileName">@file.FileName</div>
+								<div class="text-muted">
+									@file.FormattedFileSize
+									@if (file.Width.HasValue && file.Height.HasValue)
+									{
+										<span> - @file.Width x @file.Height</span>
+									}
+								</div>
+							</div>
+							<div class="card-footer">
+								<button type="button" class="btn @(multiple ? "btn-outline-primary select-file-multiple" : "btn-primary select-file")"
+										data-id="@file.Id"
+										data-url="@file.FileUrl"
+										data-thumbnail="@file.ThumbnailUrl"
+										data-filename="@file.FileName"
+										data-callback="@callback">
+									<i class="ti ti-check me-2"></i> @(multiple ? "Chọn" : "Chọn")
+								</button>
+							</div>
+						</div>
+					</div>
+				}
             </div>
         }
     </div>

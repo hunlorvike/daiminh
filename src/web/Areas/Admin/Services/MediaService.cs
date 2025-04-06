@@ -2,27 +2,34 @@ using System.Text.RegularExpressions;
 using shared.Enums;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Processing;
+using Minio;
+using Microsoft.Extensions.Options;
+using Minio.DataModel.Args;
 
 namespace web.Areas.Admin.Services;
 
-public class MediaService : IMediaService
+
+public partial class MediaService
 {
     private readonly IWebHostEnvironment _environment;
-    private readonly string _uploadsFolder;
+    private readonly MinioClient _minioClient;
+    private readonly string _bucketName;
     private readonly Dictionary<string, MediaType> _mimeTypeMap;
 
-    public MediaService(IWebHostEnvironment environment)
+    public MediaService(IWebHostEnvironment environment, IOptions<MinioConfiguration> minioConfig)
     {
         _environment = environment;
-        _uploadsFolder = Path.Combine(_environment.WebRootPath, "uploads");
 
-        // Ensure uploads folder exists
-        if (!Directory.Exists(_uploadsFolder))
-        {
-            Directory.CreateDirectory(_uploadsFolder);
-        }
+        _minioClient = (MinioClient)new MinioClient()
+            .WithEndpoint(minioConfig.Value.Endpoint)
+            .WithCredentials(minioConfig.Value.AccessKey, minioConfig.Value.SecretKey)
+            .WithSSL(minioConfig.Value.UseSSL)
+            .Build();
 
-        // Initialize mime type to media type mapping
+        _bucketName = minioConfig.Value.BucketName;
+
+        __EnsureBucketExistsAsync().GetAwaiter().GetResult();
+
         _mimeTypeMap = new Dictionary<string, MediaType>
         {
             // Images
@@ -62,6 +69,40 @@ public class MediaService : IMediaService
         };
     }
 
+    private async Task __EnsureBucketExistsAsync()
+    {
+        try
+        {
+            bool found = await _minioClient.BucketExistsAsync(new BucketExistsArgs().WithBucket(_bucketName));
+            if (!found)
+            {
+                await _minioClient.MakeBucketAsync(new MakeBucketArgs().WithBucket(_bucketName));
+
+                var policy = $@"{{
+                    ""Version"": ""2012-10-17"",
+                    ""Statement"": [
+                        {{
+                            ""Effect"": ""Allow"",
+                            ""Principal"": {{""AWS"": [""*""]}},
+                            ""Action"": [""s3:GetObject""],
+                            ""Resource"": [""arn:aws:s3:::{_bucketName}/*""]
+                        }}
+                    ]
+                }}";
+
+                await _minioClient.SetPolicyAsync(new SetPolicyArgs().WithBucket(_bucketName).WithPolicy(policy));
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new Exception($"Failed to ensure MinIO bucket exists: {ex.Message}", ex);
+        }
+    }
+}
+
+public partial class MediaService : IMediaService
+{
+
     public async Task<string> SaveMediaFileAsync(IFormFile file, string? subFolder = null)
     {
         if (file == null || file.Length == 0)
@@ -69,170 +110,218 @@ public class MediaService : IMediaService
             return string.Empty;
         }
 
-        // Create folder if it doesn't exist
-        var folderPath = _uploadsFolder;
-        if (!string.IsNullOrEmpty(subFolder))
+        string objectName = string.IsNullOrEmpty(subFolder)
+            ? $"{Guid.NewGuid()}_{__SanitizeFileName(file.FileName)}"
+            : $"{subFolder}/{Guid.NewGuid()}_{__SanitizeFileName(file.FileName)}";
+
+        using (var stream = file.OpenReadStream())
         {
-            folderPath = Path.Combine(folderPath, subFolder);
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
+            var putObjectArgs = new PutObjectArgs()
+                .WithBucket(_bucketName)
+                .WithObject(objectName)
+                .WithStreamData(stream)
+                .WithObjectSize(file.Length)
+                .WithContentType(file.ContentType);
+
+            await _minioClient.PutObjectAsync(putObjectArgs);
         }
 
-        // Generate unique filename
-        var fileName = $"{Guid.NewGuid()}_{SanitizeFileName(Path.GetFileName(file.FileName))}";
-        var filePath = Path.Combine(folderPath, fileName);
-
-        // Save file
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
-
-        // Return relative path for storage in database
-        return $"/uploads/{(string.IsNullOrEmpty(subFolder) ? "" : subFolder + "/")}{fileName}";
+        return objectName;
     }
 
-    public async Task<(string FilePath, string ThumbnailPath, string MediumPath, string LargePath, int? Width, int? Height)> ProcessImageAsync(IFormFile file, string? subFolder = null)
+    public async Task<(string FilePath, string FileUrl, string ThumbnailPath, string ThumbnailUrl, string MediumPath, string MediumUrl, string LargePath, string LargeUrl, int? Width, int? Height)> ProcessImageAsync(IFormFile file, string? subFolder = null)
     {
         if (file == null || file.Length == 0)
         {
-            return (string.Empty, string.Empty, string.Empty, string.Empty, null, null);
+            return (string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, string.Empty, null, null);
         }
 
-        // Create folder if it doesn't exist
-        var folderPath = _uploadsFolder;
-        if (!string.IsNullOrEmpty(subFolder))
-        {
-            folderPath = Path.Combine(folderPath, subFolder);
-            if (!Directory.Exists(folderPath))
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-        }
+        string fileExt = Path.GetExtension(file.FileName);
+        string baseFileName = $"{Guid.NewGuid()}_{__SanitizeFileName(Path.GetFileNameWithoutExtension(file.FileName))}{fileExt}";
 
-        // Generate unique filename
-        var fileName = $"{Guid.NewGuid()}_{SanitizeFileName(Path.GetFileName(file.FileName))}";
-        var filePath = Path.Combine(folderPath, fileName);
-        var thumbnailFileName = $"thumb_{fileName}";
-        var thumbnailPath = Path.Combine(folderPath, thumbnailFileName);
-        var mediumFileName = $"medium_{fileName}";
-        var mediumPath = Path.Combine(folderPath, mediumFileName);
-        var largeFileName = $"large_{fileName}";
-        var largePath = Path.Combine(folderPath, largeFileName);
-
-        // Save original file
-        using (var stream = new FileStream(filePath, FileMode.Create))
-        {
-            await file.CopyToAsync(stream);
-        }
+        string objectName = string.IsNullOrEmpty(subFolder) ? baseFileName : $"{subFolder}/{baseFileName}";
+        string thumbnailObjectName = string.IsNullOrEmpty(subFolder) ? $"thumb_{baseFileName}" : $"{subFolder}/thumb_{baseFileName}";
+        string mediumObjectName = string.IsNullOrEmpty(subFolder) ? $"medium_{baseFileName}" : $"{subFolder}/medium_{baseFileName}";
+        string largeObjectName = string.IsNullOrEmpty(subFolder) ? $"large_{baseFileName}" : $"{subFolder}/large_{baseFileName}";
 
         int? width = null;
         int? height = null;
 
-        // Process image and create thumbnails
+        // Create a temporary file for processing
+        string tempFilePath = Path.GetTempFileName();
         try
         {
-            using (var image = await Image.LoadAsync(filePath))
+            // Save the uploaded file to temp location
+            using (var fileStream = new FileStream(tempFilePath, FileMode.Create))
+            {
+                await file.CopyToAsync(fileStream);
+            }
+
+            // Upload original file to MinIO
+            await __UploadFileToMinioAsync(tempFilePath, objectName, file.ContentType);
+
+            // Process image and create thumbnails
+            using (var image = await Image.LoadAsync(tempFilePath))
             {
                 // Get original dimensions
                 width = image.Width;
                 height = image.Height;
 
                 // Create thumbnail (150x150)
-                using (var thumbnail = image.Clone(ctx => ctx.Resize(new ResizeOptions
+                string thumbTempPath = Path.GetTempFileName();
+                try
                 {
-                    Size = new Size(150, 150),
-                    Mode = ResizeMode.Max
-                })))
+                    using (var thumbnail = image.Clone(ctx => ctx.Resize(new ResizeOptions
+                    {
+                        Size = new Size(150, 150),
+                        Mode = ResizeMode.Max
+                    })))
+                    {
+                        await thumbnail.SaveAsync(thumbTempPath);
+                    }
+
+                    await __UploadFileToMinioAsync(thumbTempPath, thumbnailObjectName, file.ContentType);
+                }
+                finally
                 {
-                    await thumbnail.SaveAsync(thumbnailPath);
+                    if (File.Exists(thumbTempPath))
+                    {
+                        File.Delete(thumbTempPath);
+                    }
                 }
 
                 // Create medium size (800px width)
-                using (var medium = image.Clone(ctx => ctx.Resize(new ResizeOptions
+                string mediumTempPath = Path.GetTempFileName();
+                try
                 {
-                    Size = new Size(800, 0),
-                    Mode = ResizeMode.Max
-                })))
+                    using (var medium = image.Clone(ctx => ctx.Resize(new ResizeOptions
+                    {
+                        Size = new Size(800, 0),
+                        Mode = ResizeMode.Max
+                    })))
+                    {
+                        await medium.SaveAsync(mediumTempPath);
+                    }
+
+                    await __UploadFileToMinioAsync(mediumTempPath, mediumObjectName, file.ContentType);
+                }
+                finally
                 {
-                    await medium.SaveAsync(mediumPath);
+                    if (File.Exists(mediumTempPath))
+                    {
+                        File.Delete(mediumTempPath);
+                    }
                 }
 
                 // Create large size (1600px width)
-                using (var large = image.Clone(ctx => ctx.Resize(new ResizeOptions
+                string largeTempPath = Path.GetTempFileName();
+                try
                 {
-                    Size = new Size(1600, 0),
-                    Mode = ResizeMode.Max
-                })))
+                    using (var large = image.Clone(ctx => ctx.Resize(new ResizeOptions
+                    {
+                        Size = new Size(1600, 0),
+                        Mode = ResizeMode.Max
+                    })))
+                    {
+                        await large.SaveAsync(largeTempPath);
+                    }
+
+                    await __UploadFileToMinioAsync(largeTempPath, largeObjectName, file.ContentType);
+                }
+                finally
                 {
-                    await large.SaveAsync(largePath);
+                    if (File.Exists(largeTempPath))
+                    {
+                        File.Delete(largeTempPath);
+                    }
                 }
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             // If image processing fails, use original file for all sizes
-            File.Copy(filePath, thumbnailPath, true);
-            File.Copy(filePath, mediumPath, true);
-            File.Copy(filePath, largePath, true);
+            await __UploadFileToMinioAsync(tempFilePath, thumbnailObjectName, file.ContentType);
+            await __UploadFileToMinioAsync(tempFilePath, mediumObjectName, file.ContentType);
+            await __UploadFileToMinioAsync(tempFilePath, largeObjectName, file.ContentType);
+        }
+        finally
+        {
+            if (File.Exists(tempFilePath))
+            {
+                File.Delete(tempFilePath);
+            }
         }
 
-        // Return relative paths for storage in database
-        var relativePath = $"/uploads/{(string.IsNullOrEmpty(subFolder) ? "" : subFolder + "/")}{fileName}";
-        var relativeThumbnailPath = $"/uploads/{(string.IsNullOrEmpty(subFolder) ? "" : subFolder + "/")}{thumbnailFileName}";
-        var relativeMediumPath = $"/uploads/{(string.IsNullOrEmpty(subFolder) ? "" : subFolder + "/")}{mediumFileName}";
-        var relativeLargePath = $"/uploads/{(string.IsNullOrEmpty(subFolder) ? "" : subFolder + "/")}{largeFileName}";
+        // Generate URLs
+        string fileUrl = GetFileUrl(objectName);
+        string thumbnailUrl = GetFileUrl(thumbnailObjectName);
+        string mediumUrl = GetFileUrl(mediumObjectName);
+        string largeUrl = GetFileUrl(largeObjectName);
 
-        return (relativePath, relativeThumbnailPath, relativeMediumPath, relativeLargePath, width, height);
+        return (objectName, fileUrl, thumbnailObjectName, thumbnailUrl, mediumObjectName, mediumUrl, largeObjectName, largeUrl, width, height);
     }
 
-    public async Task<(string FilePath, string ThumbnailPath, int? Duration)> ProcessVideoAsync(IFormFile file, string? subFolder = null)
+    private async Task __UploadFileToMinioAsync(string filePath, string objectName, string contentType)
     {
-        // For now, just save the video file without thumbnail generation
-        // In a real implementation, you would use FFmpeg or similar to generate thumbnails and get duration
-        var filePath = await SaveMediaFileAsync(file, subFolder);
+        using var fileStream = new FileStream(filePath, FileMode.Open);
+        var fileInfo = new FileInfo(filePath);
+        var putObjectArgs = new PutObjectArgs()
+            .WithBucket(_bucketName)
+            .WithObject(objectName)
+            .WithStreamData(fileStream)
+            .WithObjectSize(fileInfo.Length)
+            .WithContentType(contentType);
 
-        // Use the same path for thumbnail for now
+        await _minioClient.PutObjectAsync(putObjectArgs);
+    }
+
+    public async Task<(string FilePath, string FileUrl, string ThumbnailPath, string ThumbnailUrl, int? Duration)> ProcessVideoAsync(IFormFile file, string? subFolder = null)
+    {
+        string objectName = await SaveMediaFileAsync(file, subFolder);
+
+        // For now, just use the same path for thumbnail
         // In a real implementation, you would generate a thumbnail from the video
-        var thumbnailPath = filePath;
+        string thumbnailObjectName = objectName;
 
         // Duration would be extracted from the video metadata
         int? duration = null;
 
-        return (filePath, thumbnailPath, duration);
-    }
+        // Generate URLs
+        string fileUrl = GetFileUrl(objectName);
+        string thumbnailUrl = GetFileUrl(thumbnailObjectName);
 
+        return (objectName, fileUrl, thumbnailObjectName, thumbnailUrl, duration);
+    }
     public async Task<string> ProcessDocumentAsync(IFormFile file, string? subFolder = null)
     {
-        // Just save the document file
+        // Just save the document file to MinIO
         return await SaveMediaFileAsync(file, subFolder);
     }
 
-    public Task DeleteMediaFileAsync(string filePath)
+    public async Task DeleteMediaFileAsync(string objectPath)
     {
-        if (string.IsNullOrEmpty(filePath))
+        if (string.IsNullOrEmpty(objectPath))
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        // Convert relative path to absolute path
-        var fullPath = Path.Combine(_environment.WebRootPath, filePath.TrimStart('/'));
-
-        if (File.Exists(fullPath))
+        try
         {
-            File.Delete(fullPath);
+            await _minioClient.RemoveObjectAsync(new RemoveObjectArgs()
+                .WithBucket(_bucketName)
+                .WithObject(objectPath));
         }
-
-        return Task.CompletedTask;
+        catch (Exception)
+        {
+            // Log the exception if needed
+        }
     }
 
-    public async Task DeleteMediaFilesAsync(IEnumerable<string> filePaths)
+    public async Task DeleteMediaFilesAsync(IEnumerable<string> objectPaths)
     {
-        foreach (var filePath in filePaths)
+        foreach (var objectPath in objectPaths)
         {
-            await DeleteMediaFileAsync(filePath);
+            await DeleteMediaFileAsync(objectPath);
         }
     }
 
@@ -318,7 +407,7 @@ public class MediaService : IMediaService
         return Path.GetExtension(fileName).ToLowerInvariant();
     }
 
-    private string SanitizeFileName(string fileName)
+    private string __SanitizeFileName(string fileName)
     {
         // Remove invalid characters
         var invalidChars = Path.GetInvalidFileNameChars();
@@ -332,5 +421,32 @@ public class MediaService : IMediaService
 
         return sanitizedFileName;
     }
+
+    // Helper method to get a public URL for a file
+    public string GetFileUrl(string objectName)
+    {
+        if (string.IsNullOrEmpty(objectName))
+        {
+            return string.Empty;
+        }
+
+        try
+        {
+            // Get presigned URL (optional, for private buckets)
+            // var presignedUrl = await _minioClient.PresignedGetObjectAsync(
+            //     new PresignedGetObjectArgs()
+            //         .WithBucket(_bucketName)
+            //         .WithObject(objectName)
+            //         .WithExpiry(60 * 60 * 24)); // 24 hours
+
+            // For public buckets, you can just construct the URL
+            return $"{_minioClient.Config.Endpoint}/{_bucketName}/{objectName}";
+        }
+        catch (Exception)
+        {
+            return string.Empty;
+        }
+    }
 }
+
 

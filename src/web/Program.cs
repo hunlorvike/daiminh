@@ -4,6 +4,7 @@ using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using web;
 using web.Areas.Admin.Services;
 using web.Middlewares;
 
@@ -42,6 +43,7 @@ try
     builder.Services.AddValidatorsFromAssemblies([Assembly.GetExecutingAssembly()]);
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+    builder.Services.Configure<MinioConfiguration>(builder.Configuration.GetSection("Minio"));
     builder.Services.AddScoped<IMediaService, MediaService>();
 
     builder.Services.AddAuthentication()
