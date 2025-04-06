@@ -1,0 +1,117 @@
+@using web.Areas.Admin.ViewModels.Setting
+@model SettingUpdateViewModel
+@{
+    ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
+}
+
+@section PageActions {
+	@* No specific page actions like "Create New" typically needed for settings *@
+    @* You could add a "Reset to Default" button here if implemented *@
+}
+
+<form asp-action="Update" method="post">
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div> 
+
+    @* Iterate through settings grouped by category *@
+    @foreach (var categoryGroup in Model.SettingsByCategory)
+    {
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3 class="card-title">@categoryGroup.Key</h3> @* Display Category Name *@
+            </div>
+            <div class="card-body">
+                @* Use a standard for loop for correct model binding of lists *@
+                @for (int i = 0; i < Model.Settings.Count; i++)
+                {
+                    // Process only settings belonging to the current category group
+                    if (Model.Settings[i].Category == categoryGroup.Key)
+                    {
+                        var setting = Model.Settings[i];
+
+                        @* Hidden fields to post back essential data *@
+                        <input type="hidden" asp-for="Settings[i].Id" />
+                        @* Keep Type to help render control, although not strictly needed for postback if only Id is used *@
+                        <input type="hidden" asp-for="Settings[i].Type" />
+
+
+                        <div class="row mb-3 align-items-center">
+                            <div class="col-md-3">
+                                <label asp-for="Settings[i].Value" class="form-label fw-bold">@setting.Key</label>
+                                @if (!string.IsNullOrWhiteSpace(setting.Description))
+                                {
+                                    <small class="form-hint d-block mt-1">@setting.Description</small>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(setting.DefaultValue))
+                                {
+                                     <small class="form-hint d-block mt-1 text-muted"><i>Mặc định: @setting.DefaultValue</i></small>
+                                }
+                            </div>
+                            <div class="col-md-7">
+                                @switch (setting.InputType)
+                                {
+                                    case "textarea":
+                                    case "richtext": // Basic textarea for richtext, replace with editor if needed
+                                    case "json":
+                                    case "code":
+                                        <textarea asp-for="Settings[i].Value" class="form-control" rows="3"></textarea>
+                                        break;
+
+                                    case "checkbox": // Special handling for boolean IsActive
+                                        // For boolean type, we usually map it to the IsActive property directly
+                                        // Assuming 'Value' for boolean type stores "true"/"false" is less common
+                                        // We'll render the IsActive checkbox separately below
+                                         <input type="text" asp-for="Settings[i].Value" class="form-control" readonly disabled title="Giá trị boolean được quản lý bằng checkbox 'Kích hoạt'"/>
+                                        break;
+
+                                    case "number":
+                                    case "text":
+                                    case "email":
+                                    case "url":
+                                    case "color":
+                                    case "date":
+                                    case "time":
+                                    case "datetime-local":
+                                    case "password":
+                                    case "tel":
+                                        <input type="@setting.InputType" asp-for="Settings[i].Value" class="form-control" />
+                                        break;
+
+                                    default: // Fallback to text input
+                                        <input type="text" asp-for="Settings[i].Value" class="form-control" />
+                                        break;
+                                }
+                                <span asp-validation-for="Settings[i].Value" class="text-danger"></span>
+                            </div>
+                             <div class="col-md-2">
+                                 <div class="form-check form-switch">
+                                     <input class="form-check-input" type="checkbox" asp-for="Settings[i].IsActive" role="switch" id="isActiveSwitch_@setting.Id">
+                                     <label class="form-check-label" for="isActiveSwitch_@setting.Id">Kích hoạt</label>
+                                 </div>
+                             </div>
+                        </div>
+                        <hr class="my-3" />
+                    }
+                }
+                <script>
+                   var lastHr = document.currentScript.previousElementSibling;
+                   if(lastHr && lastHr.tagName === 'HR') { lastHr.remove(); }
+                </script>
+            </div>
+        </div>
+    }
+
+    <div class="d-flex justify-content-end mt-4">
+        <button type="submit" class="btn btn-primary">
+            <i class="ti ti-device-floppy me-2"></i> Lưu thay đổi
+        </button>
+    </div>
+</form>
+
+@section Scripts {
+    @* Add scripts for rich text editors here if needed *@
+    <script>
+        // Add any specific JS needed for setting controls here
+        // e.g., initialize color pickers, date pickers, rich text editors
+    </script>
+}
