@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Testimonial;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Testimonial;
 
 public class TestimonialViewModelValidator : AbstractValidator<TestimonialViewModel>
 {

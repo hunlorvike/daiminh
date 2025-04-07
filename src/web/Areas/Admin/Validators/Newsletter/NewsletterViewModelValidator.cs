@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Newsletter;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Newsletter;
 public class NewsletterViewModelValidator : AbstractValidator<NewsletterViewModel>
 {
     public NewsletterViewModelValidator()

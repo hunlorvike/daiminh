@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.User;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.User;
 
 public class UserViewModelValidator : AbstractValidator<UserViewModel>
 {

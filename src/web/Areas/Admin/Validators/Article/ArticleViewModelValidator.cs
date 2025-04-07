@@ -1,10 +1,9 @@
-// ArticleViewModelValidator.cs
 using System.Text.RegularExpressions;
 using FluentValidation;
 using shared.Enums;
 using web.Areas.Admin.ViewModels.Article;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Article;
 
 public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
 {

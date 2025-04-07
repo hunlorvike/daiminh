@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Brand;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Brand;
 
 public class BrandViewModelValidator : AbstractValidator<BrandViewModel>
 {

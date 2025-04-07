@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.FAQ;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.FAQ;
 
 public class FAQCategoryViewModelValidator : AbstractValidator<FAQCategoryViewModel>
 {

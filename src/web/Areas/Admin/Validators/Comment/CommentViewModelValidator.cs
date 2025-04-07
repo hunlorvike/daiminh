@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Comment;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Comment;
 
 public class CommentViewModelValidator : AbstractValidator<CommentViewModel>
 {

@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Setting;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Setting;
 
 public class SettingValidator : AbstractValidator<SettingViewModel>
 {

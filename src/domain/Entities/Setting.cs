@@ -92,7 +92,7 @@ public class SettingConfiguration : IEntityTypeConfiguration<Setting>
                 Id = 6,
                 Key = "ContactAddress",
                 Category = "Contact",
-                Type = "TextArea", 
+                Type = "TextArea",
                 Description = "Địa chỉ liên hệ đầy đủ.",
                 DefaultValue = "123 Main Street, Anytown, CA 91234",
                 Value = "123 Main Street, Anytown, CA 91234",

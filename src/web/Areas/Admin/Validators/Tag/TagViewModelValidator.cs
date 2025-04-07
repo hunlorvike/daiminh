@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Tag;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Tag;
 
 public class TagViewModelValidator : AbstractValidator<TagViewModel>
 {

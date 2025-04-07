@@ -1,7 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Product;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Product;
 
 public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
 {

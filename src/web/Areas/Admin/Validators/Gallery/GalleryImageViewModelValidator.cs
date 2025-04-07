@@ -2,7 +2,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Gallery;
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Gallery;
 
 public class GalleryImageViewModelValidator : AbstractValidator<GalleryImageViewModel>
 {
