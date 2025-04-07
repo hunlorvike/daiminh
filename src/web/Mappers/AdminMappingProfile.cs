@@ -1,5 +1,6 @@
 using AutoMapper;
 using domain.Entities;
+using shared.Models;
 using web.Areas.Admin.ViewModels.Article;
 using web.Areas.Admin.ViewModels.Brand;
 using web.Areas.Admin.ViewModels.Category;
@@ -15,6 +16,7 @@ using web.Areas.Admin.ViewModels.Setting;
 using web.Areas.Admin.ViewModels.Tag;
 using web.Areas.Admin.ViewModels.Testimonial;
 using web.Areas.Admin.ViewModels.User;
+using web.Mappers.Resolvers;
 
 namespace web.Mappers;
 
@@ -86,7 +88,7 @@ public class AdminMappingProfile : Profile
             .ForMember(dest => dest.Type, opt => opt.Ignore())
             .ForMember(dest => dest.Description, opt => opt.Ignore())
             .ForMember(dest => dest.DefaultValue, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) 
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
         // =========================================
@@ -166,7 +168,7 @@ public class AdminMappingProfile : Profile
             // Ignore fields that should not be updated from this ViewModel
             .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Products, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) 
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
 
@@ -260,9 +262,15 @@ public class AdminMappingProfile : Profile
         // Testimonial Mappings
         // =========================================
         CreateMap<Testimonial, TestimonialListItemViewModel>();
-        CreateMap<Testimonial, TestimonialViewModel>()
-            .ForMember(dest => dest.ClientAvatar, opt => opt.Ignore()) // Handled by controller
-            .ReverseMap();
+
+        // Entity -> ViewModel (For Edit GET)
+        CreateMap<Testimonial, TestimonialViewModel>();
+
+        // ViewModel -> Entity (For Create/Edit POST)
+        CreateMap<TestimonialViewModel, Testimonial>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignore Id and Nav properties
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
         // =========================================
         // Contact Mappings
@@ -279,46 +287,85 @@ public class AdminMappingProfile : Profile
         // =========================================
         // Media Mappings
         // =========================================
-        CreateMap<MediaFolder, MediaFolderListItemViewModel>()
-            .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null))
-            .ForMember(dest => dest.FilesCount, opt => opt.MapFrom(src => src.Files != null ? src.Files.Count : 0))
-            .ForMember(dest => dest.SubFoldersCount, opt => opt.MapFrom(src => src.Children != null ? src.Children.Count : 0));
+        CreateMap<MediaFolder, MediaItemViewModel>()
+          .ForMember(dest => dest.IsFolder, opt => opt.MapFrom(src => true))
+          .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+          .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+          .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.ParentId))
+          .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+          // File specific properties are ignored (will be null)
+          .ForMember(dest => dest.ThumbnailUrl, opt => opt.Ignore())
+          .ForMember(dest => dest.FilePath, opt => opt.Ignore())
+          .ForMember(dest => dest.MimeType, opt => opt.Ignore())
+          .ForMember(dest => dest.FileSize, opt => opt.Ignore())
+          .ForMember(dest => dest.AltText, opt => opt.Ignore())
+          .ForMember(dest => dest.MediaType, opt => opt.Ignore());
 
-        CreateMap<MediaFolder, MediaFolderViewModel>().ReverseMap();
-
-        CreateMap<MediaFolder, MediaFolderSelectViewModel>()
-             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-            .ForMember(dest => dest.Level, opt => opt.Ignore()); // Level set during recursive fetch
-
-        CreateMap<MediaFile, MediaFileListItemViewModel>()
-            .ForMember(dest => dest.FolderName, opt => opt.MapFrom(src => src.MediaFolder != null ? src.MediaFolder.Name : null));
-
-        CreateMap<MediaFile, MediaFileViewModel>(); // Primarily for displaying details
-
-        CreateMap<MediaFileViewModel, MediaFile>()
-            // Only map fields editable via the ViewModel
-            .ForMember(dest => dest.FileName, opt => opt.MapFrom(src => src.FileName))
-            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
-            .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => src.AltText))
-            .ForMember(dest => dest.FolderId, opt => opt.MapFrom(src => src.FolderId))
-             // Ignore all other properties that shouldn't be updated from this VM or are DB generated/managed
-             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.OriginalFileName, opt => opt.Ignore())
-            .ForMember(dest => dest.MimeType, opt => opt.Ignore())
-            .ForMember(dest => dest.FileExtension, opt => opt.Ignore())
-            .ForMember(dest => dest.FilePath, opt => opt.Ignore())
-            .ForMember(dest => dest.ThumbnailPath, opt => opt.Ignore())
-            .ForMember(dest => dest.MediumSizePath, opt => opt.Ignore())
-            .ForMember(dest => dest.LargeSizePath, opt => opt.Ignore())
-            .ForMember(dest => dest.FileSize, opt => opt.Ignore())
-            .ForMember(dest => dest.Width, opt => opt.Ignore())
-            .ForMember(dest => dest.Height, opt => opt.Ignore())
-            .ForMember(dest => dest.Duration, opt => opt.Ignore())
-            .ForMember(dest => dest.MediaType, opt => opt.Ignore())
-            .ForMember(dest => dest.MediaFolder, opt => opt.Ignore())
+        CreateMap<MediaFolderViewModel, MediaFolder>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Don't map ID on create/update from VM
+            .ForMember(dest => dest.Parent, opt => opt.Ignore())
+            .ForMember(dest => dest.Children, opt => opt.Ignore())
+            .ForMember(dest => dest.Files, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+
+        CreateMap<MediaFolder, BreadcrumbItemViewModel>();
+
+        CreateMap<MediaFile, MediaItemViewModel>()
+            .ForMember(dest => dest.IsFolder, opt => opt.MapFrom(src => false))
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.OriginalFileName)) // Show original name in UI
+            .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
+            .ForMember(dest => dest.ParentId, opt => opt.Ignore()) // Files don't have parent folder ID in this specific VM item
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt))
+            .ForMember(dest => dest.FilePath, opt => opt.MapFrom(src => src.FilePath)) // Store the MinIO ObjectName/path
+            .ForMember(dest => dest.MimeType, opt => opt.MapFrom(src => src.MimeType))
+            .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
+            .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => src.AltText))
+            .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => src.MediaType))
+            // Map ThumbnailUrl using the injected Minio service
+            .ForMember(dest => dest.ThumbnailUrl, opt => opt.MapFrom<MediaItemThumbnailResolver>()); // Use custom resolver
+
+        // Map upload result + folder ID -> MediaFile entity
+        CreateMap<MinioUploadResult, MediaFile>()
+           .ForMember(dest => dest.FileName, opt => opt.MapFrom(src => src.GeneratedFileName)) // Store unique generated name
+           .ForMember(dest => dest.OriginalFileName, opt => opt.MapFrom(src => src.OriginalFileName))
+           .ForMember(dest => dest.MimeType, opt => opt.MapFrom(src => src.ContentType))
+           .ForMember(dest => dest.FileExtension, opt => opt.MapFrom(src => src.FileExtension))
+           .ForMember(dest => dest.FilePath, opt => opt.MapFrom(src => src.ObjectName)) // Store full path in bucket
+           .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
+           .ForMember(dest => dest.MediaType, opt => opt.MapFrom<MediaTypeResolver>()) // Resolve MediaType
+                                                                                       // Fields not in MinioUploadResult need setting manually or ignoring
+           .ForMember(dest => dest.Id, opt => opt.Ignore())
+           .ForMember(dest => dest.ThumbnailPath, opt => opt.MapFrom(src => src.ObjectName)) // Initially, use main path for thumb
+           .ForMember(dest => dest.MediumSizePath, opt => opt.Ignore()) // Ignore initially
+           .ForMember(dest => dest.LargeSizePath, opt => opt.Ignore()) // Ignore initially
+           .ForMember(dest => dest.Description, opt => opt.Ignore())
+           .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => Path.GetFileNameWithoutExtension(src.OriginalFileName))) // Default AltText
+           .ForMember(dest => dest.Width, opt => opt.Ignore()) // Ignore initially
+           .ForMember(dest => dest.Height, opt => opt.Ignore()) // Ignore initially
+           .ForMember(dest => dest.Duration, opt => opt.Ignore()) // Ignore initially
+           .ForMember(dest => dest.FolderId, opt => opt.Ignore()) // Set manually in controller
+           .ForMember(dest => dest.MediaFolder, opt => opt.Ignore())
+           .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+           .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+
+        // Map for editing file details
+        CreateMap<MediaFile, MediaFileEditViewModel>()
+             .ForMember(dest => dest.ThumbnailUrl, opt => opt.MapFrom<MediaEditThumbnailResolver>());// Use custom resolver
+
+        CreateMap<MediaFileEditViewModel, MediaFile>()
+            .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => src.AltText))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+             // Ignore all other fields - only update AltText and Description
+             .ForAllMembers(opts =>
+             {
+                 if (opts.DestinationMember.Name != nameof(MediaFile.AltText) &&
+                     opts.DestinationMember.Name != nameof(MediaFile.Description) &&
+                     opts.DestinationMember.Name != nameof(MediaFile.UpdatedAt)) // Allow UpdatedAt to be set by SaveChanges logic
+                 {
+                     opts.Ignore();
+                 }
+             });
 
         // Brand Mappings
         CreateMap<Brand, BrandListItemViewModel>()

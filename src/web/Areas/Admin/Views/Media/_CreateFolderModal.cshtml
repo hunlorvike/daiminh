@@ -1,0 +1,35 @@
+@using web.Areas.Admin.ViewModels.Media
+@model MediaFolderViewModel
+
+<div class="modal modal-blur fade" id="createFolderModal" tabindex="-1" aria-labelledby="createFolderModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<form id="createFolderForm" asp-controller="MediaApi" asp-action="CreateFolder" method="post">
+				@* Form posts to API *@
+				<div class="modal-header">
+					<h5 class="modal-title" id="createFolderModalLabel">Tạo thư mục mới</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body">
+					@* Hidden ParentId will be set by JS if needed, but better send in JSON *@
+					<div class="form-group mb-3">
+						<label asp-for="Name" class="form-label required">Tên thư mục</label>
+						<input asp-for="Name" class="form-control" id="folderNameInput" />
+						<span asp-validation-for="Name" class="text-danger"></span> @* Basic client-side span *@
+					</div>
+					<div class="form-group">
+						<label asp-for="Description" class="form-label">Mô tả</label>
+						<textarea asp-for="Description" class="form-control" rows="3" id="folderDescriptionInput"></textarea>
+						<span asp-validation-for="Description" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-link link-secondary" data-bs-dismiss="modal">Hủy</button>
+					<button type="submit" class="btn btn-primary">
+						<i class="ti ti-device-floppy me-1"></i> Tạo thư mục
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

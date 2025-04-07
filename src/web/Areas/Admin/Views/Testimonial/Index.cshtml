@@ -1,197 +1,152 @@
+@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Testimonial
 @model IEnumerable<TestimonialListItemViewModel>
 @{
-    ViewData["Title"] = "Quản lý đánh giá khách hàng - Hệ thống quản trị";
+	ViewData["Title"] = "Quản lý đánh giá khách hàng - Hệ thống quản trị";
 }
 
 @section PageActions {
-    <div class="btn-list">
-        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-            <i class="ti ti-plus me-2"></i> Thêm đánh giá
-        </a>
-    </div>
+	<div class="btn-list">
+		<a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+			<i class="ti ti-plus me-2"></i> Thêm đánh giá
+		</a>
+	</div>
 }
 
 <!-- Filter form -->
 <div class="card mb-3">
-    <div class="card-body">
-        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-            <div class="col-md-6">
-                <label class="form-label">Tìm kiếm</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Tìm đánh giá khách hàng..." name="searchTerm" value="@ViewBag.SearchTerm">
-                    <button class="btn btn-icon" type="button" id="clearSearch">
-                        <i class="ti ti-x"></i>
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="ti ti-search me-2"></i> Tìm kiếm
-                </button>
-            </div>
-            <div class="col-md-3">
-                <a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
-                    <i class="ti ti-reload me-2"></i> Đặt lại
-                </a>
-            </div>
-        </form>
-    </div>
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-6">
+				<label class="form-label">Tìm kiếm</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Tìm đánh giá khách hàng..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch">
+						<i class="ti ti-x"></i>
+					</button>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<button type="submit" class="btn btn-primary w-100">
+					<i class="ti ti-search me-2"></i> Tìm kiếm
+				</button>
+			</div>
+			<div class="col-md-3">
+				<a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+					<i class="ti ti-reload me-2"></i> Đặt lại
+				</a>
+			</div>
+		</form>
+	</div>
 </div>
 
 <!-- Content -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Danh sách đánh giá khách hàng</h3>
-    </div>
-    <div class="card-body p-0">
-        @if (!Model.Any())
-        {
-            <div class="empty">
-                <div class="empty-img" style="font-size: 5rem;">
-                    <i class="ti ti-message-dots text-muted"></i>
-                </div>
-                <p class="empty-title">Không tìm thấy đánh giá nào</p>
-                <p class="empty-subtitle text-muted">
-                    Hãy thêm đánh giá khách hàng để hiển thị trên website
-                </p>
-                <div class="empty-action">
-                    <a asp-action="Create" class="btn btn-primary">
-                        <i class="ti ti-plus me-2"></i> Thêm đánh giá mới
-                    </a>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="w-1">STT</th>
-                            <th style="width: 25%">Khách hàng</th>
-                            <th style="width: 35%">Nội dung</th>
-                            <th style="width: 10%">Đánh giá</th>
-                            <th style="width: 10%">Thứ tự</th>
-                            <th style="width: 10%">Trạng thái</th>
-                            <th style="width: 15%">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            int index = 1;
-                        }
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="text-muted">@(index++)</td>
-                                <td>
-                                    <div class="d-flex align-items-center">
-                                        @if (!string.IsNullOrEmpty(item.ClientAvatar))
-                                        {
-                                            <span class="avatar me-2" style="background-image: url(@item.ClientAvatar)"></span>
-                                        }
-                                        else
-                                        {
-                                            <span class="avatar me-2">
-                                                @item.ClientName.Substring(0, 1).ToUpper()
-                                            </span>
-                                        }
-                                        <div class="d-flex flex-column">
-                                            <span class="font-weight-medium">@item.ClientName</span>
-                                            @if (!string.IsNullOrEmpty(item.ClientTitle) || !string.IsNullOrEmpty(item.ClientCompany))
-                                            {
-                                                <small class="text-muted">
-                                                    @(item.ClientTitle ?? "") @(!string.IsNullOrEmpty(item.ClientTitle) && !string.IsNullOrEmpty(item.ClientCompany) ? " - " : "") @(item.ClientCompany ?? "")
-                                                </small>
-                                            }
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="text-truncate" style="max-width: 300px;" title="@item.Content">@item.Content</div>
-                                    @if (!string.IsNullOrEmpty(item.ProjectReference))
-                                    {
-                                        <small class="text-muted">Dự án: @item.ProjectReference</small>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="d-flex text-warning">
-                                        @for (int i = 1; i <= 5; i++)
-                                        {
-                                            <i class="ti @(i <= item.Rating ? "ti-star-filled" : "ti-star")"></i>
-                                        }
-                                    </div>
-                                </td>
-                                <td>@item.OrderIndex</td>
-                                <td>
-                                    <label class="form-check form-switch">
-                                        <input class="form-check-input toggle-active" type="checkbox" data-id="@item.Id" @(item.IsActive ? "checked" : "")>
-                                        <span class="form-check-label"></span>
-                                    </label>
-                                </td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
-                                            <i class="ti ti-pencil"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#delete-modal"
-                                                data-id="@item.Id"
-                                                data-name="@item.ClientName"
-                                                data-delete-url="@Url.Action("Delete", "Testimonial")"
-                                                title="Xóa">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-        }
-    </div>
+	<div class="card-header">
+		<h3 class="card-title">Danh sách đánh giá khách hàng</h3>
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Any())
+		{
+			<div class="empty">
+				<div class="empty-img" style="font-size: 5rem;">
+					<i class="ti ti-message-dots text-muted"></i>
+				</div>
+				<p class="empty-title">Chưa có đánh giá nào</p>
+				<p class="empty-subtitle text-muted">Hãy thêm đánh giá đầu tiên.</p>
+				<div class="empty-action">
+					<a asp-action="Create" class="btn btn-primary">
+						<i class="ti ti-plus me-2"></i> Thêm đánh giá
+					</a>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+							<th class="w-1">STT</th>
+							<th style="width: 10%;">Avatar</th>
+							<th style="width: 25%;">Khách hàng</th>
+							<th>Nội dung</th>
+							<th style="width: 5%;">Sao</th>
+							<th style="width: 5%;">Thứ tự</th>
+							<th style="width: 10%;">Trạng thái</th>
+							<th style="width: 10%;">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@{
+							int index = 1;
+						}
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td class="text-muted">@(index++)</td>
+								<td>
+									<span class="avatar avatar-md"
+										  style="background-image: url(@MediaUrlHelper.GetMinioUrl(item.ClientAvatar, "/img/default-avatar.png"))"></span>
+								</td>
+								<td>
+									<div class="d-flex flex-column">
+										<span class="fw-medium">@item.ClientName</span>
+										@if (!string.IsNullOrEmpty(item.ClientTitle) || !string.IsNullOrEmpty(item.ClientCompany))
+										{
+											<small class="text-muted">
+												@item.ClientTitle @(!string.IsNullOrEmpty(item.ClientTitle) && !string.IsNullOrEmpty(item.ClientCompany) ? ", " : "") @item.ClientCompany
+											</small>
+										}
+									</div>
+								</td>
+								<td title="@item.Content">
+									<div style="max-height: 4.5em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;">
+										@Html.Raw(item.Content)
+									</div>
+								</td>
+								<td class="text-center text-warning">@item.Rating<i class="ti ti-star-filled ms-1" style="font-size: 0.9em;"></i></td>
+								<td class="text-center">@item.OrderIndex</td>
+								<td>
+									@if (item.IsActive)
+									{
+										<span class="badge bg-success-lt">Hiển thị</span>
+									}
+									else
+									{
+										<span class="badge bg-danger-lt">Ẩn</span>
+									}
+								</td>
+								<td>
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
+											<i class="ti ti-pencil"></i>
+										</a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+												title="Xóa"
+												data-id="@item.Id"
+												data-name="@item.ClientName"
+												data-delete-url="@Url.Action("Delete", "Testimonial")">
+											<i class="ti ti-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+			@* Add Pagination here if needed *@
+		}
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        $(document).ready(function () {
-            // Active toggle
-            $('.toggle-active').on('change', function () {
-                var checkbox = $(this); // Store reference
-                var id = checkbox.data('id');
-                var isChecked = checkbox.prop('checked');
-
-                $.ajax({
-                    url: '@Url.Action("ToggleActive", "Testimonial")',
-                    type: 'POST',
-                    data: { id: id },
-                    headers: { // Include AntiForgeryToken if needed
-                       // RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-                    },
-                    success: function (result) {
-                        if (result.success) {
-                            toastr.success('Cập nhật trạng thái thành công');
-                        } else {
-                            toastr.error(result.message || 'Cập nhật trạng thái thất bại');
-                            // Revert the checkbox state visually
-                            checkbox.prop('checked', !isChecked);
-                        }
-                    },
-                    error: function () {
-                        toastr.error('Đã xảy ra lỗi khi gửi yêu cầu');
-                        // Revert the checkbox state visually
-                        checkbox.prop('checked', !isChecked);
-                    }
-                });
-            });
-
-            // Clear search
-            $('#clearSearch').on('click', function() {
-                $('input[name="searchTerm"]').val('');
-            });
-        });
-    </script>
+	<script>
+		$(document).ready(function () {
+			$('#clearSearch').on('click', function() {
+				$('input[name="searchTerm"]').val('');
+			});
+		});
+	</script>
 }

@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   # mvc:
   #   build:
@@ -15,6 +14,8 @@ services:
   #   depends_on:
   #     postgres:
   #       condition: service_healthy
+  #     minio:
+  #       condition: service_healthy
   #   networks:
   #     - app-network
   #   healthcheck:
@@ -22,7 +23,6 @@ services:
   #     interval: 30s
   #     timeout: 3s
   #     retries: 3
-
   postgres:
     image: postgres:16-alpine
     container_name: postgres
@@ -42,12 +42,32 @@ services:
       test: ["CMD-SHELL", "pg_isready -U user"]
       interval: 10s
       timeout: 5s
-      retries: 5 
-
+      retries: 5
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    volumes:
+      - minio-daiminh2:/data
+    command: server /data --console-address ":9001"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 volumes:
   postgres-daiminh2:
     name: daiminh2-postgres-data
-
+  minio-daiminh2:
+    name: daiminh2-minio-data
 networks:
   app-network:
     name: daiminh2-network

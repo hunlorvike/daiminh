@@ -72,7 +72,6 @@ public class TestimonialController : Controller
         var viewModel = new TestimonialViewModel
         {
             IsActive = true,
-            OrderIndex = 0,
             Rating = 5
         };
 
@@ -89,6 +88,12 @@ public class TestimonialController : Controller
         if (!validationResult.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
+            ViewData["PageTitle"] = "Thêm Đánh giá mới";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+            {
+                ("Đánh giá khách hàng", "/Admin/Testimonial"),
+                ("Thêm mới", "")
+            };
             return View(viewModel);
         }
 
@@ -105,11 +110,12 @@ public class TestimonialController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var testimonial = await _context.Set<Testimonial>().FindAsync(id);
-
         if (testimonial == null)
         {
             return NotFound();
         }
+
+        var viewModel = _mapper.Map<TestimonialViewModel>(testimonial);
 
         ViewData["PageTitle"] = "Chỉnh sửa đánh giá khách hàng";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
@@ -117,8 +123,6 @@ public class TestimonialController : Controller
             ("Đánh giá khách hàng", "/Admin/Testimonial"),
             ("Chỉnh sửa", "")
         };
-
-        var viewModel = _mapper.Map<TestimonialViewModel>(testimonial);
 
         return View(viewModel);
     }
@@ -130,29 +134,30 @@ public class TestimonialController : Controller
     {
         if (id != viewModel.Id)
         {
-            return NotFound();
+            return BadRequest();
         }
 
         var validationResult = await _validator.ValidateAsync(viewModel);
 
         if (!validationResult.IsValid)
         {
-            validationResult.AddToModelState(ModelState, string.Empty);
+            validationResult.AddToModelState(ModelState);
+            ViewData["PageTitle"] = "Chỉnh sửa Đánh giá";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Đánh giá", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
             return View(viewModel);
+        }
+
+        var testimonial = await _context.Set<Testimonial>().FindAsync(id);
+        if (testimonial == null)
+        {
+            return NotFound();
         }
 
         try
         {
-            var testimonial = await _context.Set<Testimonial>().FindAsync(id);
-
-            if (testimonial == null)
-            {
-                return NotFound();
-            }
 
             _mapper.Map(viewModel, testimonial);
 
-            _context.Update(testimonial);
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Cập nhật đánh giá khách hàng thành công";
@@ -178,33 +183,21 @@ public class TestimonialController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var testimonial = await _context.Set<Testimonial>().FindAsync(id);
-
         if (testimonial == null)
         {
-            return Json(new { success = false, message = "Không tìm thấy đánh giá khách hàng" });
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return Json(new { success = false, message = "Không tìm thấy đánh giá." });
+            return NotFound();
         }
 
         _context.Set<Testimonial>().Remove(testimonial);
         await _context.SaveChangesAsync();
 
-        return Json(new { success = true, message = "Xóa đánh giá khách hàng thành công" });
-    }
+        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            return Json(new { success = true, message = "Xóa đánh giá thành công." });
 
-    // POST: Admin/Testimonial/ToggleActive/5
-    [HttpPost]
-    public async Task<IActionResult> ToggleActive(int id)
-    {
-        var testimonial = await _context.Set<Testimonial>().FindAsync(id);
-
-        if (testimonial == null)
-        {
-            return Json(new { success = false, message = "Không tìm thấy đánh giá khách hàng" });
-        }
-
-        testimonial.IsActive = !testimonial.IsActive;
-        await _context.SaveChangesAsync();
-
-        return Json(new { success = true, active = testimonial.IsActive });
+        TempData["SuccessMessage"] = "Xóa đánh giá thành công.";
+        return RedirectToAction(nameof(Index));
     }
 
     private async Task<bool> TestimonialExists(int id)

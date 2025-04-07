@@ -1,0 +1,30 @@
+<div class="modal modal-blur fade" id="selectMediaModal" tabindex="-1" aria-labelledby="selectMediaModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="selectMediaModalLabel">Chọn Media</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<nav aria-label="breadcrumb" class="mb-2">
+					<ol class="breadcrumb breadcrumb-arrows" id="select-media-breadcrumbs">
+					</ol>
+				</nav>
+
+				<div id="select-media-grid-container">
+					<div class="text-center p-4" id="select-media-loading-indicator">
+						<div class="spinner-border text-primary" role="status"></div>
+					</div>
+					<div class="media-grid" id="select-media-grid" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));">
+					</div>
+					<div class="text-center p-4" id="select-media-empty-indicator" style="display: none;">
+						<p class="text-muted">Thư mục này trống.</p>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn" data-bs-dismiss="modal">Đóng</button>
+			</div>
+		</div>
+	</div>
+</div>

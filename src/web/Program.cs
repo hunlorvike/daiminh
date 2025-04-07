@@ -4,8 +4,9 @@ using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
+using shared.Helpers;
 using web.Areas.Admin.Services;
-using web.Areas.Admin.Validators;
+using web.Areas.Admin.Validators.User;
 using web.Middlewares;
 
 Log.Logger = new LoggerConfiguration()
@@ -43,14 +44,16 @@ try
     builder.Services.AddFluentValidationAutoValidation(config =>
     {
         config.DisableDataAnnotationsValidation = true;
+
     }).AddFluentValidationClientsideAdapters();
+
     builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
 
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
     builder.Services.AddHttpContextAccessor();
 
-    builder.Services.AddScoped<IMediaService, MediaService>();
+    builder.Services.AddScoped<IMinioStorageService, MinioStorageService>();
 
     builder.Services.AddAuthentication()
         .AddCookie("DaiMinhCookies", options =>
@@ -68,6 +71,13 @@ try
 
 
     var app = builder.Build();
+    MediaUrlHelper.Initialize(app.Configuration);
+
+    using (var scope = app.Services.CreateScope())
+    {
+        var minioService = scope.ServiceProvider.GetRequiredService<IMinioStorageService>();
+        await minioService.EnsureBucketExistsAsync();
+    }
 
     app.UseSerilogRequestLogging();
 
