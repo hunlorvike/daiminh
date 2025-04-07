@@ -218,7 +218,7 @@ public class MinioStorageService : IMinioStorageService
     }
 
 
-     public async Task<string> GetPresignedUrlAsync(string objectName, int expiryInSeconds = 60 * 60)
+    public async Task<string> GetPresignedUrlAsync(string objectName, int expiryInSeconds = 60 * 60)
     {
         try
         {

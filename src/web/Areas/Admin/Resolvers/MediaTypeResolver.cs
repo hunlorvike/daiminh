@@ -3,7 +3,7 @@ using domain.Entities;
 using shared.Enums;
 using shared.Models;
 
-namespace web.Mappers.Resolvers;
+namespace web.Areas.Admin.Resolvers;
 
 public class MediaTypeResolver : IValueResolver<MinioUploadResult, MediaFile, MediaType>
 {

@@ -195,7 +195,7 @@ public partial class ProductTypeController : Controller
                 return View(viewModel);
             }
         }
-        catch (DbUpdateException ex)
+        catch (DbUpdateException)
         {
             ModelState.AddModelError("", "Không thể lưu thay đổi. Vui lòng kiểm tra lại dữ liệu (ví dụ: Slug có thể đã bị trùng).");
             ViewData["PageTitle"] = "Chỉnh sửa Loại sản phẩm";

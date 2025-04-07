@@ -3,7 +3,7 @@ using domain.Entities;
 using web.Areas.Admin.Services;
 using web.Areas.Admin.ViewModels.Media;
 
-namespace web.Mappers.Resolvers;
+namespace web.Areas.Admin.Resolvers;
 
 public class MediaEditThumbnailResolver : IValueResolver<MediaFile, MediaFileEditViewModel, string>
 {

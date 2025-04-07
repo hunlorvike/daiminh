@@ -124,12 +124,12 @@ public class SettingController : Controller
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Cập nhật cấu hình thành công!";
             }
-            catch (DbUpdateConcurrencyException ex)
+            catch (DbUpdateConcurrencyException)
             {
                 TempData["ErrorMessage"] = "Lỗi: Có xung đột xảy ra khi cập nhật. Vui lòng thử lại.";
                 return View("Index", viewModel);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 TempData["ErrorMessage"] = "Đã xảy ra lỗi không mong muốn khi lưu cấu hình.";
                 return View("Index", viewModel);
