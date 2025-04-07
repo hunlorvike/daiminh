@@ -31,47 +31,47 @@ public class BrandController : Controller
     // GET: Admin/Brand
     public async Task<IActionResult> Index(string? searchTerm = null)
     {
-        ViewData["PageTitle"] = "Quản lý thương hiệu";
+        ViewData["PageTitle"] = "Quản lý Thương hiệu";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Thương hiệu", "")
+            ("Thương hiệu", "") // Active
         };
 
-        var query = _context.Set<Brand>().AsQueryable();
+        var query = _context.Set<Brand>()
+                            .Include(b => b.Products) // Include Products for count
+                            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(b =>
-                b.Name.Contains(searchTerm) ||
-                b.Slug.Contains(searchTerm) ||
-                b.Description.Contains(searchTerm));
+            // Search by Name or Website
+            query = query.Where(b => b.Name.Contains(searchTerm) || (b.Website != null && b.Website.Contains(searchTerm)));
         }
 
-        var brands = await query
-            .Include(b => b.Products)
-            .OrderBy(b => b.Name)
-            .ToListAsync();
-
+        var brands = await query.OrderBy(b => b.Name).ToListAsync();
         var viewModels = _mapper.Map<List<BrandListItemViewModel>>(brands);
 
         ViewBag.SearchTerm = searchTerm;
-
         return View(viewModels);
     }
 
     // GET: Admin/Brand/Create
     public IActionResult Create()
     {
-        ViewData["PageTitle"] = "Thêm thương hiệu mới";
+        ViewData["PageTitle"] = "Thêm Thương hiệu mới";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Thương hiệu", "/Admin/Brand"),
-            ("Thêm mới", "")
+            ("Thương hiệu", Url.Action(nameof(Index))),
+            ("Thêm mới", "") // Active
         };
 
+        // Set default values for SEO fields if desired
         var viewModel = new BrandViewModel
         {
-            IsActive = true
+            IsActive = true,
+            SitemapPriority = 0.6, // Example default
+            SitemapChangeFrequency = "weekly", // Example default
+            OgType = "product.group", // More specific OG type?
+            TwitterCard = "summary"
         };
 
         return View(viewModel);
@@ -84,9 +84,17 @@ public class BrandController : Controller
     {
         var validationResult = await _validator.ValidateAsync(viewModel);
 
-        if (!validationResult.IsValid)
+        // Check Slug uniqueness
+        if (await _context.Set<Brand>().AnyAsync(b => b.Slug == viewModel.Slug))
+        {
+            ModelState.AddModelError(nameof(BrandViewModel.Slug), "Slug đã tồn tại.");
+        }
+
+        if (!validationResult.IsValid || !ModelState.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
+            ViewData["PageTitle"] = "Thêm Thương hiệu mới";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Thương hiệu", Url.Action(nameof(Index))), ("Thêm mới", "") };
             return View(viewModel);
         }
 
@@ -95,7 +103,7 @@ public class BrandController : Controller
         _context.Add(brand);
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Thêm thương hiệu thành công";
+        TempData["SuccessMessage"] = "Thêm thương hiệu thành công!";
         return RedirectToAction(nameof(Index));
     }
 
@@ -103,20 +111,19 @@ public class BrandController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var brand = await _context.Set<Brand>().FindAsync(id);
-
         if (brand == null)
         {
             return NotFound();
         }
 
-        ViewData["PageTitle"] = "Chỉnh sửa thương hiệu";
+        var viewModel = _mapper.Map<BrandViewModel>(brand);
+
+        ViewData["PageTitle"] = "Chỉnh sửa Thương hiệu";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Thương hiệu", "/Admin/Brand"),
-            ("Chỉnh sửa", "")
+            ("Thương hiệu", Url.Action(nameof(Index))),
+            ("Chỉnh sửa", "") // Active
         };
-
-        var viewModel = _mapper.Map<BrandViewModel>(brand);
 
         return View(viewModel);
     }
@@ -128,43 +135,50 @@ public class BrandController : Controller
     {
         if (id != viewModel.Id)
         {
-            return NotFound();
+            return BadRequest();
         }
 
         var validationResult = await _validator.ValidateAsync(viewModel);
 
-        if (!validationResult.IsValid)
+        // Check Slug uniqueness (excluding self)
+        if (await _context.Set<Brand>().AnyAsync(b => b.Slug == viewModel.Slug && b.Id != id))
+        {
+            ModelState.AddModelError(nameof(BrandViewModel.Slug), "Slug đã tồn tại.");
+        }
+
+        if (!validationResult.IsValid || !ModelState.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
+            ViewData["PageTitle"] = "Chỉnh sửa Thương hiệu";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Thương hiệu", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
             return View(viewModel);
         }
 
+        var brand = await _context.Set<Brand>().FindAsync(id);
+        if (brand == null)
+        {
+            return NotFound();
+        }
+
+        _mapper.Map(viewModel, brand); // Map ALL fields from ViewModel
+
         try
         {
-            var brand = await _context.Set<Brand>().FindAsync(id);
-
-            if (brand == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(viewModel, brand);
-
-            _context.Update(brand);
             await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Cập nhật thương hiệu thành công";
+            TempData["SuccessMessage"] = "Cập nhật thương hiệu thành công!";
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!await BrandExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            if (!await BrandExists(id)) return NotFound();
+            TempData["ErrorMessage"] = "Lỗi: Xung đột dữ liệu khi cập nhật.";
+            return View(viewModel);
+        }
+        catch (DbUpdateException) // Catch potential unique constraint errors
+        {
+            ModelState.AddModelError("", "Không thể lưu thay đổi. Vui lòng kiểm tra lại dữ liệu.");
+            ViewData["PageTitle"] = "Chỉnh sửa Thương hiệu";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Thương hiệu", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
+            return View(viewModel);
         }
 
         return RedirectToAction(nameof(Index));
@@ -175,34 +189,24 @@ public class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var brand = await _context.Set<Brand>().FindAsync(id);
+        var brand = await _context.Set<Brand>()
+                                .Include(b => b.Products) // Must include Products
+                                .FirstOrDefaultAsync(b => b.Id == id);
 
         if (brand == null)
         {
-            return Json(new { success = false, message = "Không tìm thấy thương hiệu" });
+            return Json(new { success = false, message = "Không tìm thấy thương hiệu." });
         }
 
-        _context.Set<Brand>().Remove(brand);
-        await _context.SaveChangesAsync();
-
-        return Json(new { success = true, message = "Xóa thương hiệu thành công" });
-    }
-
-    // POST: Admin/Brand/ToggleActive/5
-    [HttpPost]
-    public async Task<IActionResult> ToggleActive(int id)
-    {
-        var brand = await _context.Set<Brand>().FindAsync(id);
-
-        if (brand == null)
+        if (brand.Products != null && brand.Products.Any())
         {
-            return Json(new { success = false, message = "Không tìm thấy thương hiệu" });
+            return Json(new { success = false, message = $"Không thể xóa thương hiệu '{brand.Name}'. Vui lòng xóa hoặc bỏ liên kết các sản phẩm thuộc thương hiệu này trước." });
         }
 
-        brand.IsActive = !brand.IsActive;
+        _context.Remove(brand);
         await _context.SaveChangesAsync();
 
-        return Json(new { success = true, active = brand.IsActive });
+        return Json(new { success = true, message = "Xóa thương hiệu thành công." });
     }
 
     private async Task<bool> BrandExists(int id)
