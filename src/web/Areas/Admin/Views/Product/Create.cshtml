@@ -1,405 +1,325 @@
-@using shared.Enums
+@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Product
 @model ProductViewModel
 @{
-    ViewData["Title"] = "Thêm sản phẩm - Hệ thống quản trị";
+	ViewData["Title"] = "Thêm Sản phẩm mới";
 }
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+@section Styles {
+	<link rel="stylesheet" href="~/css/summernote.css" />
+	<style>
+		/* Custom styles for image/variant items if needed */
+		.product-image-item .card-img-top {
+			min-height: 150px;
+			background-color: #f8f9fa;
+			background-size: contain;
+			background-repeat: no-repeat;
+			background-position: center;
+		}
 
-    <div class="row">
-        <!-- Main content column -->
-        <div class="col-lg-8">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Thông tin cơ bản</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="Name" class="form-label required">Tên sản phẩm</label>
-                        <input asp-for="Name" class="form-control" id="productName" />
-                        <span asp-validation-for="Name" class="text-danger"></span>
-                    </div>
+		.product-variant-item .form-label {
+			font-size: 0.8rem;
+			margin-bottom: 0.25rem;
+		}
+	</style>
+}
 
-                    <div class="mb-3">
-                        <label asp-for="Slug" class="form-label required">Slug</label>
-                        <div class="input-group">
-                            <input asp-for="Slug" class="form-control" id="productSlug" />
-                            <button class="btn btn-outline-secondary" type="button" id="generateSlug">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                        <span asp-validation-for="Slug" class="text-danger"></span>
-                        <small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
-                    </div>
+<form asp-action="Create" method="post" id="product-form">
+	@Html.AntiForgeryToken()
 
-                    <div class="mb-3">
-                        <label asp-for="ShortDescription" class="form-label">Mô tả ngắn</label>
-                        <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="ShortDescription" class="text-danger"></span>
-                        <small class="form-hint">Mô tả ngắn gọn về sản phẩm (tối đa 500 ký tự)</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Description" class="form-label required">Mô tả chi tiết</label>
-                        <textarea asp-for="Description" class="form-control summernote" rows="10"></textarea>
-                        <span asp-validation-for="Description" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Thông tin kỹ thuật</h3>
-                </div>
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Manufacturer" class="form-label">Nhà sản xuất</label>
-                            <input asp-for="Manufacturer" class="form-control" />
-                            <span asp-validation-for="Manufacturer" class="text-danger"></span>
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-                            <label asp-for="Origin" class="form-label">Xuất xứ</label>
-                            <input asp-for="Origin" class="form-control" />
-                            <span asp-validation-for="Origin" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Specifications" class="form-label">Thông số kỹ thuật</label>
-                        <textarea asp-for="Specifications" class="form-control summernote" rows="5"></textarea>
-                        <span asp-validation-for="Specifications" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="Features" class="form-label">Tính năng nổi bật</label>
-                        <textarea asp-for="Features" class="form-control summernote" rows="5"></textarea>
-                        <span asp-validation-for="Features" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="ApplicationAreas" class="form-label">Khu vực ứng dụng</label>
-                        <textarea asp-for="ApplicationAreas" class="form-control summernote" rows="5"></textarea>
-                        <span asp-validation-for="ApplicationAreas" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Hướng dẫn sử dụng & Bảo quản</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="Usage" class="form-label">Hướng dẫn sử dụng</label>
-                        <textarea asp-for="Usage" class="form-control summernote" rows="5"></textarea>
-                        <span asp-validation-for="Usage" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="PackagingInfo" class="form-label">Thông tin đóng gói</label>
-                        <textarea asp-for="PackagingInfo" class="form-control summernote" rows="5"></textarea>
-                        <span asp-validation-for="PackagingInfo" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="StorageInstructions" class="form-label">Hướng dẫn bảo quản</label>
-                        <textarea asp-for="StorageInstructions" class="form-control summernote" rows="5"></textarea>
-                        <span asp-validation-for="StorageInstructions" class="text-danger"></span>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="SafetyInfo" class="form-label">Thông tin an toàn</label>
-                        <textarea asp-for="SafetyInfo" class="form-control summernote" rows="5"></textarea>
-                        <span asp-validation-for="SafetyInfo" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">SEO</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="MetaTitle" class="form-label">Meta Title</label>
-                        <input asp-for="MetaTitle" class="form-control" />
-                        <span asp-validation-for="MetaTitle" class="text-danger"></span>
-                        <small class="form-hint">Tiêu đề hiển thị trên kết quả tìm kiếm (để trống sẽ sử dụng tên sản phẩm)</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="MetaDescription" class="form-label">Meta Description</label>
-                        <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
-                        <span asp-validation-for="MetaDescription" class="text-danger"></span>
-                        <small class="form-hint">Mô tả hiển thị trên kết quả tìm kiếm (để trống sẽ sử dụng mô tả ngắn)</small>
-                    </div>
-
-                    <div class="mb-3">
-                        <label asp-for="MetaKeywords" class="form-label">Meta Keywords</label>
-                        <input asp-for="MetaKeywords" class="form-control" />
-                        <span asp-validation-for="MetaKeywords" class="text-danger"></span>
-                        <small class="form-hint">Các từ khóa phân cách bằng dấu phẩy</small>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="form-check form-switch mb-3">
-                                <input asp-for="NoIndex" class="form-check-input" type="checkbox" />
-                                <label asp-for="NoIndex" class="form-check-label">Không lập chỉ mục (noindex)</label>
-                                <small class="form-hint d-block">Ngăn công cụ tìm kiếm lập chỉ mục trang này</small>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-check form-switch mb-3">
-                                <input asp-for="NoFollow" class="form-check-input" type="checkbox" />
-                                <label asp-for="NoFollow" class="form-check-label">Không theo dõi liên kết (nofollow)</label>
-                                <small class="form-hint d-block">Ngăn công cụ tìm kiếm theo dõi các liên kết trên trang này</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Sidebar column -->
-        <div class="col-lg-4">
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Xuất bản</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="Status" class="form-label">Trạng thái</label>
-                        <select asp-for="Status" class="form-select">
-                            <option value="@PublishStatus.Draft">Bản nháp</option>
-                            <option value="@PublishStatus.Published">Xuất bản</option>
-                            <option value="@PublishStatus.Scheduled">Lên lịch</option>
-                            <option value="@PublishStatus.Archived">Lưu trữ</option>
-                        </select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </div>
-
-                    <div class="form-check form-switch mb-3">
-                        <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-                        <label asp-for="IsActive" class="form-check-label">Hiển thị sản phẩm</label>
-                        <small class="form-hint d-block">Sản phẩm sẽ hiển thị trên website</small>
-                    </div>
-
-                    <div class="form-check form-switch mb-3">
-                        <input asp-for="IsFeatured" class="form-check-input" type="checkbox" />
-                        <label asp-for="IsFeatured" class="form-check-label">Sản phẩm nổi bật</label>
-                        <small class="form-hint d-block">Sản phẩm sẽ được hiển thị ở các vị trí nổi bật</small>
-                    </div>
-
-                    <div class="d-flex justify-content-between mt-4">
-                        <a asp-action="Index" class="btn btn-outline-secondary">
-                            <i class="fas fa-arrow-left me-2"></i> Quay lại
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-save me-2"></i> Lưu sản phẩm
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Loại sản phẩm</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label asp-for="ProductTypeId" class="form-label required">Loại sản phẩm</label>
-                        <select asp-for="ProductTypeId" class="form-select">
-                            <option value="">-- Chọn loại sản phẩm --</option>
-                            @if (Model.ProductTypes != null)
-                            {
-                                @foreach (var type in Model.ProductTypes)
-                                {
-                                    <option value="@type.Id">@type.Name</option>
-                                }
-                            }
-                        </select>
-                        <span asp-validation-for="ProductTypeId" class="text-danger"></span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Danh mục</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Chọn danh mục</label>
-                        <select id="categorySelect" multiple placeholder="Chọn danh mục...">
-                            @if (Model.Categories != null)
-                            {
-                                @foreach (var category in Model.Categories)
-                                {
-                                    <option value="@category.Id">@category.Name</option>
-                                }
-                            }
-                        </select>
-                        <div id="categoryIds-container">
-                            @if (Model.CategoryIds != null)
-                            {
-                                @foreach (var categoryId in Model.CategoryIds)
-                                {
-                                    <input type="hidden" name="CategoryIds" value="@categoryId" />
-                                }
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Thẻ</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Chọn thẻ</label>
-                        <select id="tagSelect" multiple placeholder="Chọn thẻ...">
-                            @if (Model.Tags != null)
-                            {
-                                @foreach (var tag in Model.Tags)
-                                {
-                                    <option value="@tag.Id">@tag.Name</option>
-                                }
-                            }
-                        </select>
-                        <div id="tagIds-container">
-                            @if (Model.TagIds != null)
-                            {
-                                @foreach (var tagId in Model.TagIds)
-                                {
-                                    <input type="hidden" name="TagIds" value="@tagId" />
-                                }
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Hình ảnh sản phẩm</h3>
-                </div>
-                <div class="card-body">
-                    <div class="mb-3">
-                        <label class="form-label">Tải lên hình ảnh</label>
-                        <input type="file" class="form-control" name="ImageFiles" multiple accept="image/*" />
-                        <small class="form-hint">Có thể chọn nhiều hình ảnh. Hình ảnh đầu tiên sẽ là hình ảnh chính.</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Thông tin Sản phẩm</h3>
+		</div>
+		<div class="card-body">
+			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
+			<partial name="_ProductFormFields" model="Model" />
+		</div>
+		<div class="card-footer text-end">
+			<a asp-action="Index" class="btn btn-link">Hủy</a>
+			<button type="submit" class="btn btn-primary">
+				<i class="ti ti-device-floppy me-2"></i> Lưu Sản phẩm
+			</button>
+		</div>
+	</div>
 </form>
 
+
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Initialize Summernote WYSIWYG editor
-            $('.summernote').summernote({
-                height: 200,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ],
-                lang: 'vi-VN',
-                placeholder: 'Nhập nội dung...'
-            });
+	<script src="~/js/slug.js"></script>
+	<script src="~/js/summernote.js"></script>
 
-            // Initialize Tom Select for categories
-            var categorySelect = new TomSelect('#categorySelect', {
-                plugins: ['remove_button'],
-                valueField: 'value',
-                labelField: 'text',
-                searchField: 'text',
-                create: false,
-                onItemAdd: function(value) {
-                    $('#categoryIds-container').append('<input type="hidden" name="CategoryIds" value="' + value + '" />');
-                },
-                onItemRemove: function(value) {
-                    $('#categoryIds-container').find('input[value="' + value + '"]').remove();
-                }
-            });
+	<script>
+		$(document).ready(function () {
+			const tomSelectCategories = new TomSelect('#SelectedCategoryIds', {
+				plugins: ['remove_button'],
+				create: false,
+				placeholder: 'Chọn danh mục...'
+			});
+			const tomSelectTags = new TomSelect('#SelectedTagIds', {
+				plugins: ['remove_button'],
+				create: false,
+				placeholder: 'Chọn hoặc nhập thẻ mới...'
+			});
 
-            // Initialize Tom Select for tags
-            var tagSelect = new TomSelect('#tagSelect', {
-                plugins: ['remove_button'],
-                valueField: 'value',
-                labelField: 'text',
-                searchField: 'text',
-                create: false,
-                onItemAdd: function(value) {
-                    $('#tagIds-container').append('<input type="hidden" name="TagIds" value="' + value + '" />');
-                },
-                onItemRemove: function(value) {
-                    $('#tagIds-container').find('input[value="' + value + '"]').remove();
-                }
-            });
+			 // --- Slug Generation ---
+			 const nameInput = $('#productName');
+			 const slugInput = $('#productSlug');
+			 const generateBtn = $('#generateSlugButton');
+			 nameInput.on('input', function() {
+				if (slugInput.val() === '') { slugInput.val(generateVietnameseSlug(nameInput.val())); }
+			 });
+			 generateBtn.on('click', function() { slugInput.val(generateVietnameseSlug(nameInput.val())); });
 
-            // Set initial values for categories
-        @if (Model.CategoryIds != null && Model.CategoryIds.Any())
-        {
-            foreach (var categoryId in Model.CategoryIds)
-            {
-                <text>categorySelect.addItem('@categoryId');</text>
-            }
-        }
 
-            // Set initial values for tags
-        @if (Model.TagIds != null && Model.TagIds.Any())
-        {
-            foreach (var tagId in Model.TagIds)
-            {
-                <text>tagSelect.addItem('@tagId');</text>
-            }
-        }
+				// --- Image Management (Using Media Selection Modal) ---
+		const selectImagesBtn = $('#selectProductImagesBtn');
+		const imageListContainer = $('#product-image-list');
+		const imageTemplate = $('#product-image-template').html();
+		let imageNextIndex = $('#product-image-list .product-image-item').length;
 
-            // Auto-generate slug from name
-            $('#productName').on('input', function() {
-                if ($('#productSlug').val() === '') {
-                    generateSlug();
-                }
-            });
+		// Function to re-index image inputs after add/remove/sort
+		function reindexImages() {
+			let maxOrder = -1;
+			imageListContainer.find('.product-image-item:visible').each(function(index) { // Only re-index visible items for order
+				$(this).attr('data-index', index); // Update visual index if needed
 
-            // Generate slug button
-            $('#generateSlug').on('click', function() {
-                generateSlug();
-            });
+				const orderInput = $(this).find('.order-index-input');
+				orderInput.val(index); // Set order index based on visual order
+				maxOrder = index;
 
-            function generateSlug() {
-                var name = $('#productName').val();
-                if (name) {
-                    // Convert to lowercase
-                    var slug = name.toLowerCase();
+				// Re-index names and IDs for proper model binding
+				$(this).find('input, label, select, textarea').each(function() {
+					const oldName = $(this).attr('name');
+					if (oldName) {
+						const newName = oldName.replace(/Images\[\d+\]/, `Images[${index}]`);
+						$(this).attr('name', newName);
+					}
+					const oldId = $(this).attr('id');
+					if (oldId) {
+						const newId = oldId.replace(/isMain_\d+/, `isMain_${index}`);
+						$(this).attr('id', newId);
+						$(this).closest('.form-check').find('label').attr('for', newId);
+					}
+					if($(this).hasClass('is-main-input')) {
+						 $(this).attr('name', `Images[${index}].IsMainRadio`);
+					}
+				});
+			});
+			imageNextIndex = imageListContainer.find('.product-image-item').length; // Keep track of total items added
+			updateMainImageHiddenInput(); // Update hidden inputs after re-indexing
+		}
 
-                    // Remove accents/diacritics from Vietnamese characters
-                    slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
-                    // Replace spaces with dashes and remove special characters
-                    slug = slug.replace(/\s+/g, '-')
-                        .replace(/[^\w\-]+/g, '')
-                        .replace(/\-\-+/g, '-')
-                        .replace(/^-+/, '')
-                        .replace(/-+$/, '');
+		// Update hidden input based on radio state
+		function updateMainImageHiddenInput() {
+			let mainImageFound = false;
+			imageListContainer.find('.product-image-item:visible').each(function() {
+				const radio = $(this).find('.is-main-input');
+				const hidden = $(this).find('.is-main-hidden');
+				if(radio.is(':checked')) {
+					hidden.val('true');
+					mainImageFound = true;
+				} else {
+					hidden.val('false');
+				}
+			});
+			 // Ensure at least one image is main if there are visible images
+			 // if (!mainImageFound && imageListContainer.find('.product-image-item:visible').length > 0) {
+			 //     const firstVisibleRadio = imageListContainer.find('.product-image-item:visible:first .is-main-input');
+			 //     if(firstVisibleRadio.length) {
+			 //         firstVisibleRadio.prop('checked', true);
+			 //          firstVisibleRadio.closest('.product-image-item').find('.is-main-hidden').val('true');
+			 //     }
+			 // }
+		}
+		// Initial update on load (for Edit)
+		updateMainImageHiddenInput();
 
-                    $('#productSlug').val(slug);
-                }
-            }
-        });
-    </script>
+		// Handle radio change to update hidden and ensure only one main
+		imageListContainer.on('change', '.is-main-input', function() {
+			if ($(this).is(':checked')) {
+				// Uncheck all other radios (only visible ones)
+				imageListContainer.find('.is-main-input').not(this).prop('checked', false);
+				// Update all hidden fields for visible items
+				updateMainImageHiddenInput();
+			}
+		});
+
+
+		// Callback function when image is selected from modal
+		function handleProductImageSelection(selectedFile) {
+			if (!selectedFile || !selectedFile.path) {
+				console.warn("Selection callback received invalid data:", selectedFile);
+				return;
+			}
+
+			const imagePath = selectedFile.path;
+
+			// Check if image path already exists (visible or hidden)
+			let existingItem = null;
+			imageListContainer.find('.product-image-item').each(function() {
+				if ($(this).data('image-path') === imagePath) {
+					existingItem = $(this);
+					return false; // exit loop
+				}
+			});
+
+			if (existingItem && existingItem.length > 0) {
+				// If it exists but was marked as deleted, un-delete it and make visible
+				if (existingItem.find('.is-deleted-input').val() === 'true') {
+					existingItem.find('.is-deleted-input').val('false');
+					existingItem.show();
+					reindexImages(); // Re-index after showing
+					toastr.info(`Đã thêm lại ảnh '${selectedFile.name}'.`);
+				} else {
+					// Already exists and is visible
+					toastr.warning(`Ảnh '${selectedFile.name}' đã có trong danh sách.`);
+				}
+				return; // Don't add duplicate
+			}
+
+			// --- Add New Image Item ---
+			const displayUrl = '@(MediaUrlHelper.GetMinioUrl("__IMAGE_PATH__", "/img/placeholder.svg"))'.replace('__IMAGE_PATH__', imagePath);
+			const newItemHtml = imageTemplate
+								.replace(/__INDEX__/g, imageNextIndex)
+								.replace(/__IMAGE_PATH__/g, imagePath);
+			const newItem = $(newItemHtml);
+
+			// Populate data
+			newItem.find('.image-url-input').val(imagePath);
+			newItem.find('.thumb-url-input').val(imagePath); // Assuming thumb path is same for now
+			newItem.find('.image-preview').css('background-image', `url(${displayUrl})`);
+			newItem.find('input[name$=".AltText"]').val(selectedFile.alt || ''); // Use AltText from media library if available
+
+			// Assign initial order index (append to end)
+			newItem.find('.order-index-input').val(imageListContainer.find('.product-image-item:visible').length);
+
+			imageListContainer.append(newItem);
+			imageNextIndex++; // Increment the absolute index
+			reindexImages(); // Re-index everything after adding
+			toastr.success(`Đã thêm ảnh '${selectedFile.name}'.`);
+		}
+
+		// Attach click handler to the "Select Images" button
+		selectImagesBtn.on('click', function() {
+			if (typeof window.openMediaSelectionModal === 'function') {
+				// Filter for images only
+				window.openMediaSelectionModal(handleProductImageSelection, 'Image');
+			} else {
+				console.error('Function openMediaSelectionModal is not defined.');
+				alert('Không thể mở thư viện media.');
+			}
+		});
+
+
+		// Remove Image Button (logic remains the same: hide and mark deleted)
+		imageListContainer.on('click', '.remove-image-btn', function() {
+			const item = $(this).closest('.product-image-item');
+			const idInput = item.find('input[name$=".Id"]');
+
+			// Always hide first
+			item.hide();
+			item.find('.is-deleted-input').val('true');
+
+			// If it was the main image, clear its radio button state visually
+			const radio = item.find('.is-main-input');
+			if(radio.is(':checked')) {
+				radio.prop('checked', false);
+			}
+
+			reindexImages(); // Re-index after hiding
+
+			 // Optional: Suggest setting a new main image if the deleted one was main
+			 if (radio.is(':checked') && imageListContainer.find('.product-image-item:visible').length > 0) {
+				toastr.warning('Ảnh đại diện đã bị xóa. Vui lòng chọn ảnh đại diện khác.');
+			 }
+		});
+
+			// --- Variant Management ---
+			const variantListContainer = $('#product-variant-list');
+			const variantTemplate = $('#product-variant-template').html();
+			let variantNextIndex = $('#product-variant-list .product-variant-item').length;
+
+			 // Function to re-index variant inputs
+			 function reindexVariants() {
+				variantListContainer.find('.product-variant-item').each(function(index) {
+					$(this).attr('data-index', index);
+					$(this).find('input, label, select, textarea').each(function() {
+						 const oldName = $(this).attr('name');
+						if (oldName) {
+							const newName = oldName.replace(/Variants\[\d+\]/, `Variants[${index}]`);
+							$(this).attr('name', newName);
+						}
+						 const oldId = $(this).attr('id');
+						 if (oldId) {
+							const newId = oldId.replace(/variantActive_\d+/, `variantActive_${index}`); // Adjust for switch ID
+							 const label = $(this).closest('.form-check').find('label');
+							$(this).attr('id', newId);
+							  if(label.length) label.attr('for', newId);
+						 }
+					});
+				});
+				 variantNextIndex = variantListContainer.find('.product-variant-item').length;
+			}
+
+			 // Add Variant Button
+			 $('#add-variant-btn').on('click', function() {
+				 const newItemHtml = variantTemplate.replace(/__INDEX__/g, variantNextIndex);
+				 variantListContainer.append(newItemHtml);
+				 reindexVariants(); // Re-index after adding
+			 });
+
+			 // Remove Variant Button
+			 variantListContainer.on('click', '.remove-variant-btn', function() {
+				 const item = $(this).closest('.product-variant-item');
+				 const idInput = item.find('input[name$=".Id"]');
+				  if (idInput && parseInt(idInput.val()) > 0) {
+					 item.find('.is-deleted-input').val('true');
+					 item.hide();
+				 } else {
+					 item.remove();
+				 }
+				 reindexVariants(); // Re-index after removing/hiding
+			 });
+
+			 // Handle checkbox submitting correct boolean value
+			 variantListContainer.on('change', 'input[type="checkbox"][name$=".IsActive"]', function() {
+				// The hidden input with value="false" should handle the unchecked case automatically
+				// This ensures value="true" is sent when checked.
+			 });
+
+
+			// --- OG/Twitter Image Selection ---
+			const selectOgImageBtn = $('#selectOgImageBtn');
+			const removeOgImageBtn = $('#removeOgImageBtn');
+			const ogImagePreview = $('#ogImagePreview');
+			const ogImagePathInput = $('#ogImagePathInput'); // Stores URL
+			const defaultOgImage = '/img/placeholder.svg';
+
+			function handleOgImageSelection(selectedFile) {
+				if (selectedFile && selectedFile.url) {
+					ogImagePreview.attr('src', selectedFile.url).show();
+					ogImagePathInput.val(selectedFile.url).trigger('change'); // Store URL
+					removeOgImageBtn.removeClass('d-none');
+				}
+			}
+			selectOgImageBtn.on('click', function() {
+				if (typeof window.openMediaSelectionModal === 'function') {
+					window.openMediaSelectionModal(handleOgImageSelection, 'Image');
+				} else { console.error('openMediaSelectionModal is not defined.'); }
+			});
+			removeOgImageBtn.on('click', function() {
+				ogImagePreview.attr('src', defaultOgImage).hide();
+				ogImagePathInput.val('').trigger('change');
+				$(this).addClass('d-none');
+			});
+
+
+			 // Re-apply jQuery validation to dynamically added variant fields
+			 // This might be needed depending on how you handle validation
+			 $.validator.unobtrusive.parse("#product-form"); // Call after adding variants if using unobtrusive
+		});
+	</script>
 }
+

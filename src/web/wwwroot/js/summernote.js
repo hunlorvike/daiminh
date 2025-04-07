@@ -1,10 +1,22 @@
 $(document).ready(function () {
-    $('.summernote').summernote({
+// Khởi tạo Summernote cho từng phần tử
+$('.summernote').each(function (index) {
+    // Tạo id duy nhất cho mỗi editor nếu chưa có
+    var editorId = $(this).attr('id');
+    if (!editorId) {
+        editorId = 'summernote-' + index;
+        $(this).attr('id', editorId);
+    }
+
+    // Bọc mỗi summernote trong một container riêng biệt
+    $(this).wrap('<div class="summernote-container" id="container-' + editorId + '"></div>');
+
+    // Khởi tạo summernote với cấu hình không sử dụng toolbarContainer chung
+    $(this).summernote({
         placeholder: 'Nhập nội dung của bạn ở đây...',
         tabsize: 2,
         height: 300,
         lang: 'vi-VN',
-        toolbarContainer: '.note-toolbar',
         toolbar: [
             ['style', ['style']],
             ['font', ['bold', 'underline', 'clear']],
@@ -56,6 +68,5 @@ $(document).ready(function () {
             ]
         }
     });
-
-    $('<style>.note-toolbar { display: flex; flex-wrap: wrap; } .note-toolbar > .note-btn-group { margin-bottom: 5px; }</style>').appendTo('head');
+});
 });
