@@ -1,12 +1,16 @@
 using domain.Entities;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using shared.Models;
 
 namespace infrastructure;
 
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
     {
+        _httpContextAccessor = httpContextAccessor;
     }
     // Người dùng
     public DbSet<User> Users { get; set; }
@@ -61,5 +65,48 @@ public class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(Product).Assembly);
     }
-}
 
+    public override int SaveChanges()
+    {
+        UpdateTrackingFields();
+        return base.SaveChanges();
+    }
+
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        UpdateTrackingFields();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
+
+    private void UpdateTrackingFields()
+    {
+        var currentUser = _httpContextAccessor?.HttpContext?.User?.Identity?.Name ?? "System";
+        var entries = ChangeTracker.Entries()
+            .Where(e => e.Entity is BaseEntity<int> &&
+                        (e.State == EntityState.Added || e.State == EntityState.Modified));
+
+        foreach (var entry in entries)
+        {
+            var entity = (BaseEntity<int>)entry.Entity;
+
+            if (entry.State == EntityState.Added)
+            {
+                entity.CreatedAt = DateTime.UtcNow;
+                entity.CreatedBy = currentUser;
+                entity.UpdatedAt = DateTime.UtcNow;
+                entity.UpdatedBy = currentUser;
+            }
+            else
+            {
+                entry.Property("CreatedAt").IsModified = false;
+                entry.Property("CreatedBy").IsModified = false;
+            }
+
+            if (entry.State == EntityState.Modified)
+            {
+                entity.UpdatedAt = DateTime.UtcNow;
+                entity.UpdatedBy = currentUser;
+            }
+        }
+    }
+}

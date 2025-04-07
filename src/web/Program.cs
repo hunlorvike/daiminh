@@ -48,6 +48,8 @@ try
 
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
+    builder.Services.AddHttpContextAccessor();
+
     builder.Services.AddScoped<IMediaService, MediaService>();
 
     builder.Services.AddAuthentication()
