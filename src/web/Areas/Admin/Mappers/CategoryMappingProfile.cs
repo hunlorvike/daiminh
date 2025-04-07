@@ -4,29 +4,48 @@ using web.Areas.Admin.ViewModels.Category;
 
 namespace web.Areas.Admin.Mappers;
 
-public class CategoryMappingProfile : Profile
+public class CategoryProfile : Profile
 {
-    public CategoryMappingProfile()
+    public CategoryProfile()
     {
+        // Entity -> ListItemViewModel
         CreateMap<Category, CategoryListItemViewModel>()
-             .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null))
-             .ForMember(dest => dest.ChildrenCount, opt => opt.MapFrom(src => src.Children != null ? src.Children.Count : 0))
-             // Calculate ItemCount based on all possible related collections
-             .ForMember(dest => dest.ItemCount, opt => opt.MapFrom(src =>
-                 (src.ProductCategories != null ? src.ProductCategories.Count : 0) +
-                 (src.ArticleCategories != null ? src.ArticleCategories.Count : 0) +
-                 (src.ProjectCategories != null ? src.ProjectCategories.Count : 0) + // Assuming ProjectCategories exists
-                 (src.GalleryCategories != null ? src.GalleryCategories.Count : 0)
-             ));
+            .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null))
+            .ForMember(dest => dest.ItemCount, opt => opt.MapFrom(src => CalculateItemCount(src)));
 
-        CreateMap<Category, CategoryViewModel>() // Added Parent Name mapping
-             .ForMember(dest => dest.ParentId, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null))
-             .ReverseMap(); // Keep ReverseMap if needed for saving
+        // Entity -> ViewModel (For Edit GET)
+        CreateMap<Category, CategoryViewModel>();
 
-        CreateMap<Category, CategorySelectViewModel>() // Renamed from CategoryParentViewModel for clarity
-             .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Id))
-             .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
-             .ForMember(dest => dest.Level, opt => opt.Ignore()); // Level usually set during recursive fetch
+        // ViewModel -> Entity (For Create/Edit POST)
+        CreateMap<CategoryViewModel, Category>()
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Parent, opt => opt.Ignore())
+            .ForMember(dest => dest.Children, opt => opt.Ignore())
+            .ForMember(dest => dest.ProductCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.ArticleCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.ProjectCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.GalleryCategories, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
+    }
 
+    // Helper method to calculate item count based on category type
+    private int CalculateItemCount(Category category)
+    {
+        switch (category.Type)
+        {
+            case shared.Enums.CategoryType.Product:
+                return category.ProductCategories?.Count ?? 0;
+            case shared.Enums.CategoryType.Article:
+                return category.ArticleCategories?.Count ?? 0;
+            case shared.Enums.CategoryType.Project:
+                return category.ProjectCategories?.Count ?? 0;
+            case shared.Enums.CategoryType.Gallery:
+                return category.GalleryCategories?.Count ?? 0;
+            default:
+                return 0;
+        }
     }
 }

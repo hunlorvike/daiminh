@@ -1,0 +1,147 @@
+@using shared.Helpers
+@using web.Areas.Admin.ViewModels.Category
+@model CategoryViewModel
+
+@* Main Content Column *@
+<div class="row">
+	<div class="col-lg-8">
+		@* Basic Info Card *@
+		<div class="card card-body mb-3">
+			<h3 class="card-title mb-3">Thông tin cơ bản</h3>
+			<div class="form-group mb-3">
+				<label asp-for="Name" class="form-label required">Tên danh mục</label>
+				<input asp-for="Name" class="form-control" id="categoryName" />
+				<span asp-validation-for="Name" class="text-danger"></span>
+			</div>
+			<div class="form-group mb-3">
+				<label asp-for="Slug" class="form-label required">Slug</label>
+				<div class="input-group">
+					<input asp-for="Slug" class="form-control" id="categorySlug" />
+					<button class="btn btn-outline-secondary" type="button" id="generateSlugButton">
+						<i class="ti ti-refresh"></i>
+					</button>
+				</div>
+				<span asp-validation-for="Slug" class="text-danger"></span>
+				<small class="form-hint">Dùng cho URL (chữ thường, số, dấu gạch ngang)</small>
+			</div>
+			<div class="form-group mb-3">
+				<label asp-for="ParentId" class="form-label">Danh mục cha</label>
+				<select asp-for="ParentId" asp-items="@Model.ParentCategoryList" class="form-select">
+					<option value="">-- Không có --</option>
+				</select>
+				<span asp-validation-for="ParentId" class="text-danger"></span>
+			</div>
+			<div class="form-group mb-0">
+				@* Remove bottom margin *@
+				<label asp-for="Description" class="form-label">Mô tả</label>
+				<textarea asp-for="Description" class="form-control summernote" rows="4"></textarea>
+				<span asp-validation-for="Description" class="text-danger"></span>
+			</div>
+		</div>
+
+		@* SEO Card *@
+		<div class="card card-body mb-3 mb-lg-0">
+			@* Remove bottom margin on large screen *@
+			<h3 class="card-title mb-3">Tối ưu SEO</h3>
+			@* Copy SEO fields from _BrandFormFields.cshtml or create a dedicated _SeoFormFields.cshtml partial *@
+			@* Example for Meta Title *@
+			<div class="form-group mb-3">
+				<label asp-for="MetaTitle" class="form-label">Meta Title</label>
+				<input asp-for="MetaTitle" class="form-control" />
+				<span asp-validation-for="MetaTitle" class="text-danger"></span>
+			</div>
+			<div class="form-group mb-3">
+				<label asp-for="MetaDescription" class="form-label">Meta Description</label>
+				<textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+				<span asp-validation-for="MetaDescription" class="text-danger"></span>
+			</div>
+			@* Add other SEO fields similarly *@
+			<div class="form-group mb-3">
+				<label asp-for="OgImage" class="form-label">Ảnh chia sẻ MXH</label>
+				<div class="input-group">
+					<input type="text" asp-for="OgImage" class="form-control" id="ogImagePathInput" placeholder="Nhập URL hoặc chọn ảnh" />
+					<button class="btn btn-outline-secondary" type="button" id="selectOgImageBtn" title="Chọn ảnh từ thư viện">
+						<i class="ti ti-photo-search"></i>
+					</button>
+					<button class="btn btn-outline-danger @(string.IsNullOrEmpty(Model.OgImage) ? "d-none" : "")" type="button" id="removeOgImageBtn" title="Xóa ảnh">
+						<i class="ti ti-x"></i>
+					</button>
+				</div>
+				<span asp-validation-for="OgImage" class="text-danger"></span>
+				<img id="ogImagePreview" src="@(Model.OgImage ?? "/img/placeholder.svg")" class="img-thumbnail mt-2" style="max-height: 80px; display: @(string.IsNullOrEmpty(Model.OgImage) ? "none" : "block");" />
+			</div>
+			@* Sitemap Fields *@
+			<h4 class="mt-3 mb-3">Cấu hình Sitemap</h4>
+			<div class="row">
+				<div class="col-md-6">
+					<div class="form-group mb-3">
+						<label asp-for="SitemapPriority" class="form-label">Ưu tiên (Priority)</label>
+						<input type="number" asp-for="SitemapPriority" class="form-control" step="0.1" min="0.0" max="1.0" />
+						<span asp-validation-for="SitemapPriority" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md-6">
+					<div class="form-group mb-3">
+						<label asp-for="SitemapChangeFrequency" class="form-label required">Tần suất thay đổi</label>
+						<select asp-for="SitemapChangeFrequency" class="form-select">
+							<option value="always">Luôn luôn</option>
+							<option value="hourly">Hàng giờ</option>
+							<option value="daily">Hàng ngày</option>
+							<option value="weekly">Hàng tuần</option>
+							<option value="monthly">Hàng tháng</option>
+							<option value="yearly">Hàng năm</option>
+							<option value="never">Không bao giờ</option>
+						</select>
+						<span asp-validation-for="SitemapChangeFrequency" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	@* Right Column *@
+	<div class="col-lg-4">
+		<div class="card card-body">
+			<h3 class="card-title mb-3">Ảnh & Hiển thị</h3>
+			<div class="form-group mb-3">
+				<label asp-for="Icon" class="form-label">Icon</label>
+				<input asp-for="Icon" class="form-control" placeholder="Ví dụ: ti ti-tag" />
+				<span asp-validation-for="Icon" class="text-danger"></span>
+			</div>
+			<div class="form-group mb-3" id="image-selection-area">
+				<label asp-for="ImageUrl" class="form-label">Ảnh đại diện</label>
+				<div>
+					<img id="imagePreview"
+						 src="@MediaUrlHelper.GetMinioUrl(Model.ImageUrl, "/img/placeholder.svg")"
+						 alt="Image Preview"
+						 class="img-thumbnail mb-2"
+						 style="max-height: 150px; max-width: 100%; object-fit: contain; min-height: 80px; background-color: #f8f9fa;" />
+				</div>
+				<input type="hidden" asp-for="ImageUrl" id="imagePathInput" />
+				<div>
+					<button type="button" class="btn btn-sm btn-outline-primary" id="selectImageBtn">
+						<i class="ti ti-photo-search me-1"></i> Chọn ảnh
+					</button>
+					<button type="button"
+							class="btn btn-sm btn-outline-danger ms-2 @(string.IsNullOrEmpty(Model.ImageUrl) ? "d-none" : "")"
+							id="removeImageBtn">
+						<i class="ti ti-x me-1"></i> Xóa ảnh
+					</button>
+				</div>
+				<span asp-validation-for="ImageUrl" class="text-danger"></span>
+			</div>
+			<hr />
+			<div class="form-group mb-3">
+				<label asp-for="OrderIndex" class="form-label">Thứ tự hiển thị</label>
+				<input type="number" asp-for="OrderIndex" class="form-control" min="0" />
+				<span asp-validation-for="OrderIndex" class="text-danger"></span>
+				<small class="form-hint">Số nhỏ hơn hiển thị trước.</small>
+			</div>
+			<div class="form-check form-switch mb-0">
+				@* Remove bottom margin *@
+				<input class="form-check-input" type="checkbox" asp-for="IsActive" role="switch" id="categoryIsActiveSwitch">
+				<label class="form-check-label" for="categoryIsActiveSwitch">Hiển thị</label>
+			</div>
+		</div>
+	</div>
+</div>

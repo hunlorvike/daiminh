@@ -1,35 +1,31 @@
+@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Category
 @model IEnumerable<CategoryListItemViewModel>
 @{
-	ViewData["Title"] = "Quản lý danh mục - Hệ thống quản trị";
+	ViewData["Title"] = "Quản lý Danh mục";
 }
 
 @section PageActions {
 	<div class="btn-list">
-		<a asp-action="Create" asp-route-type="@ViewBag.CategoryType" class="btn btn-primary d-sm-inline-block">
+		<a asp-action="Create" asp-route-type="@ViewBag.CurrentType" class="btn btn-primary d-sm-inline-block">
 			<i class="ti ti-plus me-2"></i> Thêm danh mục
 		</a>
 	</div>
 }
 
-<!-- Filter form -->
+<!-- Filter Form -->
 <div class="card mb-3">
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
 			<div class="col-md-4">
 				<label class="form-label">Loại danh mục</label>
-				<select class="form-select" name="type" id="categoryTypeFilter">
-					@foreach (var type in ViewBag.CategoryTypes)
-					{
-						<option value="@type.Value" selected="@(ViewBag.CategoryType.ToString() == type.Value.ToString() ? "selected" : null)">@type.Text</option>
-					}
-				</select>
+				<select class="form-select" name="type" id="categoryTypeFilter" asp-items="@ViewBag.CategoryTypes"></select>
 			</div>
 			<div class="col-md-4">
 				<label class="form-label">Tìm kiếm</label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm danh mục..." name="searchTerm" value="@ViewBag.SearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch">
+					<input type="text" class="form-control" placeholder="Tìm theo tên hoặc mô tả..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
 				</div>
@@ -40,7 +36,7 @@
 				</button>
 			</div>
 			<div class="col-md-2">
-				<a href="@Url.Action("Index", new { type = ViewBag.CategoryType })" class="btn btn-outline-secondary w-100">
+				<a asp-action="Index" asp-route-type="@ViewBag.CurrentType" class="btn btn-outline-secondary w-100">
 					<i class="ti ti-reload me-2"></i> Đặt lại
 				</a>
 			</div>
@@ -48,25 +44,24 @@
 	</div>
 </div>
 
-<!-- Content -->
+
+<!-- Content Table -->
 <div class="card">
 	<div class="card-header">
-		<h3 class="card-title">@ViewData["PageTitle"]</h3>
+		<h3 class="card-title">Danh sách Danh mục</h3>
 	</div>
 	<div class="card-body p-0">
 		@if (!Model.Any())
 		{
 			<div class="empty">
 				<div class="empty-img" style="font-size: 5rem;">
-					<i class="ti ti-folder-open text-muted"></i>
+					<i class="ti ti-folder-off text-muted"></i>
 				</div>
 				<p class="empty-title">Không tìm thấy danh mục nào</p>
-				<p class="empty-subtitle text-muted">
-					Hãy tạo danh mục để phân loại nội dung của bạn
-				</p>
+				<p class="empty-subtitle text-muted">Hãy thêm danh mục đầu tiên cho loại này.</p>
 				<div class="empty-action">
-					<a asp-action="Create" asp-route-type="@ViewBag.CategoryType" class="btn btn-primary">
-						<i class="ti ti-plus me-2"></i> Thêm danh mục mới
+					<a asp-action="Create" asp-route-type="@ViewBag.CurrentType" class="btn btn-primary">
+						<i class="ti ti-plus me-2"></i> Thêm danh mục
 					</a>
 				</div>
 			</div>
@@ -78,13 +73,13 @@
 					<thead>
 						<tr>
 							<th class="w-1">STT</th>
-							<th style="width: 30%">Tên danh mục</th>
-							<th style="width: 15%">Slug</th>
-							<th style="width: 15%">Danh mục cha</th>
-							<th style="width: 10%">Số mục</th>
-							<th style="width: 10%">Thứ tự</th>
-							<th style="width: 10%">Trạng thái</th>
-							<th style="width: 15%">Thao tác</th>
+							<th style="width: 10%;">Ảnh</th>
+							<th style="width: 30%;">Tên danh mục</th>
+							<th>Danh mục cha</th>
+							<th class="text-center">Số mục</th>
+							<th class="text-center">Thứ tự</th>
+							<th class="text-center">Trạng thái</th>
+							<th class="w-1">Thao tác</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -96,56 +91,42 @@
 							<tr>
 								<td class="text-muted">@(index++)</td>
 								<td>
+									<img src="@MediaUrlHelper.GetMinioUrl(item.ImageUrl, "/img/placeholder.svg")"
+										 alt="@item.Name"
+										 class="avatar avatar-md object-fit-contain" />
+								</td>
+								<td>
 									<div class="d-flex align-items-center">
-										@if (!string.IsNullOrEmpty(item.ImageUrl))
+										@if (!string.IsNullOrEmpty(item.Icon))
 										{
-											<span class="avatar me-2" style="background-image: url(@item.ImageUrl)"></span>
+											<span class="me-2 text-muted" title="@item.Icon"><i class="@item.Icon"></i></span>
 										}
-										else if (!string.IsNullOrEmpty(item.Icon))
-										{
-											<span class="avatar me-2 d-flex align-items-center justify-content-center">
-												<i class="@item.Icon"></i> 
-											</span>
-										}
-										<div class="d-flex flex-column">
-											<span class="font-weight-medium">@item.Name</span>
-											@if (!string.IsNullOrEmpty(item.Description))
-											{
-												<small class="text-muted text-truncate" style="max-width: 250px;" title="@item.Description">@item.Description</small>
-											}
-										</div>
+										<span class="fw-medium">@item.Name</span>
 									</div>
 								</td>
-								<td>@item.Slug</td>
-								<td>@(item.ParentName ?? "-")</td>
-								<td>
-									<div class="d-flex flex-column">
-										<span>@item.ItemCount mục</span>
-										@if (item.ChildrenCount > 0)
-										{
-											<small class="text-muted">@item.ChildrenCount danh mục con</small>
-										}
-									</div>
-								</td>
-								<td>@item.OrderIndex</td>
-								<td>
-									<label class="form-check form-switch">
-										<input class="form-check-input toggle-active" type="checkbox" data-id="@item.Id" @(item.IsActive ? "checked" : "")>
-										<span class="form-check-label"></span>
-									</label>
+								<td class="text-muted">@item.ParentName</td>
+								<td class="text-center text-muted">@item.ItemCount</td>
+								<td class="text-center">@item.OrderIndex</td>
+								<td class="text-center">
+									@if (item.IsActive)
+									{
+										<span class="badge bg-success-lt">Hiển thị</span>
+									}
+									else
+									{
+										<span class="badge bg-danger-lt">Ẩn</span>
+									}
 								</td>
 								<td>
 									<div class="btn-list flex-nowrap">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger"
-												data-bs-toggle="modal"
-												data-bs-target="#delete-modal"
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+												title="Xóa"
 												data-id="@item.Id"
 												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Category")"
-												title="Xóa">
+												data-delete-url="@Url.Action("Delete", "Category")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -155,40 +136,25 @@
 					</tbody>
 				</table>
 			</div>
+			@* Add Pagination here if needed *@
 		}
 	</div>
 </div>
 
+
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('.toggle-active').on('change', function () {
-				var checkbox = $(this); 
-				var id = checkbox.data('id');
-				var isChecked = checkbox.prop('checked');
+			 // Auto submit filter on type change
+			 $('#categoryTypeFilter').on('change', function() {
+				$('#filterForm').submit();
+			 });
 
-				$.ajax({
-					url: '@Url.Action("ToggleActive", "Category")',
-					type: 'POST',
-					data: { id: id },
-					success: function (result) {
-						if (result.success) {
-							toastr.success('Cập nhật trạng thái thành công');
-						} else {
-							toastr.error(result.message || 'Cập nhật trạng thái thất bại');
-							checkbox.prop('checked', !isChecked);
-						}
-					},
-					error: function () {
-						toastr.error('Đã xảy ra lỗi khi gửi yêu cầu');
-						checkbox.prop('checked', !isChecked);
-					}
-				});
-			});
-
-			$('#clearSearch').on('click', function() {
+			 // Clear search
+			 $('#clearSearch').on('click', function() {
 				$('input[name="searchTerm"]').val('');
-			});
+				$('#filterForm').submit();
+			 });
 		});
 	</script>
 }
