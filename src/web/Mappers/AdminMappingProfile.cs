@@ -152,9 +152,23 @@ public class AdminMappingProfile : Profile
         // =========================================
         // Product Mappings
         // =========================================
-        CreateMap<ProductType, ProductTypeViewModel>().ReverseMap();
+        CreateMap<ProductType, ProductTypeViewModel>();
         CreateMap<ProductType, ProductTypeListItemViewModel>()
-            .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products != null ? src.Products.Count : 0));
+            .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src =>
+                src.Products != null ? src.Products.Count : 0));
+        CreateMap<ProductTypeViewModel, ProductType>()
+            // Map only the fields that should be updated from the ViewModel
+            .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Name))
+            .ForMember(dest => dest.Slug, opt => opt.MapFrom(src => src.Slug))
+            .ForMember(dest => dest.Description, opt => opt.MapFrom(src => src.Description))
+            .ForMember(dest => dest.Icon, opt => opt.MapFrom(src => src.Icon))
+            .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
+            // Ignore fields that should not be updated from this ViewModel
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.Products, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) 
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+
 
         CreateMap<Product, ProductListItemViewModel>()
             .ForMember(dest => dest.ProductTypeName, opt => opt.MapFrom(src => src.ProductType != null ? src.ProductType.Name : string.Empty))

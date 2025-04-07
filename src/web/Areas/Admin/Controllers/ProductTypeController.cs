@@ -12,7 +12,7 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
-public class ProductTypeController : Controller
+public partial class ProductTypeController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -39,13 +39,12 @@ public class ProductTypeController : Controller
         };
 
         var query = _context.Set<ProductType>()
-            .Include(pt => pt.Products)
-            .AsQueryable();
+                            .Include(pt => pt.Products)
+                            .AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(pt => pt.Name.Contains(searchTerm) ||
-                                    (pt.Description != null && pt.Description.Contains(searchTerm)));
+            query = query.Where(pt => pt.Name.Contains(searchTerm) || (pt.Description != null && pt.Description.Contains(searchTerm)));
         }
 
         if (isActive.HasValue)
@@ -53,18 +52,9 @@ public class ProductTypeController : Controller
             query = query.Where(pt => pt.IsActive == isActive.Value);
         }
 
-        var productTypes = await query
-            .OrderBy(pt => pt.Name)
-            .ToListAsync();
+        var productTypes = await query.OrderBy(pt => pt.Name).ToListAsync();
 
         var viewModels = _mapper.Map<List<ProductTypeListItemViewModel>>(productTypes);
-
-        // Add product count to each view model
-        foreach (var viewModel in viewModels)
-        {
-            var productType = productTypes.First(pt => pt.Id == viewModel.Id);
-            viewModel.ProductCount = productType.Products?.Count ?? 0;
-        }
 
         ViewBag.SearchTerm = searchTerm;
         ViewBag.SelectedIsActive = isActive;
@@ -83,7 +73,7 @@ public class ProductTypeController : Controller
             ("Thêm mới", "")
         };
 
-        var viewModel = new ProductTypeViewModel
+        ProductTypeViewModel viewModel = new()
         {
             IsActive = true
         };
@@ -98,16 +88,21 @@ public class ProductTypeController : Controller
     {
         var validationResult = await _validator.ValidateAsync(viewModel);
 
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            return View(viewModel);
-        }
-
-        // Check if slug is unique
         if (await _context.Set<ProductType>().AnyAsync(pt => pt.Slug == viewModel.Slug))
         {
-            ModelState.AddModelError("Slug", "Slug đã tồn tại, vui lòng chọn slug khác");
+            ModelState.AddModelError(nameof(ProductTypeViewModel.Slug), "Slug đã tồn tại, vui lòng chọn slug khác.");
+        }
+
+        if (!validationResult.IsValid || !ModelState.IsValid)
+        {
+            validationResult.AddToModelState(ModelState, string.Empty);
+            ViewData["PageTitle"] = "Thêm loại sản phẩm mới";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+            {
+                ("Sản phẩm", "/Admin/Product"),
+                ("Loại sản phẩm", "/Admin/ProductType"),
+                ("Thêm mới", "")
+            };
             return View(viewModel);
         }
 
@@ -116,7 +111,7 @@ public class ProductTypeController : Controller
         _context.Add(productType);
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = "Thêm loại sản phẩm thành công";
+        TempData["SuccessMessage"] = "Thêm loại sản phẩm thành công!";
         return RedirectToAction(nameof(Index));
     }
 
@@ -130,6 +125,8 @@ public class ProductTypeController : Controller
             return NotFound();
         }
 
+        var viewModel = _mapper.Map<ProductTypeViewModel>(productType);
+
         ViewData["PageTitle"] = "Chỉnh sửa loại sản phẩm";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
@@ -137,8 +134,6 @@ public class ProductTypeController : Controller
             ("Loại sản phẩm", "/Admin/ProductType"),
             ("Chỉnh sửa", "")
         };
-
-        var viewModel = _mapper.Map<ProductTypeViewModel>(productType);
 
         return View(viewModel);
     }
@@ -155,34 +150,38 @@ public class ProductTypeController : Controller
 
         var validationResult = await _validator.ValidateAsync(viewModel);
 
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            return View(viewModel);
-        }
-
-        // Check if slug is unique (excluding current product type)
         if (await _context.Set<ProductType>().AnyAsync(pt => pt.Slug == viewModel.Slug && pt.Id != id))
         {
             ModelState.AddModelError("Slug", "Slug đã tồn tại, vui lòng chọn slug khác");
+        }
+
+        if (!validationResult.IsValid || !ModelState.IsValid)
+        {
+            validationResult.AddToModelState(ModelState, string.Empty);
+            ViewData["PageTitle"] = "Chỉnh sửa Loại sản phẩm";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+            {
+                ("Sản phẩm", "/Admin/Product"),
+                ("Loại sản phẩm", "/Admin/ProductType"),
+                ("Chỉnh sửa", "")
+            };
             return View(viewModel);
         }
 
+        var productType = await _context.Set<ProductType>().FindAsync(id);
+
+        if (productType == null)
+        {
+            return NotFound();
+        }
+
+        _mapper.Map(viewModel, productType);
+
         try
         {
-            var productType = await _context.Set<ProductType>().FindAsync(id);
-
-            if (productType == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(viewModel, productType);
-
-            _context.Update(productType);
             await _context.SaveChangesAsync();
 
-            TempData["SuccessMessage"] = "Cập nhật loại sản phẩm thành công";
+            TempData["SuccessMessage"] = "Cập nhật loại sản phẩm thành công!";
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -192,8 +191,21 @@ public class ProductTypeController : Controller
             }
             else
             {
-                throw;
+                TempData["ErrorMessage"] = "Lỗi: Có xung đột xảy ra khi cập nhật. Dữ liệu có thể đã được thay đổi bởi người khác.";
+                return View(viewModel);
             }
+        }
+        catch (DbUpdateException ex) 
+        {
+            ModelState.AddModelError("", "Không thể lưu thay đổi. Vui lòng kiểm tra lại dữ liệu (ví dụ: Slug có thể đã bị trùng).");
+            ViewData["PageTitle"] = "Chỉnh sửa Loại sản phẩm";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+            {
+                ("Sản phẩm", "/Admin/Product"),
+                ("Loại sản phẩm", "/Admin/ProductType"),
+                ("Chỉnh sửa", "")
+            };
+            return View(viewModel);
         }
 
         return RedirectToAction(nameof(Index));
@@ -205,43 +217,28 @@ public class ProductTypeController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var productType = await _context.Set<ProductType>()
-            .Include(pt => pt.Products)
-            .FirstOrDefaultAsync(pt => pt.Id == id);
+                                    .Include(pt => pt.Products)
+                                    .FirstOrDefaultAsync(pt => pt.Id == id);
 
         if (productType == null)
         {
-            return Json(new { success = false, message = "Không tìm thấy loại sản phẩm" });
+            return Json(new { success = false, message = "Không tìm thấy loại sản phẩm." });
         }
 
-        // Check if there are products using this product type
         if (productType.Products != null && productType.Products.Any())
         {
-            return Json(new { success = false, message = $"Không thể xóa loại sản phẩm này vì đang được sử dụng bởi {productType.Products.Count} sản phẩm" });
+            return Json(new { success = false, message = $"Không thể xóa loại '{productType.Name}'. Vui lòng xóa hoặc chuyển các sản phẩm thuộc loại này trước." });
         }
 
         _context.Set<ProductType>().Remove(productType);
         await _context.SaveChangesAsync();
 
-        return Json(new { success = true, message = "Xóa loại sản phẩm thành công" });
+        return Json(new { success = true, message = "Xóa loại sản phẩm thành công." });
     }
+}
 
-    // POST: Admin/ProductType/ToggleActive/5
-    [HttpPost]
-    public async Task<IActionResult> ToggleActive(int id)
-    {
-        var productType = await _context.Set<ProductType>().FindAsync(id);
-
-        if (productType == null)
-        {
-            return Json(new { success = false, message = "Không tìm thấy loại sản phẩm" });
-        }
-
-        productType.IsActive = !productType.IsActive;
-        await _context.SaveChangesAsync();
-
-        return Json(new { success = true, active = productType.IsActive });
-    }
-
+public partial class ProductTypeController
+{
     private async Task<bool> ProductTypeExists(int id)
     {
         return await _context.Set<ProductType>().AnyAsync(e => e.Id == id);

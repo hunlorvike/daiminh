@@ -56,16 +56,16 @@
 		@if (!Model.Any())
 		{
 			<div class="empty">
-				<div class="empty-img" style="font-size: 5rem;">
-					<i class="ti ti-box-multiple text-muted"></i>
+				<div class="empty-icon" style="font-size: 3rem;">
+					<i class="ti ti-package text-muted"></i>
 				</div>
 				<p class="empty-title">Không tìm thấy loại sản phẩm nào</p>
 				<p class="empty-subtitle text-muted">
-					Hãy thêm loại sản phẩm để phân loại sản phẩm của bạn
+					Hãy thêm loại sản phẩm đầu tiên của bạn.
 				</p>
 				<div class="empty-action">
 					<a asp-action="Create" class="btn btn-primary">
-						<i class="ti ti-plus me-2"></i> Thêm loại sản phẩm mới
+						<i class="ti ti-plus me-2"></i> Thêm loại sản phẩm
 					</a>
 				</div>
 			</div>
@@ -77,13 +77,12 @@
 					<thead>
 						<tr>
 							<th class="w-1">STT</th>
-							<th style="width: 50px">Icon</th>
-							<th>Tên loại sản phẩm</th>
-							<th>Slug</th>
-							<th>Mô tả</th>
-							<th style="width: 10%">Số sản phẩm</th>
-							<th style="width: 10%">Trạng thái</th>
-							<th style="width: 15%">Thao tác</th>
+							<th>Tên loại</th>
+							<th style="width: 20%;">Slug</th>
+							<th style="width: 10%;">Sản phẩm</th>
+							<th style="width: 10%;">Trạng thái</th>
+							<th style="width: 15%;">Cập nhật lúc</th>
+							<th style="width: 10%;">Thao tác</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -94,50 +93,44 @@
 						{
 							<tr>
 								<td class="text-muted">@(index++)</td>
-								<td class="text-center">
-									@if (!string.IsNullOrEmpty(item.Icon))
+								<td>
+									<div class="d-flex align-items-center">
+										@if (!string.IsNullOrEmpty(item.Icon))
+										{
+											<span class="avatar avatar-xs me-2" title="@item.Icon"><i class="@item.Icon"></i></span>
+										}
+										<div class="d-flex flex-column">
+											<span class="fw-medium">@item.Name</span>
+											@if (!string.IsNullOrEmpty(item.Description))
+											{
+												<small class="text-muted text-truncate" style="max-width: 300px;" title="@item.Description">@item.Description</small>
+											}
+										</div>
+									</div>
+								</td>
+								<td><code>@item.Slug</code></td>
+								<td class="text-muted">@item.ProductCount SP</td>
+								<td>
+									@if (item.IsActive)
 									{
-										<i class="@item.Icon" style="font-size: 1.5rem;"></i>
+										<span class="badge bg-success-lt">Kích hoạt</span>
 									}
 									else
 									{
-										<i class="ti ti-box text-muted" style="font-size: 1.5rem;"></i>
+										<span class="badge bg-danger-lt">Ẩn</span>
 									}
 								</td>
-								<td>@item.Name</td>
-								<td>@item.Slug</td>
-								<td>
-									@if (!string.IsNullOrEmpty(item.Description))
-									{
-										<span>@item.Description</span>
-									}
-									else
-									{
-										<span class="text-muted">Không có mô tả</span>
-									}
-								</td>
-								<td>
-									<span class="badge bg-primary text-white">@item.ProductCount</span>
-								</td>
-								<td>
-									<label class="form-check form-switch">
-										<input class="form-check-input toggle-active" type="checkbox" data-id="@item.Id" @(item.IsActive ? "checked" : "")>
-										<span class="form-check-label"></span>
-									</label>
-								</td>
+								<td class="text-muted">@item.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
 								<td>
 									<div class="btn-list flex-nowrap">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
-												data-bs-toggle="modal"
-												data-bs-target="#delete-modal"
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+												title="Xóa"
 												data-id="@item.Id"
 												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "ProductType")"
-												title="Xóa"
-										@(item.ProductCount > 0 ? "disabled" : "")>
+												data-delete-url="@Url.Action("Delete", "ProductType")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -147,6 +140,7 @@
 					</tbody>
 				</table>
 			</div>
+			@* TODO: Add Pagination *@
 		}
 	</div>
 </div>
@@ -154,59 +148,8 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			// Active toggle
-			$('.toggle-active').on('change', function () {
-				var checkbox = $(this); // Store reference
-				var id = checkbox.data('id');
-				var isChecked = checkbox.prop('checked');
-
-				$.ajax({
-					url: '@Url.Action("ToggleActive", "ProductType")',
-					type: 'POST',
-					data: { id: id },
-					headers: { // Include AntiForgeryToken if needed
-					   // RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-					},
-					success: function (result) {
-						if (result.success) {
-							toastr.success('Cập nhật trạng thái thành công');
-							// State already visually changed, do nothing more
-						} else {
-							toastr.error(result.message || 'Cập nhật trạng thái thất bại');
-							// Revert the checkbox state visually
-							checkbox.prop('checked', !isChecked);
-						}
-					},
-					error: function () {
-						toastr.error('Đã xảy ra lỗi khi gửi yêu cầu');
-						// Revert the checkbox state visually
-						checkbox.prop('checked', !isChecked);
-					}
-				});
-			});
-
-			// Delete item setup
-			$('.delete-item').on('click', function () {
-				var id = $(this).data('id');
-				var name = $(this).data('name');
-				var deleteUrl = $(this).data('delete-url');
-
-				$('#delete-item-id').val(id);
-				$('#delete-item-name').val(name);
-				$('#delete-url').val(deleteUrl);
-				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa loại sản phẩm "' + name + '" không? Thao tác này không thể hoàn tác.');
-			});
-
-			// Clear search
 			$('#clearSearch').on('click', function() {
 				$('input[name="searchTerm"]').val('');
-				// Optionally reset the status filter as well
-				// $('#activeFilter').val('');
-				$('#filterForm').submit();
-			});
-
-			// Auto submit on filter change
-			$('#activeFilter').on('change', function() {
 				$('#filterForm').submit();
 			});
 		});
