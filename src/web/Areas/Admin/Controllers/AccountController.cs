@@ -5,6 +5,7 @@ using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -18,16 +19,20 @@ public class AccountController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IValidator<LoginViewModel> _validator;
+    private readonly IPasswordHasher<User> _passwordHasher;
 
     public AccountController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<LoginViewModel> validator)
+        IValidator<LoginViewModel> validator,
+        IPasswordHasher<User> passwordHasher)
     {
         _context = context;
         _mapper = mapper;
         _validator = validator;
+        _passwordHasher = passwordHasher;
     }
+
 
     // GET: Admin/Account/Login
     [HttpGet]
@@ -68,9 +73,8 @@ public class AccountController : Controller
             return View(viewModel);
         }
 
-        // Validate password (in a real app, use a proper password hashing library)
-        // This is a simplified example - replace with proper password verification
-        if (user.PasswordHash != viewModel.Password)
+        var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, viewModel.Password);
+        if (passwordVerificationResult != PasswordVerificationResult.Success)
         {
             ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không đúng");
             return View(viewModel);

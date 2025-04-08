@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using shared.Models;
@@ -25,5 +26,19 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
 
         builder.HasIndex(x => x.Username).HasDatabaseName("idx_users_username");
         builder.HasIndex(x => x.Email).HasDatabaseName("idx_users_email");
+
+        var hasher = new PasswordHasher<User>();
+
+        User adminUser = new()
+        {
+            Id = 1,
+            Username = "admin",
+            Email = "admin@admin.com",
+            PasswordHash = ""
+        };
+
+        adminUser.PasswordHash = hasher.HashPassword(adminUser, "123123123");
+
+        builder.HasData(adminUser);
     }
 }

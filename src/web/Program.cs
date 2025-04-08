@@ -1,6 +1,8 @@
+using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
@@ -48,13 +50,13 @@ try
 
     }).AddFluentValidationClientsideAdapters();
 
-    builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
+    builder.Services.AddValidatorsFromAssemblyContaining<UserCreateViewModelValidator>();
 
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
-
+    builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
     builder.Services.AddScoped<IMinioStorageService, MinioStorageService>();
 
     builder.Services.AddAuthentication()

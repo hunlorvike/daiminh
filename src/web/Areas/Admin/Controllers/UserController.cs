@@ -1,14 +1,16 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using domain.Entities;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
 using web.Areas.Admin.ViewModels.User;
+using Microsoft.AspNetCore.Identity;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using X.PagedList.EF;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -18,229 +20,194 @@ public class UserController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IValidator<UserViewModel> _validator;
+    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly ILogger<UserController> _logger;
+    private readonly IValidator<UserCreateViewModel> _userCreateValidator;
+    private readonly IValidator<UserEditViewModel> _userEditValidator;
 
-    public UserController(
-        ApplicationDbContext context,
-        IMapper mapper,
-        IValidator<UserViewModel> validator)
+    public UserController(ApplicationDbContext context, IMapper mapper, IPasswordHasher<User> passwordHasher,
+        ILogger<UserController> logger, IValidator<UserCreateViewModel> createValidator, IValidator<UserEditViewModel> editValidator)
     {
         _context = context;
         _mapper = mapper;
-        _validator = validator;
+        _passwordHasher = passwordHasher;
+        _logger = logger;
+        _userCreateValidator = createValidator;
+        _userEditValidator = editValidator;
     }
 
-    // GET: Admin/User
-    public async Task<IActionResult> Index(string? searchTerm = null)
+    // GET: Admin/Users
+    public async Task<IActionResult> Index(string? searchTerm, int page = 1, int pageSize = 10)
     {
-        ViewData["PageTitle"] = "Quản lý người dùng";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Người dùng", "")
-        };
+        ViewBag.SearchTerm = searchTerm;
+        int pageNumber = page;
 
-        var query = _context.Set<User>().AsQueryable();
+        var query = _context.Set<User>().AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrEmpty(searchTerm))
         {
             query = query.Where(u => u.Username.Contains(searchTerm) || u.Email.Contains(searchTerm));
         }
 
-        var users = await query
-            .OrderBy(u => u.Username)
-            .ToListAsync();
+        var users = await query.OrderByDescending(u => u.CreatedAt)
+                                 .ProjectTo<UserListItemViewModel>(_mapper.ConfigurationProvider)
+                                 .ToPagedListAsync(pageNumber, pageSize);
 
-        var viewModels = _mapper.Map<List<UserListItemViewModel>>(users);
+        ViewData["Title"] = "Quản lý người dùng";
+        ViewData["PageTitle"] = "Danh sách người dùng";
 
-        ViewBag.SearchTerm = searchTerm;
-
-        return View(viewModels);
+        return View(users);
     }
 
-    // GET: Admin/User/Create
+    // GET: Admin/Users/Create
     public IActionResult Create()
     {
+        ViewData["Title"] = "Thêm người dùng - Hệ thống quản trị";
         ViewData["PageTitle"] = "Thêm người dùng mới";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Người dùng", "/Admin/User"),
-            ("Thêm mới", "")
-        };
-
-        var viewModel = new UserViewModel();
-
-        return View(viewModel);
+        return View(new UserCreateViewModel());
     }
 
-    // POST: Admin/User/Create
+    // POST: Admin/Users/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(UserViewModel viewModel)
+    public async Task<IActionResult> Create(UserCreateViewModel viewModel)
     {
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
+        var validationResult = await _userCreateValidator.ValidateAsync(viewModel);
         if (!validationResult.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
             return View(viewModel);
         }
 
-        // Check if username already exists
-        if (await _context.Set<User>().AnyAsync(u => u.Username == viewModel.Username))
+        try
         {
-            ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại");
-            return View(viewModel);
+            var user = _mapper.Map<User>(viewModel);
+
+            user.PasswordHash = _passwordHasher.HashPassword(user, viewModel.Password);
+
+            _context.Add(user);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("User {Username} created successfully.", user.Username);
+            TempData["success"] = "Tạo người dùng mới thành công.";
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating user {Username}.", viewModel.Username);
+            ModelState.AddModelError("", "Đã xảy ra lỗi trong quá trình tạo người dùng. Vui lòng thử lại.");
         }
 
-        // Check if email already exists
-        if (await _context.Set<User>().AnyAsync(u => u.Email == viewModel.Email))
-        {
-            ModelState.AddModelError("Email", "Email đã tồn tại");
-            return View(viewModel);
-        }
-
-        var user = _mapper.Map<User>(viewModel);
-
-        // Hash the password
-        user.PasswordHash = HashPassword(viewModel.Password);
-
-        _context.Add(user);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Thêm người dùng thành công";
         return RedirectToAction(nameof(Index));
     }
 
-    // GET: Admin/User/Edit/5
-    public async Task<IActionResult> Edit(int id)
+    // GET: Admin/Users/Edit/5
+    public async Task<IActionResult> Edit(int? id)
     {
-        var user = await _context.Set<User>().FindAsync(id);
+        if (id == null)
+        {
+            return NotFound();
+        }
 
+        var user = await _context.Set<User>().FindAsync(id);
         if (user == null)
         {
             return NotFound();
         }
 
-        ViewData["PageTitle"] = "Chỉnh sửa người dùng";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Người dùng", "/Admin/User"),
-            ("Chỉnh sửa", "")
-        };
-
-        var viewModel = _mapper.Map<UserViewModel>(user);
-
+        var viewModel = _mapper.Map<UserEditViewModel>(user);
+        ViewData["Title"] = $"Chỉnh sửa người dùng {user.Username} - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa người dùng: {user.Username}";
         return View(viewModel);
     }
 
-    // POST: Admin/User/Edit/5
+    // POST: Admin/Users/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, UserViewModel viewModel)
+    public async Task<IActionResult> Edit(int id, UserEditViewModel viewModel)
     {
         if (id != viewModel.Id)
         {
             return NotFound();
         }
 
-        var validationResult = await _validator.ValidateAsync(viewModel);
+        var validationResult = await _userEditValidator.ValidateAsync(viewModel);
 
         if (!validationResult.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
-            return View(viewModel);
-        }
-
-        // Check if username already exists (excluding current user)
-        if (await _context.Set<User>().AnyAsync(u => u.Username == viewModel.Username && u.Id != id))
-        {
-            ModelState.AddModelError("Username", "Tên đăng nhập đã tồn tại");
-            return View(viewModel);
-        }
-
-        // Check if email already exists (excluding current user)
-        if (await _context.Set<User>().AnyAsync(u => u.Email == viewModel.Email && u.Id != id))
-        {
-            ModelState.AddModelError("Email", "Email đã tồn tại");
+            ViewData["Title"] = $"Chỉnh sửa người dùng {viewModel.Username} - Hệ thống quản trị";
+            ViewData["PageTitle"] = $"Chỉnh sửa người dùng: {viewModel.Username}";
             return View(viewModel);
         }
 
         try
         {
-            var user = await _context.Set<User>().FindAsync(id);
-
-            if (user == null)
+            var userToUpdate = await _context.Set<User>().FindAsync(id);
+            if (userToUpdate == null)
             {
                 return NotFound();
             }
 
-            // Update user properties
-            user.Username = viewModel.Username;
-            user.Email = viewModel.Email;
+            _mapper.Map(viewModel, userToUpdate);
 
-            // Update password if provided
-            if (!string.IsNullOrEmpty(viewModel.Password))
-            {
-                user.PasswordHash = HashPassword(viewModel.Password);
-            }
-
-            _context.Update(user);
+            _context.Update(userToUpdate);
             await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Cập nhật người dùng thành công";
+            _logger.LogInformation("User {Username} (ID: {UserId}) updated successfully.", userToUpdate.Username, userToUpdate.Id);
+            TempData["success"] = "Cập nhật thông tin người dùng thành công.";
         }
-        catch (DbUpdateConcurrencyException)
+        catch (DbUpdateConcurrencyException ex)
         {
-            if (!await UserExists(id))
+            _logger.LogError(ex, "Concurrency error updating user {Username} (ID: {UserId}).", viewModel.Username, viewModel.Id);
+
+            if (!await _context.Set<User>().AnyAsync(u => u.Id == id))
             {
                 return NotFound();
             }
             else
             {
-                throw;
+                ModelState.AddModelError("", "Có lỗi xảy ra khi cập nhật thông tin người dùng. Vui lòng thử lại.");
+                return RedirectToAction(nameof(Index));
             }
         }
 
         return RedirectToAction(nameof(Index));
     }
 
-    // POST: Admin/User/Delete/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Delete(int id)
-    {
-        var user = await _context.Set<User>().FindAsync(id);
 
-        if (user == null)
-        {
-            return Json(new { success = false, message = "Không tìm thấy người dùng" });
-        }
+    //// POST: Admin/Users/Delete/5
+    //[HttpPost]
+    //[ValidateAntiForgeryToken] // Cân nhắc dùng token trong header cho AJAX
+    //public async Task<IActionResult> Delete(int id)
+    //{
+    //    // !! CẢNH BÁO: Không nên cho phép xóa user trực tiếp nếu có dữ liệu liên quan quan trọng
+    //    // Cân nhắc sử dụng soft delete (thêm cột IsDeleted) thay vì xóa cứng.
+    //    // Đoạn code này thực hiện xóa cứng để giống với logic Tag của bạn.
 
-        // Prevent deleting the last admin user
-        var userCount = await _context.Set<User>().CountAsync();
-        if (userCount <= 1)
-        {
-            return Json(new { success = false, message = "Không thể xóa người dùng cuối cùng trong hệ thống" });
-        }
+    //    var user = await _context.Set<User>().FindAsync(id);
+    //    if (user == null)
+    //    {
+    //        _logger.LogWarning("Attempted to delete non-existent user with ID: {UserId}", id);
+    //        return Json(new { success = false, message = "Không tìm thấy người dùng." });
+    //    }
 
-        _context.Set<User>().Remove(user);
-        await _context.SaveChangesAsync();
+    //    // Thêm kiểm tra: không cho xóa user admin mặc định, hoặc user đang đăng nhập
+    //    if (user.Username.Equals("admin", StringComparison.OrdinalIgnoreCase) || user.Username == User.FindFirstValue(ClaimTypes.Name))
+    //    {
+    //        _logger.LogWarning("Attempted to delete protected user: {Username} (ID: {UserId}) by user {CurrentUser}", user.Username, user.Id, User.FindFirstValue(ClaimTypes.Name));
+    //        return Json(new { success = false, message = "Bạn không thể xóa người dùng này." });
+    //    }
 
-        return Json(new { success = true, message = "Xóa người dùng thành công" });
-    }
-
-    private async Task<bool> UserExists(int id)
-    {
-        return await _context.Set<User>().AnyAsync(e => e.Id == id);
-    }
-
-    private string HashPassword(string password)
-    {
-        using (var sha256 = SHA256.Create())
-        {
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-            return Convert.ToBase64String(hashedBytes);
-        }
-    }
+    //    try
+    //    {
+    //        _context.Users.Remove(user);
+    //        await _context.SaveChangesAsync();
+    //        _logger.LogInformation("User {Username} (ID: {UserId}) deleted successfully by {CurrentUser}.", user.Username, user.Id, User.FindFirstValue(ClaimTypes.Name));
+    //        // TempData["success"] = $"Đã xóa người dùng {user.Username} thành công."; // Dùng với Redirect
+    //        return Json(new { success = true, message = $"Đã xóa người dùng {user.Username} thành công." });
+    //    }
+    //    catch (Exception ex) // Bắt lỗi nếu có ràng buộc khóa ngoại không cho xóa
+    //    {
+    //        _logger.LogError(ex, "Error deleting user {Username} (ID: {UserId}). Might be due to foreign key constraints.", user.Username, user.Id);
+    //        return Json(new { success = false, message = $"Không thể xóa người dùng {user.Username}. Có thể do người dùng này có dữ liệu liên quan." });
+    //    }
+    //}
 }
-

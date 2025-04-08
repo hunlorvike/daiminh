@@ -125,19 +125,26 @@
 			</div>
 		}
 	</div>
-	<div class="card-footer">
-		<div class="d-flex justify-content-center">
-			@Html.PagedListPager(
-							Model,
-							page => Url.Action("Index", new { page, type = ViewBag.TagType, searchTerm = ViewBag.SearchTerm }),
-							new PagedListRenderOptions
+	@if (Model.PageCount > 1)
+	{
+		<div class="card-footer">
+			<div class="d-flex justify-content-center">
+				@Html.PagedListPager(
+								Model,
+								page => Url.Action("Index", new { page, type = ViewBag.TagType, searchTerm = ViewBag.SearchTerm }),
+								new PagedListRenderOptions
 			{
 				UlElementClasses = new[] { "pagination mb-0" },
 				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" }
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
 			})
+			</div>
 		</div>
-	</div>
+	}
 </div>
 
 @section Scripts {
