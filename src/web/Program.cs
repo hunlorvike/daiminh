@@ -47,13 +47,10 @@ try
     builder.Services.AddFluentValidationAutoValidation(config =>
     {
         config.DisableDataAnnotationsValidation = true;
-
     }).AddFluentValidationClientsideAdapters();
-
+    builder.Services.AddFluentValidationAutoValidation();
     builder.Services.AddValidatorsFromAssemblyContaining<UserCreateViewModelValidator>();
-
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
-
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
     builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();

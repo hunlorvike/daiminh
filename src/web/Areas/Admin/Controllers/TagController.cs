@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -21,16 +23,13 @@ public partial class TagController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IValidator<TagViewModel> _validator;
 
     public TagController(
     ApplicationDbContext context,
-        IMapper mapper,
-        IValidator<TagViewModel> validator)
+        IMapper mapper)
     {
         _context = context;
         _mapper = mapper;
-        _validator = validator;
     }
 
     // GET: Admin/Tag
@@ -106,21 +105,26 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TagViewModel viewModel)
     {
-        var validationResult = await _validator.ValidateAsync(viewModel);
-        if (!validationResult.IsValid)
+        if (ModelState.IsValid)
         {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            ViewBag.CurrentTagTypeName = viewModel.Type.GetDisplayName();
-            return View(viewModel);
+            try
+            {
+                var tag = _mapper.Map<Tag>(viewModel);
+
+                _context.Add(tag);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index), new { type = tag.Type });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi trong quá trình tạo thẻ. Vui lòng thử lại.");
+            }
         }
 
-        var tag = _mapper.Map<Tag>(viewModel);
-
-        _context.Add(tag);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = $"Thêm {viewModel.Type.GetDisplayName().ToLowerInvariant()} thành công";
-        return RedirectToAction(nameof(Index), new { type = viewModel.Type });
+        string typeDisplayName = viewModel.Type.GetDisplayName();
+        ViewData["Title"] = $"Thêm thẻ {typeDisplayName.ToLowerInvariant()} - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Thêm thẻ {typeDisplayName} mới";
+        return View(viewModel);
     }
 
     // GET: Admin/Tag/Edit/5
@@ -158,52 +162,32 @@ public partial class TagController : Controller
             return NotFound();
         }
 
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid)
+        if (ModelState.IsValid)
         {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            ViewBag.CurrentTagTypeName = viewModel.Type.GetDisplayName();
-            return View(viewModel);
-        }
-
-        var tag = await _context.Set<Tag>().FindAsync(id);
-        if (tag == null)
-        {
-            return NotFound();
-        }
-
-        _mapper.Map(viewModel, tag);
-
-        try
-        {
-            _context.Update(tag);
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Cập nhật {viewModel.Type.GetDisplayName().ToLowerInvariant()} thành công";
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await TagExists(id))
+            try
             {
-                return NotFound();
-            }
-            else
-            {
-                TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật (dữ liệu có thể đã được thay đổi bởi người khác). Vui lòng thử lại.";
-                var currentTag = await _context.Set<Tag>().AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
-                if (currentTag != null)
+                var tagToUpdate = await _context.Set<Tag>().FindAsync(id);
+                if (tagToUpdate == null)
                 {
-                    var currentViewModel = _mapper.Map<TagViewModel>(currentTag);
-                    ViewBag.CurrentTagTypeName = currentTag.Type.GetDisplayName();
-                    ModelState.AddModelError(string.Empty, "Dữ liệu đã bị thay đổi bởi người khác. Dưới đây là dữ liệu mới nhất. Vui lòng kiểm tra và lưu lại.");
-                    return View(currentViewModel);
+                    return NotFound();
                 }
-                return RedirectToAction(nameof(Index), new { type = viewModel.Type });
+
+                _mapper.Map(viewModel, tagToUpdate);
+
+                _context.Update(tagToUpdate);
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index), new { type = tagToUpdate.Type });
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thẻ. Vui lòng thử lại.");
             }
         }
 
-
-        return RedirectToAction(nameof(Index), new { type = viewModel.Type });
+        string typeDisplayName = viewModel.Type.GetDisplayName();
+        ViewData["Title"] = $"Chỉnh sửa thẻ {typeDisplayName.ToLowerInvariant()} - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa thẻ: {viewModel.Name}";
+        return View(viewModel);
     }
 
     // POST: Admin/Tag/Delete/5
