@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
@@ -52,6 +53,7 @@ try
     builder.Services.AddAutoMapper(typeof(Program).Assembly);
 
     builder.Services.AddHttpContextAccessor();
+    builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
     builder.Services.AddScoped<IMinioStorageService, MinioStorageService>();
 

@@ -4,12 +4,11 @@ using web.Areas.Admin.ViewModels.Newsletter;
 
 namespace web.Areas.Admin.Mappers;
 
-public class NewsletterMappingProfile : Profile
+public class NewsletterProfile : Profile
 {
-    public NewsletterMappingProfile()
+    public NewsletterProfile()
     {
-        // Newsletter Mappings
+        // Entity -> ListItemViewModel
         CreateMap<Newsletter, NewsletterListItemViewModel>();
-        CreateMap<Newsletter, NewsletterViewModel>().ReverseMap();
     }
 }

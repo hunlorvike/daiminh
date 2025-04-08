@@ -176,10 +176,10 @@
 						<div class="list-group-item">
 							<div class="row align-items-center">
 								<div class="col-auto">
-									<span class="badge bg-@(contact.Status == ContactStatus.New ? "red" : contact.Status == ContactStatus.InProgress ? "yellow" : contact.Status == ContactStatus.Completed ? "green" : "gray")">
+                                    <span class="badge bg-@(contact.Status == ContactStatus.New ? "red" : contact.Status == ContactStatus.InProgress ? "yellow" : contact.Status == ContactStatus.Resolved ? "green" : "gray")">
 										@(contact.Status == ContactStatus.New ? "Mới" :
 																	contact.Status == ContactStatus.InProgress ? "Đang xử lý" :
-																	contact.Status == ContactStatus.Completed ? "Hoàn thành" : "Spam")
+                                            contact.Status == ContactStatus.Resolved ? "Hoàn thành" : "Spam")
 									</span>
 								</div>
 								<div class="col">

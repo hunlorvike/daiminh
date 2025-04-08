@@ -1,281 +1,124 @@
-@model IEnumerable<web.Areas.Admin.ViewModels.Contact.ContactListItemViewModel>
+@using web.Areas.Admin.ViewModels.Contact
 @using shared.Enums
-@using Microsoft.AspNetCore.Mvc.Rendering
-
+@model IEnumerable<ContactListItemViewModel>
 @{
-	ViewData["Title"] = "Quản lý liên hệ - Hệ thống quản trị";
-	var currentStatusFilter = ViewBag.StatusFilter as ContactStatus?;
-	var currentSearchTerm = ViewBag.SearchTerm as string;
-
-	var statusListItems = Enum.GetValues(typeof(ContactStatus)).Cast<ContactStatus>()
-		.Select(e => new SelectListItem
-				{
-					Value = e.ToString(),
-					Text = e == ContactStatus.New ? "Mới" :
-								   e == ContactStatus.InProgress ? "Đang xử lý" :
-								   e == ContactStatus.Completed ? "Đã xử lý" :
-								   e == ContactStatus.Spam ? "Spam" : e.ToString(),
-					Selected = currentStatusFilter.HasValue && currentStatusFilter.Value == e
-				}).ToList();
+    ViewData["Title"] = "Quản lý Liên hệ";
+    // Breadcrumbs set in Controller
 }
 
-@section PageActions {
-	<div class="btn-list">
-		<a href="javascript:void(0)" class="btn btn-outline-primary d-sm-inline-block" onclick="exportContacts()">
-			<i class="ti ti-file-export me-2"></i> Xuất Excel
-		</a>
-	</div>
-}
+@* No "Add New" button *@
 
-<!-- Filter form -->
+<!-- Filter Form -->
 <div class="card mb-3">
-	<div class="card-body">
-		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<div class="col-md-4">
-				<label class="form-label" for="searchTermInput">Tìm kiếm</label>
-				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm kiếm..." name="searchTerm" id="searchTermInput" value="@currentSearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
-						<i class="ti ti-x"></i>
-					</button>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<label class="form-label" for="statusFilter">Trạng thái</label>
-				<select class="form-select" name="status" id="statusFilter" asp-for="@currentStatusFilter" asp-items="statusListItems">
-					<option value="">Tất cả trạng thái</option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<button type="submit" class="btn btn-primary w-100">
-					<i class="ti ti-filter me-2"></i> Lọc
-				</button>
-			</div>
-			<div class="col-md-2">
-				<a asp-action="Index" class="btn btn-outline-secondary w-100">
-					<i class="ti ti-refresh me-2"></i> Đặt lại
-				</a>
-			</div>
-		</form>
-	</div>
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label">Tìm kiếm</label>
+                <input type="text" class="form-control" placeholder="Tên, email, SĐT, chủ đề..." name="searchTerm" value="@ViewBag.SearchTerm">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus">
+                    <option value="">Tất cả trạng thái</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Lọc</button>
+            </div>
+            <div class="col-md-2">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-<div class="row mb-3 g-3">
-	<div class="col-md-3">
-		<div class="card">
-			<div class="card-body p-2 text-center">
-				<div class="text-end text-blue">
-					<span class="badge bg-blue text-white">@ViewBag.NewCount</span>
-				</div>
-				<div class="h1 m-0 text-blue">
-					<i class="ti ti-mail-opened"></i>
-				</div>
-				<div class="text-muted mb-1">Liên hệ mới</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-3">
-		<div class="card">
-			<div class="card-body p-2 text-center">
-				<div class="text-end text-yellow">
-					<span class="badge bg-yellow text-white">@ViewBag.InProgressCount</span>
-				</div>
-				<div class="h1 m-0 text-yellow">
-					<i class="ti ti-loader-2"></i>
-				</div>
-				<div class="text-muted mb-1">Đang xử lý</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-3">
-		<div class="card">
-			<div class="card-body p-2 text-center">
-				<div class="text-end text-green">
-					<span class="badge bg-green text-white">@ViewBag.CompletedCount</span>
-				</div>
-				<div class="h1 m-0 text-green">
-					<i class="ti ti-circle-check"></i>
-				</div>
-				<div class="text-muted mb-1">Đã xử lý</div>
-			</div>
-		</div>
-	</div>
-	<div class="col-md-3">
-		<div class="card">
-			<div class="card-body p-2 text-center">
-				<div class="text-end text-red">
-					<span class="badge bg-red text-white">@ViewBag.SpamCount</span>
-				</div>
-				<div class="h1 m-0 text-red">
-					<i class="ti ti-ban"></i>
-				</div>
-				<div class="text-muted mb-1">Spam</div>
-			</div>
-		</div>
-	</div>
-</div>
-
-<form>
-	@Html.AntiForgeryToken()
-</form>
-
-
+<!-- Content Table -->
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">Danh sách liên hệ</h3>
-		<div class="ms-auto text-muted">
-			Tổng cộng: <span class="badge bg-secondary text-white">@Model.Count()</span>
-		</div>
-	</div>
-	<div class="card-body p-0">
-		@if (!Model.Any())
-		{
-			<div class="empty">
-				<div class="empty-icon">
-					<i class="ti ti-mail-off text-muted" style="font-size: 3rem;"></i>
-				</div>
-				<p class="empty-title">Không tìm thấy liên hệ nào</p>
-				<p class="empty-subtitle text-muted">
-					Không có liên hệ nào phù hợp với điều kiện lọc hoặc chưa có liên hệ nào được gửi.
-				</p>
-				<div class="empty-action">
-					<a asp-action="Index" class="btn btn-primary">
-						<i class="ti ti-refresh me-2"></i> Tải lại / Xem tất cả
-					</a>
-				</div>
-			</div>
-		}
-		else
-		{
-			<div class="table-responsive">
-				<table class="table table-vcenter card-table table-striped">
-					<thead>
-						<tr>
-							<th class="w-1">ID</th>
-							<th>Họ tên</th>
-							<th>Email</th>
-							<th>Điện thoại</th>
-							<th>Tiêu đề</th>
-							<th>Trạng thái</th>
-							<th>Ngày tạo</th>
-							<th class="w-1 text-center">Thao tác</th> 
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var item in Model)
-						{
-							<tr>
-								<td>@item.Id</td>
-								<td>@item.FullName</td>
-								<td><a href="mailto:@item.Email">@item.Email</a></td>
-								<td>@(item.Phone ?? "-")</td>
-								<td>
-									<div class="text-truncate" style="max-width: 200px;" title="@item.Subject">@item.Subject</div>
-								</td>
-								<td>
-									<div class="dropdown">
-										<a href="#" class="badge @item.StatusBadgeClass dropdown-toggle" data-bs-toggle="dropdown">
-											@item.StatusDisplayName
-										</a>
-										<div class="dropdown-menu dropdown-menu-end">
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.New.ToString()">
-												<i class="ti ti-mail-opened me-2 text-blue"></i> Mới
-											</a>
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.InProgress.ToString()">
-												<i class="ti ti-loader-2 me-2 text-yellow"></i> Đang xử lý
-											</a>
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.Completed.ToString()">
-												<i class="ti ti-circle-check me-2 text-green"></i> Đã xử lý
-											</a>
-											<a href="javascript:void(0)" class="dropdown-item change-status" data-id="@item.Id" data-status="@ContactStatus.Spam.ToString()">
-												<i class="ti ti-ban me-2 text-red"></i> Spam
-											</a>
-										</div>
-									</div>
-								</td>
-								<td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-								<td>
-									<div class="btn-list flex-nowrap justify-content-center">
-										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chi tiết">
-											<i class="ti ti-eye"></i>
-										</a>
-										<button type="button" class="btn btn-sm btn-icon btn-outline-dange"
-												data-bs-toggle="modal"
-												data-bs-target="#delete-modal"
-												data-id="@item.Id"
-												data-name="@item.Subject" 
-												title="Xóa">
-											<i class="ti ti-trash"></i>
-										</button>
-									</div>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-		}
-	</div>
+    <div class="card-header">
+        <h3 class="card-title">Danh sách Liên hệ</h3>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-mail-off"></i></div>
+                <p class="empty-title">Không có liên hệ nào</p>
+                <p class="empty-subtitle text-muted">Chưa có ai gửi liên hệ cho bạn.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="w-1">ID</th>
+                            <th>Người gửi</th>
+                            <th>Chủ đề</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th>Ngày nhận</th>
+                            <th class="w-1">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="@(item.Status == ContactStatus.New ? "fw-bold" : "")">
+                                @* Highlight new contacts *@
+                                <td class="text-muted">@item.Id</td>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span>@item.FullName</span>
+                                        <small class="text-muted">@item.Email @(!string.IsNullOrEmpty(item.Phone) ? $"- {item.Phone}" : "")</small>
+                                    </div>
+                                </td>
+                                <td>@item.Subject</td>
+                                <td class="text-center">
+                                    @switch (item.Status)
+                                    {
+                                        case ContactStatus.New:
+                                            <span class="badge bg-primary-lt">Mới</span>
+                                            break;
+                                        case ContactStatus.Read:
+                                            <span class="badge bg-info-lt">Đã đọc</span>
+                                            break;
+                                        case ContactStatus.Replied:
+                                            <span class="badge bg-purple-lt">Đã trả lời</span>
+                                            break;
+                                        case ContactStatus.InProgress:
+                                            <span class="badge bg-yellow-lt">Đang xử lý</span>
+                                            break;
+                                        case ContactStatus.Resolved:
+                                            <span class="badge bg-success-lt">Đã giải quyết</span>
+                                            break;
+                                        case ContactStatus.Spam:
+                                            <span class="badge bg-danger-lt">Spam</span>
+                                            break;
+                                        case ContactStatus.Archived:
+                                            <span class="badge bg-secondary-lt">Lưu trữ</span>
+                                            break;
+                                        default:
+                                            <span class="badge">@item.Status</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-muted">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem chi tiết"> <i class="ti ti-eye"></i> </a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa"
+                                                data-id="@item.Id" data-name="Liên hệ của @item.FullName" data-delete-url="@Url.Action("Delete", "Contact")">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @* Pagination *@
+        }
+    </div>
 </div>
 
-@section Scripts {
-	<script>
-		$(document).ready(() => {
-
-			$("#clearSearch").on("click", () => {
-				$('#searchTermInput').val("");
-			});
-
-			$(".change-status").on("click", function () {
-				var id = $(this).data("id");
-				var status = $(this).data("status");
-				var token = getAntiForgeryToken();
-
-				var badgeElement = $(this).closest('td').find('.badge');
-
-				$(this).closest('.dropdown').find('.dropdown-toggle').addClass('disabled');
-
-
-				$.ajax({
-					url: "@Url.Action("ChangeStatus", "Contact", new { area = "Admin" })", 
-					type: "POST",
-					data: {
-						id: id,
-						status: status,
-						__RequestVerificationToken: token 
-					},
-					success: (result) => {
-						if (result.success) {
-							toastr.success(result.message || "Cập nhật trạng thái thành công.");
-							 setTimeout(() => { window.location.reload(); }, 800); 
-						} else {
-							toastr.error(result.message || "Không thể cập nhật trạng thái.");
-							 $(this).closest('.dropdown').find('.dropdown-toggle').removeClass('disabled');
-						}
-					},
-					error: (jqXHR, textStatus, errorThrown) => {
-						 console.error("ChangeStatus Error:", textStatus, errorThrown);
-						 toastr.error("Đã xảy ra lỗi khi thay đổi trạng thái. Vui lòng thử lại.");
-						 $(this).closest('.dropdown').find('.dropdown-toggle').removeClass('disabled');
-					},
-				});
-			});
-		});
-
-		function getAntiForgeryToken() {
-			return $('input[name="__RequestVerificationToken"]').val();
-		}
-
-		function exportContacts() {
-			var status = $("#statusFilter").val();
-			var searchTerm = $('#searchTermInput').val();
-			var exportUrl = "@Url.Action("Export", "Contact", new { area = "Admin" })?";
-
-			var queryParams = [];
-			if (status) queryParams.push("status=" + encodeURIComponent(status));
-			if (searchTerm) queryParams.push("searchTerm=" + encodeURIComponent(searchTerm));
-
-			window.location.href = exportUrl + queryParams.join('&');
-		}
-	</script>
-}
