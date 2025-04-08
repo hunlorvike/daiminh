@@ -1,13 +1,17 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
+using shared.Extensions;
 using web.Areas.Admin.ViewModels.Tag;
+using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -30,50 +34,61 @@ public partial class TagController : Controller
     }
 
     // GET: Admin/Tag
-    public async Task<IActionResult> Index(TagType type = TagType.Product, string? searchTerm = null)
+    public async Task<IActionResult> Index(int? page, TagType type = TagType.Product, string? searchTerm = null)
     {
-        ViewData["PageTitle"] = GetTagTypeTitle(type);
+        ViewData["PageTitle"] = $"Quản lý {type.GetDisplayName()}";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Thẻ", "")
+            ($"Thẻ {type.GetDisplayName()}", Url.Action("Index", "Tag", new { area = "Admin", type})),
         };
 
         var query = _context.Set<Tag>()
-            .Include(t => t.ProductTags)
-            .Include(t => t.ArticleTags)
-            .Include(t => t.ProjectTags)
-            .Include(t => t.GalleryTags)
-            .Where(t => t.Type == type)
-            .AsQueryable();
+            .Where(t => t.Type == type);
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(t => t.Name.Contains(searchTerm) || t.Description.Contains(searchTerm));
+            query = query.Where(t => t.Name.Contains(searchTerm) ||
+                                    (t.Description != null && t.Description.Contains(searchTerm)));
         }
 
-        var tags = await query
-            .OrderBy(t => t.Name)
-        .ToListAsync();
+        query = query.Include(t => t.ProductTags)
+                    .Include(t => t.ArticleTags)
+                    .Include(t => t.ProjectTags)
+                    .Include(t => t.GalleryTags);
 
-        var viewModels = _mapper.Map<List<TagListItemViewModel>>(tags);
+        int pageSize = 10;
+        int pageNumber = page ?? 1;
+
+        // Use AutoMapper's ProjectTo method for efficient mapping in the query
+        var pagedList = await query
+            .OrderBy(t => t.CreatedAt)
+            .ProjectTo<TagListItemViewModel>(_mapper.ConfigurationProvider)
+            .ToPagedListAsync(pageNumber, pageSize);
 
         ViewBag.SearchTerm = searchTerm;
         ViewBag.TagType = type;
         ViewBag.TagTypes = Enum.GetValues(typeof(TagType))
             .Cast<TagType>()
-            .Select(t => new { Value = t, Text = GetTagTypeTitle(t) });
+            .Select(t => new SelectListItem
+            {
+                Value = t.ToString(),
+                Text = t.GetDisplayName(),
+                Selected = t.Equals(type)
+            })
+            .ToList();
 
-        return View(viewModels);
+        return View(pagedList);
     }
 
     // GET: Admin/Tag/Create
     public IActionResult Create(TagType type = TagType.Product)
     {
-        ViewData["PageTitle"] = $"Thêm {GetTagTypeName(type).ToLower()} mới";
+        string typeNameLower = type.GetDisplayName().ToLowerInvariant();
+        ViewData["PageTitle"] = $"Thêm {typeNameLower} mới";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Thẻ", "/Admin/Tag"),
-            ($"Thêm {GetTagTypeName(type).ToLower()}", "")
+            ($"Thẻ {type.GetDisplayName()}", Url.Action("Index", "Tag", new { area = "Admin", type})),
+            ($"Thêm {typeNameLower}", "")
         };
 
         var viewModel = new TagViewModel
@@ -81,8 +96,7 @@ public partial class TagController : Controller
             Type = type
         };
 
-        ViewBag.TagType = type;
-        ViewBag.TagTypeName = GetTagTypeName(type);
+        ViewBag.CurrentTagTypeName = type.GetDisplayName();
 
         return View(viewModel);
     }
@@ -93,25 +107,10 @@ public partial class TagController : Controller
     public async Task<IActionResult> Create(TagViewModel viewModel)
     {
         var validationResult = await _validator.ValidateAsync(viewModel);
-
         if (!validationResult.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
-
-            ViewBag.TagType = viewModel.Type;
-            ViewBag.TagTypeName = GetTagTypeName(viewModel.Type);
-
-            return View(viewModel);
-        }
-
-        // Check if slug is unique for this tag type
-        if (await _context.Set<Tag>().AnyAsync(t => t.Slug == viewModel.Slug && t.Type == viewModel.Type))
-        {
-            ModelState.AddModelError("Slug", "Slug đã tồn tại cho loại thẻ này, vui lòng chọn slug khác");
-
-            ViewBag.TagType = viewModel.Type;
-            ViewBag.TagTypeName = GetTagTypeName(viewModel.Type);
-
+            ViewBag.CurrentTagTypeName = viewModel.Type.GetDisplayName();
             return View(viewModel);
         }
 
@@ -120,7 +119,7 @@ public partial class TagController : Controller
         _context.Add(tag);
         await _context.SaveChangesAsync();
 
-        TempData["SuccessMessage"] = $"Thêm {GetTagTypeName(viewModel.Type).ToLower()} thành công";
+        TempData["SuccessMessage"] = $"Thêm {viewModel.Type.GetDisplayName().ToLowerInvariant()} thành công";
         return RedirectToAction(nameof(Index), new { type = viewModel.Type });
     }
 
@@ -134,17 +133,17 @@ public partial class TagController : Controller
             return NotFound();
         }
 
-        ViewData["PageTitle"] = $"Chỉnh sửa {GetTagTypeName(tag.Type).ToLower()}";
+        string typeNameLower = tag.Type.GetDisplayName().ToLowerInvariant();
+        ViewData["PageTitle"] = $"Chỉnh sửa {typeNameLower}";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Thẻ", "/Admin/Tag"),
+            ($"Thẻ {tag.Type.GetDisplayName()}", Url.Action("Index", "Tag", new { area = "Admin", type = tag.Type })),
             ($"Chỉnh sửa", "")
         };
 
         var viewModel = _mapper.Map<TagViewModel>(tag);
 
-        ViewBag.TagType = tag.Type;
-        ViewBag.TagTypeName = GetTagTypeName(tag.Type);
+        ViewBag.CurrentTagTypeName = tag.Type.GetDisplayName();
 
         return View(viewModel);
     }
@@ -164,39 +163,23 @@ public partial class TagController : Controller
         if (!validationResult.IsValid)
         {
             validationResult.AddToModelState(ModelState, string.Empty);
-
-            ViewBag.TagType = viewModel.Type;
-            ViewBag.TagTypeName = GetTagTypeName(viewModel.Type);
-
+            ViewBag.CurrentTagTypeName = viewModel.Type.GetDisplayName();
             return View(viewModel);
         }
 
-        // Check if slug is unique for this tag type (excluding current tag)
-        if (await _context.Set<Tag>().AnyAsync(t => t.Slug == viewModel.Slug && t.Type == viewModel.Type && t.Id != id))
+        var tag = await _context.Set<Tag>().FindAsync(id);
+        if (tag == null)
         {
-            ModelState.AddModelError("Slug", "Slug đã tồn tại cho loại thẻ này, vui lòng chọn slug khác");
-
-            ViewBag.TagType = viewModel.Type;
-            ViewBag.TagTypeName = GetTagTypeName(viewModel.Type);
-
-            return View(viewModel);
+            return NotFound();
         }
+
+        _mapper.Map(viewModel, tag);
 
         try
         {
-            var tag = await _context.Set<Tag>().FindAsync(id);
-
-            if (tag == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(viewModel, tag);
-
             _context.Update(tag);
             await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = $"Cập nhật {GetTagTypeName(viewModel.Type).ToLower()} thành công";
+            TempData["SuccessMessage"] = $"Cập nhật {viewModel.Type.GetDisplayName().ToLowerInvariant()} thành công";
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -206,9 +189,19 @@ public partial class TagController : Controller
             }
             else
             {
-                throw;
+                TempData["ErrorMessage"] = "Có lỗi xảy ra khi cập nhật (dữ liệu có thể đã được thay đổi bởi người khác). Vui lòng thử lại.";
+                var currentTag = await _context.Set<Tag>().AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+                if (currentTag != null)
+                {
+                    var currentViewModel = _mapper.Map<TagViewModel>(currentTag);
+                    ViewBag.CurrentTagTypeName = currentTag.Type.GetDisplayName();
+                    ModelState.AddModelError(string.Empty, "Dữ liệu đã bị thay đổi bởi người khác. Dưới đây là dữ liệu mới nhất. Vui lòng kiểm tra và lưu lại.");
+                    return View(currentViewModel);
+                }
+                return RedirectToAction(nameof(Index), new { type = viewModel.Type });
             }
         }
+
 
         return RedirectToAction(nameof(Index), new { type = viewModel.Type });
     }
@@ -218,82 +211,51 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var tag = await _context.Set<Tag>()
-            .Include(t => t.ProductTags)
-            .Include(t => t.ArticleTags)
-            .Include(t => t.ProjectTags)
-            .Include(t => t.GalleryTags)
-            .FirstOrDefaultAsync(t => t.Id == id);
+        var tag = await _context.Set<Tag>().FindAsync(id);
 
         if (tag == null)
         {
             return Json(new { success = false, message = "Không tìm thấy thẻ" });
         }
 
-        // Check if tag has associated items
         bool hasItems = false;
-        string itemType = "";
+        string itemTypeName = string.Empty;
 
         switch (tag.Type)
         {
             case TagType.Product:
-                hasItems = tag.ProductTags != null && tag.ProductTags.Any();
-                itemType = "sản phẩm";
+                hasItems = await _context.ProductTags.AnyAsync(pt => pt.TagId == id);
+                itemTypeName = TagType.Product.GetDisplayName().ToLowerInvariant();
                 break;
             case TagType.Article:
-                hasItems = tag.ArticleTags != null && tag.ArticleTags.Any();
-                itemType = "bài viết";
+                hasItems = await _context.ArticleTags.AnyAsync(at => at.TagId == id);
+                itemTypeName = TagType.Article.GetDisplayName().ToLowerInvariant();
                 break;
             case TagType.Project:
-                hasItems = tag.ProjectTags != null && tag.ProjectTags.Any();
-                itemType = "dự án";
+                hasItems = await _context.ProjectTags.AnyAsync(prt => prt.TagId == id);
+                itemTypeName = TagType.Project.GetDisplayName().ToLowerInvariant();
                 break;
             case TagType.Gallery:
-                hasItems = tag.GalleryTags != null && tag.GalleryTags.Any();
-                itemType = "thư viện";
+                hasItems = await _context.GalleryTags.AnyAsync(gt => gt.TagId == id);
+                itemTypeName = TagType.Gallery.GetDisplayName().ToLowerInvariant();
                 break;
         }
 
         if (hasItems)
         {
-            return Json(new { success = false, message = $"Không thể xóa thẻ có chứa {itemType}. Vui lòng xóa hoặc gỡ thẻ khỏi các {itemType} trước." });
+            return Json(new { success = false, message = $"Không thể xóa thẻ đang được sử dụng bởi ít nhất một {itemTypeName}. Vui lòng gỡ thẻ khỏi các {itemTypeName} trước." });
         }
 
         _context.Set<Tag>().Remove(tag);
         await _context.SaveChangesAsync();
 
-        return Json(new { success = true, message = "Xóa thẻ thành công" });
+        TempData["SuccessMessage"] = $"Xóa {tag.Type.GetDisplayName().ToLowerInvariant()} '{tag.Name}' thành công"; // Thêm tên thẻ bị xóa
+        return Json(new { success = true, message = $"Xóa {tag.Type.GetDisplayName().ToLowerInvariant()} thành công" });
     }
-}
 
-public partial class TagController
-{
     private async Task<bool> TagExists(int id)
     {
         return await _context.Set<Tag>().AnyAsync(e => e.Id == id);
     }
-
-    private string GetTagTypeTitle(TagType type)
-    {
-        return type switch
-        {
-            TagType.Product => "Thẻ sản phẩm",
-            TagType.Article => "Thẻ bài viết",
-            TagType.Project => "Thẻ dự án",
-            TagType.Gallery => "Thẻ thư viện",
-            _ => "Thẻ"
-        };
-    }
-
-    private string GetTagTypeName(TagType type)
-    {
-        return type switch
-        {
-            TagType.Product => "Thẻ sản phẩm",
-            TagType.Article => "Thẻ bài viết",
-            TagType.Project => "Thẻ dự án",
-            TagType.Gallery => "Thẻ thư viện",
-            _ => "Thẻ"
-        };
-    }
 }
+

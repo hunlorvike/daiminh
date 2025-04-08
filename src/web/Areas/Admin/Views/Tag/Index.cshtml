@@ -1,36 +1,34 @@
+@using X.PagedList.Mvc.Core
 @using web.Areas.Admin.ViewModels.Tag
-@model IEnumerable<TagListItemViewModel>
+@using shared.Extensions
+@using shared.Enums
+@using X.PagedList
+@model IPagedList<TagListItemViewModel>
 @{
-	ViewData["Title"] = "Quản lý thẻ - Hệ thống quản trị";
+	ViewData["Title"] = ViewData["PageTitle"];
 }
 
 @section PageActions {
 	<div class="btn-list">
 		<a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm thẻ
+			<i class="ti ti-plus me-2"></i> Thêm @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant())
 		</a>
 	</div>
 }
 
-<!-- Filter form -->
 <div class="card mb-3">
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
 			<div class="col-md-4">
 				<label class="form-label">Loại thẻ</label>
-				<select class="form-select" name="type" id="tagTypeFilter">
-					@foreach (var type in ViewBag.TagTypes)
-					{
-						<option value="@type.Value" selected="@(ViewBag.TagType.ToString() == type.Value.ToString() ? "selected" : null)">@type.Text</option>
-					}
-				</select>
+				@Html.DropDownList("type", (IEnumerable<SelectListItem>)ViewBag.TagTypes, new { @class = "form-select" })
 			</div>
 			<div class="col-md-4">
 				<label class="form-label">Tìm kiếm</label>
 				<div class="input-group">
 					<input type="text" class="form-control" placeholder="Tìm thẻ..." name="searchTerm" value="@ViewBag.SearchTerm">
 					<button class="btn btn-icon" type="button" id="clearSearch">
-						<i class="ti ti-x"></i> 
+						<i class="ti ti-x"></i>
 					</button>
 				</div>
 			</div>
@@ -48,7 +46,6 @@
 	</div>
 </div>
 
-<!-- Content -->
 <div class="card">
 	<div class="card-header">
 		<h3 class="card-title">@ViewData["PageTitle"]</h3>
@@ -57,16 +54,16 @@
 		@if (!Model.Any())
 		{
 			<div class="empty">
-				<div class="empty-img" style="font-size: 5rem;">
-					<i class="ti ti-tags text-muted"></i> 
+				<div class="empty-icon">
+					<i class="ti ti-tags fa-5x text-muted"></i>
 				</div>
-				<p class="empty-title">Không tìm thấy thẻ nào</p>
+				<p class="empty-title">Không tìm thấy @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant()) nào</p>
 				<p class="empty-subtitle text-muted">
-					Hãy tạo thẻ để phân loại nội dung của bạn
+					Hãy tạo @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant()) để phân loại nội dung của bạn
 				</p>
 				<div class="empty-action">
 					<a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary">
-						<i class="ti ti-plus"></i> 
+						<i class="ti ti-plus"></i> Thêm @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant())
 					</a>
 				</div>
 			</div>
@@ -107,13 +104,16 @@
 								<td>@item.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
 								<td>
 									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary">
-											<i class="ti ti-pencil"></i> 
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa @item.Type.GetDisplayName()">
+											@* Thêm title *@
+											<i class="ti ti-pencil"></i>
 										</a>
 										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
 												data-id="@item.Id"
 												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Tag")">
+												data-type-name="@item.Type.GetDisplayName().ToLowerInvariant()"
+												data-delete-url="@Url.Action("Delete", "Tag")"
+												title="Xóa @item.Type.GetDisplayName()">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -124,6 +124,19 @@
 				</table>
 			</div>
 		}
+	</div>
+	<div class="card-footer">
+		<div class="d-flex justify-content-center">
+			@Html.PagedListPager(
+							Model,
+							page => Url.Action("Index", new { page, type = ViewBag.TagType, searchTerm = ViewBag.SearchTerm }),
+							new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" }
+			})
+		</div>
 	</div>
 </div>
 
