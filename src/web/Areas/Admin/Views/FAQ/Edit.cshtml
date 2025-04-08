@@ -1,0 +1,51 @@
+@using web.Areas.Admin.ViewModels.FAQ
+@model FAQViewModel
+@{
+    ViewData["Title"] = "Thêm FAQ mới";
+}
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Nội dung FAQ</h3>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+
+            <partial name="_FAQFormFields" model="Model" />
+        </div>
+        <div class="card-footer text-end">
+            <a asp-action="Index" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy me-2"></i> Lưu FAQ
+            </button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            new TomSelect('.tom-select-multiple',{
+                plugins: ['remove_button'],
+                create: false,
+                placeholder: 'Chọn danh mục...'
+            });
+
+            $('.summernote-editor').summernote({
+                placeholder: 'Nhập câu trả lời...',
+                tabsize: 2,
+                height: 250,
+                toolbar: [
+                    ['style', ['style']],
+                    ['font', ['bold', 'italic', 'underline', 'clear']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['insert', ['link']],
+                    ['view', ['fullscreen', 'codeview', 'help']]
+                ]
+            });
+        });
+    </script>
+}
