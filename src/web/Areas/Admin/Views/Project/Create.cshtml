@@ -1,0 +1,265 @@
+@using web.Areas.Admin.ViewModels.Project
+@model ProjectViewModel
+@{
+    ViewData["Title"] = "Thêm Dự án mới";
+}
+
+@section Styles {
+    <style>
+        .project-thumb-preview {
+            max-height: 150px;
+            max-width: 100%;
+            object-fit: contain;
+            min-height: 80px;
+            background-color: #f8f9fa;
+        }
+
+        .project-image-item .gallery-preview-img {
+            width: 90px;
+            height: 90px;
+        }
+        /* Adjust gallery image size */
+        .project-product-item .product-preview-img {
+            width: 60px;
+            height: 60px;
+        }
+    </style>
+}
+
+<form asp-action="Create" method="post" id="project-form">
+    @Html.AntiForgeryToken()
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Thông tin Dự án</h3>
+            <div class="card-actions">
+                <a asp-action="Index" class="btn btn-link">Hủy</a>
+                <button type="submit" class="btn btn-primary ms-2"> <i class="ti ti-device-floppy me-2"></i> Lưu Dự án </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
+            <partial name="_ProjectFormFields" model="Model" />
+        </div>
+        <div class="card-footer text-end">
+            <a asp-action="Index" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary"> <i class="ti ti-device-floppy me-2"></i> Lưu Dự án </button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+    <script src="~/js/slug.js"></script>
+
+    <script>
+        // --- Reusable Function for Media Selection ---
+        function handleMediaSelection(selectedFile, inputSelector, previewSelector) {
+            if (selectedFile && inputSelector && previewSelector) {
+                const inputField = $(inputSelector);
+                const previewImg = $(previewSelector);
+                const removeBtn = $(`button[data-target-input="${inputSelector}"]`).filter('.remove-media-btn');
+                // Assuming OgImage stores URL, others store path
+                const valueToStore = (inputSelector === '#ogImagePathInput' || inputSelector === '#twitterImagePathInput') ? selectedFile.url : selectedFile.path;
+                const displayUrl = MediaUrlHelper.GetMinioUrl(selectedFile.path, '/img/placeholder-image.png');
+
+                previewImg.attr('src', displayUrl).show();
+                inputField.val(valueToStore || '').trigger('change');
+                if(removeBtn.length) removeBtn.removeClass('d-none');
+            }
+        }
+
+        $(document).ready(function() {
+            // --- Initialize Libraries ---
+             $('.tom-select-multiple').each(function(){
+                 new TomSelect(this, { plugins: ['remove_button'], create: $(this).is('#SelectedTagIds'), placeholder: 'Chọn...' });
+             });
+            $('.summernote-editor').summernote({ /* Full options */ height: 300 });
+             // Initialize Datepickers (using native or library like flatpickr)
+             // $('.date-picker').flatpickr({ dateFormat: "Y-m-d" });
+
+            // --- Slug ---
+            const nameInput = $('#projectName');
+            const slugInput = $('#projectSlug');
+            const generateBtn = $('#generateSlugButton');
+            nameInput.on('input', function() { if (slugInput.val() === '') { slugInput.val(generateVietnameseSlug(nameInput.val())); }});
+            generateBtn.on('click', function() { slugInput.val(generateVietnameseSlug(nameInput.val())); });
+
+            // --- Basic Media Selection (Featured, Thumb, OG, Author etc.) ---
+            $(document).on('click', '.select-media-btn', function() { /* ... SAME as Article ... */ });
+            $(document).on('click', '.remove-media-btn', function() { /* ... SAME as Article ... */ });
+
+            // --- Project Image Gallery ---
+            const galleryListContainer = $('#project-image-list');
+            const galleryTemplate = $('#project-image-template').html();
+            let galleryNextIndex = galleryListContainer.find('.project-image-item').length;
+
+            function reindexGalleryImages() {
+                 galleryListContainer.find('.project-image-item:visible').each(function(index) {
+                     $(this).attr('data-index', index);
+                     $(this).find('.order-index-input').val(index);
+                     // Update names/ids
+                     $(this).find('input, label, textarea').each(function() {
+                        const oldName = $(this).attr('name');
+                        if (oldName) $(this).attr('name', oldName.replace(/Images\[\d+\]/, `Images[${index}]`));
+                        const oldId = $(this).attr('id');
+                        if (oldId) {
+                             const newId = oldId.replace(/isMain_\d+/, `isMain_${index}`);
+                             $(this).attr('id', newId);
+                             $(this).closest('.form-check').find('label').attr('for', newId);
+                         }
+                         if($(this).hasClass('is-main-input')) $(this).attr('name', `Images[${index}].IsMainRadio`);
+                     });
+                 });
+                galleryNextIndex = galleryListContainer.find('.project-image-item').length;
+                 updateGalleryMainImageHiddenInput();
+            }
+             function updateGalleryMainImageHiddenInput() { /* ... Similar to Product Image update logic ... */ }
+             updateGalleryMainImageHiddenInput(); // Initial
+             galleryListContainer.on('change', '.is-main-input', function() { /* ... Similar to Product Image radio logic ... */ });
+
+
+             // Callback for Gallery Selection (Handles Multiple Files)
+             function handleGallerySelection(selectedFiles) { // Expects an array
+                 if (!Array.isArray(selectedFiles)) { // Handle single selection case if modal returns single
+                     selectedFiles = [selectedFiles];
+                 }
+                 let addedCount = 0;
+                 selectedFiles.forEach(file => {
+                     if (file && file.path) {
+                         const imagePath = file.path;
+                          // Check duplicate
+                          let existingItem = null;
+                          galleryListContainer.find('.project-image-item').each(function() { if ($(this).data('image-path') === imagePath) { existingItem = $(this); return false; }});
+
+                         if (existingItem && existingItem.length > 0) {
+                             if (existingItem.find('.is-deleted-input').val() === 'true') {
+                                 existingItem.find('.is-deleted-input').val('false');
+                                 existingItem.show();
+                                 addedCount++;
+                             } // else: already visible, do nothing
+                         } else {
+                             // Add New Item
+                             const displayUrl = MediaUrlHelper.GetMinioUrl(imagePath, '/img/placeholder-image.png');
+                             const newItemHtml = galleryTemplate.replace(/__INDEX__/g, galleryNextIndex).replace(/__IMAGE_PATH__/g, imagePath);
+                             const newItem = $(newItemHtml);
+                             newItem.find('.image-url-input').val(imagePath);
+                             newItem.find('.thumb-url-input').val(imagePath); // Assume same for now
+                             newItem.find('.gallery-preview-img').attr('src', displayUrl);
+                             newItem.find('input[name$=".AltText"]').val(file.alt || '');
+                             newItem.find('input[name$=".OrderIndex"]').val(galleryListContainer.find('.project-image-item:visible').length); // Append order
+
+                             galleryListContainer.append(newItem);
+                             galleryNextIndex++;
+                              addedCount++;
+                         }
+                     }
+                 });
+                  if (addedCount > 0) {
+                     reindexGalleryImages();
+                     showToast(`Đã thêm ${addedCount} ảnh vào thư viện dự án.`, 'success');
+                 } else {
+                     showToast('Không có ảnh mới nào được thêm (có thể đã tồn tại).', 'info');
+                 }
+             }
+
+            // Trigger Gallery Selection Modal
+            $('#selectProjectGalleryBtn').on('click', function() {
+                 if (typeof window.openMediaSelectionModal === 'function') {
+                     // Modify openMediaSelectionModal if it doesn't support multiple selections yet
+                     // For now, assume it calls the callback for each selected item (less ideal)
+                     // A better modal would have a "Confirm Selection" button and pass an array to the callback.
+                     // WORKAROUND: Call multiple times (if modal allows) or adapt modal.
+                     // Let's assume modal callback gives one file at a time for now.
+                     window.openMediaSelectionModal(handleGallerySelection, 'Image');
+                 } else { console.error('openMediaSelectionModal is not defined.'); }
+            });
+
+             // Remove Gallery Image Button
+            galleryListContainer.on('click', '.remove-image-btn', function() { /* ... Similar to Product Image removal ... */ });
+
+              // Initialize SortableJS for Gallery
+             if (typeof Sortable !== 'undefined') {
+                 new Sortable(galleryListContainer[0], { animation: 150, handle: '.card', onEnd: function() { reindexGalleryImages(); } });
+             }
+
+
+            // --- Products Used Management ---
+            const productSelectList = new TomSelect('#select-products-to-add', { create: false }); // Initialize select for adding products
+            const productListContainer = $('#project-products-list');
+            const productTemplate = $('#project-product-template').html();
+            let productNextIndex = productListContainer.find('.project-product-item').length;
+
+             function reindexProducts() {
+                productListContainer.find('.project-product-item:visible').each(function(index) {
+                    $(this).attr('data-index', index);
+                    $(this).find('.order-index-input').val(index);
+                    // Update names/ids
+                     $(this).find('input, label, textarea').each(function() {
+                        const oldName = $(this).attr('name');
+                        if (oldName) $(this).attr('name', oldName.replace(/ProjectProducts\[\d+\]/, `ProjectProducts[${index}]`));
+                     });
+                });
+                 productNextIndex = productListContainer.find('.project-product-item').length;
+            }
+
+             // Handle adding selected product
+             productSelectList.on('change', function(value) {
+                 if (!value) return; // No selection
+                 const productId = parseInt(value);
+                 const productName = this.options[value].text;
+                 // Optional: Fetch product image URL via AJAX if needed
+                 const productImageUrl = '/img/placeholder-image.png'; // Placeholder
+
+                  // Check duplicate
+                  let existingItem = productListContainer.find(`.project-product-item[data-product-id="${productId}"]`);
+
+                 if (existingItem.length > 0) {
+                     if (existingItem.find('.is-deleted-input').val() === 'true') {
+                         existingItem.find('.is-deleted-input').val('false');
+                         existingItem.show();
+                         reindexProducts();
+                          showToast(`Đã thêm lại sản phẩm '${productName}'.`, 'info');
+                     } else {
+                          showToast(`Sản phẩm '${productName}' đã có trong danh sách.`, 'warning');
+                     }
+                 } else {
+                     // Add new item
+                     const newItemHtml = productTemplate
+                                            .replace(/__INDEX__/g, productNextIndex)
+                                            .replace(/__PRODUCT_ID__/g, productId);
+                     const newItem = $(newItemHtml);
+                     newItem.find('.product-name-display').text(productName);
+                     newItem.find('.product-preview-img').attr('src', productImageUrl); // Update with real URL if fetched
+                      newItem.find('.order-index-input').val(productListContainer.find('.project-product-item:visible').length);
+
+                     productListContainer.append(newItem);
+                     productNextIndex++;
+                     reindexProducts();
+                      showToast(`Đã thêm sản phẩm '${productName}'.`, 'success');
+                 }
+
+                  // Reset the select dropdown
+                  productSelectList.clear();
+             });
+
+
+             // Remove Product Button
+             productListContainer.on('click', '.remove-product-btn', function() {
+                const item = $(this).closest('.project-product-item');
+                 // No ID check needed for association, just mark as deleted
+                 item.find('.is-deleted-input').val('true');
+                 item.hide();
+                 reindexProducts();
+             });
+
+              // Initialize SortableJS for Products Used
+             if (typeof Sortable !== 'undefined') {
+                 new Sortable(productListContainer[0], { animation: 150, handle: '.card', onEnd: function() { reindexProducts(); } });
+             }
+
+            // Function to show toast (replace with your implementation)
+            function showToast(message, type = 'info') { console.log(`Toast [${type}]: ${message}`); }
+
+        });
+    </script>
+}

@@ -1,0 +1,328 @@
+@using shared.Helpers
+@using web.Areas.Admin.ViewModels.Project
+@using shared.Enums;
+@model ProjectViewModel
+
+@* --- TABS --- *@
+<ul class="nav nav-tabs nav-fill mb-3" data-bs-toggle="tabs">
+    <li class="nav-item">
+        <a href="#project-tab-info" class="nav-link active" data-bs-toggle="tab">
+            <i class="ti ti-info-circle me-2"></i> Thông tin chung
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#project-tab-desc" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-file-text me-2"></i> Mô tả
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#project-tab-images" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-photo me-2"></i> Hình ảnh Dự án
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#project-tab-products" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-package me-2"></i> Sản phẩm sử dụng
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#project-tab-relations" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-tags me-2"></i> Phân loại
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#project-tab-seo" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-search me-2"></i> Tối ưu SEO
+        </a>
+    </li>
+</ul>
+
+@* --- TAB CONTENT --- *@
+<div class="tab-content">
+    @* --- Tab: General Info --- *@
+    <div class="tab-pane active show" id="project-tab-info">
+        <div class="row">
+            <div class="col-md-8">
+                <div class="form-group mb-3">
+                    <label asp-for="Name" class="form-label required">Tên dự án</label>
+                    <input asp-for="Name" class="form-control form-control-lg" id="projectName" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Slug" class="form-label required">Slug</label>
+                    <div class="input-group">
+                        <input asp-for="Slug" class="form-control" id="projectSlug" />
+                        <button class="btn btn-outline-secondary" type="button" id="generateSlugButton"> <i class="ti ti-refresh"></i> </button>
+                    </div>
+                    <span asp-validation-for="Slug" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Client" class="form-label">Khách hàng / Chủ đầu tư</label>
+                    <input asp-for="Client" class="form-control" />
+                    <span asp-validation-for="Client" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-0">
+                    @* No mb on last item in col *@
+                    <label asp-for="Location" class="form-label">Địa điểm</label>
+                    <input asp-for="Location" class="form-control" />
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-group mb-3">
+                    <label asp-for="Area" class="form-label">Diện tích (m²)</label>
+                    <input type="number" asp-for="Area" class="form-control" step="0.01" min="0" />
+                    <span asp-validation-for="Area" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="StartDate" class="form-label">Ngày bắt đầu</label>
+                    <input asp-for="StartDate" type="date" class="form-control date-picker" />
+                    <span asp-validation-for="StartDate" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="CompletionDate" class="form-label">Ngày hoàn thành (dự kiến)</label>
+                    <input asp-for="CompletionDate" type="date" class="form-control date-picker" />
+                    <span asp-validation-for="CompletionDate" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Status" class="form-label required">Tình trạng dự án</label>
+                    <select asp-for="Status" asp-items="@Model.StatusList" class="form-select"></select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="PublishStatus" class="form-label required">Trạng thái hiển thị</label>
+                    <select asp-for="PublishStatus" asp-items="@Model.PublishStatusList" class="form-select"></select>
+                    <span asp-validation-for="PublishStatus" class="text-danger"></span>
+                </div>
+                <div class="form-check form-switch mb-0">
+                    @* No mb on last item *@
+                    <input class="form-check-input" type="checkbox" asp-for="IsFeatured" role="switch" id="projectIsFeaturedSwitch">
+                    <label class="form-check-label" for="projectIsFeaturedSwitch">Dự án nổi bật</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- Tab: Description --- *@
+    <div class="tab-pane" id="project-tab-desc">
+        <div class="form-group mb-3">
+            <label asp-for="ShortDescription" class="form-label">Mô tả ngắn</label>
+            <textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="ShortDescription" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-0">
+            <label asp-for="Description" class="form-label required">Mô tả chi tiết dự án</label>
+            <textarea asp-for="Description" class="form-control summernote-editor" rows="15"></textarea>
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+    </div>
+
+    @* --- Tab: Project Images --- *@
+    <div class="tab-pane" id="project-tab-images">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <h4 class="mb-3">Ảnh đại diện</h4>
+                <div class="form-group mb-3" id="featured-image-area">
+                    <label asp-for="FeaturedImage" class="form-label">Ảnh Featured</label>
+                    <div> <img id="featuredImagePreview" src="@MediaUrlHelper.GetMinioUrl(Model.FeaturedImage, "/img/placeholder.svg")" class="img-thumbnail mb-2 project-thumb-preview" /> </div>
+                    <input type="hidden" asp-for="FeaturedImage" id="featuredImagePathInput" />
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#featuredImagePathInput" data-target-preview="#featuredImagePreview"><i class="ti ti-photo-search me-1"></i> Chọn</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.FeaturedImage) ? "d-none" : "")" data-target-input="#featuredImagePathInput" data-target-preview="#featuredImagePreview" data-placeholder="/img/placeholder.svg"><i class="ti ti-x me-1"></i> Xóa</button>
+                    </div>
+                    <span asp-validation-for="FeaturedImage" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3 mb-md-0" id="thumbnail-image-area">
+                    <label asp-for="ThumbnailImage" class="form-label">Ảnh Thumbnail</label>
+                    <div> <img id="thumbnailImagePreview" src="@MediaUrlHelper.GetMinioUrl(Model.ThumbnailImage, "/img/placeholder.svg")" class="img-thumbnail mb-2 project-thumb-preview" style="max-height: 100px;" /> </div>
+                    <input type="hidden" asp-for="ThumbnailImage" id="thumbnailImagePathInput" />
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#thumbnailImagePathInput" data-target-preview="#thumbnailImagePreview"><i class="ti ti-photo-search me-1"></i> Chọn</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.ThumbnailImage) ? "d-none" : "")" data-target-input="#thumbnailImagePathInput" data-target-preview="#thumbnailImagePreview" data-placeholder="/img/placeholder.svg"><i class="ti ti-x me-1"></i> Xóa</button>
+                    </div>
+                    <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4 class="mb-3">Thư viện ảnh dự án</h4>
+                <button type="button" class="btn btn-outline-primary mb-3" id="selectProjectGalleryBtn">
+                    <i class="ti ti-photo-plus me-2"></i> Chọn ảnh từ thư viện
+                </button>
+                <span asp-validation-for="Images" class="text-danger d-block mb-2"></span> @* General validation for images *@
+                <div id="project-image-list" class="row g-3 project-gallery-sortable">
+                    @* JS will render selected images here *@
+                    @for (int i = 0; i < Model.Images.Count; i++)
+                    {
+                        <div class="col-md-12 col-lg-6 project-image-item" data-index="@i" data-image-path="@Model.Images[i].ImageUrl">
+                            <input type="hidden" asp-for="Images[i].Id" />
+                            <input type="hidden" asp-for="Images[i].ImageUrl" class="image-url-input" />
+                            <input type="hidden" asp-for="Images[i].ThumbnailUrl" class="thumb-url-input" />
+                            <input type="hidden" asp-for="Images[i].IsDeleted" class="is-deleted-input" value="false" />
+                            <input type="hidden" asp-for="Images[i].OrderIndex" class="order-index-input" /> @* JS will set order *@
+
+                            <div class="card card-sm">
+                                <div class="row g-0 align-items-center">
+                                    <div class="col-auto">
+                                        <img src="@MediaUrlHelper.GetMinioUrl(Model.Images[i].ThumbnailUrl ?? Model.Images[i].ImageUrl, "/img/placeholder.svg")"
+                                             class="avatar avatar-xl object-fit-cover gallery-preview-img" />
+                                    </div>
+                                    <div class="col ps-2 pe-1 py-2">
+                                        <div class="form-group mb-1">
+                                            <input asp-for="Images[i].AltText" class="form-control form-control-sm" placeholder="Alt text..." />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <input asp-for="Images[i].Title" class="form-control form-control-sm" placeholder="Tiêu đề ảnh (tùy chọn)..." />
+                                        </div>
+                                        <div class="form-group mb-1">
+                                            <textarea asp-for="Images[i].Description" class="form-control form-control-sm" rows="1" placeholder="Mô tả ảnh (tùy chọn)..."></textarea>
+                                        </div>
+                                        <div class="mt-1">
+                                            <div class="form-check form-switch form-check-inline">
+                                                <input class="form-check-input is-main-input" type="radio" asp-for="Images[i].IsMain" value="true" name="Images[@i].IsMainRadio" id="isMain_@i">
+                                                <input type="hidden" asp-for="Images[i].IsMain" class="is-main-hidden" />
+                                                <label class="form-check-label form-label-sm" for="isMain_@i">Ảnh chính</label>
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-outline-danger remove-image-btn float-end" title="Gỡ ảnh này"><i class="ti ti-trash"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        @* Template for Project Images (Hidden) *@
+        <template id="project-image-template">
+            <div class="col-md-12 col-lg-6 project-image-item" data-index="__INDEX__" data-image-path="__IMAGE_PATH__">
+                <input type="hidden" name="Images[__INDEX__].Id" value="0" />
+                <input type="hidden" name="Images[__INDEX__].ImageUrl" class="image-url-input" />
+                <input type="hidden" name="Images[__INDEX__].ThumbnailUrl" class="thumb-url-input" />
+                <input type="hidden" name="Images[__INDEX__].IsDeleted" class="is-deleted-input" value="false" />
+                <input type="hidden" name="Images[__INDEX__].OrderIndex" class="order-index-input" value="0" />
+
+                <div class="card card-sm">
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto">
+                            <img src="/img/placeholder.svg" class="avatar avatar-xl object-fit-cover gallery-preview-img" />
+                        </div>
+                        <div class="col ps-2 pe-1 py-2">
+                            <div class="form-group mb-1"><input name="Images[__INDEX__].AltText" class="form-control form-control-sm" placeholder="Alt text..." /></div>
+                            <div class="form-group mb-1"><input name="Images[__INDEX__].Title" class="form-control form-control-sm" placeholder="Tiêu đề ảnh (tùy chọn)..." /></div>
+                            <div class="form-group mb-1"><textarea name="Images[__INDEX__].Description" class="form-control form-control-sm" rows="1" placeholder="Mô tả ảnh (tùy chọn)..."></textarea></div>
+                            <div class="mt-1">
+                                <div class="form-check form-switch form-check-inline">
+                                    <input class="form-check-input is-main-input" type="radio" name="Images[__INDEX__].IsMainRadio" id="isMain___INDEX__">
+                                    <input type="hidden" name="Images[__INDEX__].IsMain" class="is-main-hidden" value="false" />
+                                    <label class="form-check-label form-label-sm" for="isMain___INDEX__">Ảnh chính</label>
+                                </div>
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-image-btn float-end" title="Gỡ ảnh này"><i class="ti ti-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    @* --- Tab: Products Used --- *@
+    <div class="tab-pane" id="project-tab-products">
+        <h3 class="mb-3">Sản phẩm đã sử dụng trong dự án</h3>
+        <div class="form-group mb-3">
+            <label for="select-products-to-add" class="form-label">Chọn sản phẩm</label>
+            <select id="select-products-to-add" class="form-select" asp-items="@Model.ProductList">
+                <option value="">-- Chọn sản phẩm để thêm --</option>
+            </select>
+            <small class="form-hint">Chọn sản phẩm từ danh sách và nhấn "Thêm sản phẩm".</small>
+        </div>
+        <span asp-validation-for="ProjectProducts" class="text-danger d-block mb-2"></span> @* General validation *@
+        <div id="project-products-list" class="project-products-sortable">
+            @* JS will render selected products here *@
+            @for (int i = 0; i < Model.ProjectProducts.Count; i++)
+            {
+                <div class="card card-sm mb-2 project-product-item" data-product-id="@Model.ProjectProducts[i].ProductId" data-index="@i">
+                    <input type="hidden" asp-for="ProjectProducts[i].ProductId" />
+                    <input type="hidden" asp-for="ProjectProducts[i].IsDeleted" class="is-deleted-input" value="false" />
+                    <input type="hidden" asp-for="ProjectProducts[i].OrderIndex" class="order-index-input" /> @* JS sets order *@
+                    <div class="row g-0 align-items-center">
+                        <div class="col-auto">
+                            <img src="@MediaUrlHelper.GetMinioUrl(Model.ProjectProducts[i].ProductImageUrl, "/img/placeholder.svg")" class="avatar avatar-lg object-fit-contain m-2" />
+                        </div>
+                        <div class="col">
+                            <div class="card-body">
+                                <strong class="d-block mb-1">@Model.ProjectProducts[i].ProductName</strong>
+                                <label asp-for="ProjectProducts[i].Usage" class="form-label form-label-sm">Mô tả cách sử dụng</label>
+                                <textarea asp-for="ProjectProducts[i].Usage" class="form-control form-control-sm" rows="2" placeholder="Ví dụ: Dùng cho sơn lót tường ngoại thất..."></textarea>
+                            </div>
+                        </div>
+                        <div class="col-auto pe-2">
+                            <button type="button" class="btn btn-sm btn-outline-danger remove-product-btn" title="Gỡ sản phẩm này"><i class="ti ti-x"></i></button>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        @* Template for Project Products (Hidden) *@
+        <template id="project-product-template">
+            <div class="card card-sm mb-2 project-product-item" data-product-id="__PRODUCT_ID__" data-index="__INDEX__">
+                <input type="hidden" name="ProjectProducts[__INDEX__].ProductId" value="__PRODUCT_ID__" />
+                <input type="hidden" name="ProjectProducts[__INDEX__].IsDeleted" class="is-deleted-input" value="false" />
+                <input type="hidden" name="ProjectProducts[__INDEX__].OrderIndex" class="order-index-input" value="0" />
+                <div class="row g-0 align-items-center">
+                    <div class="col-auto">
+                        <img src="/img/placeholder.svg" class="avatar avatar-lg object-fit-contain m-2 product-preview-img" />
+                    </div>
+                    <div class="col">
+                        <div class="card-body">
+                            <strong class="d-block mb-1 product-name-display">Tên Sản phẩm</strong>
+                            <label name="ProjectProducts[__INDEX__].Usage" class="form-label form-label-sm">Mô tả cách sử dụng</label>
+                            <textarea name="ProjectProducts[__INDEX__].Usage" class="form-control form-control-sm" rows="2" placeholder="Ví dụ: Dùng cho sơn lót tường ngoại thất..."></textarea>
+                        </div>
+                    </div>
+                    <div class="col-auto pe-2">
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-product-btn" title="Gỡ sản phẩm này"><i class="ti ti-x"></i></button>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    @* --- Tab: Relations (Categories & Tags) --- *@
+    <div class="tab-pane" id="project-tab-relations">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="SelectedCategoryIds" class="form-label required">Danh mục dự án</label>
+                    <select asp-for="SelectedCategoryIds" asp-items="@Model.CategoryList" class="form-select tom-select-multiple" multiple="multiple"></select>
+                    <span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
+                    <small class="form-hint">Chọn ít nhất một danh mục.</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="SelectedTagIds" class="form-label">Thẻ (Tags)</label>
+                    <select asp-for="SelectedTagIds" asp-items="@Model.TagList" class="form-select tom-select-multiple" multiple="multiple"></select>
+                    <span asp-validation-for="SelectedTagIds" class="text-danger"></span>
+                    <small class="form-hint">Chọn các thẻ liên quan.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- Tab: SEO --- *@
+    <div class="tab-pane" id="project-tab-seo">
+        @* Copy/Paste or use _SeoFormFields partial here *@
+        <div class="form-group mb-3">
+            <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+            <input asp-for="MetaTitle" class="form-control" />
+            <span asp-validation-for="MetaTitle" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+            <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="MetaDescription" class="text-danger"></span>
+        </div>
+        @* ... other SEO fields ... *@
+    </div>
+</div>

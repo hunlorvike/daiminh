@@ -1,0 +1,101 @@
+@using shared.Helpers
+@using web.Areas.Admin.ViewModels.Project
+@using shared.Enums
+@model IEnumerable<ProjectListItemViewModel>
+@{
+    ViewData["Title"] = "Quản lý Dự án";
+}
+
+@section PageActions {
+    <div class="btn-list">
+        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+            <i class="ti ti-plus me-2"></i> Thêm dự án
+        </a>
+    </div>
+    }
+
+<!-- Filter Form -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-3 col-sm-6"> <label class="form-label">Tìm kiếm</label> <input type="text" class="form-control" placeholder="Tên, khách hàng, địa điểm..." name="searchTerm" value="@ViewBag.SearchTerm"> </div>
+            <div class="col-md-2 col-sm-6"> <label class="form-label">Danh mục</label> <select class="form-select" name="categoryId" asp-items="@ViewBag.Categories" asp-route-value="@ViewBag.SelectedCategoryId"><option value="">Tất cả</option></select> </div>
+            <div class="col-md-2 col-sm-6"> <label class="form-label">Tình trạng</label> <select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus"><option value="">Tất cả</option></select> </div>
+            <div class="col-md-2 col-sm-6"> <label class="form-label">Hiển thị</label> <select class="form-select" name="publishStatus" asp-items="@ViewBag.PublishStatuses" asp-route-value="@ViewBag.SelectedPublishStatus"><option value="">Tất cả</option></select> </div>
+            <div class="col-md-1 col-sm-6"> <button type="submit" class="btn btn-primary w-100">Lọc</button> </div>
+            <div class="col-md-2 col-sm-6"> <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a> </div>
+        </form>
+    </div>
+</div>
+
+<!-- Content Table -->
+<div class="card">
+    <div class="card-header"> <h3 class="card-title">Danh sách Dự án</h3> </div>
+    <div class="card-body p-0">
+        @if (!Model.Any()) { /* ... Empty State ... */ }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Ảnh</th>
+                            <th>Tên dự án</th>
+                            <th>Địa điểm</th>
+                            <th>Khách hàng</th>
+                            <th class="text-center">Tình trạng</th>
+                            <th class="text-center">Hiển thị</th>
+                            <th>Hoàn thành</th>
+                            <th class="w-1">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td> <img src="@MediaUrlHelper.GetMinioUrl(item.ThumbnailImage, "/img/placeholder-image.png")" alt="@item.Name" class="avatar avatar-md object-fit-cover" /> </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Name</a> @if (item.IsFeatured)
+                                    {
+                                        <i class="ti ti-star-filled text-warning ms-1" title="Nổi bật"></i>
+                                    }
+                                </td>
+                                <td class="text-muted">@item.Location</td>
+                                <td class="text-muted">@item.Client</td>
+                                <td class="text-center"> <span class="badge">@item.Status</span> @* TODO: Add specific badges/colors based on status *@ </td>
+                                <td class="text-center">
+                                    @switch (item.PublishStatus)
+                                    {
+                                        case PublishStatus.Published:
+                                            <span class="badge bg-success-lt">Xuất bản</span>
+                                            break;
+                                        case PublishStatus.Draft:
+                                            <span class="badge bg-secondary-lt">Nháp</span>
+                                            break;
+                                        case PublishStatus.Scheduled:
+                                            <span class="badge bg-warning-lt">Lên lịch</span>
+                                            break;
+                                        case PublishStatus.Archived:
+                                            <span class="badge bg-dark-lt">Lưu trữ</span>
+                                            break;
+                                        default:
+                                            <span class="badge">@item.PublishStatus</span>
+                                            break;
+                                    }
+                                </td>
+                                <td class="text-muted">@(item.CompletionDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"> <i class="ti ti-pencil"></i> </a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa" data-id="@item.Id" data-name="@item.Name" data-delete-url="@Url.Action("Delete", "Project")"> <i class="ti ti-trash"></i> </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @* Pagination *@
+        }
+    </div>
+</div>
