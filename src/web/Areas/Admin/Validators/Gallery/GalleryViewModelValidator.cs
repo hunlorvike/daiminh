@@ -1,6 +1,6 @@
 // GalleryViewModelValidator.cs
-using System.Text.RegularExpressions;
 using FluentValidation;
+using System.Text.RegularExpressions;
 using web.Areas.Admin.ViewModels.Gallery;
 
 namespace web.Areas.Admin.Validators.Gallery;

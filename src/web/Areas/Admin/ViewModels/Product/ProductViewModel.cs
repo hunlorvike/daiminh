@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using System.Collections.Generic; // Required for List<>
 
 namespace web.Areas.Admin.ViewModels.Product;
 

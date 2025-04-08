@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using web.Areas.Admin.ViewModels.Product;
 using shared.Enums;
-using web.Areas.Admin.Services;
+using web.Areas.Admin.ViewModels.Product;
 
 namespace web.Areas.Admin.Controllers;
 

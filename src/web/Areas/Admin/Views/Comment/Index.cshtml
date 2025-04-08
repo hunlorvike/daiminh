@@ -1,271 +1,132 @@
 @using web.Areas.Admin.ViewModels.Comment
 @model IEnumerable<CommentListItemViewModel>
 @{
-	ViewData["Title"] = "Quản lý bình luận - Hệ thống quản trị";
-	var filter = ViewBag.Filter as CommentFilterViewModel ?? new CommentFilterViewModel();
+    ViewData["Title"] = "Quản lý Bình luận";
+    // Breadcrumbs set in Controller
 }
 
-@section PageActions {
-	<div class="btn-list">
-		<a href="@Url.Action("Index", new { isApproved = false })" class="btn btn-warning d-sm-inline-block">
-			<i class="ti ti-clock-hour-4 me-2"></i> Chờ duyệt
-		</a>
-	</div>
-}
+@* No "Add New" button usually for comments from admin *@
 
-<!-- Filter form -->
+<!-- Filter Form -->
 <div class="card mb-3">
-	<div class="card-body">
-		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<div class="col-md-3">
-				<label class="form-label">Tìm kiếm</label>
-				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm bình luận..." name="SearchTerm" value="@filter.SearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch">
-						<i class="ti ti-x"></i>
-					</button>
-				</div>
-			</div>
-			<div class="col-md-3">
-				<label class="form-label">Bài viết</label>
-				<select class="form-select" name="ArticleId" id="articleFilter">
-					<option value="">Tất cả bài viết</option>
-					@foreach (var article in ViewBag.Articles)
-					{
-						<option value="@article.Value" selected="@article.Selected">@article.Text</option>
-					}
-				</select>
-			</div>
-			<div class="col-md-2">
-				<label class="form-label">Trạng thái</label>
-				<select class="form-select" name="IsApproved" id="approvalFilter">
-					<option value="">Tất cả trạng thái</option>
-					<option value="true" selected="@(filter.IsApproved == true)">Đã duyệt</option>
-					<option value="false" selected="@(filter.IsApproved == false)">Chờ duyệt</option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<label class="form-label">Loại bình luận</label>
-				<select class="form-select" name="HasParent" id="typeFilter">
-					<option value="">Tất cả</option>
-					<option value="false" selected="@(filter.HasParent == false)">Bình luận gốc</option>
-					<option value="true" selected="@(filter.HasParent == true)">Phản hồi</option>
-				</select>
-			</div>
-			<div class="col-md-1">
-				<button type="submit" class="btn btn-primary w-100">
-					<i class="ti ti-search me-2"></i> Lọc
-				</button>
-			</div>
-			<div class="col-md-1">
-				<a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
-					<i class="ti ti-reload me-2"></i> Đặt lại
-				</a>
-			</div>
-		</form>
-	</div>
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Tìm kiếm</label>
+                <input type="text" class="form-control" placeholder="Tên, email, nội dung..." name="searchTerm" value="@ViewBag.SearchTerm">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Trạng thái duyệt</label>
+                <select class="form-select" name="isApproved" asp-route-value="@ViewBag.SelectedApprovedStatus">
+                    <option value="">Tất cả</option>
+                    <option value="true">Đã duyệt</option>
+                    <option value="false">Chưa duyệt</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Bài viết</label>
+                @* TODO: Populate article dropdown if needed for filtering *@
+                <input type="number" class="form-control" placeholder="Nhập ID bài viết..." name="articleId" value="@ViewBag.SelectedArticleId" />
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Lọc</button>
+            </div>
+            <div class="col-md-1">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a>
+            </div>
+        </form>
+    </div>
 </div>
 
-<!-- Content -->
+<!-- Content Table -->
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">Danh sách bình luận</h3>
-	</div>
-	<div class="card-body p-0">
-		@if (!Model.Any())
-		{
-			<div class="empty">
-				<div class="empty-img" style="font-size: 5rem;">
-					<i class="ti ti-message-circle-off text-muted"></i>
-				</div>
-				<p class="empty-title">Không tìm thấy bình luận nào</p>
-				<p class="empty-subtitle text-muted">
-					Không có bình luận nào phù hợp với tiêu chí tìm kiếm
-				</p>
-				<div class="empty-action">
-					<a href="@Url.Action("Index")" class="btn btn-primary">
-						<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
-					</a>
-				</div>
-			</div>
-		}
-		else
-		{
-			<div class="table-responsive">
-				<table class="table table-vcenter card-table table-striped">
-					<thead>
-						<tr>
-							<th class="w-1">STT</th>
-							<th>Nội dung</th>
-							<th>Tác giả</th>
-							<th>Bài viết</th>
-							<th style="width: 10%">Phản hồi</th>
-							<th style="width: 10%">Trạng thái</th>
-							<th style="width: 15%">Ngày tạo</th>
-							<th style="width: 15%">Thao tác</th>
-						</tr>
-					</thead>
-					<tbody>
-						@{
-							int index = 1;
-						}
-						@foreach (var item in Model)
-						{
-							<tr>
-								<td class="text-muted">@(index++)</td>
-								<td title="@item.Content">
-									@* Tooltip for full content *@
-									<div class="d-flex align-items-center">
-										@if (item.ParentId.HasValue)
-										{
-											<span class="badge bg-blue-lt me-2" title="Phản hồi">
-												<i class="ti ti-arrow-back-up-double"></i>
-											</span>
-										}
-										<div class="text-truncate" style="max-width: 300px;">
-											@* Added text-truncate *@
-											@item.Content
-										</div>
-									</div>
-								</td>
-								<td>
-									<div class="d-flex align-items-center">
-										@if (!string.IsNullOrEmpty(item.AuthorAvatar))
-										{
-											<span class="avatar avatar-sm me-2" style="background-image: url(@item.AuthorAvatar)"></span>
-										}
-										else
-										{
-											@* Added bg-blue-lt for better visibility of initials *@
-											<span class="avatar avatar-sm me-2 bg-blue-lt">@item.AuthorName.Substring(0, 1).ToUpper()</span>
-										}
-										<div>
-											<div>@item.AuthorName</div>
-											@if (!string.IsNullOrEmpty(item.AuthorEmail))
-											{
-												<div class="text-muted small">@item.AuthorEmail</div>
-											}
-										</div>
-									</div>
-								</td>
-								<td>
-									<a href="/Admin/Article/Edit/@item.ArticleId" title="Xem bài viết">
-										@item.ArticleTitle
-									</a>
-								</td>
-								<td>
-									@if (item.ReplyCount > 0)
-									{
-										<span class="badge bg-primary">@item.ReplyCount</span>
-									}
-									else
-									{
-										<span class="badge bg-secondary">0</span>
-									}
-								</td>
-								<td>
-									<label class="form-check form-switch">
-										<input class="form-check-input toggle-approval" type="checkbox" data-id="@item.Id" @(item.IsApproved ? "checked" : "")>
-										<span class="form-check-label"></span>
-									</label>
-								</td>
-								<td>
-									<div class="text-muted small">
-										@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-									</div>
-								</td>
-								<td>
-									<div class="btn-list flex-nowrap">
-										<a asp-action="Reply" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Trả lời">
-											<i class="ti ti-arrow-back-up"></i>
-										</a>
-										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Chi tiết">
-											<i class="ti ti-eye"></i>
-										</a>
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
-											<i class="ti ti-pencil"></i>
-										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item"
-												data-bs-toggle="modal"
-												data-bs-target="#delete-modal"
-												data-id="@item.Id"
-												data-name="@item.AuthorName"
-												data-delete-url="@Url.Action("Delete", "Comment")"
-												title="Xóa"
-										@(item.ReplyCount > 0 ? "disabled" : "")>
-											@* Keep disabled logic *@
-											<i class="ti ti-trash"></i>
-										</button>
-									</div>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-		}
-	</div>
+    <div class="card-header">
+        <h3 class="card-title">Danh sách Bình luận</h3>
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-message-circle-off"></i></div>
+                <p class="empty-title">Không có bình luận nào</p>
+                <p class="empty-subtitle text-muted">Chưa có bình luận nào được gửi.</p>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tác giả</th>
+                            <th>Bình luận</th>
+                            <th>Phản hồi cho</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th>Ngày gửi</th>
+                            <th class="w-1">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-medium">@item.AuthorName</span>
+                                        <small class="text-muted">@item.AuthorEmail</small>
+                                    </div>
+                                </td>
+                                <td>@item.ContentExcerpt</td>
+                                <td>
+                                    @if (item.ArticleTitle != null)
+                                    {
+                                        @* Link to article edit page *@
+                                        <a asp-controller="Article" asp-action="Edit" asp-route-id="@item.ArticleId" target="_blank" class="text-muted" title="@item.ArticleTitle">
+                                            <i class="ti ti-file-text me-1"></i> @(item.ArticleTitle.Length > 30 ? item.ArticleTitle.Substring(0, 30) + "..." : item.ArticleTitle)
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @if (item.IsApproved)
+                                    {
+                                        <span class="badge bg-success-lt">Đã duyệt</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-warning-lt">Chờ duyệt</span>
+                                    }
+                                </td>
+                                <td class="text-muted">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        @* Approve/Unapprove Buttons (use AJAX for better UX) *@
+                                        @if (item.IsApproved)
+                                        {
+                                            <button class="btn btn-sm btn-icon btn-outline-warning comment-action-btn" title="Bỏ duyệt" data-action="Unapprove" data-id="@item.Id" data-url="@Url.Action("Unapprove", "Comment")"><i class="ti ti-thumb-down"></i></button>
+                                        }
+                                        else
+                                        {
+                                            <button class="btn btn-sm btn-icon btn-outline-success comment-action-btn" title="Duyệt" data-action="Approve" data-id="@item.Id" data-url="@Url.Action("Approve", "Comment")"><i class="ti ti-thumb-up"></i></button>
+                                        }
+
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"> <i class="ti ti-pencil"></i> </a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa"
+                                                data-id="@item.Id" data-name="Bình luận của @item.AuthorName" data-delete-url="@Url.Action("Delete", "Comment")">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @* Pagination *@
+        }
+    </div>
 </div>
 
-@section Scripts {
-	<script>
-		$(document).ready(function () {
-			// Approval toggle
-			$('.toggle-approval').on('change', function () {
-				 var checkbox = $(this); // Store reference
-				var id = checkbox.data('id');
-				var isChecked = checkbox.prop('checked');
-
-				$.ajax({
-					url: '@Url.Action("ToggleApproval", "Comment")',
-					type: 'POST',
-					data: { id: id },
-					 headers: { // Include AntiForgeryToken if needed
-					   RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() // Ensure you have AntiForgeryToken in your layout/form
-					},
-					success: function (result) {
-						if (result.success) {
-							toastr.success('Cập nhật trạng thái thành công');
-						} else {
-							toastr.error(result.message || 'Cập nhật trạng thái thất bại');
-							// Revert the checkbox state visually
-							checkbox.prop('checked', !isChecked);
-						}
-					},
-					error: function () {
-						toastr.error('Đã xảy ra lỗi khi gửi yêu cầu');
-						// Revert the checkbox state visually
-						checkbox.prop('checked', !isChecked);
-					}
-				});
-			});
-
-			// Delete item setup
-			$('.delete-item').on('click', function () {
-				var id = $(this).data('id');
-				var name = $(this).data('name');
-				var deleteUrl = $(this).data('delete-url');
-
-				$('#delete-item-id').val(id);
-				$('#delete-item-name').val(name);
-				$('#delete-url').val(deleteUrl);
-				$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa bình luận của "' + name + '" không? Hành động này không thể hoàn tác.');
-			});
-
-			// Clear search
-			$('#clearSearch').on('click', function() {
-				$('input[name="SearchTerm"]').val('');
-				 // Optionally reset other filters
-				 $('#articleFilter').val('');
-				 $('#approvalFilter').val('');
-				 $('#typeFilter').val('');
-				$('#filterForm').submit();
-			});
-
-			// Auto submit on filter change
-			$('#approvalFilter, #articleFilter, #typeFilter').on('change', function() {
-				$('#filterForm').submit();
-			});
-		});
-	</script>
-}

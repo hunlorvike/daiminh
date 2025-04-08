@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using web.Areas.Admin.ViewModels.Category;
 using shared.Enums; // For CategoryType
-using System.Linq; // For Count() and Select()
+using web.Areas.Admin.ViewModels.Category;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -340,7 +339,7 @@ public class CategoryController : Controller
             CategoryType.Article => "Bài viết",
             CategoryType.Project => "Dự án",
             CategoryType.Gallery => "Thư viện",
-            CategoryType.FAQ =>  "Câu hỏi",
+            CategoryType.FAQ => "Câu hỏi",
             _ => type.ToString()
         };
     }

@@ -1,124 +1,68 @@
-@using shared.Enums
+@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Article
+@using shared.Enums
 @model IEnumerable<ArticleListItemViewModel>
 @{
-    ViewData["Title"] = "Quản lý bài viết - Hệ thống quản trị";
-    var filter = ViewBag.Filter as ArticleFilterViewModel ?? new ArticleFilterViewModel();
+    ViewData["Title"] = "Quản lý Bài viết";
 }
 
 @section PageActions {
     <div class="btn-list">
         <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-            <i class="fas fa-plus me-2"></i> Thêm bài viết mới
+            <i class="ti ti-file-plus me-2"></i> Viết bài mới
         </a>
     </div>
 }
 
-<!-- Filter form -->
+<!-- Filter Form -->
 <div class="card mb-3">
     <div class="card-body">
         <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-            <div class="col-md-3">
+            <div class="col-md-3 col-sm-6">
                 <label class="form-label">Tìm kiếm</label>
-                <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Tìm bài viết..." name="SearchTerm" value="@filter.SearchTerm">
-                    <button class="btn btn-icon" type="button" id="clearSearch">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
+                <input type="text" class="form-control" placeholder="Tiêu đề, tóm tắt..." name="searchTerm" value="@ViewBag.SearchTerm">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-sm-6">
                 <label class="form-label">Danh mục</label>
-                <select class="form-select" name="CategoryId" id="categoryFilter">
-                    <option value="">Tất cả danh mục</option>
-                    @foreach (var category in ViewBag.Categories)
-                    {
-                        <option value="@category.Value" selected="@category.Selected">@category.Text</option>
-                    }
+                <select class="form-select" name="categoryId" asp-items="@ViewBag.Categories" asp-route-value="@ViewBag.SelectedCategoryId">
+                    <option value="">Tất cả</option>
                 </select>
             </div>
-            <div class="col-md-2">
-                <label class="form-label">Thẻ</label>
-                <select class="form-select" name="TagId" id="tagFilter">
-                    <option value="">Tất cả thẻ</option>
-                    @foreach (var tag in ViewBag.Tags)
-                    {
-                        <option value="@tag.Value" selected="@tag.Selected">@tag.Text</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-sm-6">
                 <label class="form-label">Loại bài viết</label>
-                <select class="form-select" name="Type" id="typeFilter">
-                    <option value="">Tất cả loại</option>
-                    @foreach (var type in Enum.GetValues(typeof(ArticleType)))
-                    {
-                        <option value="@type" selected="@(filter.Type.HasValue && filter.Type.Value.ToString() == type.ToString())">
-                            @(type.ToString() == "Knowledge" ? "Kiến thức" :
-                                type.ToString() == "News" ? "Tin tức" :
-                                type.ToString() == "Tutorial" ? "Hướng dẫn" : type.ToString())
-                        </option>
-                    }
+                <select class="form-select" name="type" asp-items="@ViewBag.Types" asp-route-value="@ViewBag.SelectedType">
+                    <option value="">Tất cả</option>
                 </select>
             </div>
-            <div class="col-md-2">
+            <div class="col-md-2 col-sm-6">
                 <label class="form-label">Trạng thái</label>
-                <select class="form-select" name="Status" id="statusFilter">
-                    <option value="">Tất cả trạng thái</option>
-                    @foreach (var status in Enum.GetValues(typeof(PublishStatus)))
-                    {
-                        <option value="@status" selected="@(filter.Status.HasValue && filter.Status.Value.ToString() == status.ToString())">
-                            @(status.ToString() == "Draft" ? "Nháp" :
-                                status.ToString() == "Published" ? "Đã xuất bản" :
-                                status.ToString() == "Scheduled" ? "Đã lên lịch" : status.ToString())
-                        </option>
-                    }
+                <select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus">
+                    <option value="">Tất cả</option>
                 </select>
             </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="fas fa-search me-2"></i> Lọc
-                </button>
+            <div class="col-md-1 col-sm-6">
+                <button type="submit" class="btn btn-primary w-100">Lọc</button>
             </div>
-            <div class="col-md-12">
-                <div class="d-flex justify-content-between">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" name="IsFeatured" value="true" id="featuredFilter" @(filter.IsFeatured == true ? "checked" : "")>
-                        <label class="form-check-label" for="featuredFilter">Chỉ hiển thị bài viết nổi bật</label>
-                    </div>
-                    <a href="@Url.Action("Index")" class="btn btn-outline-secondary">
-                        <i class="fas fa-redo me-2"></i> Đặt lại bộ lọc
-                    </a>
-                </div>
+            <div class="col-md-2 col-sm-6">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Content -->
+<!-- Content Table -->
 <div class="card">
     <div class="card-header">
-        <h3 class="card-title">Danh sách bài viết</h3>
+        <h3 class="card-title">Danh sách Bài viết</h3>
     </div>
     <div class="card-body p-0">
         @if (!Model.Any())
         {
             <div class="empty">
-                <div class="empty-img">
-                    <i class="fas fa-newspaper fa-5x text-muted"></i>
-                </div>
+                <div class="empty-icon"><i class="ti ti-file-off"></i></div>
                 <p class="empty-title">Không tìm thấy bài viết nào</p>
-                <p class="empty-subtitle text-muted">
-                    Không có bài viết nào phù hợp với tiêu chí tìm kiếm
-                </p>
-                <div class="empty-action">
-                    <a href="@Url.Action("Index")" class="btn btn-primary">
-                        <i class="fas fa-redo me-2"></i> Đặt lại bộ lọc
-                    </a>
-                    <a asp-action="Create" class="btn btn-success">
-                        <i class="fas fa-plus me-2"></i> Thêm bài viết mới
-                    </a>
-                </div>
+                <p class="empty-subtitle text-muted">Hãy tạo bài viết đầu tiên.</p>
+                <div class="empty-action"> <a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Viết bài mới </a> </div>
             </div>
         }
         else
@@ -127,144 +71,63 @@
                 <table class="table table-vcenter card-table table-striped">
                     <thead>
                         <tr>
-                            <th class="w-1">STT</th>
+                            <th style="width: 5%;">Ảnh</th>
                             <th>Tiêu đề</th>
+                            <th>Tác giả</th>
                             <th>Danh mục</th>
-                            <th>Loại</th>
-                            <th>Trạng thái</th>
-                            <th>Lượt xem</th>
-                            <th>Bình luận</th>
-                            <th>Ngày tạo</th>
-                            <th style="width: 15%">Thao tác</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Lượt xem</th>
+                            <th>Ngày xuất bản</th>
+                            <th class="w-1">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
-                        @{
-                            int index = 1;
-                        }
                         @foreach (var item in Model)
                         {
                             <tr>
-                                <td class="text-muted">@(index++)</td>
                                 <td>
-                                    <div class="d-flex align-items-center">
-                                        @if (!string.IsNullOrEmpty(item.ThumbnailImage))
-                                        {
-                                            <span class="avatar me-2" style="background-image: url(@item.ThumbnailImage)"></span>
-                                        }
-                                        else
-                                        {
-                                            <span class="avatar me-2">
-                                                <i class="fas fa-newspaper"></i>
-                                            </span>
-                                        }
-                                        <div>
-                                            <div class="font-weight-medium">
-                                                @item.Title
-                                                @if (item.IsFeatured)
-                                                {
-                                                    <span class="badge bg-yellow ms-1" title="Nổi bật">
-                                                        <i class="fas fa-star"></i>
-                                                    </span>
-                                                }
-                                            </div>
-                                            <div class="text-muted">
-                                                <a href="#" class="text-reset" title="Xem trên website">/@item.Slug</a>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    <img src="@MediaUrlHelper.GetMinioUrl(item.ThumbnailImage, "/img/placeholder-image.png")"
+                                         alt="@item.Title" class="avatar avatar-md object-fit-cover" />
                                 </td>
                                 <td>
-                                    @if (item.Categories.Any())
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Title</a>
+                                    @if (item.IsFeatured)
                                     {
-                                        foreach (var category in item.Categories.Take(2))
-                                        {
-                                            <span class="badge bg-blue-lt me-1">@category</span>
-                                        }
-
-                                        if (item.Categories.Count > 2)
-                                        {
-                                            <span class="badge bg-blue-lt">+@(item.Categories.Count - 2)</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">Chưa phân loại</span>
+                                        <i class="ti ti-star-filled text-warning ms-1" title="Nổi bật"></i>
                                     }
                                 </td>
-                                <td>
-                                    <span class="badge @(item.Type == ArticleType.Knowledge ? "bg-green" :
-                                                        item.Type == ArticleType.News ? "bg-blue" :
-                                                        item.Type == ArticleType.Tutorial ? "bg-purple" : "bg-secondary")">
-                                        @(item.Type == ArticleType.Knowledge ? "Kiến thức" :
-                                            item.Type == ArticleType.News ? "Tin tức" :
-                                            item.Type == ArticleType.Tutorial ? "Hướng dẫn" : item.Type.ToString())
-                                    </span>
+                                <td class="text-muted">@item.AuthorName</td>
+                                <td class="text-muted">@item.CategoryNames</td>
+                                <td class="text-center">
+                                    @switch (item.Status)
+                                    {
+                                        case PublishStatus.Published:
+                                            <span class="badge bg-success-lt">Xuất bản</span>
+                                            break;
+                                        case PublishStatus.Draft:
+                                            <span class="badge bg-secondary-lt">Nháp</span>
+                                            break;
+                                        case PublishStatus.Scheduled:
+                                            <span class="badge bg-warning-lt">Lên lịch</span>
+                                            break;
+                                        case PublishStatus.Archived:
+                                            <span class="badge bg-dark-lt">Lưu trữ</span>
+                                            break;
+                                        default:
+                                            <span class="badge">@item.Status</span>
+                                            break;
+                                    }
                                 </td>
-                                <td>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm dropdown-toggle status-dropdown"
-                                                data-bs-toggle="dropdown"
-                                                data-id="@item.Id"
-                                                type="button">
-                                            <span class="status-indicator @(item.Status == PublishStatus.Published ? "bg-success" :
-                                                                          item.Status == PublishStatus.Draft ? "bg-warning" :
-                                                                          item.Status == PublishStatus.Scheduled ? "bg-info" : "bg-secondary")"></span>
-                                            @(item.Status == PublishStatus.Published ? "Đã xuất bản" :
-                                                item.Status == PublishStatus.Draft ? "Nháp" :
-                                                item.Status == PublishStatus.Scheduled ? "Đã lên lịch" : item.Status.ToString())
-                                        </button>
-                                        <div class="dropdown-menu">
-                                            <a class="dropdown-item status-item" href="#" data-status="@PublishStatus.Published">
-                                                <span class="status-indicator bg-success"></span>
-                                                Đã xuất bản
-                                            </a>
-                                            <a class="dropdown-item status-item" href="#" data-status="@PublishStatus.Draft">
-                                                <span class="status-indicator bg-warning"></span>
-                                                Nháp
-                                            </a>
-                                            <a class="dropdown-item status-item" href="#" data-status="@PublishStatus.Scheduled">
-                                                <span class="status-indicator bg-info"></span>
-                                                Đã lên lịch
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="badge bg-secondary">@item.ViewCount</span>
-                                </td>
-                                <td>
-                                    <a href="@Url.Action("Index", "Comment", new { articleId = item.Id })" title="Xem bình luận">
-                                        <span class="badge bg-primary">@item.CommentCount</span>
-                                    </a>
-                                </td>
-                                <td>
-                                    <div class="text-muted">
-                                        @item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-                                    </div>
-                                </td>
+                                <td class="text-center text-muted">@item.ViewCount</td>
+                                <td class="text-muted">@(item.PublishedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
                                 <td>
                                     <div class="btn-list flex-nowrap">
-                                        <button class="btn btn-sm btn-icon btn-outline-warning toggle-featured"
-                                                data-id="@item.Id"
-                                                title="@(item.IsFeatured ? "Bỏ nổi bật" : "Đánh dấu nổi bật")">
-                                            <i class="fas @(item.IsFeatured ? "fa-star" : "fa-star text-muted")"></i>
-                                        </button>
-                                        <a href="#" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem trên website">
-                                            <i class="fas fa-external-link-alt"></i>
-                                        </a>
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item"
-                                                data-bs-toggle="modal"
-                                                data-bs-target="#delete-modal"
-                                                data-id="@item.Id"
-                                                data-name="@item.Title"
-                                                data-delete-url="@Url.Action("Delete", "Article")"
-                                                title="Xóa"
-                                        @(item.CommentCount > 0 ? "disabled" : "")>
-                                            <i class="fas fa-trash"></i>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"> <i class="ti ti-pencil"></i> </a>
+                                        @* Link to Comments Management (Optional) *@
+                                        <a asp-controller="Comment" asp-action="Index" asp-route-articleId="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem bình luận"> <i class="ti ti-message-circle"></i> </a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa"
+                                                data-id="@item.Id" data-name="@item.Title" data-delete-url="@Url.Action("Delete", "Article")">
+                                            <i class="ti ti-trash"></i>
                                         </button>
                                     </div>
                                 </td>
@@ -273,116 +136,7 @@
                     </tbody>
                 </table>
             </div>
+            @* Pagination *@
         }
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            // Toggle featured status
-            $('.toggle-featured').on('click', function () {
-                var button = $(this);
-                var id = button.data('id');
-
-                $.ajax({
-                    url: '@Url.Action("ToggleFeatured", "Article")',
-                    type: 'POST',
-                    data: { id: id },
-                    success: function (result) {
-                        if (result.success) {
-                            var icon = button.find('i');
-                            if (result.featured) {
-                                icon.removeClass('text-muted').addClass('text-warning');
-                                button.attr('title', 'Bỏ nổi bật');
-                                toastr.success('Đã đánh dấu bài viết là nổi bật');
-                            } else {
-                                icon.addClass('text-muted').removeClass('text-warning');
-                                button.attr('title', 'Đánh dấu nổi bật');
-                                toastr.success('Đã bỏ đánh dấu nổi bật');
-                            }
-                        } else {
-                            toastr.error(result.message);
-                        }
-                    },
-                    error: function () {
-                        toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái nổi bật');
-                    }
-                });
-            });
-
-            // Update status
-            $('.status-item').on('click', function (e) {
-                e.preventDefault();
-
-                var item = $(this);
-                var status = item.data('status');
-                var dropdown = item.closest('.dropdown');
-                var button = dropdown.find('.status-dropdown');
-                var id = button.data('id');
-
-                $.ajax({
-                    url: '@Url.Action("UpdateStatus", "Article")',
-                    type: 'POST',
-                    data: { id: id, status: status },
-                    success: function (result) {
-                        if (result.success) {
-                            // Update the button text and indicator
-                            var statusText = '';
-                            var statusClass = '';
-
-                            switch (status) {
-                                case @((int)PublishStatus.Published):
-                                    statusText = 'Đã xuất bản';
-                                    statusClass = 'bg-success';
-                                    break;
-                                case @((int)PublishStatus.Draft):
-                                    statusText = 'Nháp';
-                                    statusClass = 'bg-warning';
-                                    break;
-                                case @((int)PublishStatus.Scheduled):
-                                    statusText = 'Đã lên lịch';
-                                    statusClass = 'bg-info';
-                                    break;
-                                default:
-                                    statusText = result.status;
-                                    statusClass = 'bg-secondary';
-                            }
-
-                            button.html('<span class="status-indicator ' + statusClass + '"></span>' + statusText);
-                            toastr.success('Đã cập nhật trạng thái bài viết');
-                        } else {
-                            toastr.error(result.message);
-                        }
-                    },
-                    error: function () {
-                        toastr.error('Đã xảy ra lỗi khi cập nhật trạng thái');
-                    }
-                });
-            });
-
-            // Delete item setup
-            $('.delete-item').on('click', function () {
-                var id = $(this).data('id');
-                var name = $(this).data('name');
-                var deleteUrl = $(this).data('delete-url');
-
-                $('#delete-item-id').val(id);
-                $('#delete-item-name').val(name);
-                $('#delete-url').val(deleteUrl);
-                $('#delete-modal-message').text('Bạn có chắc chắn muốn xóa bài viết "' + name + '" không?');
-            });
-
-            // Clear search
-            $('#clearSearch').on('click', function() {
-                $('input[name="SearchTerm"]').val('');
-                $('#filterForm').submit();
-            });
-
-            // Auto submit on filter change
-            $('#categoryFilter, #tagFilter, #typeFilter, #statusFilter, #featuredFilter').on('change', function() {
-                $('#filterForm').submit();
-            });
-        });
-    </script>
-}

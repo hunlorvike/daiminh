@@ -8,7 +8,8 @@ public class ProductVariantViewModelValidator : AbstractValidator<ProductVariant
     public ProductVariantViewModelValidator()
     {
         // Apply validation only if the variant is not marked for deletion
-        When(x => !x.IsDeleted, () => {
+        When(x => !x.IsDeleted, () =>
+        {
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Tên biến thể không được rỗng.")
                 .MaximumLength(255);

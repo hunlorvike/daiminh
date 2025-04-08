@@ -1,65 +1,54 @@
-using System.Text.RegularExpressions;
 using FluentValidation;
-using shared.Enums;
 using web.Areas.Admin.ViewModels.Article;
 
 namespace web.Areas.Admin.Validators.Article;
 
 public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
 {
+    private readonly IList<string> _validFrequencies = new List<string> { "always", "hourly", "daily", "weekly", "monthly", "yearly", "never" };
+
     public ArticleViewModelValidator()
     {
         RuleFor(x => x.Title)
-            .NotEmpty().WithMessage("Vui lòng nhập tiêu đề bài viết")
-            .MaximumLength(255).WithMessage("Tiêu đề không được vượt quá 255 ký tự");
+            .NotEmpty().WithMessage("Vui lòng nhập tiêu đề bài viết.")
+            .MaximumLength(255);
 
         RuleFor(x => x.Slug)
-            .NotEmpty().WithMessage("Vui lòng nhập slug")
-            .MaximumLength(255).WithMessage("Slug không được vượt quá 255 ký tự")
-            .Matches(new Regex("^[a-z0-9]+(?:-[a-z0-9]+)*$"))
-            .WithMessage("Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang");
+            .NotEmpty().WithMessage("Vui lòng nhập slug.")
+            .MaximumLength(255)
+            .Matches("^[a-z0-9-]+$").WithMessage("Slug chỉ chứa chữ thường, số, dấu gạch ngang.");
 
         RuleFor(x => x.Content)
-            .NotEmpty().WithMessage("Vui lòng nhập nội dung bài viết");
+            .NotEmpty().WithMessage("Vui lòng nhập nội dung bài viết.");
 
-        RuleFor(x => x.Summary)
-            .MaximumLength(500).WithMessage("Tóm tắt không được vượt quá 500 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.Summary));
+        RuleFor(x => x.Summary).MaximumLength(500);
+        RuleFor(x => x.FeaturedImage).MaximumLength(255);
+        RuleFor(x => x.ThumbnailImage).MaximumLength(255);
+        RuleFor(x => x.AuthorName).MaximumLength(100);
+        RuleFor(x => x.AuthorAvatar).MaximumLength(255);
+        RuleFor(x => x.Type).IsInEnum();
+        RuleFor(x => x.Status).IsInEnum();
 
-        RuleFor(x => x.FeaturedImage)
-            .MaximumLength(255).WithMessage("Đường dẫn ảnh đại diện không được vượt quá 255 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.FeaturedImage));
+        RuleFor(x => x.SelectedCategoryIds)
+            .NotEmpty().WithMessage("Vui lòng chọn ít nhất một danh mục.");
 
-        RuleFor(x => x.ThumbnailImage)
-            .MaximumLength(255).WithMessage("Đường dẫn ảnh thumbnail không được vượt quá 255 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.ThumbnailImage));
-
-        RuleFor(x => x.AuthorName)
-            .MaximumLength(100).WithMessage("Tên tác giả không được vượt quá 100 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.AuthorName));
-
-        RuleFor(x => x.AuthorAvatar)
-            .MaximumLength(255).WithMessage("Đường dẫn avatar tác giả không được vượt quá 255 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.AuthorAvatar));
-
-        RuleFor(x => x.MetaTitle)
-            .MaximumLength(255).WithMessage("Meta title không được vượt quá 255 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.MetaTitle));
-
-        RuleFor(x => x.MetaDescription)
-            .MaximumLength(500).WithMessage("Meta description không được vượt quá 500 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.MetaDescription));
-
-        RuleFor(x => x.MetaKeywords)
-            .MaximumLength(255).WithMessage("Meta keywords không được vượt quá 255 ký tự")
-            .When(x => !string.IsNullOrEmpty(x.MetaKeywords));
-
-        RuleFor(x => x.PublishedAt)
-            .NotEmpty().WithMessage("Vui lòng chọn ngày xuất bản")
-            .When(x => x.Status == PublishStatus.Published);
-
-        RuleFor(x => x.CategoryIds)
-            .Must(x => x.Count > 0)
-            .WithMessage("Vui lòng chọn ít nhất một danh mục");
+        // --- SEO Fields Validation ---
+        RuleFor(x => x.MetaTitle).MaximumLength(100);
+        RuleFor(x => x.MetaDescription).MaximumLength(300);
+        RuleFor(x => x.MetaKeywords).MaximumLength(200);
+        RuleFor(x => x.CanonicalUrl).MaximumLength(255).When(x => !string.IsNullOrWhiteSpace(x.CanonicalUrl));
+        RuleFor(x => x.OgTitle).MaximumLength(100);
+        RuleFor(x => x.OgDescription).MaximumLength(300);
+        RuleFor(x => x.OgImage).MaximumLength(255).When(x => !string.IsNullOrWhiteSpace(x.OgImage));
+        RuleFor(x => x.OgType).MaximumLength(50);
+        RuleFor(x => x.TwitterTitle).MaximumLength(100);
+        RuleFor(x => x.TwitterDescription).MaximumLength(300);
+        RuleFor(x => x.TwitterImage).MaximumLength(255).When(x => !string.IsNullOrWhiteSpace(x.TwitterImage));
+        RuleFor(x => x.TwitterCard).MaximumLength(50);
+        RuleFor(x => x.SitemapPriority).InclusiveBetween(0.0, 1.0);
+        RuleFor(x => x.SitemapChangeFrequency)
+            .NotEmpty()
+            .Must(f => _validFrequencies.Contains(f?.ToLowerInvariant() ?? string.Empty))
+            .WithMessage("Tần suất cập nhật sitemap không hợp lệ.");
     }
 }

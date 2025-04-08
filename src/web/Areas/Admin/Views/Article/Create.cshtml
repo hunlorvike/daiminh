@@ -1,264 +1,101 @@
+@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Article
 @model ArticleViewModel
 @{
-    ViewData["Title"] = "Thêm bài viết mới - Hệ thống quản trị";
+    ViewData["Title"] = "Viết Bài mới";
 }
 
-<form asp-action="Create" method="post" enctype="multipart/form-data">
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+<form asp-action="Create" method="post" id="article-form">
+    @Html.AntiForgeryToken()
 
-    @await Html.PartialAsync("_ArticleForm", Model)
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Nội dung Bài viết</h3>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
+            <partial name="_ArticleFormFields" model="Model" />
+        </div>
+        <div class="card-footer text-end">
+            <a asp-action="Index" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="ti ti-device-floppy me-2"></i> Lưu bài viết
+            </button>
+        </div>
+    </div>
 </form>
 
 @section Scripts {
+    <script src="~/js/slug.js"></script>
+
     <script>
-        $(document).ready(function () {
-            // Initialize Summernote
-            $('.summernote').summernote({
-                height: 300,
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'underline', 'clear']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ],
-                lang: 'vi-VN',
-                placeholder: 'Nhập nội dung câu trả lời...'
-            });
-
-            // Initialize Tom Select for tags
-            var tagSelect = new TomSelect('#tagSelect', {
-                plugins: ['remove_button'],
-                valueField: 'id',
-                labelField: 'name',
-                searchField: 'name',
-                create: false,
-                maxItems: null,
-                placeholder: 'Chọn thẻ...',
-                render: {
-                    option: function(data, escape) {
-                        return '<div>' + escape(data.name) + '</div>';
-                    },
-                    item: function(data, escape) {
-                        return '<div>' + escape(data.name) + '</div>';
-                    }
-                },
-                onChange: function(values) {
-                    // Clear existing tags
-                    $('#selectedTags').empty();
-
-                    // Add selected tags
-                    values.forEach(function(value) {
-                        var option = this.options[value];
-                        if (option) {
-                            $('#selectedTags').append(`
-                                <input type="hidden" name="TagIds" value="${option.id}" />
-                                <div class="selected-item" data-id="${option.id}">
-                                    <span>${option.name}</span>
-                                    <button type="button" class="btn btn-sm btn-icon remove-item">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            `);
-                        }
-                    }, this);
-                }
-            });
-
-            // Prepare data for Tom Select
-            var tagOptions = [];
-            $('#tagSelect option').each(function() {
-                if ($(this).val()) {
-                    tagOptions.push({
-                        id: $(this).val(),
-                        name: $(this).text(),
-                        selected: $(this).is(':selected')
-                    });
-                }
-            });
-
-            // Set initial values for tags
-            tagSelect.clear();
-            tagSelect.clearOptions();
-            tagSelect.addOptions(tagOptions);
-
-            var selectedTagIds = @Html.Raw(Json.Serialize(Model.TagIds));
-            if (selectedTagIds && selectedTagIds.length) {
-                tagSelect.setValue(selectedTagIds);
-            }
-
-            // Initialize Tom Select for products
-            var productSelect = new TomSelect('#productSelect', {
-                plugins: ['remove_button'],
-                valueField: 'id',
-                labelField: 'name',
-                searchField: 'name',
-                create: false,
-                maxItems: null,
-                placeholder: 'Chọn sản phẩm liên quan...',
-                render: {
-                    option: function(data, escape) {
-                        return '<div>' + escape(data.name) + '</div>';
-                    },
-                    item: function(data, escape) {
-                        return '<div>' + escape(data.name) + '</div>';
-                    }
-                },
-                onChange: function(values) {
-                    // Clear existing products
-                    $('#selectedProducts').empty();
-
-                    // Add selected products
-                    values.forEach(function(value) {
-                        var option = this.options[value];
-                        if (option) {
-                            $('#selectedProducts').append(`
-                                <input type="hidden" name="ProductIds" value="${option.id}" />
-                                <div class="selected-item" data-id="${option.id}">
-                                    <span>${option.name}</span>
-                                    <button type="button" class="btn btn-sm btn-icon remove-item">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                </div>
-                            `);
-                        }
-                    }, this);
-                }
-            });
-
-            // Prepare data for Tom Select
-            var productOptions = [];
-            $('#productSelect option').each(function() {
-                if ($(this).val()) {
-                    productOptions.push({
-                        id: $(this).val(),
-                        name: $(this).text(),
-                        selected: $(this).is(':selected')
-                    });
-                }
-            });
-
-            // Set initial values for products
-            productSelect.clear();
-            productSelect.clearOptions();
-            productSelect.addOptions(productOptions);
-
-            var selectedProductIds = @Html.Raw(Json.Serialize(Model.ProductIds));
-            if (selectedProductIds && selectedProductIds.length) {
-                productSelect.setValue(selectedProductIds);
-            }
-
-            // Remove selected item
-            $(document).on('click', '.remove-item', function() {
-                var item = $(this).closest('.selected-item');
-                var id = item.data('id');
-
-                // Remove from Tom Select
-                if (item.parent().attr('id') === 'selectedTags') {
-                    tagSelect.removeItem(id.toString());
-                } else if (item.parent().attr('id') === 'selectedProducts') {
-                    productSelect.removeItem(id.toString());
-                }
-
-                // Remove item
-                item.remove();
-            });
-
-            // Generate slug from title
-            $('#generateSlug').on('click', function() {
-                var title = $('#articleTitle').val();
-                if (!title) {
-                    toastr.error('Vui lòng nhập tiêu đề trước');
-                    return;
-                }
-
-                $.ajax({
-                    url: '@Url.Action("GenerateSlug", "Article")',
-                    type: 'POST',
-                    data: { title: title },
-                    success: function(result) {
-                        $('#articleSlug').val(result.slug);
-                    },
-                    error: function() {
-                        toastr.error('Đã xảy ra lỗi khi tạo slug');
-                    }
+        $(document).ready(function() {
+            // Initialize Tom Select
+            $('.tom-select-multiple').each(function(){
+                new TomSelect(this, {
+                    plugins: ['remove_button'],
+                    create: $(this).is('#SelectedTagIds'), // Allow create only for tags
+                    placeholder: $(this).attr('id') === 'SelectedCategoryIds' ? 'Chọn danh mục...' : ($(this).attr('id') === 'SelectedTagIds' ? 'Chọn hoặc nhập thẻ...' : 'Chọn sản phẩm...')
                 });
             });
 
-            // Auto-generate slug when title changes
-            $('#articleTitle').on('blur', function() {
-                if ($('#articleSlug').val() === '') {
-                    $('#generateSlug').click();
-                }
+             // Initialize Summernote
+            $('.summernote-editor').summernote({ /* Full options */ height: 400 });
+
+            // --- Slug Generation ---
+            const titleInput = $('#articleTitle');
+            const slugInput = $('#articleSlug');
+            const generateBtn = $('#generateSlugButton');
+            titleInput.on('input', function() {
+               if (slugInput.val() === '') { slugInput.val(generateVietnameseSlug(titleInput.val())); }
             });
+            generateBtn.on('click', function() { slugInput.val(generateVietnameseSlug(titleInput.val())); });
+
+            // --- General Media Selection Logic ---
+             function handleMediaSelection(selectedFile, inputSelector, previewSelector) {
+                if (selectedFile && inputSelector && previewSelector) {
+                     const inputField = $(inputSelector);
+                     const previewImg = $(previewSelector);
+                     const removeBtn = $(`button[data-target-input="${inputSelector}"]`).filter('.remove-media-btn');
+
+                     // Assuming OgImage/TwitterImage store URL, others store path
+                     const valueToStore = (inputSelector === '#ogImagePathInput' || inputSelector === '#twitterImagePathInput')
+                                        ? selectedFile.url // Store full URL
+                                        : selectedFile.path; // Store path for Featured/Thumb/Avatar
+
+                     const displayUrl = '@(MediaUrlHelper.GetMinioUrl("__IMAGE_PATH__", "/img/placeholder.svg"))'.replace('__IMAGE_PATH__', selectedFile.path);
+
+                     previewImg.attr('src', displayUrl).show();
+                     inputField.val(valueToStore || '').trigger('change');
+                     if(removeBtn.length) removeBtn.removeClass('d-none');
+                }
+            }
+
+             // Attach click handlers using event delegation from a common parent or document
+             $(document).on('click', '.select-media-btn', function() {
+                 const targetInput = $(this).data('target-input');
+                 const targetPreview = $(this).data('target-preview');
+                 if (typeof window.openMediaSelectionModal === 'function') {
+                     // Create a specific callback for this instance
+                     const specificCallback = (selectedFile) => handleMediaSelection(selectedFile, targetInput, targetPreview);
+                     window.openMediaSelectionModal(specificCallback, 'Image'); // Filter images
+                 } else { console.error('openMediaSelectionModal is not defined.'); }
+             });
+
+              $(document).on('click', '.remove-media-btn', function() {
+                 const targetInput = $(this).data('target-input');
+                 const targetPreview = $(this).data('target-preview');
+                 const placeholder = $(this).data('placeholder') || '/img/placeholder-image.png';
+                 if (targetInput && targetPreview) {
+                     $(targetPreview).attr('src', placeholder);
+                      if ($(targetPreview).is('#ogImagePreview')) $(targetPreview).hide(); // Hide OG preview specifically
+                     $(targetInput).val('').trigger('change');
+                     $(this).addClass('d-none');
+                 }
+             });
+
+             // Initialize Datepicker (Example using native HTML5)
+             // Ensure correct format if not using native
         });
     </script>
-
-    <style>
-        /* Tom Select customizations */
-        .ts-wrapper {
-            width: 100%;
-        }
-
-        .ts-control {
-            border: 1px solid #dee2e6;
-            padding: 0.375rem 0.75rem;
-            border-radius: 0.25rem;
-        }
-
-        .ts-dropdown {
-            border: 1px solid #dee2e6;
-            border-radius: 0.25rem;
-        }
-
-        /* Selected items styling */
-        .selected-item {
-            display: inline-flex;
-            align-items: center;
-            background-color: #f0f0f0;
-            border-radius: 4px;
-            padding: 4px 8px;
-            margin-right: 8px;
-            margin-bottom: 8px;
-        }
-
-            .selected-item .btn {
-                padding: 0;
-                margin-left: 8px;
-                color: #999;
-            }
-
-                .selected-item .btn:hover {
-                    color: #dc3545;
-                }
-
-        .category-list {
-            max-height: 200px;
-            overflow-y: auto;
-            border: 1px solid #dee2e6;
-            border-radius: 4px;
-            padding: 10px;
-        }
-
-        /* Summernote customizations */
-        .note-editor {
-            border-color: #dee2e6 !important;
-        }
-
-        .note-toolbar {
-            background-color: #f8f9fa;
-        }
-
-        .note-btn {
-            background-color: #fff;
-            border-color: #dee2e6;
-        }
-
-            .note-btn:hover {
-                background-color: #e9ecef;
-            }
-    </style>
 }

@@ -1,5 +1,4 @@
 using FluentValidation;
-using shared.Enums;
 using web.Areas.Admin.ViewModels.Product;
 
 namespace web.Areas.Admin.Validators.Product;

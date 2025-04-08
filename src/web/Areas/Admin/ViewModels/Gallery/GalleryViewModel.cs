@@ -1,6 +1,5 @@
 // GalleryViewModel.cs
 using shared.Enums;
-using web.Areas.Admin.ViewModels.Article;
 
 namespace web.Areas.Admin.ViewModels.Gallery;
 
@@ -37,4 +36,11 @@ public class GalleryViewModel
     public List<SelectItemViewModel> AvailableCategories { get; set; } = new List<SelectItemViewModel>();
     public List<SelectItemViewModel> AvailableTags { get; set; } = new List<SelectItemViewModel>();
     public List<GalleryImageViewModel> Images { get; set; } = new List<GalleryImageViewModel>();
+}
+
+public class SelectItemViewModel
+{
+    public int Id { get; set; }
+    public string Name { get; set; } = string.Empty;
+    public bool Selected { get; set; }
 }

@@ -1,0 +1,257 @@
+@using shared.Helpers
+@using web.Areas.Admin.ViewModels.Article
+@model ArticleViewModel
+@using shared.Enums;
+
+@* --- TABS --- *@
+<ul class="nav nav-tabs nav-fill mb-3" data-bs-toggle="tabs">
+    <li class="nav-item">
+        <a href="#article-tab-content" class="nav-link active" data-bs-toggle="tab">
+            <i class="ti ti-file-text me-2"></i> Nội dung chính
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#article-tab-images" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-photo me-2"></i> Hình ảnh & Tác giả
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#article-tab-relations" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-tags me-2"></i> Phân loại & Liên kết
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#article-tab-publishing" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-calendar-event me-2"></i> Xuất bản
+        </a>
+    </li>
+    <li class="nav-item">
+        <a href="#article-tab-seo" class="nav-link" data-bs-toggle="tab">
+            <i class="ti ti-search me-2"></i> Tối ưu SEO
+        </a>
+    </li>
+</ul>
+
+@* --- TAB CONTENT --- *@
+<div class="tab-content">
+    @* --- Tab: Content --- *@
+    <div class="tab-pane active show" id="article-tab-content">
+        <div class="form-group mb-3">
+            <label asp-for="Title" class="form-label required">Tiêu đề bài viết</label>
+            <input asp-for="Title" class="form-control form-control-lg" id="articleTitle" /> @* Larger title input *@
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="Slug" class="form-label required">Slug</label>
+            <div class="input-group">
+                <input asp-for="Slug" class="form-control" id="articleSlug" />
+                <button class="btn btn-outline-secondary" type="button" id="generateSlugButton"> <i class="ti ti-refresh"></i> </button>
+            </div>
+            <span asp-validation-for="Slug" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="Summary" class="form-label">Tóm tắt</label>
+            <textarea asp-for="Summary" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="Summary" class="text-danger"></span>
+            <small class="form-hint">Mô tả ngắn gọn cho bài viết (hiển thị ở danh sách).</small>
+        </div>
+        <div class="form-group mb-0">
+            @* Remove bottom margin *@
+            <label asp-for="Content" class="form-label required">Nội dung chi tiết</label>
+            <textarea asp-for="Content" class="form-control summernote-editor" id="articleContentEditor" rows="20"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+    </div>
+
+    @* --- Tab: Images & Author --- *@
+    <div class="tab-pane" id="article-tab-images">
+        <div class="row">
+            <div class="col-md-6">
+                <h4 class="mb-3">Hình ảnh đại diện</h4>
+                <div class="form-group mb-3" id="featured-image-area">
+                    <label asp-for="FeaturedImage" class="form-label">Ảnh Featured</label>
+                    <div>
+                        <img id="featuredImagePreview"
+                             src="@MediaUrlHelper.GetMinioUrl(Model.FeaturedImage, "/img/placeholder.svg")"
+                             alt="Featured Image Preview"
+                             class="img-thumbnail mb-2"
+                             style="max-height: 200px; max-width: 100%; object-fit: contain; min-height: 100px; background-color: #f8f9fa;" />
+                    </div>
+                    <input type="hidden" asp-for="FeaturedImage" id="featuredImagePathInput" />
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#featuredImagePathInput" data-target-preview="#featuredImagePreview">
+                            <i class="ti ti-photo-search me-1"></i> Chọn ảnh
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.FeaturedImage) ? "d-none" : "")" data-target-input="#featuredImagePathInput" data-target-preview="#featuredImagePreview" data-placeholder="/img/placeholder.svg">
+                            <i class="ti ti-x me-1"></i> Xóa ảnh
+                        </button>
+                    </div>
+                    <span asp-validation-for="FeaturedImage" class="text-danger"></span>
+                    <small class="form-hint">Ảnh chính hiển thị lớn.</small>
+                </div>
+
+                <div class="form-group mb-3" id="thumbnail-image-area">
+                    <label asp-for="ThumbnailImage" class="form-label">Ảnh Thumbnail</label>
+                    <div>
+                        <img id="thumbnailImagePreview"
+                             src="@MediaUrlHelper.GetMinioUrl(Model.ThumbnailImage, "/img/placeholder.svg")"
+                             alt="Thumbnail Preview"
+                             class="img-thumbnail mb-2"
+                             style="max-height: 100px; max-width: 100%; object-fit: contain; min-height: 60px; background-color: #f8f9fa;" />
+                    </div>
+                    <input type="hidden" asp-for="ThumbnailImage" id="thumbnailImagePathInput" />
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#thumbnailImagePathInput" data-target-preview="#thumbnailImagePreview">
+                            <i class="ti ti-photo-search me-1"></i> Chọn ảnh
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.ThumbnailImage) ? "d-none" : "")" data-target-input="#thumbnailImagePathInput" data-target-preview="#thumbnailImagePreview" data-placeholder="/img/placeholder.svg">
+                            <i class="ti ti-x me-1"></i> Xóa ảnh
+                        </button>
+                    </div>
+                    <span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+                    <small class="form-hint">Ảnh nhỏ hơn, hiển thị ở danh sách (nếu bỏ trống sẽ dùng ảnh Featured).</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <h4 class="mb-3">Thông tin tác giả</h4>
+                @* Hide AuthorId if you don't link to User table *@
+                @* <input type="hidden" asp-for="AuthorId" /> *@
+                <div class="form-group mb-3">
+                    <label asp-for="AuthorName" class="form-label">Tên tác giả</label>
+                    <input asp-for="AuthorName" class="form-control" />
+                    <span asp-validation-for="AuthorName" class="text-danger"></span>
+                    <small class="form-hint">Để trống nếu muốn dùng tên user đăng nhập (nếu có).</small>
+                </div>
+                <div class="form-group mb-3" id="author-avatar-area">
+                    <label asp-for="AuthorAvatar" class="form-label">Avatar tác giả</label>
+                    <div>
+                        <img id="authorAvatarPreview"
+                             src="@MediaUrlHelper.GetMinioUrl(Model.AuthorAvatar, "/img/placeholder.svg")"
+                             alt="Author Avatar Preview"
+                             class="avatar avatar-xl mb-2" /> @* Use avatar class *@
+                    </div>
+                    <input type="hidden" asp-for="AuthorAvatar" id="authorAvatarPathInput" />
+                    <div>
+                        <button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#authorAvatarPathInput" data-target-preview="#authorAvatarPreview">
+                            <i class="ti ti-photo-search me-1"></i> Chọn ảnh
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.AuthorAvatar) ? "d-none" : "")" data-target-input="#authorAvatarPathInput" data-target-preview="#authorAvatarPreview" data-placeholder="/img/placeholder.svg">
+                            <i class="ti ti-x me-1"></i> Xóa ảnh
+                        </button>
+                    </div>
+                    <span asp-validation-for="AuthorAvatar" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- Tab: Relations --- *@
+    <div class="tab-pane" id="article-tab-relations">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="SelectedCategoryIds" class="form-label required">Danh mục</label>
+                    <select asp-for="SelectedCategoryIds" asp-items="@Model.CategoryList" class="form-select tom-select-multiple" multiple="multiple"></select>
+                    <span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
+                    <small class="form-hint">Chọn ít nhất một danh mục.</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="SelectedTagIds" class="form-label">Thẻ (Tags)</label>
+                    <select asp-for="SelectedTagIds" asp-items="@Model.TagList" class="form-select tom-select-multiple" multiple="multiple"></select>
+                    <span asp-validation-for="SelectedTagIds" class="text-danger"></span>
+                    <small class="form-hint">Chọn các thẻ liên quan.</small>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="form-group mb-0">
+                    <label asp-for="SelectedProductIds" class="form-label">Sản phẩm liên quan</label>
+                    <select asp-for="SelectedProductIds" asp-items="@Model.ProductList" class="form-select tom-select-multiple" multiple="multiple"></select>
+                    <span asp-validation-for="SelectedProductIds" class="text-danger"></span>
+                    <small class="form-hint">Chọn các sản phẩm được đề cập trong bài viết.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- Tab: Publishing --- *@
+    <div class="tab-pane" id="article-tab-publishing">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="Status" class="form-label required">Trạng thái</label>
+                    <select asp-for="Status" asp-items="@Model.StatusList" class="form-select"></select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="PublishedAt" class="form-label">Ngày xuất bản</label>
+                    <input asp-for="PublishedAt" type="datetime-local" class="form-control" />
+                    <span asp-validation-for="PublishedAt" class="text-danger"></span>
+                    <small class="form-hint">Để trống nếu là bản nháp hoặc muốn xuất bản ngay.</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-check form-switch mb-3">
+                    <input class="form-check-input" type="checkbox" asp-for="IsFeatured" role="switch" id="articleIsFeaturedSwitch">
+                    <label class="form-check-label" for="articleIsFeaturedSwitch">Bài viết nổi bật</label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* --- Tab: SEO --- *@
+    <div class="tab-pane" id="article-tab-seo">
+        @* Include common SEO fields partial or copy fields here *@
+        <div class="form-group mb-3">
+            <label asp-for="MetaTitle" class="form-label">Meta Title</label>
+            <input asp-for="MetaTitle" class="form-control" />
+            <span asp-validation-for="MetaTitle" class="text-danger"></span>
+        </div>
+        <div class="form-group mb-3">
+            <label asp-for="MetaDescription" class="form-label">Meta Description</label>
+            <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+            <span asp-validation-for="MetaDescription" class="text-danger"></span>
+        </div>
+        @* Add other SEO fields (Keywords, Canonical, NoIndex/Follow) *@
+        <div class="form-group mb-3">
+            <label asp-for="OgImage" class="form-label">Ảnh Open Graph & Twitter</label>
+            <div class="input-group">
+                <input type="text" asp-for="OgImage" class="form-control" id="ogImagePathInput" placeholder="Nhập URL hoặc chọn ảnh" />
+                <button class="btn btn-outline-secondary select-media-btn" type="button" data-target-input="#ogImagePathInput" data-target-preview="#ogImagePreview" title="Chọn ảnh từ thư viện"><i class="ti ti-photo-search"></i></button>
+                <button class="btn btn-outline-danger remove-media-btn @(string.IsNullOrEmpty(Model.OgImage) ? "d-none" : "")" type="button" data-target-input="#ogImagePathInput" data-target-preview="#ogImagePreview" data-placeholder="/img/placeholder.svg" title="Xóa ảnh"><i class="ti ti-x"></i></button>
+            </div>
+            <span asp-validation-for="OgImage" class="text-danger"></span>
+            <img id="ogImagePreview" src="@(MediaUrlHelper.GetMinioUrl(Model.OgImage, "/img/placeholder.svg"))" class="img-thumbnail mt-2" style="max-height: 80px; display: @(string.IsNullOrEmpty(Model.OgImage) ? "none" : "block");" />
+            <small class="form-hint">Ảnh hiển thị khi chia sẻ lên MXH. Nên dùng ảnh tỷ lệ 1.91:1 (vd: 1200x630px).</small>
+        </div>
+        @* Add Sitemap fields *@
+        <h4 class="mt-4 mb-3">Cấu hình Sitemap</h4>
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="SitemapPriority" class="form-label">Ưu tiên (Priority)</label>
+                    <input type="number" asp-for="SitemapPriority" class="form-control" step="0.1" min="0.0" max="1.0" />
+                    <span asp-validation-for="SitemapPriority" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="SitemapChangeFrequency" class="form-label required">Tần suất thay đổi</label>
+                    <select asp-for="SitemapChangeFrequency" class="form-select">
+                        <option value="always">Luôn luôn</option>
+                        <option value="hourly">Hàng giờ</option>
+                        <option value="daily">Hàng ngày</option>
+                        <option value="weekly">Hàng tuần</option>
+                        <option value="monthly">Hàng tháng</option>
+                        <option value="yearly">Hàng năm</option>
+                        <option value="never">Không bao giờ</option>
+                    </select>
+                    <span asp-validation-for="SitemapChangeFrequency" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -5,150 +5,83 @@ using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Comment;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize] // Add specific roles for moderation if needed
 public class CommentController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly IValidator<CommentViewModel> _validator;
+    private readonly ILogger<CommentController> _logger;
 
     public CommentController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<CommentViewModel> validator)
+        IValidator<CommentViewModel> validator,
+         ILogger<CommentController> logger)
     {
         _context = context;
         _mapper = mapper;
         _validator = validator;
+        _logger = logger;
     }
 
     // GET: Admin/Comment
-    public async Task<IActionResult> Index(CommentFilterViewModel filter)
+    public async Task<IActionResult> Index(string? searchTerm = null, bool? isApproved = null, int? articleId = null)
     {
-        ViewData["PageTitle"] = "Quản lý bình luận";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Bài viết", "/Admin/Article"),
-            ("Bình luận", "")
-        };
+        ViewData["PageTitle"] = "Quản lý Bình luận";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bình luận", "") };
 
         var query = _context.Set<Comment>()
-            .Include(c => c.Article)
-            .Include(c => c.Replies)
-            .AsQueryable();
+                            .Include(c => c.Article) // For ArticleTitle
+                            .Include(c => c.Replies) // For ReplyCount
+                            .Where(c => c.ParentId == null) // Only show top-level comments
+                            .AsQueryable();
 
-        // Apply filters
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
+        // Filtering
+        if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(c => c.Content.Contains(filter.SearchTerm) ||
-                                    c.AuthorName.Contains(filter.SearchTerm) ||
-                                    (c.AuthorEmail != null && c.AuthorEmail.Contains(filter.SearchTerm)));
+            query = query.Where(c => c.AuthorName.Contains(searchTerm) || c.AuthorEmail.Contains(searchTerm) || c.Content.Contains(searchTerm));
+        }
+        if (isApproved.HasValue)
+        {
+            query = query.Where(c => c.IsApproved == isApproved.Value);
+        }
+        if (articleId.HasValue)
+        {
+            query = query.Where(c => c.ArticleId == articleId.Value);
         }
 
-        if (filter.IsApproved.HasValue)
-        {
-            query = query.Where(c => c.IsApproved == filter.IsApproved.Value);
-        }
-
-        if (filter.ArticleId.HasValue)
-        {
-            query = query.Where(c => c.ArticleId == filter.ArticleId.Value);
-        }
-
-        if (filter.HasParent.HasValue)
-        {
-            query = query.Where(c => filter.HasParent.Value ? c.ParentId.HasValue : !c.ParentId.HasValue);
-        }
-
-        var comments = await query
-            .OrderByDescending(c => c.CreatedAt)
-            .ToListAsync();
-
+        var comments = await query.OrderByDescending(c => c.CreatedAt).ToListAsync();
         var viewModels = _mapper.Map<List<CommentListItemViewModel>>(comments);
 
-        // Add reply count to each view model
-        foreach (var viewModel in viewModels)
-        {
-            var comment = comments.First(c => c.Id == viewModel.Id);
-            viewModel.ReplyCount = comment.Replies?.Count ?? 0;
-        }
+        // TODO: Load filter dropdowns if needed (e.g., Articles list)
 
-        // Get articles for dropdown
-        ViewBag.Articles = await _context.Set<Article>()
-            .OrderByDescending(a => a.CreatedAt)
-            .Select(a => new SelectListItem
-            {
-                Value = a.Id.ToString(),
-                Text = a.Title,
-                Selected = filter.ArticleId.HasValue && a.Id == filter.ArticleId.Value
-            })
-            .ToListAsync();
-
-        ViewBag.Filter = filter;
+        ViewBag.SearchTerm = searchTerm;
+        ViewBag.SelectedApprovedStatus = isApproved;
+        ViewBag.SelectedArticleId = articleId;
 
         return View(viewModels);
-    }
-
-    // GET: Admin/Comment/Details/5
-    public async Task<IActionResult> Details(int id)
-    {
-        var comment = await _context.Set<Comment>()
-            .Include(c => c.Article)
-            .Include(c => c.Parent)
-            .Include(c => c.Replies)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (comment == null)
-        {
-            return NotFound();
-        }
-
-        ViewData["PageTitle"] = "Chi tiết bình luận";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Bài viết", "/Admin/Article"),
-            ("Bình luận", "/Admin/Comment"),
-            ("Chi tiết", "")
-        };
-
-        var viewModel = _mapper.Map<CommentViewModel>(comment);
-        viewModel.ArticleTitle = comment.Article?.Title ?? "Không tìm thấy bài viết";
-        viewModel.ParentAuthorName = comment.Parent?.AuthorName;
-
-        return View(viewModel);
     }
 
     // GET: Admin/Comment/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
         var comment = await _context.Set<Comment>()
-            .Include(c => c.Article)
-            .Include(c => c.Parent)
-            .FirstOrDefaultAsync(c => c.Id == id);
+                                 .Include(c => c.Article) // Include article for title display
+                                 .FirstOrDefaultAsync(c => c.Id == id);
 
-        if (comment == null)
-        {
-            return NotFound();
-        }
-
-        ViewData["PageTitle"] = "Chỉnh sửa bình luận";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Bài viết", "/Admin/Article"),
-            ("Bình luận", "/Admin/Comment"),
-            ("Chỉnh sửa", "")
-        };
+        if (comment == null) return NotFound();
 
         var viewModel = _mapper.Map<CommentViewModel>(comment);
-        viewModel.ArticleTitle = comment.Article?.Title ?? "Không tìm thấy bài viết";
-        viewModel.ParentAuthorName = comment.Parent?.AuthorName;
+
+        ViewData["PageTitle"] = "Chỉnh sửa Bình luận";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bình luận", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
 
         return View(viewModel);
     }
@@ -158,60 +91,54 @@ public class CommentController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, CommentViewModel viewModel)
     {
-        if (id != viewModel.Id)
-        {
-            return NotFound();
-        }
+        if (id != viewModel.Id) return BadRequest();
 
         var validationResult = await _validator.ValidateAsync(viewModel);
-
         if (!validationResult.IsValid)
         {
-            validationResult.AddToModelState(ModelState, string.Empty);
-
-            // Reload article title for display
-            var article = await _context.Set<Article>().FindAsync(viewModel.ArticleId);
-            viewModel.ArticleTitle = article?.Title ?? "Không tìm thấy bài viết";
-
-            if (viewModel.ParentId.HasValue)
-            {
-                var parentComment = await _context.Set<Comment>().FindAsync(viewModel.ParentId.Value);
-                viewModel.ParentAuthorName = parentComment?.AuthorName;
-            }
-
-            return View(viewModel);
+            validationResult.AddToModelState(ModelState);
+            ViewData["PageTitle"] = "Chỉnh sửa Bình luận";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bình luận", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
+            return View(viewModel); // Return with errors
         }
+
+        var comment = await _context.Set<Comment>().FindAsync(id);
+        if (comment == null) return NotFound();
+
+        _mapper.Map(viewModel, comment); // Map editable fields
 
         try
         {
-            var comment = await _context.Set<Comment>().FindAsync(id);
-
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            _mapper.Map(viewModel, comment);
-
-            _context.Update(comment);
             await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Cập nhật bình luận thành công";
+            TempData["SuccessMessage"] = "Cập nhật bình luận thành công!";
+            return RedirectToAction(nameof(Index));
         }
-        catch (DbUpdateConcurrencyException)
+        catch (Exception ex)
         {
-            if (!await CommentExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            _logger.LogError(ex, "Error updating Comment ID {CommentId}", id);
+            ModelState.AddModelError("", "Không thể lưu thay đổi.");
+            ViewData["PageTitle"] = "Chỉnh sửa Bình luận";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bình luận", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
+            return View(viewModel);
         }
-
-        return RedirectToAction(nameof(Index));
     }
+
+    // POST: Admin/Comment/Approve/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Approve(int id)
+    {
+        return await UpdateApprovalStatus(id, true);
+    }
+
+    // POST: Admin/Comment/Unapprove/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Unapprove(int id)
+    {
+        return await UpdateApprovalStatus(id, false);
+    }
+
 
     // POST: Admin/Comment/Delete/5
     [HttpPost]
@@ -219,124 +146,56 @@ public class CommentController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var comment = await _context.Set<Comment>()
-            .Include(c => c.Replies)
-            .FirstOrDefaultAsync(c => c.Id == id);
+                                 .Include(c => c.Replies) // Need to handle replies if Restrict
+                                 .FirstOrDefaultAsync(c => c.Id == id);
 
         if (comment == null)
         {
-            return Json(new { success = false, message = "Không tìm thấy bình luận" });
+            return Json(new { success = false, message = "Không tìm thấy bình luận." });
         }
 
-        // Check if there are replies
+        // If using Restrict on ParentId, need to handle replies manually or change constraint
+        // For now, assume Cascade on ArticleId handles replies in DB if Article is deleted
+        // If deleting comment directly, and ParentId has Restrict, need logic here.
+        // Let's assume replies should be deleted with parent comment for simplicity (change OnDelete behavior if needed)
         if (comment.Replies != null && comment.Replies.Any())
         {
-            return Json(new { success = false, message = $"Không thể xóa bình luận này vì có {comment.Replies.Count} phản hồi. Vui lòng xóa các phản hồi trước." });
+            _context.Comments.RemoveRange(comment.Replies); // Remove replies first if needed
         }
 
-        _context.Set<Comment>().Remove(comment);
-        await _context.SaveChangesAsync();
+        _context.Remove(comment);
 
-        return Json(new { success = true, message = "Xóa bình luận thành công" });
+        try
+        {
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = "Xóa bình luận thành công." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting Comment ID {CommentId}", id);
+            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa bình luận." });
+        }
     }
 
-    // POST: Admin/Comment/ToggleApproval/5
-    [HttpPost]
-    public async Task<IActionResult> ToggleApproval(int id)
+    // --- Helper: Update Approval ---
+    private async Task<IActionResult> UpdateApprovalStatus(int id, bool approve)
     {
         var comment = await _context.Set<Comment>().FindAsync(id);
-
         if (comment == null)
         {
-            return Json(new { success = false, message = "Không tìm thấy bình luận" });
+            return Json(new { success = false, message = "Không tìm thấy bình luận." });
         }
 
-        comment.IsApproved = !comment.IsApproved;
-        await _context.SaveChangesAsync();
-
-        return Json(new { success = true, approved = comment.IsApproved });
-    }
-
-    // GET: Admin/Comment/Reply/5
-    public async Task<IActionResult> Reply(int id)
-    {
-        var parentComment = await _context.Set<Comment>()
-            .Include(c => c.Article)
-            .FirstOrDefaultAsync(c => c.Id == id);
-
-        if (parentComment == null)
+        comment.IsApproved = approve;
+        try
         {
-            return NotFound();
+            await _context.SaveChangesAsync();
+            return Json(new { success = true, message = approve ? "Duyệt bình luận thành công." : "Bỏ duyệt bình luận thành công." });
         }
-
-        ViewData["PageTitle"] = "Trả lời bình luận";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+        catch (Exception ex)
         {
-            ("Bài viết", "/Admin/Article"),
-            ("Bình luận", "/Admin/Comment"),
-            ("Trả lời", "")
-        };
-
-        var viewModel = new CommentViewModel
-        {
-            ParentId = parentComment.Id,
-            ArticleId = parentComment.ArticleId,
-            ArticleTitle = parentComment.Article?.Title ?? "Không tìm thấy bài viết",
-            ParentAuthorName = parentComment.AuthorName,
-            IsApproved = true,
-            AuthorName = "Admin", // Default value for admin reply
-            AuthorEmail = "admin@example.com" // Default value for admin reply
-        };
-
-        return View(viewModel);
-    }
-
-    // POST: Admin/Comment/Reply
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Reply(CommentViewModel viewModel)
-    {
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty);
-
-            // Reload article title and parent author name for display
-            var article = await _context.Set<Article>().FindAsync(viewModel.ArticleId);
-            viewModel.ArticleTitle = article?.Title ?? "Không tìm thấy bài viết";
-
-            if (viewModel.ParentId.HasValue)
-            {
-                var parentComment = await _context.Set<Comment>().FindAsync(viewModel.ParentId.Value);
-                viewModel.ParentAuthorName = parentComment?.AuthorName;
-            }
-
-            return View(viewModel);
+            _logger.LogError(ex, "Error updating approval status for Comment ID {CommentId}", id);
+            return Json(new { success = false, message = "Lỗi cập nhật trạng thái duyệt." });
         }
-
-        var comment = _mapper.Map<Comment>(viewModel);
-        comment.Id = 0; // Ensure new entity
-
-        _context.Add(comment);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Trả lời bình luận thành công";
-        return RedirectToAction(nameof(Index));
-    }
-
-    // GET: Admin/Comment/GetPendingCount
-    [HttpGet]
-    public async Task<IActionResult> GetPendingCount()
-    {
-        var count = await _context.Set<Comment>()
-            .Where(c => !c.IsApproved)
-            .CountAsync();
-
-        return Json(count);
-    }
-
-    private async Task<bool> CommentExists(int id)
-    {
-        return await _context.Set<Comment>().AnyAsync(e => e.Id == id);
     }
 }

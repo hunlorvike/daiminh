@@ -1,8 +1,7 @@
 using FluentValidation;
 using web.Areas.Admin.ViewModels.Category;
-using shared.Enums; // For CategoryType
 
-namespace web.Areas.Admin.Validators;
+namespace web.Areas.Admin.Validators.Category;
 
 public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
 {
