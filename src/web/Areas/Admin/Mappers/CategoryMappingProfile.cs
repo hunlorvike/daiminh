@@ -44,6 +44,8 @@ public class CategoryProfile : Profile
                 return category.ProjectCategories?.Count ?? 0;
             case shared.Enums.CategoryType.Gallery:
                 return category.GalleryCategories?.Count ?? 0;
+            case shared.Enums.CategoryType.FAQ:
+                return category.FAQCategories?.Count ?? 0;
             default:
                 return 0;
         }

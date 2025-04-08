@@ -5,6 +5,7 @@ public enum CategoryType
     Product,
     Article,
     Project,
-    Gallery
+    Gallery,
+    FAQ
 }
 

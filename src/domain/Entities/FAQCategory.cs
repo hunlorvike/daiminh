@@ -6,14 +6,12 @@ namespace domain.Entities;
 
 public class FAQCategory : BaseEntity<int>
 {
-    public string Name { get; set; } = string.Empty;
-    public string? Description { get; set; }
-    public string Slug { get; set; } = string.Empty;
-    public int OrderIndex { get; set; } = 0;
-    public bool IsActive { get; set; } = true;
+    public int FAQId { get; set; }
+    public int CategoryId { get; set; }
 
     // Navigation properties
-    public virtual ICollection<FAQ>? FAQs { get; set; }
+    public virtual FAQ? FAQ { get; set; }
+    public virtual Category? Category { get; set; }
 }
 
 public class FAQCategoryConfiguration : BaseEntityConfiguration<FAQCategory, int>
@@ -24,15 +22,25 @@ public class FAQCategoryConfiguration : BaseEntityConfiguration<FAQCategory, int
 
         builder.ToTable("faq_categories");
 
-        builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(100);
-        builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
-        builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(100);
-        builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+        builder.Property(e => e.FAQId).HasColumnName("faq_id");
+        builder.Property(e => e.CategoryId).HasColumnName("category_id");
 
-        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_faq_categories_slug").IsUnique();
-        builder.HasIndex(e => e.OrderIndex).HasDatabaseName("idx_faq_categories_order_index");
-        builder.HasIndex(e => e.IsActive).HasDatabaseName("idx_faq_categories_is_active");
+        builder.HasIndex(e => new { e.FAQId, e.CategoryId })
+            .HasDatabaseName("idx_faq_categories_faq_category")
+            .IsUnique();
+
+        builder.HasIndex(e => e.FAQId).HasDatabaseName("idx_faq_categories_faq_id");
+        builder.HasIndex(e => e.CategoryId).HasDatabaseName("idx_faq_categories_category_id");
+
+        builder.HasOne(e => e.FAQ)
+            .WithMany(g => g.FAQCategories)
+            .HasForeignKey(e => e.FAQId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(e => e.Category)
+            .WithMany(c => c.FAQCategories)
+            .HasForeignKey(e => e.CategoryId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 

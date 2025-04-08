@@ -1,12 +1,15 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace infrastructure.Migrations;
 
 /// <inheritdoc />
-public partial class DaiMinhVersion3 : Migration
+public partial class v1_init_create : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -177,14 +180,14 @@ public partial class DaiMinhVersion3 : Migration
             });
 
         migrationBuilder.CreateTable(
-            name: "faq_categories",
+            name: "faqs",
             columns: table => new
             {
                 Id = table.Column<int>(type: "integer", nullable: false)
                     .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                description = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                slug = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                question = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                answer = table.Column<string>(type: "text", nullable: false),
+                category_id = table.Column<int>(type: "integer", nullable: false),
                 order_index = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
                 is_active = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
@@ -194,7 +197,7 @@ public partial class DaiMinhVersion3 : Migration
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_faq_categories", x => x.Id);
+                table.PrimaryKey("PK_faqs", x => x.Id);
             });
 
         migrationBuilder.CreateTable(
@@ -511,16 +514,13 @@ public partial class DaiMinhVersion3 : Migration
             });
 
         migrationBuilder.CreateTable(
-            name: "faqs",
+            name: "faq_categories",
             columns: table => new
             {
                 Id = table.Column<int>(type: "integer", nullable: false)
                     .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                question = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                answer = table.Column<string>(type: "text", nullable: false),
+                faq_id = table.Column<int>(type: "integer", nullable: false),
                 category_id = table.Column<int>(type: "integer", nullable: false),
-                order_index = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                is_active = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                 created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP"),
                 updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                 created_by = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
@@ -528,11 +528,17 @@ public partial class DaiMinhVersion3 : Migration
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_faqs", x => x.Id);
+                table.PrimaryKey("PK_faq_categories", x => x.Id);
                 table.ForeignKey(
-                    name: "FK_faqs_faq_categories_category_id",
+                    name: "FK_faq_categories_categories_category_id",
                     column: x => x.category_id,
-                    principalTable: "faq_categories",
+                    principalTable: "categories",
+                    principalColumn: "Id",
+                    onDelete: ReferentialAction.Cascade);
+                table.ForeignKey(
+                    name: "FK_faq_categories_faqs_faq_id",
+                    column: x => x.faq_id,
+                    principalTable: "faqs",
                     principalColumn: "Id",
                     onDelete: ReferentialAction.Cascade);
             });
@@ -1034,6 +1040,36 @@ public partial class DaiMinhVersion3 : Migration
                     onDelete: ReferentialAction.Cascade);
             });
 
+        migrationBuilder.InsertData(
+            table: "settings",
+            columns: new[] { "Id", "category", "CreatedAt", "CreatedBy", "default_value", "description", "is_active", "key", "type", "UpdatedAt", "UpdatedBy", "value" },
+            values: new object[,]
+            {
+                { 1, "General", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(763), null, "Đại Minh Việt Nam", "Tên website hiển thị trên trang và tiêu đề trình duyệt.", true, "SiteName", "Text", null, null, "Đại Minh Việt Nam" },
+                { 2, "General", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(768), null, "https://localhost:7001", "Địa chỉ URL chính của website (ví dụ: https://www.example.com).", true, "SiteUrl", "URL", null, null, "https://localhost:7001" },
+                { 3, "General", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(770), null, "sondaiminh@gmail.com", "Địa chỉ email quản trị viên để nhận thông báo hệ thống.", true, "AdminEmail", "Email", null, null, "sondaiminh@gmail.com" },
+                { 5, "Contact", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(771), null, "Đại Minh Việt Nam", "Tên công ty hoặc tổ chức sở hữu website.", true, "CompanyName", "Text", null, null, "Đại Minh Việt Nam" },
+                { 6, "Contact", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(773), null, "123 Main Street, Anytown, CA 91234", "Địa chỉ liên hệ đầy đủ.", true, "ContactAddress", "TextArea", null, null, "123 Main Street, Anytown, CA 91234" },
+                { 7, "Contact", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(774), null, "(123) 456-7890", "Số điện thoại liên hệ chính.", true, "ContactPhone", "Phone", null, null, "(123) 456-7890" },
+                { 8, "Contact", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(775), null, "contact@example.com", "Địa chỉ email hiển thị công khai để liên hệ.", true, "ContactEmail", "Email", null, null, "contact@example.com" },
+                { 9, "Contact", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(776), null, null, "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).", true, "ContactMapEmbed", "HTML", null, null, null },
+                { 10, "SEO", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(777), null, "Welcome to My Application", "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.", true, "DefaultMetaTitle", "Text", null, null, "Welcome to My Application" },
+                { 11, "SEO", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(778), null, "This is the default description for My Application.", "Mô tả meta mặc định (dưới 160 ký tự).", true, "DefaultMetaDescription", "TextArea", null, null, "This is the default description for My Application." },
+                { 12, "SEO", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(780), null, "/image/icon.jpg", "Đường dẫn đến file favicon.ico hoặc ảnh favicon.", true, "FaviconUrl", "Image", null, null, "/image/icon.jpg" },
+                { 13, "Social Media", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(781), null, null, "URL trang Facebook.", true, "SocialFacebookUrl", "URL", null, null, null },
+                { 14, "Social Media", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(782), null, null, "URL trang Twitter (X).", true, "SocialTwitterUrl", "URL", null, null, null },
+                { 15, "Social Media", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(783), null, null, "URL trang Instagram.", true, "SocialInstagramUrl", "URL", null, null, null },
+                { 16, "Social Media", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(784), null, null, "URL trang LinkedIn.", true, "SocialLinkedInUrl", "URL", null, null, null },
+                { 17, "Social Media", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(785), null, null, "URL kênh Youtube.", true, "SocialYoutubeUrl", "URL", null, null, null },
+                { 18, "Email", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(786), null, "smtp.example.com", "Địa chỉ máy chủ SMTP.", true, "SmtpHost", "Text", null, null, "smtp.example.com" },
+                { 19, "Email", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(788), null, "587", "Cổng SMTP (ví dụ: 587, 465, 25).", true, "SmtpPort", "Number", null, null, "587" },
+                { 20, "Email", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(789), null, "user@example.com", "Tên đăng nhập SMTP.", true, "SmtpUsername", "Text", null, null, "user@example.com" },
+                { 21, "Email", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(790), null, null, "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.", true, "SmtpPassword", "Password", null, null, null },
+                { 22, "Email", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(791), null, "true", "Sử dụng mã hóa SSL/TLS khi gửi email.", true, "SmtpUseSsl", "Boolean", null, null, "true" },
+                { 23, "Email", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(792), null, "My Application Support", "Tên hiển thị trong ô 'From' của email gửi đi.", true, "EmailFromName", "Text", null, null, "My Application Support" },
+                { 24, "Email", new DateTime(2025, 4, 8, 1, 45, 58, 647, DateTimeKind.Utc).AddTicks(793), null, "noreply@example.com", "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.", true, "EmailFromAddress", "Email", null, null, "noreply@example.com" }
+            });
+
         migrationBuilder.CreateIndex(
             name: "idx_article_categories_article_category",
             table: "article_categories",
@@ -1196,20 +1232,20 @@ public partial class DaiMinhVersion3 : Migration
             column: "status");
 
         migrationBuilder.CreateIndex(
-            name: "idx_faq_categories_is_active",
+            name: "idx_faq_categories_category_id",
             table: "faq_categories",
-            column: "is_active");
+            column: "category_id");
 
         migrationBuilder.CreateIndex(
-            name: "idx_faq_categories_order_index",
+            name: "idx_faq_categories_faq_category",
             table: "faq_categories",
-            column: "order_index");
-
-        migrationBuilder.CreateIndex(
-            name: "idx_faq_categories_slug",
-            table: "faq_categories",
-            column: "slug",
+            columns: new[] { "faq_id", "category_id" },
             unique: true);
+
+        migrationBuilder.CreateIndex(
+            name: "idx_faq_categories_faq_id",
+            table: "faq_categories",
+            column: "faq_id");
 
         migrationBuilder.CreateIndex(
             name: "idx_faqs_category_id",
@@ -1596,7 +1632,7 @@ public partial class DaiMinhVersion3 : Migration
             name: "contacts");
 
         migrationBuilder.DropTable(
-            name: "faqs");
+            name: "faq_categories");
 
         migrationBuilder.DropTable(
             name: "gallery_categories");
@@ -1650,7 +1686,7 @@ public partial class DaiMinhVersion3 : Migration
             name: "articles");
 
         migrationBuilder.DropTable(
-            name: "faq_categories");
+            name: "faqs");
 
         migrationBuilder.DropTable(
             name: "galleries");

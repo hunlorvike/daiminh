@@ -340,6 +340,7 @@ public class CategoryController : Controller
             CategoryType.Article => "Bài viết",
             CategoryType.Project => "Dự án",
             CategoryType.Gallery => "Thư viện",
+            CategoryType.FAQ =>  "Câu hỏi",
             _ => type.ToString()
         };
     }

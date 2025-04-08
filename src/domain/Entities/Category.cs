@@ -24,6 +24,7 @@ public class Category : SeoEntity<int>
     public virtual ICollection<ArticleCategory>? ArticleCategories { get; set; }
     public virtual ICollection<ProjectCategory>? ProjectCategories { get; set; }
     public virtual ICollection<GalleryCategory>? GalleryCategories { get; set; }
+    public virtual ICollection<FAQCategory>? FAQCategories { get; set; }
 }
 
 public class CategoryConfiguration : SeoEntityConfiguration<Category, int>

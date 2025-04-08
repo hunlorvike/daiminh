@@ -13,7 +13,7 @@ public class FAQ : BaseEntity<int>
     public bool IsActive { get; set; } = true;
 
     // Navigation properties
-    public virtual FAQCategory? Category { get; set; }
+    public virtual ICollection<FAQCategory>? FAQCategories { get; set; }
 }
 
 public class FAQConfiguration : BaseEntityConfiguration<FAQ, int>
@@ -33,11 +33,6 @@ public class FAQConfiguration : BaseEntityConfiguration<FAQ, int>
         builder.HasIndex(e => e.CategoryId).HasDatabaseName("idx_faqs_category_id");
         builder.HasIndex(e => e.OrderIndex).HasDatabaseName("idx_faqs_order_index");
         builder.HasIndex(e => e.IsActive).HasDatabaseName("idx_faqs_is_active");
-
-        builder.HasOne(e => e.Category)
-            .WithMany(c => c.FAQs)
-            .HasForeignKey(e => e.CategoryId)
-            .OnDelete(DeleteBehavior.Cascade);
     }
 }
 
