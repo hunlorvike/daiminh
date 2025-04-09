@@ -11,7 +11,13 @@ public class CategoryProfile : Profile
         // Entity -> ListItemViewModel
         CreateMap<Category, CategoryListItemViewModel>()
             .ForMember(dest => dest.ParentName, opt => opt.MapFrom(src => src.Parent != null ? src.Parent.Name : null))
-            .ForMember(dest => dest.ItemCount, opt => opt.MapFrom(src => CalculateItemCount(src)));
+            .ForMember(dest => dest.ItemCount, opt => opt.MapFrom(src =>
+                (src.ProductCategories != null ? src.ProductCategories.Count : 0) +
+                (src.ArticleCategories != null ? src.ArticleCategories.Count : 0) +
+                (src.ProjectCategories != null ? src.ProjectCategories.Count : 0) +
+                (src.GalleryCategories != null ? src.GalleryCategories.Count : 0) + 
+                (src.FAQCategories != null ? src.FAQCategories.Count : 0)
+            ));
 
         // Entity -> ViewModel (For Edit GET)
         CreateMap<Category, CategoryViewModel>();
@@ -29,25 +35,5 @@ public class CategoryProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
-    }
-
-    // Helper method to calculate item count based on category type
-    private int CalculateItemCount(Category category)
-    {
-        switch (category.Type)
-        {
-            case shared.Enums.CategoryType.Product:
-                return category.ProductCategories?.Count ?? 0;
-            case shared.Enums.CategoryType.Article:
-                return category.ArticleCategories?.Count ?? 0;
-            case shared.Enums.CategoryType.Project:
-                return category.ProjectCategories?.Count ?? 0;
-            case shared.Enums.CategoryType.Gallery:
-                return category.GalleryCategories?.Count ?? 0;
-            case shared.Enums.CategoryType.FAQ:
-                return category.FAQCategories?.Count ?? 0;
-            default:
-                return 0;
-        }
     }
 }

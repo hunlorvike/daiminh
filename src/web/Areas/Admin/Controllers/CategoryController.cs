@@ -1,14 +1,16 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using domain.Entities;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using shared.Enums; // For CategoryType
+using shared.Enums;
 using web.Areas.Admin.ViewModels.Category;
+using System.Security.Claims;
+using shared.Extensions;
+using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -18,88 +20,82 @@ public class CategoryController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IValidator<CategoryViewModel> _validator;
+    private readonly ILogger<CategoryController> _logger;
 
     public CategoryController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<CategoryViewModel> validator)
+        ILogger<CategoryController> logger)
     {
         _context = context;
         _mapper = mapper;
-        _validator = validator;
+        _logger = logger;
     }
 
     // GET: Admin/Category
-    public async Task<IActionResult> Index(CategoryType type = CategoryType.Product, string? searchTerm = null)
+    public async Task<IActionResult> Index(CategoryType type = CategoryType.Product, string? searchTerm = null, int page = 1, int pageSize = 15)
     {
-        ViewData["PageTitle"] = $"Quản lý Danh mục ({GetCategoryTypeDisplayName(type)})";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Danh mục", "") // Active
+        ViewData["Title"] = $"Quản lý Danh mục ({type.GetDisplayName()}) - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Danh sách: {type.GetDisplayName()}";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+            ($"Danh mục {type.GetDisplayName()}", Url.Action("Index", "Category", new { area = "Admin", type }))
         };
+
+        int pageNumber = page;
 
         var query = _context.Set<Category>()
                             .Where(c => c.Type == type)
-                            .Include(c => c.Parent) // Needed for ParentName display
-                                                    // Include necessary collections for ItemCount
+                            .Include(c => c.Parent)
                             .Include(c => c.ProductCategories)
                             .Include(c => c.ArticleCategories)
                             .Include(c => c.ProjectCategories)
                             .Include(c => c.GalleryCategories)
-                            .AsQueryable();
+                            .Include(c => c.FAQCategories)
+                            .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(c => c.Name.Contains(searchTerm) || (c.Description != null && c.Description.Contains(searchTerm)));
+            string lowerSearchTerm = searchTerm.ToLower();
+            query = query.Where(c => c.Name.ToLower().Contains(lowerSearchTerm) || (c.Description != null && c.Description.ToLower().Contains(lowerSearchTerm)));
         }
 
-        // Order by hierarchy (Parent first) then OrderIndex, then Name
-        // This requires fetching all and sorting in memory if you want strict hierarchical display.
-        // A simpler sort for DB performance:
-        var categories = await query
-            .OrderBy(c => c.ParentId) // Group children under parents visually (approximate)
+        var categoriesPaged = await query
+            .OrderBy(c => c.ParentId == null ? 0 : 1)
+            .ThenBy(c => c.ParentId)
             .ThenBy(c => c.OrderIndex)
             .ThenBy(c => c.Name)
-            .ToListAsync();
+            .ProjectTo<CategoryListItemViewModel>(_mapper.ConfigurationProvider)
+            .ToPagedListAsync(pageNumber, pageSize);
 
-        var viewModels = _mapper.Map<List<CategoryListItemViewModel>>(categories);
-
-        // Pass data for filter dropdown
+        ViewBag.CurrentType = type;
+        ViewBag.SearchTerm = searchTerm;
         ViewBag.CategoryTypes = Enum.GetValues(typeof(CategoryType))
             .Cast<CategoryType>()
             .Select(ct => new SelectListItem
             {
                 Value = ct.ToString(),
-                Text = GetCategoryTypeDisplayName(ct),
-                Selected = ct == type
+                Text = ct.GetDisplayName(),
+                Selected = ct.Equals(type)
             }).ToList();
 
-        ViewBag.CurrentType = type;
-        ViewBag.SearchTerm = searchTerm;
-
-        return View(viewModels);
+        return View(categoriesPaged);
     }
 
     // GET: Admin/Category/Create
     public async Task<IActionResult> Create(CategoryType type = CategoryType.Product)
     {
-        ViewData["PageTitle"] = $"Thêm Danh mục mới ({GetCategoryTypeDisplayName(type)})";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Danh mục", Url.Action(nameof(Index), new { type = type })),
-            ("Thêm mới", "") // Active
-        };
+        ViewData["Title"] = $"Thêm Danh mục ({type.GetDisplayName()}) - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Thêm Danh mục {type.GetDisplayName()} mới";
 
         var viewModel = new CategoryViewModel
         {
             Type = type,
             IsActive = true,
-            SitemapPriority = 0.7, // Example default
+            OrderIndex = 0,
+            SitemapPriority = 0.7,
             SitemapChangeFrequency = "weekly"
         };
 
-        // Load potential parent categories of the same type
         viewModel.ParentCategoryList = await LoadParentCategoriesAsync(type);
 
         return View(viewModel);
@@ -110,61 +106,50 @@ public class CategoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CategoryViewModel viewModel)
     {
-        // Manual check: Slug unique within type
-        if (await _context.Set<Category>().AnyAsync(c => c.Slug == viewModel.Slug && c.Type == viewModel.Type))
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError(nameof(CategoryViewModel.Slug), "Slug đã tồn tại cho loại danh mục này.");
-        }
-        // Manual check: ParentId exists (if provided)
-        if (viewModel.ParentId.HasValue && !await _context.Set<Category>().AnyAsync(c => c.Id == viewModel.ParentId.Value && c.Type == viewModel.Type))
-        {
-            ModelState.AddModelError(nameof(CategoryViewModel.ParentId), "Danh mục cha không hợp lệ.");
-        }
+            try
+            {
+                var category = _mapper.Map<Category>(viewModel);
 
+                _context.Add(category);
+                await _context.SaveChangesAsync();
 
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid || !ModelState.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty); // Add FluentValidation errors
-            // Repopulate necessary data if returning view
-            ViewData["PageTitle"] = $"Thêm Danh mục mới ({GetCategoryTypeDisplayName(viewModel.Type)})";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Danh mục", Url.Action(nameof(Index), new { type = viewModel.Type })), ("Thêm mới", "") };
-            viewModel.ParentCategoryList = await LoadParentCategoriesAsync(viewModel.Type);
-            return View(viewModel);
+                _logger.LogInformation("Category '{CategoryName}' (Type: {CategoryType}) created successfully by {User}.", category.Name, category.Type, category.CreatedBy);
+                TempData["success"] = $"Thêm danh mục '{category.Name}' thành công!";
+                return RedirectToAction(nameof(Index), new { type = viewModel.Type });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating category '{CategoryName}'.", viewModel.Name);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm danh mục.");
+            }
         }
 
-        var category = _mapper.Map<Category>(viewModel);
-        // Initialize collections if needed (if not done in entity constructor)
-        category.Children = new List<Category>();
-        // Initialize other collections based on type if necessary...
-
-        _context.Add(category);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Thêm danh mục thành công!";
-        return RedirectToAction(nameof(Index), new { type = viewModel.Type });
+        _logger.LogWarning("Failed to create category '{CategoryName}'. Model state is invalid.", viewModel.Name);
+        ViewData["Title"] = $"Thêm Danh mục ({viewModel.Type.GetDisplayName()}) - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Thêm Danh mục {viewModel.Type.GetDisplayName()} mới";
+        viewModel.ParentCategoryList = await LoadParentCategoriesAsync(viewModel.Type);
+        return View(viewModel);
     }
 
     // GET: Admin/Category/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var category = await _context.Set<Category>().FindAsync(id);
+        var category = await _context.Set<Category>()
+                                   .AsNoTracking()
+                                   .FirstOrDefaultAsync(c => c.Id == id);
+
         if (category == null)
         {
+            _logger.LogWarning("Edit GET: Category with ID {CategoryId} not found.", id);
             return NotFound();
         }
 
         var viewModel = _mapper.Map<CategoryViewModel>(category);
+        ViewData["Title"] = $"Chỉnh sửa Danh mục ({viewModel.Type.GetDisplayName()}) - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa Danh mục: {category.Name}";
 
-        ViewData["PageTitle"] = $"Chỉnh sửa Danh mục ({GetCategoryTypeDisplayName(category.Type)})";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-        {
-            ("Danh mục", Url.Action(nameof(Index), new { type = category.Type })),
-            ("Chỉnh sửa", "") // Active
-        };
-
-        // Load potential parent categories (same type, excluding self)
         viewModel.ParentCategoryList = await LoadParentCategoriesAsync(category.Type, id);
 
         return View(viewModel);
@@ -177,81 +162,54 @@ public class CategoryController : Controller
     {
         if (id != viewModel.Id)
         {
+            _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id);
             return BadRequest();
         }
 
-        // Manual check: Slug unique within type (excluding self)
-        if (await _context.Set<Category>().AnyAsync(c => c.Slug == viewModel.Slug && c.Type == viewModel.Type && c.Id != id))
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError(nameof(CategoryViewModel.Slug), "Slug đã tồn tại cho loại danh mục này.");
-        }
-        // Manual check: ParentId exists (if provided) and is not self or a descendant (basic check: not self)
-        if (viewModel.ParentId.HasValue)
-        {
-            if (viewModel.ParentId == id)
+            var categoryToUpdate = await _context.Set<Category>().FindAsync(id);
+
+            if (categoryToUpdate == null)
             {
-                ModelState.AddModelError(nameof(CategoryViewModel.ParentId), "Danh mục không thể là con của chính nó.");
+                _logger.LogWarning("Edit POST: Category with ID {CategoryId} not found for update.", id);
+                return NotFound();
             }
-            else if (!await _context.Set<Category>().AnyAsync(c => c.Id == viewModel.ParentId.Value && c.Type == viewModel.Type))
+
+            if (categoryToUpdate.Type != viewModel.Type)
             {
-                ModelState.AddModelError(nameof(CategoryViewModel.ParentId), "Danh mục cha không hợp lệ.");
+                _logger.LogWarning("Attempted to change Category Type for ID {CategoryId} from {OriginalType} to {NewType}.", id, categoryToUpdate.Type, viewModel.Type);
+                ModelState.AddModelError(nameof(CategoryViewModel.Type), "Không thể thay đổi loại danh mục sau khi đã tạo.");
+                ViewData["Title"] = $"Chỉnh sửa Danh mục ({viewModel.Type.GetDisplayName()}) - Hệ thống quản trị";
+                ViewData["PageTitle"] = $"Chỉnh sửa Danh mục: {categoryToUpdate.Name}";
+                viewModel.ParentCategoryList = await LoadParentCategoriesAsync(categoryToUpdate.Type, id);
+                return View(viewModel);
             }
-            // Add descendant check here if needed (more complex query)
+
+            try
+            {
+                _mapper.Map(viewModel, categoryToUpdate);
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Category '{CategoryName}' (ID: {CategoryId}) updated successfully by {User}.", categoryToUpdate.Name, categoryToUpdate.Id, categoryToUpdate.UpdatedBy);
+                TempData["success"] = $"Cập nhật danh mục '{categoryToUpdate.Name}' thành công!";
+                return RedirectToAction(nameof(Index), new { type = categoryToUpdate.Type });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating category '{CategoryName}' (ID: {CategoryId}).", viewModel.Name, viewModel.Id);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật danh mục.");
+            }
         }
 
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid || !ModelState.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            ViewData["PageTitle"] = $"Chỉnh sửa Danh mục ({GetCategoryTypeDisplayName(viewModel.Type)})";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Danh mục", Url.Action(nameof(Index), new { type = viewModel.Type })), ("Chỉnh sửa", "") };
-            viewModel.ParentCategoryList = await LoadParentCategoriesAsync(viewModel.Type, id);
-            return View(viewModel);
-        }
-
-        var category = await _context.Set<Category>().FindAsync(id);
-        if (category == null)
-        {
-            return NotFound();
-        }
-
-        // Prevent changing Type after creation
-        if (category.Type != viewModel.Type)
-        {
-            ModelState.AddModelError(nameof(CategoryViewModel.Type), "Không thể thay đổi loại danh mục sau khi tạo.");
-            ViewData["PageTitle"] = $"Chỉnh sửa Danh mục ({GetCategoryTypeDisplayName(viewModel.Type)})";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Danh mục", Url.Action(nameof(Index), new { type = viewModel.Type })), ("Chỉnh sửa", "") };
-            viewModel.ParentCategoryList = await LoadParentCategoriesAsync(viewModel.Type, id);
-            return View(viewModel);
-        }
-
-
-        _mapper.Map(viewModel, category);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Cập nhật danh mục thành công!";
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await CategoryExists(id)) return NotFound();
-            TempData["ErrorMessage"] = "Lỗi: Xung đột dữ liệu khi cập nhật.";
-            viewModel.ParentCategoryList = await LoadParentCategoriesAsync(viewModel.Type, id);
-            return View(viewModel);
-        }
-        catch (DbUpdateException)
-        {
-            ModelState.AddModelError("", "Không thể lưu thay đổi. Vui lòng kiểm tra lại dữ liệu.");
-            ViewData["PageTitle"] = $"Chỉnh sửa Danh mục ({GetCategoryTypeDisplayName(viewModel.Type)})";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Danh mục", Url.Action(nameof(Index), new { type = viewModel.Type })), ("Chỉnh sửa", "") };
-            viewModel.ParentCategoryList = await LoadParentCategoriesAsync(viewModel.Type, id);
-            return View(viewModel);
-        }
-
-        return RedirectToAction(nameof(Index), new { type = viewModel.Type });
+        _logger.LogWarning("Failed to update category '{CategoryName}' (ID: {CategoryId}). Model state is invalid.", viewModel.Name, viewModel.Id);
+        ViewData["Title"] = $"Chỉnh sửa Danh mục ({viewModel.Type.GetDisplayName()}) - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa Danh mục: {viewModel.Name}"; // Dùng tên từ viewmodel
+        viewModel.ParentCategoryList = await LoadParentCategoriesAsync(viewModel.Type, id); // Load lại SelectList
+        return View(viewModel);
     }
+
 
     // POST: Admin/Category/Delete/5
     [HttpPost]
@@ -264,47 +222,51 @@ public class CategoryController : Controller
                                     .Include(c => c.ArticleCategories)
                                     .Include(c => c.ProjectCategories)
                                     .Include(c => c.GalleryCategories)
+                                    .Include(c => c.FAQCategories)
                                     .FirstOrDefaultAsync(c => c.Id == id);
 
         if (category == null)
         {
+            _logger.LogWarning("Delete POST: Category with ID {CategoryId} not found.", id);
             return Json(new { success = false, message = "Không tìm thấy danh mục." });
         }
 
-        // Check for children
         if (category.Children != null && category.Children.Any())
         {
-            return Json(new { success = false, message = $"Không thể xóa danh mục '{category.Name}' vì nó có chứa danh mục con." });
+            _logger.LogWarning("Attempted to delete category '{CategoryName}' (ID: {CategoryId}) which has child categories.", category.Name, id);
+            return Json(new { success = false, message = $"Không thể xóa danh mục '{category.Name}' vì có chứa danh mục con. Vui lòng xóa hoặc di chuyển các danh mục con trước." });
         }
 
-        // Check for associated items based on type
         bool hasItems = category.Type switch
         {
             CategoryType.Product => category.ProductCategories?.Any() ?? false,
             CategoryType.Article => category.ArticleCategories?.Any() ?? false,
             CategoryType.Project => category.ProjectCategories?.Any() ?? false,
             CategoryType.Gallery => category.GalleryCategories?.Any() ?? false,
+            CategoryType.FAQ => category.FAQCategories?.Any() ?? false,
             _ => false,
         };
 
         if (hasItems)
         {
-            string itemTypeName = category.Type switch
-            {
-                CategoryType.Product => "sản phẩm",
-                CategoryType.Article => "bài viết",
-                CategoryType.Project => "dự án",
-                CategoryType.Gallery => "thư viện ảnh",
-                _ => "mục"
-            };
-            return Json(new { success = false, message = $"Không thể xóa danh mục '{category.Name}' vì nó đang được gán cho các {itemTypeName}." });
+            _logger.LogWarning("Attempted to delete category '{CategoryName}' (ID: {CategoryId}) which is assigned to {ItemType}.", category.Name, id, category.Type.GetDisplayName());
+            return Json(new { success = false, message = $"Không thể xóa danh mục '{category.Name}' vì đang được gán cho các {category.Type.GetDisplayName()}." });
         }
 
+        try
+        {
+            string categoryName = category.Name;
 
-        _context.Remove(category);
-        await _context.SaveChangesAsync();
+            _context.Remove(category);
+            await _context.SaveChangesAsync();
 
-        return Json(new { success = true, message = "Xóa danh mục thành công." });
+            return Json(new { success = true, message = $"Xóa danh mục '{categoryName}' thành công." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error occurred while deleting category '{CategoryName}' (ID: {CategoryId}).", category.Name, id);
+            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa danh mục." });
+        }
     }
 
     private async Task<SelectList> LoadParentCategoriesAsync(CategoryType type, int? excludeId = null)
@@ -312,35 +274,18 @@ public class CategoryController : Controller
         var query = _context.Set<Category>()
                            .Where(c => c.Type == type)
                            .OrderBy(c => c.Name)
-                           .AsQueryable();
+                           .AsNoTracking();
 
         if (excludeId.HasValue)
         {
             query = query.Where(c => c.Id != excludeId.Value);
-            // Add logic here to exclude descendants if needed (complex query)
         }
 
         var categories = await query.Select(c => new { c.Id, c.Name }).ToListAsync();
 
-        return new SelectList(categories, "Id", "Name");
-    }
+        var items = new List<SelectListItem> { new SelectListItem { Value = "", Text = "-- Không có --" } };
+        items.AddRange(categories.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }));
 
-    private async Task<bool> CategoryExists(int id)
-    {
-        return await _context.Set<Category>().AnyAsync(e => e.Id == id);
-    }
-
-    private string GetCategoryTypeDisplayName(CategoryType type)
-    {
-        // Consider using Display attribute on Enum or a resource file for localization
-        return type switch
-        {
-            CategoryType.Product => "Sản phẩm",
-            CategoryType.Article => "Bài viết",
-            CategoryType.Project => "Dự án",
-            CategoryType.Gallery => "Thư viện",
-            CategoryType.FAQ => "Câu hỏi",
-            _ => type.ToString()
-        };
+        return new SelectList(items, "Value", "Text");
     }
 }

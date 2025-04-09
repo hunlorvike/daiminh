@@ -2,12 +2,11 @@
 @model CategoryViewModel
 @{
 	ViewData["Title"] = "Thêm Danh mục mới";
-	// Breadcrumbs set in Controller
 }
 
 <form asp-action="Create" method="post">
 	@Html.AntiForgeryToken()
-	<input type="hidden" asp-for="Type" /> @* Important: Pass the type back *@
+	<input type="hidden" asp-for="Type" />
 
 	<div class="card">
 		<div class="card-header">
@@ -30,65 +29,95 @@
 	<script src="~/js/slug.js"></script>
 	<script>
 		$(document).ready(function() {
-			// --- Image Selection ---
-			const selectImgBtn = $('#selectImageBtn');
-			const removeImgBtn = $('#removeImageBtn');
-			const imgPreview = $('#imagePreview');
-			const imgPathInput = $('#imagePathInput');
-			const defaultImg = '/img/placeholder.svg';
 
-			function handleImageSelection(selectedFile) {
-				if (selectedFile && selectedFile.url && selectedFile.path) {
-					imgPreview.attr('src', selectedFile.url);
-					imgPathInput.val(selectedFile.path).trigger('change');
-					removeImgBtn.removeClass('d-none');
+			function setupImageSelection(selectBtnId, removeBtnId, previewId, inputId, storeFullPath = false, defaultImgSrc = '/img/placeholder.svg') {
+				const selectBtn = $(`#${selectBtnId}`);
+				const removeBtn = $(`#${removeBtnId}`);
+				const preview = $(`#${previewId}`);
+				const input = $(`#${inputId}`);
+
+				function handleSelection(selectedFile) {
+					if (selectedFile && selectedFile.url) {
+						preview.attr('src', selectedFile.url).show();
+						input.val(storeFullPath ? selectedFile.url : selectedFile.path).trigger('change');
+						removeBtn.removeClass('d-none');
+					} else {
+						console.warn("Selected file object is missing 'url'.", selectedFile);
+					}
+				}
+
+				selectBtn.on('click', function() {
+					if (typeof window.openMediaSelectionModal === 'function') {
+						window.openMediaSelectionModal(handleSelection, 'Image');
+					} else {
+						console.error('window.openMediaSelectionModal function is not defined.');
+						alert('Lỗi: Chức năng chọn media chưa sẵn sàng.');
+					}
+				});
+
+				removeBtn.on('click', function() {
+					preview.attr('src', defaultImgSrc);
+					if (previewId !== 'imagePreview') {
+						preview.hide();
+					}
+					input.val('').trigger('change');
+					$(this).addClass('d-none');
+				});
+
+				if (input.val() === '' && previewId !== 'imagePreview') {
+					 preview.hide();
 				}
 			}
-			selectImgBtn.on('click', function() {
-				if (typeof window.openMediaSelectionModal === 'function') {
-					window.openMediaSelectionModal(handleImageSelection, 'Image');
-				} else { console.error('openMediaSelectionModal is not defined.'); }
-			});
-			removeImgBtn.on('click', function() {
-				imgPreview.attr('src', defaultImg);
-				imgPathInput.val('').trigger('change');
-				$(this).addClass('d-none');
-			});
 
-			 // --- OG Image Selection ---
-			 const selectOgImageBtn = $('#selectOgImageBtn');
-			 const removeOgImageBtn = $('#removeOgImageBtn');
-			 const ogImagePreview = $('#ogImagePreview');
-			 const ogImagePathInput = $('#ogImagePathInput'); // Input stores URL
-			 const defaultOgImage = '/img/placeholder.svg';
+			// --- Thiết lập cho Ảnh đại diện (ImageUrl - Lưu Path) ---
+			setupImageSelection(
+				'selectImageBtn',       // ID nút Chọn ảnh
+				'removeImageBtn',       // ID nút Xóa ảnh
+				'imagePreview',         // ID thẻ img xem trước
+				'imagePathInput',       // ID input ẩn lưu giá trị
+				false                   // Lưu Path (false) hay URL (true)? -> false cho ImageUrl
+			);
 
-			function handleOgImageSelection(selectedFile) {
-				 if (selectedFile && selectedFile.url) {
-					 ogImagePreview.attr('src', selectedFile.url).show();
-					  ogImagePathInput.val(selectedFile.url).trigger('change'); // Store URL
-					 removeOgImageBtn.removeClass('d-none');
-				 }
-			 }
-			 selectOgImageBtn.on('click', function() {
-				if (typeof window.openMediaSelectionModal === 'function') {
-					window.openMediaSelectionModal(handleOgImageSelection, 'Image');
-				} else { console.error('openMediaSelectionModal is not defined.'); }
-			 });
-			 removeOgImageBtn.on('click', function() {
-				 ogImagePreview.attr('src', defaultOgImage).hide();
-				 ogImagePathInput.val('').trigger('change');
-				 $(this).addClass('d-none');
-			 });
+			// --- Thiết lập cho Ảnh Open Graph (OgImage - Lưu URL) ---
+			setupImageSelection(
+				'selectOgImageBtn',     // ID nút Chọn ảnh OG
+				'removeOgImageBtn',     // ID nút Xóa ảnh OG
+				'ogImagePreview',       // ID thẻ img xem trước OG
+				'ogImagePathInput',     // ID input ẩn lưu giá trị OG
+				true                    // Lưu Path (false) hay URL (true)? -> true cho OgImage
+			);
+
+			// --- Thiết lập cho Ảnh Twitter (TwitterImage - Lưu URL) ---
+			setupImageSelection(
+				'selectTwitterImageBtn', // ID nút Chọn ảnh Twitter
+				'removeTwitterImageBtn', // ID nút Xóa ảnh Twitter
+				'twitterImagePreview',   // ID thẻ img xem trước Twitter
+				'twitterImagePathInput', // ID input ẩn lưu giá trị Twitter
+				true                     // Lưu Path (false) hay URL (true)? -> true cho TwitterImage
+			);
 
 
-			// --- Slug Generation ---
-			const nameInput = $('#categoryName');
-			const slugInput = $('#categorySlug');
+			const nameInput = $('#Name');
+			const slugInput = $('#Slug'); 
 			const generateBtn = $('#generateSlugButton');
+
 			nameInput.on('input', function() {
-				if (slugInput.val() === '') { slugInput.val(generateVietnameseSlug(nameInput.val())); }
+				if (slugInput.val() === '') {
+					try {
+						slugInput.val(generateVietnameseSlug(nameInput.val()));
+					} catch (e) {
+						 console.error("Error calling generateVietnameseSlug:", e);
+					}
+				}
 			});
-			generateBtn.on('click', function() { slugInput.val(generateVietnameseSlug(nameInput.val())); });
+
+			generateBtn.on('click', function() {
+				 try {
+					slugInput.val(generateVietnameseSlug(nameInput.val()));
+				} catch (e) {
+					 console.error("Error calling generateVietnameseSlug:", e);
+				}
+			});
 		});
 	</script>
 }

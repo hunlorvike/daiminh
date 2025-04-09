@@ -74,7 +74,6 @@
 				<table class="table table-vcenter card-table table-striped">
 					<thead>
 						<tr>
-							<th class="w-1">STT</th>
 							<th>Tên thẻ</th>
 							<th style="width: 20%">Slug</th>
 							<th style="width: 15%">Số mục</th>
@@ -83,13 +82,9 @@
 						</tr>
 					</thead>
 					<tbody>
-						@{
-							int index = 1;
-						}
 						@foreach (var item in Model)
 						{
 							<tr>
-								<td class="text-muted">@(index++)</td>
 								<td>
 									<div class="d-flex flex-column">
 										<span class="font-weight-medium">@item.Name</span>
