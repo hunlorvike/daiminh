@@ -1,14 +1,18 @@
 using FluentValidation;
+using infrastructure;
 using web.Areas.Admin.ViewModels.Category;
 
 namespace web.Areas.Admin.Validators.Category;
 
 public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
 {
+    private readonly ApplicationDbContext _context;
     private readonly IList<string> _validFrequencies = new List<string> { "always", "hourly", "daily", "weekly", "monthly", "yearly", "never" };
 
-    public CategoryViewModelValidator()
+    public CategoryViewModelValidator(ApplicationDbContext context)
     {
+        _context = context;
+
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Vui lòng nhập tên danh mục.")
             .MaximumLength(100).WithMessage("Tên danh mục không được vượt quá 100 ký tự.");

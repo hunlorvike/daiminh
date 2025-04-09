@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace shared.Models;
+namespace domain.Entities.Shared;
 
 public abstract class SeoEntity<TKey> : BaseEntity<TKey> where TKey : IEquatable<TKey>
 {
@@ -34,8 +34,8 @@ public abstract class SeoEntity<TKey> : BaseEntity<TKey> where TKey : IEquatable
     public string? BreadcrumbJson { get; set; } // JSON format for breadcrumbs
 
     // Sitemap settings
-    public double SitemapPriority { get; set; } = 0.5;
-    public string SitemapChangeFrequency { get; set; } = "monthly"; // always, hourly, daily, weekly, monthly, yearly, never
+    public double? SitemapPriority { get; set; } = 0.5;
+    public string? SitemapChangeFrequency { get; set; } = "monthly"; // always, hourly, daily, weekly, monthly, yearly, never
 }
 
 public abstract class SeoEntityConfiguration<TEntity, TKey> : BaseEntityConfiguration<TEntity, TKey>

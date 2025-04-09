@@ -1,10 +1,7 @@
-using System.Reflection.Metadata;
-using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -115,7 +112,7 @@ public partial class TagController : Controller
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { type = tag.Type });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Đã xảy ra lỗi trong quá trình tạo thẻ. Vui lòng thử lại.");
             }
@@ -178,7 +175,7 @@ public partial class TagController : Controller
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index), new { type = tagToUpdate.Type });
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thẻ. Vui lòng thử lại.");
             }

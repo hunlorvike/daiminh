@@ -1,7 +1,7 @@
 using domain.Entities;
+using domain.Entities.Shared;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using shared.Models;
 
 namespace infrastructure;
 

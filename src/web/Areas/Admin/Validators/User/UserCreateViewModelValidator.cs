@@ -36,11 +36,11 @@ public class UserCreateViewModelValidator : AbstractValidator<UserCreateViewMode
 
     private bool BeUniqueUsername(string username)
     {
-        return ! _context.Set<domain.Entities.User>().Any(u => u.Username == username);
+        return !_context.Set<domain.Entities.User>().Any(u => u.Username == username);
     }
 
     private bool BeUniqueEmail(string email)
     {
-        return ! _context.Set<domain.Entities.User>().Any(u => u.Email == email);
+        return !_context.Set<domain.Entities.User>().Any(u => u.Email == email);
     }
 }

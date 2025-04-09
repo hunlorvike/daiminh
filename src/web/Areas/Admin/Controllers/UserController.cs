@@ -1,14 +1,14 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
+using FluentValidation;
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.User;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Authorization;
 using X.PagedList.EF;
-using FluentValidation;
 
 namespace web.Areas.Admin.Controllers;
 

@@ -10,7 +10,6 @@ using Serilog.Events;
 using shared.Helpers;
 using web.Areas.Admin.Services;
 using web.Areas.Admin.Validators.User;
-using web.Middlewares;
 
 Log.Logger = new LoggerConfiguration()
     .MinimumLevel.Verbose()
@@ -97,9 +96,6 @@ try
     // Authentication must come before Authorization
     app.UseAuthentication(); // Enable authentication
     app.UseAuthorization(); // Enable authorization
-
-    // Custom exception handling middleware (ensure placement is correct relative to other middleware)
-    app.UseExceptionHandling(); // Place after routing, auth, but potentially before endpoint mapping if it needs route data
 
     // Define routes
     app.MapControllerRoute(

@@ -1,7 +1,7 @@
+using domain.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using shared.Enums;
-using shared.Models;
 
 namespace domain.Entities;
 

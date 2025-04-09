@@ -1,8 +1,8 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.ComponentModel.DataAnnotations;
 
-namespace shared.Models;
+namespace domain.Entities.Shared;
 
 public abstract class BaseEntity<TKey> where TKey : IEquatable<TKey>
 {
