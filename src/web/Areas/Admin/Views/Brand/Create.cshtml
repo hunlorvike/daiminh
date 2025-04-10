@@ -1,7 +1,7 @@
 @using web.Areas.Admin.ViewModels.Brand
 @model BrandViewModel
 @{
-	ViewData["Title"] = "Thêm Thương hiệu mới";
+	ViewData["Title"] = "Thêm Thương hiệu mới - Hệ thống quản trị";
 }
 
 <form asp-action="Create" method="post">
@@ -25,62 +25,94 @@
 
 
 @section Scripts {
-	<script src="~/js/slug.js"></script>
-	<script src="~/js/summernote.js"></script>
+	<script src="~/js/slug.js" asp-append-version="true"></script>
 
 	<script>
-		$(document).ready(function() {
-			const selectLogoBtn = $('#selectLogoBtn');
-			const removeLogoBtn = $('#removeLogoBtn');
-			const logoPreview = $('#logoPreview');
-			const logoPathInput = $('#logoPathInput');
-			const defaultLogo = '/img/placeholder.svg';
+		$(document).ready(function () {
+			$('.summernote').summernote({ lang: 'vi-VN',height: 400 });
 
-			function handleLogoSelection(selectedFile) {
-				if (selectedFile && selectedFile.url && selectedFile.path) {
-					logoPreview.attr('src', selectedFile.url);
-					logoPathInput.val(selectedFile.path).trigger('change');
-					removeLogoBtn.removeClass('d-none');
+			function setupImageSelection(selectBtnId, removeBtnId, previewId, inputId, storeFullPath = false, defaultImgSrc = '/img/placeholder.svg') {
+				const selectBtn = $(`#${selectBtnId}`);
+				const removeBtn = $(`#${removeBtnId}`);
+				const preview = $(`#${previewId}`);
+				const input = $(`#${inputId}`);
+
+				function handleSelection(selectedFile) {
+					if (selectedFile && selectedFile.url) {
+						preview.attr('src', selectedFile.url).show();
+						input.val(storeFullPath ? selectedFile.url : selectedFile.path).trigger('change');
+						removeBtn.removeClass('d-none');
+					} else {
+						console.warn("Selected file object is missing 'url' or 'path'.", selectedFile);
+						preview.attr('src', defaultImgSrc);
+						if (!storeFullPath && previewId === 'logoPreview') { // Only show default placeholder for logo
+							preview.show();
+						} else {
+							preview.hide(); // Hide preview for OG/Twitter if no image selected
+						}
+						input.val('').trigger('change');
+						removeBtn.addClass('d-none');
+					}
+				}
+
+				selectBtn.on('click', function () {
+					if (typeof window.openMediaSelectionModal === 'function') {
+						window.openMediaSelectionModal(handleSelection, 'Image');
+					} else {
+						console.error('window.openMediaSelectionModal function is not defined.');
+						alert('Lỗi: Chức năng chọn media chưa sẵn sàng.');
+					}
+				});
+
+				removeBtn.on('click', function () {
+					preview.attr('src', defaultImgSrc);
+					// Special handling for logo preview (always show placeholder) vs others (hide placeholder)
+					if (!storeFullPath && previewId === 'logoPreview') {
+						preview.show();
+					} else {
+						preview.hide();
+					}
+					input.val('').trigger('change');
+					$(this).addClass('d-none');
+				});
+
+				if (input.val() === '' && (storeFullPath || previewId !== 'logoPreview')) {
+					preview.hide();
+				}
+				else if (input.val() === '' && !storeFullPath && previewId === 'logoPreview') {
+					preview.attr('src', defaultImgSrc).show();
+				}
+				else if (input.val() !== '') {
+					preview.show();
 				}
 			}
 
-			selectLogoBtn.on('click', function() {
-				if (typeof window.openMediaSelectionModal === 'function') {
-					window.openMediaSelectionModal(handleLogoSelection, 'Image');
-				} else { console.error('openMediaSelectionModal is not defined.'); }
-			});
+			// --- Thiết lập cho Logo (LogoUrl - Lưu Path) ---
+			setupImageSelection(
+				'selectLogoBtn',       // ID nút Chọn ảnh
+				'removeLogoBtn',       // ID nút Xóa ảnh
+				'logoPreview',         // ID thẻ img xem trước
+				'logoPathInput',       // ID input ẩn lưu giá trị
+				false                  // Lưu Path (false)
+			);
 
-			removeLogoBtn.on('click', function() {
-				logoPreview.attr('src', defaultLogo);
-				logoPathInput.val('').trigger('change');
-				$(this).addClass('d-none');
-			});
+			// --- Thiết lập cho Ảnh Open Graph (OgImage - Lưu URL) ---
+			setupImageSelection(
+				'selectOgImageBtn',     // ID nút Chọn ảnh OG
+				'removeOgImageBtn',     // ID nút Xóa ảnh OG
+				'ogImagePreview',       // ID thẻ img xem trước OG
+				'ogImagePathInput',     // ID input ẩn lưu giá trị OG
+				true                    // Lưu URL (true)
+			);
 
-			 const selectOgImageBtn = $('#selectOgImageBtn');
-			 const removeOgImageBtn = $('#removeOgImageBtn');
-			 const ogImagePreview = $('#ogImagePreview');
-			 const ogImagePathInput = $('#ogImagePathInput');
-			 const defaultOgImage = '/img/placeholder.svg';
-
-			function handleOgImageSelection(selectedFile) {
-				 if (selectedFile && selectedFile.url) {
-					 ogImagePreview.attr('src', selectedFile.url).show();
-					  ogImagePathInput.val(selectedFile.url).trigger('change');
-					 removeOgImageBtn.removeClass('d-none');
-				 }
-			 }
-
-			  selectOgImageBtn.on('click', function() {
-				if (typeof window.openMediaSelectionModal === 'function') {
-					window.openMediaSelectionModal(handleOgImageSelection, 'Image');
-				} else { console.error('openMediaSelectionModal is not defined.'); }
-			 });
-
-			  removeOgImageBtn.on('click', function() {
-				 ogImagePreview.attr('src', defaultOgImage).hide();
-				 ogImagePathInput.val('').trigger('change');
-				 $(this).addClass('d-none');
-			 });
+			// --- Thiết lập cho Ảnh Twitter (TwitterImage - Lưu URL) ---
+			setupImageSelection(
+				'selectTwitterImageBtn', // ID nút Chọn ảnh Twitter
+				'removeTwitterImageBtn', // ID nút Xóa ảnh Twitter
+				'twitterImagePreview',   // ID thẻ img xem trước Twitter
+				'twitterImagePathInput', // ID input ẩn lưu giá trị Twitter
+				true                     // Lưu URL (true)
+			);
 
 
 			// --- Slug Generation ---
@@ -88,13 +120,17 @@
 			const slugInput = $('#brandSlug');
 			const generateBtn = $('#generateSlugButton');
 
-			nameInput.on('input', function() {
+			nameInput.on('input', function () {
 				if (slugInput.val() === '') {
-					slugInput.val(generateVietnameseSlug(nameInput.val()));
+					try {
+						slugInput.val(generateVietnameseSlug(nameInput.val()));
+					} catch (e) { console.error("Error generating slug:", e); }
 				}
 			});
-			generateBtn.on('click', function() {
-				slugInput.val(generateVietnameseSlug(nameInput.val()));
+			generateBtn.on('click', function () {
+				try {
+					slugInput.val(generateVietnameseSlug(nameInput.val()));
+				} catch (e) { console.error("Error generating slug:", e); }
 			});
 		});
 	</script>

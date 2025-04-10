@@ -1,8 +1,10 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
 @using shared.Helpers
 @using web.Areas.Admin.ViewModels.Brand
-@model IEnumerable<BrandListItemViewModel>
+@model IPagedList<BrandListItemViewModel>
 @{
-	ViewData["Title"] = "Quản lý Thương hiệu";
+	ViewData["Title"] = "Quản lý Thương hiệu - Hệ thống quản trị";
 }
 
 @section PageActions {
@@ -20,7 +22,8 @@
 			<div class="col-md-8">
 				<label class="form-label">Tìm kiếm</label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm theo tên hoặc website..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<input type="text" class="form-control" placeholder="Tìm theo tên hoặc website..." name="searchTerm"
+						value="@ViewBag.SearchTerm">
 					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
@@ -42,17 +45,21 @@
 
 <!-- Content Table -->
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">Danh sách Thương hiệu</h3>
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h3 class="card-title mb-0">Danh sách Thương hiệu</h3>
+		@if (Model.TotalItemCount > 0)
+		{
+			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số
+				@Model.TotalItemCount thương hiệu</small>
+		}
 	</div>
 	<div class="card-body p-0">
 		@if (!Model.Any())
 		{
 			<div class="empty">
-				<div class="empty-img" style="font-size: 5rem;">
-					<i class="ti ti-building-store text-muted"></i>
+				<div class="empty-icon">
+					<i class="ti ti-building-store fa-5x text-muted"></i>
 				</div>
-
 				<p class="empty-title">Không tìm thấy thương hiệu nào</p>
 				<p class="empty-subtitle text-muted">Hãy thêm thương hiệu đầu tiên.</p>
 				<div class="empty-action">
@@ -68,28 +75,23 @@
 				<table class="table table-vcenter card-table table-striped">
 					<thead>
 						<tr>
-							<th class="w-1">STT</th>
+							<th class="w-1">ID</th> @* Changed from STT to ID for clarity *@
 							<th style="width: 10%;">Logo</th>
 							<th style="width: 30%;">Tên thương hiệu</th>
 							<th style="width: 20%;">Website</th>
-							<th style="width: 10%;">Số SP</th>
-							<th style="width: 10%;">Trạng thái</th>
-							<th style="width: 10%;">Thao tác</th>
+							<th class="text-center" style="width: 10%;">Số SP</th> @* Center align *@
+							<th class="text-center" style="width: 10%;">Trạng thái</th> @* Center align *@
+							<th class="w-1">Thao tác</th> @* Fixed width *@
 						</tr>
 					</thead>
 					<tbody>
-						@{
-							int index = 1;
-						}
 						@foreach (var item in Model)
 						{
 							<tr>
-								<td class="text-muted">@(index++)</td>
+								<td class="text-muted">@item.Id</td>
 								<td>
-									@* Use the static helper to display logo *@
 									<img src="@MediaUrlHelper.GetMinioUrl(item.LogoUrl, "/img/placeholder.svg")"
-										 alt="@item.Name Logo"
-										 class="avatar avatar-md object-fit-contain" /> @* Adjust size/style as needed *@
+										alt="@item.Name Logo" class="avatar avatar-md object-fit-contain bg-light" /> @* Added bg-light *@
 								</td>
 								<td>
 									<span class="fw-medium">@item.Name</span>
@@ -97,15 +99,19 @@
 								<td>
 									@if (!string.IsNullOrEmpty(item.Website))
 									{
-										<a href="@item.Website" target="_blank" rel="noopener noreferrer">@item.Website</a>
+										// Ensure website URL includes scheme for proper linking
+										var websiteUrl = item.Website.StartsWith("http://") || item.Website.StartsWith("https://") ?
+										item.Website : $"http://{item.Website}";
+										<a href="@websiteUrl" target="_blank" rel="noopener noreferrer"
+											title="@item.Website">@item.Website</a>
 									}
 									else
 									{
-										<span class="text-muted">N/A</span>
+										<span class="text-muted">--</span>
 									}
 								</td>
-								<td class="text-muted">@item.ProductCount SP</td>
-								<td>
+								<td class="text-center text-muted">@item.ProductCount</td> @* Center align *@
+								<td class="text-center"> @* Center align *@
 									@if (item.IsActive)
 									{
 										<span class="badge bg-success-lt">Kích hoạt</span>
@@ -117,14 +123,13 @@
 								</td>
 								<td>
 									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
+										<a asp-action="Edit" asp-route-id="@item.Id"
+											class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Brand")">
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa"
+											data-id="@item.Id" data-name="@item.Name"
+											data-delete-url="@Url.Action("Delete", "Brand")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -134,17 +139,37 @@
 					</tbody>
 				</table>
 			</div>
-			@* Add Pagination here if needed *@
 		}
 	</div>
+	@* Add Pagination Footer *@
+	@if (Model.PageCount > 1)
+	{
+		<div class="card-footer">
+			<div class="d-flex align-items-center justify-content-center">
+				@Html.PagedListPager(
+				Model,
+						page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm }),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+						})
+		</div>
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			 $('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('input[name="searchTerm"]').val('');
-			 });
+			});
 		});
 	</script>
 }
