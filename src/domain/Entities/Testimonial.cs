@@ -14,7 +14,7 @@ public class Testimonial : BaseEntity<int>
     public int Rating { get; set; } = 5; // 1-5 stars
     public bool IsActive { get; set; } = true;
     public int OrderIndex { get; set; } = 0;
-    public string? ProjectReference { get; set; } // Có thể là tên dự án hoặc ID
+    public string? ProjectReference { get; set; } // TODO: project ID
 }
 
 public class TestimonialConfiguration : BaseEntityConfiguration<Testimonial, int>

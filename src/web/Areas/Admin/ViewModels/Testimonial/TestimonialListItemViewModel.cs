@@ -12,6 +12,5 @@ public class TestimonialListItemViewModel
     public bool IsActive { get; set; }
     public int OrderIndex { get; set; }
     public string? ProjectReference { get; set; }
-    public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

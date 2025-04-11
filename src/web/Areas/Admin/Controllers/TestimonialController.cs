@@ -1,12 +1,12 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using domain.Entities;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Testimonial;
+using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -16,63 +16,69 @@ public class TestimonialController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IValidator<TestimonialViewModel> _validator;
+    private readonly ILogger<TestimonialController> _logger;
 
     public TestimonialController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<TestimonialViewModel> validator)
+        ILogger<TestimonialController> logger)
     {
         _context = context;
         _mapper = mapper;
-        _validator = validator;
+        _logger = logger;
     }
 
     // GET: Admin/Testimonial
-    public async Task<IActionResult> Index(string? searchTerm = null)
+    public async Task<IActionResult> Index(string? searchTerm = null, int page = 1, int pageSize = 15)
     {
-        ViewData["PageTitle"] = "Quản lý đánh giá khách hàng";
+        ViewData["Title"] = "Quản lý đánh giá khách hàng - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Danh sách đánh giá khách hàng";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Đánh giá khách hàng", "")
+            ("Đánh giá khách hàng", Url.Action(nameof(Index))) // Link to self for reset
         };
 
-        var query = _context.Set<Testimonial>().AsQueryable();
+        int pageNumber = page;
+
+        var query = _context.Set<Testimonial>().AsNoTracking(); // Use AsNoTracking
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
+            string lowerSearchTerm = searchTerm.Trim().ToLower();
             query = query.Where(t =>
-                t.ClientName.Contains(searchTerm) ||
-                t.ClientCompany.Contains(searchTerm) ||
-                t.Content.Contains(searchTerm) ||
-                t.ProjectReference.Contains(searchTerm));
+                t.ClientName.ToLower().Contains(lowerSearchTerm) ||
+                (t.ClientCompany != null && t.ClientCompany.ToLower().Contains(lowerSearchTerm)) ||
+                t.Content.ToLower().Contains(lowerSearchTerm) || // Search content
+                (t.ProjectReference != null && t.ProjectReference.ToLower().Contains(lowerSearchTerm)));
         }
 
-        var testimonials = await query
+        var testimonialsPaged = await query
             .OrderBy(t => t.OrderIndex)
-            .ToListAsync();
-
-        var viewModels = _mapper.Map<List<TestimonialListItemViewModel>>(testimonials);
+            .ThenByDescending(t => t.CreatedAt) // Secondary sort
+            .ProjectTo<TestimonialListItemViewModel>(_mapper.ConfigurationProvider) // Project efficiently
+            .ToPagedListAsync(pageNumber, pageSize); // Paginate
 
         ViewBag.SearchTerm = searchTerm;
 
-        return View(viewModels);
+        return View(testimonialsPaged); // Pass paged list
     }
 
     // GET: Admin/Testimonial/Create
     public IActionResult Create()
     {
+        ViewData["Title"] = "Thêm đánh giá khách hàng - Hệ thống quản trị";
         ViewData["PageTitle"] = "Thêm đánh giá khách hàng mới";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Đánh giá khách hàng", "/Admin/Testimonial"),
-            ("Thêm mới", "")
+            ("Đánh giá khách hàng", Url.Action(nameof(Index))),
+            ("Thêm mới", "") // Active
         };
 
         var viewModel = new TestimonialViewModel
         {
             IsActive = true,
-            Rating = 5
+            Rating = 5,
+            OrderIndex = 0
         };
 
         return View(viewModel);
@@ -83,45 +89,57 @@ public class TestimonialController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TestimonialViewModel viewModel)
     {
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid)
+        // Rely on FluentValidation middleware
+        if (ModelState.IsValid)
         {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            ViewData["PageTitle"] = "Thêm Đánh giá mới";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+            try
             {
-                ("Đánh giá khách hàng", "/Admin/Testimonial"),
-                ("Thêm mới", "")
-            };
-            return View(viewModel);
+                var testimonial = _mapper.Map<Testimonial>(viewModel);
+                // Audit fields (CreatedBy) likely set by interceptor/base logic
+
+                _context.Add(testimonial);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Testimonial for '{ClientName}' created successfully by {User}.", testimonial.ClientName, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Thêm đánh giá của '{testimonial.ClientName}' thành công."; // Use standard key
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating testimonial for '{ClientName}'.", viewModel.ClientName);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm đánh giá.");
+            }
+        }
+        else
+        {
+            _logger.LogWarning("Failed to create testimonial for '{ClientName}'. Model state is invalid.", viewModel.ClientName);
         }
 
-        var testimonial = _mapper.Map<Testimonial>(viewModel);
-
-        _context.Add(testimonial);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Thêm đánh giá khách hàng thành công";
-        return RedirectToAction(nameof(Index));
+        // If failed, redisplay form
+        ViewData["Title"] = "Thêm đánh giá khách hàng - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Thêm đánh giá khách hàng mới";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Đánh giá khách hàng", Url.Action(nameof(Index))), ("Thêm mới", "") };
+        return View(viewModel);
     }
 
     // GET: Admin/Testimonial/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var testimonial = await _context.Set<Testimonial>().FindAsync(id);
+        var testimonial = await _context.Set<Testimonial>().AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
         if (testimonial == null)
         {
+            _logger.LogWarning("Edit GET: Testimonial with ID {TestimonialId} not found.", id);
             return NotFound();
         }
 
         var viewModel = _mapper.Map<TestimonialViewModel>(testimonial);
 
-        ViewData["PageTitle"] = "Chỉnh sửa đánh giá khách hàng";
+        ViewData["Title"] = "Chỉnh sửa đánh giá khách hàng - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa đánh giá: {testimonial.ClientName}";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Đánh giá khách hàng", "/Admin/Testimonial"),
-            ("Chỉnh sửa", "")
+            ("Đánh giá khách hàng", Url.Action(nameof(Index))),
+            ($"Chỉnh sửa: {testimonial.ClientName}", "") // Active
         };
 
         return View(viewModel);
@@ -134,47 +152,48 @@ public class TestimonialController : Controller
     {
         if (id != viewModel.Id)
         {
+            _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id);
             return BadRequest();
         }
 
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid)
+        if (ModelState.IsValid)
         {
-            validationResult.AddToModelState(ModelState);
-            ViewData["PageTitle"] = "Chỉnh sửa Đánh giá";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Đánh giá", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
-            return View(viewModel);
-        }
-
-        var testimonial = await _context.Set<Testimonial>().FindAsync(id);
-        if (testimonial == null)
-        {
-            return NotFound();
-        }
-
-        try
-        {
-
-            _mapper.Map(viewModel, testimonial);
-
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Cập nhật đánh giá khách hàng thành công";
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await TestimonialExists(id))
+            var testimonialToUpdate = await _context.Set<Testimonial>().FindAsync(id);
+            if (testimonialToUpdate == null)
             {
-                return NotFound();
+                _logger.LogWarning("Edit POST: Testimonial with ID {TestimonialId} not found for update.", id);
+                TempData["error"] = "Không tìm thấy đánh giá để cập nhật.";
+                return RedirectToAction(nameof(Index));
             }
-            else
+
+            try
             {
-                throw;
+                _mapper.Map(viewModel, testimonialToUpdate);
+                // Audit fields (UpdatedBy) likely set by interceptor
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("Testimonial for '{ClientName}' (ID: {TestimonialId}) updated successfully by {User}.", testimonialToUpdate.ClientName, id, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Cập nhật đánh giá của '{testimonialToUpdate.ClientName}' thành công.";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex) // Catch broader exceptions
+            {
+                _logger.LogError(ex, "Error updating testimonial for '{ClientName}' (ID: {TestimonialId}).", viewModel.ClientName, id);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đánh giá.");
             }
         }
+        else
+        {
+            _logger.LogWarning("Failed to update testimonial for '{ClientName}' (ID: {TestimonialId}). Model state is invalid.", viewModel.ClientName, id);
+        }
 
-        return RedirectToAction(nameof(Index));
+
+        // If failed, redisplay form
+        ViewData["Title"] = "Chỉnh sửa đánh giá khách hàng - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa đánh giá: {viewModel.ClientName}";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Đánh giá khách hàng", Url.Action(nameof(Index))), ($"Chỉnh sửa: {viewModel.ClientName}", "") };
+        return View(viewModel);
     }
 
     // POST: Admin/Testimonial/Delete/5
@@ -185,24 +204,25 @@ public class TestimonialController : Controller
         var testimonial = await _context.Set<Testimonial>().FindAsync(id);
         if (testimonial == null)
         {
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return Json(new { success = false, message = "Không tìm thấy đánh giá." });
-            return NotFound();
+            _logger.LogWarning("Delete POST: Testimonial with ID {TestimonialId} not found.", id);
+            // Standard JSON response for AJAX
+            return Json(new { success = false, message = "Không tìm thấy đánh giá." });
         }
 
-        _context.Set<Testimonial>().Remove(testimonial);
-        await _context.SaveChangesAsync();
+        try
+        {
+            string clientName = testimonial.ClientName;
+            _context.Set<Testimonial>().Remove(testimonial);
+            await _context.SaveChangesAsync();
 
-        if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-            return Json(new { success = true, message = "Xóa đánh giá thành công." });
-
-        TempData["SuccessMessage"] = "Xóa đánh giá thành công.";
-        return RedirectToAction(nameof(Index));
-    }
-
-    private async Task<bool> TestimonialExists(int id)
-    {
-        return await _context.Set<Testimonial>().AnyAsync(e => e.Id == id);
+            _logger.LogInformation("Testimonial for '{ClientName}' (ID: {TestimonialId}) deleted successfully by {User}.", clientName, id, User.Identity?.Name ?? "Unknown");
+            return Json(new { success = true, message = $"Xóa đánh giá của '{clientName}' thành công." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting testimonial for '{ClientName}' (ID: {TestimonialId}).", testimonial.ClientName, id);
+            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đánh giá." });
+        }
     }
 }
-
+// --- END OF FILE TestimonialController.cs ---

@@ -2,18 +2,27 @@
 @model TestimonialViewModel
 @{
 	ViewData["Title"] = "Thêm đánh giá khách hàng - Hệ thống quản trị";
+	// Breadcrumbs set in Controller
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/summernote.css" />
 }
 
 <div class="card">
+	<div class="card-header">
+		<h3 class="card-title">Thông tin đánh giá khách hàng</h3>
+	</div>
 	<div class="card-body">
 		<form asp-action="Create" method="post">
-			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
 			@Html.AntiForgeryToken()
 
 			<partial name="_TestimonialFormFields" model="Model" />
 
 			<div class="d-flex justify-content-between mt-4">
-				<a asp-action="Index" class="btn btn-outline-secondary">
+				<a asp-action="Index" class="btn btn-link">
+					@* Use btn-link for consistency *@
 					<i class="ti ti-arrow-left me-2"></i> Quay lại
 				</a>
 				<button type="submit" class="btn btn-primary">
@@ -26,59 +35,93 @@
 
 @section Scripts {
 	<script>
+		// Rating stars functionality (same as Edit)
 		function updateStars(rating) {
-			const ratingStarsContainer = document.getElementById('ratingStars');
-			if (!ratingStarsContainer) return;
-
-			ratingStarsContainer.innerHTML = '';
+			const $ratingStarsContainer = $('#ratingStars');
+			if (!$ratingStarsContainer.length) return;
+			$ratingStarsContainer.empty();
 			for (let i = 1; i <= 5; i++) {
 				const starClass = i <= rating ? 'ti ti-star-filled text-warning' : 'ti ti-star text-warning';
-				ratingStarsContainer.innerHTML += `<i class="${starClass} me-1"></i>`;
+				$ratingStarsContainer.append(`<i class="${starClass} me-1"></i>`);
 			}
 		}
 
 		$(document).ready(function() {
-			const ratingSlider = document.getElementById('ratingSlider');
+			// Initialize Summernote (if not globally initialized)
+			$('.summernote').summernote({
+				lang: 'vi-VN',
+				height: 150,
+			});
 
+			// Rating slider initialization
+			const ratingSlider = document.getElementById('ratingSlider');
 			if (ratingSlider) {
-				let initialRating = parseInt(ratingSlider.value) || 5;
-				if (initialRating < 1 || initialRating > 5) initialRating = 5;
-				ratingSlider.value = initialRating;
-				updateStars(initialRating);
+				let initialRating = parseInt(ratingSlider.value);
+				if (isNaN(initialRating) || initialRating < 1 || initialRating > 5) {
+					initialRating = 5; // Default to 5 if invalid
+					ratingSlider.value = initialRating;
+				}
+				updateStars(initialRating); // Update stars on load
 
 				ratingSlider.addEventListener('input', function() {
 					updateStars(parseInt(this.value));
 				});
 			}
 
-			const $selectBtn = $('#selectAvatarBtn');
-			const $removeBtn = $('#removeAvatarBtn');
-			const $previewImg = $('#avatarPreview');
-			const $pathInput = $('#avatarPathInput');
-			const defaultAvatar = '/img/placeholder.svg';
+			// Standard image selection setup function (copied from Brand/Category)
+			function setupImageSelection(selectBtnId, removeBtnId, previewId, inputId, storeFullPath = false, defaultImgSrc = '/img/placeholder.svg') {
+				const selectBtn = $(`#${selectBtnId}`);
+				const removeBtn = $(`#${removeBtnId}`);
+				const preview = $(`#${previewId}`);
+				const input = $(`#${inputId}`);
 
-			function handleAvatarSelection(selectedFile) {
-				if (selectedFile && selectedFile.url && selectedFile.path) {
-					$previewImg.attr('src', selectedFile.url);
-					$pathInput.val(selectedFile.path).trigger('change');
-					$removeBtn.removeClass('d-none');
+				function handleSelection(selectedFile) {
+					if (selectedFile && selectedFile.url) {
+						preview.attr('src', selectedFile.url).show();
+						input.val(storeFullPath ? selectedFile.url : selectedFile.path).trigger('change');
+						removeBtn.removeClass('d-none');
+					} else {
+						console.warn("Selected file object is missing 'url' or 'path'.", selectedFile);
+						preview.attr('src', defaultImgSrc).show(); // Show placeholder
+						input.val('').trigger('change');
+						removeBtn.addClass('d-none');
+					}
+				}
+
+				selectBtn.on('click', function() {
+					if (typeof window.openMediaSelectionModal === 'function') {
+						window.openMediaSelectionModal(handleSelection, 'Image');
+					} else {
+						console.error('window.openMediaSelectionModal function is not defined.');
+						alert('Lỗi: Chức năng chọn media chưa sẵn sàng.');
+					}
+				});
+
+				removeBtn.on('click', function() {
+					preview.attr('src', defaultImgSrc).show(); // Show placeholder
+					input.val('').trigger('change');
+					$(this).addClass('d-none');
+				});
+
+				// Initial state on load
+				if (input.val() === '') {
+					preview.attr('src', defaultImgSrc).show(); // Show placeholder
+					removeBtn.addClass('d-none');
+				} else {
+					 preview.show(); // Ensure preview shows if input has value
+					 removeBtn.removeClass('d-none');
 				}
 			}
 
-			$selectBtn.on('click', function() {
-				if (typeof window.openMediaSelectionModal === 'function') {
-					window.openMediaSelectionModal(handleAvatarSelection, 'Image');
-				} else {
-					console.error('Function openMediaSelectionModal is not defined.');
-					alert('Không thể mở thư viện media.');
-				}
-			});
-
-			$removeBtn.on('click', function() {
-				$previewImg.attr('src', defaultAvatar);
-				$pathInput.val('').trigger('change');
-				$(this).addClass('d-none');
-			});
+			// --- Thiết lập cho Ảnh đại diện (ClientAvatar - Lưu Path) ---
+			// Uses standardized IDs: selectImageBtn, removeImageBtn, imagePreview, imagePathInput
+			setupImageSelection(
+				'selectImageBtn',      // Standard ID
+				'removeImageBtn',      // Standard ID
+				'imagePreview',        // Standard ID
+				'imagePathInput',      // Standard ID
+				false                  // Lưu Path (false) for avatar
+			);
 		});
 	</script>
 }

@@ -8,7 +8,7 @@ public class TestimonialMappingProfile : Profile
 {
     public TestimonialMappingProfile()
     {
-        // Testimonial Mappings
+        // Entity -> ListItemViewModel
         CreateMap<Testimonial, TestimonialListItemViewModel>();
 
         // Entity -> ViewModel (For Edit GET)
@@ -16,8 +16,10 @@ public class TestimonialMappingProfile : Profile
 
         // ViewModel -> Entity (For Create/Edit POST)
         CreateMap<TestimonialViewModel, Testimonial>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignore Id and Nav properties
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore()) 
+            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
     }
 }
