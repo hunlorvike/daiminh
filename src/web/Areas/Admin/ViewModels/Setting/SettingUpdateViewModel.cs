@@ -4,11 +4,26 @@ namespace web.Areas.Admin.ViewModels.Setting;
 
 public class SettingUpdateViewModel
 {
-    // Use List for model binding compatibility
-    [Required] // Ensure the list itself is submitted
+    [Required]
     public List<SettingViewModel> Settings { get; set; } = new List<SettingViewModel>();
 
-    // Helper property for grouping in the View
     public ILookup<string, SettingViewModel> SettingsByCategory =>
-        Settings.OrderBy(s => s.Key).ToLookup(s => s.Category);
+        Settings.OrderBy(s => GetCategoryOrder(s.Category))
+                .ThenBy(s => s.Key)
+                .ToLookup(s => s.Category);
+
+    private static int GetCategoryOrder(string category)
+    {
+        return category switch
+        {
+            "General" => 1,
+            "Contact" => 2,
+            "Social Media" => 3,
+            "Email" => 4,
+            "SEO" => 5,
+            "Theme" => 6,
+            // Add other categories...
+            _ => 99, // Default order for unknown categories
+        };
+    }
 }

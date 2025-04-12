@@ -1,117 +1,239 @@
 @using web.Areas.Admin.ViewModels.Setting
+@using shared.Enums
+@using shared.Helpers
 @model SettingUpdateViewModel
 @{
-    ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
+	ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
 }
 
-@section PageActions {
-	@* No specific page actions like "Create New" typically needed for settings *@
-    @* You could add a "Reset to Default" button here if implemented *@
+@if (TempData["success"] != null)
+{
+	<div class="alert alert-success alert-dismissible" role="alert">
+		@TempData["success"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
 }
+@if (TempData["error"] != null)
+{
+	<div class="alert alert-danger alert-dismissible" role="alert">
+		@TempData["error"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
+@if (TempData["info"] != null)
+{
+	<div class="alert alert-info alert-dismissible" role="alert">
+		@TempData["info"]
+		<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+	</div>
+}
+
 
 <form asp-action="Update" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div> 
+	@Html.AntiForgeryToken()
+	<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
 
-    @* Iterate through settings grouped by category *@
-    @foreach (var categoryGroup in Model.SettingsByCategory)
-    {
-        <div class="card mb-4">
-            <div class="card-header">
-                <h3 class="card-title">@categoryGroup.Key</h3> @* Display Category Name *@
-            </div>
-            <div class="card-body">
-                @* Use a standard for loop for correct model binding of lists *@
-                @for (int i = 0; i < Model.Settings.Count; i++)
-                {
-                    // Process only settings belonging to the current category group
-                    if (Model.Settings[i].Category == categoryGroup.Key)
-                    {
-                        var setting = Model.Settings[i];
+	@foreach (var categoryGroup in Model.SettingsByCategory)
+	{
+		<div class="card mb-4">
+			<div class="card-header">
+				<h3 class="card-title">@categoryGroup.Key</h3>
+			</div>
+			<div class="card-body">
+				@for (int i = 0; i < Model.Settings.Count; i++)
+				{
+					if (Model.Settings[i].Category == categoryGroup.Key)
+					{
+						var setting = Model.Settings[i];
+						var inputId = $"settings_{i}_Value";
 
-                        @* Hidden fields to post back essential data *@
-                        <input type="hidden" asp-for="Settings[i].Id" />
-                        @* Keep Type to help render control, although not strictly needed for postback if only Id is used *@
-                        <input type="hidden" asp-for="Settings[i].Type" />
+						<input type="hidden" asp-for="Settings[i].Id" />
+						<input type="hidden" asp-for="Settings[i].Key" /> 
+						<input type="hidden" asp-for="Settings[i].Type" />
 
+						<div class="row mb-3 align-items-center">
+							@* Label Column *@
+							<div class="col-md-3">
+								<label for="@inputId" class="form-label fw-bold">@setting.Key</label>
+								@if (!string.IsNullOrWhiteSpace(setting.Description))
+								{
+									<small class="form-hint d-block mt-1">@setting.Description</small>
+								}
+								@if (!string.IsNullOrWhiteSpace(setting.DefaultValue))
+								{
+									<small class="form-hint d-block mt-1 text-muted"><i>Mặc định: @setting.DefaultValue</i></small>
+								}
+							</div>
 
-                        <div class="row mb-3 align-items-center">
-                            <div class="col-md-3">
-                                <label asp-for="Settings[i].Value" class="form-label fw-bold">@setting.Key</label>
-                                @if (!string.IsNullOrWhiteSpace(setting.Description))
-                                {
-                                    <small class="form-hint d-block mt-1">@setting.Description</small>
-                                }
-                                @if (!string.IsNullOrWhiteSpace(setting.DefaultValue))
-                                {
-                                     <small class="form-hint d-block mt-1 text-muted"><i>Mặc định: @setting.DefaultValue</i></small>
-                                }
-                            </div>
-                            <div class="col-md-7">
-                                @switch (setting.InputType)
-                                {
-                                    case "textarea":
-                                    case "richtext": // Basic textarea for richtext, replace with editor if needed
-                                    case "json":
-                                    case "code":
-                                        <textarea asp-for="Settings[i].Value" class="form-control" rows="3"></textarea>
-                                        break;
+							@* Input Column *@
+							<div class="col-md-7">
+								@switch (setting.Type)
+								{
+									case FieldType.TextArea:
+									case FieldType.Html: // Use textarea + Summernote/other editor for HTML
+										<textarea asp-for="Settings[i].Value" id="@inputId" class="form-control @(setting.Type == FieldType.Html ? "summernote" : "")" rows="4"></textarea>
+										break;
 
-                                    case "checkbox": // Special handling for boolean IsActive
-                                        // For boolean type, we usually map it to the IsActive property directly
-                                        // Assuming 'Value' for boolean type stores "true"/"false" is less common
-                                        // We'll render the IsActive checkbox separately below
-                                         <input type="text" asp-for="Settings[i].Value" class="form-control" readonly disabled title="Giá trị boolean được quản lý bằng checkbox 'Kích hoạt'"/>
-                                        break;
+									case FieldType.Boolean:
+										@* Render a checkbox for the VALUE of boolean settings
+                                           The value itself should store "true" or "false" string *@
+										<div class="form-check">
+											<input type="hidden" asp-for="Settings[i].Value" value="false" /> @* Post 'false' if unchecked *@
+											<input type="checkbox" asp-for="Settings[i].Value" id="@inputId" class="form-check-input" value="true" checked="@(setting.Value?.ToLower() == "true")" />
+											<label class="form-check-label" for="@inputId">Bật</label>
+										</div>
+										break;
 
-                                    case "number":
-                                    case "text":
-                                    case "email":
-                                    case "url":
-                                    case "color":
-                                    case "date":
-                                    case "time":
-                                    case "datetime-local":
-                                    case "password":
-                                    case "tel":
-                                        <input type="@setting.InputType" asp-for="Settings[i].Value" class="form-control" />
-                                        break;
+									case FieldType.Image:
+									case FieldType.File:
+										@* Media Selection Input *@
+										var previewId = $"preview_{i}";
+										var selectBtnId = $"selectBtn_{i}";
+										var removeBtnId = $"removeBtn_{i}";
+										var isImage = setting.Type == FieldType.Image;
+										<div class="input-group">
+											@* Input stores MinIO Path *@
+											<input type="text" asp-for="Settings[i].Value" id="@inputId" class="form-control" placeholder="@(isImage ? "Chọn ảnh..." : "Chọn file...")" />
+											<button class="btn btn-outline-secondary select-media-btn" type="button" id="@selectBtnId"
+													data-preview-id="@previewId" data-input-id="@inputId" data-remove-btn-id="@removeBtnId" data-media-type="@(isImage ? "Image" : "File")"
+													title="@(isImage ? "Chọn ảnh" : "Chọn file")">
+												<i class="ti ti-@(isImage ? "photo" : "file")-search"></i>
+											</button>
+											<button class="btn btn-outline-danger remove-media-btn @(string.IsNullOrEmpty(setting.Value) ? "d-none" : "")" type="button" id="@removeBtnId"
+													data-preview-id="@previewId" data-input-id="@inputId"
+													title="Xóa">
+												<i class="ti ti-x"></i>
+											</button>
+										</div>
+										@if (isImage)
+										{
+											<img id="@previewId" src="@MediaUrlHelper.GetMinioUrl(setting.Value, "/img/placeholder.svg")" class="img-thumbnail mt-2" style="max-height: 80px; display: @(string.IsNullOrEmpty(setting.Value) ? "none" : "block");" />
+										}
+										else
+										{
+											@* Optional: Display filename or link for File type *@
+											<div id="@previewId" class="mt-2" style="display: @(string.IsNullOrEmpty(setting.Value) ? "none" : "block");">
+												<a href="@MediaUrlHelper.GetMinioUrl(setting.Value)" target="_blank">@System.IO.Path.GetFileName(setting.Value)</a>
+											</div>
+										}
+										break;
 
-                                    default: // Fallback to text input
-                                        <input type="text" asp-for="Settings[i].Value" class="form-control" />
-                                        break;
-                                }
-                                <span asp-validation-for="Settings[i].Value" class="text-danger"></span>
-                            </div>
-                             <div class="col-md-2">
-                                 <div class="form-check form-switch">
-                                     <input class="form-check-input" type="checkbox" asp-for="Settings[i].IsActive" role="switch" id="isActiveSwitch_@setting.Id">
-                                     <label class="form-check-label" for="isActiveSwitch_@setting.Id">Kích hoạt</label>
-                                 </div>
-                             </div>
-                        </div>
-                        <hr class="my-3" />
-                    }
-                }
-                <script>
-                   var lastHr = document.currentScript.previousElementSibling;
-                   if(lastHr && lastHr.tagName === 'HR') { lastHr.remove(); }
-                </script>
-            </div>
-        </div>
-    }
+									case FieldType.Color:
+										<input type="color" asp-for="Settings[i].Value" id="@inputId" class="form-control form-control-color" />
+										break;
 
-    <div class="d-flex justify-content-end mt-4">
-        <button type="submit" class="btn btn-primary">
-            <i class="ti ti-device-floppy me-2"></i> Lưu thay đổi
-        </button>
-    </div>
+									case FieldType.Number:
+										<input type="number" asp-for="Settings[i].Value" id="@inputId" class="form-control" step="any" /> @* Allow decimals *@
+										break;
+
+									// Add cases for Select, MultiSelect here if needed
+									// case FieldType.Select:
+									//    <select asp-for="Settings[i].Value" id="@inputId" class="form-select">...</select>
+									//    break;
+
+									default: // Handles Text, Url, Email, Phone, etc. based on InputType helper
+										<input type="@setting.InputType" asp-for="Settings[i].Value" id="@inputId" class="form-control" />
+										break;
+								}
+								<span asp-validation-for="Settings[i].Value" class="text-danger"></span>
+							</div>
+
+							@* IsActive Switch Column *@
+							<div class="col-md-2">
+								<div class="form-check form-switch">
+									<input class="form-check-input" type="checkbox" asp-for="Settings[i].IsActive" role="switch" id="isActiveSwitch_@setting.Id">
+									<label class="form-check-label" for="isActiveSwitch_@setting.Id">Kích hoạt</label>
+								</div>
+								<span asp-validation-for="Settings[i].IsActive" class="text-danger"></span>
+							</div>
+						</div>
+						<hr class="my-3" />
+					}
+				}
+				@* Remove the last HR in the card-body for cleaner look *@
+				<script>
+					(function() {
+						var cardBody = document.currentScript.closest('.card-body');
+						var lastHr = cardBody.querySelector('hr:last-of-type');
+						if(lastHr) { lastHr.remove(); }
+					})();
+				</script>
+			</div>
+		</div>
+	}
+
+	<div class="card-footer text-end bg-transparent mt-0 pt-0 border-top-0">
+		@* Consistent footer style *@
+		<button type="submit" class="btn btn-primary">
+			<i class="ti ti-device-floppy me-2"></i> Lưu thay đổi
+		</button>
+	</div>
 </form>
 
 @section Scripts {
-    @* Add scripts for rich text editors here if needed *@
-    <script>
-        // Add any specific JS needed for setting controls here
-        // e.g., initialize color pickers, date pickers, rich text editors
-    </script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			 $('.summernote').summernote({
+				 lang: 'vi-VN',
+				 height: 150, 
+			 });
+		});
+	</script>
+
+	<script>
+		$(document).ready(function() {
+			$('.select-media-btn').on('click', function() {
+				const button = $(this);
+				const previewId = button.data('preview-id');
+				const inputId = button.data('input-id');
+				const removeBtnId = button.data('remove-btn-id');
+				const mediaType = button.data('media-type') || 'File';
+
+				if (typeof window.openMediaSelectionModal === 'function') {
+					window.openMediaSelectionModal(function(selectedFile) {
+						// Handle selection callback
+						if (selectedFile && selectedFile.url && selectedFile.path) {
+							const inputField = $(`#${inputId}`);
+							const previewElement = $(`#${previewId}`);
+							const removeButton = $(`#${removeBtnId}`);
+
+							inputField.val(selectedFile.path).trigger('change'); // Store path
+
+							if (mediaType === 'Image' && previewElement.is('img')) {
+								previewElement.attr('src', selectedFile.url).show();
+							} else if (mediaType !== 'Image' && previewElement.is('div')) {
+								// Update link for File type
+								previewElement.html(`<a href="${selectedFile.url}" target="_blank">${selectedFile.name || selectedFile.path}</a>`).show();
+							} else {
+								 previewElement.show(); // Fallback for other previews
+							}
+							removeButton.removeClass('d-none');
+						} else {
+							console.warn("Media selection cancelled or invalid file object received.");
+						}
+					}, mediaType); // Pass mediaType (Image/File) to the modal
+				} else {
+					console.error('window.openMediaSelectionModal function is not defined.');
+					alert('Lỗi: Chức năng chọn media chưa sẵn sàng.');
+				}
+			});
+
+			$('.remove-media-btn').on('click', function() {
+				const button = $(this);
+				const previewId = button.data('preview-id');
+				const inputId = button.data('input-id');
+				const inputField = $(`#${inputId}`);
+				const previewElement = $(`#${previewId}`);
+
+				inputField.val('').trigger('change');
+				button.addClass('d-none');
+
+				if (previewElement.is('img')) {
+					previewElement.attr('src', '/img/placeholder.svg').hide();
+				} else if (previewElement.is('div')) {
+					 previewElement.html('').hide();
+				}
+			});
+		});
+	</script>
 }

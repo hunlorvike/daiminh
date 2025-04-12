@@ -1,12 +1,11 @@
 using AutoMapper;
 using domain.Entities;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Setting;
+using System.Diagnostics;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -16,19 +15,19 @@ public class SettingController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IValidator<SettingUpdateViewModel> _validator;
+    private readonly ILogger<SettingController> _logger;
 
-
-    public SettingController(ApplicationDbContext context, IMapper mapper, IValidator<SettingUpdateViewModel> validator)
+    public SettingController(ApplicationDbContext context, IMapper mapper, ILogger<SettingController> logger)
     {
         _context = context;
         _mapper = mapper;
-        _validator = validator;
+        _logger = logger;
     }
 
-    // GET: Admin/Setting (Displays settings grouped by category for editing)
+    // GET: Admin/Setting
     public async Task<IActionResult> Index()
     {
+        ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
         ViewData["PageTitle"] = "Cấu hình hệ thống";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
@@ -36,6 +35,7 @@ public class SettingController : Controller
         };
 
         var settings = await _context.Set<Setting>()
+                                     .AsNoTracking()
                                      .OrderBy(s => s.Category)
                                      .ThenBy(s => s.Key)
                                      .ToListAsync();
@@ -50,94 +50,92 @@ public class SettingController : Controller
         return View(viewModel);
     }
 
-    // POST: Admin/Setting/Update (Handles the form submission)
+    // POST: Admin/Setting/Update
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Update(SettingUpdateViewModel viewModel)
     {
-        var validationResult = await _validator.ValidateAsync(viewModel);
 
-        if (!validationResult.IsValid)
+        if (!ModelState.IsValid)
         {
-            validationResult.AddToModelState(ModelState, string.Empty);
-
+            _logger.LogWarning("Settings update failed due to model validation errors.");
+            TempData["error"] = "Dữ liệu không hợp lệ, vui lòng kiểm tra lại các trường báo lỗi.";
+            ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
             ViewData["PageTitle"] = "Cấu hình hệ thống";
             ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Cấu hình", "") };
-
-            var originalSettings = await _context.Set<Setting>()
-                                                 .OrderBy(s => s.Category)
-                                                 .ThenBy(s => s.Key)
-                                                 .ToListAsync();
-            var originalSettingViewModels = _mapper.Map<List<SettingViewModel>>(originalSettings);
-
-            var submittedValues = viewModel.Settings.ToDictionary(s => s.Id);
-
-            foreach (var originalVm in originalSettingViewModels)
-            {
-                if (submittedValues.TryGetValue(originalVm.Id, out var submittedVm))
-                {
-                    originalVm.Value = submittedVm.Value;
-                    originalVm.IsActive = submittedVm.IsActive;
-                }
-            }
-
-            var modelToReturn = new SettingUpdateViewModel { Settings = originalSettingViewModels };
-            TempData["ErrorMessage"] = "Dữ liệu không hợp lệ, vui lòng kiểm tra lại.";
-            return View("Index", modelToReturn);
+            return View("Index", viewModel);
         }
 
+        var stopwatch = Stopwatch.StartNew();
+        int updatedCount = 0;
+        bool errorOccurred = false;
 
         var settingIds = viewModel.Settings.Select(s => s.Id).ToList();
+        var dbSettingsDict = await _context.Set<Setting>()
+                                           .Where(s => settingIds.Contains(s.Id))
+                                           .ToDictionaryAsync(s => s.Id);
 
-        var dbSettings = await _context.Set<Setting>()
-                                       .Where(s => settingIds.Contains(s.Id))
-                                       .ToDictionaryAsync(s => s.Id);
-
-        bool changesMade = false;
         foreach (var settingViewModel in viewModel.Settings)
         {
-            if (dbSettings.TryGetValue(settingViewModel.Id, out var dbSetting))
+            if (dbSettingsDict.TryGetValue(settingViewModel.Id, out var dbSetting))
             {
-                string? currentDbValue = dbSetting.Value;
-                bool currentDbActive = dbSetting.IsActive;
-
-                string? submittedValue = settingViewModel.Value;
-                bool submittedActive = settingViewModel.IsActive;
-
-                if (currentDbValue != submittedValue || currentDbActive != submittedActive)
+                if (dbSetting.Value != settingViewModel.Value || dbSetting.IsActive != settingViewModel.IsActive)
                 {
                     _mapper.Map(settingViewModel, dbSetting);
-                    _context.Entry(dbSetting).State = EntityState.Modified;
-                    changesMade = true;
+                    updatedCount++;
                 }
             }
             else
             {
-                ModelState.AddModelError("", $"Setting with ID {settingViewModel.Id} not found.");
-                return View("Index", viewModel);
+                _logger.LogWarning("Setting update: Setting with ID {SettingId} submitted but not found in database.", settingViewModel.Id);
+                ModelState.AddModelError("", $"Không tìm thấy cài đặt với ID {settingViewModel.Id}.");
+                errorOccurred = true; 
             }
         }
-        if (changesMade)
+
+        if (errorOccurred)
+        {
+            TempData["error"] = "Đã xảy ra lỗi, một số cài đặt không tìm thấy.";
+            ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
+            ViewData["PageTitle"] = "Cấu hình hệ thống";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Cấu hình", "") };
+            return View("Index", viewModel);
+        }
+
+
+        if (updatedCount > 0)
         {
             try
             {
-                await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Cập nhật cấu hình thành công!";
+                var affectedRows = await _context.SaveChangesAsync();
+                stopwatch.Stop();
+                _logger.LogInformation("Updated {UpdateCount} settings successfully in {ElapsedMs}ms by {User}.", updatedCount, stopwatch.ElapsedMilliseconds, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Cập nhật {updatedCount} cấu hình thành công!";
             }
-            catch (DbUpdateConcurrencyException)
+            catch (DbUpdateConcurrencyException ex)
             {
-                TempData["ErrorMessage"] = "Lỗi: Có xung đột xảy ra khi cập nhật. Vui lòng thử lại.";
+                stopwatch.Stop();
+                _logger.LogError(ex, "Concurrency error updating settings after {ElapsedMs}ms.", stopwatch.ElapsedMilliseconds);
+                TempData["error"] = "Lỗi: Có xung đột xảy ra khi lưu. Vui lòng tải lại trang và thử lại.";
+                ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
+                ViewData["PageTitle"] = "Cấu hình hệ thống";
+                ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Cấu hình", "") };
                 return View("Index", viewModel);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                TempData["ErrorMessage"] = "Đã xảy ra lỗi không mong muốn khi lưu cấu hình.";
+                stopwatch.Stop();
+                _logger.LogError(ex, "Error saving settings update after {ElapsedMs}ms.", stopwatch.ElapsedMilliseconds);
+                TempData["error"] = "Đã xảy ra lỗi không mong muốn khi lưu cấu hình.";
+                ViewData["Title"] = "Cấu hình hệ thống - Hệ thống quản trị";
+                ViewData["PageTitle"] = "Cấu hình hệ thống";
+                ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Cấu hình", "") };
                 return View("Index", viewModel);
             }
         }
         else
         {
-            TempData["InfoMessage"] = "Không có thay đổi nào được thực hiện.";
+            TempData["info"] = "Không có thay đổi nào được thực hiện.";
         }
 
         return RedirectToAction(nameof(Index));

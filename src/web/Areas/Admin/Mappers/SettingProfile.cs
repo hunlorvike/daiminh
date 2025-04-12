@@ -4,24 +4,24 @@ using web.Areas.Admin.ViewModels.Setting;
 
 namespace web.Areas.Admin.Mappers;
 
-public class SettingMappingProfile : Profile
+public class SettingProfile : Profile
 {
-    public SettingMappingProfile()
+    public SettingProfile()
     {
-        // Setting Mappings (Generic)
+        // Entity -> ViewModel
+        // AutoMapper should map the FieldType enum correctly by name/value
         CreateMap<Setting, SettingViewModel>();
 
-        // Map from ViewModel back to Entity (ONLY updateable fields)
+        // ViewModel -> Entity (Only updatable fields: Value, IsActive)
         CreateMap<SettingViewModel, Setting>()
             .ForMember(dest => dest.Value, opt => opt.MapFrom(src => src.Value))
             .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
-            // Ignore all other properties during the update mapping
+            // Ignore all non-updatable properties
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.Key, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.Type, opt => opt.Ignore())
+            .ForMember(dest => dest.Type, opt => opt.Ignore()) // Don't update Type
             .ForMember(dest => dest.Description, opt => opt.Ignore())
-            .ForMember(dest => dest.DefaultValue, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+            .ForMember(dest => dest.DefaultValue, opt => opt.Ignore());
     }
 }
