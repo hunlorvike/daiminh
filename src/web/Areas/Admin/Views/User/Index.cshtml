@@ -21,7 +21,7 @@
 				<label class="form-label">Tìm kiếm</label>
 				<div class="input-group">
 					<input type="text" class="form-control" placeholder="Tìm theo tên đăng nhập hoặc email..." name="searchTerm" value="@ViewBag.SearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
 				</div>
@@ -32,7 +32,7 @@
 				</button>
 			</div>
 			<div class="col-md-2">
-				<a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+				<a asp-action="Index" class="btn btn-outline-secondary w-100">
 					<i class="ti ti-reload me-2"></i> Đặt lại
 				</a>
 			</div>
@@ -41,8 +41,12 @@
 </div>
 
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">@ViewData["PageTitle"] (@Model.TotalItemCount)</h3>
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h3 class="card-title mb-0">@ViewData["PageTitle"]</h3>
+		@if (Model.TotalItemCount > 0)
+		{
+			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount người dùng</small>
+		}
 	</div>
 	<div class="card-body p-0">
 		@if (!Model.Any())
@@ -57,7 +61,7 @@
 				</p>
 				<div class="empty-action">
 					<a asp-action="Create" class="btn btn-primary">
-						<i class="ti ti-plus"></i> Thêm người dùng
+						<i class="ti ti-plus me-2"></i> Thêm người dùng
 					</a>
 				</div>
 			</div>
@@ -71,9 +75,10 @@
 							<th class="w-1">ID</th>
 							<th>Tên đăng nhập</th>
 							<th>Email</th>
+							<th>Họ và tên</th>
+							<th>Trạng thái</th>
 							<th style="width: 15%">Ngày tạo</th>
-							<th style="width: 15%">Cập nhật</th>
-							<th style="width: 10%">Thao tác</th>
+							<th class="w-1">Thao tác</th>
 						</tr>
 					</thead>
 					<tbody>
@@ -83,13 +88,39 @@
 								<td class="text-muted">@item.Id</td>
 								<td>@item.Username</td>
 								<td>@item.Email</td>
+								<td>@item.FullName</td>
+								<td>
+									@if (item.IsActive)
+									{
+										<span class="badge bg-success-lt">Hiển thị</span>
+									}
+									else
+									{
+										<span class="badge bg-danger-lt">Ẩn</span>
+									}
+								</td>
 								<td>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-								<td>@(item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "N/A")</td>
 								<td>
 									<div class="btn-list flex-nowrap">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa người dùng">
 											<i class="ti ti-pencil"></i>
 										</a>
+										@if (item.Id != 1)
+										{
+											<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+													title="Xóa người dùng"
+													data-id="@item.Id"
+													data-name="@item.Username"
+													data-delete-url="@Url.Action("Delete", "User")">
+												<i class="ti ti-trash"></i>
+											</button>
+										}
+										else
+										{
+											<button class="btn btn-sm btn-icon btn-outline-secondary" disabled title="Không thể xóa quản trị viên mặc định">
+												<i class="ti ti-trash"></i>
+											</button>
+										}
 									</div>
 								</td>
 							</tr>

@@ -16,20 +16,10 @@ public class UserProfile : Profile
 
         // Create ViewModel -> Entity
         CreateMap<UserCreateViewModel, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Sẽ xử lý hash riêng
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
 
-        // Edit ViewModel -> Entity (Dùng để cập nhật entity đã tồn tại)
+        // Edit ViewModel -> Entity (For updating existing entity)
         CreateMap<UserEditViewModel, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Không cập nhật mật khẩu ở đây
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Id không được map từ ViewModel
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
     }
 }

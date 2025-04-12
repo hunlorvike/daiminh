@@ -10,6 +10,8 @@ public class User : BaseEntity<int>
     public string Username { get; set; } = string.Empty;
     public string Email { get; set; } = string.Empty;
     public string PasswordHash { get; set; } = string.Empty;
+    public string? FullName { get; set; }
+    public bool IsActive { get; set; } = true;
 }
 
 public class UserConfiguration : BaseEntityConfiguration<User, int>
@@ -24,6 +26,9 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
         builder.Property(x => x.Email).HasColumnName("email").IsRequired().HasMaxLength(255);
         builder.Property(x => x.PasswordHash).HasColumnName("password_hash").IsRequired();
 
+        builder.Property(x => x.FullName).HasColumnName("full_name").HasMaxLength(100);
+        builder.Property(x => x.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+
         builder.HasIndex(x => x.Username).HasDatabaseName("idx_users_username");
         builder.HasIndex(x => x.Email).HasDatabaseName("idx_users_email");
 
@@ -34,7 +39,9 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
             Id = 1,
             Username = "admin",
             Email = "admin@admin.com",
-            PasswordHash = ""
+            PasswordHash = "",
+            FullName = "Quản trị viên",
+            IsActive = true,
         };
 
         adminUser.PasswordHash = hasher.HashPassword(adminUser, "123123123");
