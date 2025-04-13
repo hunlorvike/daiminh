@@ -1,52 +1,67 @@
 @using web.Areas.Admin.ViewModels.FAQ
 @model FAQViewModel
 @{
-    ViewData["Title"] = "Thêm FAQ mới";
-    // Breadcrumbs set in Controller
+	ViewData["Title"] = "Thêm FAQ mới - Hệ thống quản trị";
+}
+
+@section Styles {
+	<link rel="stylesheet" href="~/css/summernote.css" />
 }
 
 <form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Nội dung FAQ</h3>
-        </div>
-        <div class="card-body">
-            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
-            <partial name="_FAQFormFields" model="Model" />
-        </div>
-        <div class="card-footer text-end">
-            <a asp-action="Index" class="btn btn-link">Hủy</a>
-            <button type="submit" class="btn btn-primary">
-                <i class="ti ti-device-floppy me-2"></i> Lưu FAQ
-            </button>
-        </div>
-    </div>
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">Nội dung FAQ</h3>
+		</div>
+		<div class="card-body">
+			@Html.AntiForgeryToken()
+			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
+			<partial name="_FAQFormFields" model="Model" />
+		</div>
+		<div class="card-footer text-end bg-transparent border-top pt-3">
+			<a asp-action="Index" class="btn btn-link">Hủy</a>
+			<button type="submit" class="btn btn-primary ms-2">
+				<i class="ti ti-device-floppy me-2"></i> Lưu FAQ
+			</button>
+		</div>
+	</div>
 </form>
 
 @section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Initialize Tom Select
-            new TomSelect('.tom-select-multiple',{
-                plugins: ['remove_button'],
-                create: false, // Assuming you only select existing categories
-                placeholder: 'Chọn danh mục...'
-            });
+	<script>
+		$(document).ready(function() {
+			 try {
+				if (TomSelect) {
+					var tom = new TomSelect('#SelectedCategoryIds',{
+						plugins: ['remove_button'],
+						create: false,
+						placeholder: 'Chọn danh mục...'
+					});
+				} else { console.error('TomSelect library not found.'); }
+			} catch (e) { console.error('Error initializing TomSelect:', e); }
 
-             // Initialize Summernote
-            $('.summernote-editor').summernote({
-                placeholder: 'Nhập câu trả lời...',
-                tabsize: 2,
-                height: 250, // Adjust as needed
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['insert', ['link']],
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ]
-            });
-        });
-    </script>
+
+			 try {
+				if ($.fn.summernote) {
+					$('#Answer').summernote({
+						// placeholder: 'Nhập câu trả lời...',
+						lang: 'vi-VN',
+						tabsize: 2,
+						height: 300,
+						toolbar: [
+							['style', ['style']],
+							['font', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
+							['fontsize', ['fontsize']],
+							['color', ['color']],
+							['para', ['ul', 'ol', 'paragraph']],
+							['height', ['height']],
+							['table', ['table']],
+							['insert', ['link', 'picture', 'video']],
+							['view', ['fullscreen', 'codeview', 'help']]
+						]
+					});
+				} else { console.error('Summernote library not found.'); }
+			 } catch (e) { console.error('Error initializing Summernote:', e); }
+		});
+	</script>
 }

@@ -8,16 +8,16 @@ public class FAQViewModelValidator : AbstractValidator<FAQViewModel>
     public FAQViewModelValidator()
     {
         RuleFor(x => x.Question)
-            .NotEmpty().WithMessage("Vui lòng nhập câu hỏi.")
-            .MaximumLength(255).WithMessage("Câu hỏi không được vượt quá 255 ký tự.");
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
 
         RuleFor(x => x.Answer)
-            .NotEmpty().WithMessage("Vui lòng nhập câu trả lời.");
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.");
 
         RuleFor(x => x.SelectedCategoryIds)
-            .NotEmpty().WithMessage("Vui lòng chọn ít nhất một danh mục.");
+            .NotEmpty().WithMessage("Vui lòng chọn ít nhất một {PropertyName}.");
 
         RuleFor(x => x.OrderIndex)
-            .GreaterThanOrEqualTo(0).WithMessage("Thứ tự phải là số không âm.");
+            .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");
     }
 }

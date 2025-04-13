@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace web.Areas.Admin.ViewModels.FAQ;
@@ -5,15 +6,26 @@ namespace web.Areas.Admin.ViewModels.FAQ;
 public class FAQViewModel
 {
     public int Id { get; set; }
+
+    [Display(Name = "Câu hỏi", Prompt = "Nhập câu hỏi thường gặp")]
+    [Required(ErrorMessage = "{0} không được để trống.")]
+    [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
     public string Question { get; set; } = string.Empty;
-    public string Answer { get; set; } = string.Empty; // For Summernote
+
+    [Display(Name = "Câu trả lời", Prompt = "Nhập câu trả lời chi tiết")]
+    [Required(ErrorMessage = "{0} không được để trống.")]
+    public string Answer { get; set; } = string.Empty;
+
+    [Display(Name = "Thứ tự hiển thị", Prompt = "Nhập số thứ tự (số nhỏ hiển thị trước)")]
+    [Range(0, int.MaxValue, ErrorMessage = "{0} phải là số không âm.")]
     public int OrderIndex { get; set; } = 0;
+
+    [Display(Name = "Hiển thị")]
     public bool IsActive { get; set; } = true;
 
-    // For Many-to-Many relationship with Category
+    [Display(Name = "Danh mục")]
+    [Required(ErrorMessage = "Vui lòng chọn ít nhất một {0}.")]
     public List<int> SelectedCategoryIds { get; set; } = new List<int>();
 
-    // --- Dropdown Data ---
-    public SelectList? CategoryList { get; set; } // Multi-select handled in View
-
+    public SelectList? CategoryList { get; set; }
 }

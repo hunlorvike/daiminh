@@ -1,115 +1,169 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
 @using web.Areas.Admin.ViewModels.FAQ
-@model IEnumerable<FAQListItemViewModel>
+@model IPagedList<FAQListItemViewModel>
 @{
-    ViewData["Title"] = "Quản lý Hỏi Đáp (FAQ)";
+	ViewData["Title"] = "Quản lý Hỏi Đáp (FAQ) - Hệ thống quản trị";
 }
 
 @section PageActions {
-    <div class="btn-list">
-        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-            <i class="ti ti-plus me-2"></i> Thêm FAQ
-        </a>
-    </div>
+	<div class="btn-list">
+		<a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+			<i class="ti ti-plus me-2"></i> Thêm FAQ
+		</a>
+	</div>
 }
 
 <!-- Filter Form -->
 <div class="card mb-3">
-    <div class="card-body">
-        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-            <div class="col-md-5">
-                <label class="form-label">Tìm kiếm</label>
-                <input type="text" class="form-control" placeholder="Tìm câu hỏi hoặc câu trả lời..." name="searchTerm" value="@ViewBag.SearchTerm">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Danh mục</label>
-                <select class="form-select" name="categoryId" asp-items="@ViewBag.Categories" asp-route-value="@ViewBag.SelectedCategoryId">
-                    <option value="">Tất cả danh mục</option>
-                </select>
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100">Lọc</button>
-            </div>
-            <div class="col-md-2">
-                <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a>
-            </div>
-        </form>
-    </div>
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-5">
+				<label class="form-label">Tìm kiếm</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Tìm câu hỏi hoặc câu trả lời..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+						<i class="ti ti-x"></i>
+					</button>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<label class="form-label">Danh mục</label>
+				<select class="form-select tom-select-filter" name="categoryId" asp-items="@ViewBag.Categories">
+					<option value="">-- Tất cả danh mục --</option>
+				</select>
+			</div>
+			<div class="col-md-1">
+				<button type="submit" class="btn btn-primary w-100">
+					<i class="ti ti-filter me-1"></i> Lọc
+				</button>
+			</div>
+			<div class="col-md-2">
+				<a asp-action="Index" class="btn btn-outline-secondary w-100">
+					<i class="ti ti-reload me-2"></i> Đặt lại
+				</a>
+			</div>
+		</form>
+	</div>
 </div>
 
-<!-- Content Table -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Danh sách FAQ</h3>
-    </div>
-    <div class="card-body p-0">
-        @if (!Model.Any())
-        {
-            <div class="empty">
-                <div class="empty-icon"><i class="ti ti-help-circle fa-5x text-muted"></i></div>
-                <p class="empty-title">Không tìm thấy FAQ nào</p>
-                <p class="empty-subtitle text-muted">Hãy thêm câu hỏi thường gặp đầu tiên.</p>
-                <div class="empty-action">
-                    <a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm FAQ </a>
-                </div>
-            </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="w-1">STT</th>
-                            <th>Câu hỏi</th>
-                            <th style="width: 25%;">Danh mục</th>
-                            <th class="text-center">Thứ tự</th>
-                            <th class="text-center">Trạng thái</th>
-                            <th class="w-1">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @{
-                            int index = 1;
-                        }
-                        @foreach (var item in Model)
-                        {
-                            <tr>
-                                <td class="text-muted">@(index++)</td>
-                                <td>
-                                    <span class="fw-medium">@item.Question</span>
-                                </td>
-                                <td class="text-muted">@item.CategoryNames</td>
-                                <td class="text-center">@item.OrderIndex</td>
-                                <td class="text-center">
-                                    @if (item.IsActive)
-                                    {
-                                        <span class="badge bg-success-lt">Hiển thị</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="badge bg-danger-lt">Ẩn</span>
-                                    }
-                                </td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
-                                            <i class="ti ti-pencil"></i>
-                                        </a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
-                                                title="Xóa"
-                                                data-id="@item.Id"
-                                                data-name="@item.Question"
-                                                data-delete-url="@Url.Action("Delete", "FAQ")">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            @* Add Pagination here if needed *@
-        }
-    </div>
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h3 class="card-title mb-0">Danh sách FAQ</h3>
+		@if (Model.TotalItemCount > 0)
+		{
+			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount câu hỏi</small>
+		}
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Any())
+		{
+			<div class="empty">
+				<div class="empty-icon"><i class="ti ti-help-circle fa-5x text-muted"></i></div>
+				<p class="empty-title">Không tìm thấy FAQ nào</p>
+				<p class="empty-subtitle text-muted">Hãy thêm câu hỏi thường gặp đầu tiên.</p>
+				<div class="empty-action">
+					<a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm FAQ </a>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+							<th class="w-1">ID</th>
+							<th>Câu hỏi</th>
+							<th style="width: 25%;">Danh mục</th>
+							<th class="text-center" style="width: 5%;">Thứ tự</th>
+							<th class="text-center" style="width: 10%;">Trạng thái</th>
+							<th style="width: 15%;">Cập nhật lúc</th>
+							<th class="w-1">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model)
+						{
+							<tr>
+								<td class="text-muted">@item.Id</td>
+								<td>
+									<span class="fw-medium text-truncate" style="max-width: 350px;" title="@item.Question">@item.Question</span>
+								</td>
+								<td class="text-muted text-truncate" style="max-width: 250px;" title="@item.CategoryNames">
+									@(item.CategoryNames ?? "-")
+								</td>
+								<td class="text-center">@item.OrderIndex</td>
+								<td class="text-center">
+									@if (item.IsActive)
+									{
+										<span class="badge bg-success-lt">Hiển thị</span>
+									}
+									else
+									{
+										<span class="badge bg-danger-lt">Ẩn</span>
+									}
+								</td>
+								<td class="text-muted" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
+								<td>
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
+											<i class="ti ti-pencil"></i>
+										</a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+												title="Xóa"
+												data-id="@item.Id"
+												data-name="@item.Question"
+												data-delete-url="@Url.Action("Delete", "FAQ")">
+											<i class="ti ti-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+	@if (Model.PageCount > 1)
+	{
+		<div class="card-footer">
+			<div class="d-flex align-items-center justify-content-center">
+				@Html.PagedListPager(
+								Model,
+								page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, categoryId = ViewBag.SelectedCategoryId }),
+								new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+			})
+			</div>
+		</div>
+	}
 </div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			$('#clearSearch').on('click', function() {
+				$('input[name="searchTerm"]').val('');
+			});
+
+			new TomSelect('.tom-select-filter', {
+				 create: false,
+				 allowEmptyOption: true,
+				 placeholder: 'Chọn danh mục...',
+				 // valueField: 'value', // Default
+				 // labelField: 'text', // Default
+				 // searchField: 'text' // Default
+			});
+
+		});
+	</script>
+ }

@@ -7,5 +7,5 @@ public class FAQListItemViewModel
     public string? CategoryNames { get; set; }
     public int OrderIndex { get; set; }
     public bool IsActive { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

@@ -10,13 +10,14 @@ public class FAQProfile : Profile
     {
         // Entity -> ListItemViewModel
         CreateMap<FAQ, FAQListItemViewModel>()
-            .ForMember(dest => dest.CategoryNames, opt => opt.MapFrom(src =>
-                src.FAQCategories != null && src.FAQCategories.Any()
-                ? string.Join(", ", src.FAQCategories
-                    .Where(fc => fc.Category != null)
-                    .Select(fc => fc.Category!.Name))
-                : "N/A"
-            ));
+                  .ForMember(dest => dest.CategoryNames, opt => opt.MapFrom(src =>
+                      src.FAQCategories != null && src.FAQCategories.Any()
+                      ? string.Join(", ", src.FAQCategories
+                          .Where(fc => fc.Category != null)
+                          .Select(fc => fc.Category!.Name)
+                          .OrderBy(name => name))
+                      : "N/A"
+                  ));
 
         // Entity -> ViewModel (For Edit GET)
         CreateMap<FAQ, FAQViewModel>()
@@ -28,7 +29,7 @@ public class FAQProfile : Profile
         // ViewModel -> Entity (For Create/Edit POST)
         CreateMap<FAQViewModel, FAQ>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.FAQCategories, opt => opt.Ignore()) // Handled manually
+            .ForMember(dest => dest.FAQCategories, opt => opt.Ignore()) // Handled manually in controller
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
