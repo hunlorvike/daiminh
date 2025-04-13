@@ -7,10 +7,9 @@ public class ContactDetailViewModelValidator : AbstractValidator<ContactDetailVi
 {
     public ContactDetailViewModelValidator()
     {
-        // Only validate fields that admin can edit: Status and AdminNotes
         RuleFor(x => x.Status)
-            .IsInEnum().WithMessage("Trạng thái không hợp lệ.");
+            .IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
 
-        // AdminNotes is text, no strict length needed unless DB has one
+        RuleFor(x => x.AdminNotes).MaximumLength(2000).WithMessage("{PropertyName} quá dài.");
     }
 }

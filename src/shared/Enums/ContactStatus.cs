@@ -1,12 +1,27 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace shared.Enums;
 
 public enum ContactStatus
 {
-    New,       // Mới
-    Read,      // Đã đọc
-    Replied,   // Đã trả lời
-    InProgress,// Đang xử lý
-    Resolved,  // Đã giải quyết
-    Spam,      // Spam/Rác
-    Archived   // Lưu trữ
+    [Display(Name = "Mới")]
+    New,
+
+    [Display(Name = "Đã đọc")]
+    Read,
+
+    [Display(Name = "Đã trả lời")]
+    Replied,
+
+    [Display(Name = "Đang xử lý")]
+    InProgress,
+
+    [Display(Name = "Đã giải quyết")]
+    Resolved,
+
+    [Display(Name = "Spam/Rác")]
+    Spam,
+
+    [Display(Name = "Lưu trữ")]
+    Archived
 }

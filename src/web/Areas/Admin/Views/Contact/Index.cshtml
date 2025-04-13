@@ -1,124 +1,163 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
 @using web.Areas.Admin.ViewModels.Contact
 @using shared.Enums
-@model IEnumerable<ContactListItemViewModel>
+@using shared.Extensions
+@model IPagedList<ContactListItemViewModel>
 @{
-    ViewData["Title"] = "Quản lý Liên hệ";
-    // Breadcrumbs set in Controller
+	ViewData["Title"] = "Quản lý Liên hệ - Hệ thống quản trị";
 }
-
-@* No "Add New" button *@
 
 <!-- Filter Form -->
 <div class="card mb-3">
-    <div class="card-body">
-        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-            <div class="col-md-5">
-                <label class="form-label">Tìm kiếm</label>
-                <input type="text" class="form-control" placeholder="Tên, email, SĐT, chủ đề..." name="searchTerm" value="@ViewBag.SearchTerm">
-            </div>
-            <div class="col-md-4">
-                <label class="form-label">Trạng thái</label>
-                <select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus">
-                    <option value="">Tất cả trạng thái</option>
-                </select>
-            </div>
-            <div class="col-md-1">
-                <button type="submit" class="btn btn-primary w-100">Lọc</button>
-            </div>
-            <div class="col-md-2">
-                <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a>
-            </div>
-        </form>
-    </div>
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-5">
+				<label class="form-label">Tìm kiếm</label>
+				<div class="input-group">
+					<input type="text" class="form-control" placeholder="Tên, email, SĐT, chủ đề..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+						<i class="ti ti-x"></i>
+					</button>
+				</div>
+			</div>
+			<div class="col-md-4">
+				<label class="form-label">Trạng thái</label>
+				<select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus">
+					<option value="">-- Tất cả trạng thái --</option>
+				</select>
+			</div>
+			<div class="col-md-1">
+				<button type="submit" class="btn btn-primary w-100">
+					<i class="ti ti-filter me-1"></i> Lọc
+				</button>
+			</div>
+			<div class="col-md-2">
+				<a asp-action="Index" class="btn btn-outline-secondary w-100">
+					<i class="ti ti-reload me-2"></i> Đặt lại
+				</a>
+			</div>
+		</form>
+	</div>
 </div>
 
 <!-- Content Table -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Danh sách Liên hệ</h3>
-    </div>
-    <div class="card-body p-0">
-        @if (!Model.Any())
-        {
-            <div class="empty">
-                <div class="empty-icon"><i class="ti ti-mail-off"></i></div>
-                <p class="empty-title">Không có liên hệ nào</p>
-                <p class="empty-subtitle text-muted">Chưa có ai gửi liên hệ cho bạn.</p>
-            </div>
-        }
-        else
-        {
-            <div class="table-responsive">
-                <table class="table table-vcenter card-table table-striped">
-                    <thead>
-                        <tr>
-                            <th class="w-1">ID</th>
-                            <th>Người gửi</th>
-                            <th>Chủ đề</th>
-                            <th class="text-center">Trạng thái</th>
-                            <th>Ngày nhận</th>
-                            <th class="w-1">Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model)
-                        {
-                            <tr class="@(item.Status == ContactStatus.New ? "fw-bold" : "")">
-                                @* Highlight new contacts *@
-                                <td class="text-muted">@item.Id</td>
-                                <td>
-                                    <div class="d-flex flex-column">
-                                        <span>@item.FullName</span>
-                                        <small class="text-muted">@item.Email @(!string.IsNullOrEmpty(item.Phone) ? $"- {item.Phone}" : "")</small>
-                                    </div>
-                                </td>
-                                <td>@item.Subject</td>
-                                <td class="text-center">
-                                    @switch (item.Status)
-                                    {
-                                        case ContactStatus.New:
-                                            <span class="badge bg-primary-lt">Mới</span>
-                                            break;
-                                        case ContactStatus.Read:
-                                            <span class="badge bg-info-lt">Đã đọc</span>
-                                            break;
-                                        case ContactStatus.Replied:
-                                            <span class="badge bg-purple-lt">Đã trả lời</span>
-                                            break;
-                                        case ContactStatus.InProgress:
-                                            <span class="badge bg-yellow-lt">Đang xử lý</span>
-                                            break;
-                                        case ContactStatus.Resolved:
-                                            <span class="badge bg-success-lt">Đã giải quyết</span>
-                                            break;
-                                        case ContactStatus.Spam:
-                                            <span class="badge bg-danger-lt">Spam</span>
-                                            break;
-                                        case ContactStatus.Archived:
-                                            <span class="badge bg-secondary-lt">Lưu trữ</span>
-                                            break;
-                                        default:
-                                            <span class="badge">@item.Status</span>
-                                            break;
-                                    }
-                                </td>
-                                <td class="text-muted">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
-                                        <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem chi tiết"> <i class="ti ti-eye"></i> </a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa"
-                                                data-id="@item.Id" data-name="Liên hệ của @item.FullName" data-delete-url="@Url.Action("Delete", "Contact")">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        }
-                    </tbody>
-                </table>
-            </div>
-            @* Pagination *@
-        }
-    </div>
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h3 class="card-title mb-0">Danh sách Liên hệ</h3>
+		@if (Model.TotalItemCount > 0)
+		{
+			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount liên hệ</small>
+		}
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Any())
+		{
+			<div class="empty">
+				<div class="empty-icon"><i class="ti ti-mail-off fa-5x text-muted"></i></div>
+				<p class="empty-title">Không có liên hệ nào</p>
+				<p class="empty-subtitle text-muted">Chưa có ai gửi liên hệ cho bạn.</p>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+							<th class="w-1">ID</th>
+							<th>Người gửi</th>
+							<th>Chủ đề</th>
+							<th class="text-center">Trạng thái</th>
+							<th>Ngày nhận</th>
+							<th class="w-1">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model)
+						{
+							<tr class="@(item.Status == ContactStatus.New ? "table-info" : "")">
+								<td class="text-muted">@item.Id</td>
+								<td>
+									<div class="d-flex flex-column">
+										<span class="@(item.Status == ContactStatus.New ? "fw-bold" : "")">@item.FullName</span>
+										<small class="text-muted">
+											<a href="mailto:@item.Email">@item.Email</a>
+											@(!string.IsNullOrEmpty(item.Phone) ? $" - {item.Phone}" : "")
+										</small>
+									</div>
+								</td>
+								<td class="text-truncate" style="max-width: 300px;" title="@item.Subject">@item.Subject</td>
+								<td class="text-center">
+									<span class="badge bg-@(GetStatusBadgeClass(item.Status))-lt">@item.Status.GetDisplayName()</span>
+								</td>
+								<td class="text-muted" title="@item.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+								<td>
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem chi tiết & Cập nhật trạng thái">
+											<i class="ti ti-eye"></i>
+										</a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa liên hệ"
+												data-id="@item.Id"
+												data-name="Liên hệ của @item.FullName chủ đề '@item.Subject'"
+												data-delete-url="@Url.Action("Delete", "Contact")">
+											<i class="ti ti-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+	@if (Model.PageCount > 1)
+	{
+		<div class="card-footer">
+			<div class="d-flex align-items-center justify-content-center">
+				@Html.PagedListPager(
+								Model,
+								page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, status = ViewBag.SelectedStatus }),
+								new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+			})
+			</div>
+		</div>
+	}
 </div>
 
+@functions {
+	string GetStatusBadgeClass(ContactStatus status)
+	{
+		return status switch
+		{
+			ContactStatus.New => "primary",
+			ContactStatus.Read => "info",
+			ContactStatus.Replied => "purple",
+			ContactStatus.InProgress => "warning",
+			ContactStatus.Resolved => "success",
+			ContactStatus.Spam => "danger",
+			ContactStatus.Archived => "secondary",
+			_ => "secondary"
+		};
+	}
+}
+
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			$('#clearSearch').on('click', function() {
+				$('input[name="searchTerm"]').val('');
+			});
+		});
+	</script>
+ }

@@ -1,110 +1,174 @@
 @using web.Areas.Admin.ViewModels.Contact
 @using shared.Enums
+@using shared.Extensions
 @model ContactDetailViewModel
 @{
-    ViewData["Title"] = "Chi tiết Liên hệ";
+	ViewData["Title"] = "Chi tiết Liên hệ - Hệ thống quản trị";
 }
 
 @section Styles {
-    <style>
-        .message-content {
-            white-space: pre-wrap;
-            font-family: inherit;
-            background-color: #f8f9fa;
-            padding: 1rem;
-            border-radius: 4px;
-            border: 1px solid #e9ecef;
-        }
+	<style>
+		.message-content, .project-details-content {
+			white-space: pre-wrap;
+			font-family: inherit;
+			background-color: var(--tblr-bg-surface-secondary);
+			padding: 1rem;
+			border-radius: var(--tblr-border-radius);
+			border: 1px solid var(--tblr-border-color);
+			max-height: 400px;
+			overflow-y: auto;
+		}
 
-        .info-label {
-            font-weight: 600;
-            color: #50667b;
-        }
-    </style>
+		.info-label {
+			font-weight: 600;
+			color: var(--tblr-secondary);
+			display: block;
+			margin-bottom: 0.25rem;
+		}
+
+		.info-value {
+			margin-bottom: 1rem;
+			word-break: break-word;
+		}
+
+			.info-value a {
+				text-decoration: none;
+			}
+
+				.info-value a:hover {
+					text-decoration: underline;
+				}
+	</style>
 }
 
-<form asp-action="UpdateDetails" method="post">
-    @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="Id" />
+@if (TempData["success"] != null)
+{
+	<div class="alert alert-success alert-dismissible" role="alert">@TempData["success"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+}
+@if (TempData["error"] != null)
+{
+	<div class="alert alert-danger alert-dismissible" role="alert">@TempData["error"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+}
+@if (TempData["info"] != null)
+{
+	<div class="alert alert-info alert-dismissible" role="alert">@TempData["info"]<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>
+}
 
-    <div class="row">
-        <div class="col-lg-8">
-            @* Main Content *@
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Nội dung liên hệ</h3>
-                </div>
-                <div class="card-body">
-                    <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
+<form asp-action="UpdateDetails" asp-route-id="@Model.Id" method="post">
+	@Html.AntiForgeryToken()
+	<input type="hidden" asp-for="Id" />
 
-                    <div class="mb-3">
-                        <label class="info-label">Chủ đề:</label>
-                        <p class="form-control-plaintext"><strong>@Model.Subject</strong></p>
-                    </div>
-                    <div class="mb-3">
-                        <label class="info-label">Nội dung:</label>
-                        <div class="message-content">@Model.Message</div>
-                    </div>
+	<div class="row g-4">
+		<div class="col-lg-8">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">Nội dung liên hệ</h3>
+					<div class="card-actions">
+						<span class="badge bg-@(GetStatusBadgeClass(Model.Status))-lt ms-2">@Model.Status.GetDisplayName()</span>
+					</div>
+				</div>
+				<div class="card-body">
+					<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
 
-                    @if (!string.IsNullOrEmpty(Model.ProjectDetails))
-                    {
-                        <hr class="my-3">
-                        <div class="mb-3">
-                            <label class="info-label">Chi tiết dự án (nếu có):</label>
-                            <div class="message-content">@Model.ProjectDetails</div>
-                        </div>
-                    }
-                    <hr class="my-3">
-                    <div class="form-group">
-                        <label asp-for="AdminNotes" class="form-label">Ghi chú của quản trị viên</label>
-                        <textarea asp-for="AdminNotes" class="form-control" rows="4" placeholder="Thêm ghi chú về liên hệ này..."></textarea>
-                        <span asp-validation-for="AdminNotes" class="text-danger"></span>
-                    </div>
+					<div class="mb-3">
+						<label asp-display-for="Subject" class="info-label"></label>
+						<p class="info-value"><strong>@Html.DisplayFor(m => m.Subject)</strong></p>
+					</div>
+					<div class="mb-3">
+						<label asp-display-for="Message" class="info-label"></label>
+						<div class="message-content">@Html.DisplayFor(m => m.Message)</div>
+					</div>
 
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4">
-            @* Sidebar Info & Actions *@
-            <div class="card mb-3">
-                <div class="card-header"><h4 class="card-title">Thông tin người gửi</h4></div>
-                <div class="card-body">
-                    <p><strong class="info-label">Họ tên:</strong> @Model.FullName</p>
-                    <p><strong class="info-label">Email:</strong> <a href="mailto:@Model.Email">@Model.Email</a></p>
-                    @if (!string.IsNullOrEmpty(Model.Phone))
-                    {
-                        <p><strong class="info-label">Điện thoại:</strong> <a href="tel:@Model.Phone">@Model.Phone</a></p>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.CompanyName))
-                    {
-                        <p><strong class="info-label">Công ty:</strong> @Model.CompanyName</p>
-                    }
-                </div>
-            </div>
-            <div class="card mb-3">
-                <div class="card-header"><h4 class="card-title">Trạng thái & Thông tin khác</h4></div>
-                <div class="card-body">
-                    <div class="form-group mb-3">
-                        <label asp-for="Status" class="form-label required">Trạng thái</label>
-                        <select asp-for="Status" asp-items="@Model.StatusList" class="form-select"></select>
-                        <span asp-validation-for="Status" class="text-danger"></span>
-                    </div>
-                    <hr />
-                    <p><strong class="info-label">Ngày nhận:</strong> @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")</p>
-                    @if (!string.IsNullOrEmpty(Model.IpAddress))
-                    {
-                        <p><strong class="info-label">Địa chỉ IP:</strong> @Model.IpAddress</p>
-                    }
-                    @if (!string.IsNullOrEmpty(Model.UserAgent))
-                    {
-                        <p><strong class="info-label">Trình duyệt:</strong> <small>@Model.UserAgent</small></p>
-                    }
-                </div>
-                <div class="card-footer">
-                    <button type="submit" class="btn btn-primary w-100"> <i class="ti ti-device-floppy me-1"></i> Lưu thay đổi </button>
-                    <a asp-action="Index" class="btn btn-link w-100 mt-2">Quay lại danh sách</a>
-                </div>
-            </div>
-        </div>
-    </div>
+					@if (!string.IsNullOrEmpty(Model.ProjectDetails))
+					{
+						<hr class="my-3">
+						<div class="mb-3">
+							<label asp-display-for="ProjectDetails" class="info-label"></label>
+							<div class="project-details-content">@Html.DisplayFor(m => m.ProjectDetails)</div>
+						</div>
+					}
+					<hr class="my-3">
+					<div class="form-group">
+						<label asp-for="AdminNotes" class="form-label"></label>
+						<textarea asp-for="AdminNotes" class="form-control" rows="4"></textarea>
+						<span asp-validation-for="AdminNotes" class="text-danger"></span>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<div class="col-lg-4">
+			<div class="card mb-3">
+				<div class="card-header"><h4 class="card-title mb-0">Thông tin người gửi</h4></div>
+				<div class="card-body">
+					<div class="info-value">
+						<label asp-display-for="FullName" class="info-label"></label>
+						@Html.DisplayFor(m => m.FullName)
+					</div>
+					<div class="info-value">
+						<label asp-display-for="Email" class="info-label"></label>
+						<a href="mailto:@Model.Email">@Html.DisplayFor(m => m.Email)</a>
+					</div>
+					@if (!string.IsNullOrEmpty(Model.Phone))
+					{
+						<div class="info-value">
+							<label asp-display-for="Phone" class="info-label"></label>
+							<a href="tel:@Model.Phone">@Html.DisplayFor(m => m.Phone)</a>
+						</div>
+					}
+					@if (!string.IsNullOrEmpty(Model.CompanyName))
+					{
+						<div class="info-value">
+							<label asp-display-for="CompanyName" class="info-label"></label>
+							@Html.DisplayFor(m => m.CompanyName)
+						</div>
+					}
+				</div>
+			</div>
+			<div class="card sticky-top">
+				<div class="card-header"><h4 class="card-title mb-0">Trạng thái & Thông tin khác</h4></div>
+				<div class="card-body">
+					<div class="form-group mb-3">
+						<label asp-for="Status" class="form-label required"></label>
+						<select asp-for="Status" asp-items="@Model.StatusList" class="form-select"></select>
+						<span asp-validation-for="Status" class="text-danger"></span>
+					</div>
+					<hr />
+					@if (!string.IsNullOrEmpty(Model.IpAddress))
+					{
+						<div class="info-value">
+							<label asp-display-for="IpAddress" class="info-label"></label>
+							@Html.DisplayFor(m => m.IpAddress)
+						</div>
+					}
+					@if (!string.IsNullOrEmpty(Model.UserAgent))
+					{
+						<div class="info-value">
+							<label asp-display-for="UserAgent" class="info-label"></label>
+							<small class="d-block">@Html.DisplayFor(m => m.UserAgent)</small>
+						</div>
+					}
+				</div>
+				<div class="card-footer bg-transparent mt-auto">
+					<button type="submit" class="btn btn-primary w-100 mb-2"> <i class="ti ti-device-floppy me-1"></i> Lưu Trạng thái & Ghi chú </button>
+					<a asp-action="Index" class="btn btn-link w-100">Quay lại danh sách</a>
+				</div>
+			</div>
+		</div>
+	</div>
 </form>
+
+
+@functions {
+	string GetStatusBadgeClass(ContactStatus status) => status switch
+	{
+		ContactStatus.New => "primary",
+		ContactStatus.Read => "info",
+		ContactStatus.Replied => "purple",
+		ContactStatus.InProgress => "warning",
+		ContactStatus.Resolved => "success",
+		ContactStatus.Spam => "danger",
+		ContactStatus.Archived => "secondary",
+		_ => "secondary"
+	};
+}

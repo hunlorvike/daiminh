@@ -9,13 +9,17 @@ public class ContactProfile : Profile
     public ContactProfile()
     {
         // Entity -> ListItemViewModel
-        CreateMap<Contact, ContactListItemViewModel>();
+        CreateMap<Contact, ContactListItemViewModel>()
+            // Show last modification time, defaulting to CreatedAt if null
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt ?? src.CreatedAt));
+
 
         // Entity -> DetailViewModel
         CreateMap<Contact, ContactDetailViewModel>()
             .ForMember(dest => dest.StatusList, opt => opt.Ignore()); // Ignore dropdown
 
         // DetailViewModel -> Entity (Update Status and Notes only)
+        // This mapping is used when updating from the Details view
         CreateMap<ContactDetailViewModel, Contact>()
             .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
             .ForMember(dest => dest.AdminNotes, opt => opt.MapFrom(src => src.AdminNotes))
@@ -29,10 +33,6 @@ public class ContactProfile : Profile
             .ForMember(dest => dest.CompanyName, opt => opt.Ignore())
             .ForMember(dest => dest.ProjectDetails, opt => opt.Ignore())
             .ForMember(dest => dest.IpAddress, opt => opt.Ignore())
-            .ForMember(dest => dest.UserAgent, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
+            .ForMember(dest => dest.UserAgent, opt => opt.Ignore());
     }
 }
