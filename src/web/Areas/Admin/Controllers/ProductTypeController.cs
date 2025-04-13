@@ -1,12 +1,13 @@
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using domain.Entities;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.ProductType;
+using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -16,35 +17,39 @@ public partial class ProductTypeController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IValidator<ProductTypeViewModel> _validator;
+    private readonly ILogger<ProductTypeController> _logger;
 
     public ProductTypeController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<ProductTypeViewModel> validator)
+        ILogger<ProductTypeController> logger)
     {
         _context = context;
         _mapper = mapper;
-        _validator = validator;
+        _logger = logger;
     }
 
     // GET: Admin/ProductType
-    public async Task<IActionResult> Index(string? searchTerm = null, bool? isActive = null)
+    public async Task<IActionResult> Index(string? searchTerm = null, bool? isActive = null, int page = 1, int pageSize = 15)
     {
-        ViewData["PageTitle"] = "Quản lý loại sản phẩm";
+        ViewData["Title"] = "Quản lý loại sản phẩm - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Danh sách Loại sản phẩm";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Sản phẩm", "/Admin/Product"),
-            ("Loại sản phẩm", "")
+            ("Sản phẩm",  Url.Action(nameof(Index), "Product", new { area ="Admin" })),
+            ("Loại sản phẩm", Url.Action(nameof(Index)))
         };
 
+        int pageNumber = page;
         var query = _context.Set<ProductType>()
                             .Include(pt => pt.Products)
-                            .AsQueryable();
+                            .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            query = query.Where(pt => pt.Name.Contains(searchTerm) || (pt.Description != null && pt.Description.Contains(searchTerm)));
+            string lowerSearchTerm = searchTerm.Trim().ToLower();
+            query = query.Where(pt => pt.Name.ToLower().Contains(lowerSearchTerm)
+                                  || (pt.Description != null && pt.Description.ToLower().Contains(lowerSearchTerm)));
         }
 
         if (isActive.HasValue)
@@ -52,32 +57,35 @@ public partial class ProductTypeController : Controller
             query = query.Where(pt => pt.IsActive == isActive.Value);
         }
 
-        var productTypes = await query.OrderBy(pt => pt.Name).ToListAsync();
-
-        var viewModels = _mapper.Map<List<ProductTypeListItemViewModel>>(productTypes);
+        var productTypesPaged = await query
+            .OrderBy(pt => pt.Name)
+            .ProjectTo<ProductTypeListItemViewModel>(_mapper.ConfigurationProvider)
+            .ToPagedListAsync(pageNumber, pageSize);
 
         ViewBag.SearchTerm = searchTerm;
         ViewBag.SelectedIsActive = isActive;
+        ViewBag.ActiveStatusList = new List<SelectListItem>
+            {
+                new SelectListItem { Value = "true", Text = "Đang hoạt động" },
+                new SelectListItem { Value = "false", Text = "Không hoạt động" }
+            };
 
-        return View(viewModels);
+        return View(productTypesPaged);
     }
 
     // GET: Admin/ProductType/Create
     public IActionResult Create()
     {
+        ViewData["Title"] = "Thêm loại sản phẩm - Hệ thống quản trị";
         ViewData["PageTitle"] = "Thêm loại sản phẩm mới";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Sản phẩm", "/Admin/Product"),
-            ("Loại sản phẩm", "/Admin/ProductType"),
+            ("Sản phẩm",  Url.Action(nameof(Index), "Product", new { area ="Admin" })),
+            ("Loại sản phẩm", Url.Action(nameof(Index))),
             ("Thêm mới", "")
         };
 
-        ProductTypeViewModel viewModel = new()
-        {
-            IsActive = true
-        };
-
+        var viewModel = new ProductTypeViewModel { IsActive = true };
         return View(viewModel);
     }
 
@@ -86,53 +94,73 @@ public partial class ProductTypeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductTypeViewModel viewModel)
     {
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (await _context.Set<ProductType>().AnyAsync(pt => pt.Slug == viewModel.Slug))
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError(nameof(ProductTypeViewModel.Slug), "Slug đã tồn tại, vui lòng chọn slug khác.");
-        }
-
-        if (!validationResult.IsValid || !ModelState.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            ViewData["PageTitle"] = "Thêm loại sản phẩm mới";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+            try
             {
-                ("Sản phẩm", "/Admin/Product"),
-                ("Loại sản phẩm", "/Admin/ProductType"),
-                ("Thêm mới", "")
-            };
-            return View(viewModel);
+                var productType = _mapper.Map<ProductType>(viewModel);
+
+                _context.Add(productType);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("ProductType '{Name}' created successfully by {User}.", productType.Name, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Thêm loại sản phẩm '{productType.Name}' thành công!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error creating ProductType '{Name}'. Check unique constraints.", viewModel.Name);
+                if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: product_types.slug", StringComparison.OrdinalIgnoreCase) ?? false)
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi tạo loại sản phẩm.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error creating ProductType '{Name}'.", viewModel.Name);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi tạo loại sản phẩm.");
+            }
+        }
+        else
+        {
+            _logger.LogWarning("Failed to create ProductType '{Name}'. Model state is invalid.", viewModel.Name);
         }
 
-        var productType = _mapper.Map<ProductType>(viewModel);
 
-        _context.Add(productType);
-        await _context.SaveChangesAsync();
-
-        TempData["SuccessMessage"] = "Thêm loại sản phẩm thành công!";
-        return RedirectToAction(nameof(Index));
+        ViewData["Title"] = "Thêm loại sản phẩm - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Thêm loại sản phẩm mới";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> 
+        {
+            ("Sản phẩm",  Url.Action(nameof(Index), "Product", new { area ="Admin" })),
+            ("Loại sản phẩm", Url.Action(nameof(Index))),
+            ("Thêm mới", "")
+        };
+        return View(viewModel);
     }
 
     // GET: Admin/ProductType/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var productType = await _context.Set<ProductType>().FindAsync(id);
-
+        var productType = await _context.Set<ProductType>().AsNoTracking().FirstOrDefaultAsync(pt => pt.Id == id);
         if (productType == null)
         {
+            _logger.LogWarning("Edit GET: ProductType with ID {ProductTypeId} not found.", id);
             return NotFound();
         }
 
         var viewModel = _mapper.Map<ProductTypeViewModel>(productType);
 
-        ViewData["PageTitle"] = "Chỉnh sửa loại sản phẩm";
+        ViewData["Title"] = "Chỉnh sửa loại sản phẩm - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa loại sản phẩm: {productType.Name}";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
         {
-            ("Sản phẩm", "/Admin/Product"),
-            ("Loại sản phẩm", "/Admin/ProductType"),
-            ("Chỉnh sửa", "")
+            ("Sản phẩm",  Url.Action(nameof(Index), "Product", new { area ="Admin" })),
+            ("Loại sản phẩm", Url.Action(nameof(Index))),
+            ($"Chỉnh sửa: {productType.Name}", "")
         };
 
         return View(viewModel);
@@ -145,70 +173,69 @@ public partial class ProductTypeController : Controller
     {
         if (id != viewModel.Id)
         {
-            return NotFound();
+            _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id);
+            return BadRequest();
         }
 
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (await _context.Set<ProductType>().AnyAsync(pt => pt.Slug == viewModel.Slug && pt.Id != id))
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError("Slug", "Slug đã tồn tại, vui lòng chọn slug khác");
-        }
-
-        if (!validationResult.IsValid || !ModelState.IsValid)
-        {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            ViewData["PageTitle"] = "Chỉnh sửa Loại sản phẩm";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+            var productTypeToUpdate = await _context.Set<ProductType>().FindAsync(id);
+            if (productTypeToUpdate == null)
             {
-                ("Sản phẩm", "/Admin/Product"),
-                ("Loại sản phẩm", "/Admin/ProductType"),
-                ("Chỉnh sửa", "")
-            };
-            return View(viewModel);
-        }
-
-        var productType = await _context.Set<ProductType>().FindAsync(id);
-
-        if (productType == null)
-        {
-            return NotFound();
-        }
-
-        _mapper.Map(viewModel, productType);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-
-            TempData["SuccessMessage"] = "Cập nhật loại sản phẩm thành công!";
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await ProductTypeExists(id))
-            {
-                return NotFound();
+                _logger.LogWarning("Edit POST: ProductType with ID {ProductTypeId} not found for update.", id);
+                TempData["error"] = "Không tìm thấy loại sản phẩm để cập nhật.";
+                return RedirectToAction(nameof(Index));
             }
-            else
+
+            try
             {
-                TempData["ErrorMessage"] = "Lỗi: Có xung đột xảy ra khi cập nhật. Dữ liệu có thể đã được thay đổi bởi người khác.";
-                return View(viewModel);
+                _mapper.Map(viewModel, productTypeToUpdate);
+
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation("ProductType '{Name}' (ID: {ProductTypeId}) updated successfully by {User}.", productTypeToUpdate.Name, id, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Cập nhật loại sản phẩm '{productTypeToUpdate.Name}' thành công!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                _logger.LogWarning(ex, "Concurrency error occurred while editing ProductType ID {ProductTypeId}.", id);
+                TempData["error"] = "Lỗi: Xung đột dữ liệu. Loại sản phẩm này có thể đã được cập nhật bởi người khác.";
+                // Optionally reload the view model with current DB data
+                // var currentDbData = await _context.Set<ProductType>().AsNoTracking().FirstOrDefaultAsync(pt => pt.Id == id);
+                // if(currentDbData != null) _mapper.Map(currentDbData, viewModel);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Database error updating ProductType '{Name}' (ID: {ProductTypeId}). Check unique constraints.", viewModel.Name, id);
+                if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: product_types.slug", StringComparison.OrdinalIgnoreCase) ?? false)
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi cập nhật loại sản phẩm.");
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating ProductType '{Name}' (ID: {ProductTypeId}).", viewModel.Name, id);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật.");
             }
         }
-        catch (DbUpdateException)
+        else
         {
-            ModelState.AddModelError("", "Không thể lưu thay đổi. Vui lòng kiểm tra lại dữ liệu (ví dụ: Slug có thể đã bị trùng).");
-            ViewData["PageTitle"] = "Chỉnh sửa Loại sản phẩm";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
-            {
-                ("Sản phẩm", "/Admin/Product"),
-                ("Loại sản phẩm", "/Admin/ProductType"),
-                ("Chỉnh sửa", "")
-            };
-            return View(viewModel);
+            _logger.LogWarning("Failed to update ProductType '{Name}' (ID: {ProductTypeId}). Model state is invalid.", viewModel.Name, id);
         }
 
-        return RedirectToAction(nameof(Index));
+        ViewData["Title"] = "Chỉnh sửa loại sản phẩm - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa loại sản phẩm: {viewModel.Name}";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)>  {
+            ("Sản phẩm",  Url.Action(nameof(Index), "Product", new { area ="Admin" })),
+            ("Loại sản phẩm", Url.Action(nameof(Index))),
+            ($"Chỉnh sửa: {viewModel.Name}", "")
+        };
+        return View(viewModel);
     }
 
     // POST: Admin/ProductType/Delete/5
@@ -222,25 +249,29 @@ public partial class ProductTypeController : Controller
 
         if (productType == null)
         {
+            _logger.LogWarning("Delete POST: ProductType with ID {ProductTypeId} not found.", id);
             return Json(new { success = false, message = "Không tìm thấy loại sản phẩm." });
         }
 
         if (productType.Products != null && productType.Products.Any())
         {
-            return Json(new { success = false, message = $"Không thể xóa loại '{productType.Name}'. Vui lòng xóa hoặc chuyển các sản phẩm thuộc loại này trước." });
+            _logger.LogWarning("Attempted to delete ProductType '{Name}' (ID: {ProductTypeId}) which has {ProductCount} associated products.", productType.Name, id, productType.Products.Count);
+            return Json(new { success = false, message = $"Không thể xóa loại '{productType.Name}'. Đang có {productType.Products.Count} sản phẩm thuộc loại này." });
         }
 
-        _context.Set<ProductType>().Remove(productType);
-        await _context.SaveChangesAsync();
+        try
+        {
+            string name = productType.Name;
+            _context.Set<ProductType>().Remove(productType);
+            await _context.SaveChangesAsync();
 
-        return Json(new { success = true, message = "Xóa loại sản phẩm thành công." });
-    }
-}
-
-public partial class ProductTypeController
-{
-    private async Task<bool> ProductTypeExists(int id)
-    {
-        return await _context.Set<ProductType>().AnyAsync(e => e.Id == id);
+            _logger.LogInformation("ProductType '{Name}' (ID: {ProductTypeId}) deleted successfully by {User}.", name, id, User.Identity?.Name ?? "Unknown");
+            return Json(new { success = true, message = $"Xóa loại sản phẩm '{name}' thành công." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting ProductType ID {ProductTypeId} ('{Name}').", id, productType.Name);
+            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa loại sản phẩm." });
+        }
     }
 }

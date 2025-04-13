@@ -8,18 +8,24 @@ public class ProductTypeViewModel
     [HiddenInput(DisplayValue = false)]
     public int Id { get; set; }
 
-    [Required(ErrorMessage = "Loại sản phẩm không được để trống")]
-    [Display(Name = "Loại sản phẩm", Prompt = "Nhập tên loại sản phẩm")]
+    [Display(Name = "Tên loại sản phẩm", Prompt = "Nhập tên loại sản phẩm")]
+    [Required(ErrorMessage = "{0} không được để trống")]
+    [MaxLength(100, ErrorMessage = "{0} không được vượt quá {1} ký tự")]
     public string Name { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Slug không được để trống")]
-    [Display(Name = "Slug", Prompt = "Nhập slug URL (không dấu, cách nhau bằng dấu gạch ngang)")]
+    [Display(Name = "Slug", Prompt = "Ví dụ: loai-san-pham")]
+    [Required(ErrorMessage = "{0} không được để trống")]
+    [MaxLength(100, ErrorMessage = "{0} không được vượt quá {1} ký tự")]
+    [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "{0} chỉ được chứa chữ cái thường, số và dấu gạch ngang")]
     public string Slug { get; set; } = string.Empty;
 
-    [Display(Name = "Mô tả", Prompt = "Nhập mô tả ngắn cho loại sản phẩm")]
+    [Display(Name = "Mô tả", Prompt = "Nhập mô tả ngắn (không bắt buộc)")]
+    [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự")]
     public string? Description { get; set; }
 
-    [Display(Name = "Biểu tượng", Prompt = "Nhập tên biểu tượng hoặc mã Tabler icon")]
+    [Display(Name = "Icon (Tabler)", Prompt = "Ví dụ: ti ti-package")]
+    [MaxLength(50, ErrorMessage = "{0} không được vượt quá {1} ký tự")]
+    [RegularExpression(@"^ti ti-[a-z0-9\-]+$", ErrorMessage = "Định dạng icon không hợp lệ (ví dụ: ti ti-device-laptop)")]
     public string? Icon { get; set; }
 
     [Display(Name = "Kích hoạt")]

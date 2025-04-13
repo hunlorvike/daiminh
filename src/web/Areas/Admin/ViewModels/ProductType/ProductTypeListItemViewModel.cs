@@ -10,5 +10,5 @@ public class ProductTypeListItemViewModel
     public bool IsActive { get; set; }
     public int ProductCount { get; set; }
     public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

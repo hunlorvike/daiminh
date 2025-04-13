@@ -4,133 +4,119 @@
 	ViewData["Title"] = "Thêm loại sản phẩm - Hệ thống quản trị";
 }
 
-<div class="row">
-	<!-- Main content column -->
+<div class="row g-4">
 	<div class="col-lg-8">
-		<div class="card">
-			<div class="card-header">
-				<h3 class="card-title">Thông tin loại sản phẩm</h3>
-			</div>
-			<div class="card-body">
-				<form asp-action="Create" method="post">
+		<form asp-action="Create" method="post">
+			<div class="card">
+				<div class="card-header">
+					<h3 class="card-title">Thông tin loại sản phẩm</h3>
+				</div>
+				<div class="card-body">
 					@Html.AntiForgeryToken()
-					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
 
 					<partial name="_ProductTypeFormFields" model="Model" />
-
-					<div class="d-flex justify-content-between mt-4">
-						<a asp-action="Index" class="btn btn-outline-secondary">
-							<i class="ti ti-arrow-left me-2"></i> Quay lại
-						</a>
-						<button type="submit" class="btn btn-primary">
-							<i class="ti ti-device-floppy me-2"></i> Lưu loại sản phẩm
-						</button>
-					</div>
-				</form>
+				</div>
+				<div class="card-footer text-end bg-transparent border-top pt-3">
+					<a asp-action="Index" class="btn btn-link">Hủy</a>
+					<button type="submit" class="btn btn-primary ms-2">
+						<i class="ti ti-device-floppy me-2"></i> Lưu loại sản phẩm
+					</button>
+				</div>
 			</div>
-		</div>
+		</form>
 	</div>
 
-	<!-- Sidebar column -->
 	<div class="col-lg-4">
-		<div class="card">
+		<div class="card sticky-top">
 			<div class="card-header">
-				<h3 class="card-title">Tabler Icons</h3>
+				<h3 class="card-title">Ví dụ Tabler Icons</h3>
 			</div>
 			<div class="card-body">
-				<p>Một số icon phổ biến:</p>
-				<div class="row row-cols-3 g-3 mb-3">
+				<p class="mb-2">Nhấn để chọn:</p>
+				<div class="row row-cols-4 g-2 mb-3">
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-box">
-							<i class="ti ti-box" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-package" title="ti ti-package">
+							<i class="ti ti-package fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-box</div>
 					</div>
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-box-multiple">
-							<i class="ti ti-box-multiple" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-building-store" title="ti ti-building-store">
+							<i class="ti ti-building-store fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-box-multiple</div>
 					</div>
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-brush">
-							<i class="ti ti-brush" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-tools" title="ti ti-tools">
+							<i class="ti ti-tools fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-brush</div>
 					</div>
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-tool">
-							<i class="ti ti-tool" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-paint" title="ti ti-paint">
+							<i class="ti ti-paint fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-tool</div>
 					</div>
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-hammer">
-							<i class="ti ti-hammer" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-settings" title="ti ti-settings">
+							<i class="ti ti-settings fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-hammer</div>
 					</div>
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-activity-heartbeat">
-							<i class="ti ti-activity-heartbeat" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-device-laptop" title="ti ti-device-laptop">
+							<i class="ti ti-device-laptop fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-activity-heartbeat</div>
 					</div>
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-spray">
-							<i class="ti ti-spray" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-hanger" title="ti ti-hanger">
+							<i class="ti ti-hanger fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-spray</div>
 					</div>
 					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-paint">
-							<i class="ti ti-paint" style="font-size: 1.5rem;"></i>
+						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-home-2" title="ti ti-home-2">
+							<i class="ti ti-home-2 fs-2"></i>
 						</button>
-						<div class="mt-1 small">ti-paint</div>
-					</div>
-					<div class="col text-center">
-						<button type="button" class="btn btn-icon btn-outline-secondary icon-btn" data-icon="ti ti-color-picker">
-							<i class="ti ti-color-picker" style="font-size: 1.5rem;"></i>
-						</button>
-						<div class="mt-1 small">ti-color-picker</div>
 					</div>
 				</div>
-				<p class="small text-muted">Xem thêm icons tại <a href="https://tabler-icons.io/" target="_blank">Tabler Icons</a></p>
+				<p class="small text-muted mb-0">Xem danh sách đầy đủ tại <a href="https://tabler-icons.io/" target="_blank" rel="noopener">tabler-icons.io</a></p>
 			</div>
 		</div>
 	</div>
 </div>
 
 @section Scripts {
-	<script src="~/js/slug.js"></script>
+	<script src="~/js/slug.js" asp-append-version="true"></script>
 	<script>
 		$(document).ready(function() {
 			const nameInput = $('#Name');
-			const slugInput = $('#Slug');
+			const slugInput = $('#Slug'); 
 			const generateBtn = $('#generateSlugButton');
 
 			nameInput.on('input', function() {
 				if (slugInput.val() === '') {
-					slugInput.val(generateVietnameseSlug(nameInput.val()));
+					try { slugInput.val(generateVietnameseSlug(nameInput.val())); }
+					catch(e) { console.error("Slug generation error:", e); }
 				}
 			});
-
 			generateBtn.on('click', function() {
-				slugInput.val(generateVietnameseSlug(nameInput.val()));
+				 try { slugInput.val(generateVietnameseSlug(nameInput.val())); }
+				 catch(e) { console.error("Slug generation error:", e); }
 			});
 
-			$('#Icon').on('input', function() {
-				var iconClass = $(this).val().trim(); 
+			const iconInput = $('#Icon');
+			const iconPreview = $('#iconPreview');
+			const defaultIcon = 'ti ti-package';
+
+			iconInput.on('input', function() {
+				var iconClass = $(this).val().trim();
 				if (iconClass && iconClass.startsWith('ti ti-')) {
-					$('#iconPreview').attr('class', iconClass);
+					iconPreview.attr('class', iconClass);
 				} else {
-					$('#iconPreview').attr('class', 'ti ti-box');
+					iconPreview.attr('class', defaultIcon);
 				}
-			});
+			}).trigger('input');
 
 			$('.icon-btn').on('click', function() {
 				var iconClass = $(this).data('icon');
-				$('#Icon').val(iconClass).trigger('input');
+				iconInput.val(iconClass).trigger('input');
 			});
 		});
 	</script>

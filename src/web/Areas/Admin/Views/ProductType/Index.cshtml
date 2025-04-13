@@ -1,5 +1,7 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
 @using web.Areas.Admin.ViewModels.ProductType
-@model IEnumerable<ProductTypeListItemViewModel>
+@model IPagedList<ProductTypeListItemViewModel>
 @{
 	ViewData["Title"] = "Quản lý loại sản phẩm - Hệ thống quản trị";
 }
@@ -12,34 +14,31 @@
 	</div>
 }
 
-<!-- Filter form -->
 <div class="card mb-3">
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<div class="col-md-4">
+			<div class="col-md-5">
 				<label class="form-label">Tìm kiếm</label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm loại sản phẩm..." name="searchTerm" value="@(ViewBag.SearchTerm ?? string.Empty)">
-					<button class="btn btn-icon" type="button" id="clearSearch">
+					<input type="text" class="form-control" placeholder="Tìm theo tên hoặc mô tả..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
 				</div>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-3"> 
 				<label class="form-label">Trạng thái</label>
-				<select class="form-select" name="isActive" id="activeFilter">
-					<option value="">Tất cả trạng thái</option>
-					<option value="true" selected="@(ViewBag.SelectedIsActive == true ? "selected" : null)">Đang hoạt động</option>
-					<option value="false" selected="@(ViewBag.SelectedIsActive == false ? "selected" : null)">Không hoạt động</option>
+				<select class="form-select" name="isActive" asp-items="@ViewBag.ActiveStatusList">
+					<option value="">-- Tất cả trạng thái --</option>
 				</select>
 			</div>
 			<div class="col-md-2">
 				<button type="submit" class="btn btn-primary w-100">
-					<i class="ti ti-search me-2"></i> Lọc
+					<i class="ti ti-filter me-1"></i> Lọc
 				</button>
 			</div>
-			<div class="col-md-3">
-				<a href="@Url.Action("Index")" class="btn btn-outline-secondary w-100">
+			<div class="col-md-2"> 
+				<a asp-action="Index" class="btn btn-outline-secondary w-100">
 					<i class="ti ti-reload me-2"></i> Đặt lại
 				</a>
 			</div>
@@ -47,22 +46,21 @@
 	</div>
 </div>
 
-<!-- Content -->
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">Danh sách loại sản phẩm</h3>
-	</div>
+	 <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Danh sách loại sản phẩm</h3>
+         @if (Model.TotalItemCount > 0)
+		{
+			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount loại</small>
+		}
+    </div>
 	<div class="card-body p-0">
 		@if (!Model.Any())
 		{
 			<div class="empty">
-				<div class="empty-icon" style="font-size: 3rem;">
-					<i class="ti ti-package text-muted"></i>
-				</div>
+				<div class="empty-icon"><i class="ti ti-package fa-3x text-muted"></i></div>
 				<p class="empty-title">Không tìm thấy loại sản phẩm nào</p>
-				<p class="empty-subtitle text-muted">
-					Hãy thêm loại sản phẩm đầu tiên của bạn.
-				</p>
+				<p class="empty-subtitle text-muted">Hãy thêm loại sản phẩm đầu tiên.</p>
 				<div class="empty-action">
 					<a asp-action="Create" class="btn btn-primary">
 						<i class="ti ti-plus me-2"></i> Thêm loại sản phẩm
@@ -76,29 +74,28 @@
 				<table class="table table-vcenter card-table table-striped">
 					<thead>
 						<tr>
-							<th class="w-1">STT</th>
+							<th class="w-1">ID</th> 
 							<th>Tên loại</th>
 							<th style="width: 20%;">Slug</th>
-							<th style="width: 10%;">Sản phẩm</th>
-							<th style="width: 10%;">Trạng thái</th>
+							<th class="text-center" style="width: 10%;">Sản phẩm</th> 
+							<th class="text-center" style="width: 10%;">Trạng thái</th> 
 							<th style="width: 15%;">Cập nhật lúc</th>
-							<th style="width: 10%;">Thao tác</th>
+							<th class="w-1">Thao tác</th>
 						</tr>
 					</thead>
 					<tbody>
-						@{
-							int index = 1;
-						}
 						@foreach (var item in Model)
 						{
 							<tr>
-								<td class="text-muted">@(index++)</td>
+								<td class="text-muted">@item.Id</td>
 								<td>
 									<div class="d-flex align-items-center">
 										@if (!string.IsNullOrEmpty(item.Icon))
 										{
-											<span class="avatar avatar-xs me-2" title="@item.Icon"><i class="@item.Icon"></i></span>
-										}
+											<span class="me-2 text-secondary" title="@item.Icon"><i class="@item.Icon fs-3"></i></span>
+										} else {
+                                            <span class="me-2 text-secondary"><i class="ti ti-package fs-3"></i></span> 
+                                        }
 										<div class="d-flex flex-column">
 											<span class="fw-medium">@item.Name</span>
 											@if (!string.IsNullOrEmpty(item.Description))
@@ -109,8 +106,8 @@
 									</div>
 								</td>
 								<td><code>@item.Slug</code></td>
-								<td class="text-muted">@item.ProductCount SP</td>
-								<td>
+								<td class="text-muted text-center">@item.ProductCount</td> 
+								<td class="text-center"> 
 									@if (item.IsActive)
 									{
 										<span class="badge bg-success-lt">Kích hoạt</span>
@@ -120,7 +117,7 @@
 										<span class="badge bg-danger-lt">Ẩn</span>
 									}
 								</td>
-								<td class="text-muted">@item.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+								<td class="text-muted" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
 								<td>
 									<div class="btn-list flex-nowrap">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
@@ -140,9 +137,28 @@
 					</tbody>
 				</table>
 			</div>
-			@* TODO: Add Pagination *@
 		}
 	</div>
+	@if (Model.PageCount > 1)
+	{
+		<div class="card-footer">
+			<div class="d-flex align-items-center justify-content-center">
+                 @Html.PagedListPager(
+								Model,
+								page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, isActive = ViewBag.SelectedIsActive }),
+								new PagedListRenderOptions
+                                {
+                                    UlElementClasses = new[] { "pagination mb-0" },
+                                    LiElementClasses = new[] { "page-item" },
+                                    PageClasses = new[] { "page-link" },
+                                    DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                                    DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                                })
+			</div>
+		</div>
+	}
 </div>
 
 @section Scripts {
@@ -150,8 +166,15 @@
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
 				$('input[name="searchTerm"]').val('');
-				$('#filterForm').submit();
+                // Optional: $('#filterForm').submit();
 			});
+            // Global delete script handles .delete-item-btn
+
+             // Set selected value for filter dropdown if needed (ASP Tag Helper should handle this with asp-route-value)
+             // var selectedStatus = '@ViewBag.SelectedIsActive';
+             // if (selectedStatus) {
+             //    $('select[name="isActive"]').val(selectedStatus.toLowerCase());
+             // }
 		});
 	</script>
 }
