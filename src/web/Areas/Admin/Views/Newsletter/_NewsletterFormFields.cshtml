@@ -1,0 +1,53 @@
+@using web.Areas.Admin.ViewModels.Newsletter
+@model NewsletterViewModel
+
+<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
+
+<div class="mb-3">
+	<label asp-for="Email" class="form-label required"></label>
+	<input asp-for="Email" class="form-control" type="email" />
+	<span asp-validation-for="Email" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+	<label asp-for="Name" class="form-label"></label>
+	<input asp-for="Name" class="form-control" />
+	<span asp-validation-for="Name" class="text-danger"></span>
+</div>
+
+<div class="mb-3">
+	<div class="form-check form-switch">
+		<input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="newsletterIsActiveSwitch" />
+		<label asp-for="IsActive" class="form-check-label" for="newsletterIsActiveSwitch">Đang hoạt động (chưa hủy đăng ký)</label>
+	</div>
+	<span asp-validation-for="IsActive" class="text-danger"></span>
+	<small class="form-hint d-block">Bỏ chọn nếu muốn hủy đăng ký thủ công.</small>
+</div>
+
+@if (Model.Id > 0)
+{
+	<hr>
+	<h4 class="mb-3">Thông tin bổ sung (Chỉ xem)</h4>
+	<div class="row">
+		<div class="col-md-6 mb-3">
+			<label asp-for="IpAddress" class="form-label"></label>
+			<input asp-for="IpAddress" class="form-control" readonly disabled />
+		</div>
+		<div class="col-md-6 mb-3">
+			<label asp-for="CreatedAt" class="form-label"></label>
+			<input asp-for="CreatedAt" class="form-control" type="text" value="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")" readonly disabled />
+		</div>
+		<div class="col-md-6 mb-3">
+			<label asp-for="ConfirmedAt" class="form-label"></label>
+			<input asp-for="ConfirmedAt" class="form-control" type="text" value="@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")" readonly disabled />
+		</div>
+		<div class="col-md-6 mb-3">
+			<label asp-for="UnsubscribedAt" class="form-label"></label>
+			<input asp-for="UnsubscribedAt" class="form-control" type="text" value="@(Model.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")" readonly disabled />
+		</div>
+		<div class="col-12 mb-3">
+			<label asp-for="UserAgent" class="form-label"></label>
+			<textarea asp-for="UserAgent" class="form-control" rows="2" readonly disabled></textarea>
+		</div>
+	</div>
+}
