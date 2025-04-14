@@ -1,159 +1,206 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
 @using shared.Helpers
 @using web.Areas.Admin.ViewModels.Product
-@using shared.Enums 
-@model IEnumerable<ProductListItemViewModel>
+@using shared.Enums
+@using shared.Extensions
+@model IPagedList<ProductListItemViewModel>
 @{
-	ViewData["Title"] = "Quản lý Sản phẩm";
+    ViewData["Title"] = "Quản lý Sản phẩm - Hệ thống quản trị";
 }
 
 @section PageActions {
-	<div class="btn-list">
-		<a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm sản phẩm
-		</a>
-	</div>
+    <div class="btn-list">
+        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+            <i class="ti ti-plus me-2"></i> Thêm sản phẩm
+        </a>
+    @* Optional Export Button *@
+    <a asp-action="ExportExcel" asp-all-route-data="@Context.Request.Query.ToDictionary(q => q.Key, q=> q.Value.ToString())" class="btn btn-outline-success d-none d-sm-inline-block"> <i class="ti ti-download me-2"></i> Export Excel </a>
+    </div>
 }
 
 <div class="card mb-3">
-	<div class="card-body">
-		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<div class="col-md-3 col-sm-6">
-				<label class="form-label">Tìm kiếm</label>
-				<input type="text" class="form-control" placeholder="Tên, SKU..." name="searchTerm" value="@ViewBag.SearchTerm">
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<label class="form-label">Loại SP</label>
-				<select class="form-select" name="typeId" asp-items="@ViewBag.ProductTypes" asp-route-value="@ViewBag.SelectedTypeId">
-					<option value="">Tất cả</option>
-				</select>
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<label class="form-label">Thương hiệu</label>
-				<select class="form-select" name="brandId" asp-items="@ViewBag.Brands" asp-route-value="@ViewBag.SelectedBrandId">
-					<option value="">Tất cả</option>
-				</select>
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<label class="form-label">Trạng thái</label>
-				<select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus">
-					<option value="">Tất cả</option>
-				</select>
-			</div>
-			<div class="col-md-1 col-sm-6">
-				<button type="submit" class="btn btn-primary w-100">Lọc</button>
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a>
-			</div>
-		</form>
-	</div>
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label">Tìm kiếm</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Tên sản phẩm..." name="searchTerm" value="@ViewBag.SearchTerm">
+                    <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"> <i class="ti ti-x"></i> </button>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">Loại SP</label>
+                @* Use SelectTagHelper for easier selection handling *@
+                <select class="form-select tom-select-filter" name="typeId" asp-items="@ViewBag.ProductTypes">
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">Thương hiệu</label>
+                <select class="form-select tom-select-filter" name="brandId" asp-items="@ViewBag.Brands">
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select tom-select-filter" name="status" asp-items="@ViewBag.Statuses">
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-6">
+                <button type="submit" class="btn btn-primary w-100"> <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc</button>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100"> <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Content Table -->
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">Danh sách Sản phẩm</h3>
-	</div>
-	<div class="card-body p-0">
-		@if (!Model.Any())
-		{
-			<div class="empty">
-				<div class="empty-img">
-					<i class="ti ti-package fa-5x text-muted"></i>
-				</div>
-
-				<p class="empty-title">Không tìm thấy sản phẩm nào</p>
-				<p class="empty-subtitle text-muted">Hãy thêm sản phẩm đầu tiên.</p>
-				<div class="empty-action">
-					<a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm sản phẩm </a>
-				</div>
-			</div>
-		}
-		else
-		{
-			<div class="table-responsive">
-				<table class="table table-vcenter card-table table-striped">
-					<thead>
-						<tr>
-							<th class="w-1">STT</th>
-							<th style="width: 7%;">Ảnh</th>
-							<th>Tên sản phẩm</th>
-							<th>Loại</th>
-							<th>Thương hiệu</th>
-							<th class="text-center">Trạng thái</th>
-							<th class="text-center">Nổi bật</th>
-							<th class="text-center">Lượt xem</th>
-							<th class="w-1">Thao tác</th>
-						</tr>
-					</thead>
-					<tbody>
-						@{
-							int index = 1;
-						}
-						@foreach (var item in Model)
-						{
-							<tr>
-								<td class="text-muted">@(index++)</td>
-								<td>
-									<img src="@MediaUrlHelper.GetMinioUrl(item.MainImageUrl, "/img/placeholder.svg")"
-										 alt="@item.Name"
-										 class="avatar avatar-md object-fit-contain" />
-								</td>
-								<td>
-									<a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Name</a>
-									@* Optional: Display SKU or Short Desc *@
-									@* <small class="text-muted d-block">SKU: @item.Sku</small> *@
-								</td>
-								<td class="text-muted">@item.ProductTypeName</td>
-								<td class="text-muted">@item.BrandName</td>
-								<td class="text-center">
-									@switch (item.Status)
-									{
-										case PublishStatus.Published:
-											<span class="badge bg-success-lt">Xuất bản</span>
-											break;
-										case PublishStatus.Draft:
-											<span class="badge bg-secondary-lt">Nháp</span>
-											break;
-										case PublishStatus.Scheduled:
-											<span class="badge bg-warning-lt">Lên lịch</span>
-											break;
-										case PublishStatus.Archived:
-											<span class="badge bg-dark-lt">Lưu trữ</span>
-											break;
-										default:
-											<span class="badge">@item.Status</span>
-											break;
-									}
-								</td>
-								<td class="text-center">
-									@if (item.IsFeatured)
-									{
-										<i class="ti ti-star-filled text-warning" title="Nổi bật"></i>
-									}
-								</td>
-								<td class="text-center text-muted">@item.ViewCount</td>
-								<td>
-									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
-											<i class="ti ti-pencil"></i>
-										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Product")">
-											<i class="ti ti-trash"></i>
-										</button>
-									</div>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-			@* Add Pagination here if needed *@
-		}
-	</div>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Danh sách Sản phẩm</h3>
+        @if (Model.TotalItemCount > 0)
+        {
+            <small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount sản phẩm</small>
+        }
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any())
+        {
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-package fa-3x text-muted"></i></div>
+                <p class="empty-title">Không tìm thấy sản phẩm nào</p>
+                <p class="empty-subtitle text-muted">Hãy thêm sản phẩm đầu tiên.</p>
+                <div class="empty-action">
+                    <a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm sản phẩm </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
+                        <tr>
+                            <th class="w-1">ID</th>
+                            <th style="width: 7%;">Ảnh</th>
+                            <th>Tên sản phẩm</th>
+                            <th>Loại</th>
+                            <th>Thương hiệu</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Nổi bật</th>
+                            <th class="text-center">Lượt xem</th>
+                            <th style="width: 15%;">Cập nhật</th> @* Added UpdatedAt *@
+                            <th class="w-1">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-muted">@item.Id</td>
+                                <td>
+                                    <img src="@MediaUrlHelper.GetMinioUrl(item.MainImageUrl, "/img/placeholder.svg")"
+                                         alt="@item.Name"
+                                         class="avatar avatar-md object-fit-contain bg-light" /> @* Added bg-light *@
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Name</a>
+                                    @* Optional: <small class="text-muted d-block">@item.ShortDescription</small> *@
+                                </td>
+                                <td class="text-muted">@(item.ProductTypeName ?? "-")</td>
+                                <td class="text-muted">@(item.BrandName ?? "-")</td>
+                                <td class="text-center">
+                                    @* Use GetDisplayName extension *@
+                                    <span class="badge bg-@(GetStatusBadgeClass(item.Status))-lt">@item.Status.GetDisplayName()</span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.IsFeatured)
+                                    {
+                                        <i class="ti ti-star-filled text-warning" title="Nổi bật"></i>
+                                    }
+                                    else
+                                    {
+                                        <i class="ti ti-star text-muted" title="Không nổi bật"></i>
+                                    }
+                                </td>
+                                <td class="text-center text-muted">@item.ViewCount</td>
+                                <td class="text-muted" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td> @* Show UpdatedAt *@
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
+                                            <i class="ti ti-pencil"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+                                                title="Xóa"
+                                                data-id="@item.Id"
+                                                data-name="@item.Name"
+                                                data-delete-url="@Url.Action("Delete", "Product")">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    @* Pagination Footer *@
+    @if (Model.PageCount > 1)
+    {
+        <div class="card-footer">
+            <div class="d-flex align-items-center justify-content-center">
+                @Html.PagedListPager(
+                         Model,
+                         page => Url.Action("Index", new
+                         {
+                             page,
+                             searchTerm = ViewBag.SearchTerm,
+                             typeId = ViewBag.SelectedTypeId,
+                             brandId = ViewBag.SelectedBrandId,
+                             status = ViewBag.SelectedStatus
+                         }),
+                         new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination mb-0" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+            })
+            </div>
+        </div>
+    }
 </div>
 
+@* Status Badge Helper *@
+@functions {
+    string GetStatusBadgeClass(PublishStatus status) => status switch
+    {
+        PublishStatus.Published => "success",
+        PublishStatus.Draft => "secondary",
+        PublishStatus.Scheduled => "warning",
+        PublishStatus.Archived => "dark",
+        _ => "secondary"
+    };
+}
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#clearSearch').on('click', function() {
+                $('input[name="searchTerm"]').val('');
+            });
+            // document.querySelectorAll('.tom-select-filter').forEach((el) => {
+            //      new TomSelect(el, { create: false, allowEmptyOption: true });
+            // });
+        });
+    </script>
+ }
