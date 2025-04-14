@@ -39,8 +39,7 @@ public class FAQController : Controller
 
         int pageNumber = page;
         var query = _context.Set<FAQ>()
-                            .Include(f => f.FAQCategories)
-                            .ThenInclude(fc => fc.Category)
+                            .Include(fc => fc.Category)
                             .AsNoTracking();
 
         // Filtering
@@ -50,9 +49,10 @@ public class FAQController : Controller
             query = query.Where(f => f.Question.ToLower().Contains(lowerSearchTerm)
                                   || f.Answer.ToLower().Contains(lowerSearchTerm));
         }
+
         if (categoryId.HasValue && categoryId > 0)
         {
-            query = query.Where(f => f.FAQCategories.Any(fc => fc.CategoryId == categoryId.Value));
+            query = query.Where(f => f.CategoryId == categoryId.Value);
         }
 
         var faqsPaged = await query
@@ -89,13 +89,6 @@ public class FAQController : Controller
         if (ModelState.IsValid)
         {
             var faq = _mapper.Map<FAQ>(viewModel);
-
-            if (viewModel.SelectedCategoryIds != null)
-            {
-                faq.FAQCategories = viewModel.SelectedCategoryIds
-                                    .Select(catId => new FAQCategory { CategoryId = catId })
-                                    .ToList();
-            }
 
             _context.Add(faq);
 
@@ -134,7 +127,7 @@ public class FAQController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var faq = await _context.Set<FAQ>()
-                              .Include(f => f.FAQCategories) 
+                              .Include(f => f.Category) 
                               .AsNoTracking() 
                               .FirstOrDefaultAsync(f => f.Id == id);
 
@@ -168,7 +161,7 @@ public class FAQController : Controller
         if (ModelState.IsValid)
         {
             var faq = await _context.Set<FAQ>()
-                                  .Include(f => f.FAQCategories) 
+                                  .Include(f => f.Category) 
                                   .FirstOrDefaultAsync(f => f.Id == id);
 
             if (faq == null)
@@ -182,27 +175,6 @@ public class FAQController : Controller
 
             try
             {
-                var existingCategoryIds = faq.FAQCategories.Select(fc => fc.CategoryId).ToList();
-                var selectedCategoryIds = viewModel.SelectedCategoryIds ?? new List<int>();
-
-                var idsToAdd = selectedCategoryIds.Except(existingCategoryIds).ToList();
-                if (idsToAdd.Any())
-                {
-                    foreach (var catId in idsToAdd)
-                    {
-                        faq.FAQCategories.Add(new FAQCategory { CategoryId = catId });
-                    }
-                }
-
-                var idsToRemove = existingCategoryIds.Except(selectedCategoryIds).ToList();
-                if (idsToRemove.Any())
-                {
-                    var categoriesToRemove = faq.FAQCategories
-                                               .Where(fc => idsToRemove.Contains(fc.CategoryId))
-                                               .ToList();
-                    _context.FAQCategories.RemoveRange(categoriesToRemove);
-                }
-
                 await _context.SaveChangesAsync();
                 _logger.LogInformation("FAQ ID {FaqId} ('{Question}') updated successfully by {User}.", id, faq.Question, User.Identity?.Name ?? "Unknown");
                 TempData["success"] = $"Cập nhật FAQ '{Truncate(faq.Question)}' thành công!";

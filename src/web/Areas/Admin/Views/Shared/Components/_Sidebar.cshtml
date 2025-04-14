@@ -50,15 +50,14 @@
                 </li>
 
                 <!-- Sản phẩm -->
-                <li class="nav-item dropdown @(IsMenuActive("Product", "ProductType", "Brand") ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-products" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("Product", "ProductType", "Brand") ? "true" : "false")">
+                <li class="nav-item dropdown @(IsMenuActive("Product", "Brand") ? "active" : "")">
+                    <a class="nav-link dropdown-toggle" href="#navbar-products" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("Product", "Brand") ? "true" : "false")">
                         <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-package"></i></span>
                         <span class="nav-link-title">Sản phẩm</span>
                     </a>
-                    <div class="dropdown-menu @(IsMenuActive("Product", "ProductType", "Brand") ? "show" : "")">
+                    <div class="dropdown-menu @(IsMenuActive("Product", "Brand") ? "show" : "")">
                         <a class="dropdown-item @(currentController == "Product" && currentAction == "Index" ? "active" : "")" asp-area="Admin" asp-controller="Product" asp-action="Index">Danh sách sản phẩm</a>
                         <a class="dropdown-item @(currentController == "Product" && currentAction == "Create" ? "active" : "")" asp-area="Admin" asp-controller="Product" asp-action="Create">Thêm sản phẩm mới</a>
-                        <a class="dropdown-item @(currentController == "ProductType" ? "active" : "")" asp-area="Admin" asp-controller="ProductType" asp-action="Index">Loại sản phẩm</a>
                         <a class="dropdown-item @(currentController == "Brand" ? "active" : "")" asp-area="Admin" asp-controller="Brand" asp-action="Index">Thương hiệu</a>
                     </div>
                 </li>

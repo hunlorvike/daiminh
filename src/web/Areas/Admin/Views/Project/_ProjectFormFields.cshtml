@@ -123,7 +123,7 @@
     @* --- Tab: Relations --- *@
     <div class="tab-pane" id="project-tab-relations" role="tabpanel">
         <div class="row">
-            <div class="col-md-6"><div class="mb-3"><label asp-for="SelectedCategoryIds" class="form-label required"></label><select asp-for="SelectedCategoryIds" asp-items="@Model.CategoryList" class="form-select tom-select-multiple" multiple="multiple"></select><span asp-validation-for="SelectedCategoryIds" class="text-danger"></span><small class="form-hint">Chọn ít nhất một danh mục.</small></div></div>
+			<div class="col-md-6"><div class="mb-3"><label asp-for="CategoryId" class="form-label required"></label><select asp-for="CategoryId" asp-items="@Model.CategoryList" class="form-select tom-select-multiple" multiple="multiple"></select><span asp-validation-for="CategoryId" class="text-danger"></span><small class="form-hint">Chọn một danh mục.</small></div></div>
             <div class="col-md-6"><div class="mb-3"><label asp-for="SelectedTagIds" class="form-label"></label><select asp-for="SelectedTagIds" asp-items="@Model.TagList" class="form-select tom-select-multiple" multiple="multiple" id="SelectedTagIds"></select><span asp-validation-for="SelectedTagIds" class="text-danger"></span><small class="form-hint">Chọn hoặc nhập thẻ mới.</small></div></div>
             <div class="col-12"><div class="mb-0"><label asp-for="SelectedProductIds" class="form-label"></label><select asp-for="SelectedProductIds" asp-items="@Model.ProductList" class="form-select tom-select-multiple" multiple="multiple" id="SelectedProductIds"></select><span asp-validation-for="SelectedProductIds" class="text-danger"></span><small class="form-hint">Chọn các sản phẩm đã sử dụng trong dự án.</small></div></div>
         </div>

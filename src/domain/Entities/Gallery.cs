@@ -15,9 +15,12 @@ public class Gallery : SeoEntity<int>
     public bool IsFeatured { get; set; } = false;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
+    // New property for one-to-many relationship
+    public int? CategoryId { get; set; }
+
     // Navigation properties
+    public virtual Category? Category { get; set; }
     public virtual ICollection<GalleryImage>? Images { get; set; }
-    public virtual ICollection<GalleryCategory>? GalleryCategories { get; set; }
     public virtual ICollection<GalleryTag>? GalleryTags { get; set; }
 }
 
@@ -35,6 +38,8 @@ public class GalleryConfiguration : SeoEntityConfiguration<Gallery, int>
         builder.Property(e => e.CoverImage).HasColumnName("cover_image").HasMaxLength(255);
         builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
         builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
+        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .HasConversion(
@@ -48,6 +53,11 @@ public class GalleryConfiguration : SeoEntityConfiguration<Gallery, int>
         builder.HasIndex(e => e.Status).HasDatabaseName("idx_galleries_status");
         builder.HasIndex(e => e.ViewCount).HasDatabaseName("idx_galleries_view_count");
         builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_galleries_is_featured");
+
+        builder.HasOne(e => e.Category)
+            .WithMany(c => c.Galleries)
+            .HasForeignKey(e => e.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
 

@@ -29,7 +29,7 @@
 			</div>
 			<div class="col-md-4">
 				<label class="form-label">Danh mục</label>
-				<select class="form-select tom-select-filter" name="categoryId" asp-items="@ViewBag.Categories">
+				<select class="form-select" name="categoryId" asp-items="@ViewBag.Categories">
 					<option value="">-- Tất cả danh mục --</option>
 				</select>
 			</div>
@@ -154,16 +154,6 @@
 			$('#clearSearch').on('click', function() {
 				$('input[name="searchTerm"]').val('');
 			});
-
-			new TomSelect('.tom-select-filter', {
-				 create: false,
-				 allowEmptyOption: true,
-				 placeholder: 'Chọn danh mục...',
-				 // valueField: 'value', // Default
-				 // labelField: 'text', // Default
-				 // searchField: 'text' // Default
-			});
-
 		});
 	</script>
  }

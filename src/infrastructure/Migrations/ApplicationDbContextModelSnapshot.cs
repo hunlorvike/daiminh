@@ -54,6 +54,10 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("canonical_url");
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
                     b.Property<string>("Content")
                         .IsRequired()
                         .HasColumnType("text")
@@ -237,6 +241,9 @@ namespace infrastructure.Migrations
                     b.HasIndex("AuthorId")
                         .HasDatabaseName("idx_articles_author_id");
 
+                    b.HasIndex("CategoryId")
+                        .HasDatabaseName("idx_articles_category_id");
+
                     b.HasIndex("IsFeatured")
                         .HasDatabaseName("idx_articles_is_featured");
 
@@ -257,57 +264,6 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_articles_view_count");
 
                     b.ToTable("articles", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ArticleCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("article_id");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleId")
-                        .HasDatabaseName("idx_article_categories_article_id");
-
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("idx_article_categories_category_id");
-
-                    b.HasIndex("ArticleId", "CategoryId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_article_categories_article_category");
-
-                    b.ToTable("article_categories", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.ArticleProduct", b =>
@@ -991,6 +947,10 @@ namespace infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("answer");
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -1031,6 +991,8 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("IsActive")
                         .HasDatabaseName("idx_faqs_is_active");
 
@@ -1038,57 +1000,6 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_faqs_order_index");
 
                     b.ToTable("faqs", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.FAQCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("FAQId")
-                        .HasColumnType("integer")
-                        .HasColumnName("faq_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("idx_faq_categories_category_id");
-
-                    b.HasIndex("FAQId")
-                        .HasDatabaseName("idx_faq_categories_faq_id");
-
-                    b.HasIndex("FAQId", "CategoryId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_faq_categories_faq_category");
-
-                    b.ToTable("faq_categories", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Gallery", b =>
@@ -1107,6 +1018,10 @@ namespace infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("canonical_url");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
 
                     b.Property<string>("CoverImage")
                         .HasMaxLength(255)
@@ -1259,6 +1174,8 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("IsFeatured")
                         .HasDatabaseName("idx_galleries_is_featured");
 
@@ -1273,57 +1190,6 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_galleries_view_count");
 
                     b.ToTable("galleries", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.GalleryCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("GalleryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("gallery_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("idx_gallery_categories_category_id");
-
-                    b.HasIndex("GalleryId")
-                        .HasDatabaseName("idx_gallery_categories_gallery_id");
-
-                    b.HasIndex("GalleryId", "CategoryId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_gallery_categories_gallery_category");
-
-                    b.ToTable("gallery_categories", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.GalleryImage", b =>
@@ -1721,6 +1587,10 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("canonical_url");
 
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
+
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
@@ -1822,10 +1692,6 @@ namespace infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("packaging_info");
 
-                    b.Property<int>("ProductTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_type_id");
-
                     b.Property<string>("SafetyInfo")
                         .HasColumnType("text")
                         .HasColumnName("safety_info");
@@ -1924,11 +1790,10 @@ namespace infrastructure.Migrations
                     b.HasIndex("BrandId")
                         .HasDatabaseName("idx_products_brand_id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("IsFeatured")
                         .HasDatabaseName("idx_products_is_featured");
-
-                    b.HasIndex("ProductTypeId")
-                        .HasDatabaseName("idx_products_product_type_id");
 
                     b.HasIndex("Slug")
                         .IsUnique()
@@ -1941,57 +1806,6 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_products_view_count");
 
                     b.ToTable("products", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("idx_product_categories_category_id");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("idx_product_categories_product_id");
-
-                    b.HasIndex("ProductId", "CategoryId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_product_categories_product_category");
-
-                    b.ToTable("product_categories", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.ProductImage", b =>
@@ -2124,74 +1938,6 @@ namespace infrastructure.Migrations
                     b.ToTable("product_tags", (string)null);
                 });
 
-            modelBuilder.Entity("domain.Entities.ProductType", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Icon")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("icon");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("slug");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_product_types_is_active");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("idx_product_types_slug");
-
-                    b.ToTable("product_types", (string)null);
-                });
-
             modelBuilder.Entity("domain.Entities.ProductVariant", b =>
                 {
                     b.Property<int>("Id")
@@ -2300,6 +2046,10 @@ namespace infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("canonical_url");
+
+                    b.Property<int?>("CategoryId")
+                        .HasColumnType("integer")
+                        .HasColumnName("category_id");
 
                     b.Property<string>("Client")
                         .HasMaxLength(255)
@@ -2489,6 +2239,8 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CategoryId");
+
                     b.HasIndex("CompletionDate")
                         .HasDatabaseName("idx_projects_completion_date");
 
@@ -2512,57 +2264,6 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_projects_view_count");
 
                     b.ToTable("projects", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ProjectCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer")
-                        .HasColumnName("project_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("idx_project_categories_category_id");
-
-                    b.HasIndex("ProjectId")
-                        .HasDatabaseName("idx_project_categories_project_id");
-
-                    b.HasIndex("ProjectId", "CategoryId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_project_categories_project_category");
-
-                    b.ToTable("project_categories", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.ProjectImage", b =>
@@ -2844,7 +2545,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 1,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8926),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6837),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên website hiển thị trên trang và tiêu đề trình duyệt.",
                             IsActive = true,
@@ -2856,7 +2557,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 2,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8931),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6846),
                             DefaultValue = "https://localhost:7001",
                             Description = "Địa chỉ URL chính của website (ví dụ: https://www.example.com).",
                             IsActive = true,
@@ -2868,7 +2569,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 3,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8933),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6848),
                             DefaultValue = "sondaiminh@gmail.com",
                             Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống.",
                             IsActive = true,
@@ -2880,7 +2581,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 5,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8934),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6849),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên công ty hoặc tổ chức sở hữu website.",
                             IsActive = true,
@@ -2892,7 +2593,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 6,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8935),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6850),
                             DefaultValue = "123 Main Street, Anytown, CA 91234",
                             Description = "Địa chỉ liên hệ đầy đủ.",
                             IsActive = true,
@@ -2904,7 +2605,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 7,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8936),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6852),
                             DefaultValue = "(123) 456-7890",
                             Description = "Số điện thoại liên hệ chính.",
                             IsActive = true,
@@ -2916,7 +2617,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 8,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8938),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6853),
                             DefaultValue = "contact@example.com",
                             Description = "Địa chỉ email hiển thị công khai để liên hệ.",
                             IsActive = true,
@@ -2928,7 +2629,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 9,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8940),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6855),
                             Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).",
                             IsActive = true,
                             Key = "ContactMapEmbed",
@@ -2938,7 +2639,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 10,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8941),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6856),
                             DefaultValue = "Welcome to My Application",
                             Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
                             IsActive = true,
@@ -2950,7 +2651,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 11,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8942),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6857),
                             DefaultValue = "This is the default description for My Application.",
                             Description = "Mô tả meta mặc định (dưới 160 ký tự).",
                             IsActive = true,
@@ -2962,7 +2663,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 12,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8943),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6858),
                             DefaultValue = "/image/icon.jpg",
                             Description = "Đường dẫn đến file favicon.ico hoặc ảnh favicon.",
                             IsActive = true,
@@ -2974,7 +2675,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 13,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8945),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6860),
                             Description = "URL trang Facebook.",
                             IsActive = true,
                             Key = "SocialFacebookUrl",
@@ -2984,7 +2685,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 14,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8946),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6861),
                             Description = "URL trang Twitter (X).",
                             IsActive = true,
                             Key = "SocialTwitterUrl",
@@ -2994,7 +2695,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 15,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8947),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6862),
                             Description = "URL trang Instagram.",
                             IsActive = true,
                             Key = "SocialInstagramUrl",
@@ -3004,7 +2705,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 16,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8948),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6863),
                             Description = "URL trang LinkedIn.",
                             IsActive = true,
                             Key = "SocialLinkedInUrl",
@@ -3014,7 +2715,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 17,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8949),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6865),
                             Description = "URL kênh Youtube.",
                             IsActive = true,
                             Key = "SocialYoutubeUrl",
@@ -3024,7 +2725,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 18,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8951),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6866),
                             DefaultValue = "smtp.example.com",
                             Description = "Địa chỉ máy chủ SMTP.",
                             IsActive = true,
@@ -3036,7 +2737,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 19,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8952),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6867),
                             DefaultValue = "587",
                             Description = "Cổng SMTP (ví dụ: 587, 465, 25).",
                             IsActive = true,
@@ -3048,7 +2749,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 20,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8954),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6868),
                             DefaultValue = "user@example.com",
                             Description = "Tên đăng nhập SMTP.",
                             IsActive = true,
@@ -3060,7 +2761,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 21,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8955),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6869),
                             Description = "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.",
                             IsActive = true,
                             Key = "SmtpPassword",
@@ -3070,7 +2771,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 22,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8957),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6870),
                             DefaultValue = "true",
                             Description = "Sử dụng mã hóa SSL/TLS khi gửi email.",
                             IsActive = true,
@@ -3082,7 +2783,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 23,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8958),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6871),
                             DefaultValue = "My Application Support",
                             Description = "Tên hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -3094,7 +2795,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 24,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 811, DateTimeKind.Utc).AddTicks(8959),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 917, DateTimeKind.Utc).AddTicks(6873),
                             DefaultValue = "noreply@example.com",
                             Description = "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -3330,30 +3031,21 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 4, 13, 16, 36, 17, 813, DateTimeKind.Utc).AddTicks(4354),
+                            CreatedAt = new DateTime(2025, 4, 14, 16, 30, 45, 919, DateTimeKind.Utc).AddTicks(3049),
                             Email = "admin@admin.com",
                             FullName = "Quản trị viên",
                             IsActive = true,
-                            PasswordHash = "AQAAAAIAAYagAAAAEGJIbfSSg/Gq9BoC32yzcODIjftkVJQdw/fha+bF2dQlr9HxSS530r4R0Sa1+F08Gg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEIPPB4DZbKtG639PimiVIw5JpG28CNo357cLi9bs7+u3PFeX5RGxDaThtp/vh6RgeQ==",
                             Username = "admin"
                         });
                 });
 
-            modelBuilder.Entity("domain.Entities.ArticleCategory", b =>
+            modelBuilder.Entity("domain.Entities.Article", b =>
                 {
-                    b.HasOne("domain.Entities.Article", "Article")
-                        .WithMany("ArticleCategories")
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("domain.Entities.Category", "Category")
-                        .WithMany("ArticleCategories")
+                        .WithMany("Articles")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Article");
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
                 });
@@ -3424,42 +3116,24 @@ namespace infrastructure.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("domain.Entities.FAQCategory", b =>
+            modelBuilder.Entity("domain.Entities.FAQ", b =>
                 {
                     b.HasOne("domain.Entities.Category", "Category")
-                        .WithMany("FAQCategories")
+                        .WithMany("FAQs")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.FAQ", "FAQ")
-                        .WithMany("FAQCategories")
-                        .HasForeignKey("FAQId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
-
-                    b.Navigation("FAQ");
                 });
 
-            modelBuilder.Entity("domain.Entities.GalleryCategory", b =>
+            modelBuilder.Entity("domain.Entities.Gallery", b =>
                 {
                     b.HasOne("domain.Entities.Category", "Category")
-                        .WithMany("GalleryCategories")
+                        .WithMany("Galleries")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Gallery", "Gallery")
-                        .WithMany("GalleryCategories")
-                        .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
-
-                    b.Navigation("Gallery");
                 });
 
             modelBuilder.Entity("domain.Entities.GalleryImage", b =>
@@ -3519,34 +3193,14 @@ namespace infrastructure.Migrations
                         .HasForeignKey("BrandId")
                         .OnDelete(DeleteBehavior.Restrict);
 
-                    b.HasOne("domain.Entities.ProductType", "ProductType")
+                    b.HasOne("domain.Entities.Category", "Category")
                         .WithMany("Products")
-                        .HasForeignKey("ProductTypeId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Brand");
 
-                    b.Navigation("ProductType");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductCategory", b =>
-                {
-                    b.HasOne("domain.Entities.Category", "Category")
-                        .WithMany("ProductCategories")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Product", "Product")
-                        .WithMany("ProductCategories")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Category");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductImage", b =>
@@ -3590,23 +3244,14 @@ namespace infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("domain.Entities.ProjectCategory", b =>
+            modelBuilder.Entity("domain.Entities.Project", b =>
                 {
                     b.HasOne("domain.Entities.Category", "Category")
-                        .WithMany("ProjectCategories")
+                        .WithMany("Projects")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Project", "Project")
-                        .WithMany("ProjectCategories")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
-
-                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("domain.Entities.ProjectImage", b =>
@@ -3660,8 +3305,6 @@ namespace infrastructure.Migrations
 
             modelBuilder.Entity("domain.Entities.Article", b =>
                 {
-                    b.Navigation("ArticleCategories");
-
                     b.Navigation("ArticleProducts");
 
                     b.Navigation("ArticleTags");
@@ -3676,17 +3319,17 @@ namespace infrastructure.Migrations
 
             modelBuilder.Entity("domain.Entities.Category", b =>
                 {
-                    b.Navigation("ArticleCategories");
+                    b.Navigation("Articles");
 
                     b.Navigation("Children");
 
-                    b.Navigation("FAQCategories");
+                    b.Navigation("FAQs");
 
-                    b.Navigation("GalleryCategories");
+                    b.Navigation("Galleries");
 
-                    b.Navigation("ProductCategories");
+                    b.Navigation("Products");
 
-                    b.Navigation("ProjectCategories");
+                    b.Navigation("Projects");
                 });
 
             modelBuilder.Entity("domain.Entities.Comment", b =>
@@ -3694,15 +3337,8 @@ namespace infrastructure.Migrations
                     b.Navigation("Replies");
                 });
 
-            modelBuilder.Entity("domain.Entities.FAQ", b =>
-                {
-                    b.Navigation("FAQCategories");
-                });
-
             modelBuilder.Entity("domain.Entities.Gallery", b =>
                 {
-                    b.Navigation("GalleryCategories");
-
                     b.Navigation("GalleryTags");
 
                     b.Navigation("Images");
@@ -3721,8 +3357,6 @@ namespace infrastructure.Migrations
 
                     b.Navigation("Images");
 
-                    b.Navigation("ProductCategories");
-
                     b.Navigation("ProductTags");
 
                     b.Navigation("ProjectProducts");
@@ -3730,16 +3364,9 @@ namespace infrastructure.Migrations
                     b.Navigation("Variants");
                 });
 
-            modelBuilder.Entity("domain.Entities.ProductType", b =>
-                {
-                    b.Navigation("Products");
-                });
-
             modelBuilder.Entity("domain.Entities.Project", b =>
                 {
                     b.Navigation("Images");
-
-                    b.Navigation("ProjectCategories");
 
                     b.Navigation("ProjectProducts");
 

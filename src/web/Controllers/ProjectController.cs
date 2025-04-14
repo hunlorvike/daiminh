@@ -37,7 +37,7 @@ public class ProjectController : Controller
         var query = _context.Projects
             .Where(p => p.PublishStatus == PublishStatus.Published) // Only published
             .Include(p => p.Images.OrderBy(i => i.OrderIndex))
-            .Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category)
+            .Include(p => p.Category)
             .AsNoTracking();
 
         if (!string.IsNullOrEmpty(categorySlug))
@@ -47,7 +47,7 @@ public class ProjectController : Controller
                                     .FirstOrDefaultAsync(c => c.Slug == categorySlug && c.Type == CategoryType.Project && c.IsActive);
             if (currentCategory != null)
             {
-                query = query.Where(p => p.ProjectCategories.Any(pc => pc.CategoryId == currentCategory.Id));
+                query = query.Where(pc => pc.CategoryId == currentCategory.Id);
                 ViewData["Title"] = $"Dự án: {currentCategory.Name}";
                 ViewData["CategoryName"] = currentCategory.Name;
                 // TODO: Add Category SEO to ViewData or ViewModel if needed
@@ -75,7 +75,7 @@ public class ProjectController : Controller
 
         // For Filters (Optional)
         ViewBag.Categories = await _context.Categories
-                                        .Where(c => c.Type == CategoryType.Project && c.IsActive && c.ProjectCategories.Any(pc => pc.Project.PublishStatus == PublishStatus.Published)) // Only show categories with published projects
+                                        .Where(c => c.Type == CategoryType.Project && c.IsActive) // Only show categories with published projects
                                         .OrderBy(c => c.OrderIndex).ThenBy(c => c.Name)
                                         .Select(c => new SelectListItem { Value = c.Slug, Text = c.Name, Selected = c.Slug == categorySlug })
                                         .ToListAsync();
@@ -98,7 +98,7 @@ public class ProjectController : Controller
             .Where(p => p.Slug == slug && p.PublishStatus == PublishStatus.Published)
             // Eager load all necessary related data
             .Include(p => p.Images.OrderBy(i => i.OrderIndex))
-            .Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category)
+            .Include(pc => pc.Category)
             .Include(p => p.ProjectTags).ThenInclude(pt => pt.Tag)
             .Include(p => p.ProjectProducts.OrderBy(pp => pp.OrderIndex)).ThenInclude(pp => pp.Product).ThenInclude(prod => prod.Images.OrderBy(i => i.OrderIndex)) // Include products and their images
             .AsNoTracking()

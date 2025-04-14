@@ -23,9 +23,11 @@ public class Project : SeoEntity<int>
     public ProjectStatus Status { get; set; } = ProjectStatus.InProgress;
     public PublishStatus PublishStatus { get; set; } = PublishStatus.Draft;
 
+    public int? CategoryId { get; set; }
+
     // Navigation properties
+    public virtual Category? Category { get; set; }
     public virtual ICollection<ProjectImage>? Images { get; set; }
-    public virtual ICollection<ProjectCategory>? ProjectCategories { get; set; }
     public virtual ICollection<ProjectTag>? ProjectTags { get; set; }
     public virtual ICollection<ProjectProduct>? ProjectProducts { get; set; }
 }
@@ -51,6 +53,8 @@ public class ProjectConfiguration : SeoEntityConfiguration<Project, int>
         builder.Property(e => e.ThumbnailImage).HasColumnName("thumbnail_image").HasMaxLength(255);
         builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
         builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
+        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .HasConversion(
@@ -75,6 +79,11 @@ public class ProjectConfiguration : SeoEntityConfiguration<Project, int>
         builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_projects_is_featured");
         builder.HasIndex(e => e.StartDate).HasDatabaseName("idx_projects_start_date");
         builder.HasIndex(e => e.CompletionDate).HasDatabaseName("idx_projects_completion_date");
+
+        builder.HasOne(e => e.Category)
+            .WithMany(c => c.Projects)
+            .HasForeignKey(e => e.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
 

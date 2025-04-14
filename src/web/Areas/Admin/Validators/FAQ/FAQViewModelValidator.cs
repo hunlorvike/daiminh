@@ -14,8 +14,8 @@ public class FAQViewModelValidator : AbstractValidator<FAQViewModel>
         RuleFor(x => x.Answer)
             .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.");
 
-        RuleFor(x => x.SelectedCategoryIds)
-            .NotEmpty().WithMessage("Vui lòng chọn ít nhất một {PropertyName}.");
+        RuleFor(x => x.CategoryId)
+            .NotEmpty().WithMessage("Vui lòng chọn một {PropertyName}.");
 
         RuleFor(x => x.OrderIndex)
             .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");

@@ -14,5 +14,5 @@ public class CategoryListItemViewModel
     public int OrderIndex { get; set; }
     public int ChildrenCount { get; set; }
     public int ItemCount { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

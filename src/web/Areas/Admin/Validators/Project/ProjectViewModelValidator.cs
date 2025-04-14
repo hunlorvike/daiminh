@@ -30,7 +30,7 @@ public class ProjectViewModelValidator : AbstractValidator<ProjectViewModel>
         RuleFor(x => x.Status).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
         RuleFor(x => x.PublishStatus).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
 
-        RuleFor(x => x.SelectedCategoryIds).NotEmpty().WithMessage("Vui lòng chọn ít nhất một {PropertyName}.");
+        RuleFor(x => x.CategoryId).NotEmpty().WithMessage("Vui lòng chọn một {PropertyName}.");
 
         RuleForEach(x => x.Images).SetValidator(new ProjectImageViewModelValidator());
 

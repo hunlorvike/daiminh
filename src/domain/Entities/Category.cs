@@ -20,11 +20,11 @@ public class Category : SeoEntity<int>
     // Navigation properties
     public virtual Category? Parent { get; set; }
     public virtual ICollection<Category>? Children { get; set; }
-    public virtual ICollection<ProductCategory>? ProductCategories { get; set; }
-    public virtual ICollection<ArticleCategory>? ArticleCategories { get; set; }
-    public virtual ICollection<ProjectCategory>? ProjectCategories { get; set; }
-    public virtual ICollection<GalleryCategory>? GalleryCategories { get; set; }
-    public virtual ICollection<FAQCategory>? FAQCategories { get; set; }
+    public virtual ICollection<Product>? Products { get; set; }
+    public virtual ICollection<Article>? Articles { get; set; }
+    public virtual ICollection<Project>? Projects { get; set; }
+    public virtual ICollection<Gallery>? Galleries { get; set; }
+    public virtual ICollection<FAQ>? FAQs { get; set; }
 }
 
 public class CategoryConfiguration : SeoEntityConfiguration<Category, int>
@@ -64,4 +64,3 @@ public class CategoryConfiguration : SeoEntityConfiguration<Category, int>
             .OnDelete(DeleteBehavior.Restrict);
     }
 }
-

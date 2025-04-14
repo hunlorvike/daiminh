@@ -45,7 +45,7 @@ public class ArticleController : Controller
 
         int pageNumber = page;
         var query = _context.Set<Article>()
-                            .Include(a => a.ArticleCategories).ThenInclude(ac => ac.Category)
+                            .Include(a => a.Category)
                             .AsNoTracking();
 
         // Filtering
@@ -57,7 +57,7 @@ public class ArticleController : Controller
         }
         if (categoryId.HasValue && categoryId > 0)
         {
-            query = query.Where(a => a.ArticleCategories.Any(ac => ac.CategoryId == categoryId.Value));
+            query = query.Where(ac => ac.CategoryId == categoryId.Value);
         }
         if (type.HasValue)
         {
@@ -100,7 +100,6 @@ public class ArticleController : Controller
             SitemapPriority = 0.7,
             SitemapChangeFrequency = "weekly",
             OgType = "article",
-            SelectedCategoryIds = new List<int>(),
             SelectedTagIds = new List<int>(),
             SelectedProductIds = new List<int>(),
         };
@@ -127,9 +126,6 @@ public class ArticleController : Controller
         {
             var article = _mapper.Map<Article>(viewModel);
 
-            // --- Handle Relationships ---
-            article.ArticleCategories = viewModel.SelectedCategoryIds?
-                .Select(catId => new ArticleCategory { CategoryId = catId }).ToList() ?? new List<ArticleCategory>();
             article.ArticleTags = viewModel.SelectedTagIds?
                 .Select(tagId => new ArticleTag { TagId = tagId }).ToList() ?? new List<ArticleTag>();
             article.ArticleProducts = viewModel.SelectedProductIds?
@@ -175,7 +171,7 @@ public class ArticleController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var article = await _context.Set<Article>()
-            .Include(a => a.ArticleCategories)
+            .Include(a => a.Category)
             .Include(a => a.ArticleTags)
             .Include(a => a.ArticleProducts) // No need to ThenInclude Product unless displaying product names here
             .AsNoTracking()
@@ -208,7 +204,7 @@ public class ArticleController : Controller
         if (ModelState.IsValid)
         {
             var article = await _context.Set<Article>()
-                .Include(a => a.ArticleCategories)
+                .Include(a => a.Category)
                 .Include(a => a.ArticleTags)
                 .Include(a => a.ArticleProducts)
                 .FirstOrDefaultAsync(a => a.Id == id);
@@ -221,7 +217,6 @@ public class ArticleController : Controller
             try
             {
                 // --- Update Relationships ---
-                UpdateJunctionTable(article.ArticleCategories, viewModel.SelectedCategoryIds, id, (catId) => new ArticleCategory { ArticleId = id, CategoryId = catId }, fc => fc.CategoryId);
                 UpdateJunctionTable(article.ArticleTags, viewModel.SelectedTagIds, id, (tagId) => new ArticleTag { ArticleId = id, TagId = tagId }, ft => ft.TagId);
                 UpdateJunctionTable(article.ArticleProducts, viewModel.SelectedProductIds, id, (prodId) => new ArticleProduct { ArticleId = id, ProductId = prodId }, fp => fp.ProductId);
 

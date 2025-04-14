@@ -23,8 +23,11 @@ public class Article : SeoEntity<int>
     public ArticleType Type { get; set; } = ArticleType.Knowledge;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
+    // New property for one-to-many relationship
+    public int? CategoryId { get; set; }
+
     // Navigation properties
-    public virtual ICollection<ArticleCategory>? ArticleCategories { get; set; }
+    public virtual Category? Category { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }
     public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
     public virtual ICollection<Comment>? Comments { get; set; }
@@ -68,6 +71,9 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
             .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
 
+        // New property configuration
+        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+
         builder.HasIndex(e => e.Slug).HasDatabaseName("idx_articles_slug").IsUnique();
         builder.HasIndex(e => e.Status).HasDatabaseName("idx_articles_status");
         builder.HasIndex(e => e.Type).HasDatabaseName("idx_articles_type");
@@ -75,6 +81,12 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_articles_is_featured");
         builder.HasIndex(e => e.PublishedAt).HasDatabaseName("idx_articles_published_at");
         builder.HasIndex(e => e.AuthorId).HasDatabaseName("idx_articles_author_id");
+        builder.HasIndex(e => e.CategoryId).HasDatabaseName("idx_articles_category_id");
+
+        // Configure one-to-many relationship
+        builder.HasOne(e => e.Category)
+            .WithMany(c => c.Articles)
+            .HasForeignKey(e => e.CategoryId)
+            .OnDelete(DeleteBehavior.SetNull);
     }
 }
-

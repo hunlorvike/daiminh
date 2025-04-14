@@ -24,8 +24,8 @@ public class FAQViewModel
     public bool IsActive { get; set; } = true;
 
     [Display(Name = "Danh mục")]
-    [Required(ErrorMessage = "Vui lòng chọn ít nhất một {0}.")]
-    public List<int> SelectedCategoryIds { get; set; } = new List<int>();
+    [Required(ErrorMessage = "Vui lòng chọn một {0}.")]
+    public int CategoryId { get; set; }
 
     public SelectList? CategoryList { get; set; }
 }

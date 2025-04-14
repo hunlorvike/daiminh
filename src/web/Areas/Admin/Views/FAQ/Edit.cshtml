@@ -32,16 +32,6 @@
 @section Scripts {
 	<script>
 		$(document).ready(function() {
-			 try {
-				if (TomSelect) {
-					var tom = new TomSelect('#SelectedCategoryIds',{
-						plugins: ['remove_button'],
-						create: false,
-						placeholder: 'Chọn danh mục...'
-					});
-				} else { console.error('TomSelect library not found.'); }
-			} catch (e) { console.error('Error initializing TomSelect:', e); }
-
 			try {
 				if ($.fn.summernote) {
 					$('#Answer').summernote({

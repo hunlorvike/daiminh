@@ -1,4 +1,3 @@
-// --- START OF FILE Mappers/ProjectPublicProfile.cs --- Corrected with AfterMap ---
 using AutoMapper;
 using domain.Entities;
 using web.ViewModels.Project;
@@ -11,28 +10,7 @@ public class ProjectPublicProfile : Profile
     {
         // --- Mapping for Project List Item ---
         CreateMap<Project, ProjectListItemViewModel>()
-            .ForMember(dest => dest.ThumbnailOrFeaturedImageUrl, opt => opt.MapFrom(src => src.ThumbnailImage ?? src.FeaturedImage))
-            .ForMember(dest => dest.PrimaryCategoryName, opt => opt.MapFrom(src =>
-                src.ProjectCategories != null && src.ProjectCategories.Any()
-                    ? src.ProjectCategories
-                        .Where(pc => pc.Category != null && pc.Category.IsActive)
-                        .OrderBy(pc => pc.Category!.OrderIndex)
-                        .ThenBy(pc => pc.Category!.Name)
-                        .Select(pc => pc.Category!.Name)
-                        .FirstOrDefault()
-                    : null
-             ))
-             .ForMember(dest => dest.PrimaryCategorySlug, opt => opt.MapFrom(src =>
-                 src.ProjectCategories != null && src.ProjectCategories.Any()
-                    ? src.ProjectCategories
-                        .Where(pc => pc.Category != null && pc.Category.IsActive)
-                        .OrderBy(pc => pc.Category!.OrderIndex)
-                        .ThenBy(pc => pc.Category!.Name)
-                        .Select(pc => pc.Category!.Slug)
-                        .FirstOrDefault()
-                    : null
-             ));
-
+            .ForMember(dest => dest.ThumbnailOrFeaturedImageUrl, opt => opt.MapFrom(src => src.ThumbnailImage ?? src.FeaturedImage));
 
         // --- Mapping for Project Detail ---
         CreateMap<Project, ProjectDetailViewModel>()
@@ -49,14 +27,6 @@ public class ProjectPublicProfile : Profile
             // --- Perform complex collection mapping AFTER basic mapping ---
             .AfterMap((src, dest, context) =>
             {
-                // Categories
-                dest.Categories = src.ProjectCategories?
-                    .Where(pc => pc.Category != null && pc.Category.IsActive)
-                    .OrderBy(pc => pc.Category!.OrderIndex)
-                    .ThenBy(pc => pc.Category!.Name)
-                    .Select(pc => context.Mapper.Map<ProjectCategoryLinkViewModel>(pc.Category)) // Map Category to LinkViewModel
-                    .ToList() ?? new List<ProjectCategoryLinkViewModel>();
-
                 // Tags
                 dest.Tags = src.ProjectTags?
                     .Where(pt => pt.Tag != null)
@@ -96,4 +66,3 @@ public class ProjectPublicProfile : Profile
              .ForMember(dest => dest.Usage, opt => opt.MapFrom(src => src.Usage)); // Map Usage directly from join table
     }
 }
-// --- END OF FILE Mappers/ProjectPublicProfile.cs ---

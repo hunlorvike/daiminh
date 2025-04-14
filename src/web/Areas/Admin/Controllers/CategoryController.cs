@@ -46,11 +46,11 @@ public class CategoryController : Controller
         var query = _context.Set<Category>()
                             .Where(c => c.Type == type)
                             .Include(c => c.Parent)
-                            .Include(c => c.ProductCategories)
-                            .Include(c => c.ArticleCategories)
-                            .Include(c => c.ProjectCategories)
-                            .Include(c => c.GalleryCategories)
-                            .Include(c => c.FAQCategories)
+                            .Include(c => c.Products)
+                            .Include(c => c.Articles)
+                            .Include(c => c.Projects)
+                            .Include(c => c.Galleries)
+                            .Include(c => c.FAQs)
                             .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
@@ -218,11 +218,11 @@ public class CategoryController : Controller
     {
         var category = await _context.Set<Category>()
                                     .Include(c => c.Children)
-                                    .Include(c => c.ProductCategories)
-                                    .Include(c => c.ArticleCategories)
-                                    .Include(c => c.ProjectCategories)
-                                    .Include(c => c.GalleryCategories)
-                                    .Include(c => c.FAQCategories)
+                                    .Include(c => c.Products)
+                                    .Include(c => c.Articles)
+                                    .Include(c => c.Projects)
+                                    .Include(c => c.Galleries)
+                                    .Include(c => c.FAQs)
                                     .FirstOrDefaultAsync(c => c.Id == id);
 
         if (category == null)
@@ -239,11 +239,11 @@ public class CategoryController : Controller
 
         bool hasItems = category.Type switch
         {
-            CategoryType.Product => category.ProductCategories?.Any() ?? false,
-            CategoryType.Article => category.ArticleCategories?.Any() ?? false,
-            CategoryType.Project => category.ProjectCategories?.Any() ?? false,
-            CategoryType.Gallery => category.GalleryCategories?.Any() ?? false,
-            CategoryType.FAQ => category.FAQCategories?.Any() ?? false,
+            CategoryType.Product => category.Products?.Any() ?? false,
+            CategoryType.Article => category.Articles?.Any() ?? false,
+            CategoryType.Project => category.Projects?.Any() ?? false,
+            CategoryType.Gallery => category.Galleries?.Any() ?? false,
+            CategoryType.FAQ => category.FAQs?.Any() ?? false,
             _ => false,
         };
 

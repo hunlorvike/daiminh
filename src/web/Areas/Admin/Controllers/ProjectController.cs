@@ -1,4 +1,3 @@
-// --- START OF FILE ProjectController.cs --- New File ---
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -9,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
-using web.Areas.Admin.Services; // For Minio
+using web.Areas.Admin.Services;
 using web.Areas.Admin.ViewModels.Project;
 using X.PagedList.EF;
 
@@ -45,13 +44,13 @@ public class ProjectController : Controller
 
         int pageNumber = page;
         var query = _context.Set<Project>()
-                            .Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category)
-                            .Include(p => p.Images.OrderBy(i => i.OrderIndex)) // For Thumbnail
+                            .Include(p => p.Category)
+                            .Include(p => p.Images.OrderBy(i => i.OrderIndex))
                             .AsNoTracking();
 
         // Filtering
         if (!string.IsNullOrWhiteSpace(searchTerm)) { string st = searchTerm.Trim().ToLower(); query = query.Where(p => p.Name.ToLower().Contains(st) || (p.Client != null && p.Client.ToLower().Contains(st)) || (p.Location != null && p.Location.ToLower().Contains(st))); }
-        if (categoryId.HasValue && categoryId > 0) { query = query.Where(p => p.ProjectCategories.Any(pc => pc.CategoryId == categoryId.Value)); }
+        if (categoryId.HasValue && categoryId > 0) { query = query.Where(pc => pc.CategoryId == categoryId.Value); }
         if (status.HasValue) { query = query.Where(p => p.Status == status.Value); }
         if (publishStatus.HasValue) { query = query.Where(p => p.PublishStatus == publishStatus.Value); }
 
@@ -83,7 +82,6 @@ public class ProjectController : Controller
             SitemapChangeFrequency = "monthly",
             OgType = "article", // Adjust OgType if needed
             Images = new List<ProjectImageViewModel>(), // Initialize lists
-            SelectedCategoryIds = new List<int>(),
             SelectedTagIds = new List<int>(),
             SelectedProductIds = new List<int>()
         };
@@ -103,7 +101,6 @@ public class ProjectController : Controller
             var project = _mapper.Map<Project>(viewModel);
 
             // Handle Relationships
-            project.ProjectCategories = viewModel.SelectedCategoryIds?.Select(id => new ProjectCategory { CategoryId = id }).ToList() ?? new();
             project.ProjectTags = viewModel.SelectedTagIds?.Select(id => new ProjectTag { TagId = id }).ToList() ?? new();
             project.ProjectProducts = viewModel.SelectedProductIds?.Select((id, idx) => new ProjectProduct { ProductId = id, OrderIndex = idx }).ToList() ?? new();
             project.Images = _mapper.Map<List<ProjectImage>>(viewModel.Images?.Where(i => !i.IsDeleted).ToList() ?? new());
@@ -136,7 +133,7 @@ public class ProjectController : Controller
     {
         var project = await _context.Set<Project>()
             .Include(p => p.Images.OrderBy(i => i.OrderIndex))
-            .Include(p => p.ProjectCategories)
+            .Include(p => p.Category)
             .Include(p => p.ProjectTags)
             .Include(p => p.ProjectProducts)
             .AsNoTracking()
@@ -164,7 +161,7 @@ public class ProjectController : Controller
         {
             var project = await _context.Set<Project>()
                 .Include(p => p.Images)
-                .Include(p => p.ProjectCategories)
+                .Include(p => p.Category)
                 .Include(p => p.ProjectTags)
                 .Include(p => p.ProjectProducts)
                 .FirstOrDefaultAsync(p => p.Id == id);
@@ -176,7 +173,6 @@ public class ProjectController : Controller
             try
             {
                 // --- Update Relationships ---
-                UpdateJunctionTable(project.ProjectCategories, viewModel.SelectedCategoryIds, id, (catId) => new ProjectCategory { ProjectId = id, CategoryId = catId }, pc => pc.CategoryId);
                 UpdateJunctionTable(project.ProjectTags, viewModel.SelectedTagIds, id, (tagId) => new ProjectTag { ProjectId = id, TagId = tagId }, pt => pt.TagId);
                 UpdateJunctionTable(project.ProjectProducts, viewModel.SelectedProductIds, id, (prodId) => new ProjectProduct { ProjectId = id, ProductId = prodId }, pp => pp.ProductId);
                 UpdateProjectImages(project, viewModel.Images);

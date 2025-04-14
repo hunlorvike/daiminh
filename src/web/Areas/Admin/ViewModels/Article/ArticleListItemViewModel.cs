@@ -4,7 +4,7 @@ public class ArticleListItemViewModel
 {
     public int Id { get; set; }
     public string Title { get; set; } = string.Empty;
-    public string? ThumbnailImage { get; set; } // MinIO Path
+    public string? ThumbnailImage { get; set; }
     public string? AuthorName { get; set; }
     public string? CategoryNames { get; set; }
     public ArticleType Type { get; set; }
@@ -12,5 +12,5 @@ public class ArticleListItemViewModel
     public DateTime? PublishedAt { get; set; }
     public int ViewCount { get; set; }
     public bool IsFeatured { get; set; }
-    public DateTime? UpdatedAt { get; set; } // Changed to nullable
+    public DateTime? UpdatedAt { get; set; }
 }

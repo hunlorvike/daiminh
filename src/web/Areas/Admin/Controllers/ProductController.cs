@@ -32,7 +32,7 @@ public class ProductController : Controller
     }
 
     // GET: Admin/Product
-    public async Task<IActionResult> Index(string? searchTerm = null, int? typeId = null, int? brandId = null, PublishStatus? status = null, int page = 1, int pageSize = 15)
+    public async Task<IActionResult> Index(string? searchTerm = null, int? brandId = null, PublishStatus? status = null, int page = 1, int pageSize = 15)
     {
         ViewData["Title"] = "Quản lý Sản phẩm - Hệ thống quản trị";
         ViewData["PageTitle"] = "Danh sách Sản phẩm";
@@ -40,7 +40,6 @@ public class ProductController : Controller
 
         int pageNumber = page;
         var query = _context.Set<Product>()
-                            .Include(p => p.ProductType)
                             .Include(p => p.Brand)
                             .Include(p => p.Images.OrderBy(i => i.OrderIndex))
                             .AsNoTracking();
@@ -53,10 +52,6 @@ public class ProductController : Controller
                                   || (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(lowerSearchTerm))
                                   || p.Variants.Any(v => v.Sku.ToLower().Contains(lowerSearchTerm))
                                   );
-        }
-        if (typeId.HasValue && typeId > 0)
-        {
-            query = query.Where(p => p.ProductTypeId == typeId.Value);
         }
         if (brandId.HasValue && brandId > 0)
         {
@@ -75,7 +70,7 @@ public class ProductController : Controller
             .ToPagedListAsync(pageNumber, pageSize); // Paginate
 
         // Load filter data
-        await LoadFilterDropdownsAsync(typeId, brandId, status);
+        await LoadFilterDropdownsAsync(brandId, status);
 
         ViewBag.SearchTerm = searchTerm;
         // Selected IDs/Status are loaded into ViewBag by LoadFilterDropdownsAsync
@@ -119,10 +114,6 @@ public class ProductController : Controller
         {
             var product = _mapper.Map<Product>(viewModel);
 
-            // --- MANUAL RELATIONSHIP HANDLING for NEW product ---
-            product.ProductCategories = viewModel.SelectedCategoryIds? // Check for null
-                                        .Select(catId => new ProductCategory { CategoryId = catId })
-                                        .ToList() ?? new List<ProductCategory>(); // Default to empty list
             product.ProductTags = viewModel.SelectedTagIds? // Check for null
                                     .Select(tagId => new ProductTag { TagId = tagId })
                                     .ToList() ?? new List<ProductTag>(); // Default to empty list
@@ -188,11 +179,10 @@ public class ProductController : Controller
     {
         // Eagerly load ALL related data needed for the form
         var product = await _context.Set<Product>()
-            .Include(p => p.ProductType)
             .Include(p => p.Brand)
             .Include(p => p.Images.OrderBy(i => i.OrderIndex)) // Order images
             .Include(p => p.Variants.OrderBy(v => v.Name)) // Order variants
-            .Include(p => p.ProductCategories)
+            .Include(p => p.CategoryId)
             .Include(p => p.ProductTags)
             .AsNoTracking() // Use AsNoTracking for reading into ViewModel
             .FirstOrDefaultAsync(p => p.Id == id);
@@ -236,7 +226,7 @@ public class ProductController : Controller
             var product = await _context.Set<Product>()
                 .Include(p => p.Images)
                 .Include(p => p.Variants)
-                .Include(p => p.ProductCategories)
+                .Include(p => p.Category)
                 .Include(p => p.ProductTags)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -253,7 +243,6 @@ public class ProductController : Controller
             try
             {
                 // --- MANUAL RELATIONSHIP HANDLING (UPDATE/ADD/DELETE) ---
-                UpdateProductCategories(product, viewModel.SelectedCategoryIds);
                 UpdateProductTags(product, viewModel.SelectedTagIds);
                 UpdateProductImages(product, viewModel.Images);
                 UpdateProductVariants(product, viewModel.Variants);
@@ -380,7 +369,6 @@ public class ProductController : Controller
     // Helper to load dropdowns for Create/Edit views
     private async Task LoadRelatedDataForFormAsync(ProductViewModel viewModel)
     {
-        viewModel.ProductTypeList = new SelectList(await _context.Set<ProductType>().Where(t => t.IsActive).OrderBy(t => t.Name).Select(t => new { t.Id, t.Name }).ToListAsync(), "Id", "Name", viewModel.ProductTypeId);
         viewModel.BrandList = new SelectList(await _context.Set<Brand>().Where(t => t.IsActive).OrderBy(t => t.Name).Select(t => new { t.Id, t.Name }).ToListAsync(), "Id", "Name", viewModel.BrandId);
         viewModel.CategoryList = new SelectList(await _context.Set<Category>().Where(c => c.IsActive && c.Type == CategoryType.Product).OrderBy(c => c.Name).Select(t => new { t.Id, t.Name }).ToListAsync(), "Id", "Name");
         viewModel.TagList = new SelectList(await _context.Set<Tag>().Where(t => t.Type == TagType.Product).OrderBy(t => t.Name).Select(t => new { t.Id, t.Name }).ToListAsync(), "Id", "Name");
@@ -391,12 +379,10 @@ public class ProductController : Controller
     }
 
     // Helper to load dropdowns for Index filter controls
-    private async Task LoadFilterDropdownsAsync(int? typeId, int? brandId, PublishStatus? status)
+    private async Task LoadFilterDropdownsAsync( int? brandId, PublishStatus? status)
     {
-        ViewBag.ProductTypes = await _context.Set<ProductType>().Where(pt => pt.IsActive).OrderBy(pt => pt.Name).Select(pt => new SelectListItem { Value = pt.Id.ToString(), Text = pt.Name, Selected = pt.Id == typeId }).ToListAsync();
         ViewBag.Brands = await _context.Set<Brand>().Where(b => b.IsActive).OrderBy(b => b.Name).Select(b => new SelectListItem { Value = b.Id.ToString(), Text = b.Name, Selected = b.Id == brandId }).ToListAsync();
         ViewBag.Statuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == status }).ToList(); // Use shared extension
-        ViewBag.SelectedTypeId = typeId;
         ViewBag.SelectedBrandId = brandId;
         ViewBag.SelectedStatus = status;
     }
@@ -458,30 +444,6 @@ public class ProductController : Controller
 
     // --- Helpers for M-M and O-M Updates (called from Edit POST) ---
 
-    private void UpdateProductCategories(Product product, List<int>? selectedCategoryIds)
-    {
-        selectedCategoryIds ??= new List<int>(); // Ensure list is not null
-
-        // Remove categories no longer selected
-        var categoriesToRemove = product.ProductCategories
-                                       .Where(pc => !selectedCategoryIds.Contains(pc.CategoryId))
-                                       .ToList();
-        if (categoriesToRemove.Any())
-        {
-            _context.ProductCategories.RemoveRange(categoriesToRemove);
-        }
-
-        // Add newly selected categories
-        var existingCategoryIds = product.ProductCategories.Select(pc => pc.CategoryId);
-        var categoryIdsToAdd = selectedCategoryIds.Except(existingCategoryIds).ToList();
-        if (categoryIdsToAdd.Any())
-        {
-            foreach (var catId in categoryIdsToAdd)
-            {
-                product.ProductCategories.Add(new ProductCategory { CategoryId = catId });
-            }
-        }
-    }
 
     private void UpdateProductTags(Product product, List<int>? selectedTagIds)
     {

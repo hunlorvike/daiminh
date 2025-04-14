@@ -33,8 +33,8 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
         RuleFor(x => x.Type).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
         RuleFor(x => x.Status).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
 
-        RuleFor(x => x.SelectedCategoryIds)
-            .NotEmpty().WithMessage("Vui lòng chọn ít nhất một {PropertyName}.");
+        RuleFor(x => x.CategoryId)
+            .NotEmpty().WithMessage("Vui lòng chọn một {PropertyName}.");
 
         // Include base SEO validation rules
         Include(new SeoPropertiesValidator<ArticleViewModel>());

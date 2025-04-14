@@ -10,7 +10,6 @@ public class ProductProfile : Profile
     {
         // Entity -> ListItemViewModel
         CreateMap<Product, ProductListItemViewModel>()
-            .ForMember(dest => dest.ProductTypeName, opt => opt.MapFrom(src => src.ProductType != null ? src.ProductType.Name : null))
             .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
             .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => // Find main image path
                 src.Images != null && src.Images.Any(i => i.IsMain)
@@ -18,13 +17,10 @@ public class ProductProfile : Profile
                     : src.Images != null && src.Images.Any()
                         ? src.Images.OrderBy(i => i.OrderIndex).First().ImageUrl
                         : null
-            ))
-             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt ?? src.CreatedAt)); // Map UpdatedAt
-
+            ));
 
         // Entity -> ViewModel (For Edit GET)
         CreateMap<Product, ProductViewModel>()
-            .ForMember(dest => dest.SelectedCategoryIds, opt => opt.MapFrom(src => src.ProductCategories != null ? src.ProductCategories.Select(pc => pc.CategoryId).ToList() : new List<int>()))
             .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags != null ? src.ProductTags.Select(pt => pt.TagId).ToList() : new List<int>()))
             // Let other profiles handle nested Images and Variants lists
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
@@ -42,9 +38,8 @@ public class ProductProfile : Profile
             // Ignore collections/navigation properties - handled manually in Controller
             .ForMember(dest => dest.Images, opt => opt.Ignore())
             .ForMember(dest => dest.Variants, opt => opt.Ignore())
-            .ForMember(dest => dest.ProductCategories, opt => opt.Ignore())
             .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
-            .ForMember(dest => dest.ProductType, opt => opt.Ignore())
+            .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.Brand, opt => opt.Ignore())
             .ForMember(dest => dest.ProjectProducts, opt => opt.Ignore())
             .ForMember(dest => dest.ArticleProducts, opt => opt.Ignore())
