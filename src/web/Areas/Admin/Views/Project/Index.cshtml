@@ -1,101 +1,76 @@
-@using shared.Helpers
-@using web.Areas.Admin.ViewModels.Project
-@using shared.Enums
-@model IEnumerable<ProjectListItemViewModel>
+@using X.PagedList.Mvc.Core;
+@using X.PagedList;
+@using shared.Helpers; 
+@using web.Areas.Admin.ViewModels.Project;
+@using shared.Enums; 
+@using shared.Extensions;
+@model IPagedList<ProjectListItemViewModel>
 @{
-    ViewData["Title"] = "Quản lý Dự án";
+    ViewData["Title"] = "Quản lý Dự án - Hệ thống quản trị";
 }
 
 @section PageActions {
-    <div class="btn-list">
-        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-            <i class="ti ti-plus me-2"></i> Thêm dự án
-        </a>
-    </div>
-    }
+ <div class="btn-list"> <a asp-action="Create" class="btn btn-primary d-sm-inline-block"><i class="ti ti-plus me-2"></i> Thêm dự án</a></div>
+ }
 
-<!-- Filter Form -->
 <div class="card mb-3">
-    <div class="card-body">
-        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-            <div class="col-md-3 col-sm-6"> <label class="form-label">Tìm kiếm</label> <input type="text" class="form-control" placeholder="Tên, khách hàng, địa điểm..." name="searchTerm" value="@ViewBag.SearchTerm"> </div>
-            <div class="col-md-2 col-sm-6"> <label class="form-label">Danh mục</label> <select class="form-select" name="categoryId" asp-items="@ViewBag.Categories" asp-route-value="@ViewBag.SelectedCategoryId"><option value="">Tất cả</option></select> </div>
-            <div class="col-md-2 col-sm-6"> <label class="form-label">Tình trạng</label> <select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus"><option value="">Tất cả</option></select> </div>
-            <div class="col-md-2 col-sm-6"> <label class="form-label">Hiển thị</label> <select class="form-select" name="publishStatus" asp-items="@ViewBag.PublishStatuses" asp-route-value="@ViewBag.SelectedPublishStatus"><option value="">Tất cả</option></select> </div>
-            <div class="col-md-1 col-sm-6"> <button type="submit" class="btn btn-primary w-100">Lọc</button> </div>
-            <div class="col-md-2 col-sm-6"> <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a> </div>
-        </form>
-    </div>
+    @* Filter Form *@
+    <div class="card-body"><form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end"> <div class="col-md-3 col-sm-6"> <label class="form-label">Tìm kiếm</label> <div class="input-group"> <input type="text" class="form-control" placeholder="Tên, địa điểm, khách..." name="searchTerm" value="@ViewBag.SearchTerm"> <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"><i class="ti ti-x"></i></button> </div> </div> <div class="col-md-2 col-sm-6"> <label class="form-label">Danh mục</label> <select class="form-select tom-select-filter" name="categoryId" asp-items="@ViewBag.Categories"><option value="">-- Tất cả --</option></select> </div> <div class="col-md-2 col-sm-6"> <label class="form-label">Tình trạng</label> <select class="form-select tom-select-filter" name="status" asp-items="@ViewBag.ProjectStatuses"><option value="">-- Tất cả --</option></select> </div> <div class="col-md-2 col-sm-6"> <label class="form-label">Xuất bản</label> <select class="form-select tom-select-filter" name="publishStatus" asp-items="@ViewBag.PublishStatuses"><option value="">-- Tất cả --</option></select> </div> <div class="col-md-1 col-sm-6"> <button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc</button> </div> <div class="col-md-2 col-sm-6"> <a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại</a> </div> </form> </div>
 </div>
 
-<!-- Content Table -->
 <div class="card">
-    <div class="card-header"> <h3 class="card-title">Danh sách Dự án</h3> </div>
+    @* Content Table *@
+    <div class="card-header d-flex justify-content-between align-items-center"><h3 class="card-title mb-0">Danh sách Dự án</h3> @if (Model.TotalItemCount > 0)
+        {
+            <small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount dự án</small>
+        }</div>
     <div class="card-body p-0">
-        @if (!Model.Any()) { /* ... Empty State ... */ }
+        @if (!Model.Any())
+        {
+            <div class="empty"><div class="empty-icon"><i class="ti ti-building-community fa-3x text-muted"></i></div><p class="empty-title">Không tìm thấy dự án nào</p><p class="empty-subtitle text-muted">Hãy thêm dự án đầu tiên.</p><div class="empty-action"><a asp-action="Create" class="btn btn-primary"><i class="ti ti-plus me-2"></i> Thêm dự án</a></div></div>
+        }
         else
         {
             <div class="table-responsive">
                 <table class="table table-vcenter card-table table-striped">
-                    <thead>
-                        <tr>
-                            <th style="width: 5%;">Ảnh</th>
-                            <th>Tên dự án</th>
-                            <th>Địa điểm</th>
-                            <th>Khách hàng</th>
-                            <th class="text-center">Tình trạng</th>
-                            <th class="text-center">Hiển thị</th>
-                            <th>Hoàn thành</th>
-                            <th class="w-1">Thao tác</th>
-                        </tr>
-                    </thead>
+                    <thead> <tr> <th style="width: 5%;">Ảnh</th> <th>Tên dự án</th> <th>Khách hàng</th> <th>Địa điểm</th> <th class="text-center">Tình trạng</th> <th class="text-center">Xuất bản</th> <th class="text-center">Nổi bật</th> <th>Hoàn thành</th> <th class="w-1">Thao tác</th> </tr> </thead>
                     <tbody>
                         @foreach (var item in Model)
                         {
-                            <tr>
-                                <td> <img src="@MediaUrlHelper.GetMinioUrl(item.ThumbnailImage, "/img/placeholder-image.png")" alt="@item.Name" class="avatar avatar-md object-fit-cover" /> </td>
-                                <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Name</a> @if (item.IsFeatured)
+                            <tr> <td><img src="@MediaUrlHelper.GetMinioUrl(item.ThumbnailImage, "/img/placeholder.svg")" alt="@item.Name" class="avatar avatar-md object-fit-cover bg-light" /></td> <td><a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Name</a></td> <td class="text-muted">@(item.Client ?? "-")</td> <td class="text-muted">@(item.Location ?? "-")</td> <td class="text-center"><span class="badge bg-@(GetProjectStatusBadge(item.Status))-lt">@item.Status.GetDisplayName()</span></td> <td class="text-center"><span class="badge bg-@(GetPublishStatusBadge(item.PublishStatus))-lt">@item.PublishStatus.GetDisplayName()</span></td> <td class="text-center">@if (item.IsFeatured)
                                     {
-                                        <i class="ti ti-star-filled text-warning ms-1" title="Nổi bật"></i>
-                                    }
-                                </td>
-                                <td class="text-muted">@item.Location</td>
-                                <td class="text-muted">@item.Client</td>
-                                <td class="text-center"> <span class="badge">@item.Status</span> @* TODO: Add specific badges/colors based on status *@ </td>
-                                <td class="text-center">
-                                    @switch (item.PublishStatus)
-                                    {
-                                        case PublishStatus.Published:
-                                            <span class="badge bg-success-lt">Xuất bản</span>
-                                            break;
-                                        case PublishStatus.Draft:
-                                            <span class="badge bg-secondary-lt">Nháp</span>
-                                            break;
-                                        case PublishStatus.Scheduled:
-                                            <span class="badge bg-warning-lt">Lên lịch</span>
-                                            break;
-                                        case PublishStatus.Archived:
-                                            <span class="badge bg-dark-lt">Lưu trữ</span>
-                                            break;
-                                        default:
-                                            <span class="badge">@item.PublishStatus</span>
-                                            break;
-                                    }
-                                </td>
-                                <td class="text-muted">@(item.CompletionDate?.ToString("dd/MM/yyyy") ?? "N/A")</td>
-                                <td>
-                                    <div class="btn-list flex-nowrap">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"> <i class="ti ti-pencil"></i> </a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa" data-id="@item.Id" data-name="@item.Name" data-delete-url="@Url.Action("Delete", "Project")"> <i class="ti ti-trash"></i> </button>
-                                    </div>
-                                </td>
-                            </tr>
+                                        <i class="ti ti-star-filled text-warning" title="Nổi bật"></i>
+                                    }</td> <td class="text-muted" title="@item.CompletionDate?.ToString("dd/MM/yyyy HH:mm:ss")">@(item.CompletionDate?.ToString("dd/MM/yyyy") ?? "-")</td> <td> <div class="btn-list flex-nowrap"> <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a> <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa" data-id="@item.Id" data-name="@item.Name" data-delete-url="@Url.Action("Delete", "Project")"><i class="ti ti-trash"></i></button> </div> </td> </tr>
                         }
                     </tbody>
                 </table>
             </div>
-            @* Pagination *@
         }
     </div>
+    @if (Model.PageCount > 1)
+    {
+        <div class="card-footer">
+            <div class="d-flex align-items-center justify-content-center">
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, categoryId = ViewBag.SelectedCategoryId, status = ViewBag.SelectedStatus, publishStatus = ViewBag.SelectedPublishStatus }), new PagedListRenderOptions
+       {
+           UlElementClasses = new[] { "pagination mb-0" },
+           LiElementClasses = new[] { "page-item" },
+           PageClasses = new[] { "page-link" },
+           DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+           DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+       })))
+            </div>
+        </div>
+    }
 </div>
+
+@functions {
+    string GetProjectStatusBadge(ProjectStatus status) => status switch { ProjectStatus.Planning => "secondary", ProjectStatus.InProgress => "primary", ProjectStatus.Completed => "success", ProjectStatus.OnHold => "warning", ProjectStatus.Cancelled => "danger", _ => "secondary" };
+    string GetPublishStatusBadge(PublishStatus status) => status switch { PublishStatus.Published => "success", PublishStatus.Draft => "secondary", PublishStatus.Scheduled => "warning", PublishStatus.Archived => "dark", _ => "secondary" };
+}
+
+@section Scripts {
+ <script> $(document).ready(function () { $('#clearSearch').on('click', function() { $('input[name="searchTerm"]').val(''); $('.tom-select-filter').each(function(){ if(this.tomselect) this.tomselect.clear(); }); }); document.querySelectorAll('.tom-select-filter').forEach((el)=>{ new TomSelect(el, { create: false, allowEmptyOption: true }); }); }); </script>
+ }

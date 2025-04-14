@@ -1,7 +1,5 @@
 using shared.Enums;
-
 namespace web.Areas.Admin.ViewModels.Project;
-
 public class ProjectListItemViewModel
 {
     public int Id { get; set; }
@@ -13,5 +11,5 @@ public class ProjectListItemViewModel
     public PublishStatus PublishStatus { get; set; }
     public bool IsFeatured { get; set; }
     public DateTime? CompletionDate { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

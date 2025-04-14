@@ -1,15 +1,17 @@
+// --- START OF FILE ProjectController.cs --- New File ---
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using domain.Entities;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using web.Areas.Admin.Services;
+using shared.Extensions;
+using web.Areas.Admin.Services; // For Minio
 using web.Areas.Admin.ViewModels.Project;
+using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -19,86 +21,73 @@ public class ProjectController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly IValidator<ProjectViewModel> _validator;
-    private readonly IMinioStorageService _minioService;
     private readonly ILogger<ProjectController> _logger;
+    private readonly IMinioStorageService _minioService;
 
     public ProjectController(
         ApplicationDbContext context,
         IMapper mapper,
-        IValidator<ProjectViewModel> validator,
-        IMinioStorageService minioService,
-        ILogger<ProjectController> logger)
+        ILogger<ProjectController> logger,
+        IMinioStorageService minioService)
     {
-        _context = context;
-        _mapper = mapper;
-        _validator = validator;
-        _minioService = minioService;
-        _logger = logger;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _minioService = minioService ?? throw new ArgumentNullException(nameof(minioService));
     }
 
     // GET: Admin/Project
-    public async Task<IActionResult> Index(string? searchTerm = null, int? categoryId = null, ProjectStatus? status = null, PublishStatus? publishStatus = null)
+    public async Task<IActionResult> Index(string? searchTerm = null, int? categoryId = null, ProjectStatus? status = null, PublishStatus? publishStatus = null, int page = 1, int pageSize = 15)
     {
-        ViewData["PageTitle"] = "Quản lý Dự án";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", "") };
+        ViewData["Title"] = "Quản lý Dự án - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Danh sách Dự án";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))) };
 
+        int pageNumber = page;
         var query = _context.Set<Project>()
-                            // Eager load data needed for list display
-                            .Include(p => p.Images)
-                            .AsQueryable();
+                            .Include(p => p.ProjectCategories).ThenInclude(pc => pc.Category)
+                            .Include(p => p.Images.OrderBy(i => i.OrderIndex)) // For Thumbnail
+                            .AsNoTracking();
 
         // Filtering
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            query = query.Where(p => p.Name.Contains(searchTerm) || p.Client.Contains(searchTerm) || p.Location.Contains(searchTerm));
-        }
-        if (categoryId.HasValue)
-        {
-            query = query.Where(p => p.ProjectCategories.Any(pc => pc.CategoryId == categoryId.Value));
-        }
-        if (status.HasValue)
-        {
-            query = query.Where(p => p.Status == status.Value);
-        }
-        if (publishStatus.HasValue)
-        {
-            query = query.Where(p => p.PublishStatus == publishStatus.Value);
-        }
+        if (!string.IsNullOrWhiteSpace(searchTerm)) { string st = searchTerm.Trim().ToLower(); query = query.Where(p => p.Name.ToLower().Contains(st) || (p.Client != null && p.Client.ToLower().Contains(st)) || (p.Location != null && p.Location.ToLower().Contains(st))); }
+        if (categoryId.HasValue && categoryId > 0) { query = query.Where(p => p.ProjectCategories.Any(pc => pc.CategoryId == categoryId.Value)); }
+        if (status.HasValue) { query = query.Where(p => p.Status == status.Value); }
+        if (publishStatus.HasValue) { query = query.Where(p => p.PublishStatus == publishStatus.Value); }
 
-        var projects = await query.OrderByDescending(p => p.CompletionDate ?? p.StartDate ?? p.CreatedAt).ToListAsync();
-        var viewModels = _mapper.Map<List<ProjectListItemViewModel>>(projects);
+        // Sorting & Pagination
+        var projectsPaged = await query
+            .OrderByDescending(p => p.IsFeatured)
+            .ThenByDescending(p => p.CompletionDate ?? p.StartDate ?? p.CreatedAt) // Order by completion, start, or creation
+            .ProjectTo<ProjectListItemViewModel>(_mapper.ConfigurationProvider)
+            .ToPagedListAsync(pageNumber, pageSize);
 
-        // Load filter data
-        ViewBag.Categories = await _context.Set<Category>().Where(c => c.Type == CategoryType.Project && c.IsActive).OrderBy(c => c.Name).Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name }).ToListAsync();
-        ViewBag.Statuses = Enum.GetValues(typeof(ProjectStatus)).Cast<ProjectStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = GetStatusDisplayName(s) }).ToList();
-        ViewBag.PublishStatuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(ps => new SelectListItem { Value = ps.ToString(), Text = GetPublishStatusDisplayName(ps) }).ToList();
-
+        await LoadFilterDropdownsAsync(categoryId, status, publishStatus);
         ViewBag.SearchTerm = searchTerm;
-        ViewBag.SelectedCategoryId = categoryId;
-        ViewBag.SelectedStatus = status;
-        ViewBag.SelectedPublishStatus = publishStatus;
 
-        return View(viewModels);
+        return View(projectsPaged);
     }
-
 
     // GET: Admin/Project/Create
     public async Task<IActionResult> Create()
     {
+        ViewData["Title"] = "Thêm Dự án mới - Hệ thống quản trị";
         ViewData["PageTitle"] = "Thêm Dự án mới";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ("Thêm mới", "") };
 
         var viewModel = new ProjectViewModel
         {
+            Status = ProjectStatus.InProgress,
             PublishStatus = PublishStatus.Draft,
-            Status = ProjectStatus.Planning,
-            SitemapPriority = 0.6,
+            SitemapPriority = 0.7,
             SitemapChangeFrequency = "monthly",
-            OgType = "object" // Adjust if there's a better type
+            OgType = "article", // Adjust OgType if needed
+            Images = new List<ProjectImageViewModel>(), // Initialize lists
+            SelectedCategoryIds = new List<int>(),
+            SelectedTagIds = new List<int>(),
+            SelectedProductIds = new List<int>()
         };
-
-        await LoadDropdownsAsync(viewModel);
+        await LoadRelatedDataForFormAsync(viewModel);
         return View(viewModel);
     }
 
@@ -107,65 +96,38 @@ public class ProjectController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProjectViewModel viewModel)
     {
-        if (await _context.Set<Project>().AnyAsync(p => p.Slug == viewModel.Slug))
+        await ValidateRelationsAndUniquenessAsync(viewModel, isEdit: false);
+
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError(nameof(ProjectViewModel.Slug), "Slug đã tồn tại.");
-        }
-        // Check Main Image
-        if (viewModel.Images != null && viewModel.Images.Any(i => !i.IsDeleted) && !viewModel.Images.Any(i => i.IsMain && !i.IsDeleted))
-        {
-            ModelState.AddModelError("Images", "Vui lòng chọn một ảnh làm ảnh đại diện chính.");
-        }
-        // Check Product association validity (optional but good)
-        var productIds = viewModel.ProjectProducts?.Where(pp => !pp.IsDeleted).Select(pp => pp.ProductId).ToList() ?? new List<int>();
-        if (productIds.Any())
-        {
-            var validProductCount = await _context.Products.CountAsync(p => productIds.Contains(p.Id));
-            if (validProductCount != productIds.Count)
+            var project = _mapper.Map<Project>(viewModel);
+
+            // Handle Relationships
+            project.ProjectCategories = viewModel.SelectedCategoryIds?.Select(id => new ProjectCategory { CategoryId = id }).ToList() ?? new();
+            project.ProjectTags = viewModel.SelectedTagIds?.Select(id => new ProjectTag { TagId = id }).ToList() ?? new();
+            project.ProjectProducts = viewModel.SelectedProductIds?.Select((id, idx) => new ProjectProduct { ProductId = id, OrderIndex = idx }).ToList() ?? new();
+            project.Images = _mapper.Map<List<ProjectImage>>(viewModel.Images?.Where(i => !i.IsDeleted).ToList() ?? new());
+
+            // Set audit fields
+            // project.CreatedBy = User.Identity?.Name;
+
+            _context.Projects.Add(project);
+
+            try
             {
-                ModelState.AddModelError("ProjectProducts", "Một hoặc nhiều sản phẩm liên kết không hợp lệ.");
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Project '{Name}' (ID: {ProjectId}) created successfully by {User}.", project.Name, project.Id, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Thêm dự án '{project.Name}' thành công!";
+                return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateException ex) { HandleDbUpdateException(ex, viewModel.Slug); }
+            catch (Exception ex) { _logger.LogError(ex, "Error creating project '{Name}'.", viewModel.Name); ModelState.AddModelError("", "Lỗi không mong muốn khi tạo dự án."); }
         }
+        else { _logger.LogWarning("Project creation failed for '{Name}'. Model state is invalid.", viewModel.Name); }
 
-
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid || !ModelState.IsValid)
-        {
-            validationResult.AddToModelState(ModelState);
-            _logger.LogWarning("Project creation validation failed.");
-            await LoadDropdownsAsync(viewModel);
-            ViewData["PageTitle"] = "Thêm Dự án mới";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ("Thêm mới", "") };
-            return View(viewModel);
-        }
-
-        var project = _mapper.Map<Project>(viewModel);
-
-        // --- MANUAL RELATIONSHIP HANDLING ---
-        project.ProjectCategories = viewModel.SelectedCategoryIds.Select(catId => new ProjectCategory { CategoryId = catId }).ToList();
-        project.ProjectTags = viewModel.SelectedTagIds.Select(tagId => new ProjectTag { TagId = tagId }).ToList();
-        project.Images = _mapper.Map<List<ProjectImage>>(viewModel.Images.Where(i => !i.IsDeleted));
-        project.ProjectProducts = _mapper.Map<List<ProjectProduct>>(viewModel.ProjectProducts.Where(pp => !pp.IsDeleted));
-
-
-        _context.Projects.Add(project);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Thêm dự án thành công!";
-            return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Error saving new project.");
-            ModelState.AddModelError("", "Không thể lưu dự án. Vui lòng kiểm tra lại dữ liệu.");
-            await LoadDropdownsAsync(viewModel);
-            ViewData["PageTitle"] = "Thêm Dự án mới";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ("Thêm mới", "") };
-            return View(viewModel);
-        }
+        await LoadRelatedDataForFormAsync(viewModel);
+        ViewData["Title"] = "Thêm Dự án mới - Hệ thống quản trị"; ViewData["PageTitle"] = "Thêm Dự án mới"; ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ("Thêm mới", "") };
+        return View(viewModel);
     }
 
 
@@ -176,17 +138,16 @@ public class ProjectController : Controller
             .Include(p => p.Images.OrderBy(i => i.OrderIndex))
             .Include(p => p.ProjectCategories)
             .Include(p => p.ProjectTags)
-            .Include(p => p.ProjectProducts).ThenInclude(pp => pp.Product).ThenInclude(prod => prod.Images) // Include Product and its images for display
+            .Include(p => p.ProjectProducts)
+            .AsNoTracking()
             .FirstOrDefaultAsync(p => p.Id == id);
 
-        if (project == null) return NotFound();
+        if (project == null) { _logger.LogWarning("Edit GET: Project ID {ProjectId} not found.", id); return NotFound(); }
 
         var viewModel = _mapper.Map<ProjectViewModel>(project);
-        await LoadDropdownsAsync(viewModel);
+        await LoadRelatedDataForFormAsync(viewModel);
 
-        ViewData["PageTitle"] = "Chỉnh sửa Dự án";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
-
+        ViewData["Title"] = "Chỉnh sửa Dự án - Hệ thống quản trị"; ViewData["PageTitle"] = $"Chỉnh sửa Dự án: {project.Name}"; ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(project.Name)}", "") };
         return View(viewModel);
     }
 
@@ -195,96 +156,48 @@ public class ProjectController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProjectViewModel viewModel)
     {
-        if (id != viewModel.Id) return BadRequest();
+        if (id != viewModel.Id) { _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id); return BadRequest(); }
 
-        // --- Manual Checks ---
-        if (await _context.Set<Project>().AnyAsync(p => p.Slug == viewModel.Slug && p.Id != id))
+        await ValidateRelationsAndUniquenessAsync(viewModel, isEdit: true);
+
+        if (ModelState.IsValid)
         {
-            ModelState.AddModelError(nameof(ProjectViewModel.Slug), "Slug đã tồn tại.");
-        }
-        if (viewModel.Images != null && viewModel.Images.Any(i => !i.IsDeleted) && !viewModel.Images.Any(i => i.IsMain && !i.IsDeleted))
-        {
-            ModelState.AddModelError("Images", "Vui lòng chọn một ảnh làm ảnh đại diện chính.");
-        }
-        var productIds = viewModel.ProjectProducts?.Where(pp => !pp.IsDeleted).Select(pp => pp.ProductId).ToList() ?? new List<int>();
-        if (productIds.Any())
-        {
-            var validProductCount = await _context.Products.CountAsync(p => productIds.Contains(p.Id));
-            if (validProductCount != productIds.Count)
+            var project = await _context.Set<Project>()
+                .Include(p => p.Images)
+                .Include(p => p.ProjectCategories)
+                .Include(p => p.ProjectTags)
+                .Include(p => p.ProjectProducts)
+                .FirstOrDefaultAsync(p => p.Id == id);
+
+            if (project == null) { _logger.LogWarning("Edit POST: Project ID {ProjectId} not found for update.", id); TempData["error"] = "Không tìm thấy dự án."; return RedirectToAction(nameof(Index)); }
+
+            _mapper.Map(viewModel, project); // Map scalar/SEO properties
+
+            try
             {
-                ModelState.AddModelError("ProjectProducts", "Một hoặc nhiều sản phẩm liên kết không hợp lệ.");
+                // --- Update Relationships ---
+                UpdateJunctionTable(project.ProjectCategories, viewModel.SelectedCategoryIds, id, (catId) => new ProjectCategory { ProjectId = id, CategoryId = catId }, pc => pc.CategoryId);
+                UpdateJunctionTable(project.ProjectTags, viewModel.SelectedTagIds, id, (tagId) => new ProjectTag { ProjectId = id, TagId = tagId }, pt => pt.TagId);
+                UpdateJunctionTable(project.ProjectProducts, viewModel.SelectedProductIds, id, (prodId) => new ProjectProduct { ProjectId = id, ProductId = prodId }, pp => pp.ProductId);
+                UpdateProjectImages(project, viewModel.Images);
+
+                // Set audit fields
+                // project.UpdatedBy = User.Identity?.Name;
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Project ID {ProjectId} ('{Name}') updated successfully by {User}.", id, project.Name, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Cập nhật dự án '{project.Name}' thành công!";
+                return RedirectToAction(nameof(Index));
             }
+            catch (DbUpdateConcurrencyException ex) { _logger.LogWarning(ex, "Concurrency error updating project ID: {ProjectId}", id); TempData["error"] = "Lỗi: Xung đột dữ liệu."; }
+            catch (DbUpdateException ex) { HandleDbUpdateException(ex, viewModel.Slug); }
+            catch (Exception ex) { _logger.LogError(ex, "Error updating project ID: {ProjectId}", id); ModelState.AddModelError("", "Lỗi không mong muốn khi cập nhật."); }
         }
+        else { _logger.LogWarning("Project editing failed for ID: {ProjectId}. Model state is invalid.", id); }
 
-
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid || !ModelState.IsValid)
-        {
-            validationResult.AddToModelState(ModelState);
-            _logger.LogWarning("Project editing validation failed for ID: {ProjectId}", id);
-            await LoadDropdownsAsync(viewModel);
-            // Need to reload Product names/images if returning view after validation fail
-            // This part is tricky without re-fetching or storing more in the viewmodel
-            var existingProductData = await _context.ProjectProducts
-               .Where(pp => pp.ProjectId == id)
-               .Include(pp => pp.Product).ThenInclude(p => p.Images)
-               .ToListAsync();
-            viewModel.ProjectProducts = _mapper.Map<List<ProjectProductViewModel>>(existingProductData);
-            ViewData["PageTitle"] = "Chỉnh sửa Dự án";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
-            return View(viewModel);
-        }
-
-        var project = await _context.Set<Project>()
-            .Include(p => p.Images)
-            .Include(p => p.ProjectCategories)
-            .Include(p => p.ProjectTags)
-            .Include(p => p.ProjectProducts)
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (project == null) return NotFound();
-
-        // --- Map Scalar Properties ---
-        _mapper.Map(viewModel, project);
-
-        // --- MANUAL RELATIONSHIP HANDLING ---
-        // Categories & Tags (Same as Article)
-        UpdateJunctionTable(project.ProjectCategories, viewModel.SelectedCategoryIds, id, (catId) => new ProjectCategory { ProjectId = id, CategoryId = catId }, pc => pc.CategoryId);
-        UpdateJunctionTable(project.ProjectTags, viewModel.SelectedTagIds, id, (tagId) => new ProjectTag { ProjectId = id, TagId = tagId }, pt => pt.TagId);
-
-        // Images (Same as Product)
-        var imagesToDeleteFromMinio = UpdateImages(project.Images, viewModel.Images, id);
-
-        // ProjectProducts (More complex due to 'Usage' field)
-        UpdateProjectProducts(project.ProjectProducts, viewModel.ProjectProducts, id);
-
-
-        try
-        {
-            await _context.SaveChangesAsync(); // Save DB changes
-
-            // Delete images from MinIO AFTER successful DB save
-            await DeleteMinioFilesAsync(imagesToDeleteFromMinio, $"Project ID {id}");
-
-            TempData["SuccessMessage"] = "Cập nhật dự án thành công!";
-            return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateConcurrencyException)
-        {
-            if (!await ProjectExists(id)) return NotFound();
-            _logger.LogWarning("Concurrency conflict updating project ID: {ProjectId}", id);
-            TempData["ErrorMessage"] = "Lỗi: Xung đột dữ liệu khi cập nhật.";
-            await LoadDropdownsAsync(viewModel);
-            return View(viewModel);
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Error updating project ID: {ProjectId}", id);
-            ModelState.AddModelError("", "Không thể lưu dự án. Vui lòng kiểm tra lại dữ liệu.");
-            await LoadDropdownsAsync(viewModel);
-            return View(viewModel);
-        }
+        await LoadRelatedDataForFormAsync(viewModel);
+        ViewData["Title"] = "Chỉnh sửa Dự án - Hệ thống quản trị"; ViewData["PageTitle"] = $"Chỉnh sửa Dự án: {viewModel.Name}"; ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Dự án", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(viewModel.Name)}", "") };
+        return View(viewModel);
     }
 
 
@@ -293,168 +206,153 @@ public class ProjectController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var project = await _context.Set<Project>()
-                                 .Include(p => p.Images)
-                                 .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (project == null)
-        {
-            return Json(new { success = false, message = "Không tìm thấy dự án." });
-        }
-
-        // Store image paths BEFORE deleting from DB
-        var imagesToDeleteFromMinio = project.Images?
-           .SelectMany(i => new[] { i.ImageUrl, i.ThumbnailUrl }) // Get both paths
-           .Where(url => !string.IsNullOrEmpty(url))
-           .Distinct()
-           .ToList() ?? new List<string>();
-
-
-        _context.Projects.Remove(project); // Cascade should handle junction tables
+        var project = await _context.Set<Project>().Include(p => p.Images).FirstOrDefaultAsync(p => p.Id == id);
+        if (project == null) { _logger.LogWarning("Delete POST: Project ID {ProjectId} not found.", id); return Json(new { success = false, message = "Không tìm thấy dự án." }); }
 
         try
         {
-            await _context.SaveChangesAsync(); // Delete from DB
+            string name = project.Name;
+            var imagesToDelete = project.Images?.Select(i => i.ImageUrl).Where(url => !string.IsNullOrEmpty(url)).Distinct().ToList() ?? new();
+            imagesToDelete.AddRange(project.Images?.Select(i => i.ThumbnailUrl).Where(url => !string.IsNullOrEmpty(url)).Distinct().ToList() ?? new());
+            if (!string.IsNullOrEmpty(project.FeaturedImage)) imagesToDelete.Add(project.FeaturedImage);
+            if (!string.IsNullOrEmpty(project.ThumbnailImage)) imagesToDelete.Add(project.ThumbnailImage);
+            // Add OG/Twitter images if they are paths
+            if (!string.IsNullOrEmpty(project.OgImage) && !project.OgImage.StartsWith("http")) imagesToDelete.Add(project.OgImage);
+            if (!string.IsNullOrEmpty(project.TwitterImage) && !project.TwitterImage.StartsWith("http")) imagesToDelete.Add(project.TwitterImage);
 
-            // Delete MinIO files AFTER successful DB save
-            await DeleteMinioFilesAsync(imagesToDeleteFromMinio, $"Project ID {id}");
+            _context.Projects.Remove(project); // Cascade handles join tables & ProjectImages DB entries
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Project '{Name}' (ID: {ProjectId}) deleted successfully by {User}.", name, id, User.Identity?.Name ?? "Unknown");
 
-            return Json(new { success = true, message = "Xóa dự án thành công." });
+            // Delete images from storage AFTER successful DB delete
+            foreach (var path in imagesToDelete.Distinct())
+            {
+                if (string.IsNullOrEmpty(path)) continue;
+                try { await _minioService.DeleteFileAsync(path); _logger.LogInformation("Deleted image '{ImagePath}' from MinIO for deleted Project ID {ProjectId}.", path, id); }
+                catch (Exception minioEx) { _logger.LogError(minioEx, "Failed to delete image '{ImagePath}' from MinIO for Project ID {ProjectId}.", path, id); }
+            }
+
+            return Json(new { success = true, message = $"Xóa dự án '{name}' thành công." });
         }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Error deleting Project ID {ProjectId}. Check RESTRICT constraints.", id);
-            return Json(new { success = false, message = "Không thể xóa dự án. Có thể có lỗi ràng buộc dữ liệu." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting Project ID {ProjectId}.", id);
-            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa dự án." });
-        }
+        catch (DbUpdateException ex) { _logger.LogError(ex, "Error deleting Project ID {ProjectId}. Potential FK constraint.", id); return Json(new { success = false, message = "Lỗi cơ sở dữ liệu khi xóa." }); }
+        catch (Exception ex) { _logger.LogError(ex, "Error deleting Project ID {ProjectId}.", id); return Json(new { success = false, message = "Lỗi không mong muốn khi xóa." }); }
     }
 
 
     // --- Helper Methods ---
-    private async Task LoadDropdownsAsync(ProjectViewModel viewModel)
-    {
-        viewModel.CategoryList = new SelectList(await _context.Set<Category>().Where(c => c.IsActive && c.Type == CategoryType.Project).OrderBy(c => c.Name).ToListAsync(), "Id", "Name");
-        viewModel.TagList = new SelectList(await _context.Set<Tag>().Where(t => t.Type == TagType.Project).OrderBy(t => t.Name).ToListAsync(), "Id", "Name");
-        // Load ALL active products for selection
-        viewModel.ProductList = new SelectList(await _context.Set<Product>().Where(p => p.IsActive && p.Status == PublishStatus.Published).OrderBy(p => p.Name).ToListAsync(), "Id", "Name");
-        viewModel.StatusList = new SelectList(Enum.GetValues(typeof(ProjectStatus)).Cast<ProjectStatus>().Select(e => new { Value = e, Text = GetStatusDisplayName(e) }), "Value", "Text", viewModel.Status);
-        viewModel.PublishStatusList = new SelectList(Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(e => new { Value = e, Text = GetPublishStatusDisplayName(e) }), "Value", "Text", viewModel.PublishStatus);
+    private async Task LoadFilterDropdownsAsync(int? categoryId, ProjectStatus? status, PublishStatus? publishStatus)
+    { /* Similar to Article, load Project Categories, ProjectStatus, PublishStatus */
+        ViewBag.Categories = await _context.Set<Category>().Where(c => c.Type == CategoryType.Project && c.IsActive).OrderBy(c => c.Name).Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name, Selected = c.Id == categoryId }).ToListAsync();
+        ViewBag.ProjectStatuses = Enum.GetValues(typeof(ProjectStatus)).Cast<ProjectStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == status }).ToList();
+        ViewBag.PublishStatuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == publishStatus }).ToList();
+        ViewBag.SelectedCategoryId = categoryId;
+        ViewBag.SelectedStatus = status;
+        ViewBag.SelectedPublishStatus = publishStatus;
     }
-
-    // Generic helper used by ArticleController too
-    private void UpdateJunctionTable<TEntity, TKey>(ICollection<TEntity> currentCollection, IEnumerable<TKey> selectedIds, int parentId, Func<TKey, TEntity> createEntity, Func<TEntity, TKey> getKey) where TEntity : class where TKey : IEquatable<TKey> { /* ... same as ArticleController ... */ }
-
-    // Specific helper for ProjectProducts due to 'Usage' field
-    private void UpdateProjectProducts(ICollection<ProjectProduct> currentProducts, List<ProjectProductViewModel> productVMs, int projectId)
-    {
-        var vmsNotDeleted = productVMs.Where(vm => !vm.IsDeleted).ToList();
-        var currentProductIds = currentProducts.Select(pp => pp.ProductId).ToList();
-        var vmProductIds = vmsNotDeleted.Select(vm => vm.ProductId).ToList();
-
-        // Remove products no longer selected
-        var productsToRemove = currentProducts.Where(pp => !vmProductIds.Contains(pp.ProductId)).ToList();
-        _context.ProjectProducts.RemoveRange(productsToRemove);
-
-        // Update existing or Add new ones
-        foreach (var vm in vmsNotDeleted)
+    private async Task LoadRelatedDataForFormAsync(ProjectViewModel viewModel)
+    { /* Load Categories, Tags, Products, Statuses */
+        viewModel.CategoryList = new SelectList(await _context.Set<Category>().Where(c => c.IsActive && c.Type == CategoryType.Project).OrderBy(c => c.Name).Select(c => new { c.Id, c.Name }).ToListAsync(), "Id", "Name");
+        viewModel.TagList = new SelectList(await _context.Set<Tag>().Where(t => t.Type == TagType.Project).OrderBy(t => t.Name).Select(t => new { t.Id, t.Name }).ToListAsync(), "Id", "Name");
+        viewModel.ProductList = new SelectList(await _context.Set<Product>().Where(p => p.IsActive && p.Status == PublishStatus.Published).OrderBy(p => p.Name).Select(p => new { p.Id, p.Name }).ToListAsync(), "Id", "Name");
+        viewModel.StatusList = new SelectList(Enum.GetValues(typeof(ProjectStatus)).Cast<ProjectStatus>().Select(e => new { Value = e, Text = e.GetDisplayName() }), "Value", "Text", viewModel.Status);
+        viewModel.PublishStatusList = new SelectList(Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(e => new { Value = e, Text = e.GetDisplayName() }), "Value", "Text", viewModel.PublishStatus);
+    }
+    private async Task ValidateRelationsAndUniquenessAsync(ProjectViewModel viewModel, bool isEdit)
+    { /* Only unique slug check needed here */
+        if (!string.IsNullOrWhiteSpace(viewModel.Slug))
         {
-            var existing = currentProducts.FirstOrDefault(pp => pp.ProductId == vm.ProductId);
-            if (existing != null) // Update Usage and OrderIndex
+            bool slugExists = await _context.Set<Project>().AnyAsync(p => p.Slug.ToLower() == viewModel.Slug.ToLower() && p.Id != viewModel.Id);
+            if (slugExists) { ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại."); }
+        }
+        // Add main image check similar to Product
+        if (viewModel.Images != null && viewModel.Images.Any(i => !i.IsDeleted) && !viewModel.Images.Any(i => i.IsMain && !i.IsDeleted)) { ModelState.AddModelError("Images", "Vui lòng chọn một ảnh làm ảnh đại diện chính."); }
+        if (viewModel.Images != null && viewModel.Images.Count(i => i.IsMain && !i.IsDeleted) > 1) { ModelState.AddModelError("Images", "Chỉ được chọn một ảnh làm ảnh đại diện chính."); }
+    }
+    private void UpdateJunctionTable<TEntity, TKey>(ICollection<TEntity> currentCollection, IEnumerable<TKey>? selectedIds, int parentId, Func<TKey, TEntity> createEntity, Func<TEntity, TKey> getKey)
+        where TEntity : class
+        where TKey : IEquatable<TKey>
+    {
+        selectedIds ??= new List<TKey>(); // Ensure list is not null
+
+        var currentIds = currentCollection.Select(getKey).ToList();
+        var idsToAdd = selectedIds.Except(currentIds).ToList();
+        var entitiesToRemove = currentCollection.Where(e => !selectedIds.Contains(getKey(e))).ToList();
+
+        if (entitiesToRemove.Any()) _context.RemoveRange(entitiesToRemove);
+
+        if (idsToAdd.Any())
+        {
+            foreach (var idToAdd in idsToAdd)
             {
-                existing.Usage = vm.Usage;
-                existing.OrderIndex = vm.OrderIndex;
-                // No need to use Mapper here unless more fields are involved
-            }
-            else // Add new association
-            {
-                var newProjectProduct = _mapper.Map<ProjectProduct>(vm); // Use mapper for consistency
-                newProjectProduct.ProjectId = projectId;
-                // Use Add method of DbContext or add to navigation property if loaded
-                _context.ProjectProducts.Add(newProjectProduct);
-                // If project.ProjectProducts was loaded: project.ProjectProducts.Add(newProjectProduct);
+                currentCollection.Add(createEntity(idToAdd));
             }
         }
     }
 
-
-    // Specific helper for Images similar to ProductController
-    private List<string> UpdateImages(ICollection<ProjectImage> currentImages, List<ProjectImageViewModel> imageVMs, int projectId)
+    private void UpdateProjectImages(Project project, List<ProjectImageViewModel>? imageVMs)
     {
-        var imagesToDeleteFromMinio = new List<string>();
-        var vmsNotDeleted = imageVMs.Where(vm => !vm.IsDeleted).ToList();
-        var currentImageIds = currentImages.Select(i => i.Id).ToList();
-        var vmImageIds = vmsNotDeleted.Where(vm => vm.Id > 0).Select(vm => vm.Id).ToList(); // IDs of existing images in VM
+        imageVMs ??= new List<ProjectImageViewModel>();
 
-        // Remove images not present in the final VM list
-        var imagesToRemove = currentImages.Where(dbImg => !vmImageIds.Contains(dbImg.Id)).ToList();
-        foreach (var imgToRemove in imagesToRemove)
+        // Delete images marked for deletion in VM or not present in VM anymore
+        var vmImageIds = imageVMs.Where(i => i.Id > 0).Select(i => i.Id).ToList();
+        var dbImagesToRemove = project.Images
+            .Where(dbImg => !vmImageIds.Contains(dbImg.Id) || imageVMs.First(vm => vm.Id == dbImg.Id).IsDeleted)
+            .ToList();
+
+        if (dbImagesToRemove.Any())
         {
-            if (!string.IsNullOrEmpty(imgToRemove.ImageUrl)) imagesToDeleteFromMinio.Add(imgToRemove.ImageUrl);
-            if (!string.IsNullOrEmpty(imgToRemove.ThumbnailUrl) && imgToRemove.ThumbnailUrl != imgToRemove.ImageUrl) imagesToDeleteFromMinio.Add(imgToRemove.ThumbnailUrl);
-            _context.ProjectImages.Remove(imgToRemove);
+            _context.ProjectImages.RemoveRange(dbImagesToRemove);
         }
 
         // Update existing or add new images
-        foreach (var vm in vmsNotDeleted)
+        foreach (var imgVm in imageVMs.Where(i => !i.IsDeleted))
         {
-            if (vm.Id > 0)
-            { // Update existing
-                var dbImage = currentImages.FirstOrDefault(i => i.Id == vm.Id);
-                if (dbImage != null) _mapper.Map(vm, dbImage);
-            }
-            else
-            { // Add new
-                var newImage = _mapper.Map<ProjectImage>(vm);
-                newImage.ProjectId = projectId;
-                currentImages.Add(newImage); // Add via navigation property
-            }
-        }
-        return imagesToDeleteFromMinio.Distinct().ToList();
-    }
-
-    // Helper to delete MinIO files safely
-    private async Task DeleteMinioFilesAsync(List<string> pathsToDelete, string contextInfo)
-    {
-        foreach (var path in pathsToDelete)
-        {
-            if (string.IsNullOrEmpty(path)) continue;
-            try
+            if (imgVm.Id > 0) // Update existing
             {
-                await _minioService.DeleteFileAsync(path);
+                var dbImage = project.Images.FirstOrDefault(i => i.Id == imgVm.Id);
+                if (dbImage != null)
+                {
+                    // Map only the editable fields from VM to existing DB entity
+                    dbImage.AltText = imgVm.AltText;
+                    dbImage.Title = imgVm.Title;
+                    dbImage.OrderIndex = imgVm.OrderIndex;
+                    dbImage.IsMain = imgVm.IsMain;
+                    // Don't map ImageUrl/ThumbnailUrl here as they are set on upload
+                }
             }
-            catch (Exception ex)
+            else // Add new
             {
-                _logger.LogError(ex, "Failed to delete file '{ImagePath}' from MinIO for {ContextInfo}.", path, contextInfo);
+                // Only add if ImageUrl is actually set (meaning upload was successful or path provided)
+                if (!string.IsNullOrWhiteSpace(imgVm.ImageUrl))
+                {
+                    var newImage = _mapper.Map<ProjectImage>(imgVm);
+                    // ProjectId is set automatically by EF Core when adding to navigation property
+                    project.Images.Add(newImage);
+                }
+                else
+                {
+                    _logger.LogWarning("Skipping adding new image because ImageUrl is empty. VM data: {@ImageViewModel}", imgVm);
+                }
             }
         }
     }
 
-
-    private string GetStatusDisplayName(ProjectStatus status)
+    private void HandleDbUpdateException(DbUpdateException ex, string? slug)
     {
-        return status switch
+        _logger.LogError(ex, "DbUpdateException occurred.");
+        if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: projects.slug", StringComparison.OrdinalIgnoreCase) ?? false)
         {
-            ProjectStatus.Planning => "Lập kế hoạch",
-            ProjectStatus.InProgress => "Đang tiến hành",
-            ProjectStatus.Completed => "Hoàn thành",
-            ProjectStatus.OnHold => "Tạm dừng",
-            _ => status.ToString()
-        };
+            ModelState.AddModelError(nameof(ProjectViewModel.Slug), "Slug này đã tồn tại.");
+        }
+        else
+        {
+            ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi lưu.");
+        }
     }
-    private string GetPublishStatusDisplayName(PublishStatus status)
+    private string Truncate(string value, int maxLength = 40)
     {
-        return status switch
-        {
-            PublishStatus.Draft => "Nháp",
-            PublishStatus.Published => "Đã xuất bản",
-            PublishStatus.Scheduled => "Đã lên lịch",
-            PublishStatus.Archived => "Đã lưu trữ",
-            _ => status.ToString()
-        };
+        if (string.IsNullOrEmpty(value)) return value;
+        return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
     }
-    private async Task<bool> ProjectExists(int id) => await _context.Set<Project>().AnyAsync(e => e.Id == id);
 }
+// --- END OF FILE ProjectController.cs ---
