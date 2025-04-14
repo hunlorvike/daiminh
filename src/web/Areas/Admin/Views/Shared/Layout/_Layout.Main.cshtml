@@ -1,3 +1,9 @@
+@{
+    var themeCookie = Context.Request.Cookies["daiminhTheme"];
+    var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
+    var isDark = theme == "dark";
+}
+
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -7,8 +13,8 @@
 	<partial name="__LibStyles" />
 	@await RenderSectionAsync("Styles", required: false)
 </head>
-<body>
-	<div class="page">
+<body data-bs-theme="@(isDark ? "dark" : null)">
+    <div class="page">
 		<!-- Sidebar -->
 		<partial name="Components/_Sidebar" />
 
