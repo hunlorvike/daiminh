@@ -28,6 +28,10 @@ public class ProjectProfile : Profile
         // ViewModel -> Entity
         CreateMap<ProjectViewModel, Project>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src =>
+                src.StartDate.HasValue ? src.StartDate.Value.ToUniversalTime() : (DateTime?)null))
+            .ForMember(dest => dest.CompletionDate, opt => opt.MapFrom(src =>
+                src.CompletionDate.HasValue ? src.CompletionDate.Value.ToUniversalTime() : (DateTime?)null))
             .ForMember(dest => dest.ViewCount, opt => opt.Ignore())
             .ForMember(dest => dest.Images, opt => opt.Ignore()) // Manual handling
             .ForMember(dest => dest.ProjectCategories, opt => opt.Ignore()) // Manual handling
