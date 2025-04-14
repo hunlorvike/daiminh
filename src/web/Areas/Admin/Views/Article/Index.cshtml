@@ -1,16 +1,20 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
 @using shared.Helpers
 @using web.Areas.Admin.ViewModels.Article
 @using shared.Enums
-@model IEnumerable<ArticleListItemViewModel>
+@using shared.Extensions
+@model IPagedList<ArticleListItemViewModel>
 @{
-    ViewData["Title"] = "Quản lý Bài viết";
+    ViewData["Title"] = "Quản lý Bài viết - Hệ thống quản trị";
+    // Breadcrumbs set in Controller
 }
 
 @section PageActions {
     <div class="btn-list">
-        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-            <i class="ti ti-file-plus me-2"></i> Viết bài mới
-        </a>
+        <a asp-action="Create" class="btn btn-primary d-sm-inline-block"> <i class="ti ti-file-plus me-2"></i> Viết bài mới </a>
+    @* Optional Export Button *@
+    @* <a asp-action="ExportExcel" asp-all-route-data="@Context.Request.Query.ToDictionary(q => q.Key, q=> q.Value.ToString())" class="btn btn-outline-success d-none d-sm-inline-block"> <i class="ti ti-download me-2"></i> Export Excel </a> *@
     </div>
 }
 
@@ -20,31 +24,37 @@
         <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
             <div class="col-md-3 col-sm-6">
                 <label class="form-label">Tìm kiếm</label>
-                <input type="text" class="form-control" placeholder="Tiêu đề, tóm tắt..." name="searchTerm" value="@ViewBag.SearchTerm">
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Tiêu đề, tóm tắt..." name="searchTerm" value="@ViewBag.SearchTerm">
+                    <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"> <i class="ti ti-x"></i> </button>
+                </div>
             </div>
             <div class="col-md-2 col-sm-6">
                 <label class="form-label">Danh mục</label>
-                <select class="form-select" name="categoryId" asp-items="@ViewBag.Categories" asp-route-value="@ViewBag.SelectedCategoryId">
-                    <option value="">Tất cả</option>
+                <select class="form-select tom-select-filter" name="categoryId" asp-items="@ViewBag.Categories">
+                    @* Use TomSelect *@
+                    <option value="">-- Tất cả --</option>
                 </select>
             </div>
             <div class="col-md-2 col-sm-6">
                 <label class="form-label">Loại bài viết</label>
-                <select class="form-select" name="type" asp-items="@ViewBag.Types" asp-route-value="@ViewBag.SelectedType">
-                    <option value="">Tất cả</option>
+                <select class="form-select tom-select-filter" name="type" asp-items="@ViewBag.Types">
+                    @* Use TomSelect *@
+                    <option value="">-- Tất cả --</option>
                 </select>
             </div>
             <div class="col-md-2 col-sm-6">
                 <label class="form-label">Trạng thái</label>
-                <select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus">
-                    <option value="">Tất cả</option>
+                <select class="form-select tom-select-filter" name="status" asp-items="@ViewBag.Statuses">
+                    @* Use TomSelect *@
+                    <option value="">-- Tất cả --</option>
                 </select>
             </div>
             <div class="col-md-1 col-sm-6">
-                <button type="submit" class="btn btn-primary w-100">Lọc</button>
+                <button type="submit" class="btn btn-primary w-100"> <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc</button>
             </div>
             <div class="col-md-2 col-sm-6">
-                <a asp-action="Index" class="btn btn-outline-secondary w-100">Đặt lại</a>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100"> <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại</a>
             </div>
         </form>
     </div>
@@ -52,18 +62,17 @@
 
 <!-- Content Table -->
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">Danh sách Bài viết</h3>
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Danh sách Bài viết</h3>
+        @if (Model.TotalItemCount > 0)
+        {
+            <small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount bài viết</small>
+        }
     </div>
     <div class="card-body p-0">
         @if (!Model.Any())
         {
-            <div class="empty">
-                <div class="empty-icon"><i class="ti ti-file-off"></i></div>
-                <p class="empty-title">Không tìm thấy bài viết nào</p>
-                <p class="empty-subtitle text-muted">Hãy tạo bài viết đầu tiên.</p>
-                <div class="empty-action"> <a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Viết bài mới </a> </div>
-            </div>
+            <div class="empty"><div class="empty-icon"><i class="ti ti-file-off fa-3x text-muted"></i></div><p class="empty-title">Không tìm thấy bài viết nào</p><p class="empty-subtitle text-muted">Hãy tạo bài viết đầu tiên.</p><div class="empty-action"> <a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Viết bài mới </a> </div></div>
         }
         else
         {
@@ -75,6 +84,7 @@
                             <th>Tiêu đề</th>
                             <th>Tác giả</th>
                             <th>Danh mục</th>
+                            <th class="text-center">Loại</th>
                             <th class="text-center">Trạng thái</th>
                             <th class="text-center">Lượt xem</th>
                             <th>Ngày xuất bản</th>
@@ -85,50 +95,24 @@
                         @foreach (var item in Model)
                         {
                             <tr>
+                                <td><img src="@MediaUrlHelper.GetMinioUrl(item.ThumbnailImage, "/img/placeholder.svg")" alt="@item.Title" class="avatar avatar-md object-fit-cover bg-light" /></td>
                                 <td>
-                                    <img src="@MediaUrlHelper.GetMinioUrl(item.ThumbnailImage, "/img/placeholder-image.png")"
-                                         alt="@item.Title" class="avatar avatar-md object-fit-cover" />
-                                </td>
-                                <td>
-                                    <a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Title</a>
-                                    @if (item.IsFeatured)
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Title</a> @if (item.IsFeatured)
                                     {
                                         <i class="ti ti-star-filled text-warning ms-1" title="Nổi bật"></i>
                                     }
                                 </td>
-                                <td class="text-muted">@item.AuthorName</td>
-                                <td class="text-muted">@item.CategoryNames</td>
-                                <td class="text-center">
-                                    @switch (item.Status)
-                                    {
-                                        case PublishStatus.Published:
-                                            <span class="badge bg-success-lt">Xuất bản</span>
-                                            break;
-                                        case PublishStatus.Draft:
-                                            <span class="badge bg-secondary-lt">Nháp</span>
-                                            break;
-                                        case PublishStatus.Scheduled:
-                                            <span class="badge bg-warning-lt">Lên lịch</span>
-                                            break;
-                                        case PublishStatus.Archived:
-                                            <span class="badge bg-dark-lt">Lưu trữ</span>
-                                            break;
-                                        default:
-                                            <span class="badge">@item.Status</span>
-                                            break;
-                                    }
-                                </td>
+                                <td class="text-muted">@(item.AuthorName ?? "-")</td>
+                                <td class="text-muted text-truncate" style="max-width: 150px;" title="@item.CategoryNames">@(item.CategoryNames ?? "-")</td>
+                                <td class="text-center text-muted">@item.Type.GetDisplayName()</td>
+                                <td class="text-center"><span class="badge bg-@(GetStatusBadgeClass(item.Status))-lt">@item.Status.GetDisplayName()</span></td>
                                 <td class="text-center text-muted">@item.ViewCount</td>
-                                <td class="text-muted">@(item.PublishedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")</td>
+                                <td class="text-muted" title="@item.PublishedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@(item.PublishedAt?.ToString("dd/MM/yyyy") ?? "-")</td>
                                 <td>
                                     <div class="btn-list flex-nowrap">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"> <i class="ti ti-pencil"></i> </a>
-                                        @* Link to Comments Management (Optional) *@
-                                        <a asp-controller="Comment" asp-action="Index" asp-route-articleId="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem bình luận"> <i class="ti ti-message-circle"></i> </a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa"
-                                                data-id="@item.Id" data-name="@item.Title" data-delete-url="@Url.Action("Delete", "Article")">
-                                            <i class="ti ti-trash"></i>
-                                        </button>
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
+                                        <a asp-controller="Comment" asp-action="Index" asp-route-articleId="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem bình luận"><i class="ti ti-message-circle"></i></a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa" data-id="@item.Id" data-name="@item.Title" data-delete-url="@Url.Action("Delete", "Article")"> <i class="ti ti-trash"></i> </button>
                                     </div>
                                 </td>
                             </tr>
@@ -136,7 +120,37 @@
                     </tbody>
                 </table>
             </div>
-            @* Pagination *@
         }
     </div>
+    @* Pagination Footer *@
+    @if (Model.PageCount > 1)
+    {
+        <div class="card-footer">
+            <div class="d-flex align-items-center justify-content-center">
+                @Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, categoryId = ViewBag.SelectedCategoryId, type = ViewBag.SelectedType, status = ViewBag.SelectedStatus }), new PagedListRenderOptions
+       {
+           UlElementClasses = new[] { "pagination mb-0" },
+           LiElementClasses = new[] { "page-item" },
+           PageClasses = new[] { "page-link" },
+           DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+           DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+           DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+           DisplayLinkToNextPage = PagedListDisplayMode.Always,
+       }))
+            </div>
+        </div>
+    }
 </div>
+
+@* Status Badge Helper *@
+@functions {
+    string GetStatusBadgeClass(PublishStatus status) => status switch { PublishStatus.Published => "success", PublishStatus.Draft => "secondary", PublishStatus.Scheduled => "warning", PublishStatus.Archived => "dark", _ => "secondary" };
+}
+
+@section Scripts {
+    <script>
+
+            $(document).ready(function () { $('#clearSearch').on('click', function() { $('input[name="searchTerm"]').val(''); });
+        });
+    </script>
+ }

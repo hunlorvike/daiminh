@@ -1,678 +1,652 @@
-Okay, this is a complex one involving multiple relationships (One-to-Many for Images/Variants, Many-to-Many for Categories/Tags) and nested view models. Let's refactor the Product management feature according to the established standards.
+Okay, let's refine the `Article` and `Comment` management features, focusing on standardization, correcting relationships, improving logic, and ensuring consistency with the rest of your admin area.
 
-**1. Entities & Configurations**
+**Major Changes & Considerations:**
 
-*   **`ProductVariantConfiguration`:** Needs to inherit from `BaseEntityConfiguration`.
-*   **`ProductCategoryConfiguration` / `ProductTagConfiguration`:** Should *not* inherit from `BaseEntityConfiguration` as they are simple join tables without audit fields. Define keys and relationships directly.
+1.  **Join Table Configurations:** `ArticleCategory`, `ArticleTag`, `ArticleProduct` are join tables and typically **do not** need to inherit `BaseEntity` or use `BaseEntityConfiguration`. Their primary keys are composite keys.
+2.  **`CommentConfiguration`:** The `OnDelete` behavior for `ParentId` should likely be `Cascade` if you want replies deleted when the parent comment is deleted, or `SetNull` if you want to keep replies but orphan them. `Restrict` prevents deletion if replies exist, requiring manual handling. We'll assume `Cascade` for now.
+3.  **Controller Logic:** Implement pagination, standard logging, TempData, use `ProjectTo`, handle validation via middleware, refine relationship updates, add status/type display name helpers, implement MinIO deletion logic correctly.
+4.  **Validation:** Add database checks for unique slugs.
+5.  **Views:** Implement pagination, use helper for status/type names, standardize forms and buttons, initialize JS components (TomSelect, Summernote).
+6.  **Comment Feature:** The Comment controller looks more like a moderation tool (Approve/Unapprove/Edit/Delete) rather than admin creating comments. We'll keep it that way.
+
+**Refactored Code:**
+
+**1. Entities (`ArticleCategory.cs`, `ArticleTag.cs`, `ArticleProduct.cs`, `Comment.cs`)**
+
+*   Remove `BaseEntity` inheritance from join tables.
+*   Adjust `Comment` Parent relationship `OnDelete` behavior if needed (keeping `Restrict` for now, but `Cascade` might be more common).
 
 ```csharp
-// --- START OF FILE ProductImage.cs --- No Changes Needed ---
+// --- START OF FILE ArticleCategory.cs --- Updated ---
 using domain.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace domain.Entities;
-public class ProductImage : BaseEntity<int> { /* ... as before ... */ }
-// --- END OF FILE ProductImage.cs ---
 
-// --- START OF FILE Product.cs --- No Changes Needed ---
-using domain.Entities.Shared;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using shared.Enums;
 namespace domain.Entities;
-public class Product : SeoEntity<int> { /* ... as before ... */ }
-// --- END OF FILE Product.cs ---
-
-// --- START OF FILE ProductCategory.cs --- Updated ---
-using domain.Entities.Shared;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace domain.Entities;
-// Join table - Does NOT typically need BaseEntity
-public class ProductCategory
+// Join table - No BaseEntity needed
+public class ArticleCategory
 {
-    public int ProductId { get; set; }
+    public int ArticleId { get; set; }
     public int CategoryId { get; set; }
-    public virtual Product? Product { get; set; }
+
+    public virtual Article? Article { get; set; }
     public virtual Category? Category { get; set; }
 }
-// --- END OF FILE ProductCategory.cs ---
+// --- END OF FILE ArticleCategory.cs ---
 
-// --- START OF FILE ProductTag.cs --- Updated ---
+// --- START OF FILE ArticleTag.cs --- Updated ---
 using domain.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace domain.Entities;
-// Join table - Does NOT typically need BaseEntity
-public class ProductTag
+// Join table - No BaseEntity needed
+public class ArticleTag
 {
-    public int ProductId { get; set; }
+    public int ArticleId { get; set; }
     public int TagId { get; set; }
-    public virtual Product? Product { get; set; }
+
+    public virtual Article? Article { get; set; }
     public virtual Tag? Tag { get; set; }
 }
-// --- END OF FILE ProductTag.cs ---
+// --- END OF FILE ArticleTag.cs ---
 
-// --- START OF FILE ProductVariant.cs --- No Changes Needed ---
+// --- START OF FILE ArticleProduct.cs --- Updated ---
 using domain.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 namespace domain.Entities;
-public class ProductVariant : BaseEntity<int> { /* ... as before ... */ }
-// --- END OF FILE ProductVariant.cs ---
-
-// --- START OF FILE ProductType.cs --- No Changes Needed ---
-using domain.Entities.Shared;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace domain.Entities;
-public class ProductType : BaseEntity<int> { /* ... as before ... */ }
-// --- END OF FILE ProductType.cs ---
-
-
-// --- CONFIGURATIONS ---
-
-// --- START OF FILE ProductImageConfiguration.cs --- No Changes Needed ---
-using domain.Entities;
-using domain.Entities.Shared;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace infrastructure;
-public class ProductImageConfiguration : BaseEntityConfiguration<ProductImage, int> { /* ... as before ... */ }
-// --- END OF FILE ProductImageConfiguration.cs ---
-
-// --- START OF FILE ProductConfiguration.cs --- No Changes Needed ---
-using domain.Entities;
-using domain.Entities.Shared;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using shared.Enums;
-namespace infrastructure;
-public class ProductConfiguration : SeoEntityConfiguration<Product, int> { /* ... as before ... */ }
-// --- END OF FILE ProductConfiguration.cs ---
-
-// --- START OF FILE ProductCategoryConfiguration.cs --- Updated ---
-using domain.Entities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace infrastructure;
-// Configure the JOIN TABLE directly
-public class ProductCategoryConfiguration : IEntityTypeConfiguration<ProductCategory>
+// Join table - No BaseEntity needed
+public class ArticleProduct
 {
-    public void Configure(EntityTypeBuilder<ProductCategory> builder)
+    public int ArticleId { get; set; }
+    public int ProductId { get; set; }
+    public int OrderIndex { get; set; } = 0; // Keep OrderIndex if needed
+
+    public virtual Article? Article { get; set; }
+    public virtual Product? Product { get; set; }
+}
+// --- END OF FILE ArticleProduct.cs ---
+
+// --- START OF FILE Comment.cs --- (Verify Parent OnDelete - Defaulting to Restrict) ---
+using domain.Entities.Shared;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+namespace domain.Entities;
+public class Comment : BaseEntity<int> { /* ... as before ... */ }
+// --- END OF FILE Comment.cs ---
+
+// --- START OF FILE Article.cs --- No changes needed ---
+using domain.Entities.Shared; using Microsoft.EntityFrameworkCore; using Microsoft.EntityFrameworkCore.Metadata.Builders; using shared.Enums;
+namespace domain.Entities;
+public class Article : SeoEntity<int> { /* ... as before ... */ }
+// --- END OF FILE Article.cs ---
+```
+
+**2. Configurations (`ArticleCategoryConfiguration.cs`, `ArticleTagConfiguration.cs`, `ArticleProductConfiguration.cs`, `CommentConfiguration.cs`)**
+
+*   Remove `BaseEntityConfiguration` inheritance from join table configurations.
+*   Define composite keys and relationships directly in join table configurations.
+*   Verify `CommentConfiguration` `OnDelete` behavior for ParentId.
+
+```csharp
+// --- START OF FILE ArticleCategoryConfiguration.cs --- Updated ---
+using domain.Entities;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+namespace infrastructure; // Assuming correct namespace
+
+// Configure JOIN TABLE directly
+public class ArticleCategoryConfiguration : IEntityTypeConfiguration<ArticleCategory>
+{
+    public void Configure(EntityTypeBuilder<ArticleCategory> builder)
     {
-        builder.ToTable("product_categories");
+        builder.ToTable("article_categories");
 
         // Composite Primary Key
-        builder.HasKey(pc => new { pc.ProductId, pc.CategoryId });
+        builder.HasKey(ac => new { ac.ArticleId, ac.CategoryId });
 
-        builder.Property(e => e.ProductId).HasColumnName("product_id");
+        builder.Property(e => e.ArticleId).HasColumnName("article_id");
         builder.Property(e => e.CategoryId).HasColumnName("category_id");
 
-        // Define Relationships
-        builder.HasOne(e => e.Product)
-            .WithMany(p => p.ProductCategories) // Navigation property on Product
-            .HasForeignKey(e => e.ProductId)
-            .OnDelete(DeleteBehavior.Cascade); // Deleting Product deletes join entry
+        // Relationships
+        builder.HasOne(e => e.Article)
+            .WithMany(a => a.ArticleCategories)
+            .HasForeignKey(e => e.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade); // Deleting article deletes join entry
 
         builder.HasOne(e => e.Category)
-            .WithMany(c => c.ProductCategories) // Navigation property on Category
+            .WithMany(c => c.ArticleCategories)
             .HasForeignKey(e => e.CategoryId)
-            .OnDelete(DeleteBehavior.Cascade); // Deleting Category deletes join entry
+            .OnDelete(DeleteBehavior.Cascade); // Deleting category deletes join entry
     }
 }
-// --- END OF FILE ProductCategoryConfiguration.cs ---
+// --- END OF FILE ArticleCategoryConfiguration.cs ---
 
-// --- START OF FILE ProductTagConfiguration.cs --- Updated ---
+// --- START OF FILE ArticleTagConfiguration.cs --- Updated ---
 using domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace infrastructure;
-// Configure the JOIN TABLE directly
-public class ProductTagConfiguration : IEntityTypeConfiguration<ProductTag>
+namespace infrastructure; // Assuming correct namespace
+
+// Configure JOIN TABLE directly
+public class ArticleTagConfiguration : IEntityTypeConfiguration<ArticleTag>
 {
-    public void Configure(EntityTypeBuilder<ProductTag> builder)
+    public void Configure(EntityTypeBuilder<ArticleTag> builder)
     {
-        builder.ToTable("product_tags");
+        builder.ToTable("article_tags");
 
         // Composite Primary Key
-        builder.HasKey(pt => new { pt.ProductId, pt.TagId });
+        builder.HasKey(at => new { at.ArticleId, at.TagId });
 
-        builder.Property(e => e.ProductId).HasColumnName("product_id");
+        builder.Property(e => e.ArticleId).HasColumnName("article_id");
         builder.Property(e => e.TagId).HasColumnName("tag_id");
 
-        // Define Relationships
-        builder.HasOne(e => e.Product)
-            .WithMany(p => p.ProductTags) // Navigation property on Product
-            .HasForeignKey(e => e.ProductId)
-            .OnDelete(DeleteBehavior.Cascade); // Deleting Product deletes join entry
+        // Relationships
+        builder.HasOne(e => e.Article)
+            .WithMany(a => a.ArticleTags)
+            .HasForeignKey(e => e.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder.HasOne(e => e.Tag)
-            .WithMany(t => t.ProductTags) // Navigation property on Tag
+            .WithMany(t => t.ArticleTags)
             .HasForeignKey(e => e.TagId)
-            .OnDelete(DeleteBehavior.Cascade); // Deleting Tag deletes join entry
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }
-// --- END OF FILE ProductTagConfiguration.cs ---
+// --- END OF FILE ArticleTagConfiguration.cs ---
 
-// --- START OF FILE ProductVariantConfiguration.cs --- Updated ---
+// --- START OF FILE ArticleProductConfiguration.cs --- Updated ---
 using domain.Entities;
-using domain.Entities.Shared; // Required
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-namespace infrastructure;
-// Inherit from BaseEntityConfiguration
-public class ProductVariantConfiguration : BaseEntityConfiguration<ProductVariant, int>
+namespace infrastructure; // Assuming correct namespace
+
+// Configure JOIN TABLE directly
+public class ArticleProductConfiguration : IEntityTypeConfiguration<ArticleProduct>
 {
-    public override void Configure(EntityTypeBuilder<ProductVariant> builder)
+    public void Configure(EntityTypeBuilder<ArticleProduct> builder)
     {
-        base.Configure(builder); // Configure BaseEntity fields
+        builder.ToTable("article_products");
 
-        builder.ToTable("product_variants");
+        // Composite Primary Key
+        builder.HasKey(ap => new { ap.ArticleId, ap.ProductId });
 
-        builder.Property(v => v.ProductId).HasColumnName("product_id").IsRequired();
-        builder.Property(v => v.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
-        builder.Property(v => v.Sku).HasColumnName("sku").IsRequired().HasMaxLength(100);
-        builder.Property(v => v.Price).HasColumnName("price").HasColumnType("decimal(18,2)").IsRequired();
-        builder.Property(v => v.StockQuantity).HasColumnName("stock_quantity").HasDefaultValue(0);
-        builder.Property(v => v.Color).HasColumnName("color").HasMaxLength(50);
-        builder.Property(v => v.Size).HasColumnName("size").HasMaxLength(50);
-        builder.Property(v => v.Packaging).HasColumnName("packaging").HasMaxLength(50);
-        builder.Property(v => v.ImageUrl).HasColumnName("image_url").HasMaxLength(2048); // Store MinIO Path
-        builder.Property(v => v.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+        builder.Property(e => e.ArticleId).HasColumnName("article_id");
+        builder.Property(e => e.ProductId).HasColumnName("product_id");
+        builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
 
-        // Ensure SKU is unique across ALL variants
-        builder.HasIndex(v => v.Sku).HasDatabaseName("idx_product_variants_sku").IsUnique();
-        builder.HasIndex(v => v.ProductId).HasDatabaseName("idx_product_variants_product_id");
-        builder.HasIndex(v => v.IsActive).HasDatabaseName("idx_product_variants_is_active");
+        builder.HasIndex(e => e.OrderIndex).HasDatabaseName("idx_article_products_order_index");
+         // Remove other redundant indexes if composite key covers them
 
-        builder.HasOne(v => v.Product)
-               .WithMany(p => p.Variants)
-               .HasForeignKey(v => v.ProductId)
-               .OnDelete(DeleteBehavior.Cascade); // Deleting Product deletes its Variants
+        // Relationships
+        builder.HasOne(e => e.Article)
+            .WithMany(a => a.ArticleProducts)
+            .HasForeignKey(e => e.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne(e => e.Product)
+            .WithMany(p => p.ArticleProducts)
+            .HasForeignKey(e => e.ProductId)
+            .OnDelete(DeleteBehavior.Cascade); // Or Restrict if needed
     }
 }
-// --- END OF FILE ProductVariantConfiguration.cs ---
+// --- END OF FILE ArticleProductConfiguration.cs ---
 
-// --- START OF FILE ProductTypeConfiguration.cs --- No Changes Needed ---
+// --- START OF FILE CommentConfiguration.cs --- (Verify Parent OnDelete) ---
 using domain.Entities;
 using domain.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace infrastructure;
-public class ProductTypeConfiguration : BaseEntityConfiguration<ProductType, int> { /* ... as before ... */ }
-// --- END OF FILE ProductTypeConfiguration.cs ---
+public class CommentConfiguration : BaseEntityConfiguration<Comment, int>
+{
+    public override void Configure(EntityTypeBuilder<Comment> builder)
+    {
+        base.Configure(builder);
+        builder.ToTable("comments");
+        // ... other properties ...
+        builder.Property(e => e.ParentId).HasColumnName("parent_id");
+        builder.Property(e => e.ArticleId).HasColumnName("article_id");
+        // ... other indexes ...
+        builder.HasIndex(e => e.ParentId).HasDatabaseName("idx_comments_parent_id");
+
+        builder.HasOne(e => e.Article)
+            .WithMany(a => a.Comments)
+            .HasForeignKey(e => e.ArticleId)
+            .OnDelete(DeleteBehavior.Cascade); // Deleting article deletes comments
+
+        builder.HasOne(e => e.Parent)
+            .WithMany(c => c.Replies)
+            .HasForeignKey(e => e.ParentId)
+            .OnDelete(DeleteBehavior.Restrict); // <<< VERIFY THIS: Default is Restrict. Use Cascade to delete replies with parent, SetNull to orphan them.
+    }
+}
+// --- END OF FILE CommentConfiguration.cs ---
+
+// --- START OF FILE ArticleConfiguration.cs --- No changes needed ---
+using domain.Entities; using domain.Entities.Shared; using Microsoft.EntityFrameworkCore; using Microsoft.EntityFrameworkCore.Metadata.Builders; using shared.Enums;
+namespace infrastructure;
+public class ArticleConfiguration : SeoEntityConfiguration<Article, int> { /* ... as before ... */ }
+// --- END OF FILE ArticleConfiguration.cs ---
 
 // --- IMPORTANT ---
-// Add DbSets for join tables to ApplicationDbContext:
-// public DbSet<ProductCategory> ProductCategories { get; set; }
-// public DbSet<ProductTag> ProductTags { get; set; }
-// Apply new configurations in OnModelCreating:
-// builder.ApplyConfiguration(new ProductCategoryConfiguration());
-// builder.ApplyConfiguration(new ProductTagConfiguration());
+// Make sure DbContext has:
+// DbSet<Article> Articles { get; set; }
+// DbSet<ArticleCategory> ArticleCategories { get; set; }
+// DbSet<ArticleTag> ArticleTags { get; set; }
+// DbSet<ArticleProduct> ArticleProducts { get; set; }
+// DbSet<Comment> Comments { get; set; }
+// And apply configurations:
+// builder.ApplyConfiguration(new ArticleCategoryConfiguration());
+// builder.ApplyConfiguration(new ArticleTagConfiguration());
+// builder.ApplyConfiguration(new ArticleProductConfiguration());
+// builder.ApplyConfiguration(new CommentConfiguration());
 // --- End Important ---
 ```
 
-**2. ViewModels**
+**3. ViewModels**
 
-*   Add `[Display]` attributes. Add `UpdatedAt` to `ListItemViewModel`.
+*   Add `UpdatedAt` to list view models. Add `[Display]` attributes.
 
 ```csharp
-// --- START OF FILE ProductListItemViewModel.cs --- Updated ---
+// --- START OF FILE ArticleListItemViewModel.cs --- Updated ---
 using shared.Enums;
-namespace web.Areas.Admin.ViewModels.Product;
-public class ProductListItemViewModel
+namespace web.Areas.Admin.ViewModels.Article;
+public class ArticleListItemViewModel
 {
     public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
-    public string? MainImageUrl { get; set; } // MinIO Path
-    public string? ProductTypeName { get; set; }
-    public string? BrandName { get; set; }
+    public string Title { get; set; } = string.Empty;
+    public string? ThumbnailImage { get; set; } // MinIO Path
+    public string? AuthorName { get; set; }
+    public string? CategoryNames { get; set; }
+    public ArticleType Type { get; set; }
     public PublishStatus Status { get; set; }
-    public bool IsActive { get; set; }
-    public bool IsFeatured { get; set; }
+    public DateTime? PublishedAt { get; set; }
     public int ViewCount { get; set; }
+    public bool IsFeatured { get; set; }
     public DateTime? UpdatedAt { get; set; } // Changed to nullable
 }
-// --- END OF FILE ProductListItemViewModel.cs ---
+// --- END OF FILE ArticleListItemViewModel.cs ---
 
-// --- START OF FILE ProductViewModel.cs --- Updated ---
+// --- START OF FILE ArticleViewModel.cs --- Updated ---
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
 using System.ComponentModel.DataAnnotations;
-using web.Areas.Admin.ViewModels.Shared; // For SEO Interface
+using web.Areas.Admin.ViewModels.Shared;
 
-namespace web.Areas.Admin.ViewModels.Product;
-// Implement SEO Interface
-public class ProductViewModel : ISeoPropertiesViewModel
+namespace web.Areas.Admin.ViewModels.Article;
+// Add SEO Interface
+public class ArticleViewModel : ISeoPropertiesViewModel
 {
     public int Id { get; set; }
 
-    [Display(Name = "Tên sản phẩm", Prompt = "Nhập tên sản phẩm")]
+    [Display(Name = "Tiêu đề", Prompt = "Nhập tiêu đề bài viết")]
     [Required(ErrorMessage = "{0} không được để trống")]
     [MaxLength(255)]
-    public string Name { get; set; } = string.Empty;
+    public string Title { get; set; } = string.Empty;
 
-    [Display(Name = "Slug", Prompt = "ten-san-pham")]
+    [Display(Name = "Slug", Prompt = "tieu-de-bai-viet")]
     [Required(ErrorMessage = "{0} không được để trống")]
     [MaxLength(255)]
     [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "{0} chỉ được chứa chữ cái thường, số và dấu gạch ngang")]
     public string Slug { get; set; } = string.Empty;
 
-    [Display(Name = "Mô tả chi tiết", Prompt = "Nhập mô tả đầy đủ cho sản phẩm")]
+    [Display(Name = "Nội dung chi tiết", Prompt = "Soạn thảo nội dung bài viết...")]
     [Required(ErrorMessage = "{0} không được để trống")]
-    public string Description { get; set; } = string.Empty; // Rich Text Editor
+    public string Content { get; set; } = string.Empty; // Summernote
 
-    [Display(Name = "Mô tả ngắn", Prompt = "Nhập mô tả ngắn gọn (tối đa 500 ký tự)")]
+    [Display(Name = "Tóm tắt / Mô tả ngắn", Prompt = "Nhập mô tả ngắn gọn (hiển thị ở danh sách, tối đa 500 ký tự)")]
     [MaxLength(500)]
-    public string? ShortDescription { get; set; }
+    public string? Summary { get; set; }
 
-    [Display(Name = "Nhà sản xuất", Prompt = "Tên nhà sản xuất")]
-    [MaxLength(255)]
-    public string? Manufacturer { get; set; }
+    [Display(Name = "Ảnh đại diện (Featured)", Prompt = "Chọn hoặc nhập đường dẫn ảnh MinIO")]
+    [MaxLength(2048)]
+    public string? FeaturedImage { get; set; } // MinIO Path
 
-    [Display(Name = "Xuất xứ", Prompt = "Ví dụ: Việt Nam, Mỹ, Đức")]
-    [MaxLength(100)]
-    public string? Origin { get; set; }
-
-    [Display(Name = "Thông số kỹ thuật", Prompt = "Nhập thông số dưới dạng văn bản hoặc HTML")]
-    public string? Specifications { get; set; } // Text Area or Rich Text
-
-    [Display(Name = "Hướng dẫn sử dụng", Prompt = "Nhập hướng dẫn sử dụng")]
-    public string? Usage { get; set; } // Text Area or Rich Text
-
-    [Display(Name = "Tính năng nổi bật", Prompt = "Liệt kê các tính năng chính")]
-    public string? Features { get; set; } // Text Area or Rich Text
-
-    [Display(Name = "Thông tin đóng gói", Prompt = "Ví dụ: Thùng 20kg, Lon 5L")]
-    public string? PackagingInfo { get; set; } // Text Area
-
-    [Display(Name = "Hướng dẫn bảo quản", Prompt = "Cách bảo quản sản phẩm")]
-    public string? StorageInstructions { get; set; } // Text Area
-
-    [Display(Name = "Thông tin an toàn", Prompt = "Lưu ý về an toàn khi sử dụng")]
-    public string? SafetyInfo { get; set; } // Text Area
-
-    [Display(Name = "Khu vực ứng dụng", Prompt = "Các lĩnh vực hoặc nơi sản phẩm được sử dụng")]
-    public string? ApplicationAreas { get; set; } // Text Area
-
-    [Display(Name = "Tài liệu kỹ thuật (JSON)", Prompt = "[{\"name\": \"TDS\", \"url\": \"...\"}]")]
-    public string? TechnicalDocuments { get; set; } // JSON - Text Area
+    [Display(Name = "Ảnh thu nhỏ (Thumbnail)", Prompt = "Chọn hoặc nhập đường dẫn ảnh MinIO (nếu khác ảnh Featured)")]
+    [MaxLength(2048)]
+    public string? ThumbnailImage { get; set; } // MinIO Path
 
     [Display(Name = "Nổi bật")]
     public bool IsFeatured { get; set; } = false;
 
-    [Display(Name = "Hiển thị")]
-    public bool IsActive { get; set; } = true;
+    // Removed IsActive - Use Status instead for articles
+    // public bool IsActive { get; set; }
 
-    [Display(Name = "Loại sản phẩm")]
+    [Display(Name = "Ước tính phút đọc")]
+    public int EstimatedReadingMinutes { get; set; } // Calculated field
+
+    [Display(Name = "Ngày xuất bản", Prompt = "Để trống nếu muốn xuất bản ngay khi chuyển trạng thái")]
+    public DateTime? PublishedAt { get; set; } // DateTime picker
+
+    [Display(Name = "ID Tác giả (nếu có)")]
+    [MaxLength(50)]
+    public string? AuthorId { get; set; } // Optional
+
+    [Display(Name = "Tên tác giả hiển thị", Prompt = "Tên sẽ hiển thị cùng bài viết")]
+    [MaxLength(100)]
+    public string? AuthorName { get; set; }
+
+    [Display(Name = "Avatar tác giả (MinIO Path)", Prompt = "Chọn hoặc nhập đường dẫn ảnh MinIO")]
+    [MaxLength(255)]
+    public string? AuthorAvatar { get; set; } // MinIO Path
+
+    [Display(Name = "Loại bài viết")]
     [Required(ErrorMessage = "Vui lòng chọn {0}")]
-    public int ProductTypeId { get; set; }
+    public ArticleType Type { get; set; } = ArticleType.Knowledge;
 
-    [Display(Name = "Trạng thái xuất bản")]
+    [Display(Name = "Trạng thái")]
     [Required(ErrorMessage = "Vui lòng chọn {0}")]
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
-    [Display(Name = "Thương hiệu")]
-    public int? BrandId { get; set; } // Nullable
-
     // --- Relationships ---
     [Display(Name = "Danh mục")]
-    [Required(ErrorMessage = "Vui lòng chọn ít nhất một {0}.")] // Assuming categories are required
+    [Required(ErrorMessage = "Vui lòng chọn ít nhất một {0}.")]
     public List<int> SelectedCategoryIds { get; set; } = new List<int>();
 
     [Display(Name = "Thẻ (Tags)")]
     public List<int> SelectedTagIds { get; set; } = new List<int>();
 
-    [Display(Name = "Hình ảnh")]
-    public List<ProductImageViewModel> Images { get; set; } = new List<ProductImageViewModel>();
-
-    [Display(Name = "Biến thể & Kho hàng")]
-    public List<ProductVariantViewModel> Variants { get; set; } = new List<ProductVariantViewModel>();
+    [Display(Name = "Sản phẩm liên quan")]
+    public List<int> SelectedProductIds { get; set; } = new List<int>();
 
     // --- SEO Fields (from ISeoPropertiesViewModel) ---
-    [Display(Name = "Meta Title", Prompt = "Tiêu đề SEO")] [MaxLength(100)] public string? MetaTitle { get; set; }
-    [Display(Name = "Meta Description", Prompt = "Mô tả SEO")] [MaxLength(300)] public string? MetaDescription { get; set; }
-    [Display(Name = "Meta Keywords", Prompt = "Từ khóa SEO")] [MaxLength(200)] public string? MetaKeywords { get; set; }
+    [Display(Name = "Meta Title")] [MaxLength(100)] public string? MetaTitle { get; set; }
+    [Display(Name = "Meta Description")] [MaxLength(300)] public string? MetaDescription { get; set; }
+    [Display(Name = "Meta Keywords")] [MaxLength(200)] public string? MetaKeywords { get; set; }
     [Display(Name = "Canonical URL")] [MaxLength(255)] [Url] public string? CanonicalUrl { get; set; }
     [Display(Name = "No Index")] public bool NoIndex { get; set; } = false;
     [Display(Name = "No Follow")] public bool NoFollow { get; set; } = false;
     [Display(Name = "Open Graph Title")] [MaxLength(100)] public string? OgTitle { get; set; }
     [Display(Name = "Open Graph Description")] [MaxLength(300)] public string? OgDescription { get; set; }
-    [Display(Name = "Open Graph Image (URL)", Prompt = "URL ảnh cho Facebook, Zalo...")] [MaxLength(255)] [Url] public string? OgImage { get; set; } // Stores full URL
-    [Display(Name = "Open Graph Type")] [MaxLength(50)] public string? OgType { get; set; } = "product";
+    [Display(Name = "Open Graph Image (URL/Path)")] [MaxLength(255)] public string? OgImage { get; set; } // Store Path or URL? Decide convention
+    [Display(Name = "Open Graph Type")] [MaxLength(50)] public string? OgType { get; set; } = "article";
     [Display(Name = "Twitter Title")] [MaxLength(100)] public string? TwitterTitle { get; set; }
     [Display(Name = "Twitter Description")] [MaxLength(300)] public string? TwitterDescription { get; set; }
-    [Display(Name = "Twitter Image (URL)", Prompt = "URL ảnh cho Twitter")] [MaxLength(255)] [Url] public string? TwitterImage { get; set; } // Stores full URL
+    [Display(Name = "Twitter Image (URL/Path)")] [MaxLength(255)] public string? TwitterImage { get; set; }
     [Display(Name = "Twitter Card Type")] [MaxLength(50)] public string? TwitterCard { get; set; } = "summary_large_image";
-    [Display(Name = "Schema Markup (JSON-LD)", Prompt = "Dữ liệu cấu trúc Schema.org")] public string? SchemaMarkup { get; set; }
-    [Display(Name = "Breadcrumb JSON", Prompt = "Dữ liệu Breadcrumb JSON (nếu cần)")] public string? BreadcrumbJson { get; set; }
-    [Display(Name = "Sitemap Priority (0.0 - 1.0)")] [Range(0.0, 1.0)] public double SitemapPriority { get; set; } = 0.8;
+    [Display(Name = "Schema Markup (JSON-LD)")] public string? SchemaMarkup { get; set; }
+    [Display(Name = "Breadcrumb JSON")] public string? BreadcrumbJson { get; set; }
+    [Display(Name = "Sitemap Priority (0.0 - 1.0)")] [Range(0.0, 1.0)] public double SitemapPriority { get; set; } = 0.7;
     [Display(Name = "Sitemap Change Frequency")] [Required] public string SitemapChangeFrequency { get; set; } = "weekly";
 
     // --- Dropdown Data ---
-    public SelectList? ProductTypeList { get; set; }
-    public SelectList? BrandList { get; set; }
-    public SelectList? CategoryList { get; set; } // For multi-select
-    public SelectList? TagList { get; set; } // For multi-select
+    public SelectList? CategoryList { get; set; }
+    public SelectList? TagList { get; set; }
+    public SelectList? ProductList { get; set; }
     public SelectList? StatusList { get; set; }
+    public SelectList? TypeList { get; set; }
 }
-// --- END OF FILE ProductViewModel.cs ---
+// --- END OF FILE ArticleViewModel.cs ---
 
-// --- START OF FILE ProductImageViewModel.cs --- Updated ---
-using System.ComponentModel.DataAnnotations;
-namespace web.Areas.Admin.ViewModels.Product;
-public class ProductImageViewModel
+// --- START OF FILE CommentListItemViewModel.cs --- Updated ---
+namespace web.Areas.Admin.ViewModels.Comment;
+public class CommentListItemViewModel
 {
-    public int Id { get; set; } // 0 for new images
-
-    [Display(Name = "Đường dẫn ảnh (MinIO)", Prompt = "Đường dẫn file ảnh trên MinIO")]
-    [Required(ErrorMessage = "Đường dẫn ảnh không được để trống")]
-    public string ImageUrl { get; set; } = string.Empty; // MinIO Path
-
-    [Display(Name = "Đường dẫn ảnh thu nhỏ (MinIO)", Prompt = "Đường dẫn thumbnail (nếu có)")]
-    public string? ThumbnailUrl { get; set; } // MinIO Path
-
-    [Display(Name = "Văn bản thay thế (Alt Text)", Prompt = "Mô tả ngắn gọn cho ảnh (SEO)")]
-    [MaxLength(255)]
-    public string? AltText { get; set; }
-
-    [Display(Name = "Tiêu đề ảnh (Title)", Prompt = "Tiêu đề hiển thị khi hover (không bắt buộc)")]
-     [MaxLength(255)]
-    public string? Title { get; set; }
-
-    [Display(Name = "Thứ tự")]
-    [Range(0, int.MaxValue)]
-    public int OrderIndex { get; set; } = 0;
-
-    [Display(Name = "Ảnh chính")]
-    public bool IsMain { get; set; } = false;
-
-    // Not displayed, used internally for Edit logic
-    public bool IsDeleted { get; set; } = false;
+    public int Id { get; set; }
+    public string AuthorName { get; set; } = string.Empty;
+    public string? AuthorEmail { get; set; }
+    public string ContentExcerpt { get; set; } = string.Empty;
+    public bool IsApproved { get; set; }
+    public DateTime CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; } // Added
+    public int ArticleId { get; set; }
+    public string? ArticleTitle { get; set; }
+    public int ReplyCount { get; set; }
 }
-// --- END OF FILE ProductImageViewModel.cs ---
+// --- END OF FILE CommentListItemViewModel.cs ---
 
-// --- START OF FILE ProductVariantViewModel.cs --- Updated ---
+// --- START OF FILE CommentViewModel.cs --- Updated ---
 using System.ComponentModel.DataAnnotations;
-namespace web.Areas.Admin.ViewModels.Product;
-public class ProductVariantViewModel
+namespace web.Areas.Admin.ViewModels.Comment;
+public class CommentViewModel
 {
-    public int Id { get; set; } // 0 for new variants
+    public int Id { get; set; }
 
-    [Display(Name = "Tên biến thể", Prompt = "Ví dụ: Màu Xanh - 5L")]
-    [Required(ErrorMessage = "{0} không được để trống")]
-    [MaxLength(255)]
-    public string Name { get; set; } = string.Empty;
-
-    [Display(Name = "SKU", Prompt = "Mã định danh kho duy nhất")]
+    [Display(Name = "Tên tác giả")]
     [Required(ErrorMessage = "{0} không được để trống")]
     [MaxLength(100)]
-    public string Sku { get; set; } = string.Empty;
+    public string AuthorName { get; set; } = string.Empty;
 
-    [Display(Name = "Giá bán", Prompt = "Nhập giá bán cho biến thể")]
+    [Display(Name = "Email")]
+    [EmailAddress(ErrorMessage = "{0} không hợp lệ")]
+    [MaxLength(100)]
+    public string? AuthorEmail { get; set; }
+
+    [Display(Name = "Website")]
+    [MaxLength(255)]
+    [Url(ErrorMessage = "{0} không hợp lệ")]
+    public string? AuthorWebsite { get; set; }
+
+    [Display(Name = "Nội dung bình luận")]
     [Required(ErrorMessage = "{0} không được để trống")]
-    [Range(0, double.MaxValue, ErrorMessage = "{0} phải là số không âm")]
-    [DataType(DataType.Currency)]
-    public decimal Price { get; set; } = 0;
+    public string Content { get; set; } = string.Empty;
 
-    [Display(Name = "Số lượng tồn kho", Prompt = "Nhập số lượng hiện có")]
-    [Range(0, int.MaxValue, ErrorMessage = "{0} phải là số không âm")]
-    public int StockQuantity { get; set; } = 0;
+    [Display(Name = "Đã duyệt")]
+    public bool IsApproved { get; set; }
 
-    [Display(Name = "Màu sắc", Prompt = "Ví dụ: Xanh dương, Đỏ")]
-    [MaxLength(50)]
-    public string? Color { get; set; }
+    // Display Only Fields
+    [Display(Name = "Ngày gửi")]
+    public DateTime CreatedAt { get; set; }
 
-    [Display(Name = "Kích thước/Dung tích", Prompt = "Ví dụ: 5L, 10kg, 18L")]
-    [MaxLength(50)]
-    public string? Size { get; set; }
-
-    [Display(Name = "Đóng gói", Prompt = "Ví dụ: Lon, Bao, Thùng")]
-    [MaxLength(50)]
-    public string? Packaging { get; set; }
-
-    [Display(Name = "Ảnh riêng (MinIO Path)", Prompt = "Đường dẫn ảnh riêng nếu khác sản phẩm chính")]
-    [MaxLength(2048)]
-    public string? ImageUrl { get; set; } // MinIO Path
-
-    [Display(Name = "Hoạt động")]
-    public bool IsActive { get; set; } = true;
-
-    // Not displayed, used internally for Edit logic
-    public bool IsDeleted { get; set; } = false;
+    [Display(Name = "Bài viết")]
+    public string? ArticleTitle { get; set; }
+    public int ArticleId { get; set; }
 }
-// --- END OF FILE ProductVariantViewModel.cs ---
+// --- END OF FILE CommentViewModel.cs ---
+
+// --- START OF FILE ArticleFilterViewModel.cs --- No changes needed ---
+// --- START OF FILE CommentFilterViewModel.cs --- No changes needed ---
 ```
 
-**3. Mappers**
+**4. Mappers**
 
-*   Update `ProductMappingProfile` for `UpdatedAt`.
-*   Other profiles seem okay.
+*   Update `ListItemViewModel` mappings for `UpdatedAt`. Verify join table mappings.
 
 ```csharp
-// --- START OF FILE ProductImageProfile.cs --- No Changes Needed ---
+// --- START OF FILE ArticleMappingProfile.cs --- Updated ---
 using AutoMapper;
 using domain.Entities;
-using web.Areas.Admin.ViewModels.Product;
+using web.Areas.Admin.ViewModels.Article;
 namespace web.Areas.Admin.Mappers;
-public class ProductImageProfile : Profile { /* ... as before ... */ }
-// --- END OF FILE ProductImageProfile.cs ---
-
-// --- START OF FILE ProductMappingProfile.cs --- Updated ---
-using AutoMapper;
-using domain.Entities;
-using web.Areas.Admin.ViewModels.Product;
-
-namespace web.Areas.Admin.Mappers;
-
-public class ProductProfile : Profile
+public class ArticleProfile : Profile
 {
-    public ProductProfile()
+    public ArticleProfile()
     {
         // Entity -> ListItemViewModel
-        CreateMap<Product, ProductListItemViewModel>()
-            .ForMember(dest => dest.ProductTypeName, opt => opt.MapFrom(src => src.ProductType != null ? src.ProductType.Name : null))
-            .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
-            .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src => // Find main image path
-                src.Images != null && src.Images.Any(i => i.IsMain)
-                    ? src.Images.OrderBy(i => i.OrderIndex).First(i => i.IsMain).ImageUrl
-                    : src.Images != null && src.Images.Any()
-                        ? src.Images.OrderBy(i => i.OrderIndex).First().ImageUrl
-                        : null
+        CreateMap<Article, ArticleListItemViewModel>()
+            .ForMember(dest => dest.ThumbnailImage, opt => opt.MapFrom(src => src.ThumbnailImage ?? src.FeaturedImage)) // Use Thumb, fallback to Featured
+            .ForMember(dest => dest.CategoryNames, opt => opt.MapFrom(src =>
+                 src.ArticleCategories != null && src.ArticleCategories.Any()
+                 ? string.Join(", ", src.ArticleCategories
+                    .Where(ac => ac.Category != null) // Ensure category is loaded
+                    .Select(ac => ac.Category!.Name) // Use null-forgiving
+                    .OrderBy(name => name))
+                 : null // Return null or "" if no categories
             ))
              .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt ?? src.CreatedAt)); // Map UpdatedAt
 
-
         // Entity -> ViewModel (For Edit GET)
-        CreateMap<Product, ProductViewModel>()
-            .ForMember(dest => dest.SelectedCategoryIds, opt => opt.MapFrom(src => src.ProductCategories != null ? src.ProductCategories.Select(pc => pc.CategoryId).ToList() : new List<int>()))
-            .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags != null ? src.ProductTags.Select(pt => pt.TagId).ToList() : new List<int>()))
-            // Let other profiles handle nested Images and Variants lists
-            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
-            .ForMember(dest => dest.Variants, opt => opt.MapFrom(src => src.Variants))
-            // Ignore dropdown lists - populated by controller
-            .ForMember(dest => dest.ProductTypeList, opt => opt.Ignore())
-            .ForMember(dest => dest.BrandList, opt => opt.Ignore())
+        CreateMap<Article, ArticleViewModel>()
+            .ForMember(dest => dest.SelectedCategoryIds, opt => opt.MapFrom(src => src.ArticleCategories != null ? src.ArticleCategories.Select(ac => ac.CategoryId).ToList() : new List<int>()))
+            .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ArticleTags != null ? src.ArticleTags.Select(at => at.TagId).ToList() : new List<int>()))
+            .ForMember(dest => dest.SelectedProductIds, opt => opt.MapFrom(src => src.ArticleProducts != null ? src.ArticleProducts.Select(ap => ap.ProductId).ToList() : new List<int>()))
+            // Map nested view models
+            .ForMember(dest => dest.Images, opt => opt.Ignore()) // Images not typically edited on article form
+            .ForMember(dest => dest.Variants, opt => opt.Ignore()) // Variants don't belong here
+            // Ignore dropdowns
             .ForMember(dest => dest.CategoryList, opt => opt.Ignore())
             .ForMember(dest => dest.TagList, opt => opt.Ignore())
-            .ForMember(dest => dest.StatusList, opt => opt.Ignore());
-
+            .ForMember(dest => dest.ProductList, opt => opt.Ignore())
+            .ForMember(dest => dest.StatusList, opt => opt.Ignore())
+            .ForMember(dest => dest.TypeList, opt => opt.Ignore());
 
         // ViewModel -> Entity (For Create/Edit POST)
-        CreateMap<ProductViewModel, Product>()
-            // Ignore collections/navigation properties - handled manually in Controller
-            .ForMember(dest => dest.Images, opt => opt.Ignore())
-            .ForMember(dest => dest.Variants, opt => opt.Ignore())
-            .ForMember(dest => dest.ProductCategories, opt => opt.Ignore())
-            .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
-            .ForMember(dest => dest.ProductType, opt => opt.Ignore())
-            .ForMember(dest => dest.Brand, opt => opt.Ignore())
-            .ForMember(dest => dest.ProjectProducts, opt => opt.Ignore())
-            .ForMember(dest => dest.ArticleProducts, opt => opt.Ignore())
-            // Ignore other fields not directly on ViewModel or handled by BaseEntity/SeoEntity
-            .ForMember(dest => dest.ViewCount, opt => opt.Ignore()) // ViewCount not edited here
+        CreateMap<ArticleViewModel, Article>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.ViewCount, opt => opt.Ignore()) // Not edited by admin
+            // EstimatedReadingMinutes calculated in Controller
+            .ForMember(dest => dest.ArticleCategories, opt => opt.Ignore()) // Manual handling
+            .ForMember(dest => dest.ArticleTags, opt => opt.Ignore()) // Manual handling
+            .ForMember(dest => dest.ArticleProducts, opt => opt.Ignore()) // Manual handling
+            .ForMember(dest => dest.Comments, opt => opt.Ignore()) // Not managed here
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
     }
 }
-// --- END OF FILE ProductMappingProfile.cs ---
+// --- END OF FILE ArticleMappingProfile.cs ---
 
-// --- START OF FILE ProductVariantProfile.cs --- No Changes Needed ---
+// --- START OF FILE CommentMappingProfile.cs --- Updated ---
 using AutoMapper;
 using domain.Entities;
-using web.Areas.Admin.ViewModels.Product;
+using web.Areas.Admin.ViewModels.Comment;
 namespace web.Areas.Admin.Mappers;
-public class ProductVariantProfile : Profile { /* ... as before ... */ }
-// --- END OF FILE ProductVariantProfile.cs ---
-
-// Add ProductTypeProfile if not already created/standardized
-// --- START OF FILE ProductTypeProfile.cs --- (Standardized from previous refactor) ---
-using AutoMapper;
-using domain.Entities;
-using web.Areas.Admin.ViewModels.ProductType;
-namespace web.Areas.Admin.Mappers;
-public class ProductTypeProfile : Profile
+public class CommentProfile : Profile
 {
-    public ProductTypeProfile()
+    public CommentProfile()
     {
-        CreateMap<ProductType, ProductTypeListItemViewModel>()
-            .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.Products != null ? src.Products.Count : 0))
-            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt ?? src.CreatedAt));
-        CreateMap<ProductType, ProductTypeViewModel>();
-        CreateMap<ProductTypeViewModel, ProductType>()
+        // Entity -> ListItemViewModel
+        CreateMap<Comment, CommentListItemViewModel>()
+            .ForMember(dest => dest.ContentExcerpt, opt => opt.MapFrom(src => // Safer excerpt
+                 src.Content != null && src.Content.Length > 100 ? src.Content.Substring(0, 100) + "..." : src.Content))
+            .ForMember(dest => dest.ArticleTitle, opt => opt.MapFrom(src => src.Article != null ? src.Article.Title : null))
+            .ForMember(dest => dest.ReplyCount, opt => opt.MapFrom(src => src.Replies != null ? src.Replies.Count : 0))
+            .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(src => src.UpdatedAt ?? src.CreatedAt)); // Map UpdatedAt
+
+        // Entity -> ViewModel
+        CreateMap<Comment, CommentViewModel>()
+             .ForMember(dest => dest.ArticleTitle, opt => opt.MapFrom(src => src.Article != null ? src.Article.Title : null));
+
+        // ViewModel -> Entity (For Update from Admin Edit)
+        CreateMap<CommentViewModel, Comment>()
+             // Map only fields editable by Admin
+            .ForMember(dest => dest.AuthorName, opt => opt.MapFrom(src => src.AuthorName))
+            .ForMember(dest => dest.AuthorEmail, opt => opt.MapFrom(src => src.AuthorEmail))
+            .ForMember(dest => dest.AuthorWebsite, opt => opt.MapFrom(src => src.AuthorWebsite))
+            .ForMember(dest => dest.Content, opt => opt.MapFrom(src => src.Content))
+            .ForMember(dest => dest.IsApproved, opt => opt.MapFrom(src => src.IsApproved))
+            // Ignore non-editable fields
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.Products, opt => opt.Ignore())
+            .ForMember(dest => dest.ArticleId, opt => opt.Ignore())
+            .ForMember(dest => dest.ParentId, opt => opt.Ignore())
+            .ForMember(dest => dest.AuthorId, opt => opt.Ignore())
+            .ForMember(dest => dest.AuthorAvatar, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
+            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore())
+            .ForMember(dest => dest.Article, opt => opt.Ignore())
+            .ForMember(dest => dest.Parent, opt => opt.Ignore())
+            .ForMember(dest => dest.Replies, opt => opt.Ignore());
     }
 }
-// --- END OF FILE ProductTypeProfile.cs ---
+// --- END OF FILE CommentMappingProfile.cs ---
 ```
 
-**4. Validators**
+**5. Validators**
 
-*   Inject `DbContext` into `ProductViewModelValidator` for unique slug check.
-*   Use `{PropertyName}` in messages.
+*   Inject `DbContext` into `ArticleViewModelValidator` for unique slug check. Use `{PropertyName}`.
 
 ```csharp
-// --- START OF FILE ProductImageViewModelValidator.cs --- Updated ---
-using FluentValidation;
-using web.Areas.Admin.ViewModels.Product;
-namespace web.Areas.Admin.Validators.Product;
-public class ProductImageViewModelValidator : AbstractValidator<ProductImageViewModel>
-{
-    public ProductImageViewModelValidator()
-    {
-        When(x => !x.IsDeleted, () => { // Only validate non-deleted
-            RuleFor(x => x.ImageUrl).NotEmpty().WithMessage("{PropertyName} không được rỗng.").MaximumLength(2048); // Increased length
-            RuleFor(x => x.ThumbnailUrl).MaximumLength(2048);
-            RuleFor(x => x.AltText).MaximumLength(255);
-            RuleFor(x => x.Title).MaximumLength(255);
-            RuleFor(x => x.OrderIndex).GreaterThanOrEqualTo(0);
-        });
-    }
-}
-// --- END OF FILE ProductImageViewModelValidator.cs ---
-
-// --- START OF FILE ProductVariantViewModelValidator.cs --- Updated ---
-using FluentValidation;
-using web.Areas.Admin.ViewModels.Product;
-namespace web.Areas.Admin.Validators.Product;
-public class ProductVariantViewModelValidator : AbstractValidator<ProductVariantViewModel>
-{
-    public ProductVariantViewModelValidator()
-    {
-        When(x => !x.IsDeleted, () => {
-            RuleFor(x => x.Name).NotEmpty().WithMessage("Tên biến thể không được rỗng.").MaximumLength(255);
-            RuleFor(x => x.Sku).NotEmpty().WithMessage("SKU không được rỗng.").MaximumLength(100);
-            // Unique SKU handled in Controller due to complexity (checking against other products)
-            RuleFor(x => x.Price).GreaterThanOrEqualTo(0).WithMessage("Giá phải lớn hơn hoặc bằng 0.");
-            RuleFor(x => x.StockQuantity).GreaterThanOrEqualTo(0).WithMessage("Số lượng tồn kho phải lớn hơn hoặc bằng 0.");
-            RuleFor(x => x.Color).MaximumLength(50);
-            RuleFor(x => x.Size).MaximumLength(50);
-            RuleFor(x => x.Packaging).MaximumLength(50);
-            RuleFor(x => x.ImageUrl).MaximumLength(2048);
-        });
-    }
-}
-// --- END OF FILE ProductVariantViewModelValidator.cs ---
-
-// --- START OF FILE ProductViewModelValidator.cs --- Updated ---
+// --- START OF FILE ArticleViewModelValidator.cs --- Updated ---
 using FluentValidation;
 using infrastructure; // For DbContext
 using Microsoft.EntityFrameworkCore; // For AnyAsync
-using web.Areas.Admin.ViewModels.Product;
+using web.Areas.Admin.ViewModels.Article;
 using web.Areas.Admin.Validators.Shared; // For SEO Validator
 
-namespace web.Areas.Admin.Validators.Product;
+namespace web.Areas.Admin.Validators.Article;
 
-public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
+public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ApplicationDbContext _context; // Inject DbContext
 
-    public ProductViewModelValidator(ApplicationDbContext context) // Inject DbContext
+    public ArticleViewModelValidator(ApplicationDbContext context)
     {
-        _context = context;
+        _context = context; // Assign context
 
-        RuleFor(x => x.Name).NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.").MaximumLength(255);
+        RuleFor(x => x.Title)
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(255);
+
         RuleFor(x => x.Slug)
             .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
             .MaximumLength(255)
-            .Matches("^[a-z0-9-]+$").WithMessage("{PropertyName} chỉ được chứa chữ cái thường, số và dấu gạch ngang.")
-            .MustAsync(BeUniqueSlug).WithMessage("{PropertyName} này đã tồn tại. Vui lòng chọn slug khác."); // DB check
+            .Matches("^[a-z0-9-]+$").WithMessage("{PropertyName} chỉ chứa chữ thường, số, dấu gạch ngang.")
+            .MustAsync(BeUniqueSlug).WithMessage("{PropertyName} này đã tồn tại. Vui lòng chọn slug khác."); // Add DB check
 
-        RuleFor(x => x.Description).NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.");
-        RuleFor(x => x.ShortDescription).MaximumLength(500);
-        RuleFor(x => x.Manufacturer).MaximumLength(255);
-        RuleFor(x => x.Origin).MaximumLength(100);
-        // Length limits for other text areas if needed
-
-        RuleFor(x => x.ProductTypeId).NotEmpty().WithMessage("Vui lòng chọn {PropertyName}.");
+        RuleFor(x => x.Content).NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.");
+        RuleFor(x => x.Summary).MaximumLength(500);
+        RuleFor(x => x.FeaturedImage).MaximumLength(2048); // Increased length for path
+        RuleFor(x => x.ThumbnailImage).MaximumLength(2048); // Increased length for path
+        RuleFor(x => x.AuthorName).MaximumLength(100);
+        RuleFor(x => x.AuthorAvatar).MaximumLength(255);
+        RuleFor(x => x.Type).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
         RuleFor(x => x.Status).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
 
-        // Assuming categories are required for products
         RuleFor(x => x.SelectedCategoryIds)
             .NotEmpty().WithMessage("Vui lòng chọn ít nhất một {PropertyName}.");
 
-        // Apply validators to nested collections
-        RuleForEach(x => x.Images).SetValidator(new ProductImageViewModelValidator());
-        RuleForEach(x => x.Variants).SetValidator(new ProductVariantViewModelValidator());
-
         // Include base SEO validation rules
-        Include(new SeoPropertiesValidator<ProductViewModel>());
+        Include(new SeoPropertiesValidator<ArticleViewModel>()); // Assuming this exists
     }
 
-     private async Task<bool> BeUniqueSlug(ProductViewModel viewModel, string slug, CancellationToken cancellationToken)
+    private async Task<bool> BeUniqueSlug(ArticleViewModel viewModel, string slug, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(slug)) return true;
-        return !await _context.Set<domain.Entities.Product>()
-                               .AnyAsync(p => p.Slug.ToLower() == slug.ToLower() && p.Id != viewModel.Id, cancellationToken);
+        return !await _context.Set<domain.Entities.Article>()
+                               .AnyAsync(a => a.Slug.ToLower() == slug.ToLower() && a.Id != viewModel.Id, cancellationToken);
     }
 }
-// --- END OF FILE ProductViewModelValidator.cs ---
+// --- END OF FILE ArticleViewModelValidator.cs ---
 
-// --- START OF FILE ProductTypeViewModelValidator.cs --- No Changes Needed ---
-using domain.Entities; using FluentValidation; using infrastructure; using web.Areas.Admin.ViewModels.ProductType;
-namespace web.Areas.Admin.Validators.ProductType;
-public class ProductTypeViewModelValidator : AbstractValidator<ProductTypeViewModel> { /* ... as before ... */ }
-// --- END OF FILE ProductTypeViewModelValidator.cs ---
+// --- START OF FILE CommentViewModelValidator.cs --- Updated ---
+using FluentValidation;
+using web.Areas.Admin.ViewModels.Comment;
+using System.Text.RegularExpressions;
+
+namespace web.Areas.Admin.Validators.Comment;
+
+public class CommentViewModelValidator : AbstractValidator<CommentViewModel>
+{
+    public CommentViewModelValidator()
+    {
+        RuleFor(x => x.AuthorName)
+            .NotEmpty().WithMessage("{PropertyName} không được rỗng.")
+            .MaximumLength(100);
+
+        RuleFor(x => x.AuthorEmail)
+            .EmailAddress().WithMessage("{PropertyName} không hợp lệ.").When(x => !string.IsNullOrWhiteSpace(x.AuthorEmail))
+            .MaximumLength(100);
+
+        RuleFor(x => x.AuthorWebsite)
+            .MaximumLength(255)
+            // Basic URL validation (optional, could be more strict)
+            .Matches(@"^(https?://)?([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$").WithMessage("{PropertyName} không hợp lệ.").When(x => !string.IsNullOrWhiteSpace(x.AuthorWebsite));
+
+        RuleFor(x => x.Content)
+            .NotEmpty().WithMessage("{PropertyName} không được rỗng.");
+
+        // IsApproved is a boolean, usually no validation needed unless specific rules apply
+    }
+}
+// --- END OF FILE CommentViewModelValidator.cs ---
+
 ```
 
-**5. Controller (`ProductController.cs`)**
+**6. Controllers (`ArticleController.cs`, `CommentController.cs`)**
 
 *   Implement pagination, logging, TempData, validation handling (middleware), `ProjectTo`.
-*   Refine M-M (Category, Tag) and O-M (Image, Variant) update logic.
-*   Add unique SKU checks (within submission and across DB) *before* calling main validator.
+*   Refine relationship update logic in `ArticleController`.
+*   Implement AJAX Approve/Unapprove in `CommentController`.
 *   Standardize everything.
 
 ```csharp
-// --- START OF FILE ProductController.cs --- Updated ---
+// --- START OF FILE ArticleController.cs --- Updated ---
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -681,1436 +655,961 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml.FormulaParsing.Excel.Functions.Logical;
 using shared.Enums;
 using shared.Extensions; // For GetDisplayName
-using web.Areas.Admin.ViewModels.Product;
+using web.Areas.Admin.Services; // Assuming Minio service is here
+using web.Areas.Admin.ViewModels.Article;
 using X.PagedList;
 using X.PagedList.EF;
-using System.Linq; // Required for LINQ methods like Any, GroupBy etc.
+using System.Text.RegularExpressions; // For Regex word count
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
-public class ProductController : Controller
+public class ArticleController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
-    private readonly ILogger<ProductController> _logger;
-    // Remove IValidator injection
+    private readonly ILogger<ArticleController> _logger;
+    private readonly IMinioStorageService _minioService; // Assuming injection
+    // Remove IValidator
 
-    public ProductController(
+    public ArticleController(
         ApplicationDbContext context,
         IMapper mapper,
-        ILogger<ProductController> logger)
+        ILogger<ArticleController> logger,
+        IMinioStorageService minioService) // Inject Minio Service
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _minioService = minioService ?? throw new ArgumentNullException(nameof(minioService));
     }
 
-    // GET: Admin/Product
-    public async Task<IActionResult> Index(string? searchTerm = null, int? typeId = null, int? brandId = null, PublishStatus? status = null, int page = 1, int pageSize = 15) // Added pagination
+    // GET: Admin/Article
+    public async Task<IActionResult> Index(string? searchTerm = null, int? categoryId = null, ArticleType? type = null, PublishStatus? status = null, int page = 1, int pageSize = 15) // Add pagination
     {
-        ViewData["Title"] = "Quản lý Sản phẩm - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Danh sách Sản phẩm";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Sản phẩm", Url.Action(nameof(Index))) };
+        ViewData["Title"] = "Quản lý Bài viết - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Danh sách Bài viết";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))) };
 
         int pageNumber = page;
-        var query = _context.Set<Product>()
-                            .Include(p => p.ProductType)
-                            .Include(p => p.Brand)
-                            .Include(p => p.Images.OrderBy(i => i.OrderIndex)) // Include ordered images
-                            .AsNoTracking(); // Use AsNoTracking
+        var query = _context.Set<Article>()
+                            .Include(a => a.ArticleCategories).ThenInclude(ac => ac.Category)
+                            .AsNoTracking();
 
         // Filtering
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
              string lowerSearchTerm = searchTerm.Trim().ToLower();
-            query = query.Where(p => p.Name.ToLower().Contains(lowerSearchTerm)
-                                  || (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(lowerSearchTerm))
-                                  // Optionally search SKU in variants
-                                  // || p.Variants.Any(v => v.Sku.ToLower().Contains(lowerSearchTerm))
-                                  );
+            query = query.Where(a => a.Title.ToLower().Contains(lowerSearchTerm)
+                                  || (a.Summary != null && a.Summary.ToLower().Contains(lowerSearchTerm)));
         }
-        if (typeId.HasValue && typeId > 0)
+        if (categoryId.HasValue && categoryId > 0)
         {
-            query = query.Where(p => p.ProductTypeId == typeId.Value);
+            query = query.Where(a => a.ArticleCategories.Any(ac => ac.CategoryId == categoryId.Value));
         }
-        if (brandId.HasValue && brandId > 0)
+        if (type.HasValue)
         {
-            query = query.Where(p => p.BrandId == brandId.Value);
+            query = query.Where(a => a.Type == type.Value);
         }
         if (status.HasValue)
         {
-            query = query.Where(p => p.Status == status.Value);
+            query = query.Where(a => a.Status == status.Value);
         }
 
-        // Ordering and Pagination
-        var productsPaged = await query
-            .OrderByDescending(p => p.IsFeatured) // Featured first
-            .ThenByDescending(p => p.CreatedAt)  // Then by creation date
-            .ProjectTo<ProductListItemViewModel>(_mapper.ConfigurationProvider) // Project efficiently
+        // Sorting & Pagination
+        var articlesPaged = await query
+            .OrderByDescending(a => a.IsFeatured)
+            .ThenByDescending(a => a.PublishedAt ?? a.CreatedAt) // Order by publish date, fallback to creation
+            .ProjectTo<ArticleListItemViewModel>(_mapper.ConfigurationProvider) // Project
             .ToPagedListAsync(pageNumber, pageSize); // Paginate
 
         // Load filter data
-        await LoadFilterDropdownsAsync(typeId, brandId, status);
+        await LoadFilterDropdownsAsync(categoryId, type, status);
 
         ViewBag.SearchTerm = searchTerm;
-        // Selected IDs/Status are loaded into ViewBag by LoadFilterDropdownsAsync
+        // Selected values loaded into ViewBag by LoadFilterDropdownsAsync
 
-        return View(productsPaged); // Pass paged list
+        return View(articlesPaged); // Pass paged list
     }
 
 
-    // GET: Admin/Product/Create
+    // GET: Admin/Article/Create
     public async Task<IActionResult> Create()
     {
-        ViewData["Title"] = "Thêm Sản phẩm mới - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Thêm Sản phẩm mới";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Sản phẩm", Url.Action(nameof(Index))), ("Thêm mới", "") };
+        ViewData["Title"] = "Viết Bài mới - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Viết Bài mới";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ("Viết bài mới", "") };
 
-        var viewModel = new ProductViewModel
+        var viewModel = new ArticleViewModel
         {
-            IsActive = true,
+            //IsActive = true, // Removed, use Status
             Status = PublishStatus.Draft,
-            SitemapPriority = 0.8,
+            PublishedAt = null, // Let it be null initially
+            SitemapPriority = 0.7,
             SitemapChangeFrequency = "weekly",
-            OgType = "product",
+            OgType = "article",
             Images = new List<ProductImageViewModel>(), // Initialize lists
-            Variants = new List<ProductVariantViewModel>() // Initialize lists
+            Variants = new List<ProductVariantViewModel>(), // Initialize lists
+            SelectedCategoryIds = new List<int>(),
+            SelectedTagIds = new List<int>(),
+            SelectedProductIds = new List<int>(),
         };
+
+        // Set default Author from current logged-in user if possible
+        // viewModel.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get ID if needed
+        // viewModel.AuthorName = User.Identity?.Name; // Get display name
+        // viewModel.AuthorAvatar = await GetUserAvatarPathAsync(viewModel.AuthorId); // Fetch avatar path
 
         await LoadRelatedDataForFormAsync(viewModel); // Load dropdowns
         return View(viewModel);
     }
 
-    // POST: Admin/Product/Create
+    // POST: Admin/Article/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(ProductViewModel viewModel)
+    public async Task<IActionResult> Create(ArticleViewModel viewModel)
     {
-        // --- Perform manual/complex checks before ModelState.IsValid ---
-        await ValidateRelationsAndUniquenessAsync(viewModel, isEdit: false);
+        // --- Manual Checks & Logic ---
+        await ValidateRelationsAndUniquenessAsync(viewModel, isEdit: false); // Check unique slug
+        viewModel.EstimatedReadingMinutes = CalculateReadingTime(viewModel.Content);
+        HandlePublishDate(viewModel); // Set/clear PublishedAt based on status
 
-        // Rely on middleware for remaining validation (including FluentValidation DB checks like unique slug)
         if (ModelState.IsValid)
         {
-            var product = _mapper.Map<Product>(viewModel);
+            var article = _mapper.Map<Article>(viewModel);
 
-            // --- MANUAL RELATIONSHIP HANDLING for NEW product ---
-            product.ProductCategories = viewModel.SelectedCategoryIds? // Check for null
-                                        .Select(catId => new ProductCategory { CategoryId = catId })
-                                        .ToList() ?? new List<ProductCategory>(); // Default to empty list
-            product.ProductTags = viewModel.SelectedTagIds? // Check for null
-                                    .Select(tagId => new ProductTag { TagId = tagId })
-                                    .ToList() ?? new List<ProductTag>(); // Default to empty list
+            // --- Handle Relationships ---
+            article.ArticleCategories = viewModel.SelectedCategoryIds?
+                .Select(catId => new ArticleCategory { CategoryId = catId }).ToList() ?? new List<ArticleCategory>();
+            article.ArticleTags = viewModel.SelectedTagIds?
+                .Select(tagId => new ArticleTag { TagId = tagId }).ToList() ?? new List<ArticleTag>();
+            article.ArticleProducts = viewModel.SelectedProductIds?
+                .Select((prodId, index) => new ArticleProduct { ProductId = prodId, OrderIndex = index }).ToList() ?? new List<ArticleProduct>();
 
-            // Map only non-deleted Images and Variants from ViewModel
-            product.Images = _mapper.Map<List<ProductImage>>(viewModel.Images?.Where(i => !i.IsDeleted).ToList() ?? new List<ProductImageViewModel>());
-            product.Variants = _mapper.Map<List<ProductVariant>>(viewModel.Variants?.Where(v => !v.IsDeleted).ToList() ?? new List<ProductVariantViewModel>());
+             // Set AuthorId if needed (example)
+             // if (string.IsNullOrEmpty(article.AuthorId)) {
+             //     article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+             // }
 
-             // Set audit fields if needed
-            // product.CreatedBy = User.Identity?.Name;
-
-            _context.Products.Add(product);
+            _context.Articles.Add(article);
 
             try
             {
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Product '{Name}' (ID: {ProductId}) created successfully by {User}.", product.Name, product.Id, User.Identity?.Name ?? "Unknown");
-                TempData["success"] = $"Thêm sản phẩm '{product.Name}' thành công!"; // Standard key
+                 _logger.LogInformation("Article '{Title}' (ID: {ArticleId}) created successfully by {User}.", article.Title, article.Id, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Tạo bài viết '{Truncate(article.Title)}' thành công!";
                 return RedirectToAction(nameof(Index));
             }
-            catch (DbUpdateException ex) // Catch specific DB errors
+            catch (DbUpdateException ex) { HandleDbUpdateException(ex, viewModel.Slug); } // Handle unique constraints etc.
+            catch (Exception ex)
             {
-                _logger.LogError(ex, "Database error saving new product '{Name}'. Check constraints.", viewModel.Name);
-                // Check inner exception for constraint violation if needed
-                if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: products.slug", StringComparison.OrdinalIgnoreCase) ?? false) {
-                     ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại.");
-                } else if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: product_variants.sku", StringComparison.OrdinalIgnoreCase) ?? false) {
-                     ModelState.AddModelError("Variants", "Một hoặc nhiều SKU đã tồn tại ở sản phẩm khác.");
-                 } else {
-                    ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi lưu sản phẩm.");
-                 }
+                _logger.LogError(ex, "Error creating article '{Title}'.", viewModel.Title);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi tạo bài viết.");
             }
-             catch (Exception ex)
+        }
+        else {
+            _logger.LogWarning("Article creation failed for '{Title}'. Model state is invalid.", viewModel.Title);
+        }
+
+
+        // If failed, redisplay form
+        await LoadRelatedDataForFormAsync(viewModel); // Reload dropdowns
+        ViewData["Title"] = "Viết Bài mới - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Viết Bài mới";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ("Viết bài mới", "") };
+        return View(viewModel);
+    }
+
+
+    // GET: Admin/Article/Edit/5
+    public async Task<IActionResult> Edit(int id)
+    {
+        var article = await _context.Set<Article>()
+            .Include(a => a.ArticleCategories)
+            .Include(a => a.ArticleTags)
+            .Include(a => a.ArticleProducts) // No need to ThenInclude Product unless displaying product names here
+            .AsNoTracking()
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (article == null) { _logger.LogWarning("Edit GET: Article ID {ArticleId} not found.", id); return NotFound(); }
+
+        var viewModel = _mapper.Map<ArticleViewModel>(article);
+        await LoadRelatedDataForFormAsync(viewModel);
+
+        ViewData["Title"] = "Chỉnh sửa Bài viết - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa Bài viết: {Truncate(article.Title)}";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(article.Title)}", "") };
+
+        return View(viewModel);
+    }
+
+
+    // POST: Admin/Article/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, ArticleViewModel viewModel)
+    {
+        if (id != viewModel.Id) { _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id); return BadRequest(); }
+
+        // --- Manual Checks & Logic ---
+        await ValidateRelationsAndUniquenessAsync(viewModel, isEdit: true); // Check unique slug
+        viewModel.EstimatedReadingMinutes = CalculateReadingTime(viewModel.Content);
+        HandlePublishDate(viewModel, await GetOriginalStatusAsync(id)); // Set/clear PublishedAt
+
+        if (ModelState.IsValid)
+        {
+            var article = await _context.Set<Article>()
+                .Include(a => a.ArticleCategories)
+                .Include(a => a.ArticleTags)
+                .Include(a => a.ArticleProducts)
+                .FirstOrDefaultAsync(a => a.Id == id);
+
+            if (article == null) { _logger.LogWarning("Edit POST: Article ID {ArticleId} not found for update.", id); TempData["error"] = "Không tìm thấy bài viết."; return RedirectToAction(nameof(Index)); }
+
+            // --- Map Scalar Properties ---
+            _mapper.Map(viewModel, article);
+
+            try
             {
-                _logger.LogError(ex, "Error saving new product '{Name}'.", viewModel.Name);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu sản phẩm.");
+                // --- Update Relationships ---
+                UpdateJunctionTable(article.ArticleCategories, viewModel.SelectedCategoryIds, id, (catId) => new ArticleCategory { ArticleId = id, CategoryId = catId }, fc => fc.CategoryId);
+                UpdateJunctionTable(article.ArticleTags, viewModel.SelectedTagIds, id, (tagId) => new ArticleTag { ArticleId = id, TagId = tagId }, ft => ft.TagId);
+                UpdateJunctionTable(article.ArticleProducts, viewModel.SelectedProductIds, id, (prodId) => new ArticleProduct { ArticleId = id, ProductId = prodId }, fp => fp.ProductId);
+
+                 // Set audit fields if needed
+                // article.UpdatedBy = User.Identity?.Name;
+
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Article ID {ArticleId} ('{Title}') updated successfully by {User}.", id, article.Title, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = $"Cập nhật bài viết '{Truncate(article.Title)}' thành công!";
+                return RedirectToAction(nameof(Index));
+            }
+            catch (DbUpdateConcurrencyException ex) { _logger.LogWarning(ex, "Concurrency error updating article ID: {ArticleId}", id); TempData["error"] = "Lỗi: Xung đột dữ liệu."; }
+            catch (DbUpdateException ex) { HandleDbUpdateException(ex, viewModel.Slug); } // Handle unique constraints etc.
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating article ID: {ArticleId}", id);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật.");
             }
         }
          else
         {
-             _logger.LogWarning("Product creation failed for '{Name}'. Model state is invalid.", viewModel.Name);
+            _logger.LogWarning("Article editing failed for ID: {ArticleId}. Model state is invalid.", id);
         }
 
         // If failed, redisplay form
         await LoadRelatedDataForFormAsync(viewModel); // Reload dropdowns
-        ViewData["Title"] = "Thêm Sản phẩm mới - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Thêm Sản phẩm mới";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Sản phẩm", Url.Action(nameof(Index))), ("Thêm mới", "") };
-        // Repopulate Images/Variants in the view model if needed after validation failure (e.g., if using hidden inputs and they get cleared)
-        // viewModel.Images = viewModel.Images ?? new List<ProductImageViewModel>();
-        // viewModel.Variants = viewModel.Variants ?? new List<ProductVariantViewModel>();
+        ViewData["Title"] = "Chỉnh sửa Bài viết - Hệ thống quản trị";
+        ViewData["PageTitle"] = $"Chỉnh sửa Bài viết: {Truncate(viewModel.Title)}";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(viewModel.Title)}", "") };
         return View(viewModel);
     }
 
 
-    // GET: Admin/Product/Edit/5
-    public async Task<IActionResult> Edit(int id)
-    {
-        // Eagerly load ALL related data needed for the form
-        var product = await _context.Set<Product>()
-            .Include(p => p.ProductType)
-            .Include(p => p.Brand)
-            .Include(p => p.Images.OrderBy(i => i.OrderIndex)) // Order images
-            .Include(p => p.Variants.OrderBy(v => v.Name)) // Order variants
-            .Include(p => p.ProductCategories)
-            .Include(p => p.ProductTags)
-            .AsNoTracking() // Use AsNoTracking for reading into ViewModel
-            .FirstOrDefaultAsync(p => p.Id == id);
-
-        if (product == null)
-        {
-            _logger.LogWarning("Edit GET: Product with ID {ProductId} not found.", id);
-            return NotFound();
-        }
-
-        var viewModel = _mapper.Map<ProductViewModel>(product);
-        // SelectedCategoryIds and SelectedTagIds are mapped by AutoMapper profile
-
-        await LoadRelatedDataForFormAsync(viewModel); // Load dropdowns
-
-        ViewData["Title"] = "Chỉnh sửa Sản phẩm - Hệ thống quản trị";
-        ViewData["PageTitle"] = $"Chỉnh sửa Sản phẩm: {product.Name}";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Sản phẩm", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(product.Name)}", "") };
-
-        return View(viewModel);
-    }
-
-
-    // POST: Admin/Product/Edit/5
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, ProductViewModel viewModel)
-    {
-        if (id != viewModel.Id)
-        {
-             _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id);
-            return BadRequest();
-        }
-
-        // --- Perform manual/complex checks before ModelState.IsValid ---
-        await ValidateRelationsAndUniquenessAsync(viewModel, isEdit: true);
-
-        if (ModelState.IsValid)
-        {
-            // --- Load Existing TRACKED Entity with ALL Related Data for Update ---
-            var product = await _context.Set<Product>()
-                .Include(p => p.Images)
-                .Include(p => p.Variants)
-                .Include(p => p.ProductCategories)
-                .Include(p => p.ProductTags)
-                .FirstOrDefaultAsync(p => p.Id == id);
-
-            if (product == null)
-            {
-                 _logger.LogWarning("Edit POST: Product with ID {ProductId} not found for update.", id);
-                 TempData["error"] = "Không tìm thấy sản phẩm để cập nhật.";
-                 return RedirectToAction(nameof(Index));
-            }
-
-            // --- Map Scalar Properties from ViewModel to Entity ---
-            _mapper.Map(viewModel, product);
-
-            try
-            {
-                // --- MANUAL RELATIONSHIP HANDLING (UPDATE/ADD/DELETE) ---
-                UpdateProductCategories(product, viewModel.SelectedCategoryIds);
-                UpdateProductTags(product, viewModel.SelectedTagIds);
-                UpdateProductImages(product, viewModel.Images);
-                UpdateProductVariants(product, viewModel.Variants);
-
-                 // Set audit fields if needed
-                // product.UpdatedBy = User.Identity?.Name;
-
-                await _context.SaveChangesAsync(); // Save all changes
-
-                _logger.LogInformation("Product '{Name}' (ID: {ProductId}) updated successfully by {User}.", product.Name, id, User.Identity?.Name ?? "Unknown");
-                TempData["success"] = $"Cập nhật sản phẩm '{product.Name}' thành công!";
-                return RedirectToAction(nameof(Index));
-            }
-             catch (DbUpdateConcurrencyException ex)
-            {
-                 _logger.LogWarning(ex, "Concurrency error occurred while editing Product ID {ProductId}.", id);
-                 TempData["error"] = "Lỗi: Xung đột dữ liệu. Sản phẩm này có thể đã được cập nhật bởi người khác.";
-            }
-             catch (DbUpdateException ex) // Catch specific DB errors
-            {
-                _logger.LogError(ex, "Database error updating product ID {ProductId}. Check constraints.", id);
-                 if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: products.slug", StringComparison.OrdinalIgnoreCase) ?? false) {
-                     ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại.");
-                 } else if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: product_variants.sku", StringComparison.OrdinalIgnoreCase) ?? false) {
-                     ModelState.AddModelError("Variants", "Một hoặc nhiều SKU đã tồn tại ở sản phẩm khác.");
-                 } else {
-                    ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi cập nhật sản phẩm.");
-                 }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating product ID: {ProductId}.", id);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật sản phẩm.");
-            }
-        }
-        else
-        {
-            _logger.LogWarning("Product editing failed for ID: {ProductId}. Model state is invalid.", id);
-        }
-
-        // If failed, redisplay form
-        await LoadRelatedDataForFormAsync(viewModel); // Reload dropdowns
-        ViewData["Title"] = "Chỉnh sửa Sản phẩm - Hệ thống quản trị";
-        ViewData["PageTitle"] = $"Chỉnh sửa Sản phẩm: {viewModel.Name}"; // Use name from VM
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Sản phẩm", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(viewModel.Name)}", "") };
-        // Ensure Images/Variants list is still populated in the view model
-        // If using hidden fields, they should persist. If reloaded from DB, map again.
-        return View(viewModel);
-    }
-
-
-    // POST: Admin/Product/Delete/5
+    // POST: Admin/Article/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        // Include relations that have RESTRICT constraints if any (e.g., ProjectProduct, ArticleProduct)
-        // Cascade should handle Images, Variants, Categories, Tags automatically.
-        var product = await _context.Set<Product>()
-                                 // .Include(p => p.ProjectProducts) // Uncomment if deletion restricted by Projects
-                                 // .Include(p => p.ArticleProducts) // Uncomment if deletion restricted by Articles
-                                 .FirstOrDefaultAsync(p => p.Id == id);
+        var article = await _context.Set<Article>()
+                                 // No need to include related data if using Cascade delete
+                                 .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (product == null)
+        if (article == null)
         {
-             _logger.LogWarning("Delete POST: Product with ID {ProductId} not found.", id);
-            return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+             _logger.LogWarning("Delete POST: Article ID {ArticleId} not found.", id);
+            return Json(new { success = false, message = "Không tìm thấy bài viết." });
         }
-
-        // --- Optional: Check for restricting relationships BEFORE attempting delete ---
-        // if (product.ProjectProducts != null && product.ProjectProducts.Any())
-        // {
-        //     _logger.LogWarning("Attempted to delete Product ID {ProductId} referenced by Projects.", id);
-        //     return Json(new { success = false, message = "Không thể xóa sản phẩm vì đang được liên kết với Dự án." });
-        // }
-        // if (product.ArticleProducts != null && product.ArticleProducts.Any())
-        // {
-        //      _logger.LogWarning("Attempted to delete Product ID {ProductId} referenced by Articles.", id);
-        //     return Json(new { success = false, message = "Không thể xóa sản phẩm vì đang được liên kết với Bài viết." });
-        // }
-        // --- End Optional Checks ---
-
 
         try
         {
-            string productName = product.Name;
-            // NOTE: Deleting Images from MinIO should happen AFTER successful DB deletion
-            // or via a background job/event listener to avoid orphaned files if DB delete fails.
-            // We won't implement MinIO delete here for brevity.
+            string title = article.Title;
+            // --- Get image paths BEFORE removing entity ---
+             var imagesToDelete = new List<string?> { article.FeaturedImage, article.ThumbnailImage, article.OgImage, article.TwitterImage }
+                                        .Where(url => !string.IsNullOrEmpty(url) && !url.StartsWith("http")) // Select only non-null paths (not URLs)
+                                        .Distinct()
+                                        .ToList();
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync(); // DB delete
+            _context.Articles.Remove(article); // Cascade should handle junction tables
+            await _context.SaveChangesAsync(); // Save DB changes
 
-            _logger.LogInformation("Product '{ProductName}' (ID: {ProductId}) deleted successfully by {User}.", productName, id, User.Identity?.Name ?? "Unknown");
-            // TODO: Implement logic to delete associated images from MinIO storage here or queue a job.
+            _logger.LogInformation("Article '{Title}' (ID: {ArticleId}) deleted successfully by {User}.", title, id, User.Identity?.Name ?? "Unknown");
 
-            return Json(new { success = true, message = $"Xóa sản phẩm '{productName}' thành công." });
+             // --- Delete images from storage AFTER DB delete succeeds ---
+            foreach (var path in imagesToDelete)
+            {
+                if(path == null) continue;
+                try
+                {
+                    await _minioService.DeleteFileAsync(path); // Use injected service
+                     _logger.LogInformation("Deleted image '{ImagePath}' from MinIO for deleted Article ID {ArticleId}.", path, id);
+                }
+                catch (Exception minioEx)
+                {
+                    _logger.LogError(minioEx, "Failed to delete image '{ImagePath}' from MinIO after deleting Article ID {ArticleId}.", path, id);
+                    // Don't fail the entire operation, just log the error
+                }
+            }
+
+            return Json(new { success = true, message = $"Xóa bài viết '{Truncate(title)}' thành công." });
         }
-        catch (DbUpdateException ex) // Catch potential foreign key constraint violations (RESTRICT)
-        {
-            _logger.LogError(ex, "Error deleting Product ID {ProductId}. Potential RESTRICT constraint violation.", id);
-            // Provide a more specific message if possible based on the exception details
-             if (ex.InnerException?.Message.Contains("FOREIGN KEY constraint", StringComparison.OrdinalIgnoreCase) ?? false) {
-                 return Json(new { success = false, message = "Không thể xóa sản phẩm. Sản phẩm có thể đang được liên kết với dữ liệu khác (ví dụ: Dự án, Bài viết)." });
-             }
-             return Json(new { success = false, message = "Lỗi cơ sở dữ liệu khi xóa sản phẩm." });
+        catch (DbUpdateException ex) {
+             _logger.LogError(ex, "Error deleting Article ID {ArticleId}. Potential RESTRICT constraint violation.", id);
+             return Json(new { success = false, message = "Không thể xóa bài viết. Có thể có lỗi ràng buộc dữ liệu." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting Product ID {ProductId}.", id);
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa sản phẩm." });
+            _logger.LogError(ex, "Error deleting Article ID {ArticleId}.", id);
+            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa bài viết." });
         }
     }
 
 
     // --- Helper Methods ---
 
-    // Helper to load dropdowns for Create/Edit views
-    private async Task LoadRelatedDataForFormAsync(ProductViewModel viewModel)
+    // Loads dropdowns for Index Filters
+    private async Task LoadFilterDropdownsAsync(int? categoryId, ArticleType? type, PublishStatus? status)
     {
-        viewModel.ProductTypeList = new SelectList(await _context.Set<ProductType>().Where(t => t.IsActive).OrderBy(t => t.Name).Select(t=> new {t.Id, t.Name}).ToListAsync(), "Id", "Name", viewModel.ProductTypeId);
-        viewModel.BrandList = new SelectList(await _context.Set<Brand>().Where(t => t.IsActive).OrderBy(t => t.Name).Select(t=> new {t.Id, t.Name}).ToListAsync(), "Id", "Name", viewModel.BrandId);
-        viewModel.CategoryList = new SelectList(await _context.Set<Category>().Where(c => c.IsActive && c.Type == CategoryType.Product).OrderBy(c => c.Name).Select(t=> new {t.Id, t.Name}).ToListAsync(), "Id", "Name");
-        viewModel.TagList = new SelectList(await _context.Set<Tag>().Where(t => t.Type == TagType.Product).OrderBy(t => t.Name).Select(t=> new {t.Id, t.Name}).ToListAsync(), "Id", "Name");
-        viewModel.StatusList = new SelectList(Enum.GetValues(typeof(PublishStatus))
-                                               .Cast<PublishStatus>()
-                                               .Select(e => new { Value = e, Text = e.GetDisplayName() }), // Use shared extension
-                                               "Value", "Text", viewModel.Status);
-    }
-
-    // Helper to load dropdowns for Index filter controls
-    private async Task LoadFilterDropdownsAsync(int? typeId, int? brandId, PublishStatus? status)
-    {
-        ViewBag.ProductTypes = await _context.Set<ProductType>().Where(pt => pt.IsActive).OrderBy(pt => pt.Name).Select(pt => new SelectListItem { Value = pt.Id.ToString(), Text = pt.Name, Selected = pt.Id == typeId }).ToListAsync();
-        ViewBag.Brands = await _context.Set<Brand>().Where(b => b.IsActive).OrderBy(b => b.Name).Select(b => new SelectListItem { Value = b.Id.ToString(), Text = b.Name, Selected = b.Id == brandId }).ToListAsync();
-        ViewBag.Statuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == status }).ToList(); // Use shared extension
-        ViewBag.SelectedTypeId = typeId;
-        ViewBag.SelectedBrandId = brandId;
+        ViewBag.Categories = await _context.Set<Category>().Where(c => c.Type == CategoryType.Article && c.IsActive).OrderBy(c => c.Name).Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name, Selected = c.Id == categoryId }).ToListAsync();
+        ViewBag.Types = Enum.GetValues(typeof(ArticleType)).Cast<ArticleType>().Select(t => new SelectListItem { Value = t.ToString(), Text = t.GetDisplayName(), Selected = t == type }).ToList();
+        ViewBag.Statuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == status }).ToList();
+        ViewBag.SelectedCategoryId = categoryId;
+        ViewBag.SelectedType = type;
         ViewBag.SelectedStatus = status;
     }
 
-     // Helper for complex validation before main model validation
-    private async Task ValidateRelationsAndUniquenessAsync(ProductViewModel viewModel, bool isEdit)
+    // Loads dropdowns/select lists for Create/Edit Form
+    private async Task LoadRelatedDataForFormAsync(ArticleViewModel viewModel)
     {
-        // 1. Check Main Image (if images exist and none are deleted)
-        if (viewModel.Images != null && viewModel.Images.Any(i => !i.IsDeleted) && !viewModel.Images.Any(i => i.IsMain && !i.IsDeleted))
+        viewModel.CategoryList = new SelectList(await _context.Set<Category>().Where(c => c.IsActive && c.Type == CategoryType.Article).OrderBy(c => c.Name).Select(c=> new {c.Id, c.Name}).ToListAsync(), "Id", "Name");
+        viewModel.TagList = new SelectList(await _context.Set<Tag>().Where(t => t.Type == TagType.Article).OrderBy(t => t.Name).Select(t=> new {t.Id, t.Name}).ToListAsync(), "Id", "Name");
+        viewModel.ProductList = new SelectList(await _context.Set<Product>().Where(p => p.IsActive && p.Status == PublishStatus.Published).OrderBy(p => p.Name).Select(p=> new {p.Id, p.Name}).ToListAsync(), "Id", "Name");
+        viewModel.StatusList = new SelectList(Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(e => new { Value = e, Text = e.GetDisplayName() }), "Value", "Text", viewModel.Status);
+        viewModel.TypeList = new SelectList(Enum.GetValues(typeof(ArticleType)).Cast<ArticleType>().Select(e => new { Value = e, Text = e.GetDisplayName() }), "Value", "Text", viewModel.Type);
+    }
+
+    // Handles setting/clearing PublishedAt date based on status
+    private void HandlePublishDate(ArticleViewModel viewModel, PublishStatus? originalStatus = null)
+    {
+        if (viewModel.Status == PublishStatus.Published && originalStatus != PublishStatus.Published && !viewModel.PublishedAt.HasValue)
         {
-            ModelState.AddModelError(nameof(viewModel.Images), "Vui lòng chọn một ảnh làm ảnh đại diện chính.");
+            viewModel.PublishedAt = DateTime.UtcNow;
         }
-         // Ensure only one image is main
-        if (viewModel.Images != null && viewModel.Images.Count(i => i.IsMain && !i.IsDeleted) > 1)
+        else if (viewModel.Status != PublishStatus.Published)
         {
-             ModelState.AddModelError(nameof(viewModel.Images), "Chỉ được chọn một ảnh làm ảnh đại diện chính.");
+            viewModel.PublishedAt = null; // Clear if not published
         }
+        // If status is Published and date is already set, leave it as is (allows manual setting/scheduling)
+    }
 
-        // 2. Check Variant SKU uniqueness (within submission)
-        var submittedVariants = viewModel.Variants?.Where(v => !v.IsDeleted).ToList() ?? new List<ProductVariantViewModel>();
-        var duplicateSkusInSubmission = submittedVariants
-                               .Where(v => !string.IsNullOrWhiteSpace(v.Sku))
-                               .GroupBy(v => v.Sku.Trim().ToLowerInvariant()) // Case-insensitive and trim
-                               .Where(g => g.Count() > 1)
-                               .Select(g => g.Key).ToList();
+    // Gets original status for comparison in Edit POST
+    private async Task<PublishStatus?> GetOriginalStatusAsync(int articleId) {
+        return await _context.Articles
+                             .Where(a => a.Id == articleId)
+                             .Select(a => (PublishStatus?)a.Status) // Cast to nullable
+                             .FirstOrDefaultAsync();
+    }
 
-        if (duplicateSkusInSubmission.Any())
-        {
-            ModelState.AddModelError("Variants", $"Các SKU sau bị trùng lặp trong danh sách biến thể: {string.Join(", ", duplicateSkusInSubmission)}");
-        }
+     // Generic helper to update Many-to-Many junction tables
+    private void UpdateJunctionTable<TEntity, TKey>(ICollection<TEntity> currentCollection, IEnumerable<TKey>? selectedIds, int parentId, Func<TKey, TEntity> createEntity, Func<TEntity, TKey> getKey)
+        where TEntity : class
+        where TKey : IEquatable<TKey>
+    {
+        selectedIds ??= new List<TKey>(); // Ensure list is not null
 
-        // 3. Check Variant SKU uniqueness (against DB, excluding own variants if editing)
-        var skusToCheck = submittedVariants
-                          .Where(v => !string.IsNullOrWhiteSpace(v.Sku))
-                          .Select(v => v.Sku.Trim().ToLowerInvariant())
-                          .Distinct()
-                          .ToList();
+        var currentIds = currentCollection.Select(getKey).ToList();
+        var idsToAdd = selectedIds.Except(currentIds).ToList();
+        var entitiesToRemove = currentCollection.Where(e => !selectedIds.Contains(getKey(e))).ToList();
 
-        if (skusToCheck.Any())
-        {
-            // Find existing SKUs in the DB that belong to OTHER products
-            var query = _context.Set<ProductVariant>().Where(v => skusToCheck.Contains(v.Sku.ToLower()));
-            if(isEdit) {
-                query = query.Where(v => v.ProductId != viewModel.Id); // Exclude current product's variants during edit
-            }
-            var existingDbSku = await query.Select(v => v.Sku).FirstOrDefaultAsync();
+        if(entitiesToRemove.Any()) _context.RemoveRange(entitiesToRemove);
 
-            if (existingDbSku != null)
+        if(idsToAdd.Any()) {
+            foreach (var idToAdd in idsToAdd)
             {
-                ModelState.AddModelError("Variants", $"SKU '{existingDbSku}' đã tồn tại ở một sản phẩm khác.");
+                currentCollection.Add(createEntity(idToAdd));
             }
         }
     }
 
-     // --- Helpers for M-M and O-M Updates (called from Edit POST) ---
-
-    private void UpdateProductCategories(Product product, List<int>? selectedCategoryIds)
+    // Calculates estimated reading time
+     private int CalculateReadingTime(string content, int wordsPerMinute = 200)
     {
-        selectedCategoryIds ??= new List<int>(); // Ensure list is not null
+        if (string.IsNullOrWhiteSpace(content)) return 0;
+        // Remove HTML tags before counting words
+        var plainText = Regex.Replace(content, "<.*?>", string.Empty);
+        var wordCount = plainText.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
+        if (wordsPerMinute <= 0) wordsPerMinute = 200; // Avoid division by zero
+        return Math.Max(1, (int)Math.Ceiling(wordCount / (double)wordsPerMinute)); // Ensure at least 1 minute
+    }
 
-        // Remove categories no longer selected
-        var categoriesToRemove = product.ProductCategories
-                                       .Where(pc => !selectedCategoryIds.Contains(pc.CategoryId))
-                                       .ToList();
-        if (categoriesToRemove.Any())
-        {
-            _context.ProductCategories.RemoveRange(categoriesToRemove);
-        }
-
-        // Add newly selected categories
-        var existingCategoryIds = product.ProductCategories.Select(pc => pc.CategoryId);
-        var categoryIdsToAdd = selectedCategoryIds.Except(existingCategoryIds).ToList();
-        if (categoryIdsToAdd.Any())
-        {
-            foreach (var catId in categoryIdsToAdd)
-            {
-                product.ProductCategories.Add(new ProductCategory { CategoryId = catId });
-            }
+    // Handles DbUpdateException, adding specific ModelErrors
+    private void HandleDbUpdateException(DbUpdateException ex, string? slug) {
+        _logger.LogError(ex, "DbUpdateException occurred.");
+        if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: articles.slug", StringComparison.OrdinalIgnoreCase) ?? false) {
+            ModelState.AddModelError(nameof(ArticleViewModel.Slug), "Slug này đã tồn tại.");
+        } else {
+            ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi lưu.");
         }
     }
 
-    private void UpdateProductTags(Product product, List<int>? selectedTagIds)
-    {
-         selectedTagIds ??= new List<int>();
-
-        // Remove tags no longer selected
-        var tagsToRemove = product.ProductTags
-                                 .Where(pt => !selectedTagIds.Contains(pt.TagId))
-                                 .ToList();
-        if (tagsToRemove.Any())
-        {
-            _context.ProductTags.RemoveRange(tagsToRemove);
-        }
-
-        // Add newly selected tags
-        var existingTagIds = product.ProductTags.Select(pt => pt.TagId);
-        var tagIdsToAdd = selectedTagIds.Except(existingTagIds).ToList();
-        if (tagIdsToAdd.Any())
-        {
-            foreach (var tagId in tagIdsToAdd)
-            {
-                product.ProductTags.Add(new ProductTag { TagId = tagId });
-            }
-        }
-    }
-
-    private void UpdateProductImages(Product product, List<ProductImageViewModel>? imageVMs)
-    {
-        imageVMs ??= new List<ProductImageViewModel>();
-
-        // Delete images marked for deletion in VM or not present in VM anymore
-        var vmImageIds = imageVMs.Where(i => i.Id > 0).Select(i => i.Id).ToList();
-        var dbImagesToRemove = product.Images
-                                    .Where(dbImg => !vmImageIds.Contains(dbImg.Id) || imageVMs.First(vm => vm.Id == dbImg.Id).IsDeleted)
-                                    .ToList();
-        if(dbImagesToRemove.Any()) {
-            // TODO: Queue these image URLs for deletion from MinIO storage AFTER SaveChangesAsync succeeds
-            // var urlsToDelete = dbImagesToRemove.Select(img => img.ImageUrl).Where(url => !string.IsNullOrEmpty(url)).Distinct();
-             _context.ProductImages.RemoveRange(dbImagesToRemove);
-        }
-
-
-        // Update existing or add new images
-        foreach (var imgVm in imageVMs.Where(i => !i.IsDeleted))
-        {
-            if (imgVm.Id > 0) // Update existing
-            {
-                var dbImage = product.Images.FirstOrDefault(i => i.Id == imgVm.Id);
-                if (dbImage != null)
-                {
-                    // Map only the editable fields from VM to existing DB entity
-                    dbImage.AltText = imgVm.AltText;
-                    dbImage.Title = imgVm.Title;
-                    dbImage.OrderIndex = imgVm.OrderIndex;
-                    dbImage.IsMain = imgVm.IsMain;
-                    // Don't map ImageUrl/ThumbnailUrl here as they are set on upload
-                }
-            }
-            else // Add new
-            {
-                 // Only add if ImageUrl is actually set (meaning upload was successful or path provided)
-                 if (!string.IsNullOrWhiteSpace(imgVm.ImageUrl)) {
-                     var newImage = _mapper.Map<ProductImage>(imgVm);
-                     // ProductId is set automatically by EF Core when adding to navigation property
-                     product.Images.Add(newImage);
-                 } else {
-                     _logger.LogWarning("Skipping adding new image because ImageUrl is empty. VM data: {@ImageViewModel}", imgVm);
-                 }
-            }
-        }
-    }
-
-    private void UpdateProductVariants(Product product, List<ProductVariantViewModel>? variantVMs)
-    {
-        variantVMs ??= new List<ProductVariantViewModel>();
-
-        // Delete variants marked for deletion in VM or not present in VM anymore
-        var vmVariantIds = variantVMs.Where(v => v.Id > 0).Select(v => v.Id).ToList();
-         var dbVariantsToRemove = product.Variants
-                                    .Where(dbVar => !vmVariantIds.Contains(dbVar.Id) || variantVMs.First(vm => vm.Id == dbVar.Id).IsDeleted)
-                                    .ToList();
-         if(dbVariantsToRemove.Any()) {
-            _context.ProductVariants.RemoveRange(dbVariantsToRemove);
-         }
-
-
-        // Update existing or add new variants
-        foreach (var varVm in variantVMs.Where(v => !v.IsDeleted))
-        {
-            if (varVm.Id > 0) // Update existing
-            {
-                var dbVariant = product.Variants.FirstOrDefault(v => v.Id == varVm.Id);
-                if (dbVariant != null)
-                {
-                    // Map all editable fields
-                    _mapper.Map(varVm, dbVariant);
-                }
-            }
-            else // Add new
-            {
-                var newVariant = _mapper.Map<ProductVariant>(varVm);
-                // ProductId is set automatically by EF Core
-                product.Variants.Add(newVariant);
-            }
-        }
-    }
-
-    private string Truncate(string value, int maxLength = 30) // Helper for short display
-    {
+    // Truncates string for display
+    private string Truncate(string value, int maxLength = 40) {
         if (string.IsNullOrEmpty(value)) return value;
         return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
     }
-
-    // Remove ProductExists check
 }
-// --- END OF FILE ProductController.cs ---
+// --- END OF FILE ArticleController.cs ---
+
+
+// --- START OF FILE CommentController.cs --- Updated ---
+using AutoMapper;
+using AutoMapper.QueryableExtensions; // Added
+using domain.Entities;
+using infrastructure;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering; // Added
+using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.ViewModels.Comment;
+using X.PagedList; // Added
+using X.PagedList.EF; // Added
+
+namespace web.Areas.Admin.Controllers;
+
+[Area("Admin")]
+[Authorize]
+public class CommentController : Controller
+{
+    private readonly ApplicationDbContext _context;
+    private readonly IMapper _mapper;
+    private readonly ILogger<CommentController> _logger;
+    // Remove IValidator
+
+    public CommentController(
+        ApplicationDbContext context,
+        IMapper mapper,
+        ILogger<CommentController> logger)
+    {
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    }
+
+    // GET: Admin/Comment
+    public async Task<IActionResult> Index(string? searchTerm = null, bool? isApproved = null, int? articleId = null, int page = 1, int pageSize = 20) // Added pagination
+    {
+        ViewData["Title"] = "Quản lý Bình luận - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Danh sách Bình luận";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bình luận", Url.Action(nameof(Index))) };
+
+        int pageNumber = page;
+        var query = _context.Set<Comment>()
+                            .Include(c => c.Article) // For ArticleTitle
+                            .Include(c => c.Replies) // For ReplyCount
+                            .Where(c => c.ParentId == null) // Only show top-level comments
+                            .AsNoTracking(); // Use AsNoTracking
+
+        // Filtering
+        if (!string.IsNullOrWhiteSpace(searchTerm))
+        {
+             string lowerSearchTerm = searchTerm.Trim().ToLower();
+            query = query.Where(c => c.AuthorName.ToLower().Contains(lowerSearchTerm)
+                                  || (c.AuthorEmail != null && c.AuthorEmail.ToLower().Contains(lowerSearchTerm))
+                                  || c.Content.ToLower().Contains(lowerSearchTerm));
+        }
+        if (isApproved.HasValue)
+        {
+            query = query.Where(c => c.IsApproved == isApproved.Value);
+        }
+        if (articleId.HasValue && articleId > 0)
+        {
+            query = query.Where(c => c.ArticleId == articleId.Value);
+        }
+
+        // Sorting & Pagination
+        var commentsPaged = await query
+            .OrderByDescending(c => c.IsApproved == false) // Unapproved first
+            .ThenByDescending(c => c.CreatedAt) // Then by date
+            .ProjectTo<CommentListItemViewModel>(_mapper.ConfigurationProvider) // Project efficiently
+            .ToPagedListAsync(pageNumber, pageSize); // Paginate
+
+        // Load filter dropdowns
+        await LoadArticleFilterDropdownAsync(articleId); // Load articles for filter
+        ViewBag.ApprovalStatusList = new List<SelectListItem> {
+             new SelectListItem { Value = "true", Text = "Đã duyệt"},
+             new SelectListItem { Value = "false", Text = "Chưa duyệt"}
+        };
+
+        ViewBag.SearchTerm = searchTerm;
+        ViewBag.SelectedApprovedStatus = isApproved;
+        // SelectedArticleId loaded by helper
+
+        return View(commentsPaged); // Pass paged list
+    }
+
+    // GET: Admin/Comment/Edit/5
+    public async Task<IActionResult> Edit(int id)
+    {
+        var comment = await _context.Set<Comment>()
+                                 .Include(c => c.Article) // Include article for title display
+                                 .AsNoTracking()
+                                 .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (comment == null) { _logger.LogWarning("Edit GET: Comment ID {CommentId} not found.", id); return NotFound(); }
+
+        var viewModel = _mapper.Map<CommentViewModel>(comment);
+
+        ViewData["Title"] = "Chỉnh sửa Bình luận - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Chỉnh sửa Bình luận";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bình luận", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
+
+        return View(viewModel);
+    }
+
+    // POST: Admin/Comment/Edit/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, CommentViewModel viewModel)
+    {
+        if (id != viewModel.Id) { _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id); return BadRequest(); }
+
+        // Rely on middleware for validation
+        if (ModelState.IsValid)
+        {
+            var comment = await _context.Set<Comment>().FindAsync(id);
+            if (comment == null) { _logger.LogWarning("Edit POST: Comment ID {CommentId} not found for update.", id); TempData["error"] = "Không tìm thấy bình luận."; return RedirectToAction(nameof(Index)); }
+
+            // Map editable fields: AuthorName, AuthorEmail, AuthorWebsite, Content, IsApproved
+            _mapper.Map(viewModel, comment);
+             // Set audit fields
+            // comment.UpdatedBy = User.Identity?.Name;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Comment ID {CommentId} updated successfully by {User}.", id, User.Identity?.Name ?? "Unknown");
+                TempData["success"] = "Cập nhật bình luận thành công!";
+                return RedirectToAction(nameof(Index)); // Redirect to list after successful edit
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating Comment ID {CommentId}", id);
+                ModelState.AddModelError("", "Không thể lưu thay đổi.");
+            }
+        }
+        else {
+            _logger.LogWarning("Comment editing failed for ID: {CommentId}. Model state is invalid.", id);
+        }
+
+        // If failed, redisplay form
+        // Reload ArticleTitle if needed as it's not posted back
+        var originalArticle = await _context.Articles.AsNoTracking().Select(a => new { a.Id, a.Title }).FirstOrDefaultAsync(a => a.Id == viewModel.ArticleId);
+        viewModel.ArticleTitle = originalArticle?.Title;
+
+        ViewData["Title"] = "Chỉnh sửa Bình luận - Hệ thống quản trị";
+        ViewData["PageTitle"] = "Chỉnh sửa Bình luận";
+        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bình luận", Url.Action(nameof(Index))), ("Chỉnh sửa", "") };
+        return View(viewModel);
+    }
+
+    // POST: Admin/Comment/Approve/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Approve(int id)
+    {
+        return await UpdateApprovalStatus(id, true);
+    }
+
+    // POST: Admin/Comment/Unapprove/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Unapprove(int id)
+    {
+        return await UpdateApprovalStatus(id, false);
+    }
+
+
+    // POST: Admin/Comment/Delete/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var comment = await _context.Set<Comment>()
+                                // Include replies only if needed due to RESTRICT constraint or custom logic
+                                // .Include(c => c.Replies)
+                                .FirstOrDefaultAsync(c => c.Id == id);
+
+        if (comment == null) { _logger.LogWarning("Delete POST: Comment ID {CommentId} not found.", id); return Json(new { success = false, message = "Không tìm thấy bình luận." }); }
+
+        try
+        {
+            string author = comment.AuthorName;
+            // If ParentId has RESTRICT and replies exist, this will fail. Handle by changing constraint to Cascade/SetNull or deleting replies first.
+            _context.Remove(comment);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Comment ID {CommentId} by '{Author}' deleted successfully by {User}.", id, author, User.Identity?.Name ?? "Unknown");
+            return Json(new { success = true, message = $"Xóa bình luận của '{author}' thành công." });
+        }
+        catch (DbUpdateException ex) { // Catch FK errors
+            _logger.LogError(ex, "Error deleting Comment ID {CommentId}. Potential constraint violation (e.g., replies exist with RESTRICT).", id);
+             return Json(new { success = false, message = "Không thể xóa bình luận. Có thể do bình luận này có trả lời." });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error deleting Comment ID {CommentId}", id);
+            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa bình luận." });
+        }
+    }
+
+    // --- Helper: Update Approval ---
+    private async Task<IActionResult> UpdateApprovalStatus(int id, bool approve)
+    {
+        var comment = await _context.Set<Comment>().FindAsync(id);
+        if (comment == null) { _logger.LogWarning("UpdateApprovalStatus: Comment ID {CommentId} not found.", id); return Json(new { success = false, message = "Không tìm thấy bình luận." }); }
+
+        if (comment.IsApproved == approve) {
+            return Json(new { success = true, message = approve ? "Bình luận đã được duyệt." : "Bình luận đã ở trạng thái chờ duyệt." }); // No change needed
+        }
+
+        comment.IsApproved = approve;
+        // comment.UpdatedBy = User.Identity?.Name; // Set audit field
+
+        try
+        {
+            await _context.SaveChangesAsync();
+             _logger.LogInformation("Comment ID {CommentId} approval status set to {Status} by {User}.", id, approve, User.Identity?.Name ?? "Unknown");
+            return Json(new { success = true, message = approve ? "Duyệt bình luận thành công." : "Bỏ duyệt bình luận thành công.", isApproved = approve }); // Return new status
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating approval status for Comment ID {CommentId} to {Status}.", id, approve);
+            return Json(new { success = false, message = "Lỗi cập nhật trạng thái duyệt." });
+        }
+    }
+
+     // Helper to load Article filter dropdown
+    private async Task LoadArticleFilterDropdownAsync(int? selectedArticleId)
+    {
+        // Load only articles that actually have comments? Maybe too slow. Load recent/popular articles?
+        // For simplicity, load all published articles for now. Optimize later if needed.
+         ViewBag.ArticleList = await _context.Articles
+                                       .Where(a => a.Status == PublishStatus.Published)
+                                       .OrderBy(a => a.Title)
+                                       .Select(a => new SelectListItem {
+                                           Value = a.Id.ToString(),
+                                           Text = a.Title.Length > 50 ? a.Title.Substring(0, 50) + "..." : a.Title, // Truncate long titles
+                                           Selected = a.Id == selectedArticleId
+                                        })
+                                       .ToListAsync();
+        ViewBag.SelectedArticleId = selectedArticleId;
+    }
+}
+// --- END OF FILE CommentController.cs ---
+
 ```
 
 **7. Views**
 
-*   **`_ProductFormFields.txt`:** Add standard SEO fields section (copied from Category/Brand). Ensure IDs are present on key inputs.
-*   **`Create`/`Edit`:** Ensure client-side JS for TomSelect, Summernote, Slug, Images, and Variants is correctly implemented and uses element IDs. Add `_ValidationScriptsPartial`. Standardize card structure/footer.
-*   **`Index.txt`:** Implement pagination, item count, standard filter/delete controls. Use `MediaUrlHelper`.
+*   Implement pagination, item counts, standardized filters/buttons.
+*   Use TomSelect/Summernote where appropriate.
+*   Add AJAX handling for Approve/Unapprove buttons in Comment Index.
+*   Add `UpdatedAt` columns.
 
 ```html
-@* --- START OF FILE _ProductFormFields.txt --- Updated --- *@
-@using shared.Helpers
-@using web.Areas.Admin.ViewModels.Product
-@model ProductViewModel
+@* --- START OF FILE _ArticleFormFields.txt --- Updated --- *@
+@using shared.Helpers; @using web.Areas.Admin.ViewModels.Article; @model ArticleViewModel; @using shared.Enums; @using shared.Extensions;
 
 @* --- TABS --- *@
 <ul class="nav nav-tabs nav-fill mb-3" data-bs-toggle="tabs" role="tablist">
-	<li class="nav-item" role="presentation">
-		<a href="#tab-basic-info" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab">
-			<i class="ti ti-info-circle me-2"></i> Thông tin cơ bản
-		</a>
-	</li>
-	<li class="nav-item" role="presentation">
-		<a href="#tab-descriptions" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">
-			<i class="ti ti-file-text me-2"></i> Mô tả & Chi tiết
-		</a>
-	</li>
-	<li class="nav-item" role="presentation">
-		<a href="#tab-images" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">
-			<i class="ti ti-photo me-2"></i> Hình ảnh
-		</a>
-	</li>
-	<li class="nav-item" role="presentation">
-		<a href="#tab-variants" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">
-			<i class="ti ti-adjustments-alt me-2"></i> Biến thể & Kho
-		</a>
-	</li>
-	<li class="nav-item" role="presentation">
-		<a href="#tab-relations" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">
-			<i class="ti ti-tags me-2"></i> Phân loại
-		</a>
-	</li>
-	<li class="nav-item" role="presentation">
-		<a href="#tab-seo" class="nav-link" data-bs-toggle="tab" aria-selected="false" tabindex="-1" role="tab">
-			<i class="ti ti-search me-2"></i> Tối ưu SEO
-		</a>
-	</li>
+	<li class="nav-item" role="presentation"><a href="#article-tab-content" class="nav-link active" data-bs-toggle="tab" aria-selected="true" role="tab"><i class="ti ti-file-text me-2"></i> Nội dung chính</a></li>
+	<li class="nav-item" role="presentation"><a href="#article-tab-images" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1"><i class="ti ti-photo me-2"></i> Hình ảnh & Tác giả</a></li>
+	<li class="nav-item" role="presentation"><a href="#article-tab-relations" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1"><i class="ti ti-tags me-2"></i> Phân loại & Liên kết</a></li>
+	<li class="nav-item" role="presentation"><a href="#article-tab-publishing" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1"><i class="ti ti-calendar-event me-2"></i> Xuất bản</a></li>
+	<li class="nav-item" role="presentation"><a href="#article-tab-seo" class="nav-link" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1"><i class="ti ti-search me-2"></i> Tối ưu SEO</a></li>
 </ul>
 
 @* --- TAB CONTENT --- *@
 <div class="tab-content">
-	@* --- Tab: Basic Info --- *@
-	<div class="tab-pane active show" id="tab-basic-info" role="tabpanel">
-		<div class="row">
-			<div class="col-md-8">
-				<div class="form-group mb-3">
-					<label asp-for="Name" class="form-label required"></label>
-					<input asp-for="Name" class="form-control" id="productName" /> @* Use ID *@
-					<span asp-validation-for="Name" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="Slug" class="form-label required"></label>
-					<div class="input-group">
-						<input asp-for="Slug" class="form-control" id="productSlug" /> @* Use ID *@
-						<button class="btn btn-outline-secondary" type="button" id="generateSlugButton"> <i class="ti ti-refresh"></i> </button>
-					</div>
-					<span asp-validation-for="Slug" class="text-danger"></span>
-					<small class="form-hint">Dùng cho URL (chữ thường, số, dấu gạch ngang)</small>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="ShortDescription" class="form-label"></label>
-					<textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
-					<span asp-validation-for="ShortDescription" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="Manufacturer" class="form-label"></label>
-					<input asp-for="Manufacturer" class="form-control" />
-					<span asp-validation-for="Manufacturer" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3 mb-md-0"> @* Adjust margin *@
-					<label asp-for="Origin" class="form-label"></label>
-					<input asp-for="Origin" class="form-control" />
-					<span asp-validation-for="Origin" class="text-danger"></span>
-				</div>
-			</div>
-			<div class="col-md-4">
-				<div class="form-group mb-3">
-					<label asp-for="ProductTypeId" class="form-label required"></label>
-					<select asp-for="ProductTypeId" asp-items="@Model.ProductTypeList" class="form-select tom-select-single" id="ProductTypeId"> @* Use TomSelect for single *@
-						<option value="">-- Chọn loại --</option>
-					</select>
-					<span asp-validation-for="ProductTypeId" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="BrandId" class="form-label"></label>
-					<select asp-for="BrandId" asp-items="@Model.BrandList" class="form-select tom-select-single" id="BrandId"> @* Use TomSelect for single *@
-						<option value="">-- Chọn thương hiệu (nếu có) --</option>
-					</select>
-					<span asp-validation-for="BrandId" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="Status" class="form-label required"></label>
-					<select asp-for="Status" asp-items="@Model.StatusList" class="form-select tom-select-single" id="Status"></select> @* Use TomSelect for single *@
-					<span asp-validation-for="Status" class="text-danger"></span>
-				</div>
-				<hr class="my-3">
-				<div class="form-check form-switch mb-3">
-					<input class="form-check-input" type="checkbox" asp-for="IsActive" role="switch" id="IsActive"> @* Use ID *@
-					<label class="form-check-label" asp-for="IsActive"></label>
-					<span asp-validation-for="IsActive" class="text-danger"></span>
-				</div>
-				<div class="form-check form-switch mb-0">
-					<input class="form-check-input" type="checkbox" asp-for="IsFeatured" role="switch" id="IsFeatured"> @* Use ID *@
-					<label class="form-check-label" asp-for="IsFeatured"></label>
-					<span asp-validation-for="IsFeatured" class="text-danger"></span>
-				</div>
-			</div>
-		</div>
+	@* --- Tab: Content --- *@
+	<div class="tab-pane active show" id="article-tab-content" role="tabpanel">
+		<div class="mb-3"><label asp-for="Title" class="form-label required"></label><input asp-for="Title" class="form-control form-control-lg" id="articleTitle" /><span asp-validation-for="Title" class="text-danger"></span></div>
+		<div class="mb-3"><label asp-for="Slug" class="form-label required"></label><div class="input-group"><input asp-for="Slug" class="form-control" id="articleSlug" /><button class="btn btn-outline-secondary" type="button" id="generateSlugButton"><i class="ti ti-refresh"></i></button></div><span asp-validation-for="Slug" class="text-danger"></span></div>
+		<div class="mb-3"><label asp-for="Summary" class="form-label"></label><textarea asp-for="Summary" class="form-control" rows="3"></textarea><span asp-validation-for="Summary" class="text-danger"></span><small class="form-hint">Mô tả ngắn gọn cho bài viết (hiển thị ở danh sách).</small></div>
+		<div class="mb-0"><label asp-for="Content" class="form-label required"></label><textarea asp-for="Content" class="form-control summernote-editor" id="articleContentEditor" rows="20"></textarea><span asp-validation-for="Content" class="text-danger"></span></div>
 	</div>
 
-	@* --- Tab: Descriptions --- *@
-	<div class="tab-pane" id="tab-descriptions" role="tabpanel">
-		<div class="form-group mb-3">
-			<label asp-for="Description" class="form-label required"></label>
-			<textarea asp-for="Description" class="form-control summernote-editor" rows="15" id="productDescriptionEditor"></textarea> @* Add specific class/ID *@
-			<span asp-validation-for="Description" class="text-danger"></span>
-		</div>
+	@* --- Tab: Images & Author --- *@
+	<div class="tab-pane" id="article-tab-images" role="tabpanel">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="form-group mb-3">
-					<label asp-for="Specifications" class="form-label"></label>
-					<textarea asp-for="Specifications" class="form-control summernote-editor" rows="8" id="Specifications"></textarea> @* Add ID *@
-					<span asp-validation-for="Specifications" class="text-danger"></span>
+				<h4 class="mb-3">Hình ảnh</h4>
+				<div class="form-group mb-3" id="featured-image-area">
+					<label asp-for="FeaturedImage" class="form-label"></label>
+					<div><img id="featuredImagePreview" src="@MediaUrlHelper.GetMinioUrl(Model.FeaturedImage, "/img/placeholder.svg")" class="img-thumbnail mb-2" style="max-height: 200px; max-width: 100%; object-fit: contain; min-height: 100px; background-color: #f8f9fa;" /></div>
+					<input type="hidden" asp-for="FeaturedImage" id="featuredImagePathInput" />
+					<div><button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#featuredImagePathInput" data-target-preview="#featuredImagePreview"><i class="ti ti-photo-search me-1"></i> Chọn ảnh Featured</button><button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.FeaturedImage) ? "d-none" : "")" data-target-input="#featuredImagePathInput" data-target-preview="#featuredImagePreview" data-placeholder="/img/placeholder.svg"><i class="ti ti-x me-1"></i> Xóa</button></div>
+					<span asp-validation-for="FeaturedImage" class="text-danger"></span>
 				</div>
-				<div class="form-group mb-3">
-					<label asp-for="Features" class="form-label"></label>
-					<textarea asp-for="Features" class="form-control summernote-editor" rows="8" id="Features"></textarea> @* Add ID *@
-					<span asp-validation-for="Features" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3 mb-md-0"> @* Adjust margin *@
-					<label asp-for="ApplicationAreas" class="form-label"></label>
-					<textarea asp-for="ApplicationAreas" class="form-control" rows="5" id="ApplicationAreas"></textarea> @* Add ID *@
-					<span asp-validation-for="ApplicationAreas" class="text-danger"></span>
+				<div class="form-group mb-3" id="thumbnail-image-area">
+					<label asp-for="ThumbnailImage" class="form-label"></label>
+					<div><img id="thumbnailImagePreview" src="@MediaUrlHelper.GetMinioUrl(Model.ThumbnailImage, "/img/placeholder.svg")" class="img-thumbnail mb-2" style="max-height: 100px; max-width: 100%; object-fit: contain; min-height: 60px; background-color: #f8f9fa;" /></div>
+					<input type="hidden" asp-for="ThumbnailImage" id="thumbnailImagePathInput" />
+					<div><button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#thumbnailImagePathInput" data-target-preview="#thumbnailImagePreview"><i class="ti ti-photo-search me-1"></i> Chọn ảnh Thumbnail</button><button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.ThumbnailImage) ? "d-none" : "")" data-target-input="#thumbnailImagePathInput" data-target-preview="#thumbnailImagePreview" data-placeholder="/img/placeholder.svg"><i class="ti ti-x me-1"></i> Xóa</button></div>
+					<span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+					<small class="form-hint">Nếu bỏ trống sẽ dùng ảnh Featured làm thumbnail.</small>
 				</div>
 			</div>
 			<div class="col-md-6">
-				<div class="form-group mb-3">
-					<label asp-for="Usage" class="form-label"></label>
-					<textarea asp-for="Usage" class="form-control summernote-editor" rows="8" id="Usage"></textarea> @* Add ID *@
-					<span asp-validation-for="Usage" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="PackagingInfo" class="form-label"></label>
-					<textarea asp-for="PackagingInfo" class="form-control" rows="5" id="PackagingInfo"></textarea> @* Add ID *@
-					<span asp-validation-for="PackagingInfo" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="StorageInstructions" class="form-label"></label>
-					<textarea asp-for="StorageInstructions" class="form-control" rows="5" id="StorageInstructions"></textarea> @* Add ID *@
-					<span asp-validation-for="StorageInstructions" class="text-danger"></span>
-				</div>
-				<div class="form-group mb-3">
-					<label asp-for="SafetyInfo" class="form-label"></label>
-					<textarea asp-for="SafetyInfo" class="form-control" rows="5" id="SafetyInfo"></textarea> @* Add ID *@
-					<span asp-validation-for="SafetyInfo" class="text-danger"></span>
+				<h4 class="mb-3">Thông tin tác giả</h4>
+				<div class="form-group mb-3"><label asp-for="AuthorName" class="form-label"></label><input asp-for="AuthorName" class="form-control" /><span asp-validation-for="AuthorName" class="text-danger"></span><small class="form-hint">Tên hiển thị cùng bài viết.</small></div>
+				<div class="form-group mb-3" id="author-avatar-area">
+					<label asp-for="AuthorAvatar" class="form-label"></label>
+					<div><img id="authorAvatarPreview" src="@MediaUrlHelper.GetMinioUrl(Model.AuthorAvatar, "/img/placeholder.svg")" class="avatar avatar-xl mb-2" /></div>
+					<input type="hidden" asp-for="AuthorAvatar" id="authorAvatarPathInput" />
+					<div><button type="button" class="btn btn-sm btn-outline-primary select-media-btn" data-target-input="#authorAvatarPathInput" data-target-preview="#authorAvatarPreview"><i class="ti ti-photo-search me-1"></i> Chọn Avatar</button><button type="button" class="btn btn-sm btn-outline-danger remove-media-btn ms-2 @(string.IsNullOrEmpty(Model.AuthorAvatar) ? "d-none" : "")" data-target-input="#authorAvatarPathInput" data-target-preview="#authorAvatarPreview" data-placeholder="/img/placeholder.svg"><i class="ti ti-x me-1"></i> Xóa</button></div>
+					<span asp-validation-for="AuthorAvatar" class="text-danger"></span>
 				</div>
 			</div>
 		</div>
-		<div class="form-group mb-0"> @* Adjust margin *@
-			<label asp-for="TechnicalDocuments" class="form-label"></label>
-			<textarea asp-for="TechnicalDocuments" class="form-control" rows="5" id="TechnicalDocuments"></textarea> @* Add ID *@
-			<span asp-validation-for="TechnicalDocuments" class="text-danger"></span>
-			<small class="form-hint">Nhập cấu trúc JSON cho các tài liệu liên quan. Ví dụ: [{"name": "TDS", "url": "..."}, {"name": "MSDS", "url": "..."}]</small>
-		</div>
 	</div>
 
-	@* --- Tab: Images --- *@
-	<div class="tab-pane" id="tab-images" role="tabpanel">
-		<div class="d-flex justify-content-between align-items-center mb-3">
-			<h3 class="m-0">Quản lý Hình ảnh</h3>
-			<button type="button" class="btn btn-outline-primary" id="selectProductImagesBtn">
-				<i class="ti ti-photo-plus me-2"></i> Chọn ảnh từ thư viện
-			</button>
-		</div>
-		<span asp-validation-for="Images" class="text-danger d-block mb-2"></span> @* General validation message *@
-
-		<div id="product-image-list" class="row g-3">
-			@* JS will render images here using a template *@
-			@for (int i = 0; i < Model.Images.Count; i++)
-			{
-				var imgId = $"image_{i}"; // Base ID for this item
-				<div class="col-md-6 col-lg-4 col-xl-3 product-image-item" data-index="@i" data-image-path="@Model.Images[i].ImageUrl">
-					<input type="hidden" asp-for="Images[i].Id" />
-					<input type="hidden" asp-for="Images[i].ImageUrl" class="image-url-input" />
-					<input type="hidden" asp-for="Images[i].ThumbnailUrl" class="thumb-url-input" />
-					<input type="hidden" asp-for="Images[i].IsDeleted" class="is-deleted-input" value="false" />
-					<div class="card">
-						<div class="img-responsive img-responsive-16x9 card-img-top image-preview"
-							 style="background-image: url(@MediaUrlHelper.GetMinioUrl(Model.Images[i].ThumbnailUrl ?? Model.Images[i].ImageUrl, "/img/placeholder.svg"))"></div>
-						<div class="card-body">
-							<div class="form-group mb-2">
-								<label asp-for="Images[i].AltText" class="form-label form-label-sm"></label>
-								<input asp-for="Images[i].AltText" class="form-control form-control-sm" id="@($"{imgId}_AltText")"/>
-								 <span asp-validation-for="Images[i].AltText" class="text-danger"></span>
-							</div>
-							<div class="form-group mb-2">
-								<label asp-for="Images[i].Title" class="form-label form-label-sm"></label>
-								<input asp-for="Images[i].Title" class="form-control form-control-sm" id="@($"{imgId}_Title")" />
-								 <span asp-validation-for="Images[i].Title" class="text-danger"></span>
-							</div>
-							<div class="row g-2 align-items-center">
-								<div class="col">
-									<div class="form-check form-switch">
-										@* Use unique name per item for radio group behavior within the item *@
-										<input class="form-check-input is-main-input" type="radio" name="ImagesMainRadio" id="@($"{imgId}_IsMain")" value="@i" checked="@Model.Images[i].IsMain">
-										<input type="hidden" asp-for="Images[i].IsMain" class="is-main-hidden" />
-										<label class="form-check-label form-label-sm" asp-for="Images[i].IsMain" for="@($"{imgId}_IsMain")"></label>
-									</div>
-								</div>
-								<div class="col-auto">
-									<input type="number" asp-for="Images[i].OrderIndex" class="form-control form-control-sm order-index-input" style="width: 60px;" title="Thứ tự" min="0" id="@($"{imgId}_OrderIndex")"/>
-									 <span asp-validation-for="Images[i].OrderIndex" class="text-danger"></span>
-								</div>
-								<div class="col-auto">
-									<button type="button" class="btn btn-sm btn-outline-danger remove-image-btn" title="Gỡ ảnh này"><i class="ti ti-trash"></i></button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			}
-		</div>
-
-		@* Template for NEWLY SELECTED images (hidden) *@
-		<template id="product-image-template">
-			<div class="col-md-6 col-lg-4 col-xl-3 product-image-item" data-index="__INDEX__" data-image-path="__IMAGE_PATH__">
-				<input type="hidden" name="Images[__INDEX__].Id" value="0" />
-				<input type="hidden" name="Images[__INDEX__].ImageUrl" class="image-url-input" value="__IMAGE_PATH__" />
-				<input type="hidden" name="Images[__INDEX__].ThumbnailUrl" class="thumb-url-input" value="__THUMB_PATH__" />
-				<input type="hidden" name="Images[__INDEX__].IsDeleted" class="is-deleted-input" value="false" />
-				<div class="card">
-					<div class="img-responsive img-responsive-16x9 card-img-top image-preview" style="background-image: url(__DISPLAY_URL__)"></div>
-					<div class="card-body">
-						<div class="form-group mb-2">
-							<label name="Images[__INDEX__].AltText" class="form-label form-label-sm">Alt Text</label>
-							<input name="Images[__INDEX__].AltText" class="form-control form-control-sm" id="Images___INDEX___AltText" value="__ALT_TEXT__"/>
-						</div>
-						<div class="form-group mb-2">
-							<label name="Images[__INDEX__].Title" class="form-label form-label-sm">Title</label>
-							<input name="Images[__INDEX__].Title" class="form-control form-control-sm" id="Images___INDEX___Title"/>
-						</div>
-						<div class="row g-2 align-items-center">
-							<div class="col">
-								<div class="form-check form-switch">
-									<input class="form-check-input is-main-input" type="radio" name="ImagesMainRadio" id="Images___INDEX___IsMain" value="__INDEX__">
-									<input type="hidden" name="Images[__INDEX__].IsMain" class="is-main-hidden" value="false" />
-									<label class="form-check-label form-label-sm" for="Images___INDEX___IsMain">Ảnh chính</label>
-								</div>
-							</div>
-							<div class="col-auto">
-								<input type="number" name="Images[__INDEX__].OrderIndex" class="form-control form-control-sm order-index-input" value="0" style="width: 60px;" title="Thứ tự" min="0" id="Images___INDEX___OrderIndex"/>
-							</div>
-							<div class="col-auto">
-								<button type="button" class="btn btn-sm btn-outline-danger remove-image-btn" title="Gỡ ảnh này"><i class="ti ti-trash"></i></button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</template>
-	</div>
-
-	@* --- Tab: Variants --- *@
-	<div class="tab-pane" id="tab-variants" role="tabpanel">
-		<div class="d-flex justify-content-between align-items-center mb-3">
-            <h3 class="m-0">Biến thể & Kho hàng</h3>
-            <button type="button" class="btn btn-outline-primary" id="add-variant-btn">
-				<i class="ti ti-plus me-1"></i> Thêm biến thể
-			</button>
-        </div>
-		<span asp-validation-for="Variants" class="text-danger d-block mb-2"></span>
-
-		<div id="product-variant-list">
-			@* JS will render variants here using a template *@
-			@for (int i = 0; i < Model.Variants.Count; i++)
-			{
-                var varId = $"variant_{i}"; // Base ID
-				<div class="card mb-3 product-variant-item" data-index="@i">
-					<input type="hidden" asp-for="Variants[i].Id" />
-					<input type="hidden" asp-for="Variants[i].IsDeleted" class="is-deleted-input" value="false" />
-					<div class="card-body">
-						<div class="row g-3">
-							<div class="col-md-4">
-								<label asp-for="Variants[i].Name" class="form-label required"></label>
-								<input asp-for="Variants[i].Name" class="form-control" id="@($"{varId}_Name")"/>
-								<span asp-validation-for="Variants[i].Name" class="text-danger"></span>
-							</div>
-							<div class="col-md-3">
-								<label asp-for="Variants[i].Sku" class="form-label required"></label>
-								<input asp-for="Variants[i].Sku" class="form-control" id="@($"{varId}_Sku")"/>
-								<span asp-validation-for="Variants[i].Sku" class="text-danger"></span>
-							</div>
-							<div class="col-md-2">
-								<label asp-for="Variants[i].Price" class="form-label required"></label>
-								<input type="number" asp-for="Variants[i].Price" class="form-control" step="any" min="0" id="@($"{varId}_Price")"/>
-								<span asp-validation-for="Variants[i].Price" class="text-danger"></span>
-							</div>
-							<div class="col-md-2">
-								<label asp-for="Variants[i].StockQuantity" class="form-label"></label>
-								<input type="number" asp-for="Variants[i].StockQuantity" class="form-control" min="0" id="@($"{varId}_StockQuantity")"/>
-								<span asp-validation-for="Variants[i].StockQuantity" class="text-danger"></span>
-							</div>
-							<div class="col-md-1 d-flex align-items-end">
-								<button type="button" class="btn btn-outline-danger remove-variant-btn" title="Xóa biến thể này"><i class="ti ti-trash"></i></button>
-							</div>
-							<div class="col-md-3">
-								<label asp-for="Variants[i].Color" class="form-label"></label>
-								<input asp-for="Variants[i].Color" class="form-control" id="@($"{varId}_Color")"/>
-                                <span asp-validation-for="Variants[i].Color" class="text-danger"></span>
-							</div>
-							<div class="col-md-3">
-								<label asp-for="Variants[i].Size" class="form-label"></label>
-								<input asp-for="Variants[i].Size" class="form-control" id="@($"{varId}_Size")"/>
-                                <span asp-validation-for="Variants[i].Size" class="text-danger"></span>
-							</div>
-							<div class="col-md-3">
-								<label asp-for="Variants[i].Packaging" class="form-label"></label>
-								<input asp-for="Variants[i].Packaging" class="form-control" id="@($"{varId}_Packaging")"/>
-                                <span asp-validation-for="Variants[i].Packaging" class="text-danger"></span>
-							</div>
-							<div class="col-md-3 d-flex align-items-center">
-								<div class="form-check form-switch mt-3"> @* Add margin top for alignment *@
-									<input class="form-check-input" type="checkbox" asp-for="Variants[i].IsActive" role="switch" id="@($"{varId}_IsActive")">
-									<label class="form-check-label" asp-for="Variants[i].IsActive"></label>
-                                     <span asp-validation-for="Variants[i].IsActive" class="text-danger"></span>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			}
-		</div>
-
-		@* Template for new variants (hidden) *@
-		<template id="product-variant-template">
-			<div class="card mb-3 product-variant-item" data-index="__INDEX__">
-				<input type="hidden" name="Variants[__INDEX__].Id" value="0" />
-				<input type="hidden" name="Variants[__INDEX__].IsDeleted" class="is-deleted-input" value="false" />
-				<div class="card-body">
-					<div class="row g-3">
-						<div class="col-md-4"><label name="Variants[__INDEX__].Name" class="form-label required">Tên biến thể</label><input name="Variants[__INDEX__].Name" class="form-control" id="Variants___INDEX___Name"/></div>
-						<div class="col-md-3"><label name="Variants[__INDEX__].Sku" class="form-label required">SKU</label><input name="Variants[__INDEX__].Sku" class="form-control" id="Variants___INDEX___Sku"/></div>
-						<div class="col-md-2"><label name="Variants[__INDEX__].Price" class="form-label required">Giá</label><input type="number" name="Variants[__INDEX__].Price" class="form-control" step="any" min="0" value="0" id="Variants___INDEX___Price"/></div>
-						<div class="col-md-2"><label name="Variants[__INDEX__].StockQuantity" class="form-label">Tồn kho</label><input type="number" name="Variants[__INDEX__].StockQuantity" class="form-control" min="0" value="0" id="Variants___INDEX___StockQuantity"/></div>
-						<div class="col-md-1 d-flex align-items-end"><button type="button" class="btn btn-outline-danger remove-variant-btn" title="Xóa biến thể này"><i class="ti ti-trash"></i></button></div>
-						<div class="col-md-3"><label name="Variants[__INDEX__].Color" class="form-label">Màu sắc</label><input name="Variants[__INDEX__].Color" class="form-control" id="Variants___INDEX___Color"/></div>
-						<div class="col-md-3"><label name="Variants[__INDEX__].Size" class="form-label">Kích thước/Dung tích</label><input name="Variants[__INDEX__].Size" class="form-control" id="Variants___INDEX___Size"/></div>
-						<div class="col-md-3"><label name="Variants[__INDEX__].Packaging" class="form-label">Đóng gói</label><input name="Variants[__INDEX__].Packaging" class="form-control" id="Variants___INDEX___Packaging"/></div>
-						<div class="col-md-3 d-flex align-items-center">
-							<div class="form-check form-switch mt-3">
-								<input class="form-check-input" type="checkbox" name="Variants[__INDEX__].IsActive" value="true" role="switch" id="Variants___INDEX___IsActive" checked>
-								<label class="form-check-label" for="Variants___INDEX___IsActive">Hoạt động</label>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-		</template>
-	</div>
-
-	@* --- Tab: Relations (Categories & Tags) --- *@
-	<div class="tab-pane" id="tab-relations" role="tabpanel">
+	@* --- Tab: Relations --- *@
+	<div class="tab-pane" id="article-tab-relations" role="tabpanel">
 		<div class="row">
 			<div class="col-md-6">
-				<div class="form-group mb-3">
-					<label asp-for="SelectedCategoryIds" class="form-label required"></label>
-					<select asp-for="SelectedCategoryIds" asp-items="@Model.CategoryList" class="form-select tom-select-multiple" multiple="multiple" id="SelectedCategoryIds"></select> @* Use TomSelect *@
-					<span asp-validation-for="SelectedCategoryIds" class="text-danger"></span>
-					<small class="form-hint">Chọn một hoặc nhiều danh mục.</small>
-				</div>
+				<div class="form-group mb-3"><label asp-for="SelectedCategoryIds" class="form-label required"></label><select asp-for="SelectedCategoryIds" asp-items="@Model.CategoryList" class="form-select tom-select-multiple" multiple="multiple"></select><span asp-validation-for="SelectedCategoryIds" class="text-danger"></span><small class="form-hint">Chọn ít nhất một danh mục.</small></div>
 			</div>
 			<div class="col-md-6">
-				<div class="form-group mb-3">
-					<label asp-for="SelectedTagIds" class="form-label"></label>
-					<select asp-for="SelectedTagIds" asp-items="@Model.TagList" class="form-select tom-select-multiple" multiple="multiple" id="SelectedTagIds"></select> @* Use TomSelect *@
-					<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
-					<small class="form-hint">Chọn các thẻ liên quan.</small>
-				</div>
+				<div class="form-group mb-3"><label asp-for="SelectedTagIds" class="form-label"></label><select asp-for="SelectedTagIds" asp-items="@Model.TagList" class="form-select tom-select-multiple" multiple="multiple" id="SelectedTagIds"></select><span asp-validation-for="SelectedTagIds" class="text-danger"></span><small class="form-hint">Chọn hoặc nhập thẻ mới.</small></div>
 			</div>
+			<div class="col-12">
+				<div class="form-group mb-0"><label asp-for="SelectedProductIds" class="form-label"></label><select asp-for="SelectedProductIds" asp-items="@Model.ProductList" class="form-select tom-select-multiple" multiple="multiple" id="SelectedProductIds"></select><span asp-validation-for="SelectedProductIds" class="text-danger"></span><small class="form-hint">Chọn các sản phẩm được đề cập (nếu có).</small></div>
+			</div>
+		</div>
+	</div>
+
+	@* --- Tab: Publishing --- *@
+	<div class="tab-pane" id="article-tab-publishing" role="tabpanel">
+		<div class="row">
+			<div class="col-md-6">
+				<div class="form-group mb-3"><label asp-for="Status" class="form-label required"></label><select asp-for="Status" asp-items="@Model.StatusList" class="form-select tom-select-single"></select><span asp-validation-for="Status" class="text-danger"></span></div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group mb-3"><label asp-for="PublishedAt" class="form-label"></label><input asp-for="PublishedAt" type="datetime-local" class="form-control" /><span asp-validation-for="PublishedAt" class="text-danger"></span><small class="form-hint">Để trống nếu là 'Bản nháp'. Nếu chọn 'Đã xuất bản' mà để trống thì sẽ xuất bản ngay.</small></div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-check form-switch mb-3"><input class="form-check-input" type="checkbox" asp-for="IsFeatured" role="switch" id="articleIsFeaturedSwitch"><label class="form-check-label" asp-for="IsFeatured"></label></div>
+			</div>
+            <div class="col-md-6">
+                <div class="form-group mb-3"><label asp-for="EstimatedReadingMinutes" class="form-label"></label><input asp-for="EstimatedReadingMinutes" class="form-control" readonly disabled /><small class="form-hint">Tự động tính toán dựa trên nội dung.</small></div>
+            </div>
 		</div>
 	</div>
 
 	@* --- Tab: SEO --- *@
-	<div class="tab-pane" id="tab-seo" role="tabpanel">
+	<div class="tab-pane" id="article-tab-seo" role="tabpanel">
 		<h3 class="card-title mb-3">Tối ưu SEO</h3>
-		<div class="form-group mb-3">
-			<label asp-for="MetaTitle" class="form-label"></label>
-			<input asp-for="MetaTitle" class="form-control" />
-			<span asp-validation-for="MetaTitle" class="text-danger"></span>
-			<small class="form-hint">Tiêu đề hiển thị trên kết quả tìm kiếm (tối ưu < 60 ký tự).</small>
-		</div>
-		<div class="form-group mb-3">
-			<label asp-for="MetaDescription" class="form-label"></label>
-			<textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
-			<span asp-validation-for="MetaDescription" class="text-danger"></span>
-			<small class="form-hint">Mô tả ngắn gọn hiển thị trên kết quả tìm kiếm (tối ưu < 160 ký tự).</small>
-		</div>
-		<div class="form-group mb-3">
-			<label asp-for="MetaKeywords" class="form-label"></label>
-			<input asp-for="MetaKeywords" class="form-control" />
-			<span asp-validation-for="MetaKeywords" class="text-danger"></span>
-			<small class="form-hint">Các từ khóa liên quan, cách nhau bởi dấu phẩy (,).</small>
-		</div>
+		<div class="mb-3"><label asp-for="MetaTitle" class="form-label"></label><input asp-for="MetaTitle" class="form-control" /><span asp-validation-for="MetaTitle" class="text-danger"></span><small class="form-hint">Tiêu đề SEO (tối ưu < 60 ký tự).</small></div>
+		<div class="mb-3"><label asp-for="MetaDescription" class="form-label"></label><textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea><span asp-validation-for="MetaDescription" class="text-danger"></span><small class="form-hint">Mô tả SEO (tối ưu < 160 ký tự).</small></div>
+		<div class="mb-3"><label asp-for="MetaKeywords" class="form-label"></label><input asp-for="MetaKeywords" class="form-control" /><span asp-validation-for="MetaKeywords" class="text-danger"></span><small class="form-hint">Từ khóa SEO (cách nhau bởi dấu phẩy).</small></div>
 		<hr class="my-3" />
-		<div class="form-group mb-3">
-			<label asp-for="CanonicalUrl" class="form-label"></label>
-			<input asp-for="CanonicalUrl" class="form-control" type="url" />
-			<span asp-validation-for="CanonicalUrl" class="text-danger"></span>
-			<small class="form-hint">URL chuẩn cho trang này nếu có nội dung trùng lặp.</small>
-		</div>
-		<div class="row mb-3">
-			<div class="col-auto">
-				<div class="form-check form-switch">
-					<input class="form-check-input" type="checkbox" asp-for="NoIndex" role="switch" id="seoNoIndexSwitch">
-					<label class="form-check-label" asp-for="NoIndex"></label>
-				</div>
-				<small class="form-hint d-block ms-4 ps-2">Ngăn máy tìm kiếm index trang này.</small>
-			</div>
-			<div class="col-auto">
-				<div class="form-check form-switch">
-					<input class="form-check-input" type="checkbox" asp-for="NoFollow" role="switch" id="seoNoFollowSwitch">
-					<label class="form-check-label" asp-for="NoFollow"></label>
-				</div>
-				<small class="form-hint d-block ms-4 ps-2">Ngăn máy tìm kiếm theo các liên kết trên trang.</small>
-			</div>
-		</div>
+		<div class="mb-3"><label asp-for="CanonicalUrl" class="form-label"></label><input asp-for="CanonicalUrl" class="form-control" type="url" /><span asp-validation-for="CanonicalUrl" class="text-danger"></span><small class="form-hint">URL gốc nếu trùng nội dung.</small></div>
+		<div class="row mb-3"><div class="col-auto"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" asp-for="NoIndex" role="switch" id="seoNoIndexSwitch"><label class="form-check-label" asp-for="NoIndex"></label></div><small class="form-hint d-block ms-4 ps-2">Ngăn index.</small></div><div class="col-auto"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" asp-for="NoFollow" role="switch" id="seoNoFollowSwitch"><label class="form-check-label" asp-for="NoFollow"></label></div><small class="form-hint d-block ms-4 ps-2">Ngăn follow link.</small></div></div>
 		<hr class="my-3" />
 		<h4 class="mb-3">Open Graph (Mạng xã hội)</h4>
-		<div class="form-group mb-3">
-			<label asp-for="OgTitle" class="form-label"></label>
-			<input asp-for="OgTitle" class="form-control" />
-			<span asp-validation-for="OgTitle" class="text-danger"></span>
-		</div>
-		<div class="form-group mb-3">
-			<label asp-for="OgDescription" class="form-label"></label>
-			<textarea asp-for="OgDescription" class="form-control" rows="2"></textarea>
-			<span asp-validation-for="OgDescription" class="text-danger"></span>
-		</div>
-		<div class="form-group mb-3">
-			<label asp-for="OgImage" class="form-label"></label>
-			<div class="input-group">
-				<input type="text" asp-for="OgImage" class="form-control" id="ogImagePathInput" /> @* Stores URL *@
-				<button class="btn btn-outline-secondary" type="button" id="selectOgImageBtn" title="Chọn ảnh từ thư viện"> <i class="ti ti-photo-search"></i> </button>
-				<button class="btn btn-outline-danger @(string.IsNullOrEmpty(Model.OgImage) ? "d-none" : "")" type="button" id="removeOgImageBtn" title="Xóa ảnh"> <i class="ti ti-x"></i> </button>
-			</div>
-			<span asp-validation-for="OgImage" class="text-danger"></span>
-			<img id="ogImagePreview" src="@(Model.OgImage ?? "/img/placeholder.svg")" class="img-thumbnail mt-2" style="max-height: 80px; display: @(string.IsNullOrEmpty(Model.OgImage) ? "none" : "block");" />
-		</div>
-		<div class="form-group mb-3">
-			<label asp-for="OgType" class="form-label"></label>
-			<input asp-for="OgType" class="form-control" />
-			<span asp-validation-for="OgType" class="text-danger"></span>
-		</div>
+		<div class="mb-3"><label asp-for="OgTitle" class="form-label"></label><input asp-for="OgTitle" class="form-control" /><span asp-validation-for="OgTitle" class="text-danger"></span></div>
+		<div class="mb-3"><label asp-for="OgDescription" class="form-label"></label><textarea asp-for="OgDescription" class="form-control" rows="2"></textarea><span asp-validation-for="OgDescription" class="text-danger"></span></div>
+		<div class="mb-3">
+            <label asp-for="OgImage" class="form-label"></label>
+            <div class="input-group">
+                <input type="text" asp-for="OgImage" class="form-control" id="ogImagePathInput" placeholder="Nhập URL hoặc chọn ảnh MinIO Path" /> @* Adjusted placeholder *@
+                <button class="btn btn-outline-secondary select-media-btn" type="button" data-target-input="#ogImagePathInput" data-target-preview="#ogImagePreview" title="Chọn ảnh"><i class="ti ti-photo-search"></i></button>
+                <button class="btn btn-outline-danger remove-media-btn @(string.IsNullOrEmpty(Model.OgImage) ? "d-none" : "")" type="button" data-target-input="#ogImagePathInput" data-target-preview="#ogImagePreview" data-placeholder="/img/placeholder.svg" title="Xóa"><i class="ti ti-x"></i></button>
+            </div>
+            <span asp-validation-for="OgImage" class="text-danger"></span>
+            <img id="ogImagePreview" src="@(Model.OgImage?.StartsWith("http") ?? false ? Model.OgImage : MediaUrlHelper.GetMinioUrl(Model.OgImage, "/img/placeholder.svg"))" class="img-thumbnail mt-2" style="max-height: 80px; display: @(string.IsNullOrEmpty(Model.OgImage) ? "none" : "block");" />
+             <small class="form-hint">Nhập URL hoặc MinIO Path. Ảnh tỷ lệ 1.91:1.</small>
+        </div>
+		<div class="mb-3"><label asp-for="OgType" class="form-label"></label><input asp-for="OgType" class="form-control" /><span asp-validation-for="OgType" class="text-danger"></span></div>
 		<hr class="my-3" />
-		<h4 class="mb-3">Twitter Card</h4>
-		@* Add Twitter fields similarly *@
+		@* Add Twitter Card fields similar to Open Graph *@
 		<hr class="my-3" />
-		<h4 class="mb-3">Dữ liệu cấu trúc (Schema & Breadcrumbs)</h4>
-		@* Add Schema/Breadcrumb fields similarly *@
-		<hr class="my-3" />
-		<h4 class="mb-3">Cấu hình Sitemap</h4>
+		<h4 class="mb-3">Dữ liệu cấu trúc & Sitemap</h4>
+        <div class="mb-3"><label asp-for="SchemaMarkup" class="form-label"></label><textarea asp-for="SchemaMarkup" class="form-control" rows="5"></textarea><span asp-validation-for="SchemaMarkup" class="text-danger"></span><small class="form-hint">JSON-LD Schema.org.</small></div>
+        <div class="mb-3"><label asp-for="BreadcrumbJson" class="form-label"></label><textarea asp-for="BreadcrumbJson" class="form-control" rows="3"></textarea><span asp-validation-for="BreadcrumbJson" class="text-danger"></span><small class="form-hint">JSON cho Breadcrumbs.</small></div>
 		<div class="row">
-			<div class="col-md-6">
-				<div class="form-group mb-3">
-					<label asp-for="SitemapPriority" class="form-label"></label>
-					<input type="number" asp-for="SitemapPriority" class="form-control" step="0.1" min="0.0" max="1.0" />
-					<span asp-validation-for="SitemapPriority" class="text-danger"></span>
-				</div>
-			</div>
-			<div class="col-md-6">
-				<div class="form-group mb-3">
-					<label asp-for="SitemapChangeFrequency" class="form-label required"></label>
-					<select asp-for="SitemapChangeFrequency" class="form-select tom-select-single"> @* Use TomSelect *@
-						<option value="">-- Chọn tần suất --</option>
-						<option value="always">Luôn luôn (Always)</option>
-						<option value="hourly">Hàng giờ (Hourly)</option>
-						<option value="daily">Hàng ngày (Daily)</option>
-						<option value="weekly">Hàng tuần (Weekly)</option>
-						<option value="monthly">Hàng tháng (Monthly)</option>
-						<option value="yearly">Hàng năm (Yearly)</option>
-						<option value="never">Không bao giờ (Never)</option>
-					</select>
-					<span asp-validation-for="SitemapChangeFrequency" class="text-danger"></span>
-				</div>
-			</div>
+			<div class="col-md-6"><div class="form-group mb-3"><label asp-for="SitemapPriority" class="form-label"></label><input type="number" asp-for="SitemapPriority" class="form-control" step="0.1" min="0.0" max="1.0" /><span asp-validation-for="SitemapPriority" class="text-danger"></span></div></div>
+			<div class="col-md-6"><div class="form-group mb-3"><label asp-for="SitemapChangeFrequency" class="form-label required"></label><select asp-for="SitemapChangeFrequency" class="form-select tom-select-single"><option value="always">Always</option><option value="hourly">Hourly</option><option value="daily">Daily</option><option value="weekly">Weekly</option><option value="monthly">Monthly</option><option value="yearly">Yearly</option><option value="never">Never</option></select><span asp-validation-for="SitemapChangeFrequency" class="text-danger"></span></div></div>
 		</div>
 	</div>
 </div>
-@* --- END OF FILE _ProductFormFields.txt --- *@
+@* --- END OF FILE _ArticleFormFields.txt --- *@
 
 
 @* --- START OF FILE Create.txt --- Updated --- *@
-@using web.Areas.Admin.ViewModels.Product
-@model ProductViewModel
+@using web.Areas.Admin.ViewModels.Article
+@model ArticleViewModel
 @{
-	ViewData["Title"] = "Thêm Sản phẩm mới - Hệ thống quản trị";
+    ViewData["Title"] = "Viết Bài mới - Hệ thống quản trị";
     // Breadcrumbs set in Controller
 }
 
-@section Styles {
-	@* Include TomSelect CSS if not global *@
-	@* <link rel="stylesheet" href="~/lib/tom-select/dist/css/tom-select.bootstrap5.min.css" asp-append-version="true"> *@
-	<style>
-		.product-image-item .card-img-top { min-height: 150px; background-color: #f8f9fa; background-size: contain; background-repeat: no-repeat; background-position: center; }
-		.product-variant-item .form-label { font-size: 0.8rem; margin-bottom: 0.25rem; }
-		.ts-control .item[data-value=""] { display: none; } /* Hide empty option in TomSelect */
-	</style>
+@section Styles { @* Combine styles *@
+	@*<link rel="stylesheet" href="~/lib/tom-select/dist/css/tom-select.bootstrap5.min.css" asp-append-version="true"> *@
+	@*<link rel="stylesheet" href="~/lib/summernote/dist/summernote-bs5.min.css" asp-append-version="true">*@
+    <style>.select2-container--default .select2-selection--multiple { border-color: #d9dbde; } /* Style TomSelect */ </style>
 }
 
-<form asp-action="Create" method="post" id="product-form">
-	<div class="card">
-		<div class="card-header">
-			<h3 class="card-title">Thông tin Sản phẩm</h3>
-		</div>
-		<div class="card-body">
-			@Html.AntiForgeryToken()
-			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
-			<partial name="_ProductFormFields" model="Model" />
-		</div>
-		<div class="card-footer text-end bg-transparent border-top pt-3">
-			<a asp-action="Index" class="btn btn-link">Hủy</a>
-			<button type="submit" class="btn btn-primary ms-2">
-				<i class="ti ti-device-floppy me-2"></i> Lưu Sản phẩm
-			</button>
-		</div>
-	</div>
+<form asp-action="Create" method="post" id="article-form">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Nội dung Bài viết</h3>
+        </div>
+        <div class="card-body">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
+            <partial name="_ArticleFormFields" model="Model" />
+        </div>
+        <div class="card-footer text-end bg-transparent border-top pt-3">
+            <a asp-action="Index" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary ms-2"> <i class="ti ti-device-floppy me-2"></i> Lưu bài viết </button>
+        </div>
+    </div>
 </form>
 
 @section Scripts {
-	<script src="~/js/slug.js" asp-append-version="true"></script>
-	@* Ensure Summernote is loaded if not global *@
+    <script src="~/js/slug.js" asp-append-version="true"></script>
+	@* Load Summernote & TomSelect if not global *@
 	@* <script src="~/lib/summernote/dist/summernote-bs5.min.js" asp-append-version="true"></script> *@
-    @* Ensure TomSelect is loaded if not global *@
+	@* <script src="~/lib/summernote/dist/lang/summernote-vi-VN.min.js" asp-append-version="true"></script> *@
     @* <script src="~/lib/tom-select/dist/js/tom-select.complete.min.js" asp-append-version="true"></script> *@
 
-	<script>
-		$(document).ready(function () {
-             // --- Initialize TomSelect ---
-             // Use a more specific selector if needed
-             document.querySelectorAll('.tom-select-single').forEach((el) => {
-                new TomSelect(el, { create: false, placeholder: el.options[0].text || 'Chọn...' });
-             });
-            document.querySelectorAll('.tom-select-multiple').forEach((el) => {
-                 new TomSelect(el, { plugins: ['remove_button'], create: false, placeholder: 'Chọn...' });
-            });
+    <script>
+        $(document).ready(function() {
+            // --- Initialize Plugins ---
+            $('.tom-select-single').each(function() { new TomSelect(this, { create: false, placeholder: this.options[0].text || 'Chọn...' }); });
+            $('.tom-select-multiple').each(function() { new TomSelect(this, { plugins: ['remove_button'], create: $(this).is('#SelectedTagIds'), placeholder: 'Chọn...' }); });
+            $('.summernote-editor').summernote({ lang: 'vi-VN', height: 250, toolbar: [ ['style', ['style']], ['font', ['bold', 'italic', 'underline', 'clear']], ['para', ['ul', 'ol', 'paragraph']], ['insert', ['link', 'picture']], ['view', ['fullscreen', 'codeview', 'help']] ] });
+             $('#articleContentEditor').summernote('height', 400); // Taller editor for main content
 
-			// --- Initialize Summernote ---
-			$('.summernote-editor').summernote({
-                lang: 'vi-VN',
-                height: 200, // Default height, can override per element
-                toolbar: [ /* Standard Toolbar */
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['insert', ['link', 'picture']], // Remove video if not needed
-                    ['view', ['fullscreen', 'codeview', 'help']]
-                ]
-                // Add image upload callbacks if needed
-            });
-             $('#productDescriptionEditor').summernote('height', 350); // Specific height for main description
+            // --- Slug Generation ---
+            const titleInput = $('#articleTitle'); const slugInput = $('#articleSlug'); const generateBtn = $('#generateSlugButton');
+            titleInput.on('input', function() { if (slugInput.val() === '') { slugInput.val(generateVietnameseSlug(titleInput.val())); } });
+            generateBtn.on('click', function() { slugInput.val(generateVietnameseSlug(titleInput.val())); });
 
-
-			// --- Slug Generation ---
-			const nameInput = $('#productName');
-			const slugInput = $('#productSlug');
-			const generateBtn = $('#generateSlugButton');
-			nameInput.on('input', function() {
-				if (slugInput.val() === '') { slugInput.val(generateVietnameseSlug(nameInput.val())); }
-			});
-			generateBtn.on('click', function() { slugInput.val(generateVietnameseSlug(nameInput.val())); });
-
-
-			// --- Image Management ---
-            const selectImagesBtn = $('#selectProductImagesBtn');
-            const imageListContainer = $('#product-image-list');
-            const imageTemplate = $('#product-image-template').html();
-            let imageNextIndex = imageListContainer.find('.product-image-item').length; // Should be 0 on Create
-
-            function reindexImages() {
-                let isAnyMainSet = false;
-                imageListContainer.find('.product-image-item').each(function(index) {
-                    $(this).attr('data-index', index);
-                    $(this).find('input, label, select, textarea').each(function() {
-                        const oldName = $(this).attr('name');
-                        if (oldName) { $(this).attr('name', oldName.replace(/Images\[\d+\]/, `Images[${index}]`)); }
-                        const oldId = $(this).attr('id');
-                        if (oldId) {
-                            const newId = oldId.replace(/Images___?\d+__?/, `Images_${index}_`);
-                             $(this).attr('id', newId);
-                            if ($(this).is(':radio') || $(this).is(':checkbox')) {
-                                $(this).closest('.form-check').find('label').attr('for', newId);
-                            }
-                        }
-                         if($(this).hasClass('is-main-input')) { $(this).attr('name', `ImagesMainRadio`).val(index); } // Use index as value
-                    });
-                    if ($(this).find('.is-main-input').is(':checked')) { isAnyMainSet = true; }
-                });
-                 imageNextIndex = imageListContainer.find('.product-image-item').length;
-                updateMainImageHiddenInput(); // Ensure hidden inputs are synced
-                 // Auto-select first as main if none selected
-                if (!isAnyMainSet && imageListContainer.find('.product-image-item:visible').length > 0) {
-                     const firstRadio = imageListContainer.find('.product-image-item:visible:first .is-main-input');
-                     firstRadio.prop('checked', true);
-                     updateMainImageHiddenInput();
-                }
-            }
-
-            function updateMainImageHiddenInput() {
-                imageListContainer.find('.product-image-item').each(function(index) {
-                     const radio = $(this).find('.is-main-input');
-                     const hidden = $(this).find('.is-main-hidden');
-                    // Check based on value matching current index
-                     hidden.val(radio.is(':checked') ? 'true' : 'false');
-                });
-            }
-
-            imageListContainer.on('change', '.is-main-input', function() {
-                 // When a radio is checked, its value (the index) identifies the main image
-                 // All hidden inputs need to be updated
-                 updateMainImageHiddenInput();
-            });
-
-            function handleProductImageSelection(selectedFile) {
-                if (!selectedFile || !selectedFile.path) return;
-                const imagePath = selectedFile.path;
-                 let existingItem = null;
-                imageListContainer.find('.product-image-item').each(function() { if ($(this).data('image-path') === imagePath) { existingItem = $(this); return false; } });
-                 if (existingItem && existingItem.length > 0) {
-                    if (existingItem.find('.is-deleted-input').val() === 'true') {
-                        existingItem.find('.is-deleted-input').val('false'); existingItem.show(); reindexImages(); toastr.info(`Đã thêm lại ảnh '${selectedFile.name}'.`);
-                    } else { toastr.warning(`Ảnh '${selectedFile.name}' đã có trong danh sách.`); } return;
-                }
-                 // Add New
-                const displayUrl = `@(MediaUrlHelper.GetMinioUrl("__PATH__", "/img/placeholder.svg"))`.replace('__PATH__', imagePath);
-                const newItemHtml = imageTemplate
-                    .replace(/__INDEX__/g, imageNextIndex)
-                    .replace(/__IMAGE_PATH__/g, imagePath)
-                    .replace(/__THUMB_PATH__/g, imagePath) // Assuming thumb=image for now
-                    .replace(/__DISPLAY_URL__/g, displayUrl)
-                    .replace(/__ALT_TEXT__/g, selectedFile.alt || '');
-                const newItem = $(newItemHtml);
-                 imageListContainer.append(newItem);
-                 imageNextIndex++; reindexImages(); toastr.success(`Đã thêm ảnh '${selectedFile.name}'.`);
-            }
-
-            selectImagesBtn.on('click', function() {
-                if (typeof window.openMediaSelectionModal === 'function') {
-                    window.openMediaSelectionModal(handleProductImageSelection, 'Image', true); // Allow multi-select
-                } else { console.error('openMediaSelectionModal is not defined.'); alert('Không thể mở thư viện media.'); }
-            });
-
-            imageListContainer.on('click', '.remove-image-btn', function() {
-                 const item = $(this).closest('.product-image-item');
-                 const idInput = item.find('input[name$=".Id"]');
-                if (idInput && parseInt(idInput.val()) > 0) { item.find('.is-deleted-input').val('true'); item.hide();
-                } else { item.remove(); }
-                reindexImages(); // Re-index after remove/hide
-            });
-             // Initial indexing
-            reindexImages();
-
-			// --- Variant Management ---
-			const variantListContainer = $('#product-variant-list');
-			const variantTemplate = $('#product-variant-template').html();
-			let variantNextIndex = $('#product-variant-list .product-variant-item').length;
-
-			 function reindexVariants() {
-				variantListContainer.find('.product-variant-item').each(function(index) {
-					$(this).attr('data-index', index);
-					$(this).find('input, label, select, textarea').each(function() {
-						 const oldName = $(this).attr('name'); if (oldName) $(this).attr('name', oldName.replace(/Variants\[\d+\]/, `Variants[${index}]`));
-						 const oldId = $(this).attr('id'); if (oldId) { const newId = oldId.replace(/Variants___?\d+__?/, `Variants_${index}_`); $(this).attr('id', newId); if ($(this).is(':checkbox')) $(this).closest('.form-check').find('label').attr('for', newId); }
-					});
-				}); variantNextIndex = variantListContainer.find('.product-variant-item').length;
-			}
-
-			 $('#add-variant-btn').on('click', function() {
-				 const newItemHtml = variantTemplate.replace(/__INDEX__/g, variantNextIndex); variantListContainer.append(newItemHtml); reindexVariants();
-			 });
-
-			 variantListContainer.on('click', '.remove-variant-btn', function() {
-				 const item = $(this).closest('.product-variant-item'); const idInput = item.find('input[name$=".Id"]');
-				  if (idInput && parseInt(idInput.val()) > 0) { item.find('.is-deleted-input').val('true'); item.hide(); } else { item.remove(); }
-				 reindexVariants();
-			 });
-            // Initial indexing
-            reindexVariants();
-
-			 // --- OG/Twitter Image Selection ---
-			 function setupOgImageSelection() {
-                 const ogInput = $('#ogImagePathInput');
-                 if(!ogInput.length) return; // Only run if the field exists
-                 const selectBtn = $('#selectOgImageBtn');
-                 const removeBtn = $('#removeOgImageBtn');
-                 const preview = $('#ogImagePreview');
-                 const defaultSrc = '/img/placeholder.svg';
-
-                  function handleSelection(selectedFile) {
-                     if (selectedFile && selectedFile.url) { preview.attr('src', selectedFile.url).show(); ogInput.val(selectedFile.url).trigger('change'); removeBtn.removeClass('d-none');
-                    } else { preview.attr('src', defaultSrc).hide(); ogInput.val('').trigger('change'); removeBtn.addClass('d-none'); }
+            // --- General Media Selection ---
+            function handleMediaSelection(selectedFile, inputSelector, previewSelector) { /* ... (Same as Edit view JS) ... */
+                 if (selectedFile && inputSelector && previewSelector) {
+                     const inputField = $(inputSelector); const previewImg = $(previewSelector); const removeBtn = $(`button[data-target-input="${inputSelector}"]`).filter('.remove-media-btn');
+                     const valueToStore = (inputSelector === '#ogImagePathInput' || inputSelector === '#twitterImagePathInput') ? selectedFile.url : selectedFile.path;
+                     // Use path for generating preview URL, store path or URL based on input target
+                     const displayUrl = '@(MediaUrlHelper.GetMinioUrl("__PATH__", "/img/placeholder.svg"))'.replace('__PATH__', selectedFile.path);
+                     previewImg.attr('src', displayUrl).show();
+                     inputField.val(valueToStore || '').trigger('change');
+                     if(removeBtn.length) removeBtn.removeClass('d-none');
                  }
-                  selectBtn.on('click', function() { if (typeof window.openMediaSelectionModal === 'function') window.openMediaSelectionModal(handleSelection, 'Image'); });
-                 removeBtn.on('click', function() { preview.attr('src', defaultSrc).hide(); ogInput.val('').trigger('change'); $(this).addClass('d-none'); });
-                 if (ogInput.val() === '') preview.hide(); else preview.show();
-             }
-              setupOgImageSelection(); // Initialize
-             // Add similar setup for Twitter image if needed
+            }
+             $(document).on('click', '.select-media-btn', function() { /* ... (Same as Edit view JS) ... */
+                  const targetInput = $(this).data('target-input'); const targetPreview = $(this).data('target-preview');
+                 if (typeof window.openMediaSelectionModal === 'function') { const cb = (sf) => handleMediaSelection(sf, targetInput, targetPreview); window.openMediaSelectionModal(cb, 'Image'); } else { console.error('openMediaSelectionModal is not defined.'); }
+             });
+              $(document).on('click', '.remove-media-btn', function() { /* ... (Same as Edit view JS) ... */
+                  const targetInput = $(this).data('target-input'); const targetPreview = $(this).data('target-preview'); const placeholder = $(this).data('placeholder') || '/img/placeholder.svg';
+                 if (targetInput && targetPreview) { $(targetPreview).attr('src', placeholder); if ($(targetPreview).is('#ogImagePreview')) $(targetPreview).hide(); $(targetInput).val('').trigger('change'); $(this).addClass('d-none'); }
+              });
 
-			 // Trigger validation re-parse if using jQuery unobtrusive
-			 // $.validator.unobtrusive.parse("#product-form");
-		});
-	</script>
-	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+              // Initialize visibility for OG image preview
+              if ($('#ogImagePathInput').val() === '') $('#ogImagePreview').hide(); else $('#ogImagePreview').show();
+              // Add similar for Twitter if used
+        });
+    </script>
+     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
 @* --- END OF FILE Create.txt --- *@
 
 
 @* --- START OF FILE Edit.txt --- Updated --- *@
 @using shared.Helpers
-@using web.Areas.Admin.ViewModels.Product
-@model ProductViewModel
+@using web.Areas.Admin.ViewModels.Article
+@model ArticleViewModel
 @{
-	ViewData["Title"] = "Chỉnh sửa Sản phẩm - Hệ thống quản trị";
+    ViewData["Title"] = "Chỉnh sửa Bài viết - Hệ thống quản trị";
     // Breadcrumbs set in Controller
 }
 
 @section Styles {
 	@* <link rel="stylesheet" href="~/lib/tom-select/dist/css/tom-select.bootstrap5.min.css" asp-append-version="true"> *@
-	<style>
-		.product-image-item .card-img-top { min-height: 150px; background-color: #f8f9fa; background-size: contain; background-repeat: no-repeat; background-position: center; }
-		.product-variant-item .form-label { font-size: 0.8rem; margin-bottom: 0.25rem; }
-        .ts-control .item[data-value=""] { display: none; }
-	</style>
+	@* <link rel="stylesheet" href="~/lib/summernote/dist/summernote-bs5.min.css" asp-append-version="true"> *@
+    <style>.select2-container--default .select2-selection--multiple { border-color: #d9dbde; } </style>
 }
 
-<form asp-action="Edit" asp-route-id="@Model.Id" method="post" id="product-form">
-	<div class="card">
-		<div class="card-header">
-			<h3 class="card-title">Thông tin Sản phẩm</h3>
-		</div>
-		<div class="card-body">
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post" id="article-form">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Nội dung Bài viết</h3>
+        </div>
+        <div class="card-body">
             @Html.AntiForgeryToken()
-			<input type="hidden" asp-for="Id" />
-			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
-			<partial name="_ProductFormFields" model="Model" />
-		</div>
-		<div class="card-footer text-end bg-transparent border-top pt-3">
-			<a asp-action="Index" class="btn btn-link">Hủy</a>
-			<button type="submit" class="btn btn-primary ms-2">
-				<i class="ti ti-device-floppy me-2"></i> Cập nhật Sản phẩm
-			</button>
-		</div>
-	</div>
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
+            <partial name="_ArticleFormFields" model="Model" />
+        </div>
+        <div class="card-footer text-end bg-transparent border-top pt-3">
+            <a asp-action="Index" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary ms-2">
+                <i class="ti ti-device-floppy me-2"></i> Cập nhật bài viết
+            </button>
+        </div>
+    </div>
 </form>
 
 @section Scripts {
-	<script src="~/js/slug.js" asp-append-version="true"></script>
+    <script src="~/js/slug.js" asp-append-version="true"></script>
 	@* <script src="~/lib/summernote/dist/summernote-bs5.min.js" asp-append-version="true"></script> *@
+	@* <script src="~/lib/summernote/dist/lang/summernote-vi-VN.min.js" asp-append-version="true"></script> *@
     @* <script src="~/lib/tom-select/dist/js/tom-select.complete.min.js" asp-append-version="true"></script> *@
 
-	<script>
-        // Duplicating the JS from Create view - consider moving common parts to a separate JS file
-		$(document).ready(function () {
-			 // --- Initialize TomSelect ---
-             document.querySelectorAll('.tom-select-single').forEach((el) => { new TomSelect(el, { create: false, placeholder: el.options[0].text || 'Chọn...' }); });
-             document.querySelectorAll('.tom-select-multiple').forEach((el) => { new TomSelect(el, { plugins: ['remove_button'], create: false, placeholder: 'Chọn...' }); });
+    <script>
+        $(document).ready(function() {
+             // --- Initialize Plugins ---
+            $('.tom-select-single').each(function() { new TomSelect(this, { create: false, placeholder: this.options[0].text || 'Chọn...' }); });
+            $('.tom-select-multiple').each(function() { new TomSelect(this, { plugins: ['remove_button'], create: $(this).is('#SelectedTagIds'), placeholder: 'Chọn...' }); });
+            $('.summernote-editor').summernote({ lang: 'vi-VN', height: 250, toolbar: [ ['style', ['style']], ['font', ['bold', 'italic', 'underline', 'clear']], ['para', ['ul', 'ol', 'paragraph']], ['insert', ['link', 'picture']], ['view', ['fullscreen', 'codeview', 'help']] ] });
+            $('#articleContentEditor').summernote('height', 400);
 
-			// --- Initialize Summernote ---
-			$('.summernote-editor').summernote({ lang: 'vi-VN', height: 200, toolbar: [ ['style', ['style']], ['font', ['bold', 'italic', 'underline', 'clear']], ['para', ['ul', 'ol', 'paragraph']], ['insert', ['link', 'picture']], ['view', ['fullscreen', 'codeview', 'help']] ] });
-            $('#productDescriptionEditor').summernote('height', 350);
+            // --- Slug Generation (Edit) ---
+            const titleInput = $('#articleTitle'); const slugInput = $('#articleSlug'); const generateBtn = $('#generateSlugButton');
+            let userModifiedSlug = (slugInput.val() !== generateVietnameseSlug(titleInput.val())) && (slugInput.val() !== '');
+            slugInput.on('input', function() { userModifiedSlug = true; });
+            titleInput.on('input', function() { if (!userModifiedSlug) { slugInput.val(generateVietnameseSlug(titleInput.val())); } });
+            generateBtn.on('click', function() { userModifiedSlug = false; slugInput.val(generateVietnameseSlug(titleInput.val())); });
 
-			// --- Slug Generation (Edit) ---
-			const nameInput = $('#productName'); const slugInput = $('#productSlug'); const generateBtn = $('#generateSlugButton');
-			let userModifiedSlug = (slugInput.val() !== generateVietnameseSlug(nameInput.val())) && (slugInput.val() !== '');
-			slugInput.on('input', function() { userModifiedSlug = true; });
-			nameInput.on('input', function() { if (!userModifiedSlug) { slugInput.val(generateVietnameseSlug(nameInput.val())); } });
-			generateBtn.on('click', function() { userModifiedSlug = false; slugInput.val(generateVietnameseSlug(nameInput.val())); });
-
-			// --- Image Management ---
-            const selectImagesBtn = $('#selectProductImagesBtn'); const imageListContainer = $('#product-image-list'); const imageTemplate = $('#product-image-template').html();
-            let imageNextIndex = imageListContainer.find('.product-image-item').length;
-
-            function reindexImages() { /* ... (Same as Create view) ... */
-                let isAnyMainSet = false;
-                imageListContainer.find('.product-image-item').each(function(index) {
-                    $(this).attr('data-index', index);
-                    $(this).find('input, label, select, textarea').each(function() {
-                        const oldName = $(this).attr('name'); if (oldName) $(this).attr('name', oldName.replace(/Images\[\d+\]/, `Images[${index}]`));
-                        const oldId = $(this).attr('id'); if (oldId) { const newId = oldId.replace(/Images___?\d+__?/, `Images_${index}_`); $(this).attr('id', newId); if ($(this).is(':radio') || $(this).is(':checkbox')) $(this).closest('.form-check').find('label').attr('for', newId); }
-                         if($(this).hasClass('is-main-input')) { $(this).attr('name', `ImagesMainRadio`).val(index); } // Use index as value
-                    });
-                    if ($(this).find('.is-main-input').is(':checked')) { isAnyMainSet = true; }
-                }); imageNextIndex = imageListContainer.find('.product-image-item').length;
-                updateMainImageHiddenInput();
-                 if (!isAnyMainSet && imageListContainer.find('.product-image-item:visible').length > 0) { const firstRadio = imageListContainer.find('.product-image-item:visible:first .is-main-input'); firstRadio.prop('checked', true); updateMainImageHiddenInput(); }
+             // --- General Media Selection ---
+            function handleMediaSelection(selectedFile, inputSelector, previewSelector) { /* ... (Same as Create view JS) ... */
+                if (selectedFile && inputSelector && previewSelector) {
+                     const inputField = $(inputSelector); const previewImg = $(previewSelector); const removeBtn = $(`button[data-target-input="${inputSelector}"]`).filter('.remove-media-btn');
+                     const valueToStore = (inputSelector === '#ogImagePathInput' || inputSelector === '#twitterImagePathInput') ? selectedFile.url : selectedFile.path;
+                     const displayUrl = '@(MediaUrlHelper.GetMinioUrl("__PATH__", "/img/placeholder.svg"))'.replace('__PATH__', selectedFile.path);
+                     previewImg.attr('src', displayUrl).show(); inputField.val(valueToStore || '').trigger('change'); if(removeBtn.length) removeBtn.removeClass('d-none');
+                }
             }
-            function updateMainImageHiddenInput() { /* ... (Same as Create view) ... */
-                 imageListContainer.find('.product-image-item').each(function(index) { const radio = $(this).find('.is-main-input'); const hidden = $(this).find('.is-main-hidden'); hidden.val(radio.is(':checked') ? 'true' : 'false'); });
-            }
-            imageListContainer.on('change', '.is-main-input', function() { updateMainImageHiddenInput(); });
-            function handleProductImageSelection(selectedFile) { /* ... (Same as Create view) ... */
-                 if (!selectedFile || !selectedFile.path) return; const imagePath = selectedFile.path; let existingItem = null;
-                imageListContainer.find('.product-image-item').each(function() { if ($(this).data('image-path') === imagePath) { existingItem = $(this); return false; } });
-                 if (existingItem && existingItem.length > 0) { if (existingItem.find('.is-deleted-input').val() === 'true') { existingItem.find('.is-deleted-input').val('false'); existingItem.show(); reindexImages(); toastr.info(`Đã thêm lại ảnh '${selectedFile.name}'.`); } else { toastr.warning(`Ảnh '${selectedFile.name}' đã có trong danh sách.`); } return; }
-                 const displayUrl = `@(MediaUrlHelper.GetMinioUrl("__PATH__", "/img/placeholder.svg"))`.replace('__PATH__', imagePath);
-                const newItemHtml = imageTemplate.replace(/__INDEX__/g, imageNextIndex).replace(/__IMAGE_PATH__/g, imagePath).replace(/__THUMB_PATH__/g, imagePath).replace(/__DISPLAY_URL__/g, displayUrl).replace(/__ALT_TEXT__/g, selectedFile.alt || '');
-                const newItem = $(newItemHtml); imageListContainer.append(newItem); imageNextIndex++; reindexImages(); toastr.success(`Đã thêm ảnh '${selectedFile.name}'.`);
-            }
-            selectImagesBtn.on('click', function() { if (typeof window.openMediaSelectionModal === 'function') window.openMediaSelectionModal(handleProductImageSelection, 'Image', true); else { console.error('openMediaSelectionModal is not defined.'); alert('Không thể mở thư viện media.'); } });
-            imageListContainer.on('click', '.remove-image-btn', function() { /* ... (Same as Create view) ... */
-                 const item = $(this).closest('.product-image-item'); const idInput = item.find('input[name$=".Id"]');
-                 if (idInput && parseInt(idInput.val()) > 0) { item.find('.is-deleted-input').val('true'); item.hide(); } else { item.remove(); }
-                reindexImages();
+            $(document).on('click', '.select-media-btn', function() { /* ... (Same as Create view JS) ... */
+                  const targetInput = $(this).data('target-input'); const targetPreview = $(this).data('target-preview');
+                 if (typeof window.openMediaSelectionModal === 'function') { const cb = (sf) => handleMediaSelection(sf, targetInput, targetPreview); window.openMediaSelectionModal(cb, 'Image'); } else { console.error('openMediaSelectionModal is not defined.'); }
             });
-            reindexImages(); // Initial index on load
-
-			// --- Variant Management ---
-			const variantListContainer = $('#product-variant-list'); const variantTemplate = $('#product-variant-template').html(); let variantNextIndex = $('#product-variant-list .product-variant-item').length;
-			 function reindexVariants() { /* ... (Same as Create view) ... */
-                 variantListContainer.find('.product-variant-item').each(function(index) { $(this).attr('data-index', index); $(this).find('input, label, select, textarea').each(function() { const oldName = $(this).attr('name'); if (oldName) $(this).attr('name', oldName.replace(/Variants\[\d+\]/, `Variants[${index}]`)); const oldId = $(this).attr('id'); if (oldId) { const newId = oldId.replace(/Variants___?\d+__?/, `Variants_${index}_`); $(this).attr('id', newId); if ($(this).is(':checkbox')) $(this).closest('.form-check').find('label').attr('for', newId); } }); }); variantNextIndex = variantListContainer.find('.product-variant-item').length;
-             }
-			 $('#add-variant-btn').on('click', function() { const newItemHtml = variantTemplate.replace(/__INDEX__/g, variantNextIndex); variantListContainer.append(newItemHtml); reindexVariants(); });
-			 variantListContainer.on('click', '.remove-variant-btn', function() { /* ... (Same as Create view) ... */
-                 const item = $(this).closest('.product-variant-item'); const idInput = item.find('input[name$=".Id"]'); if (idInput && parseInt(idInput.val()) > 0) { item.find('.is-deleted-input').val('true'); item.hide(); } else { item.remove(); } reindexVariants();
-             });
-             reindexVariants(); // Initial index
-
-			 // --- OG/Twitter Image Selection ---
-             function setupOgImageSelection() { /* ... (Same as Create view) ... */
-                  const ogInput = $('#ogImagePathInput'); if(!ogInput.length) return; const selectBtn = $('#selectOgImageBtn'); const removeBtn = $('#removeOgImageBtn'); const preview = $('#ogImagePreview'); const defaultSrc = '/img/placeholder.svg';
-                  function handleSelection(selectedFile) { if (selectedFile && selectedFile.url) { preview.attr('src', selectedFile.url).show(); ogInput.val(selectedFile.url).trigger('change'); removeBtn.removeClass('d-none'); } else { preview.attr('src', defaultSrc).hide(); ogInput.val('').trigger('change'); removeBtn.addClass('d-none'); } }
-                  selectBtn.on('click', function() { if (typeof window.openMediaSelectionModal === 'function') window.openMediaSelectionModal(handleSelection, 'Image'); }); removeBtn.on('click', function() { preview.attr('src', defaultSrc).hide(); ogInput.val('').trigger('change'); $(this).addClass('d-none'); });
-                 if (ogInput.val() === '') preview.hide(); else preview.show();
-             }
-             setupOgImageSelection();
-
-			 // $.validator.unobtrusive.parse("#product-form");
-		});
-	</script>
-	@{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+             $(document).on('click', '.remove-media-btn', function() { /* ... (Same as Create view JS) ... */
+                  const targetInput = $(this).data('target-input'); const targetPreview = $(this).data('target-preview'); const placeholder = $(this).data('placeholder') || '/img/placeholder.svg';
+                 if (targetInput && targetPreview) { $(targetPreview).attr('src', placeholder); if ($(targetPreview).is('#ogImagePreview')) $(targetPreview).hide(); $(targetInput).val('').trigger('change'); $(this).addClass('d-none'); }
+            });
+             // Initialize visibility for OG image preview
+             if ($('#ogImagePathInput').val() === '') $('#ogImagePreview').hide(); else $('#ogImagePreview').show();
+        });
+    </script>
+     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
 @* --- END OF FILE Edit.txt --- *@
 
@@ -2120,220 +1619,402 @@ public class ProductController : Controller
 @using X.PagedList
 @using X.PagedList.Web.Common
 @using shared.Helpers
-@using web.Areas.Admin.ViewModels.Product
+@using web.Areas.Admin.ViewModels.Article
 @using shared.Enums
 @using shared.Extensions // For GetDisplayName
-@model IPagedList<ProductListItemViewModel> @* Changed model type *@
+@model IPagedList<ArticleListItemViewModel> @* Changed model type *@
 @{
-	ViewData["Title"] = "Quản lý Sản phẩm - Hệ thống quản trị";
-     // Breadcrumbs set in Controller
+    ViewData["Title"] = "Quản lý Bài viết - Hệ thống quản trị";
+    // Breadcrumbs set in Controller
 }
 
 @section PageActions {
-	<div class="btn-list">
-		<a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm sản phẩm
-		</a>
+    <div class="btn-list">
+        <a asp-action="Create" class="btn btn-primary d-sm-inline-block"> <i class="ti ti-file-plus me-2"></i> Viết bài mới </a>
          @* Optional Export Button *@
         @* <a asp-action="ExportExcel" asp-all-route-data="@Context.Request.Query.ToDictionary(q => q.Key, q=> q.Value.ToString())" class="btn btn-outline-success d-none d-sm-inline-block"> <i class="ti ti-download me-2"></i> Export Excel </a> *@
-	</div>
+    </div>
 }
 
+<!-- Filter Form -->
 <div class="card mb-3">
-	<div class="card-body">
-		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<div class="col-md-3 col-sm-6">
-				<label class="form-label">Tìm kiếm</label>
-                 <div class="input-group">
-				    <input type="text" class="form-control" placeholder="Tên sản phẩm..." name="searchTerm" value="@ViewBag.SearchTerm">
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-3 col-sm-6">
+                <label class="form-label">Tìm kiếm</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Tiêu đề, tóm tắt..." name="searchTerm" value="@ViewBag.SearchTerm">
                      <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"> <i class="ti ti-x"></i> </button>
                  </div>
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<label class="form-label">Loại SP</label>
-                @* Use SelectTagHelper for easier selection handling *@
-				<select class="form-select tom-select-filter" name="typeId" asp-items="@ViewBag.ProductTypes">
-					<option value="">-- Tất cả --</option>
-				</select>
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<label class="form-label">Thương hiệu</label>
-				<select class="form-select tom-select-filter" name="brandId" asp-items="@ViewBag.Brands">
-					<option value="">-- Tất cả --</option>
-				</select>
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<label class="form-label">Trạng thái</label>
-				<select class="form-select tom-select-filter" name="status" asp-items="@ViewBag.Statuses">
-					<option value="">-- Tất cả --</option>
-				</select>
-			</div>
-			<div class="col-md-1 col-sm-6">
-				<button type="submit" class="btn btn-primary w-100"> <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc</button>
-			</div>
-			<div class="col-md-2 col-sm-6">
-				<a asp-action="Index" class="btn btn-outline-secondary w-100"> <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại</a>
-			</div>
-		</form>
-	</div>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">Danh mục</label>
+                <select class="form-select tom-select-filter" name="categoryId" asp-items="@ViewBag.Categories"> @* Use TomSelect *@
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">Loại bài viết</label>
+                <select class="form-select tom-select-filter" name="type" asp-items="@ViewBag.Types"> @* Use TomSelect *@
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <label class="form-label">Trạng thái</label>
+                <select class="form-select tom-select-filter" name="status" asp-items="@ViewBag.Statuses"> @* Use TomSelect *@
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="col-md-1 col-sm-6">
+                <button type="submit" class="btn btn-primary w-100"> <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc</button>
+            </div>
+            <div class="col-md-2 col-sm-6">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100"> <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại</a>
+            </div>
+        </form>
+    </div>
 </div>
 
 <!-- Content Table -->
 <div class="card">
-	 <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title mb-0">Danh sách Sản phẩm</h3>
-         @if (Model.TotalItemCount > 0)
-		{
-			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount sản phẩm</small>
-		}
+     <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Danh sách Bài viết</h3>
+         @if (Model.TotalItemCount > 0) { <small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount bài viết</small> }
     </div>
-	<div class="card-body p-0">
-		@if (!Model.Any())
-		{
-			<div class="empty">
-				<div class="empty-icon"><i class="ti ti-package fa-3x text-muted"></i></div>
-				<p class="empty-title">Không tìm thấy sản phẩm nào</p>
-				<p class="empty-subtitle text-muted">Hãy thêm sản phẩm đầu tiên.</p>
-				<div class="empty-action">
-					<a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm sản phẩm </a>
-				</div>
-			</div>
-		}
-		else
-		{
-			<div class="table-responsive">
-				<table class="table table-vcenter card-table table-striped">
-					<thead>
-						<tr>
-							<th class="w-1">ID</th>
-							<th style="width: 7%;">Ảnh</th>
-							<th>Tên sản phẩm</th>
-							<th>Loại</th>
-							<th>Thương hiệu</th>
-							<th class="text-center">Trạng thái</th>
-							<th class="text-center">Nổi bật</th>
-							<th class="text-center">Lượt xem</th>
-                             <th style="width: 15%;">Cập nhật</th> @* Added UpdatedAt *@
-							<th class="w-1">Thao tác</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var item in Model)
-						{
-							<tr>
-								<td class="text-muted">@item.Id</td>
-								<td>
-									<img src="@MediaUrlHelper.GetMinioUrl(item.MainImageUrl, "/img/placeholder.svg")"
-										 alt="@item.Name"
-										 class="avatar avatar-md object-fit-contain bg-light" /> @* Added bg-light *@
-								</td>
-								<td>
-									<a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Name</a>
-                                    @* Optional: <small class="text-muted d-block">@item.ShortDescription</small> *@
-								</td>
-								<td class="text-muted">@(item.ProductTypeName ?? "-")</td>
-								<td class="text-muted">@(item.BrandName ?? "-")</td>
-								<td class="text-center">
-                                     @* Use GetDisplayName extension *@
-									<span class="badge bg-@(GetStatusBadgeClass(item.Status))-lt">@item.Status.GetDisplayName()</span>
-								</td>
-								<td class="text-center">
-									@if (item.IsFeatured) { <i class="ti ti-star-filled text-warning" title="Nổi bật"></i> }
-                                    else { <i class="ti ti-star text-muted" title="Không nổi bật"></i> }
-								</td>
-								<td class="text-center text-muted">@item.ViewCount</td>
-                                <td class="text-muted" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td> @* Show UpdatedAt *@
-								<td>
-									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
-											<i class="ti ti-pencil"></i>
-										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Product")">
-											<i class="ti ti-trash"></i>
-										</button>
-									</div>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-		}
-	</div>
+    <div class="card-body p-0">
+        @if (!Model.Any()) { <div class="empty"><div class="empty-icon"><i class="ti ti-file-off fa-3x text-muted"></i></div><p class="empty-title">Không tìm thấy bài viết nào</p><p class="empty-subtitle text-muted">Hãy tạo bài viết đầu tiên.</p><div class="empty-action"> <a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Viết bài mới </a> </div></div> }
+        else {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Ảnh</th>
+                            <th>Tiêu đề</th>
+                            <th>Tác giả</th>
+                            <th>Danh mục</th>
+                            <th class="text-center">Loại</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Lượt xem</th>
+                            <th>Ngày xuất bản</th>
+                            <th class="w-1">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model) {
+                            <tr>
+                                <td><img src="@MediaUrlHelper.GetMinioUrl(item.ThumbnailImage, "/img/placeholder.svg")" alt="@item.Title" class="avatar avatar-md object-fit-cover bg-light" /></td>
+                                <td><a asp-action="Edit" asp-route-id="@item.Id" class="fw-medium">@item.Title</a> @if (item.IsFeatured) { <i class="ti ti-star-filled text-warning ms-1" title="Nổi bật"></i> }</td>
+                                <td class="text-muted">@(item.AuthorName ?? "-")</td>
+                                <td class="text-muted text-truncate" style="max-width: 150px;" title="@item.CategoryNames">@(item.CategoryNames ?? "-")</td>
+                                <td class="text-center text-muted">@item.Type.GetDisplayName()</td>
+                                <td class="text-center"><span class="badge bg-@(GetStatusBadgeClass(item.Status))-lt">@item.Status.GetDisplayName()</span></td>
+                                <td class="text-center text-muted">@item.ViewCount</td>
+                                <td class="text-muted" title="@item.PublishedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@(item.PublishedAt?.ToString("dd/MM/yyyy") ?? "-")</td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
+                                        <a asp-controller="Comment" asp-action="Index" asp-route-articleId="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem bình luận"><i class="ti ti-message-circle"></i></a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa" data-id="@item.Id" data-name="@item.Title" data-delete-url="@Url.Action("Delete", "Article")"> <i class="ti ti-trash"></i> </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
      @* Pagination Footer *@
-	@if (Model.PageCount > 1)
-	{
-		<div class="card-footer">
-			<div class="d-flex align-items-center justify-content-center">
-                 @Html.PagedListPager(
-								Model,
-								page => Url.Action("Index", new {
-                                    page,
-                                    searchTerm = ViewBag.SearchTerm,
-                                    typeId = ViewBag.SelectedTypeId,
-                                    brandId = ViewBag.SelectedBrandId,
-                                    status = ViewBag.SelectedStatus
-                                    }), // Pass all filters
-								new PagedListRenderOptions
-                                {
-                                    UlElementClasses = new[] { "pagination mb-0" },
-                                    LiElementClasses = new[] { "page-item" },
-                                    PageClasses = new[] { "page-link" },
-                                    DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-                                    DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-                                    DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                                    DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                                })
-			</div>
-		</div>
-	}
+	@if (Model.PageCount > 1) { <div class="card-footer"><div class="d-flex align-items-center justify-content-center">@Html.PagedListPager(Model, page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, categoryId = ViewBag.SelectedCategoryId, type = ViewBag.SelectedType, status = ViewBag.SelectedStatus }), PagedListRenderOptions.Bootstrap5PageNumbersOnly)</div></div> }
 </div>
 
 @* Status Badge Helper *@
-@functions {
-    string GetStatusBadgeClass(PublishStatus status) => status switch {
-        PublishStatus.Published => "success", PublishStatus.Draft => "secondary", PublishStatus.Scheduled => "warning",
-        PublishStatus.Archived => "dark", _ => "secondary"
-    };
-}
+@functions { string GetStatusBadgeClass(PublishStatus status) => status switch { PublishStatus.Published => "success", PublishStatus.Draft => "secondary", PublishStatus.Scheduled => "warning", PublishStatus.Archived => "dark", _ => "secondary" }; }
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
-				$('input[name="searchTerm"]').val('');
-                // Optional: $('#filterForm').submit();
-			});
-            // Initialize TomSelect for filters
-            document.querySelectorAll('.tom-select-filter').forEach((el) => {
-                 new TomSelect(el, { create: false, allowEmptyOption: true });
-            });
-            // Global delete script handles .delete-item-btn
-		});
-	</script>
+    <script> $(document).ready(function () { $('#clearSearch').on('click', function() { $('input[name="searchTerm"]').val(''); }); document.querySelectorAll('.tom-select-filter').forEach((el)=>{ new TomSelect(el, { create: false, allowEmptyOption: true }); }); }); </script>
  }
 @* --- END OF FILE Index.txt --- *@
+
+
+@* --- START OF FILE CommentController.cs --- Updated --- *@
+@using web.Areas.Admin.ViewModels.Comment
+@model IEnumerable<CommentListItemViewModel> @* Keep IEnumerable if not paginating comments directly here *@
+@{
+    ViewData["Title"] = "Quản lý Bình luận - Hệ thống quản trị";
+    // Breadcrumbs set in Controller
+}
+
+@* No "Add New" button usually for comments from admin *@
+
+<!-- Filter Form -->
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label">Tìm kiếm</label>
+                 <div class="input-group">
+                    <input type="text" class="form-control" placeholder="Tên, email, nội dung..." name="searchTerm" value="@ViewBag.SearchTerm">
+                     <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"> <i class="ti ti-x"></i> </button>
+                 </div>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Trạng thái duyệt</label>
+                <select class="form-select tom-select-filter" name="isApproved" asp-items="@ViewBag.ApprovalStatusList"> @* Use ViewBag.ApprovalStatusList *@
+                    <option value="">-- Tất cả --</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Bài viết</label>
+                 @* Use SelectList loaded into ViewBag *@
+                <select class="form-select tom-select-filter" name="articleId" asp-items="@ViewBag.ArticleList">
+                    <option value="">-- Tất cả bài viết --</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100"> <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc</button>
+            </div>
+            <div class="col-md-1">
+                <a asp-action="Index" class="btn btn-outline-secondary w-100"> <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Content Table -->
+<div class="card">
+     <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Danh sách Bình luận</h3>
+        @* No item count here if not paginated *@
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Any()) { <div class="empty"><div class="empty-icon"><i class="ti ti-message-circle-off fa-3x text-muted"></i></div><p class="empty-title">Không có bình luận nào</p><p class="empty-subtitle text-muted">Chưa có bình luận nào được gửi.</p></div> }
+        else {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead> <tr><th>Tác giả</th><th>Bình luận</th><th>Phản hồi cho</th><th class="text-center">Trạng thái</th><th>Ngày gửi</th><th class="w-1">Thao tác</th></tr> </thead>
+                    <tbody>
+                        @foreach (var item in Model) {
+                            <tr id="comment-row-@item.Id"> @* Add ID to row *@
+                                <td> <div class="d-flex flex-column"><span class="fw-medium">@item.AuthorName</span><small class="text-muted">@item.AuthorEmail</small></div> </td>
+                                <td class="text-muted">@item.ContentExcerpt</td>
+                                <td> @if (item.ArticleTitle != null) { <a asp-controller="Article" asp-action="Edit" asp-route-id="@item.ArticleId" target="_blank" class="text-muted" title="@item.ArticleTitle"> <i class="ti ti-file-text me-1"></i> @(item.ArticleTitle.Length > 30 ? item.ArticleTitle.Substring(0, 30) + "..." : item.ArticleTitle) </a> } else { <span class="text-muted">N/A</span> } </td>
+                                <td class="text-center status-cell"> @* Add class to target status *@
+                                    @if (item.IsApproved) { <span class="badge bg-success-lt">Đã duyệt</span> }
+                                    else { <span class="badge bg-warning-lt">Chờ duyệt</span> }
+                                </td>
+                                <td class="text-muted" title="@item.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+                                <td>
+                                    <div class="btn-list flex-nowrap action-buttons"> @* Add class to target buttons *@
+                                        @if (item.IsApproved) { <button class="btn btn-sm btn-icon btn-outline-warning comment-action-btn" title="Bỏ duyệt" data-action="Unapprove" data-id="@item.Id" data-url="@Url.Action("Unapprove", "Comment")"><i class="ti ti-thumb-down"></i></button> }
+                                        else { <button class="btn btn-sm btn-icon btn-outline-success comment-action-btn" title="Duyệt" data-action="Approve" data-id="@item.Id" data-url="@Url.Action("Approve", "Comment")"><i class="ti ti-thumb-up"></i></button> }
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Sửa"><i class="ti ti-pencil"></i></a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa" data-id="@item.Id" data-name="Bình luận của @item.AuthorName" data-delete-url="@Url.Action("Delete", "Comment")"> <i class="ti ti-trash"></i> </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+            @* Add Pagination controls here if using pagination in Controller *@
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+             $('#clearSearch').on('click', function() { $('input[name="searchTerm"]').val(''); $('input[name="articleId"]').val(''); $('.tom-select-filter').each(function(){ if(this.tomselect) this.tomselect.clear(); }); /*$('#filterForm').submit();*/ });
+             document.querySelectorAll('.tom-select-filter').forEach((el)=>{ new TomSelect(el, { create: false, allowEmptyOption: true }); });
+
+            // --- AJAX for Approve/Unapprove ---
+            const csrfToken = $('input[name="__RequestVerificationToken"]').val(); // Get token
+
+             $('.comment-action-btn').on('click', function(e) {
+                e.preventDefault();
+                const button = $(this);
+                const url = button.data('url');
+                const id = button.data('id');
+                const action = button.data('action'); // 'Approve' or 'Unapprove'
+                const isApproving = action === 'Approve';
+
+                button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>'); // Loading indicator
+
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    data: {
+                        id: id,
+                        __RequestVerificationToken: csrfToken
+                    },
+                    success: function(response) {
+                        if (response.success) {
+                            toastr.success(response.message);
+                            // Update UI dynamically
+                             const row = $(`#comment-row-${id}`);
+                             const statusCell = row.find('.status-cell');
+                             const actionButtons = row.find('.action-buttons');
+
+                            // Update status badge
+                            if (response.isApproved) {
+                                statusCell.html('<span class="badge bg-success-lt">Đã duyệt</span>');
+                            } else {
+                                statusCell.html('<span class="badge bg-warning-lt">Chờ duyệt</span>');
+                            }
+
+                            // Swap approve/unapprove button
+                            actionButtons.find('.comment-action-btn').remove(); // Remove existing action button
+                            if (response.isApproved) {
+                                actionButtons.prepend('<button class="btn btn-sm btn-icon btn-outline-warning comment-action-btn" title="Bỏ duyệt" data-action="Unapprove" data-id="' + id + '" data-url="@Url.Action("Unapprove", "Comment")"><i class="ti ti-thumb-down"></i></button>');
+                            } else {
+                                actionButtons.prepend('<button class="btn btn-sm btn-icon btn-outline-success comment-action-btn" title="Duyệt" data-action="Approve" data-id="' + id + '" data-url="@Url.Action("Approve", "Comment")"><i class="ti ti-thumb-up"></i></button>');
+                            }
+
+                        } else {
+                            toastr.error(response.message || 'Có lỗi xảy ra.');
+                             button.prop('disabled', false).html(isApproving ? '<i class="ti ti-thumb-up"></i>' : '<i class="ti ti-thumb-down"></i>'); // Restore icon
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("AJAX Error:", status, error, xhr.responseText);
+                        toastr.error('Lỗi kết nối hoặc lỗi máy chủ.');
+                        button.prop('disabled', false).html(isApproving ? '<i class="ti ti-thumb-up"></i>' : '<i class="ti ti-thumb-down"></i>'); // Restore icon
+                    }
+                    // No 'complete' needed as we handle button state in success/error
+                });
+            });
+
+             // Global delete script handles .delete-item-btn
+        });
+    </script>
+ }
+@* --- END OF FILE Comment Index.txt --- *@
+
+@* --- START OF FILE Comment Edit.txt --- Updated --- *@
+@using web.Areas.Admin.ViewModels.Comment
+@model CommentViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa Bình luận - Hệ thống quản trị";
+    // Breadcrumbs set in Controller
+}
+
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post"> @* Add ID route value *@
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ArticleId" />
+
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Chi tiết Bình luận</h3>
+            <div class="card-actions">
+                <a asp-action="Index" class="btn btn-link">Hủy</a>
+                <button type="submit" class="btn btn-primary ms-2">
+                    <i class="ti ti-device-floppy me-2"></i> Lưu thay đổi
+                </button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
+
+            <div class="row mb-3"> @* Use row for better alignment *@
+                <div class="col-md-6">
+                    <label class="form-label">Bài viết:</label>
+                     <p class="form-control-plaintext">
+                        <a asp-controller="Article" asp-action="Edit" asp-route-id="@Model.ArticleId" target="_blank" title="Xem bài viết">@Model.ArticleTitle</a>
+                    </p>
+                </div>
+                 <div class="col-md-6">
+                    <label class="form-label">Ngày gửi:</label>
+                    <p class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+            </div>
+
+            <hr class="my-3">
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="AuthorName" class="form-label required"></label>
+                        <input asp-for="AuthorName" class="form-control" />
+                        <span asp-validation-for="AuthorName" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="AuthorEmail" class="form-label"></label>
+                        <input type="email" asp-for="AuthorEmail" class="form-control" />
+                        <span asp-validation-for="AuthorEmail" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group mb-3">
+                        <label asp-for="AuthorWebsite" class="form-label"></label>
+                        <input type="url" asp-for="AuthorWebsite" class="form-control" />
+                        <span asp-validation-for="AuthorWebsite" class="text-danger"></span>
+                    </div>
+                </div>
+                 <div class="col-md-6 d-flex align-items-center"> @* Vertically align switch *@
+                     <div class="form-check form-switch mb-3 mt-3"> @* Add margin for alignment *@
+                         <input class="form-check-input" type="checkbox" asp-for="IsApproved" role="switch" id="commentIsApprovedSwitch">
+                         <label class="form-check-label" asp-for="IsApproved"></label>
+                     </div>
+                 </div>
+            </div>
+
+            <div class="form-group mb-0"> @* Remove margin bottom *@
+                <label asp-for="Content" class="form-label required"></label>
+                <textarea asp-for="Content" class="form-control summernote-editor" rows="6"></textarea>
+                <span asp-validation-for="Content" class="text-danger"></span>
+            </div>
+
+        </div>
+         @* Keep footer consistent *@
+        @* <div class="card-footer text-end bg-transparent border-top pt-3">
+            <a asp-action="Index" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary ms-2">
+                <i class="ti ti-device-floppy me-2"></i> Lưu thay đổi
+            </button>
+        </div> *@
+    </div>
+</form>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('.summernote-editor').summernote({
+                placeholder: 'Nội dung bình luận...',
+                tabsize: 2,
+                height: 150,
+                toolbar: [ /* Basic toolbar */ ['font', ['bold', 'italic']], ['para', ['ul', 'ol']], ['insert', ['link']], ['view', ['codeview']] ]
+            });
+        });
+    </script>
+     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+ }
+@* --- END OF FILE Comment Edit.txt --- *@
+
 ```
 
-**Summary of Product Refactoring:**
+**Summary of Article & Comment Refactoring:**
 
-1.  **Entities/Configurations:** Corrected inheritance for `ProductVariantConfiguration` and join table configurations (`ProductCategoryConfiguration`, `ProductTagConfiguration`). Ensured necessary DbSets and configurations are applied in `ApplicationDbContext`.
-2.  **ViewModels:** Added `[Display]` attributes. Implemented `ISeoPropertiesViewModel`. Added `UpdatedAt` to `ListItemViewModel`.
-3.  **Mappers:** Updated `ListItemViewModel` mapping. Verified other mappings, ensuring collections/navigation properties are ignored where handled manually. Added `ProductTypeProfile`.
-4.  **Validators:** Injected `DbContext` for unique slug check in `ProductViewModelValidator`. Added unique slug check to `ProductTypeViewModelValidator`. Noted complexity of cross-product unique SKU validation (basic checks implemented in controller). Included `SeoPropertiesValidator`.
-5.  **Controller:**
-    *   Implemented standard patterns: pagination, logging, `TempData`, validation middleware, `AsNoTracking`, `ProjectTo`.
-    *   Implemented complex relationship handling for Create/Edit POST actions (Categories, Tags, Images, Variants).
-    *   Added manual checks for complex validation (Main Image selection, unique SKUs) *before* `ModelState.IsValid`.
-    *   Added standard `Delete` action with basic checks.
-    *   Refined helper methods (`LoadRelatedDataForFormAsync`, `LoadFilterDropdownsAsync`).
+1.  **Entities/Configurations:** Corrected inheritance and primary keys for join tables (`ArticleCategory`, `ArticleTag`, `ArticleProduct`). Verified `Comment` relationships.
+2.  **ViewModels:** Added `[Display]` attributes and `UpdatedAt` where appropriate. Implemented `ISeoPropertiesViewModel` for `ArticleViewModel`.
+3.  **Mappers:** Updated list view mappings. Ensured create/edit mappings ignore non-editable/manually handled fields.
+4.  **Validators:** Added `DbContext` for unique slug check in `ArticleViewModelValidator`. Used `{PropertyName}`.
+5.  **Controllers:**
+    *   Implemented standard patterns: pagination, logging, TempData, validation middleware, `AsNoTracking`, `ProjectTo`.
+    *   Refined M-M relationship update logic in `ArticleController`.
+    *   Added helper methods for loading dropdowns, calculating read time, handling publish dates, and updating junction tables.
+    *   Implemented AJAX Approve/Unapprove in `CommentController`.
+    *   Included logic for MinIO image deletion *after* successful DB delete in `ArticleController`.
 6.  **Views:**
-    *   `_ProductFormFields`: Added IDs, standard SEO fields.
-    *   `Create`/`Edit`: Implemented standard card structure, added necessary JS for TomSelect, Summernote, Slug, and the complex Image/Variant list management. Added validation scripts partial.
-    *   `Index`: Implemented pagination, item count, standard filter/delete controls, used `MediaUrlHelper`, added `UpdatedAt` column. Initialized TomSelect for filters.
+    *   Implemented pagination, item counts, standardized filters (using TomSelect), standardized buttons/links.
+    *   Used shared `EnumExtensions.GetDisplayName()` for status/type display.
+    *   Added `UpdatedAt` columns.
+    *   Implemented AJAX handling for Approve/Unapprove buttons in Comment Index.
+    *   Ensured necessary JS libraries (TomSelect, Summernote) are initialized.
+    *   Standardized form structures and footers.
+    *   Added image selection logic using the common JS pattern.
 
-This is a large and complex feature. Thorough testing of the relationship handling (especially the add/update/delete logic for Images and Variants in the `Edit` POST action) and the client-side JavaScript is highly recommended. Remember to handle the actual MinIO image deletion appropriately (likely after successful DB deletion).
+This brings both the Article and Comment management features fully in line with your established application standards and provides robust functionality. Remember to test the relationship updates and MinIO deletion logic carefully.

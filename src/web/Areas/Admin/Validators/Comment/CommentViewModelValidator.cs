@@ -8,18 +8,18 @@ public class CommentViewModelValidator : AbstractValidator<CommentViewModel>
     public CommentViewModelValidator()
     {
         RuleFor(x => x.AuthorName)
-            .NotEmpty().WithMessage("Tên tác giả không được rỗng.")
+            .NotEmpty().WithMessage("{PropertyName} không được rỗng.")
             .MaximumLength(100);
 
         RuleFor(x => x.AuthorEmail)
-            .EmailAddress().When(x => !string.IsNullOrWhiteSpace(x.AuthorEmail))
+            .EmailAddress().WithMessage("{PropertyName} không hợp lệ.").When(x => !string.IsNullOrWhiteSpace(x.AuthorEmail))
             .MaximumLength(100);
 
         RuleFor(x => x.AuthorWebsite)
             .MaximumLength(255)
-            .Matches(@"^(https?://)?([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$").When(x => !string.IsNullOrWhiteSpace(x.AuthorWebsite));
+            .Matches(@"^(https?://)?([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$").WithMessage("{PropertyName} không hợp lệ.").When(x => !string.IsNullOrWhiteSpace(x.AuthorWebsite));
 
         RuleFor(x => x.Content)
-            .NotEmpty().WithMessage("Nội dung bình luận không được rỗng.");
+            .NotEmpty().WithMessage("{PropertyName} không được rỗng.");
     }
 }

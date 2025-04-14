@@ -1,14 +1,15 @@
 @using web.Areas.Admin.ViewModels.Comment
 @model CommentViewModel
 @{
-    ViewData["Title"] = "Chỉnh sửa Bình luận";
+    ViewData["Title"] = "Chỉnh sửa Bình luận - Hệ thống quản trị";
     // Breadcrumbs set in Controller
 }
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+    @* Add ID route value *@
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    <input type="hidden" asp-for="ArticleId" /> @* Keep track of article ID *@
+    <input type="hidden" asp-for="ArticleId" />
 
     <div class="card">
         <div class="card-header">
@@ -21,18 +22,20 @@
             </div>
         </div>
         <div class="card-body">
-            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
+            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
 
-            <div class="mb-3">
-                <label class="form-label">Bài viết:</label>
-                <p class="form-control-plaintext">
-                    @* Ideally link to the article edit page *@
-                    <a asp-controller="Article" asp-action="Edit" asp-route-id="@Model.ArticleId" target="_blank">@Model.ArticleTitle</a>
-                </p>
-            </div>
-            <div class="mb-3">
-                <label class="form-label">Ngày gửi:</label>
-                <p class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+            <div class="row mb-3">
+                @* Use row for better alignment *@
+                <div class="col-md-6">
+                    <label class="form-label">Bài viết:</label>
+                    <p class="form-control-plaintext">
+                        <a asp-controller="Article" asp-action="Edit" asp-route-id="@Model.ArticleId" target="_blank" title="Xem bài viết">@Model.ArticleTitle</a>
+                    </p>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Ngày gửi:</label>
+                    <p class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
             </div>
 
             <hr class="my-3">
@@ -40,46 +43,50 @@
             <div class="row">
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label asp-for="AuthorName" class="form-label required">Tên tác giả</label>
+                        <label asp-for="AuthorName" class="form-label required"></label>
                         <input asp-for="AuthorName" class="form-control" />
                         <span asp-validation-for="AuthorName" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label asp-for="AuthorEmail" class="form-label">Email</label>
+                        <label asp-for="AuthorEmail" class="form-label"></label>
                         <input type="email" asp-for="AuthorEmail" class="form-control" />
                         <span asp-validation-for="AuthorEmail" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="form-group mb-3">
-                        <label asp-for="AuthorWebsite" class="form-label">Website</label>
+                        <label asp-for="AuthorWebsite" class="form-label"></label>
                         <input type="url" asp-for="AuthorWebsite" class="form-control" />
                         <span asp-validation-for="AuthorWebsite" class="text-danger"></span>
                     </div>
                 </div>
+                <div class="col-md-6 d-flex align-items-center">
+                    @* Vertically align switch *@
+                    <div class="form-check form-switch mb-3 mt-3">
+                        @* Add margin for alignment *@
+                        <input class="form-check-input" type="checkbox" asp-for="IsApproved" role="switch" id="commentIsApprovedSwitch">
+                        <label class="form-check-label" asp-for="IsApproved"></label>
+                    </div>
+                </div>
             </div>
 
-            <div class="form-group mb-3">
-                <label asp-for="Content" class="form-label required">Nội dung bình luận</label>
-                @* Use Summernote for editing content *@
+            <div class="form-group mb-0">
+                @* Remove margin bottom *@
+                <label asp-for="Content" class="form-label required"></label>
                 <textarea asp-for="Content" class="form-control summernote-editor" rows="6"></textarea>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
 
-            <div class="form-check form-switch mb-0">
-                <input class="form-check-input" type="checkbox" asp-for="IsApproved" role="switch" id="commentIsApprovedSwitch">
-                <label class="form-check-label" for="commentIsApprovedSwitch">Đã duyệt</label>
-            </div>
-
         </div>
-        <div class="card-footer text-end">
+        @* Keep footer consistent *@
+        @* <div class="card-footer text-end bg-transparent border-top pt-3">
             <a asp-action="Index" class="btn btn-link">Hủy</a>
-            <button type="submit" class="btn btn-primary">
+            <button type="submit" class="btn btn-primary ms-2">
                 <i class="ti ti-device-floppy me-2"></i> Lưu thay đổi
             </button>
-        </div>
+        </div> *@
     </div>
 </form>
 
@@ -94,4 +101,8 @@
             });
         });
     </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
  }
+@* --- END OF FILE Comment Edit.txt --- *@
