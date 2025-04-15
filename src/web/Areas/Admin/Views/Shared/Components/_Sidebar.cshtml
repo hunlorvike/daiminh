@@ -1,189 +1,174 @@
 @using shared.Enums;
 @inject Microsoft.AspNetCore.Mvc.Infrastructure.IActionContextAccessor ActionContextAccessor
 @{
-    // Lấy controller và action hiện tại để xác định trạng thái active
-    var currentController = ActionContextAccessor.ActionContext?.RouteData.Values["controller"]?.ToString();
-    var currentAction = ActionContextAccessor.ActionContext?.RouteData.Values["action"]?.ToString();
-    var currentRouteType = ActionContextAccessor.ActionContext?.RouteData.Values["type"]?.ToString();
+	// Lấy controller và action hiện tại để xác định trạng thái active
+	var currentController = ActionContextAccessor.ActionContext?.RouteData.Values["controller"]?.ToString();
+	var currentAction = ActionContextAccessor.ActionContext?.RouteData.Values["action"]?.ToString();
+	var currentRouteType = ActionContextAccessor.ActionContext?.RouteData.Values["type"]?.ToString();
 
-    // Hàm helper để kiểm tra active cho dropdown menu (kiểm tra controller)
-    bool IsMenuActive(params string[] controllers)
-    {
-        return controllers.Contains(currentController, StringComparer.OrdinalIgnoreCase);
-    }
-    // Hàm helper để kiểm tra active cho Category/Tag theo type (kiểm tra controller và route 'type')
-    bool IsTaxonomyActive(string taxonomyController, string typeValue)
-    {
-        return currentController?.Equals(taxonomyController, StringComparison.OrdinalIgnoreCase) == true &&
-               currentRouteType?.Equals(typeValue, StringComparison.OrdinalIgnoreCase) == true;
-    }
+	// Hàm helper để kiểm tra active cho dropdown menu (kiểm tra controller)
+	bool IsMenuActive(params string[] controllers)
+	{
+		return controllers.Contains(currentController, StringComparer.OrdinalIgnoreCase);
+	}
+	// Hàm helper để kiểm tra active cho Category/Tag theo type (kiểm tra controller và route 'type')
+	bool IsTaxonomyActive(string taxonomyController, string typeValue)
+	{
+		return currentController?.Equals(taxonomyController, StringComparison.OrdinalIgnoreCase) == true &&
+						currentRouteType?.Equals(typeValue, StringComparison.OrdinalIgnoreCase) == true;
+	}
 }
 
 <aside class="navbar navbar-vertical navbar-expand-lg">
-    <div class="container-fluid">
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
-                aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <h1 class="navbar-brand">
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                DAIMINH <!-- Thay bằng logo nếu muốn -->
-            </a>
-        </h1>
+	<div class="container-fluid">
+		<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+				aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<h1 class="navbar-brand">
+			<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">DAIMINH</a>
+		</h1>
 
-        <div class="collapse navbar-collapse" id="sidebar-menu">
-            <ul class="navbar-nav pt-lg-3">
-                <!-- Dashboard -->
-                <li class="nav-item @(IsMenuActive("Dashboard") ? "active" : "")">
-                    <a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-home"></i></span>
-                        <span class="nav-link-title">Dashboard</span>
-                    </a>
-                </li>
+		<div class="collapse navbar-collapse" id="sidebar-menu">
+			<ul class="navbar-nav pt-lg-3">
 
-                <!-- Media -->
-                <li class="nav-item @(IsMenuActive("Media") ? "active" : "")">
-                    <a class="nav-link" asp-area="Admin" asp-controller="Media" asp-action="Index">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-photo"></i></span>
-                        <span class="nav-link-title">Quản lý Media</span>
-                    </a>
-                </li>
+				<!-- DASHBOARD -->
+				<li class="nav-item @(IsMenuActive("Dashboard") ? "active" : "")">
+					<a class="nav-link" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+						<span class="nav-link-icon"><i class="ti ti-home"></i></span>
+						<span class="nav-link-title">Dashboard</span>
+					</a>
+				</li>
 
-                <!-- Sản phẩm -->
-                <li class="nav-item dropdown @(IsMenuActive("Product", "Brand") ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-products" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("Product", "Brand") ? "true" : "false")">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-package"></i></span>
-                        <span class="nav-link-title">Sản phẩm</span>
-                    </a>
-                    <div class="dropdown-menu @(IsMenuActive("Product", "Brand") ? "show" : "")">
-                        <a class="dropdown-item @(currentController == "Product" && currentAction == "Index" ? "active" : "")" asp-area="Admin" asp-controller="Product" asp-action="Index">Danh sách sản phẩm</a>
-                        <a class="dropdown-item @(currentController == "Product" && currentAction == "Create" ? "active" : "")" asp-area="Admin" asp-controller="Product" asp-action="Create">Thêm sản phẩm mới</a>
-                        <a class="dropdown-item @(currentController == "Brand" ? "active" : "")" asp-area="Admin" asp-controller="Brand" asp-action="Index">Thương hiệu</a>
-                    </div>
-                </li>
+				<!-- NỘI DUNG -->
+				<li class="nav-item dropdown @(IsMenuActive("Article", "Comment") ? "active" : "")">
+					<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+						<span class="nav-link-icon"><i class="ti ti-news"></i></span>
+						<span class="nav-link-title">Bài viết</span>
+					</a>
+					<div class="dropdown-menu @(IsMenuActive("Article", "Comment") ? "show" : "")">
+						<a class="dropdown-item @(currentController == "Article" && currentAction == "Index" ? "active" : "")" asp-controller="Article" asp-action="Index">Danh sách</a>
+						<a class="dropdown-item @(currentController == "Article" && currentAction == "Create" ? "active" : "")" asp-controller="Article" asp-action="Create">Thêm mới</a>
+						<a class="dropdown-item @(currentController == "Comment" ? "active" : "")" asp-controller="Comment" asp-action="Index">Bình luận <span class="badge bg-warning ms-auto" id="pendingCommentsCount"></span></a>
+					</div>
+				</li>
 
-                <!-- Bài viết -->
-                <li class="nav-item dropdown @(IsMenuActive("Article", "Comment") ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-articles" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("Article", "Comment") ? "true" : "false")">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-news"></i></span>
-                        <span class="nav-link-title">Bài viết</span>
-                    </a>
-                    <div class="dropdown-menu @(IsMenuActive("Article", "Comment") ? "show" : "")">
-                        <a class="dropdown-item @(currentController == "Article" && currentAction == "Index" ? "active" : "")" asp-area="Admin" asp-controller="Article" asp-action="Index">Danh sách bài viết</a>
-                        <a class="dropdown-item @(currentController == "Article" && currentAction == "Create" ? "active" : "")" asp-area="Admin" asp-controller="Article" asp-action="Create">Thêm bài viết mới</a>
-                        <a class="dropdown-item @(currentController == "Comment" ? "active" : "")" asp-area="Admin" asp-controller="Comment" asp-action="Index">
-                            Bình luận
-                            <span class="badge bg-warning ms-auto" id="pendingCommentsCount"></span> @* JS will update this *@
-                        </a>
-                    </div>
-                </li>
+				<li class="nav-item @(IsMenuActive("Media") ? "active" : "")">
+					<a class="nav-link" asp-controller="Media" asp-action="Index">
+						<span class="nav-link-icon"><i class="ti ti-photo"></i></span>
+						<span class="nav-link-title">Quản lý Media</span>
+					</a>
+				</li>
 
-                <!-- Dự án -->
-                <li class="nav-item dropdown @(IsMenuActive("Project") ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-projects" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("Project") ? "true" : "false")">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-building-skyscraper"></i></span>
-                        <span class="nav-link-title">Dự án</span>
-                    </a>
-                    <div class="dropdown-menu @(IsMenuActive("Project") ? "show" : "")">
-                        <a class="dropdown-item @(currentController == "Project" && currentAction == "Index" ? "active" : "")" asp-area="Admin" asp-controller="Project" asp-action="Index">Danh sách dự án</a>
-                        <a class="dropdown-item @(currentController == "Project" && currentAction == "Create" ? "active" : "")" asp-area="Admin" asp-controller="Project" asp-action="Create">Thêm dự án mới</a>
-                    </div>
-                </li>
+				<li class="nav-item dropdown @(IsMenuActive("Gallery") ? "active" : "")">
+					<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+						<span class="nav-link-icon"><i class="ti ti-photo-heart"></i></span>
+						<span class="nav-link-title">Thư viện ảnh</span>
+					</a>
+					<div class="dropdown-menu @(IsMenuActive("Gallery") ? "show" : "")">
+						<a class="dropdown-item @(currentController == "Gallery" && currentAction == "Index" ? "active" : "")" asp-controller="Gallery" asp-action="Index">Danh sách</a>
+						<a class="dropdown-item @(currentController == "Gallery" && currentAction == "Create" ? "active" : "")" asp-controller="Gallery" asp-action="Create">Thêm mới</a>
+					</div>
+				</li>
 
-                @* Assume GalleryController exists based on previous sidebar *@
-                <!-- Thư viện ảnh (Gallery) -->
-                <li class="nav-item dropdown @(IsMenuActive("Gallery") ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-galleries" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("Gallery") ? "true" : "false")">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-photo-heart"></i></span>
-                        <span class="nav-link-title">Thư viện ảnh</span>
-                    </a>
-                    <div class="dropdown-menu @(IsMenuActive("Gallery") ? "show" : "")">
-                        <a class="dropdown-item @(currentController == "Gallery" && currentAction == "Index" ? "active" : "")" asp-area="Admin" asp-controller="Gallery" asp-action="Index">Danh sách thư viện</a>
-                        <a class="dropdown-item @(currentController == "Gallery" && currentAction == "Create" ? "active" : "")" asp-area="Admin" asp-controller="Gallery" asp-action="Create">Thêm thư viện mới</a>
-                    </div>
-                </li>
+				<!-- SẢN PHẨM / DỰ ÁN -->
+				<li class="nav-item dropdown @(IsMenuActive("Product", "Brand") ? "active" : "")">
+					<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+						<span class="nav-link-icon"><i class="ti ti-package"></i></span>
+						<span class="nav-link-title">Sản phẩm</span>
+					</a>
+					<div class="dropdown-menu @(IsMenuActive("Product", "Brand") ? "show" : "")">
+						<a class="dropdown-item @(currentController == "Product" && currentAction == "Index" ? "active" : "")" asp-controller="Product" asp-action="Index">Danh sách</a>
+						<a class="dropdown-item @(currentController == "Product" && currentAction == "Create" ? "active" : "")" asp-controller="Product" asp-action="Create">Thêm mới</a>
+						<a class="dropdown-item @(currentController == "Brand" ? "active" : "")" asp-controller="Brand" asp-action="Index">Thương hiệu</a>
+					</div>
+				</li>
 
-                <!-- Danh mục & Thẻ -->
-                <li class="nav-item dropdown @( (IsMenuActive("Category") && !IsTaxonomyActive("Category", CategoryType.FAQ.ToString())) || IsMenuActive("Tag") ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-taxonomies" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@( (IsMenuActive("Category") && !IsTaxonomyActive("Category", CategoryType.FAQ.ToString())) || IsMenuActive("Tag") ? "true" : "false")">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-folder"></i></span>
-                        <span class="nav-link-title">Danh mục & Thẻ</span>
-                    </a>
-                    <div class="dropdown-menu @( (IsMenuActive("Category") && !IsTaxonomyActive("Category", CategoryType.FAQ.ToString())) || IsMenuActive("Tag") ? "show" : "")">
-                        <div class="dropdown-menu-column">
-                            <span class="dropdown-header">Danh mục</span>
-                            <a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Product.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Product">Sản phẩm</a>
-                            <a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Article.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Article">Bài viết</a>
-                            <a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Project.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Project">Dự án</a>
-                            <a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Gallery.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Gallery">Thư viện ảnh</a>
-                        </div>
-                        <div class="dropdown-menu-column">
-                            <span class="dropdown-header">Thẻ (Tags)</span>
-                            <a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Product.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Product">Sản phẩm</a>
-                            <a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Article.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Article">Bài viết</a>
-                            <a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Project.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Project">Dự án</a>
-                            <a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Gallery.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Gallery">Thư viện ảnh</a>
-                        </div>
-                    </div>
-                </li>
+				<li class="nav-item dropdown @(IsMenuActive("Project") ? "active" : "")">
+					<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+						<span class="nav-link-icon"><i class="ti ti-building-skyscraper"></i></span>
+						<span class="nav-link-title">Dự án</span>
+					</a>
+					<div class="dropdown-menu @(IsMenuActive("Project") ? "show" : "")">
+						<a class="dropdown-item @(currentController == "Project" && currentAction == "Index" ? "active" : "")" asp-controller="Project" asp-action="Index">Danh sách</a>
+						<a class="dropdown-item @(currentController == "Project" && currentAction == "Create" ? "active" : "")" asp-controller="Project" asp-action="Create">Thêm mới</a>
+					</div>
+				</li>
 
-                <!-- FAQ -->
-                <li class="nav-item dropdown @(IsMenuActive("FAQ") || IsTaxonomyActive("Category", CategoryType.FAQ.ToString()) ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-faqs" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("FAQ") || IsTaxonomyActive("Category", CategoryType.FAQ.ToString()) ? "true" : "false")">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-help-circle"></i></span>
-                        <span class="nav-link-title">FAQ</span>
-                    </a>
-                    <div class="dropdown-menu @(IsMenuActive("FAQ") || IsTaxonomyActive("Category", CategoryType.FAQ.ToString()) ? "show" : "")">
-                        <a class="dropdown-item @(currentController == "FAQ" ? "active" : "")" asp-area="Admin" asp-controller="FAQ" asp-action="Index">Danh sách câu hỏi</a>
-                        <a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.FAQ.ToString()) ? "active" : "")" asp-area="Admin" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.FAQ">Danh mục FAQ</a>
-                    </div>
-                </li>
+				<!-- PHÂN LOẠI -->
+				<li class="nav-item dropdown @(IsMenuActive("Category") || IsMenuActive("Tag") ? "active" : "")">
+					<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+						<span class="nav-link-icon"><i class="ti ti-folder"></i></span>
+						<span class="nav-link-title">Danh mục & Thẻ</span>
+					</a>
+					<div class="dropdown-menu @(IsMenuActive("Category") || IsMenuActive("Tag") ? "show" : "")">
+						<div class="dropdown-menu-column">
+							<span class="dropdown-header">Danh mục</span>
+							<a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Product.ToString()) ? "active" : "")" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Product">Sản phẩm</a>
+							<a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Article.ToString()) ? "active" : "")" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Article">Bài viết</a>
+							<a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Project.ToString()) ? "active" : "")" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Project">Dự án</a>
+							<a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.Gallery.ToString()) ? "active" : "")" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.Gallery">Thư viện ảnh</a>
+							<a class="dropdown-item @(IsTaxonomyActive("Category", CategoryType.FAQ.ToString()) ? "active" : "")" asp-controller="Category" asp-action="Index" asp-route-type="@CategoryType.FAQ">Danh mục FAQ</a>
+						</div>
+						<div class="dropdown-menu-column">
+							<span class="dropdown-header">Thẻ</span>
+							<a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Product.ToString()) ? "active" : "")" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Product">Sản phẩm</a>
+							<a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Article.ToString()) ? "active" : "")" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Article">Bài viết</a>
+							<a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Project.ToString()) ? "active" : "")" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Project">Dự án</a>
+							<a class="dropdown-item @(IsTaxonomyActive("Tag", TagType.Gallery.ToString()) ? "active" : "")" asp-controller="Tag" asp-action="Index" asp-route-type="@TagType.Gallery">Thư viện ảnh</a>
+						</div>
+					</div>
+				</li>
 
-                <!-- Đánh giá khách hàng -->
-                <li class="nav-item @(IsMenuActive("Testimonial") ? "active" : "")">
-                    <a class="nav-link" asp-area="Admin" asp-controller="Testimonial" asp-action="Index">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-star"></i></span>
-                        <span class="nav-link-title">Đánh giá</span>
-                    </a>
-                </li>
+				<li class="nav-item dropdown @(IsMenuActive("FAQ") ? "active" : "")">
+					<a class="nav-link" asp-controller="FAQ" asp-action="Index">
+						<span class="nav-link-icon"><i class="ti ti-help-circle"></i></span>
+						<span class="nav-link-title">FAQ</span>
+					</a>
+				</li>
+				<!-- NGƯỜI DÙNG -->
+				<li class="nav-item @(IsMenuActive("Testimonial") ? "active" : "")">
+					<a class="nav-link" asp-controller="Testimonial" asp-action="Index">
+						<span class="nav-link-icon"><i class="ti ti-star"></i></span>
+						<span class="nav-link-title">Đánh giá</span>
+					</a>
+				</li>
 
-                <!-- Liên hệ -->
-                <li class="nav-item @(IsMenuActive("Contact") ? "active" : "")">
-                    <a class="nav-link" asp-area="Admin" asp-controller="Contact" asp-action="Index">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-mail"></i></span>
-                        <span class="nav-link-title">Liên hệ</span>
-                    </a>
-                </li>
+				<li class="nav-item @(IsMenuActive("Contact") ? "active" : "")">
+					<a class="nav-link" asp-controller="Contact" asp-action="Index">
+						<span class="nav-link-icon"><i class="ti ti-mail"></i></span>
+						<span class="nav-link-title">Liên hệ</span>
+					</a>
+				</li>
 
-                <!-- Đăng ký nhận tin -->
-                <li class="nav-item @(IsMenuActive("Newsletter") ? "active" : "")">
-                    <a class="nav-link" asp-area="Admin" asp-controller="Newsletter" asp-action="Index">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-send"></i></span>
-                        <span class="nav-link-title">Đăng ký nhận tin</span>
-                    </a>
-                </li>
+				<li class="nav-item @(IsMenuActive("Newsletter") ? "active" : "")">
+					<a class="nav-link" asp-controller="Newsletter" asp-action="Index">
+						<span class="nav-link-icon"><i class="ti ti-send"></i></span>
+						<span class="nav-link-title">Đăng ký nhận tin</span>
+					</a>
+				</li>
 
-                <!-- Hệ thống -->
-                <li class="nav-item dropdown @(IsMenuActive("Setting", "User") ? "active" : "")">
-                    <a class="nav-link dropdown-toggle" href="#navbar-system" data-bs-toggle="dropdown" data-bs-auto-close="false" role="button" aria-expanded="@(IsMenuActive("Setting", "User") ? "true" : "false")">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-settings"></i></span>
-                        <span class="nav-link-title">Hệ thống</span>
-                    </a>
-                    <div class="dropdown-menu @(IsMenuActive("Setting", "User") ? "show" : "")">
-                        <a class="dropdown-item @(currentController == "Setting" ? "active" : "")" asp-area="Admin" asp-controller="Setting" asp-action="Index">Cấu hình chung</a>
-                        <a class="dropdown-item @(currentController == "User" ? "active" : "")" asp-area="Admin" asp-controller="User" asp-action="Index">Quản lý người dùng</a>
-                        @* Thêm các link cấu hình khác nếu cần *@
-                    </div>
-                </li>
+				<!-- CẤU HÌNH HỆ THỐNG -->
+				<li class="nav-item dropdown @(IsMenuActive("Setting", "User") ? "active" : "")">
+					<a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button">
+						<span class="nav-link-icon"><i class="ti ti-settings"></i></span>
+						<span class="nav-link-title">Hệ thống</span>
+					</a>
+					<div class="dropdown-menu show">
+						<a class="dropdown-item @(currentController == "Setting" ? "active" : "")" asp-controller="Setting" asp-action="Index">Cấu hình</a>
+						<a class="dropdown-item @(currentController == "User" ? "active" : "")" asp-controller="User" asp-action="Index">Người dùng</a>
+					</div>
+				</li>
 
-                <!-- Xem trang web -->
-                <li class="nav-item">
-                    <a class="nav-link" href="/" target="_blank">
-                        <span class="nav-link-icon d-md-none d-lg-inline-block"><i class="ti ti-external-link"></i></span>
-                        <span class="nav-link-title">Xem trang web</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-    </div>
+				<!-- LINK NGOÀI -->
+				<li class="nav-item">
+					<a class="nav-link" href="/" target="_blank">
+						<span class="nav-link-icon"><i class="ti ti-external-link"></i></span>
+						<span class="nav-link-title">Xem trang web</span>
+					</a>
+				</li>
+
+			</ul>
+		</div>
+	</div>
 </aside>
