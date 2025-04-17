@@ -31,41 +31,48 @@ public class FAQController : Controller
     }
 
     // GET: Admin/FAQ
-    public async Task<IActionResult> Index(string? searchTerm = null, int? categoryId = null, int page = 1, int pageSize = 15)
+    public async Task<IActionResult> Index(FAQFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         ViewData["Title"] = "Quản lý Hỏi Đáp (FAQ) - Hệ thống quản trị";
         ViewData["PageTitle"] = "Danh sách FAQ";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("FAQ", Url.Action(nameof(Index))) };
 
-        int pageNumber = page;
+        filter ??= new FAQFilterViewModel();
+
+        int pageNumber = page > 0 ? page : 1;
+        int currentPageSize = pageSize > 0 ? pageSize : 15;
+
         var query = _context.Set<FAQ>()
                             .Include(fc => fc.Category)
                             .AsNoTracking();
 
-        // Filtering
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
-            string lowerSearchTerm = searchTerm.Trim().ToLower();
+            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
             query = query.Where(f => f.Question.ToLower().Contains(lowerSearchTerm)
                                   || f.Answer.ToLower().Contains(lowerSearchTerm));
         }
 
-        if (categoryId.HasValue && categoryId > 0)
+        if (filter.CategoryId.HasValue && filter.CategoryId > 0)
         {
-            query = query.Where(f => f.CategoryId == categoryId.Value);
+            query = query.Where(f => f.CategoryId == filter.CategoryId.Value);
         }
 
         var faqsPaged = await query
             .OrderBy(f => f.OrderIndex)
-            .ThenBy(f => f.Question) 
+            .ThenBy(f => f.Question)
             .ProjectTo<FAQListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, pageSize);
+            .ToPagedListAsync(pageNumber, currentPageSize);
 
-        await LoadCategoriesIntoViewBagAsync(categoryId);
+        filter.Categories = await LoadCategoriesSelectListAsync(filter.CategoryId);
 
-        ViewBag.SearchTerm = searchTerm;
+        var viewModel = new FAQIndexViewModel
+        {
+            FAQs = faqsPaged,
+            Filter = filter
+        };
 
-        return View(faqsPaged); 
+        return View(viewModel);
     }
 
     // GET: Admin/FAQ/Create
@@ -75,8 +82,12 @@ public class FAQController : Controller
         ViewData["PageTitle"] = "Thêm FAQ mới";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("FAQ", Url.Action(nameof(Index))), ("Thêm mới", "") };
 
-        var viewModel = new FAQViewModel { IsActive = true, OrderIndex = 0 };
-        viewModel.CategoryList = await LoadCategoriesSelectListAsync();
+        var viewModel = new FAQViewModel
+        {
+            IsActive = true,
+            OrderIndex = 0,
+            CategoryList = await LoadCategoriesSelectListAsync()
+        };
 
         return View(viewModel);
     }
@@ -86,37 +97,39 @@ public class FAQController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(FAQViewModel viewModel)
     {
-        if (ModelState.IsValid)
-        {
-            var faq = _mapper.Map<FAQ>(viewModel);
-
-            _context.Add(faq);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("FAQ '{Question}' created successfully by {User}.", faq.Question, User.Identity?.Name ?? "Unknown");
-                TempData["success"] = $"Thêm FAQ '{Truncate(faq.Question)}' thành công!";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Error saving new FAQ '{Question}'.", viewModel.Question);
-                ModelState.AddModelError("", "Không thể lưu FAQ. Lỗi cơ sở dữ liệu.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error creating FAQ '{Question}'.", viewModel.Question);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm FAQ.");
-            }
-        }
-        else
+        if (!ModelState.IsValid)
         {
             _logger.LogWarning("FAQ creation failed for '{Question}'. Model state is invalid.", viewModel.Question);
+            viewModel.CategoryList = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            ViewData["Title"] = "Thêm FAQ mới - Hệ thống quản trị";
+            ViewData["PageTitle"] = "Thêm FAQ mới";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("FAQ", Url.Action(nameof(Index))), ("Thêm mới", "") };
+            return View(viewModel);
         }
 
+        var faq = _mapper.Map<FAQ>(viewModel);
+        _context.Add(faq);
 
-        viewModel.CategoryList = await LoadCategoriesSelectListAsync();
+        try
+        {
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("FAQ '{Question}' created successfully by {User}.", faq.Question, User.Identity?.Name ?? "Unknown");
+            TempData["success"] = $"Thêm FAQ '{Truncate(faq.Question)}' thành công!";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Error saving new FAQ '{Question}'.", viewModel.Question);
+            ModelState.AddModelError("", "Không thể lưu FAQ. Lỗi cơ sở dữ liệu.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error creating FAQ '{Question}'.", viewModel.Question);
+            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm FAQ.");
+        }
+
+        // If save fails, repopulate and return view
+        viewModel.CategoryList = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
         ViewData["Title"] = "Thêm FAQ mới - Hệ thống quản trị";
         ViewData["PageTitle"] = "Thêm FAQ mới";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("FAQ", Url.Action(nameof(Index))), ("Thêm mới", "") };
@@ -127,8 +140,7 @@ public class FAQController : Controller
     public async Task<IActionResult> Edit(int id)
     {
         var faq = await _context.Set<FAQ>()
-                              .Include(f => f.Category) 
-                              .AsNoTracking() 
+                              .AsNoTracking()
                               .FirstOrDefaultAsync(f => f.Id == id);
 
         if (faq == null)
@@ -138,7 +150,7 @@ public class FAQController : Controller
         }
 
         var viewModel = _mapper.Map<FAQViewModel>(faq);
-        viewModel.CategoryList = await LoadCategoriesSelectListAsync();
+        viewModel.CategoryList = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
 
         ViewData["Title"] = "Chỉnh sửa FAQ - Hệ thống quản trị";
         ViewData["PageTitle"] = $"Chỉnh sửa FAQ: {Truncate(faq.Question)}";
@@ -158,55 +170,61 @@ public class FAQController : Controller
             return BadRequest();
         }
 
-        if (ModelState.IsValid)
-        {
-            var faq = await _context.Set<FAQ>()
-                                  .Include(f => f.Category) 
-                                  .FirstOrDefaultAsync(f => f.Id == id);
-
-            if (faq == null)
-            {
-                _logger.LogWarning("Edit POST: FAQ with ID {FaqId} not found for update.", id);
-                TempData["error"] = "Không tìm thấy FAQ để cập nhật.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            _mapper.Map(viewModel, faq);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("FAQ ID {FaqId} ('{Question}') updated successfully by {User}.", id, faq.Question, User.Identity?.Name ?? "Unknown");
-                TempData["success"] = $"Cập nhật FAQ '{Truncate(faq.Question)}' thành công!";
-                return RedirectToAction(nameof(Index));
-            }
-            catch (DbUpdateConcurrencyException ex)
-            {
-                _logger.LogWarning(ex, "Concurrency conflict updating FAQ ID: {FaqId}", id);
-                TempData["error"] = "Lỗi: Xung đột dữ liệu khi cập nhật.";
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Error updating FAQ ID: {FaqId}", id);
-                ModelState.AddModelError("", "Không thể lưu FAQ. Lỗi cơ sở dữ liệu.");
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error updating FAQ ID: {FaqId}", id);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật FAQ.");
-            }
-        }
-        else
+        if (!ModelState.IsValid)
         {
             _logger.LogWarning("FAQ editing failed for ID: {FaqId}. Model state is invalid.", id);
+            viewModel.CategoryList = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            ViewData["Title"] = "Chỉnh sửa FAQ - Hệ thống quản trị";
+            ViewData["PageTitle"] = $"Chỉnh sửa FAQ: {Truncate(viewModel.Question)}";
+            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("FAQ", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(viewModel.Question)}", "") };
+            return View(viewModel);
         }
 
-        viewModel.CategoryList = await LoadCategoriesSelectListAsync();
+        var faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == id);
+
+        if (faq == null)
+        {
+            _logger.LogWarning("Edit POST: FAQ with ID {FaqId} not found for update.", id);
+            TempData["error"] = "Không tìm thấy FAQ để cập nhật.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _mapper.Map(viewModel, faq);
+        _context.Entry(faq).State = EntityState.Modified;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("FAQ ID {FaqId} ('{Question}') updated successfully by {User}.", id, faq.Question, User.Identity?.Name ?? "Unknown");
+            TempData["success"] = $"Cập nhật FAQ '{Truncate(faq.Question)}' thành công!";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            _logger.LogWarning(ex, "Concurrency conflict updating FAQ ID: {FaqId}", id);
+            TempData["error"] = "Lỗi: Xung đột dữ liệu khi cập nhật. Dữ liệu có thể đã được thay đổi bởi người khác.";
+            viewModel.CategoryList = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            ModelState.AddModelError("", "Dữ liệu đã bị thay đổi bởi người khác. Vui lòng tải lại trang và thử lại.");
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Error updating FAQ ID: {FaqId}", id);
+            ModelState.AddModelError("", "Không thể lưu FAQ. Lỗi cơ sở dữ liệu.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Unexpected error updating FAQ ID: {FaqId}", id);
+            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật FAQ.");
+        }
+
+        // If save fails, repopulate and return view
+        viewModel.CategoryList = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
         ViewData["Title"] = "Chỉnh sửa FAQ - Hệ thống quản trị";
         ViewData["PageTitle"] = $"Chỉnh sửa FAQ: {Truncate(viewModel.Question)}";
         ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("FAQ", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(viewModel.Question)}", "") };
         return View(viewModel);
     }
+
 
     // POST: Admin/FAQ/Delete/5
     [HttpPost]
@@ -229,37 +247,30 @@ public class FAQController : Controller
             _logger.LogInformation("FAQ ID {FaqId} ('{Question}') deleted successfully by {User}.", id, question, User.Identity?.Name ?? "Unknown");
             return Json(new { success = true, message = $"Xóa FAQ '{Truncate(question)}' thành công." });
         }
+        catch (DbUpdateException ex) 
+        {
+            _logger.LogError(ex, "Error deleting FAQ ID: {FaqId}. Possible related data.", id);
+            return Json(new { success = false, message = "Lỗi: Không thể xóa FAQ. Có thể có dữ liệu liên quan." });
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error deleting FAQ ID: {FaqId}", id);
-            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa FAQ." });
+            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa FAQ." });
         }
     }
 
     // --- Helper Methods ---
-    private async Task LoadCategoriesIntoViewBagAsync(int? selectedCategoryId = null)
-    {
-        ViewBag.Categories = await _context.Set<Category>()
-                                     .Where(c => c.Type == CategoryType.FAQ && c.IsActive)
-                                     .OrderBy(c => c.Name)
-                                     .Select(c => new SelectListItem
-                                     {
-                                         Value = c.Id.ToString(),
-                                         Text = c.Name,
-                                         Selected = c.Id == selectedCategoryId
-                                     })
-                                     .ToListAsync();
-        ViewBag.SelectedCategoryId = selectedCategoryId;
-    }
 
-    private async Task<SelectList> LoadCategoriesSelectListAsync()
+    private async Task<SelectList> LoadCategoriesSelectListAsync(int? selectedValue = null)
     {
         var categories = await _context.Set<Category>()
                                      .Where(c => c.Type == CategoryType.FAQ && c.IsActive)
                                      .OrderBy(c => c.Name)
                                      .Select(c => new { c.Id, c.Name })
+                                     .AsNoTracking()
                                      .ToListAsync();
-        return new SelectList(categories, "Id", "Name");
+        // Pass selectedValue to the SelectList constructor
+        return new SelectList(categories, "Id", "Name", selectedValue);
     }
 
     private string Truncate(string value, int maxLength = 30)

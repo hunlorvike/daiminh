@@ -1,7 +1,8 @@
 @using X.PagedList.Mvc.Core
 @using X.PagedList
 @using web.Areas.Admin.ViewModels.FAQ
-@model IPagedList<FAQListItemViewModel>
+
+@model FAQIndexViewModel
 @{
 	ViewData["Title"] = "Quản lý Hỏi Đáp (FAQ) - Hệ thống quản trị";
 }
@@ -14,22 +15,21 @@
 	</div>
 }
 
-<!-- Filter Form -->
 <div class="card mb-3">
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
 			<div class="col-md-5">
-				<label class="form-label">Tìm kiếm</label>
+				<label asp-for="Filter.SearchTerm" class="form-label"></label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm câu hỏi hoặc câu trả lời..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm câu hỏi hoặc câu trả lời...">
 					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
 				</div>
 			</div>
 			<div class="col-md-4">
-				<label class="form-label">Danh mục</label>
-				<select class="form-select" name="categoryId" asp-items="@ViewBag.Categories">
+				<label asp-for="Filter.CategoryId" class="form-label"></label>
+				<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.Categories" class="form-select">
 					<option value="">-- Tất cả danh mục --</option>
 				</select>
 			</div>
@@ -50,20 +50,38 @@
 <div class="card">
 	<div class="card-header d-flex justify-content-between align-items-center">
 		<h3 class="card-title mb-0">Danh sách FAQ</h3>
-		@if (Model.TotalItemCount > 0)
+		@if (Model.FAQs.TotalItemCount > 0)
 		{
-			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount câu hỏi</small>
+			<small class="text-muted">Hiển thị @Model.FAQs.FirstItemOnPage-@Model.FAQs.LastItemOnPage trên tổng số @Model.FAQs.TotalItemCount câu hỏi</small>
 		}
 	</div>
 	<div class="card-body p-0">
-		@if (!Model.Any())
+		@if (!Model.FAQs.Any())
 		{
 			<div class="empty">
 				<div class="empty-icon"><i class="ti ti-help-circle fa-5x text-muted"></i></div>
 				<p class="empty-title">Không tìm thấy FAQ nào</p>
-				<p class="empty-subtitle text-muted">Hãy thêm câu hỏi thường gặp đầu tiên.</p>
+				<p class="empty-subtitle text-muted">
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.CategoryId.HasValue)
+					{
+						@:Hãy thêm câu hỏi thường gặp đầu tiên.
+					}
+					else
+					{
+						@:Không có FAQ nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+					}
+				</p>
 				<div class="empty-action">
-					<a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm FAQ </a>
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.CategoryId.HasValue)
+					{
+						<a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm FAQ </a>
+					}
+					else
+					{
+						<a asp-action="Index" class="btn btn-outline-secondary">
+							<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
+						</a>
+					}
 				</div>
 			</div>
 		}
@@ -83,18 +101,22 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var item in Model)
+						@foreach (var item in Model.FAQs)
 						{
 							<tr>
-								<td class="text-muted">@item.Id</td>
-								<td>
-									<span class="fw-medium text-truncate" style="max-width: 350px;" title="@item.Question">@item.Question</span>
+								<td class="text-muted">
+									@item.Id
 								</td>
-								<td class="text-muted text-truncate" style="max-width: 250px;" title="@item.CategoryNames">
-									@(item.CategoryNames ?? "-")
+								<td class="text-muted">
+									<span class="fw-medium text-truncate d-inline-block" style="max-width: 350px;" title="@item.Question">@item.Question</span>
 								</td>
-								<td class="text-center">@item.OrderIndex</td>
-								<td class="text-center">
+								<td class="text-muted">
+									<span title="@item.CategoryName">@item.CategoryName</span>
+								</td>
+								<td class="text-muted text-center">
+									@item.OrderIndex
+								</td>
+								<td class="text-muted text-center">
 									@if (item.IsActive)
 									{
 										<span class="badge bg-success-lt">Hiển thị</span>
@@ -104,8 +126,12 @@
 										<span class="badge bg-danger-lt">Ẩn</span>
 									}
 								</td>
-								<td class="text-muted" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
-								<td>
+								<td class="text-muted">
+									<span title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
+										@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")
+									</span>
+								</td>
+								<td class="text-muted">
 									<div class="btn-list flex-nowrap">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
@@ -126,13 +152,18 @@
 			</div>
 		}
 	</div>
-	@if (Model.PageCount > 1)
+	@if (Model.FAQs.PageCount > 1)
 	{
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model,
-								page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, categoryId = ViewBag.SelectedCategoryId }),
+								Model.FAQs,
+								page => Url.Action("Index", new
+								{
+									page,
+									searchTerm = Model.Filter.SearchTerm,
+									categoryId = Model.Filter.CategoryId
+								}),
 								new PagedListRenderOptions
 			{
 				UlElementClasses = new[] { "pagination mb-0" },
@@ -142,6 +173,9 @@
 				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
 				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
 				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
 			})
 			</div>
 		</div>
@@ -152,7 +186,11 @@
 	<script>
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
-				$('input[name="searchTerm"]').val('');
+				$('#Filter_SearchTerm').val('');
+			});
+
+			$('#Filter_CategoryId').on('change', function() {
+			    $('#filterForm').submit();
 			});
 		});
 	</script>
