@@ -6,9 +6,9 @@ using web.Areas.Admin.ViewModels.Media;
 
 namespace web.Areas.Admin.Mappers;
 
-public class MediaMappingProfile : Profile
+public class MediaProfile : Profile
 {
-    public MediaMappingProfile()
+    public MediaProfile()
     {
         // Media Mappings
         CreateMap<MediaFolder, MediaItemViewModel>()
