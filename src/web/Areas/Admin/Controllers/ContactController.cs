@@ -58,7 +58,7 @@ public class ContactController : Controller
         var contactsPaged = await query
             .OrderByDescending(c => c.Status == ContactStatus.New)
             .ThenByDescending(c => c.CreatedAt)
-            .ProjectTo<ContactListItemViewModel>(_mapper.ConfigurationProvider) 
+            .ProjectTo<ContactListItemViewModel>(_mapper.ConfigurationProvider)
             .ToPagedListAsync(pageNumber, pageSize);
 
         ViewBag.Statuses = Enum.GetValues(typeof(ContactStatus))

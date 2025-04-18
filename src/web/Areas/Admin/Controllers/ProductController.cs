@@ -379,7 +379,7 @@ public class ProductController : Controller
     }
 
     // Helper to load dropdowns for Index filter controls
-    private async Task LoadFilterDropdownsAsync( int? brandId, PublishStatus? status)
+    private async Task LoadFilterDropdownsAsync(int? brandId, PublishStatus? status)
     {
         ViewBag.Brands = await _context.Set<Brand>().Where(b => b.IsActive).OrderBy(b => b.Name).Select(b => new SelectListItem { Value = b.Id.ToString(), Text = b.Name, Selected = b.Id == brandId }).ToListAsync();
         ViewBag.Statuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == status }).ToList(); // Use shared extension

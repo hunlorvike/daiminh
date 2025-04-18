@@ -24,9 +24,9 @@ public class NewsletterViewModelValidator : AbstractValidator<NewsletterViewMode
 
     private bool BeUniqueEmail(NewsletterViewModel viewModel, string email)
     {
-        if (string.IsNullOrWhiteSpace(email)) return true; 
+        if (string.IsNullOrWhiteSpace(email)) return true;
 
-        return ! _context.Set<domain.Entities.Newsletter>()
+        return !_context.Set<domain.Entities.Newsletter>()
                                .Any(n => n.Email.ToLower() == email.ToLower() && n.Id != viewModel.Id);
     }
 }

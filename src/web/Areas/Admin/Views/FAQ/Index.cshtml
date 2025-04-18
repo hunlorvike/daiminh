@@ -5,6 +5,10 @@
 @model FAQIndexViewModel
 @{
 	ViewData["Title"] = "Quản lý Hỏi Đáp (FAQ) - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Danh sách FAQ";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("FAQ", Url.Action(nameof(Index)) ?? "Admin/FAQ")
+		};
 }
 
 @section PageActions {
@@ -29,9 +33,7 @@
 			</div>
 			<div class="col-md-4">
 				<label asp-for="Filter.CategoryId" class="form-label"></label>
-				<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.Categories" class="form-select">
-					<option value="">-- Tất cả danh mục --</option>
-				</select>
+				<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.Categories" class="form-select"></select>
 			</div>
 			<div class="col-md-1">
 				<button type="submit" class="btn btn-primary w-100">
@@ -187,10 +189,6 @@
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
 				$('#Filter_SearchTerm').val('');
-			});
-
-			$('#Filter_CategoryId').on('change', function() {
-			    $('#filterForm').submit();
 			});
 		});
 	</script>

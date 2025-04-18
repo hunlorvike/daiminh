@@ -2,6 +2,19 @@
 @model FAQViewModel
 @{
 	ViewData["Title"] = "Chỉnh sửa FAQ - Hệ thống quản trị";
+	ViewData["PageTitle"] = $"Chỉnh sửa FAQ: {Truncate(@Model.Question)}";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { 
+		("FAQ", Url.Action(nameof(Index)) ?? "/Admin/FAQ"),
+		($"Chỉnh sửa: {Truncate(@Model.Question)}", "") 
+	};
+}
+
+@functions {
+	string Truncate(string value, int maxLength = 30)
+	{
+		if (string.IsNullOrEmpty(value)) return value;
+		return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
+	}
 }
 
 @section Styles {
@@ -32,26 +45,10 @@
 @section Scripts {
 	<script>
 		$(document).ready(function() {
-			try {
-				if ($.fn.summernote) {
-					$('#Answer').summernote({
-						lang: 'vi-VN',
-						tabsize: 2,
-						height: 300,
-						toolbar: [
-							 ['style', ['style']],
-							['font', ['bold', 'italic', 'underline', 'strikethrough', 'superscript', 'subscript', 'clear']],
-							['fontsize', ['fontsize']],
-							['color', ['color']],
-							['para', ['ul', 'ol', 'paragraph']],
-							['height', ['height']],
-							['table', ['table']],
-							['insert', ['link', 'picture', 'video']],
-							['view', ['fullscreen', 'codeview', 'help']]
-						]
-					});
-				} else { console.error('Summernote library not found.'); }
-			} catch (e) { console.error('Error initializing Summernote:', e); }
+			$('#Answer').summernote({
+				lang: 'vi-VN',
+				placeholder: 'Nhập câu trả lời...',
+			});
 		});
 	</script>
 }

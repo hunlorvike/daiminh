@@ -1,8 +1,22 @@
 @using web.Areas.Admin.ViewModels.Tag
+@using shared.Enums
+@using shared.Extensions
 @model TagViewModel
+
 @{
+	var type = (TagType)Model.Type;
+	var typeNameLower = type.GetDisplayName().ToLowerInvariant();
+
 	ViewData["Title"] = "Thêm thẻ - Hệ thống quản trị";
+	ViewData["PageTitle"] = $"Thêm thẻ {type.GetDisplayName()}";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)>
+	{
+		($"Thẻ {type.GetDisplayName()}", Url.Action("Index", "Tag", new { area = "Admin", type = (int)type })
+			?? Url.Content($"~/Admin/Tag?type={(int)type}")),
+		($"Thêm {typeNameLower}", "")
+	};
 }
+
 
 <div class="card">
 	<div class="card-body">

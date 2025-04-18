@@ -26,6 +26,6 @@ public class BrandProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
-            // SEO fields from BrandViewModel will automatically map to Brand (SeoEntity)
+        // SEO fields from BrandViewModel will automatically map to Brand (SeoEntity)
     }
 }

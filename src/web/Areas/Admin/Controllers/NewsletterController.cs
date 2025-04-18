@@ -1,3 +1,4 @@
+using System.Drawing;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -6,11 +7,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using OfficeOpenXml.Style;
 using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using web.Areas.Admin.ViewModels.Newsletter;
 using X.PagedList.EF;
-using System.Drawing;
 
 namespace web.Areas.Admin.Controllers;
 

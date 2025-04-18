@@ -7,9 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using web.Areas.Admin.ViewModels.Category;
-using System.Security.Claims;
 using shared.Extensions;
+using web.Areas.Admin.ViewModels.Category;
 using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;

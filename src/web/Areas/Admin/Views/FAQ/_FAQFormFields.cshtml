@@ -17,7 +17,7 @@
 	<div class="col-md-4">
 		<div class="form-group mb-3">
 			<label asp-for="CategoryId" class="form-label required"></label>
-			<select asp-for="CategoryId" asp-items="@Model.CategoryList" class="form-select"></select>
+			<select asp-for="CategoryId" asp-items="@Model.Categories" class="form-select"></select>
 			<span asp-validation-for="CategoryId" class="text-danger"></span>
 			<small class="form-hint">Chọn một danh mục liên quan.</small>
 		</div>

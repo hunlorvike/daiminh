@@ -17,7 +17,7 @@ public class TagViewModel
     [Required(ErrorMessage = "{0} không được để trống")]
     [Display(Name = "Slug", Prompt = "Nhập slug URL (không dấu, chữ thường, gạch ngang)")]
     [MaxLength(50, ErrorMessage = "{0} không được vượt quá {1} ký tự")]
-    [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "{0} chỉ được chứa chữ cái thường, số và dấu gạch ngang")] // Ví dụ thêm Regex message
+    [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "{0} chỉ được chứa chữ cái thường, số và dấu gạch ngang")]
     public string Slug { get; set; } = string.Empty;
 
     [Display(Name = "Mô tả", Prompt = "Nhập mô tả cho thẻ (không bắt buộc)")]

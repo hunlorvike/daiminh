@@ -9,7 +9,6 @@ public class TagListItemViewModel
     public string Slug { get; set; } = string.Empty;
     public string? Description { get; set; }
     public TagType Type { get; set; }
-    public int ItemCount { get; set; } // Number of associated items (products, articles, etc.)
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public int ItemCount { get; set; }
+    public DateTime? UpdatedAt { get; set; }
 }

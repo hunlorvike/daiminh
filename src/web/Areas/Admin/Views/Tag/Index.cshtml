@@ -1,17 +1,23 @@
 @using X.PagedList.Mvc.Core
+@using X.PagedList
 @using web.Areas.Admin.ViewModels.Tag
 @using shared.Extensions
 @using shared.Enums
-@using X.PagedList
-@model IPagedList<TagListItemViewModel>
+
+@model TagIndexViewModel
 @{
-	ViewData["Title"] = ViewData["PageTitle"];
+	var currentTypeNameLower = Model.Filter.Type.GetDisplayName().ToLowerInvariant();
+	ViewData["Title"] = $"Quản lý thẻ {currentTypeNameLower}";
+	ViewData["PageTitle"] = $"Quản lý thẻ {currentTypeNameLower}";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+		($"Thẻ {currentTypeNameLower}", Url.Action("Index", "Tag", new { area = "Admin", type = Model.Filter.Type }) ?? $"/Admin/Tag?type={Model.Filter.Type}")
+	};
 }
 
 @section PageActions {
 	<div class="btn-list">
-		<a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant())
+		<a asp-action="Create" asp-route-type="@Model.Filter.Type" class="btn btn-primary d-sm-inline-block">
+			<i class="ti ti-plus me-2"></i> Thêm @currentTypeNameLower
 		</a>
 	</div>
 }
@@ -20,14 +26,14 @@
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
 			<div class="col-md-4">
-				<label class="form-label">Loại thẻ</label>
-				@Html.DropDownList("type", (IEnumerable<SelectListItem>)ViewBag.TagTypes, new { @class = "form-select" })
+				<label asp-for="Filter.Type" class="form-label"></label>
+				<select asp-for="Filter.Type" asp-items="Model.Filter.TagTypes" class="form-select"></select>
 			</div>
 			<div class="col-md-4">
-				<label class="form-label">Tìm kiếm</label>
+				<label asp-for="Filter.SearchTerm" class="form-label"></label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm thẻ..." name="searchTerm" value="@ViewBag.SearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch">
+					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm thẻ...">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
 				</div>
@@ -38,34 +44,52 @@
 				</button>
 			</div>
 			<div class="col-md-2">
-				<a href="@Url.Action("Index", new { type = ViewBag.TagType })" class="btn btn-outline-secondary w-100">
-					<i class="ti ti-reload me-2"></i> Đặt lại
-				</a>
+                 <a asp-action="Index" asp-route-type="@Model.Filter.Type" class="btn btn-outline-secondary w-100">
+                    <i class="ti ti-reload me-2"></i> Đặt lại tìm kiếm
+                 </a>
 			</div>
 		</form>
 	</div>
 </div>
 
 <div class="card">
-	<div class="card-header">
-		<h3 class="card-title">@ViewData["PageTitle"]</h3>
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h3 class="card-title mb-0">@ViewData["PageTitle"]</h3>
+		@if (Model.Tags.TotalItemCount > 0)
+		{
+			<small class="text-muted">Hiển thị @Model.Tags.FirstItemOnPage-@Model.Tags.LastItemOnPage trên tổng số @Model.Tags.TotalItemCount @currentTypeNameLower</small>
+		}
 	</div>
 	<div class="card-body p-0">
-		@if (!Model.Any())
+		@if (!Model.Tags.Any())
 		{
 			<div class="empty">
 				<div class="empty-icon">
 					<i class="ti ti-tags fa-5x text-muted"></i>
 				</div>
-				<p class="empty-title">Không tìm thấy @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant()) nào</p>
-				<p class="empty-subtitle text-muted">
-					Hãy tạo @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant()) để phân loại nội dung của bạn
-				</p>
-				<div class="empty-action">
-					<a asp-action="Create" asp-route-type="@ViewBag.TagType" class="btn btn-primary">
-						<i class="ti ti-plus"></i> Thêm @(((TagType)ViewBag.TagType).GetDisplayName().ToLowerInvariant())
-					</a>
-				</div>
+				<p class="empty-title">Không tìm thấy @currentTypeNameLower nào</p>
+				@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm))
+				{
+					<p class="empty-subtitle text-muted">
+						Hãy tạo @currentTypeNameLower để phân loại nội dung của bạn.
+					</p>
+					<div class="empty-action">
+						<a asp-action="Create" asp-route-type="@Model.Filter.Type" class="btn btn-primary">
+							<i class="ti ti-plus"></i> Thêm @currentTypeNameLower
+						</a>
+					</div>
+				}
+				else
+				{
+					<p class="empty-subtitle text-muted">
+						Không có @currentTypeNameLower nào khớp với tìm kiếm '@Model.Filter.SearchTerm'.
+					</p>
+					<div class="empty-action">
+						<a asp-action="Index" asp-route-type="@Model.Filter.Type" class="btn btn-outline-secondary">
+							<i class="ti ti-arrow-left me-2"></i> Xóa tìm kiếm & Quay lại
+						</a>
+					</div>
+				}
 			</div>
 		}
 		else
@@ -82,33 +106,33 @@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var item in Model)
+						@foreach (var item in Model.Tags)
 						{
+							var itemTypeNameLower = item.Type.GetDisplayName().ToLowerInvariant();
 							<tr>
 								<td>
 									<div class="d-flex flex-column">
-										<span class="font-weight-medium">@item.Name</span>
+										<span class="fw-medium">@item.Name</span>
 										@if (!string.IsNullOrEmpty(item.Description))
 										{
-											<small class="text-muted text-truncate" style="max-width: 300px;" title="@item.Description">@item.Description</small>
+											<small class="text-muted text-truncate d-inline-block" style="max-width: 300px;" title="@item.Description">@item.Description</small>
 										}
 									</div>
 								</td>
-								<td>@item.Slug</td>
-								<td>@item.ItemCount mục</td>
-								<td>@item.UpdatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+								<td class="text-muted">@item.Slug</td>
+								<td class="text-muted">@item.ItemCount mục</td>
+								<td class="text-muted" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")</td>
 								<td>
 									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa @item.Type.GetDisplayName()">
-											@* Thêm title *@
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa @itemTypeNameLower">
 											<i class="ti ti-pencil"></i>
 										</a>
 										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
 												data-id="@item.Id"
 												data-name="@item.Name"
-												data-type-name="@item.Type.GetDisplayName().ToLowerInvariant()"
+												data-type-name="@itemTypeNameLower"
 												data-delete-url="@Url.Action("Delete", "Tag")"
-												title="Xóa @item.Type.GetDisplayName()">
+												title="Xóa @itemTypeNameLower">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -120,13 +144,18 @@
 			</div>
 		}
 	</div>
-	@if (Model.PageCount > 1)
+	@if (Model.Tags.PageCount > 1)
 	{
 		<div class="card-footer">
 			<div class="d-flex justify-content-center">
 				@Html.PagedListPager(
-								Model,
-								page => Url.Action("Index", new { page, type = ViewBag.TagType, searchTerm = ViewBag.SearchTerm }),
+								Model.Tags,
+								page => Url.Action("Index", new
+								{
+									page,
+									Type = Model.Filter.Type,
+									SearchTerm = Model.Filter.SearchTerm
+								}),
 								new PagedListRenderOptions
 			{
 				UlElementClasses = new[] { "pagination mb-0" },
@@ -136,6 +165,9 @@
 				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
 				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
 				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
 			})
 			</div>
 		</div>
@@ -146,7 +178,7 @@
 	<script>
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
-				$('input[name="searchTerm"]').val('');
+				$('#Filter_SearchTerm').val('');
 			});
 		});
 	</script>

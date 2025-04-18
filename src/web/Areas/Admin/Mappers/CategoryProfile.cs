@@ -15,7 +15,7 @@ public class CategoryProfile : Profile
                 (src.Products != null ? src.Products.Count : 0) +
                 (src.Articles != null ? src.Articles.Count : 0) +
                 (src.Projects != null ? src.Projects.Count : 0) +
-                (src.Galleries != null ? src.Galleries.Count : 0) + 
+                (src.Galleries != null ? src.Galleries.Count : 0) +
                 (src.FAQs != null ? src.FAQs.Count : 0)
             ));
 

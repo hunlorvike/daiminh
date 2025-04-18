@@ -32,13 +32,13 @@ public class UserEditViewModelValidator : AbstractValidator<UserEditViewModel>
 
     private bool BeUniqueUsername(UserEditViewModel viewModel, string username)
     {
-        return ! _context.Set<domain.Entities.User>()
+        return !_context.Set<domain.Entities.User>()
                                .Any(u => u.Username.ToLower() == username.ToLower() && u.Id != viewModel.Id);
     }
 
     private bool BeUniqueEmail(UserEditViewModel viewModel, string email)
     {
-        return ! _context.Set<domain.Entities.User>()
+        return !_context.Set<domain.Entities.User>()
                                .Any(u => u.Email.ToLower() == email.ToLower() && u.Id != viewModel.Id);
     }
 }

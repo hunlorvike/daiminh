@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using AutoMapper;
 using domain.Entities;
 using infrastructure;
@@ -5,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Setting;
-using System.Diagnostics;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -89,7 +89,7 @@ public class SettingController : Controller
             {
                 _logger.LogWarning("Setting update: Setting with ID {SettingId} submitted but not found in database.", settingViewModel.Id);
                 ModelState.AddModelError("", $"Không tìm thấy cài đặt với ID {settingViewModel.Id}.");
-                errorOccurred = true; 
+                errorOccurred = true;
             }
         }
 

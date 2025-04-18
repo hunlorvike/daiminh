@@ -1,0 +1,16 @@
+using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using shared.Enums;
+
+namespace web.Areas.Admin.ViewModels.Tag;
+
+public class TagFilterViewModel
+{
+    [Display(Name = "Loại thẻ")]
+    public TagType Type { get; set; } = TagType.Product;
+
+    [Display(Name = "Tìm kiếm")]
+    public string? SearchTerm { get; set; }
+
+    public List<SelectListItem>? TagTypes { get; set; }
+}

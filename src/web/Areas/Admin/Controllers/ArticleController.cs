@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
-using System.Text.RegularExpressions;
 using web.Areas.Admin.Services;
 using web.Areas.Admin.ViewModels.Article;
 using X.PagedList.EF;

@@ -1,7 +1,7 @@
+using System.Text.RegularExpressions;
 using FluentValidation;
 using shared.Enums;
 using web.Areas.Admin.ViewModels.Setting;
-using System.Text.RegularExpressions;
 
 namespace web.Areas.Admin.Validators.Setting;
 
@@ -42,7 +42,7 @@ public class SettingValidator : AbstractValidator<SettingViewModel>
         return double.TryParse(value, out _);
     }
 
-    private bool BeValidUrl(string value) 
+    private bool BeValidUrl(string value)
     {
         return Uri.TryCreate(value, UriKind.Absolute, out var uriResult)
                && (uriResult.Scheme == Uri.UriSchemeHttp || uriResult.Scheme == Uri.UriSchemeHttps);

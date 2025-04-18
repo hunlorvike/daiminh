@@ -12,10 +12,10 @@ public class FAQProfile : Profile
         CreateMap<FAQ, FAQListItemViewModel>()
             .ForMember(dest => dest.CategoryName,
                       opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null));
-        
+
         // Entity -> ViewModel (For Edit GET)
         CreateMap<FAQ, FAQViewModel>()
-             .ForMember(dest => dest.CategoryList, opt => opt.Ignore());
+             .ForMember(dest => dest.Categories, opt => opt.Ignore());
 
         // ViewModel -> Entity (For Create/Edit POST)
         CreateMap<FAQViewModel, FAQ>();
