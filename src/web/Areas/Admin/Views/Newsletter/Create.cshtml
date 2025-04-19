@@ -1,7 +1,12 @@
 @using web.Areas.Admin.ViewModels.Newsletter
 @model NewsletterViewModel
 @{
-	ViewData["Title"] = "Thêm đăng ký Newsletter - Hệ thống quản trị";
+	ViewData["Title"] = "Thêm Đăng ký Newsletter - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Thêm Đăng ký Newsletter";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
+			("Thêm mới", "")
+		};
 }
 
 <div class="card">

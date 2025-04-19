@@ -1,7 +1,12 @@
 @using web.Areas.Admin.ViewModels.Newsletter
 @model NewsletterViewModel
 @{
-	ViewData["Title"] = "Chỉnh sửa đăng ký Newsletter - Hệ thống quản trị";
+	ViewData["Title"] = "Chỉnh sửa Đăng ký Newsletter - Hệ thống quản trị";
+	ViewData["PageTitle"] = $"Chỉnh sửa Đăng ký: {Model.Email}";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
+			($"Chỉnh sửa: {Model.Email}", "")
+		};
 }
 
 <div class="card">

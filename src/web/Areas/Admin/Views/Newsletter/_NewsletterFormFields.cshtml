@@ -34,10 +34,6 @@
 			<input asp-for="IpAddress" class="form-control" readonly disabled />
 		</div>
 		<div class="col-md-6 mb-3">
-			<label asp-for="CreatedAt" class="form-label"></label>
-			<input asp-for="CreatedAt" class="form-control" type="text" value="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")" readonly disabled />
-		</div>
-		<div class="col-md-6 mb-3">
 			<label asp-for="ConfirmedAt" class="form-label"></label>
 			<input asp-for="ConfirmedAt" class="form-control" type="text" value="@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")" readonly disabled />
 		</div>

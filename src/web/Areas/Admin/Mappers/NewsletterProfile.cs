@@ -16,10 +16,11 @@ public class NewsletterProfile : Profile
 
         // ViewModel -> Entity (For Create/Edit POST)
         CreateMap<NewsletterViewModel, Newsletter>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.UnsubscribedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.ConfirmedAt, opt => opt.Ignore())
             .ForMember(dest => dest.IpAddress, opt => opt.Ignore())
-            .ForMember(dest => dest.UserAgent, opt => opt.Ignore());
+            .ForMember(dest => dest.UserAgent, opt => opt.Ignore())
+            .ForMember(dest => dest.ConfirmedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UnsubscribedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
     }
 }
