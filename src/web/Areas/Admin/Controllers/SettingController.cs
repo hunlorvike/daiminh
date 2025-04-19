@@ -1,38 +1,34 @@
-// --- File: /Controllers/SettingController.cs ---
 using AutoMapper;
 using domain.Entities;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Setting;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Collections.Generic;
-using FluentValidation; // Cần using này
-using FluentValidation.AspNetCore; // Cần using này cho AddToModelState
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize] // Đảm bảo chỉ admin mới truy cập được
-public class SettingController : Controller
+[Authorize]
+public partial class SettingController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<SettingController> _logger;
-    private readonly IValidator<SettingViewModel> _settingValidator; // Inject validator
+    private readonly IValidator<SettingViewModel> _settingValidator;
 
     public SettingController(
         ApplicationDbContext context,
         IMapper mapper,
         ILogger<SettingController> logger,
-        IValidator<SettingViewModel> settingValidator) // Thêm DI cho validator
+        IValidator<SettingViewModel> settingValidator)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _settingValidator = settingValidator ?? throw new ArgumentNullException(nameof(settingValidator)); // Inject validator
+        _settingValidator = settingValidator ?? throw new ArgumentNullException(nameof(settingValidator));
     }
 
     // GET: Admin/Setting
@@ -58,14 +54,13 @@ public class SettingController : Controller
                 var validationResult = await _settingValidator.ValidateAsync(settingVM);
                 if (!validationResult.IsValid)
                 {
-                    // Thêm lỗi vào ModelState với prefix chính xác
                     validationResult.AddToModelState(ModelState, $"SettingGroups[{group.Key}][{i}]");
                     hasError = true;
                 }
             }
         }
 
-        if (hasError || !ModelState.IsValid) // Kiểm tra cả lỗi từ validator và các lỗi khác (nếu có)
+        if (hasError || !ModelState.IsValid) 
         {
             _logger.LogWarning("Validation failed during setting update.");
             // Cần load lại dữ liệu gốc cho các trường readonly nếu view bị trả về
@@ -80,7 +75,7 @@ public class SettingController : Controller
                         var freshSetting = freshGroup.FirstOrDefault(s => s.Id == updatedSetting.Id);
                         if (freshSetting != null)
                         {
-                            freshSetting.Value = updatedSetting.Value; // Giữ lại giá trị nhập sai
+                            freshSetting.Value = updatedSetting.Value;
                         }
                     }
                 }
@@ -89,14 +84,12 @@ public class SettingController : Controller
             return View("Index", freshViewModel);
         }
 
-        // --- Update Logic ---
         try
         {
             var settingIdsToUpdate = viewModel.SettingGroups
                                             .SelectMany(g => g.Value.Select(s => s.Id))
                                             .ToList();
 
-            // Lấy các setting cần cập nhật từ DB một lần
             var settingsInDb = await _context.Set<Setting>()
                                            .Where(s => settingIdsToUpdate.Contains(s.Id))
                                            .ToListAsync();
@@ -110,7 +103,6 @@ public class SettingController : Controller
                 {
                     if (settingsDict.TryGetValue(settingVM.Id, out var settingEntity))
                     {
-                        // Chỉ cập nhật nếu giá trị thực sự thay đổi
                         if (settingEntity.Value != settingVM.Value)
                         {
                             settingEntity.Value = settingVM.Value;
@@ -122,7 +114,6 @@ public class SettingController : Controller
                     else
                     {
                         _logger.LogWarning("Setting with ID {SettingId} not found in database during update.", settingVM.Id);
-                        // Có thể thêm lỗi vào ModelState ở đây nếu muốn thông báo cụ thể hơn
                     }
                 }
             }
@@ -144,7 +135,6 @@ public class SettingController : Controller
         {
             _logger.LogError(ex, "Error updating settings.");
             ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu cài đặt. Vui lòng thử lại.");
-            // Load lại dữ liệu gốc và giữ lại giá trị user nhập
             var freshViewModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
             foreach (var updatedGroup in viewModel.SettingGroups)
             {
@@ -164,12 +154,14 @@ public class SettingController : Controller
             return View("Index", freshViewModel);
         }
     }
+}
 
-    // Helper method to build ViewModel
+public partial class SettingController
+{
     private async Task<SettingsIndexViewModel> BuildSettingsIndexViewModelAsync(string? searchTerm)
     {
         IQueryable<Setting> query = _context.Set<Setting>()
-                                        .Where(s => s.IsActive) // Chỉ lấy các setting active
+                                        .Where(s => s.IsActive)
                                         .OrderBy(s => s.Category)
                                         .ThenBy(s => s.Key)
                                         .AsNoTracking();
@@ -183,10 +175,9 @@ public class SettingController : Controller
 
         var allSettings = await query.ToListAsync();
 
-        // Map và Group bằng LINQ to Objects
         var groupedSettings = allSettings
-            .Select(s => _mapper.Map<SettingViewModel>(s)) // Map sang ViewModel
-            .GroupBy(svm => allSettings.First(s => s.Id == svm.Id).Category) // Group bằng Category gốc từ Entity
+            .Select(s => _mapper.Map<SettingViewModel>(s))
+            .GroupBy(svm => allSettings.First(s => s.Id == svm.Id).Category)
             .ToDictionary(g => g.Key, g => g.ToList());
 
         var viewModel = new SettingsIndexViewModel

@@ -2,26 +2,27 @@
 @using web.Areas.Admin.ViewModels.Testimonial
 @model TestimonialViewModel
 
-<div class="row mb-3">
-	<div class="col-md-6">
-		<div class="form-group mb-3">
-			<label asp-for="ClientName" class="form-label required"></label>
-			<input asp-for="ClientName" class="form-control" />
-			<span asp-validation-for="ClientName" class="text-danger"></span>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="ClientTitle" class="form-label"></label>
-			<input asp-for="ClientTitle" class="form-control" />
-			<span asp-validation-for="ClientTitle" class="text-danger"></span>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="ClientCompany" class="form-label"></label>
-			<input asp-for="ClientCompany" class="form-control" />
-			<span asp-validation-for="ClientCompany" class="text-danger"></span>
-		</div>
-
+<div class="row">
+    <div class="col-md-8">
+        @* Content Column *@
+        <div class="mb-3">
+            <label asp-for="ClientName" class="form-label required"></label>
+            <input asp-for="ClientName" class="form-control" />
+            <span asp-validation-for="ClientName" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="Content" class="form-label required"></label>
+			<textarea asp-for="Content" class="form-control summernote" rows="8"></textarea>
+            <span asp-validation-for="Content" class="text-danger"></span>
+        </div>
+         <div class="mb-3">
+            <label asp-for="ProjectReference" class="form-label"></label>
+            <input asp-for="ProjectReference" class="form-control" />
+            <span asp-validation-for="ProjectReference" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        @* Details Column *@
 		<div class="form-group mb-3" id="avatar-selection-area">
 			<label asp-for="ClientAvatar" class="form-label"></label>
 			<div>
@@ -44,47 +45,32 @@
 			</div>
 			<span asp-validation-for="ClientAvatar" class="text-danger"></span>
 		</div>
-	</div>
-
-	<div class="col-md-6">
-		<div class="form-group mb-3">
-			<label asp-for="Content" class="form-label required"></label>
-			<textarea asp-for="Content" class="form-control summernote" rows="5"></textarea>
-			<span asp-validation-for="Content" class="text-danger"></span>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="Rating" class="form-label"></label>
-			<div class="rating-input">
-				<div class="d-flex align-items-center">
-					<input type="range" asp-for="Rating" min="1" max="5" class="form-range" id="ratingSlider" />
-					<div class="ms-3 d-flex text-warning" id="ratingStars" style="font-size: 1.25rem;">
-					</div>
-				</div>
-			</div>
-			<span asp-validation-for="Rating" class="text-danger"></span>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="ProjectReference" class="form-label"></label>
-			<input asp-for="ProjectReference" class="form-control" />
-			<span asp-validation-for="ProjectReference" class="text-danger"></span>
-			<small class="form-hint">Tên dự án hoặc mã dự án mà khách hàng đã sử dụng</small>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="OrderIndex" class="form-label"></label>
-			<input asp-for="OrderIndex" class="form-control" type="number" min="0" />
-			<span asp-validation-for="OrderIndex" class="text-danger"></span>
-			<small class="form-hint">Số thấp hơn sẽ hiển thị trước</small>
-		</div>
-
-		<div class="form-group mb-0">
-			<div class="form-check form-switch">
-				<input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="testimonialIsActiveSwitch" />
-				<label asp-for="IsActive" class="form-check-label" for="testimonialIsActiveSwitch"></label>
-			</div>
-			<span asp-validation-for="IsActive" class="text-danger"></span>
-		</div>
-	</div>
+        <div class="mb-3">
+            <label asp-for="ClientTitle" class="form-label"></label>
+            <input asp-for="ClientTitle" class="form-control" />
+            <span asp-validation-for="ClientTitle" class="text-danger"></span>
+        </div>
+        <div class="mb-3">
+            <label asp-for="ClientCompany" class="form-label"></label>
+            <input asp-for="ClientCompany" class="form-control" />
+            <span asp-validation-for="ClientCompany" class="text-danger"></span>
+        </div>
+        <div class="row">
+            <div class="col-6 mb-3">
+                <label asp-for="Rating" class="form-label required"></label>
+                <input type="number" asp-for="Rating" class="form-control" min="1" max="5" step="1" />
+                <span asp-validation-for="Rating" class="text-danger"></span>
+            </div>
+            <div class="col-6 mb-3">
+                <label asp-for="OrderIndex" class="form-label"></label>
+                <input type="number" asp-for="OrderIndex" class="form-control" min="0" step="1" />
+                <span asp-validation-for="OrderIndex" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" asp-for="IsActive" role="switch">
+            <label class="form-check-label" asp-for="IsActive"></label>
+            <span asp-validation-for="IsActive" class="text-danger"></span>
+        </div>
+    </div>
 </div>

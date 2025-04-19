@@ -1,7 +1,6 @@
-using FluentValidation;
-using Microsoft.VisualBasic;
-using shared.Enums;
 using System.Globalization;
+using FluentValidation;
+using shared.Enums;
 using web.Areas.Admin.ViewModels.Setting;
 
 namespace web.Areas.Admin.Validators.Setting;

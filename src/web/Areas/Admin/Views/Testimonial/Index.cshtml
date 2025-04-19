@@ -2,38 +2,50 @@
 @using X.PagedList
 @using shared.Helpers
 @using web.Areas.Admin.ViewModels.Testimonial
-@model IPagedList<TestimonialListItemViewModel>
+@model TestimonialIndexViewModel
 @{
-	ViewData["Title"] = "Quản lý đánh giá khách hàng - Hệ thống quản trị";
+	ViewData["Title"] = "Quản lý Đánh giá Khách hàng";
+	ViewData["PageTitle"] = "Danh sách Đánh giá";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+		("Đánh giá", "")
+	};
 }
 
 @section PageActions {
 	<div class="btn-list">
 		<a asp-action="Create" class="btn btn-primary d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm đánh giá
+			<i class="ti ti-plus me-2"></i> Thêm Đánh giá
 		</a>
 	</div>
 }
 
-<!-- Filter form -->
+@* Filter Form *@
 <div class="card mb-3">
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<div class="col-md-6">
-				<label class="form-label">Tìm kiếm</label>
+			<div class="col-md-4">
+				<label asp-for="Filter.SearchTerm" class="form-label"></label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm theo tên, công ty, nội dung..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, công ty, nội dung...">
 					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
 				</div>
 			</div>
 			<div class="col-md-3">
+				<label asp-for="Filter.IsActive" class="form-label"></label>
+				<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select"></select>
+			</div>
+			<div class="col-md-2">
+				<label asp-for="Filter.Rating" class="form-label"></label>
+				<select asp-for="Filter.Rating" asp-items="@Model.Filter.RatingOptions" class="form-select"></select>
+			</div>
+			<div class="col-md-1">
 				<button type="submit" class="btn btn-primary w-100">
-					<i class="ti ti-search me-2"></i> Tìm kiếm
+					<i class="ti ti-filter me-1"></i> Lọc
 				</button>
 			</div>
-			<div class="col-md-3">
+			<div class="col-md-2">
 				<a asp-action="Index" class="btn btn-outline-secondary w-100">
 					<i class="ti ti-reload me-2"></i> Đặt lại
 				</a>
@@ -42,28 +54,33 @@
 	</div>
 </div>
 
-<!-- Content -->
+@* Display Results *@
 <div class="card">
 	<div class="card-header d-flex justify-content-between align-items-center">
-		<h3 class="card-title mb-0">Danh sách đánh giá khách hàng</h3>
-         @if (Model.TotalItemCount > 0)
+		<h3 class="card-title mb-0">Danh sách Đánh giá</h3>
+		@if (Model.Testimonials.TotalItemCount > 0)
 		{
-			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount đánh giá</small>
+			<small class="text-muted">Hiển thị @Model.Testimonials.FirstItemOnPage-@Model.Testimonials.LastItemOnPage trên tổng số @Model.Testimonials.TotalItemCount đánh giá</small>
 		}
 	</div>
 	<div class="card-body p-0">
-		@if (!Model.Any())
+		@if (!Model.Testimonials.Any())
 		{
 			<div class="empty">
-				<div class="empty-icon" style="font-size: 5rem;">
-					<i class="ti ti-message-off text-muted"></i> @* Changed icon *@
-				</div>
-				<p class="empty-title">Chưa có đánh giá nào</p>
-				<p class="empty-subtitle text-muted">Hãy thêm đánh giá đầu tiên để tăng uy tín.</p>
+				<div class="empty-icon"><i class="ti ti-message-2-star fa-5x text-muted"></i></div>
+				<p class="empty-title">Không tìm thấy đánh giá nào</p>
+				<p class="empty-subtitle text-muted">
+					Chưa có đánh giá nào được thêm hoặc không có kết quả nào khớp với bộ lọc của bạn.
+				</p>
 				<div class="empty-action">
-					<a asp-action="Create" class="btn btn-primary">
-						<i class="ti ti-plus me-2"></i> Thêm đánh giá
-					</a>
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue && !Model.Filter.Rating.HasValue)
+					{
+						<a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm đánh giá đầu tiên </a>
+					}
+					else
+					{
+						<a asp-action="Index" class="btn btn-outline-secondary"> <i class="ti ti-reload me-2"></i> Đặt lại bộ lọc </a>
+					}
 				</div>
 			</div>
 		}
@@ -73,44 +90,41 @@
 				<table class="table table-vcenter card-table table-striped">
 					<thead>
 						<tr>
-							<th class="w-1">ID</th>
-							<th style="width: 5%;">Avatar</th>
-							<th style="width: 20%;">Khách hàng</th>
-							<th>Nội dung</th>
-							<th class="text-center" style="width: 5%;">Sao</th>
-							<th class="text-center" style="width: 5%;">Thứ tự</th>
-							<th class="text-center" style="width: 10%;">Trạng thái</th>
-							<th class="w-1">Thao tác</th>
+							<th style="width:5%">Avatar</th>
+							<th>Khách hàng</th>
+							<th>Công ty</th>
+							<th class="text-center" style="width: 10%">Xếp hạng</th>
+							<th class="text-center" style="width: 5%">Thứ tự</th>
+							<th class="text-center" style="width: 10%">Trạng thái</th>
+							<th style="width: 15%">Cập nhật</th>
+							<th class="w-1"></th> @* Actions *@
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var item in Model)
+						@foreach (var item in Model.Testimonials)
 						{
 							<tr>
-								<td class="text-muted">@item.Id</td>
 								<td>
-									<span class="avatar avatar-md rounded"
-                                          style="background-image: url(@MediaUrlHelper.GetMinioUrl(item.ClientAvatar, "/img/placeholder.svg"))"></span>
+									@if (!string.IsNullOrEmpty(item.ClientAvatar))
+									{
+										<span class="avatar avatar-md rounded"
+											  style="background-image: url(@MediaUrlHelper.GetMinioUrl(item.ClientAvatar, "/img/placeholder.svg"))"></span>
+									}
+									else
+									{
+										<span class="avatar avatar-sm bg-blue-lt">@item.ClientName.FirstOrDefault()</span>
+									}
 								</td>
-								<td>
-									<div class="d-flex flex-column">
-										<span class="fw-medium">@item.ClientName</span>
-										@if (!string.IsNullOrEmpty(item.ClientTitle) || !string.IsNullOrEmpty(item.ClientCompany))
-										{
-											<small class="text-muted text-truncate"> @* Add truncate *@
-												@item.ClientTitle @(!string.IsNullOrEmpty(item.ClientTitle) && !string.IsNullOrEmpty(item.ClientCompany) ? ", " : "") @item.ClientCompany
-											</small>
-										}
-									</div>
+								<td class="text-muted">@item.ClientName</td>
+								<td class="text-muted">@item.ClientCompany</td>
+								<td class="text-muted text-center">
+									@for (int star = 1; star <= 5; star++)
+									{
+										<i class="ti ti-star-filled @(star <= item.Rating ? "text-warning" : "text-muted")"></i>
+									}
 								</td>
-								<td>
-									<div class="text-truncate" style="max-width: 350px;">
-										@Html.Raw(item.Content)
-									</div>
-								</td>
-								<td class="text-center"><span class="text-warning fw-bold">@item.Rating</span><i class="ti ti-star-filled ms-1 text-warning" style="font-size: 0.9em;"></i></td>
-								<td class="text-center">@item.OrderIndex</td>
-								<td class="text-center">
+								<td class="text-muted text-center">@item.OrderIndex</td>
+								<td class="text-muted text-center">
 									@if (item.IsActive)
 									{
 										<span class="badge bg-success-lt">Hiển thị</span>
@@ -119,6 +133,9 @@
 									{
 										<span class="badge bg-danger-lt">Ẩn</span>
 									}
+								</td>
+								<td class="text-muted" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
+									@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm")
 								</td>
 								<td>
 									<div class="btn-list flex-nowrap">
@@ -141,24 +158,34 @@
 			</div>
 		}
 	</div>
-    @* Pagination Footer *@
-	@if (Model.PageCount > 1)
+	@* Pagination *@
+	@if (Model.Testimonials.PageCount > 1)
 	{
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
-                 @Html.PagedListPager(
-					Model,
-					page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm }),
-					new PagedListRenderOptions
-					{
-						UlElementClasses = new[] { "pagination mb-0" },
-						LiElementClasses = new[] { "page-item" },
-						PageClasses = new[] { "page-link" },
-						DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-						DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-						DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-						DisplayLinkToNextPage = PagedListDisplayMode.Always,
-					})
+				@Html.PagedListPager(
+								Model.Testimonials,
+								page => Url.Action("Index", new
+								{
+									page,
+									searchTerm = Model.Filter.SearchTerm,
+									isActive = Model.Filter.IsActive,
+									rating = Model.Filter.Rating,
+									pageSize = Model.Testimonials.PageSize
+								}),
+								new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+			})
 			</div>
 		</div>
 	}
@@ -168,7 +195,7 @@
 	<script>
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
-				$('input[name="searchTerm"]').val('');
+				$('#Filter_SearchTerm').val('');
 			});
 		});
 	</script>
