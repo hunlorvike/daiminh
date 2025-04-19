@@ -95,7 +95,6 @@ public partial class TestimonialController : Controller
     {
         if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Create Testimonial validation failed.");
             return View(viewModel);
         }
 
@@ -105,13 +104,11 @@ public partial class TestimonialController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Testimonial created successfully (ID: {TestimonialId})", testimonial.Id);
             TempData["SuccessMessage"] = "Thêm đánh giá thành công!";
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error creating testimonial.");
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm đánh giá.");
             return View(viewModel);
         }
@@ -126,7 +123,6 @@ public partial class TestimonialController : Controller
 
         if (testimonial == null)
         {
-            _logger.LogWarning("Edit Testimonial GET: Testimonial with ID {Id} not found.", id);
             return NotFound();
         }
 
@@ -146,7 +142,6 @@ public partial class TestimonialController : Controller
 
         if (!ModelState.IsValid)
         {
-            _logger.LogWarning("Edit Testimonial POST: Validation failed for ID {Id}.", id);
             return View(viewModel);
         }
 
@@ -154,7 +149,6 @@ public partial class TestimonialController : Controller
 
         if (testimonial == null)
         {
-            _logger.LogWarning("Edit Testimonial POST: Testimonial with ID {Id} not found for update.", id);
             TempData["ErrorMessage"] = "Không tìm thấy đánh giá để cập nhật.";
             return RedirectToAction(nameof(Index));
         }
@@ -165,19 +159,16 @@ public partial class TestimonialController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Testimonial updated successfully (ID: {TestimonialId})", testimonial.Id);
             TempData["SuccessMessage"] = "Cập nhật đánh giá thành công!";
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            _logger.LogError(ex, "Concurrency error updating testimonial ID {Id}.", id);
             ModelState.AddModelError("", "Lỗi xung đột dữ liệu. Dữ liệu có thể đã được thay đổi bởi người khác. Vui lòng tải lại trang và thử lại.");
             return View(viewModel);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error updating testimonial ID {Id}.", id);
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đánh giá.");
             return View(viewModel);
         }
@@ -191,7 +182,6 @@ public partial class TestimonialController : Controller
         Testimonial? testimonial = await _context.Set<Testimonial>().FindAsync(id);
         if (testimonial == null)
         {
-            _logger.LogWarning("Delete Testimonial POST: Testimonial with ID {Id} not found.", id);
             return Json(new { success = false, message = "Không tìm thấy đánh giá." });
         }
 
@@ -200,12 +190,10 @@ public partial class TestimonialController : Controller
             string clientName = testimonial.ClientName;
             _context.Remove(testimonial);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Testimonial deleted successfully (ID: {TestimonialId})", id);
             return Json(new { success = true, message = $"Xóa đánh giá của '{clientName}' thành công." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting testimonial ID {Id}.", id);
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đánh giá." });
         }
     }

@@ -1,14 +1,13 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-
+using System.ComponentModel.DataAnnotations;
 namespace web.Areas.Admin.ViewModels.Contact;
 
-public class ContactDetailViewModel
+public class ContactViewModel
 {
     public int Id { get; set; }
 
-    [Display(Name = "Họ và Tên")]
+    [Display(Name = "Người gửi")]
     public string FullName { get; set; } = string.Empty;
 
     [Display(Name = "Email")]
@@ -20,7 +19,7 @@ public class ContactDetailViewModel
     [Display(Name = "Chủ đề")]
     public string Subject { get; set; } = string.Empty;
 
-    [Display(Name = "Nội dung tin nhắn")]
+    [Display(Name = "Nội dung lời nhắn")]
     public string Message { get; set; } = string.Empty;
 
     [Display(Name = "Tên công ty")]
@@ -29,25 +28,22 @@ public class ContactDetailViewModel
     [Display(Name = "Chi tiết dự án")]
     public string? ProjectDetails { get; set; }
 
-    [Display(Name = "Trạng thái")]
-    [Required(ErrorMessage = "Vui lòng chọn {0}")]
-    public ContactStatus Status { get; set; } = ContactStatus.New;
-
-    [Display(Name = "Ghi chú của quản trị viên", Prompt = "Thêm ghi chú nội bộ về liên hệ này...")]
-    public string? AdminNotes { get; set; }
-
-    [Display(Name = "Ngày nhận")]
+    [Display(Name = "Ngày gửi")]
     public DateTime CreatedAt { get; set; }
 
     [Display(Name = "Địa chỉ IP")]
     public string? IpAddress { get; set; }
 
-    [Display(Name = "Thiết bị/Trình duyệt")]
+    [Display(Name = "Trình duyệt (User Agent)")]
     public string? UserAgent { get; set; }
 
-    [Display(Name = "Cập nhật lần cuối")]
-    public DateTime? UpdatedAt { get; set; }
 
-    // Dropdown for status update
-    public SelectList? StatusList { get; set; }
+    [Display(Name = "Trạng thái")]
+    [Required(ErrorMessage = "Vui lòng chọn trạng thái.")]
+    public ContactStatus Status { get; set; } = ContactStatus.New;
+
+    [Display(Name = "Ghi chú nội bộ", Prompt = "Thêm ghi chú cho liên hệ này (chỉ quản trị viên thấy)")]
+    public string? AdminNotes { get; set; }
+
+    public List<SelectListItem>? StatusOptions { get; set; }
 }

@@ -1,33 +1,37 @@
 @using X.PagedList.Mvc.Core
-@using X.PagedList
-@using web.Areas.Admin.ViewModels.Contact
 @using shared.Enums
 @using shared.Extensions
-@model IPagedList<ContactListItemViewModel>
+@using web.Areas.Admin.ViewModels.Contact
+@model ContactIndexViewModel
 @{
-	ViewData["Title"] = "Quản lý Liên hệ - Hệ thống quản trị";
+	ViewData["Title"] = "Quản lý Liên hệ";
+	ViewData["PageTitle"] = "Danh sách Liên hệ";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+		("Liên hệ", "")
+	};
 }
 
-<!-- Filter Form -->
 <div class="card mb-3">
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
 			<div class="col-md-5">
-				<label class="form-label">Tìm kiếm</label>
+				<label asp-for="Filter.SearchTerm" class="form-label"></label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tên, email, SĐT, chủ đề..." name="searchTerm" value="@ViewBag.SearchTerm">
+					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, email, chủ đề, nội dung...">
 					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 						<i class="ti ti-x"></i>
 					</button>
 				</div>
 			</div>
-			<div class="col-md-4">
-				<label class="form-label">Trạng thái</label>
-				<select class="form-select" name="status" asp-items="@ViewBag.Statuses" asp-route-value="@ViewBag.SelectedStatus">
-					<option value="">-- Tất cả trạng thái --</option>
-				</select>
+			<div class="col-md-3">
+				<label asp-for="Filter.Status" class="form-label"></label>
+				@{
+					var filterStatusOptions = new List<SelectListItem> { new SelectListItem { Value = "", Text = "Tất cả trạng thái" } };
+					filterStatusOptions.AddRange(Model.Filter.StatusOptions ?? new List<SelectListItem>());
+				}
+				<select asp-for="Filter.Status" asp-items="filterStatusOptions" class="form-select"></select>
 			</div>
-			<div class="col-md-1">
+			<div class="col-md-2">
 				<button type="submit" class="btn btn-primary w-100">
 					<i class="ti ti-filter me-1"></i> Lọc
 				</button>
@@ -41,22 +45,33 @@
 	</div>
 </div>
 
-<!-- Content Table -->
 <div class="card">
 	<div class="card-header d-flex justify-content-between align-items-center">
 		<h3 class="card-title mb-0">Danh sách Liên hệ</h3>
-		@if (Model.TotalItemCount > 0)
+		@if (Model.Contacts.TotalItemCount > 0)
 		{
-			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount liên hệ</small>
+			<small class="text-muted">Hiển thị @Model.Contacts.FirstItemOnPage-@Model.Contacts.LastItemOnPage trên tổng số @Model.Contacts.TotalItemCount liên hệ</small>
 		}
 	</div>
 	<div class="card-body p-0">
-		@if (!Model.Any())
+		@if (!Model.Contacts.Any())
 		{
 			<div class="empty">
 				<div class="empty-icon"><i class="ti ti-mail-off fa-5x text-muted"></i></div>
 				<p class="empty-title">Không có liên hệ nào</p>
-				<p class="empty-subtitle text-muted">Chưa có ai gửi liên hệ cho bạn.</p>
+				<p class="empty-subtitle text-muted">
+					Chưa có ai gửi liên hệ hoặc không có kết quả nào khớp với bộ lọc của bạn.
+				</p>
+				@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue)
+				{
+					@* Không có nút thêm mới cho Contact *@
+				}
+				else
+				{
+					<div class="empty-action">
+						<a asp-action="Index" class="btn btn-outline-secondary"> <i class="ti ti-reload me-2"></i> Đặt lại bộ lọc </a>
+					</div>
+				}
 			</div>
 		}
 		else
@@ -65,41 +80,51 @@
 				<table class="table table-vcenter card-table table-striped">
 					<thead>
 						<tr>
-							<th class="w-1">ID</th>
 							<th>Người gửi</th>
+							<th>Email</th>
 							<th>Chủ đề</th>
-							<th class="text-center">Trạng thái</th>
-							<th>Ngày nhận</th>
-							<th class="w-1">Thao tác</th>
+							<th class="text-center" style="width: 12%">Trạng thái</th>
+							<th style="width: 15%">Ngày gửi</th>
+							<th class="w-1"></th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var item in Model)
+						@foreach (var item in Model.Contacts)
 						{
-							<tr class="@(item.Status == ContactStatus.New ? "table-info" : "")">
-								<td class="text-muted">@item.Id</td>
-								<td>
-									<div class="d-flex flex-column">
-										<span class="@(item.Status == ContactStatus.New ? "fw-bold" : "")">@item.FullName</span>
-										<small class="text-muted">
-											<a href="mailto:@item.Email">@item.Email</a>
-											@(!string.IsNullOrEmpty(item.Phone) ? $" - {item.Phone}" : "")
-										</small>
-									</div>
+							<tr class="@(item.Status == ContactStatus.New ? "fw-bold" : "")">
+								<td class="text-muted">@item.FullName</td>
+								<td class="text-muted">@item.Email</td>
+								<td class="text-muted">
+									<a asp-action="Details" asp-route-id="@item.Id" title="Xem chi tiết">@item.Subject</a>
 								</td>
-								<td class="text-truncate" style="max-width: 300px;" title="@item.Subject">@item.Subject</td>
-								<td class="text-center">
-									<span class="badge bg-@(GetStatusBadgeClass(item.Status))-lt">@item.Status.GetDisplayName()</span>
+								<td class="text-muted text-center">
+									@{
+										var statusClass = item.Status switch
+										{
+											ContactStatus.New => "primary",
+											ContactStatus.Read => "info",
+											ContactStatus.Replied => "purple",
+											ContactStatus.InProgress => "warning",
+											ContactStatus.Resolved => "success",
+											ContactStatus.Spam => "danger",
+											ContactStatus.Archived => "secondary",
+											_ => "secondary"
+										};
+									}
+									<span class="badge bg-@statusClass-lt">@item.Status.GetDisplayName()</span>
 								</td>
-								<td class="text-muted" title="@item.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")">@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</td>
+								<td class="text-muted" title="@item.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")">
+									@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")
+								</td>
 								<td>
 									<div class="btn-list flex-nowrap">
-										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem chi tiết & Cập nhật trạng thái">
+										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-secondary" title="Xem chi tiết">
 											<i class="ti ti-eye"></i>
 										</a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa liên hệ"
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+												title="Xóa"
 												data-id="@item.Id"
-												data-name="Liên hệ của @item.FullName chủ đề '@item.Subject'"
+												data-name="@($"liên hệ từ {item.FullName} về '{item.Subject}'")"
 												data-delete-url="@Url.Action("Delete", "Contact")">
 											<i class="ti ti-trash"></i>
 										</button>
@@ -112,13 +137,20 @@
 			</div>
 		}
 	</div>
-	@if (Model.PageCount > 1)
+	@* Pagination *@
+	@if (Model.Contacts.PageCount > 1)
 	{
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model,
-								page => Url.Action("Index", new { page, searchTerm = ViewBag.SearchTerm, status = ViewBag.SelectedStatus }),
+								Model.Contacts,
+								page => Url.Action("Index", new
+								{
+									page,
+									searchTerm = Model.Filter.SearchTerm,
+									status = Model.Filter.Status,
+									pageSize = Model.Contacts.PageSize
+								}),
 								new PagedListRenderOptions
 			{
 				UlElementClasses = new[] { "pagination mb-0" },
@@ -128,36 +160,22 @@
 				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
 				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
 				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
 			})
 			</div>
 		</div>
 	}
 </div>
 
-@functions {
-	string GetStatusBadgeClass(ContactStatus status)
-	{
-		return status switch
-		{
-			ContactStatus.New => "primary",
-			ContactStatus.Read => "info",
-			ContactStatus.Replied => "purple",
-			ContactStatus.InProgress => "warning",
-			ContactStatus.Resolved => "success",
-			ContactStatus.Spam => "danger",
-			ContactStatus.Archived => "secondary",
-			_ => "secondary"
-		};
-	}
-}
-
-
 @section Scripts {
 	<script>
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
-				$('input[name="searchTerm"]').val('');
+				$('#Filter_SearchTerm').val('');
 			});
+
 		});
 	</script>
- }
+}

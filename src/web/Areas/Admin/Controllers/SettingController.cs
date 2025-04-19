@@ -62,7 +62,6 @@ public partial class SettingController : Controller
 
         if (hasError || !ModelState.IsValid) 
         {
-            _logger.LogWarning("Validation failed during setting update.");
             // Cần load lại dữ liệu gốc cho các trường readonly nếu view bị trả về
             var freshViewModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
             // Cập nhật lại giá trị người dùng đã nhập vào freshViewModel để không bị mất dữ liệu form
@@ -121,7 +120,6 @@ public partial class SettingController : Controller
             if (changed)
             {
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Settings updated successfully.");
                 TempData["SuccessMessage"] = "Cập nhật cài đặt thành công!";
             }
             else
@@ -133,7 +131,6 @@ public partial class SettingController : Controller
         }
         catch (DbUpdateException ex)
         {
-            _logger.LogError(ex, "Error updating settings.");
             ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu cài đặt. Vui lòng thử lại.");
             var freshViewModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
             foreach (var updatedGroup in viewModel.SettingGroups)

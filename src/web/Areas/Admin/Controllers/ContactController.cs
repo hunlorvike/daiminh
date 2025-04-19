@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
+using FluentValidation;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,7 +10,9 @@ using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
 using web.Areas.Admin.ViewModels.Contact;
+using X.PagedList;
 using X.PagedList.EF;
+
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
@@ -25,116 +28,83 @@ public class ContactController : Controller
         IMapper mapper,
         ILogger<ContactController> logger)
     {
-        _context = context;
-        _mapper = mapper;
-        _logger = logger;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     // GET: Admin/Contact
-    public async Task<IActionResult> Index(string? searchTerm = null, ContactStatus? status = null, int page = 1, int pageSize = 20)
+    public async Task<IActionResult> Index(ContactFilterViewModel filter, int page = 1, int pageSize = 15)
     {
-        ViewData["Title"] = "Quản lý Liên hệ - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Danh sách Liên hệ";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Liên hệ", Url.Action(nameof(Index))) };
+        filter ??= new ContactFilterViewModel();
+        int pageNumber = page > 0 ? page : 1;
+        int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        int pageNumber = page;
-        var query = _context.Set<Contact>().AsNoTracking();
+        IQueryable<Contact> query = _context.Set<Contact>().AsNoTracking();
 
-        // Filtering
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
-            string lowerSearchTerm = searchTerm.Trim().ToLower();
+            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
             query = query.Where(c => c.FullName.ToLower().Contains(lowerSearchTerm)
                                   || c.Email.ToLower().Contains(lowerSearchTerm)
-                                  || (c.Phone != null && c.Phone.Contains(lowerSearchTerm))
                                   || c.Subject.ToLower().Contains(lowerSearchTerm)
                                   || c.Message.ToLower().Contains(lowerSearchTerm));
         }
-        if (status.HasValue)
+
+        if (filter.Status.HasValue)
         {
-            query = query.Where(c => c.Status == status.Value);
+            query = query.Where(c => c.Status == filter.Status.Value);
         }
 
-        var contactsPaged = await query
-            .OrderByDescending(c => c.Status == ContactStatus.New)
-            .ThenByDescending(c => c.CreatedAt)
+        query = query.OrderByDescending(c => c.CreatedAt);
+
+        IPagedList<ContactListItemViewModel> contactsPaged = await query
             .ProjectTo<ContactListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, pageSize);
+            .ToPagedListAsync(pageNumber, currentPageSize);
 
-        ViewBag.Statuses = Enum.GetValues(typeof(ContactStatus))
-                               .Cast<ContactStatus>()
-                               .Select(s => new SelectListItem
-                               {
-                                   Value = s.ToString(),
-                                   Text = s.GetDisplayName()
-                               }).ToList();
+        filter.StatusOptions = GetStatusOptionsSelectList(filter.Status);
 
-        ViewBag.SearchTerm = searchTerm;
-        ViewBag.SelectedStatus = status;
+        ContactIndexViewModel viewModel = new()
+        {
+            Contacts = contactsPaged,
+            Filter = filter
+        };
 
-        return View(contactsPaged);
+        return View(viewModel);
     }
 
     // GET: Admin/Contact/Details/5
     public async Task<IActionResult> Details(int id)
     {
-        var contact = await _context.Set<Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+        Contact? contact = await _context.Set<Contact>()
+                                       .AsNoTracking()
+                                       .FirstOrDefaultAsync(c => c.Id == id);
+
         if (contact == null)
         {
-            _logger.LogWarning("Details GET: Contact with ID {ContactId} not found.", id);
             return NotFound();
         }
 
-        bool markedAsRead = false;
-        if (contact.Status == ContactStatus.New)
-        {
-            var trackedContact = await _context.Set<Contact>().FindAsync(id);
-            if (trackedContact != null)
-            {
-                trackedContact.Status = ContactStatus.Read;
-                try
-                {
-                    await _context.SaveChangesAsync();
-                    markedAsRead = true;
-                    _logger.LogInformation("Contact ID {ContactId} marked as Read.", id);
-                }
-                catch (Exception ex) { _logger.LogWarning(ex, "Failed to mark contact {ContactId} as Read.", id); }
-            }
-        }
-
-        var viewModel = _mapper.Map<ContactDetailViewModel>(contact);
-        if (markedAsRead) viewModel.Status = ContactStatus.Read;
-
-        viewModel.StatusList = GetStatusSelectList(viewModel.Status);
-
-        ViewData["Title"] = "Chi tiết Liên hệ - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Chi tiết Liên hệ";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Liên hệ", Url.Action(nameof(Index))), ("Chi tiết", "") };
+        ContactViewModel viewModel = _mapper.Map<ContactViewModel>(contact);
+        viewModel.StatusOptions = GetStatusOptionsSelectList(viewModel.Status);
 
         return View(viewModel);
     }
 
-    // POST: Admin/Contact/UpdateDetails/5 (Partial update: Status and AdminNotes)
+    // POST: Admin/Contact/UpdateDetails/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> UpdateDetails(int id, ContactDetailViewModel viewModel)
+    public async Task<IActionResult> UpdateDetails(int id, ContactViewModel viewModel)
     {
         if (id != viewModel.Id)
         {
-            _logger.LogWarning("UpdateDetails POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id);
-            return BadRequest();
+            return BadRequest("ID mismatch.");
         }
 
         if (!ModelState.IsValid)
         {
-            _logger.LogWarning("UpdateDetails POST: Model state invalid for Contact ID {ContactId}.", id);
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return BadRequest(ModelState.ToDictionary(kvp => kvp.Key, kvp => kvp.Value?.Errors.Select(e => e.ErrorMessage).ToArray()));
-
-            TempData["error"] = "Dữ liệu cập nhật không hợp lệ.";
-            viewModel.StatusList = GetStatusSelectList(viewModel.Status);
-
-            var originalContact = await _context.Contacts.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+            viewModel.StatusOptions = GetStatusOptionsSelectList(viewModel.Status);
+            var originalContact = await _context.Set<Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
             if (originalContact != null)
             {
                 viewModel.FullName = originalContact.FullName;
@@ -145,7 +115,6 @@ public class ContactController : Controller
                 viewModel.CompanyName = originalContact.CompanyName;
                 viewModel.ProjectDetails = originalContact.ProjectDetails;
                 viewModel.CreatedAt = originalContact.CreatedAt;
-                viewModel.UpdatedAt = originalContact.UpdatedAt;
                 viewModel.IpAddress = originalContact.IpAddress;
                 viewModel.UserAgent = originalContact.UserAgent;
             }
@@ -153,19 +122,15 @@ public class ContactController : Controller
             {
                 return NotFound();
             }
-
-
-            ViewData["Title"] = "Chi tiết Liên hệ - Hệ thống quản trị";
-            ViewData["PageTitle"] = "Chi tiết Liên hệ";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Liên hệ", Url.Action(nameof(Index))), ("Chi tiết", "") };
             return View("Details", viewModel);
         }
 
-        var contact = await _context.Set<Contact>().FindAsync(id);
+        Contact? contact = await _context.Set<Contact>().FirstOrDefaultAsync(c => c.Id == id);
+
         if (contact == null)
         {
-            _logger.LogWarning("UpdateDetails POST: Contact with ID {ContactId} not found for update.", id);
-            return NotFound();
+            TempData["ErrorMessage"] = "Không tìm thấy liên hệ để cập nhật.";
+            return RedirectToAction(nameof(Index));
         }
 
         bool changed = false;
@@ -173,62 +138,48 @@ public class ContactController : Controller
         {
             contact.Status = viewModel.Status;
             changed = true;
-            _logger.LogInformation("Contact ID {ContactId} status changed to {Status} by {User}.", id, viewModel.Status, User.Identity?.Name ?? "Unknown");
         }
         if (contact.AdminNotes != viewModel.AdminNotes)
         {
             contact.AdminNotes = viewModel.AdminNotes;
             changed = true;
-            _logger.LogInformation("Contact ID {ContactId} admin notes updated by {User}.", id, User.Identity?.Name ?? "Unknown");
         }
 
-
-        if (!changed)
+        if (changed)
         {
-            TempData["info"] = "Không có thay đổi nào về trạng thái hoặc ghi chú.";
-            return RedirectToAction(nameof(Details), new { id = id });
-        }
-
-        try
-        {
-            await _context.SaveChangesAsync();
-
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return Json(new { success = true, message = "Cập nhật thành công." });
-
-            TempData["success"] = "Cập nhật trạng thái/ghi chú thành công!";
-            return RedirectToAction(nameof(Details), new { id = id });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error updating contact details for ID: {ContactId}", id);
-            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                return StatusCode(500, new { message = "Lỗi khi lưu thay đổi." });
-
-            ModelState.AddModelError("", "Không thể lưu thay đổi.");
-            TempData["error"] = "Không thể lưu thay đổi.";
-            viewModel.StatusList = GetStatusSelectList(viewModel.Status);
-
-            var originalContact = await _context.Contacts.AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-            if (originalContact != null)
+            _context.Entry(contact).State = EntityState.Modified;
+            try
             {
-                viewModel.FullName = originalContact.FullName;
-                viewModel.Email = originalContact.Email;
-                viewModel.Phone = originalContact.Phone;
-                viewModel.Subject = originalContact.Subject;
-                viewModel.Message = originalContact.Message;
-                viewModel.CompanyName = originalContact.CompanyName;
-                viewModel.ProjectDetails = originalContact.ProjectDetails;
-                viewModel.CreatedAt = originalContact.CreatedAt;
-                viewModel.UpdatedAt = originalContact.UpdatedAt;
-                viewModel.IpAddress = originalContact.IpAddress;
-                viewModel.UserAgent = originalContact.UserAgent;
+                await _context.SaveChangesAsync();
+                TempData["SuccessMessage"] = "Cập nhật trạng thái và ghi chú thành công!";
             }
-            ViewData["Title"] = "Chi tiết Liên hệ - Hệ thống quản trị";
-            ViewData["PageTitle"] = "Chi tiết Liên hệ";
-            ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Liên hệ", Url.Action(nameof(Index))), ("Chi tiết", "") };
-            return View("Details", viewModel);
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật liên hệ.");
+                viewModel.StatusOptions = GetStatusOptionsSelectList(viewModel.Status);
+                var originalContact = await _context.Set<Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+                if (originalContact != null)
+                {
+                    viewModel.FullName = originalContact.FullName;
+                    viewModel.Email = originalContact.Email;
+                    viewModel.Phone = originalContact.Phone;
+                    viewModel.Subject = originalContact.Subject;
+                    viewModel.Message = originalContact.Message;
+                    viewModel.CompanyName = originalContact.CompanyName;
+                    viewModel.ProjectDetails = originalContact.ProjectDetails;
+                    viewModel.CreatedAt = originalContact.CreatedAt;
+                    viewModel.IpAddress = originalContact.IpAddress;
+                    viewModel.UserAgent = originalContact.UserAgent;
+                }
+                return View("Details", viewModel);
+            }
         }
+        else
+        {
+            TempData["InfoMessage"] = "Không có thay đổi nào được lưu.";
+        }
+
+        return RedirectToAction(nameof(Details), new { id = contact.Id });
     }
 
 
@@ -237,10 +188,9 @@ public class ContactController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var contact = await _context.Set<Contact>().FindAsync(id);
+        Contact? contact = await _context.Set<Contact>().FindAsync(id);
         if (contact == null)
         {
-            _logger.LogWarning("Delete POST: Contact with ID {ContactId} not found.", id);
             return Json(new { success = false, message = "Không tìm thấy liên hệ." });
         }
 
@@ -249,28 +199,29 @@ public class ContactController : Controller
             string subject = contact.Subject;
             _context.Remove(contact);
             await _context.SaveChangesAsync();
-
-            _logger.LogInformation("Contact ID {ContactId} ('{Subject}') deleted successfully by {User}.", id, subject, User.Identity?.Name ?? "Unknown");
-            return Json(new { success = true, message = "Xóa liên hệ thành công." });
+            TempData["SuccessMessage"] = $"Xóa liên hệ '{subject}' thành công.";
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting Contact ID {ContactId}.", id);
-            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa liên hệ." });
+            TempData["ErrorMessage"] = "Đã xảy ra lỗi không mong muốn khi xóa liên hệ.";
+            return RedirectToAction(nameof(Index));
         }
     }
 
-
-    // --- Helper Methods ---
-    private SelectList GetStatusSelectList(ContactStatus? selectedStatus = null)
+    private List<SelectListItem> GetStatusOptionsSelectList(ContactStatus? selectedValue)
     {
-        var statuses = Enum.GetValues(typeof(ContactStatus))
-                           .Cast<ContactStatus>()
-                           .Select(s => new SelectListItem
-                           {
-                               Value = s.ToString(),
-                               Text = s.GetDisplayName()
-                           });
-        return new SelectList(statuses, "Value", "Text", selectedStatus?.ToString());
+        var items = Enum.GetValues(typeof(ContactStatus))
+            .Cast<ContactStatus>()
+            .Select(e => new SelectListItem
+            {
+                Value = ((int)e).ToString(),
+                Text = e.GetDisplayName(),
+                Selected = selectedValue.HasValue && e == selectedValue.Value
+            })
+            .OrderBy(e => e.Text)
+            .ToList();
+
+        return items;
     }
 }
