@@ -1,16 +1,17 @@
 using FluentValidation;
+using web.Areas.Admin.ViewModels.Shared;
 
-namespace web.Areas.Admin.ViewModels.Shared;
+namespace web.Areas.Admin.Validators.Shared;
 
-public class SeoPropertiesValidator<T> : AbstractValidator<T> where T : ISeoPropertiesViewModel
+public class SeoViewModelValidator : AbstractValidator<SeoViewModel>
 {
     private static readonly string[] _validChangeFrequencies = { "always", "hourly", "daily", "weekly", "monthly", "yearly", "never" };
     private static readonly string[] _validTwitterCards = { "summary", "summary_large_image", "app", "player" };
 
-    public SeoPropertiesValidator()
+    public SeoViewModelValidator()
     {
         RuleFor(x => x.MetaTitle)
-            .MaximumLength(100).WithMessage("{PropertyName} không được vượt quá 100 ký tự.");
+          .MaximumLength(100).WithMessage("{PropertyName} không được vượt quá 100 ký tự.");
 
         RuleFor(x => x.MetaDescription)
             .MaximumLength(300).WithMessage("{PropertyName} không được vượt quá 300 ký tự.");

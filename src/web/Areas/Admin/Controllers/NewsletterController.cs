@@ -108,7 +108,7 @@ public partial class NewsletterController : Controller
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu đăng ký.");
             }
@@ -170,7 +170,7 @@ public partial class NewsletterController : Controller
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đăng ký.");
             }
@@ -199,7 +199,7 @@ public partial class NewsletterController : Controller
             await _context.SaveChangesAsync();
             return Json(new { success = true, message = $"Xóa đăng ký '{email}' thành công." });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đăng ký." });
         }

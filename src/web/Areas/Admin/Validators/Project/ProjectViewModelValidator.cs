@@ -2,7 +2,6 @@ using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Project;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.Validators.Project;
 public class ProjectViewModelValidator : AbstractValidator<ProjectViewModel>
@@ -34,7 +33,6 @@ public class ProjectViewModelValidator : AbstractValidator<ProjectViewModel>
 
         RuleForEach(x => x.Images).SetValidator(new ProjectImageViewModelValidator());
 
-        Include(new SeoPropertiesValidator<ProjectViewModel>());
     }
 
     private bool BeUniqueSlug(ProjectViewModel viewModel, string slug)

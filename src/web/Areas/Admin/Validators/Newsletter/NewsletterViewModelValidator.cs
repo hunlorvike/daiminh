@@ -10,7 +10,7 @@ public class NewsletterViewModelValidator : AbstractValidator<NewsletterViewMode
 
     public NewsletterViewModelValidator(ApplicationDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
 
         RuleFor(x => x.Email)
             .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}")

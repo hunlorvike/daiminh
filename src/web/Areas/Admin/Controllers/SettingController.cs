@@ -60,7 +60,7 @@ public partial class SettingController : Controller
             }
         }
 
-        if (hasError || !ModelState.IsValid) 
+        if (hasError || !ModelState.IsValid)
         {
             // Cần load lại dữ liệu gốc cho các trường readonly nếu view bị trả về
             var freshViewModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
@@ -129,7 +129,7 @@ public partial class SettingController : Controller
 
             return RedirectToAction(nameof(Index), new { searchTerm = viewModel.SearchTerm });
         }
-        catch (DbUpdateException ex)
+        catch (DbUpdateException)
         {
             ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu cài đặt. Vui lòng thử lại.");
             var freshViewModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);

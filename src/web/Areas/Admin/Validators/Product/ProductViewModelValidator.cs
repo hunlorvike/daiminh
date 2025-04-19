@@ -2,7 +2,6 @@ using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Product;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.Validators.Product;
 
@@ -35,7 +34,6 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
         RuleForEach(x => x.Images).SetValidator(new ProductImageViewModelValidator());
         RuleForEach(x => x.Variants).SetValidator(new ProductVariantViewModelValidator());
 
-        Include(new SeoPropertiesValidator<ProductViewModel>());
     }
 
     private bool BeUniqueSlug(ProductViewModel viewModel, string slug)

@@ -10,7 +10,7 @@ public class TagViewModelValidator : AbstractValidator<TagViewModel>
 
     public TagViewModelValidator(ApplicationDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Vui lòng nhập tên thẻ")

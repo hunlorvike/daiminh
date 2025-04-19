@@ -107,7 +107,7 @@ public partial class TestimonialController : Controller
             TempData["SuccessMessage"] = "Thêm đánh giá thành công!";
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm đánh giá.");
             return View(viewModel);
@@ -162,12 +162,12 @@ public partial class TestimonialController : Controller
             TempData["SuccessMessage"] = "Cập nhật đánh giá thành công!";
             return RedirectToAction(nameof(Index));
         }
-        catch (DbUpdateConcurrencyException ex)
+        catch (DbUpdateConcurrencyException)
         {
             ModelState.AddModelError("", "Lỗi xung đột dữ liệu. Dữ liệu có thể đã được thay đổi bởi người khác. Vui lòng tải lại trang và thử lại.");
             return View(viewModel);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đánh giá.");
             return View(viewModel);
@@ -192,7 +192,7 @@ public partial class TestimonialController : Controller
             await _context.SaveChangesAsync();
             return Json(new { success = true, message = $"Xóa đánh giá của '{clientName}' thành công." });
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đánh giá." });
         }

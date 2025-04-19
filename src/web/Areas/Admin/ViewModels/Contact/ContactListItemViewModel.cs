@@ -1,6 +1,5 @@
-using shared.Enums;
-using System;
 using System.ComponentModel.DataAnnotations;
+using shared.Enums;
 
 namespace web.Areas.Admin.ViewModels.Contact;
 

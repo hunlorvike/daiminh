@@ -3,7 +3,6 @@ using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Category;
-using web.Areas.Admin.ViewModels.Shared;
 
 public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
 {
@@ -12,8 +11,6 @@ public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
     public CategoryViewModelValidator(ApplicationDbContext context)
     {
         _context = context;
-
-        Include(new SeoPropertiesValidator<CategoryViewModel>());
 
         RuleFor(x => x.Name)
             .NotEmpty().WithMessage("Vui lòng nhập tên danh mục.")

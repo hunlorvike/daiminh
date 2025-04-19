@@ -1,8 +1,8 @@
 using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.Validators.Shared;
 using web.Areas.Admin.ViewModels.Brand;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.Validators.Brand;
 
@@ -12,38 +12,35 @@ public class BrandViewModelValidator : AbstractValidator<BrandViewModel>
 
     public BrandViewModelValidator(ApplicationDbContext context)
     {
-        _context = context;
-
-        Include(new SeoPropertiesValidator<BrandViewModel>());
+        _context = context ?? throw new ArgumentNullException(nameof(context));
 
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Vui lòng nhập tên thương hiệu.")
-            .MaximumLength(255).WithMessage("Tên thương hiệu không được vượt quá 255 ký tự.");
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
 
         RuleFor(x => x.Slug)
-            .NotEmpty().WithMessage("Vui lòng nhập slug.")
-            .MaximumLength(255).WithMessage("Slug không được vượt quá 255 ký tự.")
-            .Matches("^[a-z0-9-]+$").WithMessage("Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.")
-            .Must(BeUniqueSlug).WithMessage("Slug này đã tồn tại. Vui lòng chọn slug khác.");
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
+            .Matches("^[a-z0-9-]+$").WithMessage("{PropertyName} chỉ được chứa chữ cái thường, số và dấu gạch ngang.")
+            .Must(BeUniqueSlug).WithMessage("{PropertyName} này đã tồn tại, vui lòng chọn slug khác.");
 
         RuleFor(x => x.Description);
 
         RuleFor(x => x.LogoUrl)
-            .MaximumLength(2048).WithMessage("Đường dẫn logo không được vượt quá 2048 ký tự.");
+             .MaximumLength(2048).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
+             .Matches(@"^(https?://|/).*$").When(x => !string.IsNullOrWhiteSpace(x.LogoUrl)).WithMessage("{PropertyName} phải là một URL hợp lệ (http, https hoặc tương đối /).");
+
 
         RuleFor(x => x.Website)
-            .MaximumLength(255).WithMessage("Website không được vượt quá 255 ký tự.")
-            .Matches(@"^(https?://)?([\w-]+\.)+[\w-]+(/[\w- ./?%&=]*)?$").WithMessage("Địa chỉ website không hợp lệ.")
-            .When(x => !string.IsNullOrWhiteSpace(x.Website));
+            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
+            .Matches(@"^https?://.*$").When(x => !string.IsNullOrWhiteSpace(x.Website)).WithMessage("{PropertyName} phải là một URL hợp lệ bắt đầu bằng http hoặc https.");
+
+        RuleFor(x => x.Seo).SetValidator(new SeoViewModelValidator());
     }
 
     private bool BeUniqueSlug(BrandViewModel viewModel, string slug)
     {
-        if (string.IsNullOrWhiteSpace(slug))
-        {
-            return true;
-        }
         return !_context.Set<domain.Entities.Brand>()
-                        .Any(b => b.Slug == slug.ToLowerInvariant() && b.Id != viewModel.Id);
+                              .Any(b => b.Slug == slug && b.Id != viewModel.Id);
     }
 }

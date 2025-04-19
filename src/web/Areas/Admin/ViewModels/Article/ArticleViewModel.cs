@@ -1,10 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Article;
-public class ArticleViewModel : ISeoPropertiesViewModel
+public class ArticleViewModel
 {
     public int Id { get; set; }
 

@@ -153,7 +153,7 @@ public class ContactController : Controller
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Cập nhật trạng thái và ghi chú thành công!";
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật liên hệ.");
                 viewModel.StatusOptions = GetStatusOptionsSelectList(viewModel.Status);
@@ -202,7 +202,7 @@ public class ContactController : Controller
             TempData["SuccessMessage"] = $"Xóa liên hệ '{subject}' thành công.";
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             TempData["ErrorMessage"] = "Đã xảy ra lỗi không mong muốn khi xóa liên hệ.";
             return RedirectToAction(nameof(Index));

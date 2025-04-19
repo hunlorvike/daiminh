@@ -2,7 +2,6 @@ using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Article;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.Validators.Article;
 
@@ -36,8 +35,6 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
         RuleFor(x => x.CategoryId)
             .NotEmpty().WithMessage("Vui lòng chọn một {PropertyName}.");
 
-        // Include base SEO validation rules
-        Include(new SeoPropertiesValidator<ArticleViewModel>());
     }
 
     private bool BeUniqueSlug(ArticleViewModel viewModel, string slug)

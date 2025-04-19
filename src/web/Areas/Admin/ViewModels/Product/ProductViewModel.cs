@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Product;
 // Implement SEO Interface
-public class ProductViewModel : ISeoPropertiesViewModel
+public class ProductViewModel
 {
     public int Id { get; set; }
 

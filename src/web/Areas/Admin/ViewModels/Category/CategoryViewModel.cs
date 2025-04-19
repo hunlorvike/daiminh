@@ -1,11 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Category;
 
-public class CategoryViewModel : ISeoPropertiesViewModel
+public class CategoryViewModel
 {
     public int Id { get; set; }
 

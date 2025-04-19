@@ -1,15 +1,15 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace web.Areas.Admin.ViewModels.Newsletter;
+namespace web.Areas.Admin.ViewModels.Brand;
 
-public class NewsletterFilterViewModel
+public class BrandFilterViewModel
 {
     [Display(Name = "Tìm kiếm")]
     public string? SearchTerm { get; set; }
 
     [Display(Name = "Trạng thái")]
-    public bool? IsActive { get; set; } // Nullable for "All" option
+    public bool? IsActive { get; set; }
 
     public List<SelectListItem> StatusOptions { get; set; } = new();
 }
