@@ -60,7 +60,7 @@ try
         {
             options.Cookie.Name = "DaiMinhCookies";
             options.Cookie.HttpOnly = true;
-            options.Cookie.SecurePolicy = CookieSecurePolicy.Always; // Consider CookieSecurePolicy.SameAsRequest during development if not using HTTPS locally
+            options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
             options.Cookie.SameSite = SameSiteMode.Strict;
             options.ExpireTimeSpan = TimeSpan.FromHours(24);
             options.SlidingExpiration = true;

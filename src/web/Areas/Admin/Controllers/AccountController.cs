@@ -1,8 +1,5 @@
 using System.Security.Claims;
-using AutoMapper;
 using domain.Entities;
-using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -17,104 +14,137 @@ namespace web.Areas.Admin.Controllers;
 public class AccountController : Controller
 {
     private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
-    private readonly IValidator<LoginViewModel> _validator;
     private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly ILogger<AccountController> _logger;
+    private const string AuthenticationScheme = "DaiMinhCookies";
 
     public AccountController(
         ApplicationDbContext context,
-        IMapper mapper,
-        IValidator<LoginViewModel> validator,
-        IPasswordHasher<User> passwordHasher)
+        IPasswordHasher<User> passwordHasher,
+        ILogger<AccountController> logger)
     {
-        _context = context;
-        _mapper = mapper;
-        _validator = validator;
-        _passwordHasher = passwordHasher;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-
-    // GET: Admin/Account/Login
+    // GET: /Admin/Account/Login
     [HttpGet]
+    [AllowAnonymous]
     public IActionResult Login(string? returnUrl = null)
     {
-        ViewData["PageTitle"] = "Đăng nhập";
-
-        var viewModel = new LoginViewModel
+        if (User.Identity?.IsAuthenticated == true)
         {
-            ReturnUrl = returnUrl
-        };
-
-        return View(viewModel);
+            return LocalRedirect(returnUrl ?? Url.Action("Index", "Dashboard", new { Area = "Admin" }) ?? "/Admin");
+        }
+        ViewData["ReturnUrl"] = returnUrl;
+        return View();
     }
 
-    // POST: Admin/Account/Login
+    // POST: /Admin/Account/Login
     [HttpPost]
+    [AllowAnonymous]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Login(LoginViewModel viewModel)
+    public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
-        ViewData["PageTitle"] = "Đăng nhập";
-
-        var validationResult = await _validator.ValidateAsync(viewModel);
-
-        if (!validationResult.IsValid)
+        ViewData["ReturnUrl"] = returnUrl;
+        if (User.Identity?.IsAuthenticated == true)
         {
-            validationResult.AddToModelState(ModelState, string.Empty);
-            return View(viewModel);
+            return LocalRedirect(returnUrl ?? Url.Action("Index", "Dashboard", new { Area = "Admin" }) ?? "/Admin");
         }
 
-        // Find user by username or email
+        if (!ModelState.IsValid)
+        {
+            return View(model);
+        }
+
         var user = await _context.Set<User>()
-            .FirstOrDefaultAsync(u => u.Username == viewModel.Username || u.Email == viewModel.Username);
+                                 .FirstOrDefaultAsync(u => u.Username.ToLower() == model.Username.ToLower());
 
         if (user == null)
         {
-            ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không đúng");
-            return View(viewModel);
+            ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
+            return View(model);
         }
 
-        var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, viewModel.Password);
-        if (passwordVerificationResult != PasswordVerificationResult.Success)
+        if (!user.IsActive)
         {
-            ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không đúng");
-            return View(viewModel);
+            ModelState.AddModelError(string.Empty, "Tài khoản của bạn đã bị khóa.");
+            return View(model);
         }
 
-        // Create claims for the authenticated user
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Name, user.Username),
-            new Claim(ClaimTypes.Email, user.Email)
-        };
 
-        var claimsIdentity = new ClaimsIdentity(claims, "DaiMinhCookies");
-        var authProperties = new AuthenticationProperties
-        {
-            IsPersistent = viewModel.RememberMe,
-            RedirectUri = viewModel.ReturnUrl
-        };
+        var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
 
-        await HttpContext.SignInAsync(
-            "DaiMinhCookies",
-            new ClaimsPrincipal(claimsIdentity),
-            authProperties);
-
-        // Redirect to returnUrl or default page
-        if (!string.IsNullOrEmpty(viewModel.ReturnUrl) && Url.IsLocalUrl(viewModel.ReturnUrl))
+        if (passwordVerificationResult == PasswordVerificationResult.Success || passwordVerificationResult == PasswordVerificationResult.SuccessRehashNeeded)
         {
-            return Redirect(viewModel.ReturnUrl);
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Email, user.Email),
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, AuthenticationScheme);
+            var authProperties = new AuthenticationProperties
+            {
+                AllowRefresh = true,
+                IsPersistent = model.RememberMe,
+                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60),
+            };
+
+            await HttpContext.SignInAsync(
+                AuthenticationScheme,
+                new ClaimsPrincipal(claimsIdentity),
+                authProperties);
+
+            if (passwordVerificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+            {
+                try
+                {
+                    user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
+                    _context.Update(user);
+                    await _context.SaveChangesAsync();
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to rehash password for user '{Username}' after login.", user.Username);
+                }
+            }
+
+
+            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+            {
+                return LocalRedirect(returnUrl);
+            }
+            else
+            {
+                return RedirectToAction("Index", "Dashboard", new { Area = "Admin" });
+            }
         }
-
-        return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+        else
+        {
+            ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
+            return View(model);
+        }
     }
 
-    // GET: Admin/Account/Logout
-    [HttpGet]
-    [Authorize]
+    // POST: /Admin/Account/Logout
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
-        await HttpContext.SignOutAsync("DaiMinhCookies");
-        return RedirectToAction("Login");
+        var userName = User.Identity?.Name ?? "Unknown";
+        await HttpContext.SignOutAsync(AuthenticationScheme);
+        return RedirectToAction(nameof(Login));
     }
+
+    // GET: /Admin/Account/AccessDenied
+    [HttpGet]
+    [AllowAnonymous]
+    public IActionResult AccessDenied()
+    {
+        return View();
+    }
+
 }

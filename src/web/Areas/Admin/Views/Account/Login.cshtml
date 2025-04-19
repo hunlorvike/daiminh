@@ -1,82 +1,51 @@
 @using web.Areas.Admin.ViewModels.Account
 @model LoginViewModel
 @{
-    ViewData["Title"] = "Đăng nhập - Hệ thống quản trị";
-    Layout = "Layout/_Layout.Blank";
+	Layout = "Layout/_Layout.Blank";
+	ViewData["Title"] = "Đăng nhập Quản trị";
+	var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
-<div class="container-tight py-4">
-    <div class="text-center mb-4">
-        <a href="." class="navbar-brand navbar-brand-autodark">
-            DAIMINH
-        </a>
-    </div>
-    <div class="card card-md">
-        <div class="card-body">
-            <h2 class="h2 text-center mb-4">Đăng nhập vào hệ thống quản trị</h2>
-            <form asp-action="Login" method="post" autocomplete="off" novalidate>
-                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
-                <input type="hidden" asp-for="ReturnUrl" />
+<div class="container container-tight py-4">
+	<div class="text-center mb-4">
+		<a href="/" class="navbar-brand navbar-brand-autodark">
+			<h1 class="navbar-brand-autodark">DAIMINH</h1>
+		</a>
+	</div>
+	<div class="card card-md">
+		<div class="card-body">
+			<h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản Quản trị</h2>
+			<form asp-action="Login" asp-route-returnurl="@returnUrl" method="post" novalidate>
+				@Html.AntiForgeryToken()
+				<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
 
-                <div class="mb-3">
-                    <label class="form-label required">Tên đăng nhập hoặc Email</label>
-                    <input type="text" asp-for="Username" class="form-control" placeholder="Nhập tên đăng nhập hoặc email" autocomplete="off">
-                    <span asp-validation-for="Username" class="text-danger"></span>
-                </div>
-                <div class="mb-2">
-                    <label class="form-label required">
-                        Mật khẩu
-                        <span class="form-label-description">
-                            <a href="/Admin/Account/ForgotPassword">Quên mật khẩu?</a>
-                        </span>
-                    </label>
-                    <div class="input-group input-group-flat">
-                        <input type="password" asp-for="Password" class="form-control" placeholder="Mật khẩu" autocomplete="off">
-                        <span class="input-group-text">
-                            <a href="#" class="link-secondary" title="Hiển thị mật khẩu" data-bs-toggle="tooltip" id="togglePassword">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </span>
-                    </div>
-                    <span asp-validation-for="Password" class="text-danger"></span>
-                </div>
-                <div class="mb-2">
-                    <label class="form-check">
-                        <input type="checkbox" asp-for="RememberMe" class="form-check-input" />
-                        <span class="form-check-label">Ghi nhớ đăng nhập</span>
-                    </label>
-                </div>
-                <div class="form-footer">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-sign-in-alt me-2"></i> Đăng nhập
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-    <div class="text-center text-muted mt-3">
-        Chưa có tài khoản? <a href="#" tabindex="-1">Liên hệ quản trị viên</a>
-    </div>
+				<div class="mb-3">
+					<label asp-for="Username" class="form-label"></label>
+					<input asp-for="Username" type="text" class="form-control" placeholder="Nhập tên đăng nhập của bạn" autofocus>
+					<span asp-validation-for="Username" class="text-danger"></span>
+				</div>
+				<div class="mb-2">
+					<label asp-for="Password" class="form-label">
+						@Html.DisplayNameFor(m => m.Password)
+						<span class="form-label-description">
+                            <a href="#">Quên mật khẩu?</a>
+						 </span>
+					</label>
+					<input asp-for="Password" type="password" class="form-control" placeholder="Nhập mật khẩu">
+					<span asp-validation-for="Password" class="text-danger"></span>
+				</div>
+				<div class="mb-2">
+					<label class="form-check">
+						<input asp-for="RememberMe" type="checkbox" class="form-check-input" />
+						<span class="form-check-label">@Html.DisplayNameFor(m => m.RememberMe)</span>
+					</label>
+				</div>
+				<div class="form-footer">
+					<button type="submit" class="btn btn-primary w-100">
+						<i class="ti ti-login me-2"></i> Đăng nhập
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
 </div>
-
-@section Scripts {
-    <script>
-        $(document).ready(function() {
-            // Toggle password visibility
-            $('#togglePassword').on('click', function(e) {
-                e.preventDefault();
-
-                var passwordInput = $('input[name="Password"]');
-                var icon = $(this).find('i');
-
-                if (passwordInput.attr('type') === 'password') {
-                    passwordInput.attr('type', 'text');
-                    icon.removeClass('fa-eye').addClass('fa-eye-slash');
-                } else {
-                    passwordInput.attr('type', 'password');
-                    icon.removeClass('fa-eye-slash').addClass('fa-eye');
-                }
-            });
-        });
-    </script>
-}
