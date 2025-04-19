@@ -8,18 +8,23 @@ public class UserProfile : Profile
 {
     public UserProfile()
     {
-        // Entity -> List ViewModel
+        // Entity -> ListItemViewModel
         CreateMap<User, UserListItemViewModel>();
 
-        // Entity -> Edit ViewModel
+        // Entity -> EditViewModel
         CreateMap<User, UserEditViewModel>();
 
-        // Create ViewModel -> Entity
+        // CreateViewModel -> Entity
         CreateMap<UserCreateViewModel, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+            .ForMember(dest => dest.Id, opt => opt.Ignore()) // ID được tạo tự động
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Hash sẽ được tạo ở Controller
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
-        // Edit ViewModel -> Entity (For updating existing entity)
+        // EditViewModel -> Entity
         CreateMap<UserEditViewModel, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Không bao giờ map mật khẩu từ EditViewModel
+            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()); // Nên để DbContext tự cập nhật
     }
 }

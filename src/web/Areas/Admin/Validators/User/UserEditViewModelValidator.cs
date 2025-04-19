@@ -11,34 +11,33 @@ public class UserEditViewModelValidator : AbstractValidator<UserEditViewModel>
 
     public UserEditViewModelValidator(ApplicationDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
 
         RuleFor(x => x.Username)
-            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}")
-            .MaximumLength(50).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự")
-            .Matches("^[a-zA-Z0-9_.-]+$").WithMessage("{PropertyName} chỉ được chứa chữ cái, số, dấu gạch dưới, dấu chấm, dấu gạch ngang")
-            .Must(BeUniqueUsername).WithMessage("{PropertyName} này đã tồn tại");
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(50).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
+            .Matches("^[a-zA-Z0-9_.-]+$").WithMessage("{PropertyName} chỉ chấp nhận chữ cái, số, dấu gạch dưới, dấu chấm, dấu gạch ngang.")
+            .Must(BeUniqueUsername).WithMessage("{PropertyName} này đã được sử dụng bởi người dùng khác.");
 
         RuleFor(x => x.Email)
-            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}")
-            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự")
-            .EmailAddress().WithMessage("Vui lòng nhập địa chỉ email hợp lệ")
-            .Must(BeUniqueEmail).WithMessage("Địa chỉ email này đã được sử dụng");
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
+            .EmailAddress().WithMessage("Vui lòng nhập địa chỉ email hợp lệ.")
+            .Must(BeUniqueEmail).WithMessage("{PropertyName} này đã được sử dụng bởi người dùng khác.");
 
         RuleFor(x => x.FullName)
-            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}")
-            .MaximumLength(100).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự");
+            .MaximumLength(100).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
     }
 
     private bool BeUniqueUsername(UserEditViewModel viewModel, string username)
     {
         return !_context.Set<domain.Entities.User>()
-                               .Any(u => u.Username.ToLower() == username.ToLower() && u.Id != viewModel.Id);
+                              .Any(u => u.Username == username && u.Id != viewModel.Id);
     }
 
     private bool BeUniqueEmail(UserEditViewModel viewModel, string email)
     {
         return !_context.Set<domain.Entities.User>()
-                               .Any(u => u.Email.ToLower() == email.ToLower() && u.Id != viewModel.Id);
+                              .Any(u => u.Email == email && u.Id != viewModel.Id);
     }
 }
