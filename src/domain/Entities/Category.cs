@@ -11,7 +11,6 @@ public class Category : SeoEntity<int>
     public string Slug { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string? Icon { get; set; }
-    public string? ImageUrl { get; set; }
     public int? ParentId { get; set; }
     public int OrderIndex { get; set; } = 0;
     public bool IsActive { get; set; } = true;
@@ -37,7 +36,6 @@ public class CategoryConfiguration : SeoEntityConfiguration<Category, int>
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(100);
         builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
         builder.Property(e => e.Icon).HasColumnName("icon").HasMaxLength(50);
-        builder.Property(e => e.ImageUrl).HasColumnName("image_url").HasMaxLength(255);
         builder.Property(e => e.ParentId).HasColumnName("parent_id");
         builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);

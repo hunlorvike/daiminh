@@ -31,8 +31,13 @@
 			<small class="form-hint">Mô tả ngắn về thẻ (tối đa 255 ký tự)</small>
 		</div>
 		<div class="form-group mb-3">
-			<label asp-for="Type" class="form-label"></label>
-			<input type="text" class="form-control" value="@Model.Type.GetDisplayName()" readonly disabled />
+			<label asp-for="Type" class="form-label required"></label>
+			<select asp-for="Type" asp-items="@Model.TagTypes" class="form-select" disabled="@(Model.Id > 0)"></select>
+			<span asp-validation-for="Type" class="text-danger"></span>
+			@if (Model.Id > 0)
+			{
+				<small class="form-hint text-warning">Không thể thay đổi Loại danh mục sau khi đã tạo.</small>
+			}
 		</div>
 	</div>
 </div>

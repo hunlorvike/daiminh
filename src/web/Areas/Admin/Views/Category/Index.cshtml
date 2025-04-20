@@ -1,18 +1,21 @@
 @using X.PagedList.Mvc.Core
-@using shared.Helpers
+@using X.PagedList
 @using web.Areas.Admin.ViewModels.Category
 @using shared.Extensions
-@using shared.Enums
-@using X.PagedList
-@model IPagedList<CategoryListItemViewModel>
+
+@model CategoryIndexViewModel
 @{
-	ViewData["Title"] = ViewData["PageTitle"];
+	ViewData["Title"] = "Quản lý Danh mục - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Danh sách Danh mục";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category")
+		};
 }
 
 @section PageActions {
 	<div class="btn-list">
-		<a asp-action="Create" asp-route-type="@ViewBag.CurrentType" class="btn btn-primary d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm @(((CategoryType)ViewBag.CurrentType).GetDisplayName().ToLowerInvariant())
+		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary d-sm-inline-block">
+			<i class="ti ti-plus me-2"></i> Thêm Danh mục
 		</a>
 	</div>
 }
@@ -21,54 +24,60 @@
 	<div class="card-body">
 		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
 			<div class="col-md-4">
-				<label class="form-label">Loại danh mục</label>
-				<select class="form-select" name="type" asp-items="@ViewBag.CategoryTypes"></select>
-			</div>
-			<div class="col-md-4">
-				<label class="form-label">Tìm kiếm</label>
+				<label asp-for="Filter.SearchTerm" class="form-label"></label>
 				<div class="input-group">
-					<input type="text" class="form-control" placeholder="Tìm theo tên..." name="searchTerm" value="@ViewBag.SearchTerm">
-					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
-						<i class="ti ti-x"></i>
-					</button>
+					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, mô tả...">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"><i class="ti ti-x"></i></button>
 				</div>
 			</div>
-			<div class="col-md-2">
-				<button type="submit" class="btn btn-primary w-100">
-					<i class="ti ti-search me-2"></i> Lọc
-				</button>
+			<div class="col-md-3">
+				<label asp-for="Filter.Type" class="form-label"></label>
+				<select asp-for="Filter.Type" asp-items="@Model.Filter.TypeOptions" class="form-select">
+					<option value="">-- Tất cả loại --</option>
+				</select>
 			</div>
 			<div class="col-md-2">
-				<a asp-action="Index" asp-route-type="@ViewBag.CurrentType" class="btn btn-outline-secondary w-100">
-					<i class="ti ti-reload me-2"></i> Đặt lại
-				</a>
+				<label asp-for="Filter.IsActive" class="form-label"></label>
+				<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select"></select>
+			</div>
+			<div class="col-md-1">
+				<label class="form-label"> </label>
+				<button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i> Lọc</button>
+			</div>
+			<div class="col-md-2">
+				<label class="form-label"> </label>
+				<a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="ti ti-reload me-2"></i> Đặt lại</a>
 			</div>
 		</form>
 	</div>
 </div>
 
-
 <div class="card">
 	<div class="card-header d-flex justify-content-between align-items-center">
-		<h3 class="card-title mb-0">@ViewData["PageTitle"]</h3>
-		@if (Model.TotalItemCount > 0)
+		<h3 class="card-title mb-0">Danh sách Danh mục</h3>
+		@if (Model.Categories.TotalItemCount > 0)
 		{
-			<small class="text-muted">Hiển thị @Model.FirstItemOnPage-@Model.LastItemOnPage trên tổng số @Model.TotalItemCount danh mục</small>
+			<small class="text-muted">Hiển thị @Model.Categories.FirstItemOnPage-@Model.Categories.LastItemOnPage trên tổng số @Model.Categories.TotalItemCount danh mục</small>
 		}
 	</div>
 	<div class="card-body p-0">
-		@if (!Model.Any())
+		@if (!Model.Categories.Any())
 		{
 			<div class="empty">
-				<div class="empty-icon">
-					<i class="ti ti-tag fa-5x text-muted"></i>
-				</div>
+				<div class="empty-icon"><i class="ti ti-folder-off fa-5x text-muted"></i></div>
 				<p class="empty-title">Không tìm thấy danh mục nào</p>
-				<p class="empty-subtitle text-muted">Hãy thêm danh mục đầu tiên cho loại này.</p>
+				<p class="empty-subtitle text-muted">
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue && !Model.Filter.Type.HasValue)
+					{
+						@:Hãy thêm danh mục đầu tiên.
+					}
+					else
+					{
+						@:Không có danh mục nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+					}
+				</p>
 				<div class="empty-action">
-					<a asp-action="Create" asp-route-type="@ViewBag.CurrentType" class="btn btn-primary">
-						<i class="ti ti-plus me-2"></i> Thêm danh mục @(((CategoryType)ViewBag.CurrentType).GetDisplayName().ToLowerInvariant())
-					</a>
+					<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm danh mục </a>
 				</div>
 			</div>
 		}
@@ -78,59 +87,48 @@
 				<table class="table table-vcenter card-table table-striped">
 					<thead>
 						<tr>
-							<th class="w-1">ID</th>
-							<th style="width: 10%;">Ảnh</th>
-							<th style="width: 30%;">Tên danh mục</th>
-							<th>Danh mục cha</th>
-							<th class="text-center">Số mục</th>
-							<th class="text-center">Thứ tự</th>
-							<th class="text-center">Trạng thái</th>
+							<th>Tên danh mục</th>
+							<th style="width: 15%;">Danh mục cha</th>
+							<th style="width: 15%;">Loại</th>
+							<th style="width: 10%;">Slug</th>
+							<th class="text-center" style="width: 5%;">Thứ tự</th>
+							<th class="text-center" style="width: 5%;">Số mục</th>
+							<th class="text-center" style="width: 10%;">Trạng thái</th>
 							<th class="w-1">Thao tác</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var item in Model)
+						@foreach (var item in Model.Categories)
 						{
 							<tr>
-								<td class="text-muted">@item.Id</td>
 								<td>
-									<img src="@MediaUrlHelper.GetMinioUrl(item.ImageUrl, "/img/placeholder.svg")"
-										 alt="@item.Name"
-										 class="avatar avatar-md object-fit-contain bg-light" /> @* Thêm bg-light *@
-								</td>
-								<td>
-									<div class="d-flex align-items-center">
-										@if (!string.IsNullOrEmpty(item.Icon))
-										{
-											<span class="me-2 text-muted" title="@item.Icon"><i class="@item.Icon"></i></span>
-										}
-										<span class="fw-medium">@item.Name</span>
-									</div>
+									<span class="fw-medium">@item.Name</span>
 								</td>
 								<td class="text-muted">@item.ParentName</td>
-								<td class="text-center text-muted">@item.ItemCount</td>
-								<td class="text-center">@item.OrderIndex</td>
-								<td class="text-center">
+								<td class="text-muted">@item.Type.GetDisplayName()</td>
+								<td class="text-muted"><code>@item.Slug</code></td>
+								<td class="text-muted text-center">@item.OrderIndex</td>
+								<td class="text-muted text-center">
+									<span class="badge bg-blue-lt">@item.ItemCount</span>
+								</td>
+								<td class="text-muted text-center">
 									@if (item.IsActive)
 									{
-										<span class="badge bg-success-lt">Hiển thị</span>
+										<span class="badge bg-success-lt">Kích hoạt</span>
 									}
 									else
 									{
 										<span class="badge bg-danger-lt">Ẩn</span>
 									}
 								</td>
-								<td>
+								<td class="text-muted">
 									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa">
-											<i class="ti ti-pencil"></i>
-										</a>
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
 										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
 												title="Xóa"
 												data-id="@item.Id"
 												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Category")"
-												title="Xóa @item.Type.GetDisplayName()">
+												data-delete-url="@Url.Action("Delete", "Category")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -142,13 +140,19 @@
 			</div>
 		}
 	</div>
-	@if (Model.PageCount > 1)
+	@if (Model.Categories.PageCount > 1)
 	{
-		<div class="card-footer ">
-			<div class="d-flex align-items-center justify-content-center">
+		<div class="card-footer">
+			<div class="d-flex justify-content-center">
 				@Html.PagedListPager(
-								Model,
-								page => Url.Action("Index", new { page, type = ViewBag.CurrentType, searchTerm = ViewBag.SearchTerm }),
+								Model.Categories,
+								page => Url.Action("Index", new
+								{
+									page,
+									Model.Filter.SearchTerm,
+									Model.Filter.Type,
+									Model.Filter.IsActive
+								}),
 								new PagedListRenderOptions
 			{
 				UlElementClasses = new[] { "pagination mb-0" },
@@ -158,19 +162,21 @@
 				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
 				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
 				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
 			})
 			</div>
 		</div>
 	}
 </div>
 
-
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			 $('#clearSearch').on('click', function() {
-				$('input[name="searchTerm"]').val('');
-			 });
+			$('#clearSearch').on('click', function() {
+				$('#Filter_SearchTerm').val('');
+			});
 		});
 	</script>
-}
+ }

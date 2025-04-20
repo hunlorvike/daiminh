@@ -10,9 +10,8 @@
 		return controllers.Contains(currentController, StringComparer.OrdinalIgnoreCase);
 	}
 
-	var themeCookie = Context.Request.Cookies["daiminhTheme"];
-	var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
-	var isDark = theme == "dark";
+	string? themeCookie = Context.Request.Cookies["daiminhTheme"];
+	string? theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
 }
 
 <aside class="navbar navbar-vertical navbar-expand-lg navbar-light border-end">
@@ -117,7 +116,7 @@
 				<li class="nav-item mb-2 @(IsMenuActive("Dashboard") ? "active" : "")">
 					<a class="nav-link rounded d-flex align-items-center gap-2 py-2" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
 						<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-home"></i></span>
-						<span class="nav-link-title">Dashboard</span>
+						<span class="nav-link-title">Trang chủ</span>
 					</a>
 				</li>
 

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
 
 namespace web.Areas.Admin.ViewModels.Tag;
@@ -25,5 +26,8 @@ public class TagViewModel
     public string? Description { get; set; }
 
     [Display(Name = "Loại thẻ")]
-    public TagType Type { get; set; } = TagType.Product;
+    public TagType Type { get; set; }
+
+    public List<SelectListItem>? TagTypes { get; set; }
+
 }

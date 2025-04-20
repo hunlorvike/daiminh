@@ -39,14 +39,18 @@ public partial class TagController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 10;
 
-        IQueryable<Tag> query = _context.Set<Tag>()
-            .Where(t => t.Type == filter.Type);
+        IQueryable<Tag> query = _context.Set<Tag>();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
             string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
             query = query.Where(t => t.Name.ToLower().Contains(lowerSearchTerm) ||
                                     (t.Description != null && t.Description.ToLower().Contains(lowerSearchTerm)));
+        }
+
+        if (filter.Type.HasValue)
+        {
+            query = query.Where(c => c.Type == filter.Type.Value);
         }
 
         query = query.Include(t => t.ProductTags)
@@ -74,7 +78,8 @@ public partial class TagController : Controller
     {
         TagViewModel viewModel = new()
         {
-            Type = type
+            Type = type,
+            TagTypes = GetTagTypesSelectList(type)
         };
 
         return View(viewModel);

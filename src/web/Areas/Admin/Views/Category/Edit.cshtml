@@ -1,125 +1,48 @@
 @using web.Areas.Admin.ViewModels.Category
 @model CategoryViewModel
 @{
-	ViewData["Title"] = "Thêm Danh mục mới";
+	ViewData["Title"] = "Chỉnh sửa Danh mục - Hệ thống quản trị";
+	ViewData["PageTitle"] = $"Chỉnh sửa Danh mục: {Model.Name}";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category"),
+            ($"Chỉnh sửa: {Model.Name}", "")
+		};
 }
 
 <form asp-action="Edit" method="post">
 	@Html.AntiForgeryToken()
-	<input type="hidden" asp-for="Type" />
+	<input type="hidden" asp-for="Id" />
+	<div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
 
 	<div class="card">
 		<div class="card-header">
-			<h3 class="card-title">Thông tin Danh mục & SEO</h3>
+			<h3 class="card-title">Thông tin Danh mục</h3>
 		</div>
 		<div class="card-body">
-			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger"></div>
-			<input type="hidden" asp-for="Id" />
-
 			<partial name="_CategoryFormFields" model="Model" />
 		</div>
-		<div class="card-footer text-end">
-			<a asp-action="Index" asp-route-type="@Model.Type" class="btn btn-link">Hủy</a>
-			<button type="submit" class="btn btn-primary">
-				<i class="ti ti-device-floppy me-2"></i> Lưu Danh mục
+	</div>
+
+	<div class="card mt-4">
+		<div class="card-header">
+			<h3 class="card-title">Tối ưu SEO</h3>
+		</div>
+		<div class="card-body">
+			<partial name="Components/_SeoFormFields" model="Model.Seo" />
+		</div>
+		<div class="card-footer text-end bg-transparent border-top pt-3">
+			<a asp-action="Index" asp-route-type="@((int)Model.Type)" class="btn btn-link">Hủy</a>
+			<button type="submit" class="btn btn-primary ms-2">
+				<i class="ti ti-device-floppy me-2"></i> Cập nhật Danh mục
 			</button>
 		</div>
 	</div>
 </form>
 
 @section Scripts {
-	<script src="~/js/slug.js"></script>
+	<script src="~/js/slug.js" asp-append-version="true"></script>
 	<script>
-		$(document).ready(function() {
-
-			function setupImageSelection(selectBtnId, removeBtnId, previewId, inputId, storeFullPath = false, defaultImgSrc = '/img/placeholder.svg') {
-				const selectBtn = $(`#${selectBtnId}`);
-				const removeBtn = $(`#${removeBtnId}`);
-				const preview = $(`#${previewId}`);
-				const input = $(`#${inputId}`);
-
-				function handleSelection(selectedFile) {
-					if (selectedFile && selectedFile.url) {
-						preview.attr('src', selectedFile.url).show();
-						input.val(storeFullPath ? selectedFile.url : selectedFile.path).trigger('change');
-						removeBtn.removeClass('d-none');
-					} else {
-						console.warn("Selected file object is missing 'url'.", selectedFile);
-					}
-				}
-
-				selectBtn.on('click', function() {
-					if (typeof window.openMediaSelectionModal === 'function') {
-						window.openMediaSelectionModal(handleSelection, 'Image');
-					} else {
-						console.error('window.openMediaSelectionModal function is not defined.');
-						alert('Lỗi: Chức năng chọn media chưa sẵn sàng.');
-					}
-				});
-
-				removeBtn.on('click', function() {
-					preview.attr('src', defaultImgSrc);
-					if (previewId !== 'imagePreview') {
-						preview.hide();
-					}
-					input.val('').trigger('change');
-					$(this).addClass('d-none');
-				});
-
-				if (input.val() === '' && previewId !== 'imagePreview') {
-					 preview.hide();
-				}
-			}
-
-			// --- Thiết lập cho Ảnh đại diện (ImageUrl - Lưu Path) ---
-			setupImageSelection(
-				'selectImageBtn',       // ID nút Chọn ảnh
-				'removeImageBtn',       // ID nút Xóa ảnh
-				'imagePreview',         // ID thẻ img xem trước
-				'imagePathInput',       // ID input ẩn lưu giá trị
-				false                   // Lưu Path (false) hay URL (true)? -> false cho ImageUrl
-			);
-
-			// --- Thiết lập cho Ảnh Open Graph (OgImage - Lưu URL) ---
-			setupImageSelection(
-				'selectOgImageBtn',     // ID nút Chọn ảnh OG
-				'removeOgImageBtn',     // ID nút Xóa ảnh OG
-				'ogImagePreview',       // ID thẻ img xem trước OG
-				'ogImagePathInput',     // ID input ẩn lưu giá trị OG
-				true                    // Lưu Path (false) hay URL (true)? -> true cho OgImage
-			);
-
-			// --- Thiết lập cho Ảnh Twitter (TwitterImage - Lưu URL) ---
-			setupImageSelection(
-				'selectTwitterImageBtn', // ID nút Chọn ảnh Twitter
-				'removeTwitterImageBtn', // ID nút Xóa ảnh Twitter
-				'twitterImagePreview',   // ID thẻ img xem trước Twitter
-				'twitterImagePathInput', // ID input ẩn lưu giá trị Twitter
-				true                     // Lưu Path (false) hay URL (true)? -> true cho TwitterImage
-			);
-
-
-			const nameInput = $('#Name');
-			const slugInput = $('#Slug');
-			const generateBtn = $('#generateSlugButton');
-
-			nameInput.on('input', function() {
-				if (slugInput.val() === '') {
-					try {
-						slugInput.val(generateVietnameseSlug(nameInput.val()));
-					} catch (e) {
-						 console.error("Error calling generateVietnameseSlug:", e);
-					}
-				}
-			});
-
-			generateBtn.on('click', function() {
-				 try {
-					slugInput.val(generateVietnameseSlug(nameInput.val()));
-				} catch (e) {
-					 console.error("Error calling generateVietnameseSlug:", e);
-				}
-			});
+		$(document).ready(function () {
 		});
 	</script>
 }
