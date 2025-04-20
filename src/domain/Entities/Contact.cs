@@ -37,9 +37,6 @@ public class ContactConfiguration : BaseEntityConfiguration<Contact, int>
         builder.Property(e => e.ProjectDetails).HasColumnName("project_details").HasColumnType("text");
         builder.Property(e => e.Status)
             .HasColumnName("status")
-            .HasConversion(
-                v => v.ToString().ToLowerInvariant(),
-                v => Enum.Parse<ContactStatus>(v, true))
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(ContactStatus.New);

@@ -32,9 +32,6 @@ public class SettingConfiguration : IEntityTypeConfiguration<Setting>
         builder.Property(s => s.Category).HasColumnName("category").IsRequired().HasMaxLength(50);
         builder.Property(e => e.Type)
             .HasColumnName("type")
-            .HasConversion(
-                v => v.ToString().ToLowerInvariant(),
-                v => Enum.Parse<FieldType>(v, true))
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(FieldType.Text);

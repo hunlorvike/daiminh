@@ -11,6 +11,17 @@
         <StaticWebAssetPathCasing>Preserve</StaticWebAssetPathCasing>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <Compile Remove="Mappers\**" />
+	  <Compile Remove="ViewModels\**" />
+	  <Content Remove="Mappers\**" />
+	  <Content Remove="ViewModels\**" />
+	  <EmbeddedResource Remove="Mappers\**" />
+	  <EmbeddedResource Remove="ViewModels\**" />
+	  <None Remove="Mappers\**" />
+	  <None Remove="ViewModels\**" />
+	</ItemGroup>
+
     <ItemGroup>
         <PackageReference Include="AutoMapper" Version="12.0.0" />
         <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.0" />
@@ -39,11 +50,6 @@
     <ItemGroup>
         <ProjectReference Include="..\infrastructure\infrastructure.csproj" />
         <ProjectReference Include="..\shared\shared.csproj" />
-    </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="Mappers\" />
-      <Folder Include="ViewModels\" />
     </ItemGroup>
 
 </Project>

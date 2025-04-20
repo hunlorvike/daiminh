@@ -48,9 +48,6 @@ public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
 
         builder.Property(e => e.MediaType)
             .HasColumnName("media_type")
-            .HasConversion(
-                v => v.ToString().ToLowerInvariant(),
-                v => Enum.Parse<MediaType>(v, true))
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(MediaType.Image);

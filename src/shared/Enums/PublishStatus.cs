@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace shared.Enums;
 
-public enum PublishStatus
+public enum PublishStatus : ushort
 {
     [Display(Name = "Bản nháp")]
     Draft,

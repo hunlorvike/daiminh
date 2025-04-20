@@ -41,9 +41,6 @@ public class CategoryConfiguration : SeoEntityConfiguration<Category, int>
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         builder.Property(e => e.Type)
             .HasColumnName("type")
-            .HasConversion(
-                v => v.ToString().ToLowerInvariant(),
-                v => Enum.Parse<CategoryType>(v, true))
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(CategoryType.Product);

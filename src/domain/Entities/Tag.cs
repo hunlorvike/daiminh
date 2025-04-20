@@ -30,9 +30,6 @@ public class TagConfiguration : BaseEntityConfiguration<Tag, int>
         builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
         builder.Property(e => e.Type)
             .HasColumnName("type")
-            .HasConversion(
-                v => v.ToString().ToLowerInvariant(),
-                v => Enum.Parse<TagType>(v, true))
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(TagType.Product);

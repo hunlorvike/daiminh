@@ -167,12 +167,11 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(255)")
                         .HasColumnName("slug");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("draft")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("status");
 
                     b.Property<string>("Summary")
@@ -213,14 +212,6 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("twitter_title");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("knowledge")
-                        .HasColumnName("type");
-
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -256,9 +247,6 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("Status")
                         .HasDatabaseName("idx_articles_status");
-
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_articles_type");
 
                     b.HasIndex("ViewCount")
                         .HasDatabaseName("idx_articles_view_count");
@@ -700,12 +688,11 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("twitter_title");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
+                    b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("product")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -736,96 +723,6 @@ namespace infrastructure.Migrations
                         .HasDatabaseName("idx_categories_slug_type");
 
                     b.ToTable("categories", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.Comment", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ArticleId")
-                        .HasColumnType("integer")
-                        .HasColumnName("article_id");
-
-                    b.Property<string>("AuthorAvatar")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("author_avatar");
-
-                    b.Property<string>("AuthorEmail")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("author_email");
-
-                    b.Property<string>("AuthorId")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("author_id");
-
-                    b.Property<string>("AuthorName")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("author_name");
-
-                    b.Property<string>("AuthorWebsite")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("author_website");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<bool>("IsApproved")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_approved");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("integer")
-                        .HasColumnName("parent_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArticleId")
-                        .HasDatabaseName("idx_comments_article_id");
-
-                    b.HasIndex("AuthorId")
-                        .HasDatabaseName("idx_comments_author_id");
-
-                    b.HasIndex("IsApproved")
-                        .HasDatabaseName("idx_comments_is_approved");
-
-                    b.HasIndex("ParentId")
-                        .HasDatabaseName("idx_comments_parent_id");
-
-                    b.ToTable("comments", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Contact", b =>
@@ -887,12 +784,11 @@ namespace infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("project_details");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("new")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("status");
 
                     b.Property<string>("Subject")
@@ -997,321 +893,6 @@ namespace infrastructure.Migrations
                     b.ToTable("faqs", (string)null);
                 });
 
-            modelBuilder.Entity("domain.Entities.Gallery", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("BreadcrumbJson")
-                        .HasColumnType("text")
-                        .HasColumnName("breadcrumb_json");
-
-                    b.Property<string>("CanonicalUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("canonical_url");
-
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<string>("CoverImage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("cover_image");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsFeatured")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_featured");
-
-                    b.Property<string>("MetaDescription")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("meta_description");
-
-                    b.Property<string>("MetaKeywords")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("meta_keywords");
-
-                    b.Property<string>("MetaTitle")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("meta_title");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("name");
-
-                    b.Property<bool>("NoFollow")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("no_follow");
-
-                    b.Property<bool>("NoIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("no_index");
-
-                    b.Property<string>("OgDescription")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("og_description");
-
-                    b.Property<string>("OgImage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("og_image");
-
-                    b.Property<string>("OgTitle")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("og_title");
-
-                    b.Property<string>("OgType")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("website")
-                        .HasColumnName("og_type");
-
-                    b.Property<string>("SchemaMarkup")
-                        .HasColumnType("text")
-                        .HasColumnName("schema_markup");
-
-                    b.Property<string>("SitemapChangeFrequency")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("monthly")
-                        .HasColumnName("sitemap_change_frequency");
-
-                    b.Property<double?>("SitemapPriority")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.5)
-                        .HasColumnName("sitemap_priority");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("slug");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("draft")
-                        .HasColumnName("status");
-
-                    b.Property<string>("TwitterCard")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("summary_large_image")
-                        .HasColumnName("twitter_card");
-
-                    b.Property<string>("TwitterDescription")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("twitter_description");
-
-                    b.Property<string>("TwitterImage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("twitter_image");
-
-                    b.Property<string>("TwitterTitle")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("twitter_title");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<int>("ViewCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("view_count");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("IsFeatured")
-                        .HasDatabaseName("idx_galleries_is_featured");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("idx_galleries_slug");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("idx_galleries_status");
-
-                    b.HasIndex("ViewCount")
-                        .HasDatabaseName("idx_galleries_view_count");
-
-                    b.ToTable("galleries", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.GalleryImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AltText")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("alt_text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<int>("GalleryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("gallery_id");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("image_url");
-
-                    b.Property<int>("OrderIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
-
-                    b.Property<string>("ThumbnailUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("thumbnail_url");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("title");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GalleryId")
-                        .HasDatabaseName("idx_gallery_images_gallery_id");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_gallery_images_order_index");
-
-                    b.ToTable("gallery_images", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.GalleryTag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("GalleryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("gallery_id");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("integer")
-                        .HasColumnName("tag_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GalleryId")
-                        .HasDatabaseName("idx_gallery_tags_gallery_id");
-
-                    b.HasIndex("TagId")
-                        .HasDatabaseName("idx_gallery_tags_tag_id");
-
-                    b.HasIndex("GalleryId", "TagId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_gallery_tags_gallery_tag");
-
-                    b.ToTable("gallery_tags", (string)null);
-                });
-
             modelBuilder.Entity("domain.Entities.MediaFile", b =>
                 {
                     b.Property<int>("Id")
@@ -1377,21 +958,12 @@ namespace infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("height");
 
-                    b.Property<string>("LargeSizePath")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("large_size_path");
-
                     b.Property<int>("MediaType")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(20)
                         .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("media_type");
-
-                    b.Property<string>("MediumSizePath")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("medium_size_path");
 
                     b.Property<string>("MimeType")
                         .IsRequired()
@@ -1404,12 +976,6 @@ namespace infrastructure.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("character varying(255)")
                         .HasColumnName("original_file_name");
-
-                    b.Property<string>("ThumbnailPath")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("thumbnail_path");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
@@ -1723,12 +1289,11 @@ namespace infrastructure.Migrations
                         .HasColumnType("text")
                         .HasColumnName("specifications");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("draft")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("status");
 
                     b.Property<string>("StorageInstructions")
@@ -2020,445 +1585,6 @@ namespace infrastructure.Migrations
                     b.ToTable("product_variants", (string)null);
                 });
 
-            modelBuilder.Entity("domain.Entities.Project", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal?>("Area")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("numeric(10,2)")
-                        .HasColumnName("area");
-
-                    b.Property<string>("BreadcrumbJson")
-                        .HasColumnType("text")
-                        .HasColumnName("breadcrumb_json");
-
-                    b.Property<string>("CanonicalUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("canonical_url");
-
-                    b.Property<int?>("CategoryId")
-                        .HasColumnType("integer")
-                        .HasColumnName("category_id");
-
-                    b.Property<string>("Client")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("client");
-
-                    b.Property<DateTime?>("CompletionDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("completion_date");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<string>("FeaturedImage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("featured_image");
-
-                    b.Property<bool>("IsFeatured")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_featured");
-
-                    b.Property<string>("Location")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("location");
-
-                    b.Property<string>("MetaDescription")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("meta_description");
-
-                    b.Property<string>("MetaKeywords")
-                        .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
-                        .HasColumnName("meta_keywords");
-
-                    b.Property<string>("MetaTitle")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("meta_title");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("name");
-
-                    b.Property<bool>("NoFollow")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("no_follow");
-
-                    b.Property<bool>("NoIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("no_index");
-
-                    b.Property<string>("OgDescription")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("og_description");
-
-                    b.Property<string>("OgImage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("og_image");
-
-                    b.Property<string>("OgTitle")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("og_title");
-
-                    b.Property<string>("OgType")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("website")
-                        .HasColumnName("og_type");
-
-                    b.Property<string>("PublishStatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("draft")
-                        .HasColumnName("publish_status");
-
-                    b.Property<string>("SchemaMarkup")
-                        .HasColumnType("text")
-                        .HasColumnName("schema_markup");
-
-                    b.Property<string>("ShortDescription")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("short_description");
-
-                    b.Property<string>("SitemapChangeFrequency")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("monthly")
-                        .HasColumnName("sitemap_change_frequency");
-
-                    b.Property<double?>("SitemapPriority")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
-                        .HasDefaultValue(0.5)
-                        .HasColumnName("sitemap_priority");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("slug");
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("start_date");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("inprogress")
-                        .HasColumnName("status");
-
-                    b.Property<string>("ThumbnailImage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("thumbnail_image");
-
-                    b.Property<string>("TwitterCard")
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasDefaultValue("summary_large_image")
-                        .HasColumnName("twitter_card");
-
-                    b.Property<string>("TwitterDescription")
-                        .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
-                        .HasColumnName("twitter_description");
-
-                    b.Property<string>("TwitterImage")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("twitter_image");
-
-                    b.Property<string>("TwitterTitle")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("twitter_title");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<int>("ViewCount")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("view_count");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.HasIndex("CompletionDate")
-                        .HasDatabaseName("idx_projects_completion_date");
-
-                    b.HasIndex("IsFeatured")
-                        .HasDatabaseName("idx_projects_is_featured");
-
-                    b.HasIndex("PublishStatus")
-                        .HasDatabaseName("idx_projects_publish_status");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("idx_projects_slug");
-
-                    b.HasIndex("StartDate")
-                        .HasDatabaseName("idx_projects_start_date");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("idx_projects_status");
-
-                    b.HasIndex("ViewCount")
-                        .HasDatabaseName("idx_projects_view_count");
-
-                    b.ToTable("projects", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ProjectImage", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("AltText")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("alt_text");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("text")
-                        .HasColumnName("description");
-
-                    b.Property<string>("ImageUrl")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("image_url");
-
-                    b.Property<bool>("IsMain")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_main");
-
-                    b.Property<int>("OrderIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer")
-                        .HasColumnName("project_id");
-
-                    b.Property<string>("ThumbnailUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("thumbnail_url");
-
-                    b.Property<string>("Title")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("title");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_project_images_order_index");
-
-                    b.HasIndex("ProjectId")
-                        .HasDatabaseName("idx_project_images_project_id");
-
-                    b.HasIndex("ProjectId", "IsMain")
-                        .HasDatabaseName("idx_project_images_project_main");
-
-                    b.ToTable("project_images", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ProjectProduct", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("OrderIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer")
-                        .HasColumnName("product_id");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer")
-                        .HasColumnName("project_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<string>("Usage")
-                        .HasColumnType("text")
-                        .HasColumnName("usage");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_project_products_order_index");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("idx_project_products_product_id");
-
-                    b.HasIndex("ProjectId")
-                        .HasDatabaseName("idx_project_products_project_id");
-
-                    b.HasIndex("ProjectId", "ProductId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_project_products_project_product");
-
-                    b.ToTable("project_products", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.ProjectTag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("integer")
-                        .HasColumnName("project_id");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("integer")
-                        .HasColumnName("tag_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId")
-                        .HasDatabaseName("idx_project_tags_project_id");
-
-                    b.HasIndex("TagId")
-                        .HasDatabaseName("idx_project_tags_tag_id");
-
-                    b.HasIndex("ProjectId", "TagId")
-                        .IsUnique()
-                        .HasDatabaseName("idx_project_tags_project_tag");
-
-                    b.ToTable("project_tags", (string)null);
-                });
-
             modelBuilder.Entity("domain.Entities.Setting", b =>
                 {
                     b.Property<int>("Id")
@@ -2500,12 +1626,11 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(100)")
                         .HasColumnName("key");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
+                    b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("text")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -2540,262 +1665,262 @@ namespace infrastructure.Migrations
                         {
                             Id = 1,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6466),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(220),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên website hiển thị trên trang và tiêu đề trình duyệt.",
                             IsActive = true,
                             Key = "SiteName",
-                            Type = "text",
+                            Type = 0,
                             Value = "Đại Minh Việt Nam"
                         },
                         new
                         {
                             Id = 2,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6472),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(229),
                             DefaultValue = "https://localhost:7001",
                             Description = "Địa chỉ URL chính của website (ví dụ: https://www.example.com).",
                             IsActive = true,
                             Key = "SiteUrl",
-                            Type = "url",
+                            Type = 7,
                             Value = "https://localhost:7001"
                         },
                         new
                         {
                             Id = 3,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6475),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(233),
                             DefaultValue = "sondaiminh@gmail.com",
                             Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống.",
                             IsActive = true,
                             Key = "AdminEmail",
-                            Type = "email",
+                            Type = 6,
                             Value = "sondaiminh@gmail.com"
                         },
                         new
                         {
                             Id = 5,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6476),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(235),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên công ty hoặc tổ chức sở hữu website.",
                             IsActive = true,
                             Key = "CompanyName",
-                            Type = "text",
+                            Type = 0,
                             Value = "Đại Minh Việt Nam"
                         },
                         new
                         {
                             Id = 6,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6477),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(238),
                             DefaultValue = "123 Main Street, Anytown, CA 91234",
                             Description = "Địa chỉ liên hệ đầy đủ.",
                             IsActive = true,
                             Key = "ContactAddress",
-                            Type = "textarea",
+                            Type = 1,
                             Value = "123 Main Street, Anytown, CA 91234"
                         },
                         new
                         {
                             Id = 7,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6478),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(239),
                             DefaultValue = "(123) 456-7890",
                             Description = "Số điện thoại liên hệ chính.",
                             IsActive = true,
                             Key = "ContactPhone",
-                            Type = "phone",
+                            Type = 4,
                             Value = "(123) 456-7890"
                         },
                         new
                         {
                             Id = 8,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6480),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(241),
                             DefaultValue = "contact@example.com",
                             Description = "Địa chỉ email hiển thị công khai để liên hệ.",
                             IsActive = true,
                             Key = "ContactEmail",
-                            Type = "email",
+                            Type = 6,
                             Value = "contact@example.com"
                         },
                         new
                         {
                             Id = 9,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6481),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(242),
                             Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).",
                             IsActive = true,
                             Key = "ContactMapEmbed",
-                            Type = "html"
+                            Type = 2
                         },
                         new
                         {
                             Id = 10,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6482),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(244),
                             DefaultValue = "Welcome to My Application",
                             Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
                             IsActive = true,
                             Key = "DefaultMetaTitle",
-                            Type = "text",
+                            Type = 0,
                             Value = "Welcome to My Application"
                         },
                         new
                         {
                             Id = 11,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6483),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(246),
                             DefaultValue = "This is the default description for My Application.",
                             Description = "Mô tả meta mặc định (dưới 160 ký tự).",
                             IsActive = true,
                             Key = "DefaultMetaDescription",
-                            Type = "textarea",
+                            Type = 1,
                             Value = "This is the default description for My Application."
                         },
                         new
                         {
                             Id = 12,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6484),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(247),
                             DefaultValue = "/image/icon.jpg",
                             Description = "Đường dẫn đến file favicon.ico hoặc ảnh favicon.",
                             IsActive = true,
                             Key = "FaviconUrl",
-                            Type = "image",
+                            Type = 3,
                             Value = "/image/icon.jpg"
                         },
                         new
                         {
                             Id = 13,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6485),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(249),
                             Description = "URL trang Facebook.",
                             IsActive = true,
                             Key = "SocialFacebookUrl",
-                            Type = "url"
+                            Type = 7
                         },
                         new
                         {
                             Id = 14,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6486),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(250),
                             Description = "URL trang Twitter (X).",
                             IsActive = true,
                             Key = "SocialTwitterUrl",
-                            Type = "url"
+                            Type = 7
                         },
                         new
                         {
                             Id = 15,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6487),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(252),
                             Description = "URL trang Instagram.",
                             IsActive = true,
                             Key = "SocialInstagramUrl",
-                            Type = "url"
+                            Type = 7
                         },
                         new
                         {
                             Id = 16,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6489),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(254),
                             Description = "URL trang LinkedIn.",
                             IsActive = true,
                             Key = "SocialLinkedInUrl",
-                            Type = "url"
+                            Type = 7
                         },
                         new
                         {
                             Id = 17,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6490),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(255),
                             Description = "URL kênh Youtube.",
                             IsActive = true,
                             Key = "SocialYoutubeUrl",
-                            Type = "url"
+                            Type = 7
                         },
                         new
                         {
                             Id = 18,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6491),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(257),
                             DefaultValue = "smtp.example.com",
                             Description = "Địa chỉ máy chủ SMTP.",
                             IsActive = true,
                             Key = "SmtpHost",
-                            Type = "text",
+                            Type = 0,
                             Value = "smtp.example.com"
                         },
                         new
                         {
                             Id = 19,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6493),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(258),
                             DefaultValue = "587",
                             Description = "Cổng SMTP (ví dụ: 587, 465, 25).",
                             IsActive = true,
                             Key = "SmtpPort",
-                            Type = "number",
+                            Type = 8,
                             Value = "587"
                         },
                         new
                         {
                             Id = 20,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6494),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(260),
                             DefaultValue = "user@example.com",
                             Description = "Tên đăng nhập SMTP.",
                             IsActive = true,
                             Key = "SmtpUsername",
-                            Type = "text",
+                            Type = 0,
                             Value = "user@example.com"
                         },
                         new
                         {
                             Id = 21,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6495),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(261),
                             Description = "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.",
                             IsActive = true,
                             Key = "SmtpPassword",
-                            Type = "text"
+                            Type = 0
                         },
                         new
                         {
                             Id = 22,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6496),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(263),
                             DefaultValue = "true",
                             Description = "Sử dụng mã hóa SSL/TLS khi gửi email.",
                             IsActive = true,
                             Key = "SmtpUseSsl",
-                            Type = "boolean",
+                            Type = 9,
                             Value = "true"
                         },
                         new
                         {
                             Id = 23,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6497),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(265),
                             DefaultValue = "My Application Support",
                             Description = "Tên hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
                             Key = "EmailFromName",
-                            Type = "text",
+                            Type = 0,
                             Value = "My Application Support"
                         },
                         new
                         {
                             Id = 24,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 348, DateTimeKind.Utc).AddTicks(6498),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(267),
                             DefaultValue = "noreply@example.com",
                             Description = "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
                             Key = "EmailFromAddress",
-                            Type = "email",
+                            Type = 6,
                             Value = "noreply@example.com"
                         });
                 });
@@ -2836,12 +1961,11 @@ namespace infrastructure.Migrations
                         .HasColumnType("character varying(50)")
                         .HasColumnName("slug");
 
-                    b.Property<string>("Type")
-                        .IsRequired()
+                    b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
-                        .HasDefaultValue("product")
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
@@ -2921,11 +2045,6 @@ namespace infrastructure.Migrations
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
                         .HasColumnName("order_index");
-
-                    b.Property<string>("ProjectReference")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
-                        .HasColumnName("project_reference");
 
                     b.Property<int>("Rating")
                         .ValueGeneratedOnAdd()
@@ -3026,11 +2145,11 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 4, 20, 3, 6, 45, 349, DateTimeKind.Utc).AddTicks(9294),
+                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 808, DateTimeKind.Utc).AddTicks(3734),
                             Email = "admin@admin.com",
                             FullName = "Quản trị viên",
                             IsActive = true,
-                            PasswordHash = "AQAAAAIAAYagAAAAEK+mvXpebtHmlMwwzYvwlhig92egM4bfnz8ilTMy2OuYCTt8+MXODlBzcs2ZXecP4w==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEU0ahmFyarn4e1nycB+Uj7e5jaL905jDRlqF825e+PkF3CmT9VlYXbJTwc3tPNr6A==",
                             Username = "admin"
                         });
                 });
@@ -3093,24 +2212,6 @@ namespace infrastructure.Migrations
                     b.Navigation("Parent");
                 });
 
-            modelBuilder.Entity("domain.Entities.Comment", b =>
-                {
-                    b.HasOne("domain.Entities.Article", "Article")
-                        .WithMany("Comments")
-                        .HasForeignKey("ArticleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Comment", "Parent")
-                        .WithMany("Replies")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Article");
-
-                    b.Navigation("Parent");
-                });
-
             modelBuilder.Entity("domain.Entities.FAQ", b =>
                 {
                     b.HasOne("domain.Entities.Category", "Category")
@@ -3119,46 +2220,6 @@ namespace infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("domain.Entities.Gallery", b =>
-                {
-                    b.HasOne("domain.Entities.Category", "Category")
-                        .WithMany("Galleries")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("domain.Entities.GalleryImage", b =>
-                {
-                    b.HasOne("domain.Entities.Gallery", "Gallery")
-                        .WithMany("Images")
-                        .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Gallery");
-                });
-
-            modelBuilder.Entity("domain.Entities.GalleryTag", b =>
-                {
-                    b.HasOne("domain.Entities.Gallery", "Gallery")
-                        .WithMany("GalleryTags")
-                        .HasForeignKey("GalleryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Tag", "Tag")
-                        .WithMany("GalleryTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Gallery");
-
-                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("domain.Entities.MediaFile", b =>
@@ -3239,72 +2300,11 @@ namespace infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("domain.Entities.Project", b =>
-                {
-                    b.HasOne("domain.Entities.Category", "Category")
-                        .WithMany("Projects")
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProjectImage", b =>
-                {
-                    b.HasOne("domain.Entities.Project", "Project")
-                        .WithMany("Images")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProjectProduct", b =>
-                {
-                    b.HasOne("domain.Entities.Product", "Product")
-                        .WithMany("ProjectProducts")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Project", "Project")
-                        .WithMany("ProjectProducts")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProjectTag", b =>
-                {
-                    b.HasOne("domain.Entities.Project", "Project")
-                        .WithMany("ProjectTags")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Tag", "Tag")
-                        .WithMany("ProjectTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-
-                    b.Navigation("Tag");
-                });
-
             modelBuilder.Entity("domain.Entities.Article", b =>
                 {
                     b.Navigation("ArticleProducts");
 
                     b.Navigation("ArticleTags");
-
-                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("domain.Entities.Brand", b =>
@@ -3320,23 +2320,7 @@ namespace infrastructure.Migrations
 
                     b.Navigation("FAQs");
 
-                    b.Navigation("Galleries");
-
                     b.Navigation("Products");
-
-                    b.Navigation("Projects");
-                });
-
-            modelBuilder.Entity("domain.Entities.Comment", b =>
-                {
-                    b.Navigation("Replies");
-                });
-
-            modelBuilder.Entity("domain.Entities.Gallery", b =>
-                {
-                    b.Navigation("GalleryTags");
-
-                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("domain.Entities.MediaFolder", b =>
@@ -3354,29 +2338,14 @@ namespace infrastructure.Migrations
 
                     b.Navigation("ProductTags");
 
-                    b.Navigation("ProjectProducts");
-
                     b.Navigation("Variants");
-                });
-
-            modelBuilder.Entity("domain.Entities.Project", b =>
-                {
-                    b.Navigation("Images");
-
-                    b.Navigation("ProjectProducts");
-
-                    b.Navigation("ProjectTags");
                 });
 
             modelBuilder.Entity("domain.Entities.Tag", b =>
                 {
                     b.Navigation("ArticleTags");
 
-                    b.Navigation("GalleryTags");
-
                     b.Navigation("ProductTags");
-
-                    b.Navigation("ProjectTags");
                 });
 #pragma warning restore 612, 618
         }

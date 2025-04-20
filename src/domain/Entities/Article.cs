@@ -53,9 +53,6 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.Property(e => e.EstimatedReadingMinutes).HasColumnName("estimated_reading_minutes").HasDefaultValue(0);
         builder.Property(e => e.Status)
             .HasColumnName("status")
-            .HasConversion(
-                v => v.ToString().ToLowerInvariant(),
-                v => Enum.Parse<PublishStatus>(v, true))
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);

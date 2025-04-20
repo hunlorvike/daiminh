@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace shared.Enums;
 
-public enum TagType
+public enum TagType : ushort
 {
     [Display(Name = "Sản phẩm")]
     Product,

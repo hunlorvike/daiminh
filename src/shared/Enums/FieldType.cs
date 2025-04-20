@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace shared.Enums;
 
-public enum FieldType
+public enum FieldType : ushort
 {
     [Display(Name = "Văn bản")]
     Text,

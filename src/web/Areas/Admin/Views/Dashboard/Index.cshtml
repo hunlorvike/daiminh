@@ -1,159 +1,289 @@
-@using shared.Enums
 @using web.Areas.Admin.ViewModels.Dashboard
+@using shared.Enums;
+@using shared.Extensions;
 @model DashboardViewModel
 @{
-	ViewData["Title"] = "Dashboard - Quản trị hệ thống";
-	ViewData["PageTitle"] = "Dashboard";
+	ViewData["Title"] = "Bảng điều khiển";
+	ViewData["PageTitle"] = "Bảng điều khiển";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)>();
 }
 
 <div class="row row-deck row-cards">
 	<div class="col-sm-6 col-lg-3">
-		<div class="card">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Article" asp-area="Admin">
 			<div class="card-body">
-				<div class="d-flex align-items-center">
-					<div class="subheader">Tổng số sản phẩm</div>
-				</div>
-				<div class="h1 mb-3">@Model.TotalProducts</div>
-				<div class="d-flex mb-2">
-					<div>Tỷ lệ hoạt động</div>
-					<div class="ms-auto">
-						<span class="text-green d-inline-flex align-items-center lh-1">
-							<i class="ti ti-arrow-up"></i>
-						</span>
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-primary text-white avatar"> <i class="ti ti-file-text fs-1"></i> </span>
 					</div>
-				</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-primary" style="width: 75%" role="progressbar" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" aria-label="75% Complete">
-						<span class="visually-hidden">75% Complete</span>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalPublishedArticles Bài viết
+							<span class="text-muted">(@Model.TotalDraftArticles nháp)</span>
+						</div>
+						<div class="text-muted">
+							Quản lý bài viết, tin tức
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</a>
 	</div>
+
 	<div class="col-sm-6 col-lg-3">
-		<div class="card">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Product" asp-area="Admin">
 			<div class="card-body">
-				<div class="d-flex align-items-center">
-					<div class="subheader">Tổng số bài viết</div>
-				</div>
-				<div class="h1 mb-3">@Model.TotalArticles</div>
-				<div class="d-flex mb-2">
-					<div>Tỷ lệ hoạt động</div>
-					<div class="ms-auto">
-						<span class="text-green d-inline-flex align-items-center lh-1">
-							<i class="ti ti-arrow-up"></i>
-						</span>
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-success text-white avatar"> <i class="ti ti-building-store fs-1"></i> </span>
 					</div>
-				</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-blue" style="width: 65%" role="progressbar" aria-valuenow="65" aria-valuemin="0" aria-valuemax="100" aria-label="65% Complete">
-						<span class="visually-hidden">65% Complete</span>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalActiveProducts Sản phẩm
+						</div>
+						<div class="text-muted">
+							Quản lý sản phẩm
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</a>
 	</div>
+
 	<div class="col-sm-6 col-lg-3">
-		<div class="card">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Category" asp-area="Admin">
 			<div class="card-body">
-				<div class="d-flex align-items-center">
-					<div class="subheader">Tổng số dự án</div>
-				</div>
-				<div class="h1 mb-3">@Model.TotalProjects</div>
-				<div class="d-flex mb-2">
-					<div>Tỷ lệ hoạt động</div>
-					<div class="ms-auto">
-						<span class="text-green d-inline-flex align-items-center lh-1">
-							<i class="ti ti-arrow-up"></i>
-						</span>
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-info text-white avatar"> <i class="ti ti-category-2 fs-1"></i> </span>
 					</div>
-				</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-azure" style="width: 55%" role="progressbar" aria-valuenow="55" aria-valuemin="0" aria-valuemax="100" aria-label="55% Complete">
-						<span class="visually-hidden">55% Complete</span>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalProductCategories DM. Sản phẩm
+						</div>
+						<div class="text-muted">
+							@Model.TotalArticleCategories DM. Bài viết, @Model.TotalFaqCategories DM. FAQ
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</a>
 	</div>
+
 	<div class="col-sm-6 col-lg-3">
-		<div class="card">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Tag" asp-area="Admin">
 			<div class="card-body">
-				<div class="d-flex align-items-center">
-					<div class="subheader">Liên hệ mới</div>
-				</div>
-				<div class="h1 mb-3">@Model.NewContacts</div>
-				<div class="d-flex mb-2">
-					<div>Tỷ lệ phản hồi</div>
-					<div class="ms-auto">
-						<span class="text-yellow d-inline-flex align-items-center lh-1">
-							<i class="ti ti-minus"></i>
-						</span>
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-warning text-white avatar"> <i class="ti ti-tags fs-1"></i> </span>
 					</div>
-				</div>
-				<div class="progress progress-sm">
-					<div class="progress-bar bg-red" style="width: 25%" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" aria-label="25% Complete">
-						<span class="visually-hidden">25% Complete</span>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalProductTags Thẻ SP
+						</div>
+						<div class="text-muted">
+							@Model.TotalArticleTags Thẻ Bài viết
+						</div>
 					</div>
 				</div>
 			</div>
-		</div>
+		</a>
+	</div>
+
+	@* --- Thống kê tương tác & khác --- *@
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Contact" asp-area="Admin">
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-danger text-white avatar"> <i class="ti ti-mail-forward fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalNewContacts Liên hệ mới
+						</div>
+						<div class="text-muted">
+							Quản lý thư liên hệ
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Newsletter" asp-area="Admin">
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-purple text-white avatar"> <i class="ti ti-mail-opened fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalActiveNewsletters Đăng ký nhận tin
+						</div>
+						<div class="text-muted">
+							Quản lý danh sách email
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Testimonial" asp-area="Admin">
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-teal text-white avatar"> <i class="ti ti-quote fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalActiveTestimonials Đánh giá
+						</div>
+						<div class="text-muted">
+							Quản lý phản hồi khách hàng
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Brand" asp-area="Admin">
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-lime text-white avatar"> <i class="ti ti-building-factory-2 fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalActiveBrands Thương hiệu
+						</div>
+						<div class="text-muted">
+							Quản lý thương hiệu sản phẩm
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="FAQ" asp-area="Admin">
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-indigo text-white avatar"> <i class="ti ti-help-circle fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalActiveFAQs Câu hỏi FAQ
+						</div>
+						<div class="text-muted">
+							Quản lý câu hỏi thường gặp
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Media" asp-area="Admin">
+			@* Giả sử có MediaController *@
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-orange text-white avatar"> <i class="ti ti-photo fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							Thư viện
+						</div>
+						<div class="text-muted">
+							Quản lý hình ảnh, tệp tin
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Setting" asp-area="Admin">
+			@* Giả sử có SettingController *@
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-secondary text-white avatar"> <i class="ti ti-settings fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							Cấu hình
+						</div>
+						<div class="text-muted">
+							Quản lý cài đặt hệ thống
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
+	</div>
+
+	<div class="col-sm-6 col-lg-3">
+		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="User" asp-area="Admin">
+			<div class="card-body">
+				<div class="row align-items-center">
+					<div class="col-auto">
+						<span class="bg-dark text-white avatar"> <i class="ti ti-users fs-1"></i> </span>
+					</div>
+					<div class="col">
+						<div class="fw-medium">
+							@Model.TotalActiveUsers Người dùng
+						</div>
+						<div class="text-muted">
+							Quản lý tài khoản quản trị
+						</div>
+					</div>
+				</div>
+			</div>
+		</a>
 	</div>
 
 	<div class="col-lg-6">
 		<div class="card">
 			<div class="card-header">
 				<h3 class="card-title">Bài viết gần đây</h3>
-				<div class="card-actions">
-					<a asp-area="Admin" asp-controller="Article" asp-action="Index" class="btn btn-primary btn-sm">
-						Xem tất cả
-					</a>
-				</div>
 			</div>
-			<div class="list-group list-group-flush">
-				@if (Model.RecentArticles != null)
-				{
-					@foreach (var article in Model.RecentArticles)
+			<div class="card-body">
+				<div class="list-group list-group-flush list-group-hoverable">
+					@if (Model.RecentArticles.Any())
 					{
-						<div class="list-group-item">
-							<div class="row align-items-center">
-								<div class="col-auto">
-									<span class="badge bg-@(article.Status == PublishStatus.Published ? "green" : article.Status == PublishStatus.Draft ? "yellow" : "blue")">
-										@article.Status.ToString()
-									</span>
-								</div>
-								<div class="col">
-									<a asp-area="Admin" asp-controller="Article" asp-action="Edit" asp-route-id="@article.Id" class="text-reset d-block">@article.Title</a>
-									<div class="text-muted mt-1">
-										<div class="d-inline-block">
-											<span class="text-muted">@article.AuthorName</span>
-										</div>
-										<div class="d-inline-block ms-3">
-											<i class="ti ti-calendar me-1"></i>
-											@article.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-										</div>
-									</div>
-								</div>
-								<div class="col-auto">
-									<div class="dropdown">
-										<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="ti ti-dots-vertical"></i>
-										</a>
-										<div class="dropdown-menu dropdown-menu-end">
-											<a asp-area="Admin" asp-controller="Article" asp-action="Edit" asp-route-id="@article.Id" class="dropdown-item">
-												<i class="ti ti-edit me-2"></i> Chỉnh sửa
-											</a>
-											@*TODO: sửa lại sau khi xây dựng giao diện client*@
-											<a href="/bai-viet/@article.Slug" target="_blank" class="dropdown-item">
-												<i class="ti ti-eye me-2"></i> Xem
-											</a>
+						foreach (var article in Model.RecentArticles)
+						{
+							<div class="list-group-item">
+								<div class="row align-items-center">
+									<div class="col text-truncate">
+										<a asp-action="Edit" asp-controller="Article" asp-route-id="@article.Id" class="text-body d-block">@article.Title</a>
+										<div class="text-muted text-truncate mt-n1">
+											@article.AuthorName - @article.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
+						}
 					}
-				}
+					else
+					{
+						<div class="list-group-item">Chưa có bài viết nào.</div>
+					}
+				</div>
+			</div>
+			<div class="card-footer text-end">
+				<a asp-action="Index" asp-controller="Article" class="btn btn-sm btn-outline-primary">Xem tất cả bài viết</a>
 			</div>
 		</div>
 	</div>
@@ -161,56 +291,36 @@
 	<div class="col-lg-6">
 		<div class="card">
 			<div class="card-header">
-				<h3 class="card-title">Liên hệ gần đây</h3>
-				<div class="card-actions">
-					<a asp-area="Admin" asp-controller="Contact" asp-action="Index" class="btn btn-primary btn-sm">
-						Xem tất cả
-					</a>
-				</div>
+				<h3 class="card-title">Liên hệ mới nhất</h3>
 			</div>
-			<div class="list-group list-group-flush">
-				@if (Model.RecentContacts != null)
-				{
-					@foreach (var contact in Model.RecentContacts)
+			<div class="card-body">
+				<div class="list-group list-group-flush list-group-hoverable">
+					@if (Model.RecentContacts.Any())
 					{
-						<div class="list-group-item">
-							<div class="row align-items-center">
-								<div class="col-auto">
-                                    <span class="badge bg-@(contact.Status == ContactStatus.New ? "red" : contact.Status == ContactStatus.InProgress ? "yellow" : contact.Status == ContactStatus.Resolved ? "green" : "gray")">
-										@(contact.Status == ContactStatus.New ? "Mới" :
-																	contact.Status == ContactStatus.InProgress ? "Đang xử lý" :
-                                            contact.Status == ContactStatus.Resolved ? "Hoàn thành" : "Spam")
-									</span>
-								</div>
-								<div class="col">
-									<a asp-area="Admin" asp-controller="Contact" asp-action="Details" asp-route-id="@contact.Id" class="text-reset d-block">@contact.Subject</a>
-									<div class="text-muted mt-1">
-										<div class="d-inline-block">
-											<span class="text-muted">@contact.FullName</span>
-										</div>
-										<div class="d-inline-block ms-3">
-											<i class="ti ti-calendar me-1"></i>
-											@contact.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-										</div>
-									</div>
-								</div>
-								<div class="col-auto">
-									<div class="dropdown">
-										<a href="#" class="btn-action" data-bs-toggle="dropdown" aria-expanded="false">
-											<i class="ti ti-dots-vertical"></i>
-										</a>
-										<div class="dropdown-menu dropdown-menu-end">
-											<a asp-area="Admin" asp-controller="Contact" asp-action="Details" asp-route-id="@contact.Id" class="dropdown-item">
-												<i class="ti ti-eye me-2"></i> Xem chi tiết
-											</a>
+						foreach (var contact in Model.RecentContacts)
+						{
+							<div class="list-group-item">
+								<div class="row align-items-center">
+									<div class="col text-truncate">
+										<a asp-action="Details" asp-controller="Contact" asp-route-id="@contact.Id" class="text-body d-block">@contact.Subject</a>
+										<div class="text-muted text-truncate mt-n1">
+											Từ: @contact.FullName - @contact.CreatedAt.ToString("dd/MM/yyyy HH:mm")
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
+						}
 					}
-				}
+					else
+					{
+						<div class="list-group-item">Chưa có liên hệ nào mới.</div>
+					}
+				</div>
+			</div>
+			<div class="card-footer text-end">
+				<a asp-action="Index" asp-controller="Contact" class="btn btn-sm btn-outline-primary">Xem tất cả liên hệ</a>
 			</div>
 		</div>
 	</div>
+
 </div>

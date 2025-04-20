@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace shared.Enums;
 
-public enum ContactStatus
+public enum ContactStatus : ushort
 {
     [Display(Name = "Mới")]
     New,

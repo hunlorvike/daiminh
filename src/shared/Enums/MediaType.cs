@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace shared.Enums;
 
-public enum MediaType
+public enum MediaType : ushort
 {
     [Display(Name = "Hình ảnh")]
     Image,
