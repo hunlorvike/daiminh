@@ -20,7 +20,7 @@ public class ArticleViewModel
 
     [Display(Name = "Nội dung chi tiết", Prompt = "Soạn thảo nội dung bài viết...")]
     [Required(ErrorMessage = "{0} không được để trống")]
-    public string Content { get; set; } = string.Empty; // Summernote
+    public string Content { get; set; } = string.Empty;
 
     [Display(Name = "Tóm tắt / Mô tả ngắn", Prompt = "Nhập mô tả ngắn gọn (hiển thị ở danh sách, tối đa 500 ký tự)")]
     [MaxLength(500)]
@@ -57,10 +57,6 @@ public class ArticleViewModel
     [Display(Name = "Avatar tác giả (MinIO Path)", Prompt = "Chọn hoặc nhập đường dẫn ảnh MinIO")]
     [MaxLength(255)]
     public string? AuthorAvatar { get; set; } // MinIO Path
-
-    [Display(Name = "Loại bài viết")]
-    [Required(ErrorMessage = "Vui lòng chọn {0}")]
-    public ArticleType Type { get; set; } = ArticleType.Knowledge;
 
     [Display(Name = "Trạng thái")]
     [Required(ErrorMessage = "Vui lòng chọn {0}")]

@@ -10,8 +10,6 @@ public class FAQ : BaseEntity<int>
     public string Answer { get; set; } = string.Empty;
     public int OrderIndex { get; set; } = 0;
     public bool IsActive { get; set; } = true;
-
-    // New property for one-to-many relationship
     public int? CategoryId { get; set; }
 
     // Navigation properties

@@ -20,17 +20,14 @@ public class Article : SeoEntity<int>
     public string? AuthorName { get; set; }
     public string? AuthorAvatar { get; set; }
     public int EstimatedReadingMinutes { get; set; } = 0;
-    public ArticleType Type { get; set; } = ArticleType.Knowledge;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
-    // New property for one-to-many relationship
     public int? CategoryId { get; set; }
 
     // Navigation properties
     public virtual Category? Category { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }
     public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
-    public virtual ICollection<Comment>? Comments { get; set; }
 }
 
 public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
@@ -54,14 +51,6 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.Property(e => e.AuthorName).HasColumnName("author_name").HasMaxLength(100);
         builder.Property(e => e.AuthorAvatar).HasColumnName("author_avatar").HasMaxLength(255);
         builder.Property(e => e.EstimatedReadingMinutes).HasColumnName("estimated_reading_minutes").HasDefaultValue(0);
-        builder.Property(e => e.Type)
-            .HasColumnName("type")
-            .HasConversion(
-                v => v.ToString().ToLowerInvariant(),
-                v => Enum.Parse<ArticleType>(v, true))
-            .IsRequired()
-            .HasMaxLength(20)
-            .HasDefaultValue(ArticleType.Knowledge);
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .HasConversion(
@@ -76,7 +65,6 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
 
         builder.HasIndex(e => e.Slug).HasDatabaseName("idx_articles_slug").IsUnique();
         builder.HasIndex(e => e.Status).HasDatabaseName("idx_articles_status");
-        builder.HasIndex(e => e.Type).HasDatabaseName("idx_articles_type");
         builder.HasIndex(e => e.ViewCount).HasDatabaseName("idx_articles_view_count");
         builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_articles_is_featured");
         builder.HasIndex(e => e.PublishedAt).HasDatabaseName("idx_articles_published_at");

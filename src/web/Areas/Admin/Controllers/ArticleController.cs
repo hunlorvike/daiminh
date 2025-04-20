@@ -37,7 +37,7 @@ public class ArticleController : Controller
     }
 
     // GET: Admin/Article
-    public async Task<IActionResult> Index(string? searchTerm = null, int? categoryId = null, ArticleType? type = null, PublishStatus? status = null, int page = 1, int pageSize = 15) // Add pagination
+    public async Task<IActionResult> Index(string? searchTerm = null, int? categoryId = null, PublishStatus? status = null, int page = 1, int pageSize = 15) // Add pagination
     {
         ViewData["Title"] = "Quản lý Bài viết - Hệ thống quản trị";
         ViewData["PageTitle"] = "Danh sách Bài viết";
@@ -59,10 +59,6 @@ public class ArticleController : Controller
         {
             query = query.Where(ac => ac.CategoryId == categoryId.Value);
         }
-        if (type.HasValue)
-        {
-            query = query.Where(a => a.Type == type.Value);
-        }
         if (status.HasValue)
         {
             query = query.Where(a => a.Status == status.Value);
@@ -76,7 +72,7 @@ public class ArticleController : Controller
             .ToPagedListAsync(pageNumber, pageSize); // Paginate
 
         // Load filter data
-        await LoadFilterDropdownsAsync(categoryId, type, status);
+        await LoadFilterDropdownsAsync(categoryId, status);
 
         ViewBag.SearchTerm = searchTerm;
         // Selected values loaded into ViewBag by LoadFilterDropdownsAsync
@@ -313,13 +309,11 @@ public class ArticleController : Controller
     // --- Helper Methods ---
 
     // Loads dropdowns for Index Filters
-    private async Task LoadFilterDropdownsAsync(int? categoryId, ArticleType? type, PublishStatus? status)
+    private async Task LoadFilterDropdownsAsync(int? categoryId, PublishStatus? status)
     {
         ViewBag.Categories = await _context.Set<Category>().Where(c => c.Type == CategoryType.Article && c.IsActive).OrderBy(c => c.Name).Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name, Selected = c.Id == categoryId }).ToListAsync();
-        ViewBag.Types = Enum.GetValues(typeof(ArticleType)).Cast<ArticleType>().Select(t => new SelectListItem { Value = t.ToString(), Text = t.GetDisplayName(), Selected = t == type }).ToList();
         ViewBag.Statuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == status }).ToList();
         ViewBag.SelectedCategoryId = categoryId;
-        ViewBag.SelectedType = type;
         ViewBag.SelectedStatus = status;
     }
 
@@ -330,7 +324,6 @@ public class ArticleController : Controller
         viewModel.TagList = new SelectList(await _context.Set<Tag>().Where(t => t.Type == TagType.Article).OrderBy(t => t.Name).Select(t => new { t.Id, t.Name }).ToListAsync(), "Id", "Name");
         viewModel.ProductList = new SelectList(await _context.Set<Product>().Where(p => p.IsActive && p.Status == PublishStatus.Published).OrderBy(p => p.Name).Select(p => new { p.Id, p.Name }).ToListAsync(), "Id", "Name");
         viewModel.StatusList = new SelectList(Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(e => new { Value = e, Text = e.GetDisplayName() }), "Value", "Text", viewModel.Status);
-        viewModel.TypeList = new SelectList(Enum.GetValues(typeof(ArticleType)).Cast<ArticleType>().Select(e => new { Value = e, Text = e.GetDisplayName() }), "Value", "Text", viewModel.Type);
     }
 
     // Handles setting/clearing PublishedAt date based on status

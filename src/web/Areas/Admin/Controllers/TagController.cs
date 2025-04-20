@@ -50,9 +50,7 @@ public partial class TagController : Controller
         }
 
         query = query.Include(t => t.ProductTags)
-                     .Include(t => t.ArticleTags)
-                     .Include(t => t.ProjectTags)
-                     .Include(t => t.GalleryTags);
+                     .Include(t => t.ArticleTags);
 
 
         IPagedList<TagListItemViewModel> pagedList = await query
@@ -177,8 +175,6 @@ public partial class TagController : Controller
                 t.Type,
                 ProductCount = t.ProductTags!.Count(),
                 ArticleCount = t.ArticleTags!.Count(),
-                ProjectCount = t.ProjectTags!.Count(),
-                GalleryCount = t.GalleryTags!.Count()
             })
             .FirstOrDefaultAsync();
 
@@ -187,7 +183,7 @@ public partial class TagController : Controller
             return Json(new { success = false, message = "Không tìm thấy thẻ." });
         }
 
-        int totalItems = tag.ProductCount + tag.ArticleCount + tag.ProjectCount + tag.GalleryCount;
+        int totalItems = tag.ProductCount + tag.ArticleCount;
         string itemTypeName = tag.Type.GetDisplayName().ToLowerInvariant();
 
         if (totalItems > 0)

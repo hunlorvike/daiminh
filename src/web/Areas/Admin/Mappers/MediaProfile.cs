@@ -1,7 +1,6 @@
 using AutoMapper;
 using domain.Entities;
 using shared.Models;
-using web.Areas.Admin.Resolvers;
 using web.Areas.Admin.ViewModels.Media;
 
 namespace web.Areas.Admin.Mappers;
@@ -45,9 +44,7 @@ public class MediaProfile : Profile
             .ForMember(dest => dest.MimeType, opt => opt.MapFrom(src => src.MimeType))
             .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
             .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => src.AltText))
-            .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => src.MediaType))
-            // Map ThumbnailUrl using the injected Minio service
-            .ForMember(dest => dest.ThumbnailUrl, opt => opt.MapFrom<MediaItemThumbnailResolver>()); // Use custom resolver
+            .ForMember(dest => dest.MediaType, opt => opt.MapFrom(src => src.MediaType));
 
         // Map upload result + folder ID -> MediaFile entity
         CreateMap<MinioUploadResult, MediaFile>()
@@ -57,12 +54,7 @@ public class MediaProfile : Profile
            .ForMember(dest => dest.FileExtension, opt => opt.MapFrom(src => src.FileExtension))
            .ForMember(dest => dest.FilePath, opt => opt.MapFrom(src => src.ObjectName)) // Store full path in bucket
            .ForMember(dest => dest.FileSize, opt => opt.MapFrom(src => src.FileSize))
-           .ForMember(dest => dest.MediaType, opt => opt.MapFrom<MediaTypeResolver>()) // Resolve MediaType
-                                                                                       // Fields not in MinioUploadResult need setting manually or ignoring
            .ForMember(dest => dest.Id, opt => opt.Ignore())
-           .ForMember(dest => dest.ThumbnailPath, opt => opt.MapFrom(src => src.ObjectName)) // Initially, use main path for thumb
-           .ForMember(dest => dest.MediumSizePath, opt => opt.Ignore()) // Ignore initially
-           .ForMember(dest => dest.LargeSizePath, opt => opt.Ignore()) // Ignore initially
            .ForMember(dest => dest.Description, opt => opt.Ignore())
            .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => Path.GetFileNameWithoutExtension(src.OriginalFileName))) // Default AltText
            .ForMember(dest => dest.Width, opt => opt.Ignore()) // Ignore initially
@@ -74,8 +66,7 @@ public class MediaProfile : Profile
            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
         // Map for editing file details
-        CreateMap<MediaFile, MediaFileEditViewModel>()
-             .ForMember(dest => dest.ThumbnailUrl, opt => opt.MapFrom<MediaEditThumbnailResolver>());// Use custom resolver
+        CreateMap<MediaFile, MediaFileEditViewModel>();
 
         CreateMap<MediaFileEditViewModel, MediaFile>()
             .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => src.AltText))

@@ -28,9 +28,7 @@ public class MediaItemViewModel
         {
             shared.Enums.MediaType.Image => "ti ti-photo",
             shared.Enums.MediaType.Video => "ti ti-movie",
-            shared.Enums.MediaType.Audio => "ti ti-music",
             shared.Enums.MediaType.Document => "ti ti-file-text",
-            shared.Enums.MediaType.Archive => "ti ti-file-zip",
             _ => "ti ti-file",
         };
     }

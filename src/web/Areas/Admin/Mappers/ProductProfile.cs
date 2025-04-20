@@ -41,7 +41,6 @@ public class ProductProfile : Profile
             .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.Brand, opt => opt.Ignore())
-            .ForMember(dest => dest.ProjectProducts, opt => opt.Ignore())
             .ForMember(dest => dest.ArticleProducts, opt => opt.Ignore())
             // Ignore other fields not directly on ViewModel or handled by BaseEntity/SeoEntity
             .ForMember(dest => dest.ViewCount, opt => opt.Ignore()) // ViewCount not edited here

@@ -15,8 +15,6 @@ public class Tag : BaseEntity<int>
     // Navigation properties
     public virtual ICollection<ProductTag>? ProductTags { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }
-    public virtual ICollection<ProjectTag>? ProjectTags { get; set; }
-    public virtual ICollection<GalleryTag>? GalleryTags { get; set; }
 }
 
 public class TagConfiguration : BaseEntityConfiguration<Tag, int>

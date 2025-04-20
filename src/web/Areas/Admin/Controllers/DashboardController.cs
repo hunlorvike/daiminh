@@ -23,7 +23,6 @@ public class DashboardController : Controller
         {
             TotalProducts = await _context.Products.CountAsync(),
             TotalArticles = await _context.Articles.CountAsync(),
-            TotalProjects = await _context.Projects.CountAsync(),
             TotalContacts = await _context.Contacts.CountAsync(),
 
             NewContacts = await _context.Contacts

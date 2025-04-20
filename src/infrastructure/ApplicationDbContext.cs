@@ -26,18 +26,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<Article> Articles { get; set; }
     public DbSet<ArticleTag> ArticleTags { get; set; }
     public DbSet<ArticleProduct> ArticleProducts { get; set; }
-    public DbSet<Comment> Comments { get; set; }
-
-    // Dự án
-    public DbSet<Project> Projects { get; set; }
-    public DbSet<ProjectImage> ProjectImages { get; set; }
-    public DbSet<ProjectTag> ProjectTags { get; set; }
-    public DbSet<ProjectProduct> ProjectProducts { get; set; }
-
-    // Thư viện ảnh
-    public DbSet<Gallery> Galleries { get; set; }
-    public DbSet<GalleryImage> GalleryImages { get; set; }
-    public DbSet<GalleryTag> GalleryTags { get; set; }
 
     // Phân loại
     public DbSet<Category> Categories { get; set; }

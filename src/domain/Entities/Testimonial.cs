@@ -11,10 +11,9 @@ public class Testimonial : BaseEntity<int>
     public string? ClientCompany { get; set; }
     public string? ClientAvatar { get; set; }
     public string Content { get; set; } = string.Empty;
-    public int Rating { get; set; } = 5; // 1-5 stars
+    public int Rating { get; set; } = 5;
     public bool IsActive { get; set; } = true;
     public int OrderIndex { get; set; } = 0;
-    public string? ProjectReference { get; set; } // TODO: project ID
 }
 
 public class TestimonialConfiguration : BaseEntityConfiguration<Testimonial, int>
@@ -33,7 +32,6 @@ public class TestimonialConfiguration : BaseEntityConfiguration<Testimonial, int
         builder.Property(e => e.Rating).HasColumnName("rating").HasDefaultValue(5);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
-        builder.Property(e => e.ProjectReference).HasColumnName("project_reference").HasMaxLength(255);
 
         builder.HasIndex(e => e.IsActive).HasDatabaseName("idx_testimonials_is_active");
         builder.HasIndex(e => e.OrderIndex).HasDatabaseName("idx_testimonials_order_index");

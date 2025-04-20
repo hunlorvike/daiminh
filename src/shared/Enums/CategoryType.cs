@@ -10,12 +10,6 @@ public enum CategoryType
     [Display(Name = "Bài viết")]
     Article,
 
-    [Display(Name = "Dự án")]
-    Project,
-
-    [Display(Name = "Thư viện ảnh")]
-    Gallery,
-
     [Display(Name = "Câu hỏi")]
     FAQ
 }

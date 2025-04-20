@@ -84,7 +84,6 @@
                             <th>Tiêu đề</th>
                             <th>Tác giả</th>
                             <th>Danh mục</th>
-                            <th class="text-center">Loại</th>
                             <th class="text-center">Trạng thái</th>
                             <th class="text-center">Lượt xem</th>
                             <th>Ngày xuất bản</th>
@@ -104,7 +103,6 @@
                                 </td>
                                 <td class="text-muted">@(item.AuthorName ?? "-")</td>
                                 <td class="text-muted text-truncate" style="max-width: 150px;" title="@item.CategoryNames">@(item.CategoryNames ?? "-")</td>
-                                <td class="text-center text-muted">@item.Type.GetDisplayName()</td>
                                 <td class="text-center"><span class="badge bg-@(GetStatusBadgeClass(item.Status))-lt">@item.Status.GetDisplayName()</span></td>
                                 <td class="text-center text-muted">@item.ViewCount</td>
                                 <td class="text-muted" title="@item.PublishedAt?.ToString("dd/MM/yyyy HH:mm:ss")">@(item.PublishedAt?.ToString("dd/MM/yyyy") ?? "-")</td>

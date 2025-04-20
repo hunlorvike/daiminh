@@ -7,7 +7,6 @@ public class ArticleListItemViewModel
     public string? ThumbnailImage { get; set; }
     public string? AuthorName { get; set; }
     public string? CategoryNames { get; set; }
-    public ArticleType Type { get; set; }
     public PublishStatus Status { get; set; }
     public DateTime? PublishedAt { get; set; }
     public int ViewCount { get; set; }

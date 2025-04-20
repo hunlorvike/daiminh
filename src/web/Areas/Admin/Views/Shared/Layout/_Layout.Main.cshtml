@@ -1,7 +1,7 @@
 @{
-    var themeCookie = Context.Request.Cookies["daiminhTheme"];
-    var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
-    var isDark = theme == "dark";
+	var themeCookie = Context.Request.Cookies["daiminhTheme"];
+	var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
+	var isDark = theme == "dark";
 }
 
 <!DOCTYPE html>
@@ -11,10 +11,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 	<title>@ViewData["Title"]</title>
 	<partial name="__LibStyles" />
+
 	@await RenderSectionAsync("Styles", required: false)
 </head>
 <body data-bs-theme="@(isDark ? "dark" : null)">
-    <div class="page">
+	<div class="page">
 		<!-- Sidebar -->
 		<partial name="Components/_Sidebar" />
 
@@ -28,27 +29,6 @@
 					<div class="row g-2 align-items-center">
 						<div class="col">
 							<h2 class="page-title">@ViewData["PageTitle"]</h2>
-
-							@if (ViewData["Breadcrumbs"] != null)
-							{
-								<div class="text-muted mt-1">
-									<ol class="breadcrumb breadcrumb-arrows" aria-label="breadcrumbs">
-										<li class="breadcrumb-item"><a href="/admin">Dashboard</a></li>
-
-										@foreach (var breadcrumb in (List<(string Text, string Url)>)ViewData["Breadcrumbs"])
-										{
-											if (string.IsNullOrEmpty(breadcrumb.Url))
-											{
-												<li class="breadcrumb-item active" aria-current="page">@breadcrumb.Text</li>
-											}
-											else
-											{
-												<li class="breadcrumb-item"><a href="@breadcrumb.Url">@breadcrumb.Text</a></li>
-											}
-										}
-									</ol>
-								</div>
-							}
 						</div>
 
 						<div class="col-auto ms-auto d-print-none">
@@ -57,7 +37,6 @@
 					</div>
 				</div>
 			</div>
-
 
 			<!-- Page body -->
 			<div class="page-body">

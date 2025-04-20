@@ -9,10 +9,4 @@ public enum TagType
 
     [Display(Name = "Bài viết")]
     Article,
-
-    [Display(Name = "Dự án")]
-    Project,
-
-    [Display(Name = "Thư viện ảnh")]
-    Gallery
 }

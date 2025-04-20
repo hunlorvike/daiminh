@@ -47,8 +47,6 @@ public class CategoryController : Controller
                             .Include(c => c.Parent)
                             .Include(c => c.Products)
                             .Include(c => c.Articles)
-                            .Include(c => c.Projects)
-                            .Include(c => c.Galleries)
                             .Include(c => c.FAQs)
                             .AsNoTracking();
 
@@ -219,8 +217,6 @@ public class CategoryController : Controller
                                     .Include(c => c.Children)
                                     .Include(c => c.Products)
                                     .Include(c => c.Articles)
-                                    .Include(c => c.Projects)
-                                    .Include(c => c.Galleries)
                                     .Include(c => c.FAQs)
                                     .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -240,8 +236,6 @@ public class CategoryController : Controller
         {
             CategoryType.Product => category.Products?.Any() ?? false,
             CategoryType.Article => category.Articles?.Any() ?? false,
-            CategoryType.Project => category.Projects?.Any() ?? false,
-            CategoryType.Gallery => category.Galleries?.Any() ?? false,
             CategoryType.FAQ => category.FAQs?.Any() ?? false,
             _ => false,
         };

@@ -29,7 +29,6 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
         RuleFor(x => x.ThumbnailImage).MaximumLength(2048);
         RuleFor(x => x.AuthorName).MaximumLength(100);
         RuleFor(x => x.AuthorAvatar).MaximumLength(255);
-        RuleFor(x => x.Type).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
         RuleFor(x => x.Status).IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
 
         RuleFor(x => x.CategoryId)
