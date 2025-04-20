@@ -26,8 +26,6 @@ public class ContactProfile : Profile
              .ForMember(dest => dest.Phone, opt => opt.Ignore())
              .ForMember(dest => dest.Subject, opt => opt.Ignore())
              .ForMember(dest => dest.Message, opt => opt.Ignore())
-             .ForMember(dest => dest.CompanyName, opt => opt.Ignore())
-             .ForMember(dest => dest.ProjectDetails, opt => opt.Ignore())
              .ForMember(dest => dest.IpAddress, opt => opt.Ignore())
              .ForMember(dest => dest.UserAgent, opt => opt.Ignore())
              .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())

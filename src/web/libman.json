@@ -84,6 +84,10 @@
     {
       "library": "@tabler/icons-webfont@3.31.0",
       "destination": "wwwroot/lib/tabler/icon/"
+    },
+    {
+      "library": "apexcharts@4.5.0",
+      "destination": "wwwroot/lib/apexcharts/"
     }
   ]
 }

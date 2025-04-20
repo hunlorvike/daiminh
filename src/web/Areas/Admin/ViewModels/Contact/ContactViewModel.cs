@@ -22,12 +22,6 @@ public class ContactViewModel
     [Display(Name = "Nội dung lời nhắn")]
     public string Message { get; set; } = string.Empty;
 
-    [Display(Name = "Tên công ty")]
-    public string? CompanyName { get; set; }
-
-    [Display(Name = "Chi tiết dự án")]
-    public string? ProjectDetails { get; set; }
-
     [Display(Name = "Ngày gửi")]
     public DateTime CreatedAt { get; set; }
 
@@ -36,7 +30,6 @@ public class ContactViewModel
 
     [Display(Name = "Trình duyệt (User Agent)")]
     public string? UserAgent { get; set; }
-
 
     [Display(Name = "Trạng thái")]
     [Required(ErrorMessage = "Vui lòng chọn trạng thái.")]

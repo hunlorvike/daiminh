@@ -12,8 +12,6 @@ public class Contact : BaseEntity<int>
     public string? Phone { get; set; }
     public string Subject { get; set; } = string.Empty;
     public string Message { get; set; } = string.Empty;
-    public string? CompanyName { get; set; }
-    public string? ProjectDetails { get; set; }
     public ContactStatus Status { get; set; } = ContactStatus.New;
     public string? AdminNotes { get; set; }
     public string? IpAddress { get; set; }
@@ -33,8 +31,6 @@ public class ContactConfiguration : BaseEntityConfiguration<Contact, int>
         builder.Property(e => e.Phone).HasColumnName("phone").HasMaxLength(20);
         builder.Property(e => e.Subject).HasColumnName("subject").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Message).HasColumnName("message").IsRequired().HasColumnType("text");
-        builder.Property(e => e.CompanyName).HasColumnName("company_name").HasMaxLength(100);
-        builder.Property(e => e.ProjectDetails).HasColumnName("project_details").HasColumnType("text");
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()

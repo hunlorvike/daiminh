@@ -112,8 +112,6 @@ public class ContactController : Controller
                 viewModel.Phone = originalContact.Phone;
                 viewModel.Subject = originalContact.Subject;
                 viewModel.Message = originalContact.Message;
-                viewModel.CompanyName = originalContact.CompanyName;
-                viewModel.ProjectDetails = originalContact.ProjectDetails;
                 viewModel.CreatedAt = originalContact.CreatedAt;
                 viewModel.IpAddress = originalContact.IpAddress;
                 viewModel.UserAgent = originalContact.UserAgent;
@@ -165,8 +163,6 @@ public class ContactController : Controller
                     viewModel.Phone = originalContact.Phone;
                     viewModel.Subject = originalContact.Subject;
                     viewModel.Message = originalContact.Message;
-                    viewModel.CompanyName = originalContact.CompanyName;
-                    viewModel.ProjectDetails = originalContact.ProjectDetails;
                     viewModel.CreatedAt = originalContact.CreatedAt;
                     viewModel.IpAddress = originalContact.IpAddress;
                     viewModel.UserAgent = originalContact.UserAgent;

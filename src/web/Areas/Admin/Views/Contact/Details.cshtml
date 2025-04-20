@@ -29,23 +29,11 @@
                         <dd class="col-sm-9"><a href="tel:@Model.Phone">@Model.Phone</a></dd>
                      }
 
-                     @if (!string.IsNullOrEmpty(Model.CompanyName))
-                     {
-                         <dt class="col-sm-3">Công ty:</dt>
-                         <dd class="col-sm-9">@Model.CompanyName</dd>
-                     }
-
                      <dt class="col-sm-3">Chủ đề:</dt>
                      <dd class="col-sm-9">@Model.Subject</dd>
 
                      <dt class="col-sm-3">Nội dung:</dt>
                      <dd class="col-sm-9"><div style="white-space: pre-wrap;">@Model.Message</div></dd>
-
-                     @if (!string.IsNullOrEmpty(Model.ProjectDetails))
-                     {
-                         <dt class="col-sm-3">Chi tiết dự án:</dt>
-                         <dd class="col-sm-9"><div style="white-space: pre-wrap;">@Model.ProjectDetails</div></dd>
-                     }
                 </dl>
             </div>
         </div>

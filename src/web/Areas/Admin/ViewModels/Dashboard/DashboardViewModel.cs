@@ -1,65 +1,65 @@
+// File: web/Areas/Admin/ViewModels/Dashboard/DashboardViewModel.cs
+using Newtonsoft.Json; // Import Newtonsoft.Json
+
 namespace web.Areas.Admin.ViewModels.Dashboard;
 
-/// <summary>
-/// ViewModel chứa dữ liệu tổng hợp cho trang Dashboard.
-/// </summary>
 public class DashboardViewModel
 {
-    // Số lượng bài viết theo trạng thái
+    // --- Các thuộc tính thống kê cũ ---
     public int TotalPublishedArticles { get; set; }
     public int TotalDraftArticles { get; set; }
-
-    // Số lượng sản phẩm theo trạng thái
+    public int TotalPendingArticles { get; set; }
     public int TotalActiveProducts { get; set; }
     public int TotalInactiveProducts { get; set; }
-
-    // Số lượng danh mục theo loại
     public int TotalProductCategories { get; set; }
     public int TotalArticleCategories { get; set; }
     public int TotalFaqCategories { get; set; }
-
-    // Số lượng thẻ theo loại
     public int TotalProductTags { get; set; }
     public int TotalArticleTags { get; set; }
-
-    // Số lượng liên hệ mới
     public int TotalNewContacts { get; set; }
-
-    // Số lượng đăng ký nhận tin
+    public int TotalProcessingContacts { get; set; }
     public int TotalActiveNewsletters { get; set; }
-
-    // Số lượng đánh giá
     public int TotalActiveTestimonials { get; set; }
-
-    // Số lượng thương hiệu
     public int TotalActiveBrands { get; set; }
-
-    // Số lượng người dùng
     public int TotalActiveUsers { get; set; }
-
-    // Số lượng Media Files (có thể thêm nếu cần)
-    public int TotalMediaFiles { get; set; }
-    public int TotalMediaFolders { get; set; }
-
-    // Số lượng FAQ
     public int TotalActiveFAQs { get; set; }
 
-    public List<RecentArticleViewModel> RecentArticles { get; set; } = new();
-    public List<RecentContactViewModel> RecentContacts { get; set; } = new();
-}
+    // --- Dữ liệu cho Biểu đồ ---
 
-public class RecentArticleViewModel
-{
-    public int Id { get; set; }
-    public string Title { get; set; } = string.Empty;
-    public DateTime? CreatedAt { get; set; }
-    public string? AuthorName { get; set; }
-}
+    /// <summary>
+    /// Dữ liệu cho biểu đồ trạng thái bài viết (Pie Chart).
+    /// </summary>
+    public ChartData ArticleStatusChart { get; set; } = new();
+    [JsonIgnore] // Không cần serialize chính object này nữa
+    public string ArticleStatusChartJson => JsonConvert.SerializeObject(ArticleStatusChart);
 
-public class RecentContactViewModel
-{
-    public int Id { get; set; }
-    public string FullName { get; set; } = string.Empty;
-    public string Subject { get; set; } = string.Empty;
-    public DateTime CreatedAt { get; set; }
+    /// <summary>
+    /// Dữ liệu cho biểu đồ liên hệ mới theo ngày (Line Chart).
+    /// </summary>
+    public ChartData RecentContactsChart { get; set; } = new();
+    [JsonIgnore]
+    public string RecentContactsChartJson => JsonConvert.SerializeObject(RecentContactsChart);
+
+    /// <summary>
+    /// Dữ liệu cho biểu đồ sản phẩm theo danh mục (Top 5 Bar Chart).
+    /// </summary>
+    public ChartData ProductCategoryChart { get; set; } = new();
+    [JsonIgnore]
+    public string ProductCategoryChartJson => JsonConvert.SerializeObject(ProductCategoryChart);
+
+    // --- Các lớp hỗ trợ cho dữ liệu biểu đồ ---
+    public class ChartData
+    {
+        public List<string> Labels { get; set; } = new();
+        // Sử dụng List<ChartSeries> cho các biểu đồ có thể có nhiều series
+        public List<ChartSeries> Series { get; set; } = new();
+        // Hoặc dùng trực tiếp List<decimal> nếu chỉ có 1 series (như Pie/Donut)
+        public List<decimal> SingleSeriesData { get; set; } = new();
+    }
+
+    public class ChartSeries
+    {
+        public string Name { get; set; } = string.Empty;
+        public List<decimal> Data { get; set; } = new();
+    }
 }

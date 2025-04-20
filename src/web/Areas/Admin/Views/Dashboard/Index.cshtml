@@ -8,7 +8,19 @@
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)>();
 }
 
-<div class="row row-deck row-cards">
+@section Styles {
+	<link rel="stylesheet" href="~/lib/apexcharts/dist/apexcharts.min.css" asp-append-version="true" />
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+	<div class="alert alert-danger" role="alert">
+		@TempData["ErrorMessage"]
+	</div>
+}
+
+<div class="row row-deck row-cards mb-4">
+	@* --- Thẻ Bài viết --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Article" asp-area="Admin">
 			<div class="card-body">
@@ -29,7 +41,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Sản phẩm --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Product" asp-area="Admin">
 			<div class="card-body">
@@ -49,7 +61,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Danh mục --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Category" asp-area="Admin">
 			<div class="card-body">
@@ -69,7 +81,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Tags --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Tag" asp-area="Admin">
 			<div class="card-body">
@@ -89,8 +101,7 @@
 			</div>
 		</a>
 	</div>
-
-	@* --- Thống kê tương tác & khác --- *@
+	@* --- Thẻ Liên hệ --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Contact" asp-area="Admin">
 			<div class="card-body">
@@ -110,7 +121,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Newsletter --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Newsletter" asp-area="Admin">
 			<div class="card-body">
@@ -130,7 +141,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Đánh giá --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Testimonial" asp-area="Admin">
 			<div class="card-body">
@@ -150,7 +161,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Thương hiệu --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Brand" asp-area="Admin">
 			<div class="card-body">
@@ -170,7 +181,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ FAQ --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="FAQ" asp-area="Admin">
 			<div class="card-body">
@@ -190,7 +201,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Thư viện --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Media" asp-area="Admin">
 			@* Giả sử có MediaController *@
@@ -211,10 +222,9 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Cấu hình --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Setting" asp-area="Admin">
-			@* Giả sử có SettingController *@
 			<div class="card-body">
 				<div class="row align-items-center">
 					<div class="col-auto">
@@ -232,7 +242,7 @@
 			</div>
 		</a>
 	</div>
-
+	@* --- Thẻ Người dùng --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="User" asp-area="Admin">
 			<div class="card-body">
@@ -252,75 +262,210 @@
 			</div>
 		</a>
 	</div>
-
-	<div class="col-lg-6">
-		<div class="card">
-			<div class="card-header">
-				<h3 class="card-title">Bài viết gần đây</h3>
-			</div>
-			<div class="card-body">
-				<div class="list-group list-group-flush list-group-hoverable">
-					@if (Model.RecentArticles.Any())
-					{
-						foreach (var article in Model.RecentArticles)
-						{
-							<div class="list-group-item">
-								<div class="row align-items-center">
-									<div class="col text-truncate">
-										<a asp-action="Edit" asp-controller="Article" asp-route-id="@article.Id" class="text-body d-block">@article.Title</a>
-										<div class="text-muted text-truncate mt-n1">
-											@article.AuthorName - @article.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
-										</div>
-									</div>
-								</div>
-							</div>
-						}
-					}
-					else
-					{
-						<div class="list-group-item">Chưa có bài viết nào.</div>
-					}
-				</div>
-			</div>
-			<div class="card-footer text-end">
-				<a asp-action="Index" asp-controller="Article" class="btn btn-sm btn-outline-primary">Xem tất cả bài viết</a>
-			</div>
-		</div>
-	</div>
-
-	<div class="col-lg-6">
-		<div class="card">
-			<div class="card-header">
-				<h3 class="card-title">Liên hệ mới nhất</h3>
-			</div>
-			<div class="card-body">
-				<div class="list-group list-group-flush list-group-hoverable">
-					@if (Model.RecentContacts.Any())
-					{
-						foreach (var contact in Model.RecentContacts)
-						{
-							<div class="list-group-item">
-								<div class="row align-items-center">
-									<div class="col text-truncate">
-										<a asp-action="Details" asp-controller="Contact" asp-route-id="@contact.Id" class="text-body d-block">@contact.Subject</a>
-										<div class="text-muted text-truncate mt-n1">
-											Từ: @contact.FullName - @contact.CreatedAt.ToString("dd/MM/yyyy HH:mm")
-										</div>
-									</div>
-								</div>
-							</div>
-						}
-					}
-					else
-					{
-						<div class="list-group-item">Chưa có liên hệ nào mới.</div>
-					}
-				</div>
-			</div>
-			<div class="card-footer text-end">
-				<a asp-action="Index" asp-controller="Contact" class="btn btn-sm btn-outline-primary">Xem tất cả liên hệ</a>
-			</div>
-		</div>
-	</div>
-
 </div>
+
+@* --- Hàng chứa các biểu đồ --- *@
+<div class="row row-deck row-cards">
+	<div class="col-lg-7 mb-4">
+		<div class="card h-100">
+			<div class="card-body">
+				<h3 class="card-title">Liên hệ (7 ngày qua)</h3>
+				<div id="chart-recent-contacts" style="min-height: 300px;"></div>
+			</div>
+		</div>
+	</div>
+	@* --- Biểu đồ Trạng thái Bài viết --- *@
+	<div class="col-lg-5 mb-4">
+		<div class="card h-100">
+			<div class="card-body d-flex flex-column">
+				<h3 class="card-title">Trạng thái bài viết</h3>
+				<div id="chart-article-status" class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	@* --- Biểu đồ Danh mục Sản phẩm --- *@
+	<div class="col-12 mb-4">
+		<div class="card">
+			<div class="card-body">
+				<h3 class="card-title">Top 5 Danh mục sản phẩm</h3>
+				<div id="chart-product-categories" style="min-height: 300px;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+@section Scripts {
+	<script src="~/lib/apexcharts/dist/apexcharts.min.js" asp-append-version="true"></script>
+
+    <script>
+        $(document).ready(function () {
+			function renderChart(selector, options, noDataMessage) {
+				const $container = $(selector);
+				if ($container.length === 0) {
+					console.error(`Chart container not found: ${selector}`);
+					return;
+				}
+
+				if (options.series && options.series.length > 0 && options.series[0].Name && options.series[0].Data) {
+					options.series = options.series.map(s => ({
+						name: s.Name,
+						data: s.Data
+					}));
+				}
+
+				console.log('Series sau khi map:', options.series);
+
+				const hasData = options.series.some(s =>
+					Array.isArray(s.data) &&
+					s.data.length > 0 &&
+					s.data.some(val => val > 0)
+				);
+
+				console.log('hasData:', hasData);
+
+				if (hasData) {
+					$container.empty();
+					const chart = new ApexCharts($container[0], options);
+					chart.render();
+				} else {
+					$container.html(`<p class='text-muted text-center p-4'>${noDataMessage}</p>`);
+				}
+			}
+
+            // --- Biểu đồ Trạng thái Bài viết (Donut Chart) ---
+            const articleStatusData = JSON.parse('@Html.Raw(Model.ArticleStatusChartJson)');
+            if (articleStatusData) {
+                const articleStatusOptions = {
+                    chart: {
+                        type: 'donut',
+                        height: '100%',
+                        sparkline: { enabled: false }
+                    },
+                    series: articleStatusData.SingleSeriesData || [],
+                    labels: articleStatusData.Labels || [],
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) { return val + " bài"; }
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function (val, opts) {
+                            return opts.w.config.series[opts.seriesIndex];
+                        }
+                    },
+                    plotOptions: {
+                        pie: {
+                            donut: {
+                                labels: {
+                                    show: true,
+                                    total: {
+                                        showAlways: true,
+                                        show: true,
+                                        label: 'Tổng',
+                                        formatter: function (w) {
+                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: { width: 250 },
+                            legend: { position: 'bottom' }
+                        }
+                    }]
+                };
+                renderChart("#chart-article-status", articleStatusOptions, "Chưa có dữ liệu trạng thái bài viết.");
+            }
+
+            // --- Biểu đồ Liên hệ mới (Line Chart) ---
+            const recentContactsData = JSON.parse('@Html.Raw(Model.RecentContactsChartJson)');
+            if (recentContactsData) {
+                const recentContactsOptions = {
+                    chart: {
+                        type: 'line',
+                        height: 300,
+                        zoom: { enabled: false },
+                        toolbar: { show: false }
+                    },
+                    series: recentContactsData.Series || [],
+                    xaxis: {
+                        categories: recentContactsData.Labels || [],
+                        type: 'category',
+                        tooltip: { enabled: false }
+                    },
+                    yaxis: {
+                        title: { text: 'Số lượng' },
+                        labels: { formatter: function (val) { return val.toFixed(0); } },
+                        min: 0
+                    },
+                    stroke: { curve: 'smooth', width: 2 },
+                    grid: {
+                        row: { colors: ['#f3f4f5', 'transparent'], opacity: 0.5 }
+                    },
+                    tooltip: {
+                        shared: true,
+                        intersect: false,
+                        y: { formatter: function (val) { return val.toFixed(0) + " liên hệ"; } }
+                    },
+                    legend: {
+                        position: 'top',
+                        horizontalAlign: 'right',
+                        floating: true,
+                        offsetY: -5
+                    }
+                };
+                renderChart("#chart-recent-contacts", recentContactsOptions, "Chưa có dữ liệu liên hệ trong 7 ngày qua.");
+            }
+
+            // --- Biểu đồ Danh mục Sản phẩm (Bar Chart) ---
+            const productCategoryData = JSON.parse('@Html.Raw(Model.ProductCategoryChartJson)');
+            if (productCategoryData) {
+                const productCategoryOptions = {
+                    chart: {
+                        type: 'bar',
+                        height: 300,
+                        toolbar: { show: false }
+                    },
+                    series: productCategoryData.Series || [],
+                    xaxis: {
+                        categories: productCategoryData.Labels || [],
+                        labels: {
+                            trim: true
+                        }
+                    },
+                    yaxis: {
+                        title: { text: 'Số lượng SP' },
+                        labels: { formatter: function (val) { return val.toFixed(0); } },
+                        min: 0
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '60%',
+                            dataLabels: {
+                                position: 'top'
+                            }
+                        }
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    tooltip: {
+                        y: { formatter: function (val) { return val.toFixed(0) + " sản phẩm"; } }
+                    },
+                    legend: { show: false }
+                };
+                renderChart("#chart-product-categories", productCategoryOptions, "Chưa có dữ liệu sản phẩm theo danh mục.");
+            }
+        });
+    </script>
+}
