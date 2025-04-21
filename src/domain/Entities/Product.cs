@@ -12,23 +12,21 @@ public class Product : SeoEntity<int>
     public string Description { get; set; } = string.Empty;
     public string? ShortDescription { get; set; }
     public string? Manufacturer { get; set; }
-    public string? Origin { get; set; } // Xuất xứ
-    public string? Specifications { get; set; } // Thông số kỹ thuật
-    public string? Usage { get; set; } // Hướng dẫn sử dụng
-    public string? Features { get; set; } // Tính năng nổi bật
-    public string? PackagingInfo { get; set; } // Thông tin đóng gói
-    public string? StorageInstructions { get; set; } // Hướng dẫn bảo quản
-    public string? SafetyInfo { get; set; } // Thông tin an toàn
-    public string? ApplicationAreas { get; set; } // Khu vực ứng dụng
-    public string? TechnicalDocuments { get; set; } // Tài liệu kỹ thuật (JSON)
+    public string? Origin { get; set; }
+    public string? Specifications { get; set; }
+    public string? Usage { get; set; }
+    public string? Features { get; set; }
+    public string? PackagingInfo { get; set; }
+    public string? StorageInstructions { get; set; }
+    public string? SafetyInfo { get; set; }
+    public string? ApplicationAreas { get; set; }
+    public string? TechnicalDocuments { get; set; }
     public int ViewCount { get; set; } = 0;
     public bool IsFeatured { get; set; } = false;
     public bool IsActive { get; set; } = true;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
-    public int? BrandId { get; set; } // Nullable Foreign Key
+    public int? BrandId { get; set; }
     public int? CategoryId { get; set; }
-
-    // Navigation properties
     public virtual Brand? Brand { get; set; }
     public virtual Category? Category { get; set; }
     public virtual ICollection<ProductImage>? Images { get; set; }
@@ -48,18 +46,18 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
         builder.Property(e => e.BrandId).HasColumnName("brand_id");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
+        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)").IsRequired();
         builder.Property(e => e.ShortDescription).HasColumnName("short_description").HasMaxLength(500);
         builder.Property(e => e.Manufacturer).HasColumnName("manufacturer").HasMaxLength(255);
         builder.Property(e => e.Origin).HasColumnName("origin").HasMaxLength(100);
-        builder.Property(e => e.Specifications).HasColumnName("specifications").HasColumnType("text");
-        builder.Property(e => e.Usage).HasColumnName("usage").HasColumnType("text");
-        builder.Property(e => e.Features).HasColumnName("features").HasColumnType("text");
-        builder.Property(e => e.PackagingInfo).HasColumnName("packaging_info").HasColumnType("text");
-        builder.Property(e => e.StorageInstructions).HasColumnName("storage_instructions").HasColumnType("text");
-        builder.Property(e => e.SafetyInfo).HasColumnName("safety_info").HasColumnType("text");
-        builder.Property(e => e.ApplicationAreas).HasColumnName("application_areas").HasColumnType("text");
-        builder.Property(e => e.TechnicalDocuments).HasColumnName("technical_documents").HasColumnType("json");
+        builder.Property(e => e.Specifications).HasColumnName("specifications").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Usage).HasColumnName("usage").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Features).HasColumnName("features").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.PackagingInfo).HasColumnName("packaging_info").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.StorageInstructions).HasColumnName("storage_instructions").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.SafetyInfo).HasColumnName("safety_info").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.ApplicationAreas).HasColumnName("application_areas").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.TechnicalDocuments).HasColumnName("technical_documents").HasColumnType("nvarchar(max)");
         builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
         builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);

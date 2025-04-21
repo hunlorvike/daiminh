@@ -29,9 +29,9 @@ try
 
     builder.Services.AddDbContext<ApplicationDbContext>((serviceProvider, options) =>
     {
-        options.UseNpgsql(
-                builder.Configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string not found."));
+        options.UseSqlServer(
+            builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? throw new InvalidOperationException("Connection string not found."));
     });
 
 

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using SixLabors.ImageSharp;
 using web.Areas.Admin.Services;
 using web.Areas.Admin.ViewModels.Media;
 
@@ -145,16 +144,6 @@ public class MediaApiController : ControllerBase
         // Map MinIO result to MediaFile entity
         var mediaFile = _mapper.Map<MediaFile>(uploadResult);
         mediaFile.FolderId = folderId; // Assign the folder ID
-
-        // Add logic to extract Width, Height, Duration if needed
-        if (file.ContentType.StartsWith("image/"))
-        {
-            using (var image = await Image.LoadAsync(file.OpenReadStream()))
-            {
-                mediaFile.Width = image.Width;
-                mediaFile.Height = image.Height;
-            }
-        }
 
         _context.MediaFiles.Add(mediaFile);
 

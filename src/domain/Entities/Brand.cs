@@ -26,7 +26,7 @@ public class BrandConfiguration : SeoEntityConfiguration<Brand, int>
 
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("text");
+        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)");
         builder.Property(e => e.LogoUrl).HasColumnName("logo_url").HasMaxLength(2048);
         builder.Property(e => e.Website).HasColumnName("website").HasMaxLength(255);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);

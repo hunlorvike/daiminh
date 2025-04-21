@@ -1,48 +1,24 @@
 version: '3.8'
 services:
-  # mvc:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   container_name: daiminh-mvc
-  #   restart: unless-stopped
-  #   ports:
-  #     - "8080:80"
-  #   environment:
-  #     - ASPNETCORE_ENVIRONMENT=Production
-  #     - ConnectionStrings__DefaultConnection=Host=postgres;Database=daiminh2;Username=user;Password=password
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     minio:
-  #       condition: service_healthy
-  #   networks:
-  #     - app-network
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost/health"]
-  #     interval: 30s
-  #     timeout: 3s
-  #     retries: 3
-  postgres:
-    image: postgres:16-alpine
-    container_name: postgres
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: sqlserver
     restart: unless-stopped
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=daiminh2
-      - POSTGRES_INITDB_ARGS=--encoding=UTF8
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Password
     ports:
-      - "5432:5432"
+      - "1433:1433"
     volumes:
-      - postgres-daiminh2:/var/lib/postgresql/data
+      - sqlserver-daiminh:/var/opt/mssql
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user"]
+      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Password -Q 'SELECT 1'"]
       interval: 10s
       timeout: 5s
       retries: 5
+
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -63,11 +39,13 @@ services:
       interval: 30s
       timeout: 5s
       retries: 3
+
 volumes:
-  postgres-daiminh2:
-    name: daiminh2-postgres-data
+  sqlserver-daiminh:
+    name: daiminh-sqlserver-data
   minio-daiminh2:
     name: daiminh2-minio-data
+
 networks:
   app-network:
     name: daiminh2-network

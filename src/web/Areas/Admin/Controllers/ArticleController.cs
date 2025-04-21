@@ -1,7 +1,7 @@
-using System.Text.RegularExpressions;
+// web.Areas.Admin.Controllers/ArticleController.cs
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using domain.Entities;
+using FluentValidation;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -9,103 +9,115 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
-using web.Areas.Admin.Services;
 using web.Areas.Admin.ViewModels.Article;
-using X.PagedList.EF;
+using web.Areas.Admin.ViewModels.Shared; // For SeoViewModel
+using X.PagedList;
+using X.PagedList.Extensions;
+using System.Security.Claims;
+using AutoMapper.QueryableExtensions;
+using X.PagedList.EF; // For AuthorId
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize] // Apply authorization as needed
 public class ArticleController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<ArticleController> _logger;
-    private readonly IMinioStorageService _minioService;
+    private readonly IValidator<ArticleViewModel> _validator; // Inject validator for manual validation if needed, though MVC integration usually handles this.
 
     public ArticleController(
         ApplicationDbContext context,
         IMapper mapper,
         ILogger<ArticleController> logger,
-        IMinioStorageService minioService)
+        IValidator<ArticleViewModel> validator) // Inject validator
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _minioService = minioService ?? throw new ArgumentNullException(nameof(minioService));
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
     // GET: Admin/Article
-    public async Task<IActionResult> Index(string? searchTerm = null, int? categoryId = null, PublishStatus? status = null, int page = 1, int pageSize = 15) // Add pagination
+    public async Task<IActionResult> Index(ArticleFilterViewModel filter, int page = 1, int pageSize = 25)
     {
-        ViewData["Title"] = "Quản lý Bài viết - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Danh sách Bài viết";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))) };
+        filter ??= new ArticleFilterViewModel();
+        int pageNumber = page > 0 ? page : 1;
+        int currentPageSize = pageSize > 0 ? pageSize : 25;
 
-        int pageNumber = page;
-        var query = _context.Set<Article>()
-                            .Include(a => a.Category)
-                            .AsNoTracking();
+        IQueryable<Article> query = _context.Set<Article>()
+                                             .Include(a => a.Category) // Include Category for CategoryName
+                                             .Include(a => a.ArticleTags) // Include ArticleTags for count
+                                             .Include(a => a.ArticleProducts) // Include ArticleProducts for count
+                                             .AsNoTracking(); // Use AsNoTracking for read-only operations
 
-        // Filtering
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
-            string lowerSearchTerm = searchTerm.Trim().ToLower();
-            query = query.Where(a => a.Title.ToLower().Contains(lowerSearchTerm)
-                                  || (a.Summary != null && a.Summary.ToLower().Contains(lowerSearchTerm)));
-        }
-        if (categoryId.HasValue && categoryId > 0)
-        {
-            query = query.Where(ac => ac.CategoryId == categoryId.Value);
-        }
-        if (status.HasValue)
-        {
-            query = query.Where(a => a.Status == status.Value);
+            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
+            query = query.Where(a => a.Title.ToLower().Contains(lowerSearchTerm) ||
+                                     (a.Summary != null && a.Summary.ToLower().Contains(lowerSearchTerm)) ||
+                                     (a.Content != null && a.Content.ToLower().Contains(lowerSearchTerm)));
         }
 
-        // Sorting & Pagination
-        var articlesPaged = await query
-            .OrderByDescending(a => a.IsFeatured)
-            .ThenByDescending(a => a.PublishedAt ?? a.CreatedAt) // Order by publish date, fallback to creation
-            .ProjectTo<ArticleListItemViewModel>(_mapper.ConfigurationProvider) // Project
-            .ToPagedListAsync(pageNumber, pageSize); // Paginate
+        if (filter.CategoryId.HasValue)
+        {
+            query = query.Where(a => a.CategoryId == filter.CategoryId.Value);
+        }
 
-        // Load filter data
-        await LoadFilterDropdownsAsync(categoryId, status);
+        if (filter.Status.HasValue)
+        {
+            query = query.Where(a => a.Status == filter.Status.Value);
+        }
 
-        ViewBag.SearchTerm = searchTerm;
-        // Selected values loaded into ViewBag by LoadFilterDropdownsAsync
+        if (filter.IsFeatured.HasValue)
+        {
+            query = query.Where(a => a.IsFeatured == filter.IsFeatured.Value);
+        }
 
-        return View(articlesPaged); // Pass paged list
+        query = query.OrderByDescending(a => a.PublishedAt) // Order by published date, then creation date
+                     .ThenByDescending(a => a.CreatedAt);
+
+        // Note: Including ArticleTags and ArticleProducts just for counting might be inefficient
+        // on large datasets. An alternative is to use Select and COUNT inside the query,
+        // but mapping becomes more complex. For this pattern, including and letting AutoMapper count is simpler.
+
+        var articlesPaged = await query.ProjectTo<ArticleListItemViewModel>(_mapper.ConfigurationProvider) // Use ProjectTo for efficiency with AutoMapper
+                                       .ToPagedListAsync(pageNumber, currentPageSize);
+
+        filter.CategoryOptions = await LoadCategorySelectListAsync(CategoryType.Article, filter.CategoryId);
+        filter.StatusOptions = GetPublishStatusSelectList(filter.Status);
+        filter.IsFeaturedOptions = GetYesNoSelectList(filter.IsFeatured, "Tất cả");
+
+
+        ArticleIndexViewModel viewModel = new()
+        {
+            Articles = articlesPaged,
+            Filter = filter
+        };
+
+        return View(viewModel);
     }
 
 
     // GET: Admin/Article/Create
     public async Task<IActionResult> Create()
     {
-        ViewData["Title"] = "Viết Bài mới - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Viết Bài mới";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ("Viết bài mới", "") };
-
-        var viewModel = new ArticleViewModel
+        ArticleViewModel viewModel = new()
         {
-            //IsActive = true, // Removed, use Status
+            IsFeatured = false,
             Status = PublishStatus.Draft,
-            PublishedAt = null, // Let it be null initially
-            SitemapPriority = 0.7,
-            SitemapChangeFrequency = "weekly",
-            OgType = "article",
-            SelectedTagIds = new List<int>(),
-            SelectedProductIds = new List<int>(),
+            PublishedAt = DateTime.UtcNow, // Default to now, can be changed
+            Seo = new ViewModels.Shared.SeoViewModel // Initialize SeoViewModel
+            {
+                SitemapPriority = 0.5,
+                SitemapChangeFrequency = "monthly"
+            }
         };
 
-        // Set default Author from current logged-in user if possible
-        // viewModel.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get ID if needed
-        // viewModel.AuthorName = User.Identity?.Name; // Get display name
-        // viewModel.AuthorAvatar = await GetUserAvatarPathAsync(viewModel.AuthorId); // Fetch avatar path
+        await PopulateViewModelSelectListsAsync(viewModel);
 
-        await LoadRelatedDataForFormAsync(viewModel); // Load dropdowns
         return View(viewModel);
     }
 
@@ -114,51 +126,59 @@ public class ArticleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ArticleViewModel viewModel)
     {
-        // --- Manual Checks & Logic ---
-        viewModel.EstimatedReadingMinutes = CalculateReadingTime(viewModel.Content);
-        HandlePublishDate(viewModel); // Set/clear PublishedAt based on status
-
+        // MVC's validation pipeline automatically calls the registered FluentValidator
         if (ModelState.IsValid)
         {
-            var article = _mapper.Map<Article>(viewModel);
+            Article article = _mapper.Map<Article>(viewModel);
 
-            article.ArticleTags = viewModel.SelectedTagIds?
-                .Select(tagId => new ArticleTag { TagId = tagId }).ToList() ?? new List<ArticleTag>();
-            article.ArticleProducts = viewModel.SelectedProductIds?
-                .Select((prodId, index) => new ArticleProduct { ProductId = prodId, OrderIndex = index }).ToList() ?? new List<ArticleProduct>();
+            // Set AuthorId (Assuming user ID is stored in a claim)
+            article.AuthorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            // Optionally set AuthorName/Avatar from user profile if available and not set in ViewModel
+            if (string.IsNullOrWhiteSpace(article.AuthorName))
+            {
+                article.AuthorName = User.FindFirst(ClaimTypes.Name)?.Value ?? "Admin"; // Fallback
+            }
 
-            // Set AuthorId if needed (example)
-            // if (string.IsNullOrEmpty(article.AuthorId)) {
-            //     article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            // }
+            // Handle many-to-many relationships (Tags, Products)
+            await UpdateArticleRelationshipsAsync(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
 
-            _context.Articles.Add(article);
+            _context.Add(article);
 
             try
             {
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Article '{Title}' (ID: {ArticleId}) created successfully by {User}.", article.Title, article.Id, User.Identity?.Name ?? "Unknown");
-                TempData["success"] = $"Tạo bài viết '{Truncate(article.Title)}' thành công!";
-                return RedirectToAction(nameof(Index));
+                _logger.LogInformation("Article created successfully: {Title} (ID: {Id})", article.Title, article.Id);
+                TempData["SuccessMessage"] = $"Đã thêm bài viết '{article.Title}' thành công.";
+                return RedirectToAction(nameof(Index)); // Redirect to index after creation
             }
-            catch (DbUpdateException ex) { HandleDbUpdateException(ex, viewModel.Slug); } // Handle unique constraints etc.
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Error creating article: {Title}", viewModel.Title);
+                // Check for unique slug violation
+                if (ex.InnerException?.Message.Contains("idx_articles_slug", StringComparison.OrdinalIgnoreCase) == true ||
+                    ex.InnerException?.Message.Contains("articles.slug", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại, vui lòng chọn slug khác.");
+                }
+                else if (ex.InnerException?.Message.Contains("FK_articles_categories", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    ModelState.AddModelError(nameof(viewModel.CategoryId), "Danh mục được chọn không tồn tại.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu bài viết.");
+                }
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error creating article '{Title}'.", viewModel.Title);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi tạo bài viết.");
+                _logger.LogError(ex, "Unexpected error creating article: {Title}", viewModel.Title);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu bài viết.");
             }
-        }
-        else
-        {
-            _logger.LogWarning("Article creation failed for '{Title}'. Model state is invalid.", viewModel.Title);
+
+            // If we are returning to the view, re-populate SelectLists
+            await PopulateViewModelSelectListsAsync(viewModel);
         }
 
-
-        // If failed, redisplay form
-        await LoadRelatedDataForFormAsync(viewModel); // Reload dropdowns
-        ViewData["Title"] = "Viết Bài mới - Hệ thống quản trị";
-        ViewData["PageTitle"] = "Viết Bài mới";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ("Viết bài mới", "") };
         return View(viewModel);
     }
 
@@ -166,82 +186,95 @@ public class ArticleController : Controller
     // GET: Admin/Article/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var article = await _context.Set<Article>()
-            .Include(a => a.Category)
-            .Include(a => a.ArticleTags)
-            .Include(a => a.ArticleProducts) // No need to ThenInclude Product unless displaying product names here
-            .AsNoTracking()
-            .FirstOrDefaultAsync(a => a.Id == id);
+        Article? article = await _context.Set<Article>()
+                                         .Include(a => a.ArticleTags) // Include for mapping SelectedTagIds
+                                         .Include(a => a.ArticleProducts) // Include for mapping SelectedProductIds
+                                         .AsNoTracking() // Use AsNoTracking for GET requests
+                                         .FirstOrDefaultAsync(a => a.Id == id);
 
-        if (article == null) { _logger.LogWarning("Edit GET: Article ID {ArticleId} not found.", id); return NotFound(); }
+        if (article == null)
+        {
+            _logger.LogWarning("Article not found for editing: ID {Id}", id);
+            return NotFound();
+        }
 
-        var viewModel = _mapper.Map<ArticleViewModel>(article);
-        await LoadRelatedDataForFormAsync(viewModel);
+        ArticleViewModel viewModel = _mapper.Map<ArticleViewModel>(article);
 
-        ViewData["Title"] = "Chỉnh sửa Bài viết - Hệ thống quản trị";
-        ViewData["PageTitle"] = $"Chỉnh sửa Bài viết: {Truncate(article.Title)}";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(article.Title)}", "") };
+        await PopulateViewModelSelectListsAsync(viewModel);
 
         return View(viewModel);
     }
-
 
     // POST: Admin/Article/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ArticleViewModel viewModel)
     {
-        if (id != viewModel.Id) { _logger.LogWarning("Edit POST: ID mismatch. Route ID: {RouteId}, ViewModel ID: {ViewModelId}", id, viewModel.Id); return BadRequest(); }
+        if (id != viewModel.Id)
+        {
+            _logger.LogWarning("Bad request: ID mismatch during Article edit. Path ID: {PathId}, ViewModel ID: {ViewModelId}", id, viewModel.Id);
+            return BadRequest();
+        }
 
-        // --- Manual Checks & Logic ---
-        viewModel.EstimatedReadingMinutes = CalculateReadingTime(viewModel.Content);
-        HandlePublishDate(viewModel, await GetOriginalStatusAsync(id)); // Set/clear PublishedAt
-
+        // MVC's validation pipeline automatically calls the registered FluentValidator
         if (ModelState.IsValid)
         {
-            var article = await _context.Set<Article>()
-                .Include(a => a.Category)
-                .Include(a => a.ArticleTags)
-                .Include(a => a.ArticleProducts)
-                .FirstOrDefaultAsync(a => a.Id == id);
+            // Fetch the entity including relationships to update
+            Article? article = await _context.Set<Article>()
+                                             .Include(a => a.ArticleTags)
+                                             .Include(a => a.ArticleProducts)
+                                             .FirstOrDefaultAsync(a => a.Id == id);
 
-            if (article == null) { _logger.LogWarning("Edit POST: Article ID {ArticleId} not found for update.", id); TempData["error"] = "Không tìm thấy bài viết."; return RedirectToAction(nameof(Index)); }
+            if (article == null)
+            {
+                _logger.LogWarning("Article not found for editing (POST): ID {Id}", id);
+                TempData["ErrorMessage"] = "Không tìm thấy bài viết để cập nhật.";
+                return RedirectToAction(nameof(Index));
+            }
 
-            // --- Map Scalar Properties ---
+            // Map updated scalar properties and SEO fields
             _mapper.Map(viewModel, article);
+
+            // Handle many-to-many relationships (Tags, Products)
+            await UpdateArticleRelationshipsAsync(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
+
 
             try
             {
-                // --- Update Relationships ---
-                UpdateJunctionTable(article.ArticleTags, viewModel.SelectedTagIds, id, (tagId) => new ArticleTag { ArticleId = id, TagId = tagId }, ft => ft.TagId);
-                UpdateJunctionTable(article.ArticleProducts, viewModel.SelectedProductIds, id, (prodId) => new ArticleProduct { ArticleId = id, ProductId = prodId }, fp => fp.ProductId);
-
-                // Set audit fields if needed
-                // article.UpdatedBy = User.Identity?.Name;
-
+                // EF Core will detect changes to article and its relationships
                 await _context.SaveChangesAsync();
-                _logger.LogInformation("Article ID {ArticleId} ('{Title}') updated successfully by {User}.", id, article.Title, User.Identity?.Name ?? "Unknown");
-                TempData["success"] = $"Cập nhật bài viết '{Truncate(article.Title)}' thành công!";
-                return RedirectToAction(nameof(Index));
+                _logger.LogInformation("Article updated successfully: {Title} (ID: {Id})", article.Title, article.Id);
+                TempData["SuccessMessage"] = $"Đã cập nhật bài viết '{article.Title}' thành công.";
+                return RedirectToAction(nameof(Index)); // Redirect to index after update
             }
-            catch (DbUpdateConcurrencyException ex) { _logger.LogWarning(ex, "Concurrency error updating article ID: {ArticleId}", id); TempData["error"] = "Lỗi: Xung đột dữ liệu."; }
-            catch (DbUpdateException ex) { HandleDbUpdateException(ex, viewModel.Slug); } // Handle unique constraints etc.
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Error updating article: ID {Id}, Title: {Title}", id, viewModel.Title);
+                // Check for unique slug violation
+                if (ex.InnerException?.Message.Contains("idx_articles_slug", StringComparison.OrdinalIgnoreCase) == true ||
+                    ex.InnerException?.Message.Contains("articles.slug", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã được sử dụng bởi bài viết khác.");
+                }
+                else if (ex.InnerException?.Message.Contains("FK_articles_categories", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    ModelState.AddModelError(nameof(viewModel.CategoryId), "Danh mục được chọn không tồn tại.");
+                }
+                else
+                {
+                    ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật bài viết.");
+                }
+            }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating article ID: {ArticleId}", id);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật.");
+                _logger.LogError(ex, "Unexpected error updating article: ID {Id}, Title: {Title}", id, viewModel.Title);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật bài viết.");
             }
-        }
-        else
-        {
-            _logger.LogWarning("Article editing failed for ID: {ArticleId}. Model state is invalid.", id);
+
+            // If we are returning to the view, re-populate SelectLists
+            await PopulateViewModelSelectListsAsync(viewModel);
         }
 
-        // If failed, redisplay form
-        await LoadRelatedDataForFormAsync(viewModel); // Reload dropdowns
-        ViewData["Title"] = "Chỉnh sửa Bài viết - Hệ thống quản trị";
-        ViewData["PageTitle"] = $"Chỉnh sửa Bài viết: {Truncate(viewModel.Title)}";
-        ViewData["Breadcrumbs"] = new List<(string Text, string Url)> { ("Bài viết", Url.Action(nameof(Index))), ($"Chỉnh sửa: {Truncate(viewModel.Title)}", "") };
         return View(viewModel);
     }
 
@@ -251,155 +284,185 @@ public class ArticleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var article = await _context.Set<Article>()
-                                 // No need to include related data if using Cascade delete
-                                 .FirstOrDefaultAsync(a => a.Id == id);
+        // When deleting the parent (Article), EF Core should cascade delete related ArticleTag and ArticleProduct entries
+        // due to the configuration (OnDelete(DeleteBehavior.Cascade)).
+        // We don't need to explicitly check for linked tags/products before deleting the article itself.
+        Article? article = await _context.Set<Article>().FirstOrDefaultAsync(a => a.Id == id);
 
         if (article == null)
         {
-            _logger.LogWarning("Delete POST: Article ID {ArticleId} not found.", id);
+            _logger.LogWarning("Article not found for deletion: ID {Id}", id);
             return Json(new { success = false, message = "Không tìm thấy bài viết." });
         }
 
         try
         {
-            string title = article.Title;
-            // --- Get image paths BEFORE removing entity ---
-            var imagesToDelete = new List<string?> { article.FeaturedImage, article.ThumbnailImage, article.OgImage, article.TwitterImage }
-                                       .Where(url => !string.IsNullOrEmpty(url) && !url.StartsWith("http")) // Select only non-null paths (not URLs)
-                                       .Distinct()
-                                       .ToList();
-
-            _context.Articles.Remove(article); // Cascade should handle junction tables
-            await _context.SaveChangesAsync(); // Save DB changes
-
-            _logger.LogInformation("Article '{Title}' (ID: {ArticleId}) deleted successfully by {User}.", title, id, User.Identity?.Name ?? "Unknown");
-
-            // --- Delete images from storage AFTER DB delete succeeds ---
-            foreach (var path in imagesToDelete)
-            {
-                if (path == null) continue;
-                try
-                {
-                    await _minioService.DeleteFileAsync(path); // Use injected service
-                    _logger.LogInformation("Deleted image '{ImagePath}' from MinIO for deleted Article ID {ArticleId}.", path, id);
-                }
-                catch (Exception minioEx)
-                {
-                    _logger.LogError(minioEx, "Failed to delete image '{ImagePath}' from MinIO after deleting Article ID {ArticleId}.", path, id);
-                    // Don't fail the entire operation, just log the error
-                }
-            }
-
-            return Json(new { success = true, message = $"Xóa bài viết '{Truncate(title)}' thành công." });
+            string articleTitle = article.Title;
+            _context.Remove(article);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation("Article deleted successfully: {Title} (ID: {Id})", articleTitle, id);
+            return Json(new { success = true, message = $"Xóa bài viết '{articleTitle}' thành công." });
         }
-        catch (DbUpdateException ex)
+        catch (Exception ex) // Catch generic exception for unexpected issues
         {
-            _logger.LogError(ex, "Error deleting Article ID {ArticleId}. Potential RESTRICT constraint violation.", id);
-            return Json(new { success = false, message = "Không thể xóa bài viết. Có thể có lỗi ràng buộc dữ liệu." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error deleting Article ID {ArticleId}.", id);
-            return Json(new { success = false, message = "Đã xảy ra lỗi khi xóa bài viết." });
+            _logger.LogError(ex, "Error deleting article: ID {Id}, Title: {Title}", id, article.Title);
+            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa bài viết." });
         }
     }
 
 
     // --- Helper Methods ---
 
-    // Loads dropdowns for Index Filters
-    private async Task LoadFilterDropdownsAsync(int? categoryId, PublishStatus? status)
+    private async Task PopulateViewModelSelectListsAsync(ArticleViewModel viewModel)
     {
-        ViewBag.Categories = await _context.Set<Category>().Where(c => c.Type == CategoryType.Article && c.IsActive).OrderBy(c => c.Name).Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Name, Selected = c.Id == categoryId }).ToListAsync();
-        ViewBag.Statuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(s => new SelectListItem { Value = s.ToString(), Text = s.GetDisplayName(), Selected = s == status }).ToList();
-        ViewBag.SelectedCategoryId = categoryId;
-        ViewBag.SelectedStatus = status;
+        viewModel.CategoryOptions = await LoadCategorySelectListAsync(CategoryType.Article, viewModel.CategoryId);
+        viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
+        viewModel.TagOptions = await LoadTagSelectListAsync(viewModel.SelectedTagIds); // Pass selected IDs
+        viewModel.ProductOptions = await LoadProductSelectListAsync(viewModel.SelectedProductIds); // Pass selected IDs
     }
 
-    // Loads dropdowns/select lists for Create/Edit Form
-    private async Task LoadRelatedDataForFormAsync(ArticleViewModel viewModel)
+    private async Task<List<SelectListItem>> LoadCategorySelectListAsync(CategoryType categoryType, int? selectedValue = null)
     {
-        viewModel.CategoryList = new SelectList(await _context.Set<Category>().Where(c => c.IsActive && c.Type == CategoryType.Article).OrderBy(c => c.Name).Select(c => new { c.Id, c.Name }).ToListAsync(), "Id", "Name");
-        viewModel.TagList = new SelectList(await _context.Set<Tag>().Where(t => t.Type == TagType.Article).OrderBy(t => t.Name).Select(t => new { t.Id, t.Name }).ToListAsync(), "Id", "Name");
-        viewModel.ProductList = new SelectList(await _context.Set<Product>().Where(p => p.IsActive && p.Status == PublishStatus.Published).OrderBy(p => p.Name).Select(p => new { p.Id, p.Name }).ToListAsync(), "Id", "Name");
-        viewModel.StatusList = new SelectList(Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>().Select(e => new { Value = e, Text = e.GetDisplayName() }), "Value", "Text", viewModel.Status);
-    }
+        var categories = await _context.Set<Category>()
+                          .Where(c => c.Type == categoryType && c.IsActive)
+                          .OrderBy(c => c.OrderIndex)
+                          .ThenBy(c => c.Name)
+                          .AsNoTracking()
+                          .Select(c => new { c.Id, c.Name })
+                          .ToListAsync();
 
-    // Handles setting/clearing PublishedAt date based on status
-    private void HandlePublishDate(ArticleViewModel viewModel, PublishStatus? originalStatus = null)
-    {
-        if (viewModel.Status == PublishStatus.Published && originalStatus != PublishStatus.Published && !viewModel.PublishedAt.HasValue)
+        var items = new List<SelectListItem>
         {
-            viewModel.PublishedAt = DateTime.UtcNow;
-        }
-        else if (viewModel.Status != PublishStatus.Published)
+            new SelectListItem { Value = "", Text = "-- Chọn danh mục --", Selected = !selectedValue.HasValue }
+        };
+
+        items.AddRange(categories.Select(c => new SelectListItem
         {
-            viewModel.PublishedAt = null; // Clear if not published
-        }
-        // If status is Published and date is already set, leave it as is (allows manual setting/scheduling)
+            Value = c.Id.ToString(),
+            Text = c.Name,
+            Selected = selectedValue.HasValue && c.Id == selectedValue.Value
+        }));
+
+        return items;
     }
 
-    // Gets original status for comparison in Edit POST
-    private async Task<PublishStatus?> GetOriginalStatusAsync(int articleId)
+    private async Task<List<SelectListItem>> LoadTagSelectListAsync(List<int>? selectedValues = null)
     {
-        return await _context.Articles
-                             .Where(a => a.Id == articleId)
-                             .Select(a => (PublishStatus?)a.Status) // Cast to nullable
-                             .FirstOrDefaultAsync();
+        var tags = await _context.Set<Tag>()
+                          .OrderBy(t => t.Name)
+                          .AsNoTracking()
+                          .Select(t => new { t.Id, t.Name })
+                          .ToListAsync();
+
+        var items = new List<SelectListItem>
+        {
+            // No default empty option for multi-select usually
+        };
+
+        items.AddRange(tags.Select(t => new SelectListItem
+        {
+            Value = t.Id.ToString(),
+            Text = t.Name,
+            Selected = selectedValues != null && selectedValues.Contains(t.Id)
+        }));
+
+        return items;
     }
 
-    // Generic helper to update Many-to-Many junction tables
-    private void UpdateJunctionTable<TEntity, TKey>(ICollection<TEntity> currentCollection, IEnumerable<TKey>? selectedIds, int parentId, Func<TKey, TEntity> createEntity, Func<TEntity, TKey> getKey)
-        where TEntity : class
-        where TKey : IEquatable<TKey>
+    private async Task<List<SelectListItem>> LoadProductSelectListAsync(List<int>? selectedValues = null)
     {
-        selectedIds ??= new List<TKey>(); // Ensure list is not null
+        // Assuming you have a Product entity and DbSet<Product> in DbContext
+        var products = await _context.Set<Product>()
+                          .OrderBy(p => p.Name)
+                          .AsNoTracking()
+                          .Select(p => new { p.Id, p.Name })
+                          .ToListAsync();
 
-        var currentIds = currentCollection.Select(getKey).ToList();
-        var idsToAdd = selectedIds.Except(currentIds).ToList();
-        var entitiesToRemove = currentCollection.Where(e => !selectedIds.Contains(getKey(e))).ToList();
-
-        if (entitiesToRemove.Any()) _context.RemoveRange(entitiesToRemove);
-
-        if (idsToAdd.Any())
+        var items = new List<SelectListItem>
         {
-            foreach (var idToAdd in idsToAdd)
+            // No default empty option for multi-select usually
+        };
+
+        items.AddRange(products.Select(p => new SelectListItem
+        {
+            Value = p.Id.ToString(),
+            Text = p.Name,
+            Selected = selectedValues != null && selectedValues.Contains(p.Id)
+        }));
+
+        return items;
+    }
+
+
+    private List<SelectListItem> GetPublishStatusSelectList(PublishStatus? selectedStatus)
+    {
+        var items = Enum.GetValues(typeof(PublishStatus))
+            .Cast<PublishStatus>()
+            .Select(t => new SelectListItem
             {
-                currentCollection.Add(createEntity(idToAdd));
-            }
-        }
+                Value = ((int)t).ToString(),
+                Text = t.GetDisplayName(),
+                Selected = selectedStatus.HasValue && t == selectedStatus.Value
+            })
+            .OrderBy(t => t.Text) // Maybe order by enum value instead?
+            .ToList();
+        return items;
     }
 
-    // Calculates estimated reading time
-    private int CalculateReadingTime(string content, int wordsPerMinute = 200)
+    private List<SelectListItem> GetYesNoSelectList(bool? selectedValue, string allText = "Tất cả")
     {
-        if (string.IsNullOrWhiteSpace(content)) return 0;
-        // Remove HTML tags before counting words
-        var plainText = Regex.Replace(content, "<.*?>", string.Empty);
-        var wordCount = plainText.Split(new[] { ' ', '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries).Length;
-        if (wordsPerMinute <= 0) wordsPerMinute = 200; // Avoid division by zero
-        return Math.Max(1, (int)Math.Ceiling(wordCount / (double)wordsPerMinute)); // Ensure at least 1 minute
-    }
-
-    // Handles DbUpdateException, adding specific ModelErrors
-    private void HandleDbUpdateException(DbUpdateException ex, string? slug)
-    {
-        _logger.LogError(ex, "DbUpdateException occurred.");
-        if (ex.InnerException?.Message.Contains("UNIQUE constraint failed: articles.slug", StringComparison.OrdinalIgnoreCase) ?? false)
+        return new List<SelectListItem>
         {
-            ModelState.AddModelError(nameof(ArticleViewModel.Slug), "Slug này đã tồn tại.");
-        }
-        else
-        {
-            ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi lưu.");
-        }
+            new SelectListItem { Value = "", Text = allText, Selected = !selectedValue.HasValue },
+            new SelectListItem { Value = "true", Text = "Có", Selected = selectedValue == true },
+            new SelectListItem { Value = "false", Text = "Không", Selected = selectedValue == false }
+        };
     }
 
-    // Truncates string for display
-    private string Truncate(string value, int maxLength = 40)
+    // Helper to update ArticleTag and ArticleProduct relationships
+    private async Task UpdateArticleRelationshipsAsync(Article article, List<int>? selectedTagIds, List<int>? selectedProductIds)
     {
-        if (string.IsNullOrEmpty(value)) return value;
-        return value.Length <= maxLength ? value : value.Substring(0, maxLength) + "...";
+        // Update Tags
+        var existingTagIds = article.ArticleTags?.Select(at => at.TagId).ToList() ?? new List<int>();
+        var tagIdsToAdd = selectedTagIds?.Except(existingTagIds).ToList() ?? new List<int>();
+        var tagIdsToRemove = existingTagIds.Except(selectedTagIds ?? new List<int>()).ToList();
+
+        foreach (var tagId in tagIdsToRemove)
+        {
+            var articleTag = article.ArticleTags!.First(at => at.TagId == tagId);
+            _context.Remove(articleTag); // Remove from context, EF will remove from collection
+        }
+
+        foreach (var tagId in tagIdsToAdd)
+        {
+            // Optional: Validate TagId exists in DB here if not done in Validation
+            // if (!_context.Tags.Any(t => t.Id == tagId)) continue; // Skip if tag doesn't exist
+
+            article.ArticleTags ??= new List<ArticleTag>();
+            article.ArticleTags.Add(new ArticleTag { ArticleId = article.Id, TagId = tagId });
+        }
+
+        // Update Products
+        var existingProductIds = article.ArticleProducts?.Select(ap => ap.ProductId).ToList() ?? new List<int>();
+        var productIdsToAdd = selectedProductIds?.Except(existingProductIds).ToList() ?? new List<int>();
+        var productIdsToRemove = existingProductIds.Except(selectedProductIds ?? new List<int>()).ToList();
+
+        foreach (var productId in productIdsToRemove)
+        {
+            var articleProduct = article.ArticleProducts!.First(ap => ap.ProductId == productId);
+            _context.Remove(articleProduct); // Remove from context, EF will remove from collection
+        }
+
+        // Need to determine the correct OrderIndex for added products.
+        // For simplicity here, just add them with default OrderIndex=0.
+        // A more complex scenario might require managing order via the UI/ViewModel.
+        foreach (var productId in productIdsToAdd)
+        {
+            // Optional: Validate ProductId exists in DB here if not done in Validation
+            // if (!_context.Products.Any(p => p.Id == productId)) continue; // Skip if product doesn't exist
+
+            article.ArticleProducts ??= new List<ArticleProduct>();
+            article.ArticleProducts.Add(new ArticleProduct { ArticleId = article.Id, ProductId = productId, OrderIndex = 0 });
+        }
     }
 }

@@ -30,13 +30,13 @@ public class ContactConfiguration : BaseEntityConfiguration<Contact, int>
         builder.Property(e => e.Email).HasColumnName("email").IsRequired().HasMaxLength(100);
         builder.Property(e => e.Phone).HasColumnName("phone").HasMaxLength(20);
         builder.Property(e => e.Subject).HasColumnName("subject").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Message).HasColumnName("message").IsRequired().HasColumnType("text");
+        builder.Property(e => e.Message).HasColumnName("message").IsRequired().HasColumnType("nvarchar(max)");
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(ContactStatus.New);
-        builder.Property(e => e.AdminNotes).HasColumnName("admin_notes").HasColumnType("text");
+        builder.Property(e => e.AdminNotes).HasColumnName("admin_notes").HasColumnType("nvarchar(max)");
         builder.Property(e => e.IpAddress).HasColumnName("ip_address").HasMaxLength(50);
         builder.Property(e => e.UserAgent).HasColumnName("user_agent").HasMaxLength(255);
 

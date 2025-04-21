@@ -15,13 +15,8 @@ public class MediaFile : BaseEntity<int>
     public string Description { get; set; } = string.Empty;
     public long FileSize { get; set; } = 0;
     public string AltText { get; set; } = string.Empty;
-    public int? Width { get; set; }
-    public int? Height { get; set; }
     public int? Duration { get; set; }
-
     public MediaType MediaType { get; set; }
-
-    // Navigation properties
     public int? FolderId { get; set; }
     public virtual MediaFolder? MediaFolder { get; set; }
 }
@@ -42,8 +37,6 @@ public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
         builder.Property(e => e.AltText).HasColumnName("alt_text").HasMaxLength(255);
 
         builder.Property(e => e.FileSize).HasColumnName("file_size");
-        builder.Property(e => e.Width).HasColumnName("width");
-        builder.Property(e => e.Height).HasColumnName("height");
         builder.Property(e => e.Duration).HasColumnName("duration");
 
         builder.Property(e => e.MediaType)

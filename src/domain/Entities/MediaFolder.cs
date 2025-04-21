@@ -9,12 +9,8 @@ public class MediaFolder : BaseEntity<int>
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public int? ParentId { get; set; }
-
-    // Navigation properties
     public virtual MediaFolder? Parent { get; set; }
-
     public virtual required ICollection<MediaFolder> Children { get; set; }
-
     public virtual required ICollection<MediaFile> Files { get; set; }
 }
 
@@ -33,11 +29,6 @@ public class MediaFolderConfiguration : BaseEntityConfiguration<MediaFolder, int
         builder.HasOne(e => e.Parent)
             .WithMany(e => e!.Children)
             .HasForeignKey(e => e.ParentId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasMany(e => e.Files)
-            .WithOne(e => e.MediaFolder)
-            .HasForeignKey(e => e.FolderId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

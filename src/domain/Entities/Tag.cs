@@ -11,8 +11,6 @@ public class Tag : BaseEntity<int>
     public string Slug { get; set; } = string.Empty;
     public string? Description { get; set; }
     public TagType Type { get; set; } = TagType.Product;
-
-    // Navigation properties
     public virtual ICollection<ProductTag>? ProductTags { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }
 }
@@ -38,4 +36,3 @@ public class TagConfiguration : BaseEntityConfiguration<Tag, int>
         builder.HasIndex(e => e.Type).HasDatabaseName("idx_tags_type");
     }
 }
-

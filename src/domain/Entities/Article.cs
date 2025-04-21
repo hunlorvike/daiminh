@@ -40,7 +40,7 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
 
         builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Content).HasColumnName("content").HasColumnType("text").IsRequired();
+        builder.Property(e => e.Content).HasColumnName("content").HasColumnType("nvarchar(max)").IsRequired();
         builder.Property(e => e.Summary).HasColumnName("summary").HasMaxLength(500);
         builder.Property(e => e.FeaturedImage).HasColumnName("featured_image").HasMaxLength(255);
         builder.Property(e => e.ThumbnailImage).HasColumnName("thumbnail_image").HasMaxLength(255);

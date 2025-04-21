@@ -8,24 +8,20 @@ namespace domain.Entities;
 public class Setting : BaseEntity<int>
 {
     public string Key { get; set; } = string.Empty;
-
     public string Category { get; set; } = string.Empty; // e.g., "General", "Email", "Social Media", "Payment", "SEO", "Contact", "Company Info", "Theme", "Analytics", "Security", "Cache", "API", "Custom"
-
     public FieldType Type { get; set; }
-
-    public string? Description { get; set; } // Description of the setting
-
-    public string? DefaultValue { get; set; } // Default value for the setting
-
-    public string? Value { get; set; } // Current value of the setting
-
-    public bool IsActive { get; set; } = true; // Whether the setting is active
+    public string? Description { get; set; }
+    public string? DefaultValue { get; set; }
+    public string? Value { get; set; }
+    public bool IsActive { get; set; } = true;
 }
 
-public class SettingConfiguration : IEntityTypeConfiguration<Setting>
+public class SettingConfiguration : BaseEntityConfiguration<Setting, int>
 {
-    public void Configure(EntityTypeBuilder<Setting> builder)
+    public override void Configure(EntityTypeBuilder<Setting> builder)
     {
+        base.Configure(builder);
+
         builder.ToTable("settings");
 
         builder.Property(s => s.Key).HasColumnName("key").IsRequired().HasMaxLength(100);
@@ -36,17 +32,14 @@ public class SettingConfiguration : IEntityTypeConfiguration<Setting>
             .HasMaxLength(20)
             .HasDefaultValue(FieldType.Text);
         builder.Property(s => s.Description).HasColumnName("description").HasMaxLength(500);
-        builder.Property(s => s.DefaultValue).HasColumnName("default_value");
-        builder.Property(s => s.Value).HasColumnName("value");
+        builder.Property(s => s.DefaultValue).HasColumnName("default_value").HasColumnType("nvarchar(max)");
+        builder.Property(s => s.Value).HasColumnName("value").HasColumnType("nvarchar(max)");
         builder.Property(s => s.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-
-        // Indexes
         builder.HasIndex(s => s.Key).HasDatabaseName("idx_settings_key").IsUnique();
         builder.HasIndex(s => s.Category).HasDatabaseName("idx_settings_category");
         builder.HasIndex(s => s.Type).HasDatabaseName("idx_settings_type");
         builder.HasIndex(s => s.IsActive).HasDatabaseName("idx_settings_is_active");
 
-        // Seed data (optional)
         builder.HasData(
              new Setting
              {

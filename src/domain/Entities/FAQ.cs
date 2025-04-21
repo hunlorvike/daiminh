@@ -11,8 +11,6 @@ public class FAQ : BaseEntity<int>
     public int OrderIndex { get; set; } = 0;
     public bool IsActive { get; set; } = true;
     public int? CategoryId { get; set; }
-
-    // Navigation properties
     public virtual Category? Category { get; set; }
 }
 
@@ -25,7 +23,7 @@ public class FAQConfiguration : BaseEntityConfiguration<FAQ, int>
         builder.ToTable("faqs");
 
         builder.Property(e => e.Question).HasColumnName("question").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Answer).HasColumnName("answer").IsRequired().HasColumnType("text");
+        builder.Property(e => e.Answer).HasColumnName("answer").IsRequired().HasColumnType("nvarchar(max)");
         builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         builder.Property(e => e.CategoryId).HasColumnName("category_id");

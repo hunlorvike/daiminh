@@ -9,8 +9,6 @@ public class ArticleProduct : BaseEntity<int>
     public int ArticleId { get; set; }
     public int ProductId { get; set; }
     public int OrderIndex { get; set; } = 0;
-
-    // Navigation properties
     public virtual Article? Article { get; set; }
     public virtual Product? Product { get; set; }
 }

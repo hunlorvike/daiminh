@@ -15,8 +15,6 @@ public class Category : SeoEntity<int>
     public int OrderIndex { get; set; } = 0;
     public bool IsActive { get; set; } = true;
     public CategoryType Type { get; set; } = CategoryType.Product;
-
-    // Navigation properties
     public virtual Category? Parent { get; set; }
     public virtual ICollection<Category>? Children { get; set; }
     public virtual ICollection<Product>? Products { get; set; }

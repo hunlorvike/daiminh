@@ -1,77 +1,70 @@
-@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Article
 @model ArticleViewModel
 @{
-    ViewData["Title"] = "Viết Bài mới - Hệ thống quản trị";
+	ViewData["Title"] = "Thêm Bài viết mới - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Thêm Bài viết mới";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article"),
+			("Thêm mới", "")
+		};
 }
 
-@section Styles {
-@* Combine styles *@
-@*<link rel="stylesheet" href="~/lib/tom-select/dist/css/tom-select.bootstrap5.min.css" asp-append-version="true"> *@
-@*<link rel="stylesheet" href="~/lib/summernote/dist/summernote-bs5.min.css" asp-append-version="true">*@
-    <style>
-        .select2-container--default .select2-selection--multiple {
-            border-color: #d9dbde;
-        }
-        /* Style TomSelect */</style>
-}
+<form asp-action="Create" method="post">
+	@Html.AntiForgeryToken()
+	<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
 
-<form asp-action="Create" method="post" id="article-form">
-    <div class="card">
-        <div class="card-header">
-            <h3 class="card-title">Nội dung Bài viết</h3>
-        </div>
-        <div class="card-body">
-            @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
-            <partial name="_ArticleFormFields" model="Model" />
-        </div>
-        <div class="card-footer text-end bg-transparent border-top pt-3">
-            <a asp-action="Index" class="btn btn-link">Hủy</a>
-            <button type="submit" class="btn btn-primary ms-2"> <i class="ti ti-device-floppy me-2"></i> Lưu bài viết </button>
-        </div>
-    </div>
+	<partial name="_ArticleFormFields" model="Model" />
+
+	<div class="card mt-4">
+		<div class="card-header">
+			<h3 class="card-title">Tối ưu SEO</h3>
+		</div>
+		<div class="card-body">
+			<partial name="Components/_SeoFormFields" model="Model.Seo" />
+		</div>
+		<div class="card-footer text-end bg-transparent border-top pt-3">
+			<a asp-action="Index" class="btn btn-link">Hủy</a>
+			<button type="submit" class="btn btn-primary ms-2">
+				<i class="ti ti-device-floppy me-2"></i> Lưu Bài viết
+			</button>
+		</div>
+	</div>
 </form>
 
 @section Scripts {
-    <script src="~/js/slug.js" asp-append-version="true"></script>
-    <script>
-        $(document).ready(function() {
-            // --- Initialize Plugins ---
-            $('.tom-select-single').each(function() { new TomSelect(this, { create: false, placeholder: this.options[0].text || 'Chọn...' }); });
-            $('.tom-select-multiple').each(function() { new TomSelect(this, { plugins: ['remove_button'], create: $(this).is('#SelectedTagIds'), placeholder: 'Chọn...' }); });
-            $('.summernote-editor').summernote({ lang: 'vi-VN', height: 250, toolbar: [ ['style', ['style']], ['font', ['bold', 'italic', 'underline', 'clear']], ['para', ['ul', 'ol', 'paragraph']], ['insert', ['link', 'picture']], ['view', ['fullscreen', 'codeview', 'help']] ] });
-             $('#articleContentEditor').summernote('height', 400); // Taller editor for main content
+	<script src="~/js/slug.js" asp-append-version="true"></script>
 
-            // --- Slug Generation ---
-            const titleInput = $('#articleTitle'); const slugInput = $('#articleSlug'); const generateBtn = $('#generateSlugButton');
-            titleInput.on('input', function() { if (slugInput.val() === '') { slugInput.val(generateVietnameseSlug(titleInput.val())); } });
-            generateBtn.on('click', function() { slugInput.val(generateVietnameseSlug(titleInput.val())); });
+	<script>
+		$(document).ready(function() {
+				const titleInput = $('#Title');
+				const slugInput = $('#Slug');
+				const generateSlugBtn = $('#generateSlugButton');
 
-            // --- General Media Selection ---
-            function handleMediaSelection(selectedFile, inputSelector, previewSelector) { /* ... (Same as Edit view JS) ... */
-                 if (selectedFile && inputSelector && previewSelector) {
-                     const inputField = $(inputSelector); const previewImg = $(previewSelector); const removeBtn = $(`button[data-target-input="${inputSelector}"]`).filter('.remove-media-btn');
-                     const valueToStore = (inputSelector === '#ogImagePathInput' || inputSelector === '#twitterImagePathInput') ? selectedFile.url : selectedFile.path;
-                     // Use path for generating preview URL, store path or URL based on input target
-                     const displayUrl = '@(MediaUrlHelper.GetMinioUrl("__PATH__", "/img/placeholder.svg"))'.replace('__PATH__', selectedFile.path);
-                     previewImg.attr('src', displayUrl).show();
-                     inputField.val(valueToStore || '').trigger('change');
-                     if(removeBtn.length) removeBtn.removeClass('d-none');
-                 }
-            }
-             $(document).on('click', '.select-media-btn', function() { /* ... (Same as Edit view JS) ... */
-                  const targetInput = $(this).data('target-input'); const targetPreview = $(this).data('target-preview');
-                 if (typeof window.openMediaSelectionModal === 'function') { const cb = (sf) => handleMediaSelection(sf, targetInput, targetPreview); window.openMediaSelectionModal(cb, 'Image'); } else { console.error('openMediaSelectionModal is not defined.'); }
-             });
-              $(document).on('click', '.remove-media-btn', function() { /* ... (Same as Edit view JS) ... */
-                  const targetInput = $(this).data('target-input'); const targetPreview = $(this).data('target-preview'); const placeholder = $(this).data('placeholder') || '/img/placeholder.svg';
-                 if (targetInput && targetPreview) { $(targetPreview).attr('src', placeholder); if ($(targetPreview).is('#ogImagePreview')) $(targetPreview).hide(); $(targetInput).val('').trigger('change'); $(this).addClass('d-none'); }
-              });
+				titleInput.on('input', function() {
+					if (slugInput.val() === '') {
+						slugInput.val(generateVietnameseSlug(titleInput.val()));
+					}
+				});
 
-              // Initialize visibility for OG image preview
-              if ($('#ogImagePathInput').val() === '') $('#ogImagePreview').hide(); else $('#ogImagePreview').show();
-              // Add similar for Twitter if used
-        });
-    </script>
+				generateSlugBtn.on('click', function() {
+					slugInput.val(generateVietnameseSlug(titleInput.val()));
+				});
+
+				$('#Content').summernote({
+					placeholder: 'Nhập nội dung chi tiết bài viết',
+					height: 300,
+					lang: 'vi-VN',
+					callbacks: {
+						onInit: function() {
+							if ($(this).summernote('isEmpty')) {
+								$(this).summernote('code', '');
+							}
+						}
+					}
+				});
+
+				new TomSelect("#SelectedTagIds",{ plugins: { remove_button: { title: 'Xóa' } } });
+				new TomSelect("#SelectedProductIds",{ plugins: { remove_button: { title: 'Xóa' } } });
+			});
+	</script>
 }

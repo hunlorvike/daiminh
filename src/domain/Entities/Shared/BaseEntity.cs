@@ -7,7 +7,7 @@ namespace domain.Entities.Shared;
 public abstract class BaseEntity<TKey> where TKey : IEquatable<TKey>
 {
     [Key]
-    public TKey? Id { get; set; }
+    public TKey Id { get; set; } = default!;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public string? CreatedBy { get; set; }
@@ -24,7 +24,7 @@ public abstract class BaseEntityConfiguration<TEntity, TKey> : IEntityTypeConfig
 
         builder.Property(e => e.CreatedAt)
             .HasColumnName("created_at")
-            .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            .HasDefaultValueSql("GETUTCDATE()");
 
         builder.Property(e => e.UpdatedAt)
             .HasColumnName("updated_at");
@@ -38,4 +38,3 @@ public abstract class BaseEntityConfiguration<TEntity, TKey> : IEntityTypeConfig
             .HasMaxLength(50);
     }
 }
-

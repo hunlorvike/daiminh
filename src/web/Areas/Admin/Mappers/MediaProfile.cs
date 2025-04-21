@@ -57,8 +57,6 @@ public class MediaProfile : Profile
            .ForMember(dest => dest.Id, opt => opt.Ignore())
            .ForMember(dest => dest.Description, opt => opt.Ignore())
            .ForMember(dest => dest.AltText, opt => opt.MapFrom(src => Path.GetFileNameWithoutExtension(src.OriginalFileName))) // Default AltText
-           .ForMember(dest => dest.Width, opt => opt.Ignore()) // Ignore initially
-           .ForMember(dest => dest.Height, opt => opt.Ignore()) // Ignore initially
            .ForMember(dest => dest.Duration, opt => opt.Ignore()) // Ignore initially
            .ForMember(dest => dest.FolderId, opt => opt.Ignore()) // Set manually in controller
            .ForMember(dest => dest.MediaFolder, opt => opt.Ignore())

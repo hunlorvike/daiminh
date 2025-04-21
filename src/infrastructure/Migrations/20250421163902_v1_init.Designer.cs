@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using infrastructure;
 
 #nullable disable
@@ -12,7 +12,7 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250420161549_v1_init")]
+    [Migration("20250421163902_v1_init")]
     partial class v1_init
     {
         /// <inheritdoc />
@@ -21,212 +21,212 @@ namespace infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.11")
-                .HasAnnotation("Relational:MaxIdentifierLength", 63);
+                .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("domain.Entities.Article", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AuthorAvatar")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("author_avatar");
 
                     b.Property<string>("AuthorId")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("author_id");
 
                     b.Property<string>("AuthorName")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("author_name");
 
                     b.Property<string>("BreadcrumbJson")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("breadcrumb_json");
 
                     b.Property<string>("CanonicalUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("canonical_url");
 
                     b.Property<int?>("CategoryId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("category_id");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("content");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<int>("EstimatedReadingMinutes")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("estimated_reading_minutes");
 
                     b.Property<string>("FeaturedImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("featured_image");
 
                     b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("is_featured");
 
                     b.Property<string>("MetaDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("meta_description");
 
                     b.Property<string>("MetaKeywords")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasColumnType("nvarchar(200)")
                         .HasColumnName("meta_keywords");
 
                     b.Property<string>("MetaTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("meta_title");
 
                     b.Property<bool>("NoFollow")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_follow");
 
                     b.Property<bool>("NoIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_index");
 
                     b.Property<string>("OgDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("og_description");
 
                     b.Property<string>("OgImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("og_image");
 
                     b.Property<string>("OgTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("og_title");
 
                     b.Property<string>("OgType")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("website")
                         .HasColumnName("og_type");
 
                     b.Property<DateTime?>("PublishedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("published_at");
 
                     b.Property<string>("SchemaMarkup")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("schema_markup");
 
                     b.Property<string>("SitemapChangeFrequency")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("monthly")
                         .HasColumnName("sitemap_change_frequency");
 
                     b.Property<double?>("SitemapPriority")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
+                        .HasColumnType("float")
                         .HasDefaultValue(0.5)
                         .HasColumnName("sitemap_priority");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("slug");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("status");
 
                     b.Property<string>("Summary")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
+                        .HasColumnType("nvarchar(500)")
                         .HasColumnName("summary");
 
                     b.Property<string>("ThumbnailImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("thumbnail_image");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("title");
 
                     b.Property<string>("TwitterCard")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("summary_large_image")
                         .HasColumnName("twitter_card");
 
                     b.Property<string>("TwitterDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("twitter_description");
 
                     b.Property<string>("TwitterImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("twitter_image");
 
                     b.Property<string>("TwitterTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("twitter_title");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.Property<int>("ViewCount")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("view_count");
 
@@ -261,42 +261,42 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ArticleId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("article_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("order_index");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("product_id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -321,36 +321,36 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("ArticleId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("article_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<int>("TagId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("tag_id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -372,157 +372,157 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("BreadcrumbJson")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("breadcrumb_json");
 
                     b.Property<string>("CanonicalUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("canonical_url");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("description");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)")
+                        .HasColumnType("nvarchar(2048)")
                         .HasColumnName("logo_url");
 
                     b.Property<string>("MetaDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("meta_description");
 
                     b.Property<string>("MetaKeywords")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasColumnType("nvarchar(200)")
                         .HasColumnName("meta_keywords");
 
                     b.Property<string>("MetaTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("meta_title");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("name");
 
                     b.Property<bool>("NoFollow")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_follow");
 
                     b.Property<bool>("NoIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_index");
 
                     b.Property<string>("OgDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("og_description");
 
                     b.Property<string>("OgImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("og_image");
 
                     b.Property<string>("OgTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("og_title");
 
                     b.Property<string>("OgType")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("website")
                         .HasColumnName("og_type");
 
                     b.Property<string>("SchemaMarkup")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("schema_markup");
 
                     b.Property<string>("SitemapChangeFrequency")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("monthly")
                         .HasColumnName("sitemap_change_frequency");
 
                     b.Property<double?>("SitemapPriority")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
+                        .HasColumnType("float")
                         .HasDefaultValue(0.5)
                         .HasColumnName("sitemap_priority");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("slug");
 
                     b.Property<string>("TwitterCard")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("summary_large_image")
                         .HasColumnName("twitter_card");
 
                     b.Property<string>("TwitterDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("twitter_description");
 
                     b.Property<string>("TwitterImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("twitter_image");
 
                     b.Property<string>("TwitterTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("twitter_title");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("Website")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("website");
 
                     b.HasKey("Id");
@@ -541,170 +541,170 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("BreadcrumbJson")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("breadcrumb_json");
 
                     b.Property<string>("CanonicalUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("canonical_url");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("description");
 
                     b.Property<string>("Icon")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("icon");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<string>("MetaDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("meta_description");
 
                     b.Property<string>("MetaKeywords")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasColumnType("nvarchar(200)")
                         .HasColumnName("meta_keywords");
 
                     b.Property<string>("MetaTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("meta_title");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
 
                     b.Property<bool>("NoFollow")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_follow");
 
                     b.Property<bool>("NoIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_index");
 
                     b.Property<string>("OgDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("og_description");
 
                     b.Property<string>("OgImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("og_image");
 
                     b.Property<string>("OgTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("og_title");
 
                     b.Property<string>("OgType")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("website")
                         .HasColumnName("og_type");
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("order_index");
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("parent_id");
 
                     b.Property<string>("SchemaMarkup")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("schema_markup");
 
                     b.Property<string>("SitemapChangeFrequency")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("monthly")
                         .HasColumnName("sitemap_change_frequency");
 
                     b.Property<double?>("SitemapPriority")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
+                        .HasColumnType("float")
                         .HasDefaultValue(0.5)
                         .HasColumnName("sitemap_priority");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("slug");
 
                     b.Property<string>("TwitterCard")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("summary_large_image")
                         .HasColumnName("twitter_card");
 
                     b.Property<string>("TwitterDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("twitter_description");
 
                     b.Property<string>("TwitterImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("twitter_image");
 
                     b.Property<string>("TwitterTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("twitter_title");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -732,86 +732,77 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AdminNotes")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("admin_notes");
-
-                    b.Property<string>("CompanyName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("company_name");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("email");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("full_name");
 
                     b.Property<string>("IpAddress")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("ip_address");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("message");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasColumnName("phone");
-
-                    b.Property<string>("ProjectDetails")
-                        .HasColumnType("text")
-                        .HasColumnName("project_details");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("status");
 
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("subject");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("user_agent");
 
                     b.HasKey("Id");
@@ -832,55 +823,55 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Answer")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("answer");
 
                     b.Property<int?>("CategoryId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("category_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("order_index");
 
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("question");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -900,53 +891,53 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AltText")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("alt_text");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("description");
 
                     b.Property<int?>("Duration")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("duration");
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("character varying(10)")
+                        .HasColumnType("nvarchar(10)")
                         .HasColumnName("file_extension");
 
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("file_name");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("file_path");
 
                     b.Property<long>("FileSize")
@@ -954,44 +945,36 @@ namespace infrastructure.Migrations
                         .HasColumnName("file_size");
 
                     b.Property<int?>("FolderId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("folder_id");
-
-                    b.Property<int?>("Height")
-                        .HasColumnType("integer")
-                        .HasColumnName("height");
 
                     b.Property<int>("MediaType")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("media_type");
 
                     b.Property<string>("MimeType")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("mime_type");
 
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("original_file_name");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
-
-                    b.Property<int?>("Width")
-                        .HasColumnType("integer")
-                        .HasColumnName("width");
 
                     b.HasKey("Id");
 
@@ -1004,44 +987,44 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("parent_id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -1055,63 +1038,63 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("ConfirmedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("confirmed_at");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("email");
 
                     b.Property<string>("IpAddress")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("ip_address");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("name");
 
                     b.Property<DateTime?>("UnsubscribedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("unsubscribed_at");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("user_agent");
 
                     b.HasKey("Id");
@@ -1130,221 +1113,221 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ApplicationAreas")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("application_areas");
 
                     b.Property<int?>("BrandId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("brand_id");
 
                     b.Property<string>("BreadcrumbJson")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("breadcrumb_json");
 
                     b.Property<string>("CanonicalUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("canonical_url");
 
                     b.Property<int?>("CategoryId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("category_id");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("description");
 
                     b.Property<string>("Features")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("features");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("is_featured");
 
                     b.Property<string>("Manufacturer")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("manufacturer");
 
                     b.Property<string>("MetaDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("meta_description");
 
                     b.Property<string>("MetaKeywords")
                         .HasMaxLength(200)
-                        .HasColumnType("character varying(200)")
+                        .HasColumnType("nvarchar(200)")
                         .HasColumnName("meta_keywords");
 
                     b.Property<string>("MetaTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("meta_title");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("name");
 
                     b.Property<bool>("NoFollow")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_follow");
 
                     b.Property<bool>("NoIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("no_index");
 
                     b.Property<string>("OgDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("og_description");
 
                     b.Property<string>("OgImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("og_image");
 
                     b.Property<string>("OgTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("og_title");
 
                     b.Property<string>("OgType")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("website")
                         .HasColumnName("og_type");
 
                     b.Property<string>("Origin")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("origin");
 
                     b.Property<string>("PackagingInfo")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("packaging_info");
 
                     b.Property<string>("SafetyInfo")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("safety_info");
 
                     b.Property<string>("SchemaMarkup")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("schema_markup");
 
                     b.Property<string>("ShortDescription")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
+                        .HasColumnType("nvarchar(500)")
                         .HasColumnName("short_description");
 
                     b.Property<string>("SitemapChangeFrequency")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("character varying(20)")
+                        .HasColumnType("nvarchar(20)")
                         .HasDefaultValue("monthly")
                         .HasColumnName("sitemap_change_frequency");
 
                     b.Property<double?>("SitemapPriority")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("double precision")
+                        .HasColumnType("float")
                         .HasDefaultValue(0.5)
                         .HasColumnName("sitemap_priority");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("slug");
 
                     b.Property<string>("Specifications")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("specifications");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("status");
 
                     b.Property<string>("StorageInstructions")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("storage_instructions");
 
                     b.Property<string>("TechnicalDocuments")
-                        .HasColumnType("json")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("technical_documents");
 
                     b.Property<string>("TwitterCard")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasDefaultValue("summary_large_image")
                         .HasColumnName("twitter_card");
 
                     b.Property<string>("TwitterDescription")
                         .HasMaxLength(300)
-                        .HasColumnType("character varying(300)")
+                        .HasColumnType("nvarchar(300)")
                         .HasColumnName("twitter_description");
 
                     b.Property<string>("TwitterImage")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("twitter_image");
 
                     b.Property<string>("TwitterTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("twitter_title");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("Usage")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("usage");
 
                     b.Property<int>("ViewCount")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("view_count");
 
@@ -1375,65 +1358,65 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AltText")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("alt_text");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("image_url");
 
                     b.Property<bool>("IsMain")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(false)
                         .HasColumnName("is_main");
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("order_index");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("product_id");
 
                     b.Property<string>("ThumbnailUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("thumbnail_url");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("title");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -1454,36 +1437,36 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("product_id");
 
                     b.Property<int>("TagId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("tag_id");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -1505,73 +1488,82 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Color")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("color");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("created_by");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)")
+                        .HasColumnType("nvarchar(2048)")
                         .HasColumnName("image_url");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("name");
 
                     b.Property<string>("Packaging")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("packaging");
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal")
                         .HasColumnName("price");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasColumnName("product_id");
 
                     b.Property<string>("Size")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("size");
 
                     b.Property<string>("Sku")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("sku");
 
                     b.Property<int>("StockQuantity")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("stock_quantity");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.HasKey("Id");
 
@@ -1592,58 +1584,66 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("category");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at")
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("created_by");
 
                     b.Property<string>("DefaultValue")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("default_value");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
+                        .HasColumnType("nvarchar(500)")
                         .HasColumnName("description");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("key");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("updated_by");
 
                     b.Property<string>("Value")
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("value");
 
                     b.HasKey("Id");
@@ -1668,7 +1668,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 1,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(220),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8058),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên website hiển thị trên trang và tiêu đề trình duyệt.",
                             IsActive = true,
@@ -1680,7 +1680,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 2,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(229),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8066),
                             DefaultValue = "https://localhost:7001",
                             Description = "Địa chỉ URL chính của website (ví dụ: https://www.example.com).",
                             IsActive = true,
@@ -1692,7 +1692,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 3,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(233),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8067),
                             DefaultValue = "sondaiminh@gmail.com",
                             Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống.",
                             IsActive = true,
@@ -1704,7 +1704,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 5,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(235),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8069),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên công ty hoặc tổ chức sở hữu website.",
                             IsActive = true,
@@ -1716,7 +1716,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 6,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(238),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8070),
                             DefaultValue = "123 Main Street, Anytown, CA 91234",
                             Description = "Địa chỉ liên hệ đầy đủ.",
                             IsActive = true,
@@ -1728,7 +1728,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 7,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(239),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8071),
                             DefaultValue = "(123) 456-7890",
                             Description = "Số điện thoại liên hệ chính.",
                             IsActive = true,
@@ -1740,7 +1740,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 8,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(241),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8072),
                             DefaultValue = "contact@example.com",
                             Description = "Địa chỉ email hiển thị công khai để liên hệ.",
                             IsActive = true,
@@ -1752,7 +1752,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 9,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(242),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8073),
                             Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).",
                             IsActive = true,
                             Key = "ContactMapEmbed",
@@ -1762,7 +1762,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 10,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(244),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8075),
                             DefaultValue = "Welcome to My Application",
                             Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
                             IsActive = true,
@@ -1774,7 +1774,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 11,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(246),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8077),
                             DefaultValue = "This is the default description for My Application.",
                             Description = "Mô tả meta mặc định (dưới 160 ký tự).",
                             IsActive = true,
@@ -1786,7 +1786,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 12,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(247),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8079),
                             DefaultValue = "/image/icon.jpg",
                             Description = "Đường dẫn đến file favicon.ico hoặc ảnh favicon.",
                             IsActive = true,
@@ -1798,7 +1798,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 13,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(249),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8080),
                             Description = "URL trang Facebook.",
                             IsActive = true,
                             Key = "SocialFacebookUrl",
@@ -1808,7 +1808,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 14,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(250),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8081),
                             Description = "URL trang Twitter (X).",
                             IsActive = true,
                             Key = "SocialTwitterUrl",
@@ -1818,7 +1818,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 15,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(252),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8082),
                             Description = "URL trang Instagram.",
                             IsActive = true,
                             Key = "SocialInstagramUrl",
@@ -1828,7 +1828,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 16,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(254),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8083),
                             Description = "URL trang LinkedIn.",
                             IsActive = true,
                             Key = "SocialLinkedInUrl",
@@ -1838,7 +1838,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 17,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(255),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8085),
                             Description = "URL kênh Youtube.",
                             IsActive = true,
                             Key = "SocialYoutubeUrl",
@@ -1848,7 +1848,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 18,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(257),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8086),
                             DefaultValue = "smtp.example.com",
                             Description = "Địa chỉ máy chủ SMTP.",
                             IsActive = true,
@@ -1860,7 +1860,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 19,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(258),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8087),
                             DefaultValue = "587",
                             Description = "Cổng SMTP (ví dụ: 587, 465, 25).",
                             IsActive = true,
@@ -1872,7 +1872,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 20,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(260),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8088),
                             DefaultValue = "user@example.com",
                             Description = "Tên đăng nhập SMTP.",
                             IsActive = true,
@@ -1884,7 +1884,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 21,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(261),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8089),
                             Description = "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.",
                             IsActive = true,
                             Key = "SmtpPassword",
@@ -1894,7 +1894,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 22,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(263),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8091),
                             DefaultValue = "true",
                             Description = "Sử dụng mã hóa SSL/TLS khi gửi email.",
                             IsActive = true,
@@ -1906,7 +1906,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 23,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(265),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8092),
                             DefaultValue = "My Application Support",
                             Description = "Tên hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -1918,7 +1918,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 24,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 806, DateTimeKind.Utc).AddTicks(267),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8093),
                             DefaultValue = "noreply@example.com",
                             Description = "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -1932,52 +1932,52 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("description");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("name");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("slug");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("type");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -1996,72 +1996,72 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClientAvatar")
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("client_avatar");
 
                     b.Property<string>("ClientCompany")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("client_company");
 
                     b.Property<string>("ClientName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("client_name");
 
                     b.Property<string>("ClientTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("client_title");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("content");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("order_index");
 
                     b.Property<int>("Rating")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
+                        .HasColumnType("int")
                         .HasDefaultValue(5)
                         .HasColumnName("rating");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
@@ -2082,56 +2082,56 @@ namespace infrastructure.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("int");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("created_at")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasDefaultValueSql("GETUTCDATE()");
 
                     b.Property<string>("CreatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("created_by");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("character varying(255)")
+                        .HasColumnType("nvarchar(255)")
                         .HasColumnName("email");
 
                     b.Property<string>("FullName")
                         .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
+                        .HasColumnType("nvarchar(100)")
                         .HasColumnName("full_name");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
+                        .HasColumnType("bit")
                         .HasDefaultValue(true)
                         .HasColumnName("is_active");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("text")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("password_hash");
 
                     b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
+                        .HasColumnType("datetime2")
                         .HasColumnName("updated_at");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("updated_by");
 
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
+                        .HasColumnType("nvarchar(50)")
                         .HasColumnName("username");
 
                     b.HasKey("Id");
@@ -2148,11 +2148,11 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 4, 20, 16, 15, 46, 808, DateTimeKind.Utc).AddTicks(3734),
+                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 8, DateTimeKind.Utc).AddTicks(3520),
                             Email = "admin@admin.com",
                             FullName = "Quản trị viên",
                             IsActive = true,
-                            PasswordHash = "AQAAAAIAAYagAAAAEEU0ahmFyarn4e1nycB+Uj7e5jaL905jDRlqF825e+PkF3CmT9VlYXbJTwc3tPNr6A==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEB7Al9vXqnmle/9WvVuHhQFguAz5j5e9cbb2H2QK3DAOc6f59KmrLIQzPkc/gpTxww==",
                             Username = "admin"
                         });
                 });
