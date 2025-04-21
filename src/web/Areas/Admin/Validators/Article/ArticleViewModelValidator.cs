@@ -1,9 +1,9 @@
 using FluentValidation;
 using infrastructure;
-using web.Areas.Admin.ViewModels.Article;
 using Microsoft.EntityFrameworkCore;
-using web.Areas.Admin.Validators.Shared;
 using shared.Enums;
+using web.Areas.Admin.Validators.Shared;
+using web.Areas.Admin.ViewModels.Article;
 
 namespace web.Areas.Admin.Validators.Article;
 

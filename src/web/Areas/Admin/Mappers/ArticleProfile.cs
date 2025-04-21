@@ -66,7 +66,8 @@ public class ArticleProfile : Profile
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()) // Set by DB/framework
             .ForMember(dest => dest.AuthorId, opt => opt.Ignore()) // Assuming AuthorId is tied to current user, not set from ViewModel
                                                                    // Map nested SeoViewModel onto Article using the specific map defined above
-            .AfterMap((src, dest, context) => {
+            .AfterMap((src, dest, context) =>
+            {
                 context.Mapper.Map(src.Seo, dest);
             });
     }

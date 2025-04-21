@@ -1,7 +1,5 @@
-using domain.Entities;
 using FluentValidation;
 using infrastructure;
-using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Media;
 
 namespace web.Areas.Admin.Validators.Media;
@@ -9,27 +7,29 @@ namespace web.Areas.Admin.Validators.Media;
 public class MediaFolderViewModelValidator : AbstractValidator<MediaFolderViewModel>
 {
     private readonly ApplicationDbContext _context;
+
     public MediaFolderViewModelValidator(ApplicationDbContext context)
     {
-        _context = context;
+        _context = context ?? throw new ArgumentNullException(nameof(context));
 
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Vui lòng nhập tên thư mục.")
-            .MaximumLength(100).WithMessage("Tên thư mục không được vượt quá 100 ký tự.")
-            .Matches(@"^[a-zA-Z0-9_~\-.\s]+$").WithMessage("Tên thư mục chứa ký tự không hợp lệ.");
+            .NotEmpty().WithMessage("Tên thư mục không được để trống.")
+            .MaximumLength(100).WithMessage("Tên thư mục không được vượt quá {MaxLength} ký tự.")
+            .Must((viewModel, name) =>
+            {
+                var exists = _context.MediaFolders
+                                       .Any(f => f.ParentId == viewModel.ParentId && f.Name == name && f.Id != viewModel.Id);
+                return !exists;
+            }).WithMessage("Tên thư mục đã tồn tại trong thư mục hiện tại.");
 
-        RuleFor(x => x.Description)
-            .MaximumLength(255).WithMessage("Mô tả không được vượt quá 255 ký tự.");
+        RuleFor(x => x.ParentId)
+            .Must((parentId) =>
+            {
+                if (!parentId.HasValue) return true;
+                return _context.MediaFolders.Any(f => f.Id == parentId.Value);
+            }).WithMessage("Thư mục cha không tồn tại.");
 
-        RuleFor(x => x)
-            .Must(folder => !FolderNameExistsSync(folder))
-            .WithMessage("Tên thư mục đã tồn tại trong thư mục cha này.")
-            .WithName(nameof(MediaFolderViewModel.Name));
-    }
-
-    private bool FolderNameExistsSync(MediaFolderViewModel folder)
-    {
-        return _context.Set<MediaFolder>()
-             .Any(f => f.ParentId == folder.ParentId && f.Name == folder.Name && f.Id != folder.Id);
+        RuleFor(x => x.ParentId)
+           .NotEqual(x => x.Id).When(x => x.ParentId.HasValue && x.Id > 0).WithMessage("Thư mục cha không thể là chính nó.");
     }
 }

@@ -5,9 +5,9 @@ using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
+using Minio;
 using Serilog;
 using Serilog.Events;
-using shared.Helpers;
 using web.Areas.Admin.Services;
 using web.Areas.Admin.Validators.User;
 
@@ -53,7 +53,8 @@ try
     builder.Services.AddHttpContextAccessor();
     builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
     builder.Services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-    builder.Services.AddScoped<IMinioStorageService, MinioStorageService>();
+    builder.Services.AddScoped<IMinioService, MinioService>();
+    builder.Services.AddScoped<IMediaService, MediaService>();
 
     builder.Services.AddAuthentication()
         .AddCookie("DaiMinhCookies", options =>
@@ -69,15 +70,18 @@ try
             options.AccessDeniedPath = "/Error/Forbidden";
         });
 
+    var minioEndpoint = builder.Configuration["Minio:Endpoint"];
+    var minioAccessKey = builder.Configuration["Minio:AccessKey"];
+    var minioSecretKey = builder.Configuration["Minio:SecretKey"];
+
+    builder.Services.AddMinio(configureClient => configureClient
+        .WithEndpoint(minioEndpoint)
+        .WithCredentials(minioAccessKey, minioSecretKey)
+        .WithSSL(true)
+        .WithHttpClient(new HttpClient())
+    );
 
     var app = builder.Build();
-    MediaUrlHelper.Initialize(app.Configuration);
-
-    using (var scope = app.Services.CreateScope())
-    {
-        var minioService = scope.ServiceProvider.GetRequiredService<IMinioStorageService>();
-        await minioService.EnsureBucketExistsAsync();
-    }
 
     app.UseSerilogRequestLogging();
 

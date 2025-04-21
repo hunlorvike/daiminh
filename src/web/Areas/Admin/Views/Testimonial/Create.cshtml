@@ -40,57 +40,26 @@
 				height: 150,
 			});
 
-			function setupImageSelection(selectBtnId, removeBtnId, previewId, inputId, storeFullPath = false, defaultImgSrc = '/img/placeholder.svg') {
-				const selectBtn = $(`#${selectBtnId}`);
-				const removeBtn = $(`#${removeBtnId}`);
-				const preview = $(`#${previewId}`);
-				const input = $(`#${inputId}`);
+			  $('.select-media-button').on('click', function() {
+				  const $button = $(this);
+				  const $targetInput = $button.closest('.input-group').find('input[type="text"], input[type="url"]');
 
-				function handleSelection(selectedFile) {
-					if (selectedFile && selectedFile.url) {
-						preview.attr('src', selectedFile.url).show();
-						input.val(storeFullPath ? selectedFile.url : selectedFile.path).trigger('change');
-						removeBtn.removeClass('d-none');
-					} else {
-						console.warn("Selected file object is missing 'url' or 'path'.", selectedFile);
-						preview.attr('src', defaultImgSrc).show();
-						input.val('').trigger('change');
-						removeBtn.addClass('d-none');
-					}
-				}
+				   const callback = function(selectedFile) {
+					   if ($targetInput.attr('id') === 'ClientAvatar') {
+						   $('#client-avatar-image-preview').html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
+					   }				   
+				   };
 
-				selectBtn.on('click', function() {
-					if (typeof window.openMediaSelectionModal === 'function') {
-						window.openMediaSelectionModal(handleSelection, 'Image');
-					} else {
-						console.error('window.openMediaSelectionModal function is not defined.');
-						alert('Lỗi: Chức năng chọn media chưa sẵn sàng.');
-					}
-				});
+				  openMediaModal($targetInput, callback);
+			 });
 
-				removeBtn.on('click', function() {
-					preview.attr('src', defaultImgSrc).show();
-					input.val('').trigger('change');
-					$(this).addClass('d-none');
-				});
-
-				if (input.val() === '') {
-					preview.attr('src', defaultImgSrc).show();
-					removeBtn.addClass('d-none');
-				} else {
-					 preview.show();
-					 removeBtn.removeClass('d-none');
-				}
-			}
-
-			// --- Thiết lập cho Ảnh đại diện (ClientAvatar - Lưu Path) ---
-			setupImageSelection(
-				'selectImageBtn',
-				'removeImageBtn',
-				'imagePreview',
-				'imagePathInput',
-				false
-			);
+			  $('#ClientAvatar').on('input change', function() {
+				   const $input = $(this);
+				   const $preview = $input.closest('.form-group').find('.mt-2');
+				   if ($input.val() === '') {
+					   $preview.empty();
+				   }
+			  });
 		});
 	</script>
 }

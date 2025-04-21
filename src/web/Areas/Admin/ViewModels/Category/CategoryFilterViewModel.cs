@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.ViewModels.Category;
 

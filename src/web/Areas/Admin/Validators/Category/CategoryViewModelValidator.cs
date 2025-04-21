@@ -1,10 +1,8 @@
 using FluentValidation;
 using infrastructure;
-using web.Areas.Admin.ViewModels.Category;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.Validators.Shared;
-using shared.Enums;
-using System.Linq;
+using web.Areas.Admin.ViewModels.Category;
 
 namespace web.Areas.Admin.Validators.Category;
 

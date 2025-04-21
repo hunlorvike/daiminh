@@ -10,8 +10,8 @@ public class MediaFolder : BaseEntity<int>
     public string Description { get; set; } = string.Empty;
     public int? ParentId { get; set; }
     public virtual MediaFolder? Parent { get; set; }
-    public virtual required ICollection<MediaFolder> Children { get; set; }
-    public virtual required ICollection<MediaFile> Files { get; set; }
+    public virtual ICollection<MediaFolder>? Children { get; set; }
+    public virtual ICollection<MediaFile>? Files { get; set; }
 }
 
 public class MediaFolderConfiguration : BaseEntityConfiguration<MediaFolder, int>

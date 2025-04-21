@@ -64,7 +64,7 @@ public class CategoryController : Controller
         }
 
         query = query.OrderBy(c => c.Type)
-                     .ThenBy(c => c.ParentId == null ? 0 : 1) 
+                     .ThenBy(c => c.ParentId == null ? 0 : 1)
                      .ThenBy(c => c.ParentId)
                      .ThenBy(c => c.OrderIndex)
                      .ThenBy(c => c.Name);
@@ -116,7 +116,7 @@ public class CategoryController : Controller
         CategoryViewModel viewModel = new()
         {
             IsActive = true,
-            Type = type, 
+            Type = type,
             OrderIndex = 0,
             Seo = new ViewModels.Shared.SeoViewModel
             {
@@ -248,7 +248,7 @@ public class CategoryController : Controller
             viewModel.ParentCategories = await LoadParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId, viewModel.Id);
             viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
         }
-        
+
         return View(viewModel);
     }
 
@@ -260,9 +260,9 @@ public class CategoryController : Controller
     {
         Category? category = await _context.Set<Category>()
                                            .Include(c => c.Children)
-                                           .Include(c => c.Products) 
-                                           .Include(c => c.Articles) 
-                                           .Include(c => c.FAQs)     
+                                           .Include(c => c.Products)
+                                           .Include(c => c.Articles)
+                                           .Include(c => c.FAQs)
                                            .FirstOrDefaultAsync(c => c.Id == id);
 
         if (category == null)
@@ -304,7 +304,7 @@ public class CategoryController : Controller
             _logger.LogInformation("Category deleted successfully: {Name} (ID: {Id})", categoryName, id);
             return Json(new { success = true, message = $"Xóa danh mục '{categoryName}' thành công." });
         }
-        catch (DbUpdateException ex) 
+        catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Error deleting category (DbUpdateException): ID {Id}, Name: {Name}", id, category.Name);
             return Json(new { success = false, message = "Đã xảy ra lỗi cơ sở dữ liệu khi xóa danh mục. Có thể danh mục vẫn còn được liên kết." });

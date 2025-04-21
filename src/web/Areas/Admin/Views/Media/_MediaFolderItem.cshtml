@@ -1,0 +1,26 @@
+@using web.Areas.Admin.ViewModels.Media
+@model MediaFolderViewModel
+@{
+	bool isInModal = ViewData.ContainsKey("IsInModal") && (bool)ViewData["IsInModal"];
+}
+
+<div class="col media-folder-item" data-folder-id="@Model.Id">
+	<div class="card card-sm cursor-pointer media-folder-link">
+		<div class="card-body text-center">
+			<div class="img-responsive img-responsive-7x text-primary d-flex align-items-center justify-content-center">
+				<i class="ti ti-folder fs-1"></i>
+			</div>
+			<h3 class="card-title mb-1 text-truncate">@Model.Name</h3>
+			<p class="text-muted mb-0">@Model.FolderCount thư mục, @Model.FileCount tập tin</p>
+		</div>
+		@if (!isInModal)
+		{
+			<div class="card-footer text-center p-1">
+				<div class="btn-list flex-nowrap justify-content-center">
+					<button class="btn btn-sm btn-outline-secondary rename-folder-btn" data-id="@Model.Id" data-name="@Model.Name" title="Đổi tên"><i class="ti ti-edit"></i></button>
+					<button class="btn btn-sm btn-outline-danger delete-folder-btn" data-id="@Model.Id" data-name="@Model.Name" title="Xóa" data-delete-url="@Url.Action("DeleteFolder", "Media")"><i class="ti ti-trash"></i></button>
+				</div>
+			</div>
+		}
+	</div>
+</div>

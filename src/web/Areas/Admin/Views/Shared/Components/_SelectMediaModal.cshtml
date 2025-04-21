@@ -6,24 +6,25 @@
 				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 			</div>
 			<div class="modal-body">
-				<nav aria-label="breadcrumb" class="mb-2">
-					<ol class="breadcrumb breadcrumb-arrows" id="select-media-breadcrumbs">
-					</ol>
-				</nav>
-
-				<div id="select-media-grid-container">
-					<div class="text-center p-4" id="select-media-loading-indicator">
+				<div id="select-media-modal-body-content">
+					<div class="text-center p-5">
 						<div class="spinner-border text-primary" role="status"></div>
-					</div>
-					<div class="media-grid" id="select-media-grid" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));">
-					</div>
-					<div class="text-center p-4" id="select-media-empty-indicator" style="display: none;">
-						<p class="text-muted">Thư mục này trống.</p>
+						<p class="mt-2 text-muted">Đang tải...</p>
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
-				<button type="button" class="btn" data-bs-dismiss="modal">Đóng</button>
+				<div class="w-100 d-flex justify-content-between align-items-center">
+					<div id="modal-selected-file-info" style="display: none;">
+						Đã chọn: <strong id="selected-file-name"></strong>
+					</div>
+					<div>
+						<button type="button" class="btn" data-bs-dismiss="modal">Đóng</button>
+						<button type="button" class="btn btn-primary ms-2" id="modal-select-file-btn" disabled>
+							Chọn
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

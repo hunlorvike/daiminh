@@ -10,7 +10,7 @@ public class ProductVariant : BaseEntity<int>
     public string Name { get; set; } = string.Empty;
     public string Sku { get; set; } = string.Empty;
     public decimal Price { get; set; }
-    public int StockQuantity { get; set; } = 0; 
+    public int StockQuantity { get; set; } = 0;
     public string? Color { get; set; }
     public string? Size { get; set; }
     public string? Packaging { get; set; }

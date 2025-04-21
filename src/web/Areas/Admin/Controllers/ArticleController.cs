@@ -1,5 +1,7 @@
 // web.Areas.Admin.Controllers/ArticleController.cs
+using System.Security.Claims;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using domain.Entities;
 using FluentValidation;
 using infrastructure;
@@ -10,12 +12,8 @@ using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
 using web.Areas.Admin.ViewModels.Article;
-using web.Areas.Admin.ViewModels.Shared; // For SeoViewModel
-using X.PagedList;
-using X.PagedList.Extensions;
-using System.Security.Claims;
-using AutoMapper.QueryableExtensions;
 using X.PagedList.EF; // For AuthorId
+using X.PagedList.Extensions;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -140,7 +138,7 @@ public class ArticleController : Controller
             }
 
             // Handle many-to-many relationships (Tags, Products)
-            await UpdateArticleRelationshipsAsync(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
+            UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
 
             _context.Add(article);
 
@@ -236,7 +234,7 @@ public class ArticleController : Controller
             _mapper.Map(viewModel, article);
 
             // Handle many-to-many relationships (Tags, Products)
-            await UpdateArticleRelationshipsAsync(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
+            UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
 
 
             try
@@ -420,7 +418,7 @@ public class ArticleController : Controller
     }
 
     // Helper to update ArticleTag and ArticleProduct relationships
-    private async Task UpdateArticleRelationshipsAsync(Article article, List<int>? selectedTagIds, List<int>? selectedProductIds)
+    private void UpdateArticleRelationships(Article article, List<int>? selectedTagIds, List<int>? selectedProductIds)
     {
         // Update Tags
         var existingTagIds = article.ArticleTags?.Select(at => at.TagId).ToList() ?? new List<int>();

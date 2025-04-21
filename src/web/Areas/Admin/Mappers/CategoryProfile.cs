@@ -55,7 +55,8 @@ public class CategoryProfile : Profile
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             // Map nested SeoViewModel onto Category using the specific map defined above
-            .AfterMap((src, dest, context) => {
+            .AfterMap((src, dest, context) =>
+            {
                 context.Mapper.Map(src.Seo, dest);
             });
     }

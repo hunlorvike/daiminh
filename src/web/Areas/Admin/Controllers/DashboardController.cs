@@ -1,15 +1,12 @@
 // File: web/Areas/Admin/Controllers/DashboardController.cs
+using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using web.Areas.Admin.ViewModels.Dashboard;
-using System.Threading.Tasks;
-using domain.Entities;
-using System.Linq; // Cần cho LINQ
 using shared.Extensions; // Cần cho GetDisplayName
-using System; // Cần cho DateTime
+using web.Areas.Admin.ViewModels.Dashboard;
 using static web.Areas.Admin.ViewModels.Dashboard.DashboardViewModel; // Để dùng ChartData, ChartSeries
 
 namespace web.Areas.Admin.Controllers;
