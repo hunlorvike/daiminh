@@ -1,6 +1,8 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,16 +23,20 @@ public partial class TagController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<TagController> _logger;
+    private readonly IValidator<TagViewModel> _validator;
 
     public TagController(
         ApplicationDbContext context,
         IMapper mapper,
-        ILogger<TagController> logger)
+        ILogger<TagController> logger,
+        IValidator<TagViewModel> validator)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
+
 
     // GET: Admin/Tag
     public async Task<IActionResult> Index(TagFilterViewModel filter, int page = 1, int pageSize = 10)
@@ -74,12 +80,11 @@ public partial class TagController : Controller
     }
 
     // GET: Admin/Tag/Create
-    public IActionResult Create(TagType type = TagType.Product)
+    public IActionResult Create()
     {
         TagViewModel viewModel = new()
         {
-            Type = type,
-            TagTypes = GetTagTypesSelectList(type)
+            TagTypes = GetTagTypesSelectList()
         };
 
         return View(viewModel);
@@ -90,25 +95,31 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TagViewModel viewModel)
     {
-        if (!ModelState.IsValid)
+        var validationResult = await _validator.ValidateAsync(viewModel);
+        if (!validationResult.IsValid)
         {
-            return View(viewModel);
+            validationResult.AddToModelState(ModelState);
         }
 
-        Tag tag = _mapper.Map<Tag>(viewModel);
-
-        _context.Add(tag);
-
-        try
+        if (ModelState.IsValid)
         {
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { type = tag.Type });
-        }
-        catch (Exception)
-        {
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi tạo thẻ.");
+            Tag tag = _mapper.Map<Tag>(viewModel);
+
+            _context.Add(tag);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error creating tag: {Name}", viewModel.Name);
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu thẻ.");
+            }
         }
 
+        viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
         return View(viewModel);
     }
 
@@ -124,7 +135,7 @@ public partial class TagController : Controller
         }
 
         TagViewModel viewModel = _mapper.Map<TagViewModel>(tag);
-
+        viewModel.TagTypes = GetTagTypesSelectList(tag.Type);
         return View(viewModel);
     }
 
@@ -133,34 +144,41 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TagViewModel viewModel)
     {
-        if (id != viewModel.Id)
+        if (ModelState.IsValid)
         {
-            return BadRequest();
+            var validationResult = await _validator.ValidateAsync(viewModel);
+            if (!validationResult.IsValid)
+            {
+                validationResult.AddToModelState(ModelState);
+            }
         }
 
-        if (!ModelState.IsValid)
+        if (ModelState.IsValid)
         {
-            return View(viewModel);
-        }
+            if (id != viewModel.Id)
+            {
+                return BadRequest();
+            }
 
-        Tag? tag = await _context.Set<Tag>().FindAsync(id);
-        if (tag == null)
-        {
-            return RedirectToAction(nameof(Index), new { type = viewModel.Type });
-        }
+            Tag? tag = await _context.Set<Tag>().FirstOrDefaultAsync(t => t.Id == id);
+            if (tag == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
 
-        _mapper.Map(viewModel, tag);
-        _context.Entry(tag).State = EntityState.Modified;
+            _mapper.Map(viewModel, tag);
 
-        try
-        {
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { type = tag.Type });
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thẻ.");
+            }
         }
-        catch (Exception)
-        {
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thẻ.");
-        }
+        viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
 
         return View(viewModel);
     }
@@ -213,7 +231,7 @@ public partial class TagController : Controller
 
 public partial class TagController
 {
-    private List<SelectListItem> GetTagTypesSelectList(TagType? selectedType)
+    private List<SelectListItem> GetTagTypesSelectList(TagType? selectedType = null)
     {
         List<SelectListItem> tagTypes = Enum.GetValues(typeof(TagType))
             .Cast<TagType>()

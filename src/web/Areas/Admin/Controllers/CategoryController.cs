@@ -16,7 +16,7 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize]
-public class CategoryController : Controller
+public partial class CategoryController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
@@ -88,27 +88,6 @@ public class CategoryController : Controller
 
         return View(viewModel);
     }
-
-    // Helper to calculate simple hierarchy level (assumes ParentName is populated)
-    private void CalculateHierarchyLevels(List<CategoryListItemViewModel> categories)
-    {
-        var categoryDict = categories.ToDictionary(c => c.Id);
-        foreach (var category in categories)
-        {
-            int level = 0;
-            int? currentParentId = category.ParentId;
-            while (currentParentId.HasValue && categoryDict.ContainsKey(currentParentId.Value))
-            {
-                level++;
-                currentParentId = categoryDict[currentParentId.Value].ParentId;
-                if (level > 10) break;
-            }
-            category.Level = level;
-        }
-        // Re-sort based on level perhaps, or rely on initial DB sort
-        // categories = categories.OrderBy(c => c.Level).ThenBy(c => c.OrderIndex).ThenBy(c => c.Name).ToList(); // Optional re-sort
-    }
-
 
     // GET: Admin/Category/Create
     public async Task<IActionResult> Create(CategoryType type = CategoryType.Product)
@@ -316,8 +295,26 @@ public class CategoryController : Controller
         }
     }
 
+}
 
-    // --- Helper Methods ---
+public partial class CategoryController
+{
+    private void CalculateHierarchyLevels(List<CategoryListItemViewModel> categories)
+    {
+        var categoryDict = categories.ToDictionary(c => c.Id);
+        foreach (var category in categories)
+        {
+            int level = 0;
+            int? currentParentId = category.ParentId;
+            while (currentParentId.HasValue && categoryDict.ContainsKey(currentParentId.Value))
+            {
+                level++;
+                currentParentId = categoryDict[currentParentId.Value].ParentId;
+                if (level > 10) break;
+            }
+            category.Level = level;
+        }
+    }
 
     private async Task<List<SelectListItem>> LoadParentCategorySelectListAsync(CategoryType categoryType, int? selectedValue = null, int? excludeCategoryId = null)
     {

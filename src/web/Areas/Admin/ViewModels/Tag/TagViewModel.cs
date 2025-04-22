@@ -26,7 +26,7 @@ public class TagViewModel
     public string? Description { get; set; }
 
     [Display(Name = "Loại thẻ")]
-    public TagType Type { get; set; }
+    public TagType? Type { get; set; }
 
     public List<SelectListItem>? TagTypes { get; set; }
 

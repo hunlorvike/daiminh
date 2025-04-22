@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Brand;
 
@@ -35,6 +34,4 @@ public class BrandViewModel
 
     [Display(Name = "Kích hoạt")]
     public bool IsActive { get; set; } = true;
-
-    public SeoViewModel Seo { get; set; } = new();
 }

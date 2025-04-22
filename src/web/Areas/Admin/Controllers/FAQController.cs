@@ -91,22 +91,20 @@ public partial class FAQController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(FAQViewModel viewModel)
     {
-        if (!ModelState.IsValid)
+        if (ModelState.IsValid)
         {
-            return View(viewModel);
-        }
+            FAQ faq = _mapper.Map<FAQ>(viewModel);
+            _context.Add(faq);
 
-        FAQ faq = _mapper.Map<FAQ>(viewModel);
-        _context.Add(faq);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception)
-        {
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm FAQ.");
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm FAQ.");
+            }
         }
 
         return View(viewModel);
@@ -140,30 +138,29 @@ public partial class FAQController : Controller
             return BadRequest();
         }
 
-        if (!ModelState.IsValid)
+        if (ModelState.IsValid)
         {
-            return View(viewModel);
+            FAQ? faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == id);
+
+            if (faq == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
+
+            _mapper.Map(viewModel, faq);
+            _context.Entry(faq).State = EntityState.Modified;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật FAQ.");
+            }
         }
 
-        FAQ? faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == id);
-
-        if (faq == null)
-        {
-            return RedirectToAction(nameof(Index));
-        }
-
-        _mapper.Map(viewModel, faq);
-        _context.Entry(faq).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception)
-        {
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật FAQ.");
-        }
 
         return View(viewModel);
     }

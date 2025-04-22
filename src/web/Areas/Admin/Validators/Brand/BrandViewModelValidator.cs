@@ -1,7 +1,6 @@
 using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
-using web.Areas.Admin.Validators.Shared;
 using web.Areas.Admin.ViewModels.Brand;
 
 namespace web.Areas.Admin.Validators.Brand;
@@ -34,8 +33,6 @@ public class BrandViewModelValidator : AbstractValidator<BrandViewModel>
         RuleFor(x => x.Website)
             .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
             .Matches(@"^https?://.*$").When(x => !string.IsNullOrWhiteSpace(x.Website)).WithMessage("{PropertyName} phải là một URL hợp lệ bắt đầu bằng http hoặc https.");
-
-        RuleFor(x => x.Seo).SetValidator(new SeoViewModelValidator());
     }
 
     private bool BeUniqueSlug(BrandViewModel viewModel, string slug)

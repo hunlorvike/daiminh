@@ -56,6 +56,14 @@ const SummernoteManager = {
                     ['table', ['table']],
                     ['insert', ['link', 'picture']]
                 ]
+            },
+            callbacks: {
+                onBlur: function () {
+                    const $editor = $(this);
+                    if ($editor.summernote('isEmpty') || $editor.summernote('code') === '<p><br></p>') {
+                        $editor.summernote('code', '');
+                    }
+                }
             }
         };
     },

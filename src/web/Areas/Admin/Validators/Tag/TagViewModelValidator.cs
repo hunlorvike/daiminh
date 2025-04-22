@@ -24,6 +24,10 @@ public class TagViewModelValidator : AbstractValidator<TagViewModel>
 
         RuleFor(x => x.Description)
             .MaximumLength(255).WithMessage("Mô tả không được vượt quá 255 ký tự");
+
+        RuleFor(x => x.Type)
+            .NotEmpty().WithMessage("Vui lòng chọn loại thẻ")
+            .IsInEnum().WithMessage("Loại thẻ không hợp lệ");
     }
 
     private bool BeUniqueSlug(TagViewModel viewModel, string slug)

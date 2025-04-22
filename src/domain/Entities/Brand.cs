@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace domain.Entities;
 
-public class Brand : SeoEntity<int>
+public class Brand : BaseEntity<int>
 {
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
@@ -16,7 +16,7 @@ public class Brand : SeoEntity<int>
     public virtual ICollection<Product>? Products { get; set; }
 }
 
-public class BrandConfiguration : SeoEntityConfiguration<Brand, int>
+public class BrandConfiguration : BaseEntityConfiguration<Brand, int>
 {
     public override void Configure(EntityTypeBuilder<Brand> builder)
     {

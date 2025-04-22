@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Brand;
-using web.Areas.Admin.ViewModels.Shared;
 using X.PagedList;
 using X.PagedList.EF;
 
@@ -78,13 +77,6 @@ public partial class BrandController : Controller
         BrandViewModel viewModel = new()
         {
             IsActive = true,
-            Seo = new SeoViewModel
-            {
-                SitemapPriority = 0.5,
-                SitemapChangeFrequency = "monthly",
-                NoIndex = false,
-                NoFollow = false
-            }
         };
         return View(viewModel);
     }

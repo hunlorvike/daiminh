@@ -1,60 +1,56 @@
 @using web.Areas.Admin.ViewModels.Category
 @model CategoryViewModel
 @{
-	ViewData["Title"] = "Thêm Danh mục mới - Hệ thống quản trị";
-	ViewData["PageTitle"] = "Thêm Danh mục mới";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-			("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category"),
-			("Thêm mới", "")
-		};
+    ViewData["Title"] = "Thêm Danh mục mới - Hệ thống quản trị";
+    ViewData["PageTitle"] = "Thêm Danh mục mới";
+    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+            ("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category"),
+            ("Thêm mới", "")
+        };
 }
 
 <form asp-action="Create" method="post">
-	@Html.AntiForgeryToken()
-	<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
+    @Html.AntiForgeryToken()
+    <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
 
-	<div class="card">
-		<div class="card-header">
-			<h3 class="card-title">Thông tin Danh mục</h3>
-		</div>
-		<div class="card-body">
-			<partial name="_CategoryFormFields" model="Model" />
-		</div>
-	</div>
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Thông tin Danh mục</h3>
+        </div>
+        <div class="card-body">
+            <partial name="_CategoryFormFields" model="Model" />
+        </div>
+    </div>
 
-	<div class="card mt-4">
-		<div class="card-header">
-			<h3 class="card-title">Tối ưu SEO</h3>
-		</div>
-		<div class="card-body">
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">Tối ưu SEO</h3>
+        </div>
+        <div class="card-body">
             <partial name="Components/Crud/_SeoFormFields" model="Model.Seo" />
-		</div>
-		<div class="card-footer text-end bg-transparent border-top pt-3">
-			<a asp-action="Index" asp-route-type="@((int)Model.Type)" class="btn btn-link">Hủy</a>
-			<button type="submit" class="btn btn-primary ms-2">
-				<i class="ti ti-device-floppy me-2"></i> Lưu Danh mục
-			</button>
-		</div>
-	</div>
+        </div>
+        <div class="card-footer text-end bg-transparent border-top pt-3">
+            <a asp-action="Index" asp-route-type="@((int)Model.Type)" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary ms-2">
+                <i class="ti ti-device-floppy me-2"></i> Lưu Danh mục
+            </button>
+        </div>
+    </div>
 </form>
 
 @section Scripts {
-	<script src="~/js/slug.js" asp-append-version="true"></script>
-	<script>
-		$(document).ready(function() {
-				const tagNameInput = $('#Name');
-				const tagSlugInput = $('#Slug');
-				const generateSlugBtn = $('#generateSlugButton');
+    <script src="~/js/slug.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function() {
+            const slugManager = SlugManager.init({
+                nameInput: '#Name',
+                slugInput: '#Slug',
+                generateButton: '#generateSlugButton'
+            });
 
-				tagNameInput.on('input', function() {
-					if (tagSlugInput.val() === '') {
-						tagSlugInput.val(generateVietnameseSlug(tagNameInput.val()));
-					}
-				});
-
-				generateSlugBtn.on('click', function() {
-					tagSlugInput.val(generateVietnameseSlug(tagNameInput.val()));
-				});
-			});
-	</script>
+            if ($('#Name').val() && !$('#Slug').val()) {
+                    slugManager.generateSlug();
+            }
+        });
+    </script>
 }

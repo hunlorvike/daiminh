@@ -40,9 +40,18 @@
 </form>
 
 @section Scripts {
-	<script src="~/js/slug.js" asp-append-version="true"></script>
-	<script>
-		$(document).ready(function () {
-		});
-	</script>
+    <script src="~/js/slug.js" asp-append-version="true"></script>
+    <script>
+        $(document).ready(function() {
+            const slugManager = SlugManager.init({
+                nameInput: '#Name',
+                slugInput: '#Slug',
+                generateButton: '#generateSlugButton'
+            });
+
+            if ($('#Name').val() && !$('#Slug').val()) {
+                    slugManager.generateSlug();
+            }
+        });
+    </script>
 }
