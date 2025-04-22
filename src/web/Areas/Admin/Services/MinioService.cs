@@ -22,15 +22,32 @@ public class MinioService : IMinioService
 
     public async Task CreateBucketIfNotExistsAsync(string bucketName)
     {
-        var beArgs = new BucketExistsArgs().WithBucket(bucketName);
-        bool found = await _minioClient.BucketExistsAsync(beArgs).ConfigureAwait(false);
-        if (!found)
+        try
         {
-            var mbArgs = new MakeBucketArgs().WithBucket(bucketName);
-            await _minioClient.MakeBucketAsync(mbArgs).ConfigureAwait(false);
-            var policy = "{\"Version\":\"2012-10-17\",\"Statement\":[{\"Effect\":\"Allow\",\"Principal\":{\"AWS\":[\"*\"]},\"Action\":[\"s3:GetObject\",\"s3:ListBucket\"],\"Resource\":[\"arn:aws:s3:::" + bucketName + "/*\"]}]}";
-            var spArgs = new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy);
-            await _minioClient.SetPolicyAsync(spArgs).ConfigureAwait(false);
+            var beArgs = new BucketExistsArgs().WithBucket(bucketName);
+            bool found = await _minioClient.BucketExistsAsync(beArgs).ConfigureAwait(false);
+            if (!found)
+            {
+                var mbArgs = new MakeBucketArgs().WithBucket(bucketName);
+                await _minioClient.MakeBucketAsync(mbArgs).ConfigureAwait(false);
+
+                var policy = string.Format(
+                    "{{\"Version\":\"2012-10-17\",\"Statement\":[" +
+                    "{{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{0}/*\"]}}," +
+                    "{{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:ListBucket\"],\"Resource\":[\"arn:aws:s3:::{0}\"]}}" +
+                    "]}}",
+                    bucketName);
+                var spArgs = new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy);
+                await _minioClient.SetPolicyAsync(spArgs).ConfigureAwait(false);
+            }
+            else
+            {
+                Console.WriteLine($"Bucket {bucketName} already exists.");
+            }
+        }
+        catch (MinioException)
+        {
+            throw;
         }
     }
 

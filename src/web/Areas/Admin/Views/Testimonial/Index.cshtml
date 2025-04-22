@@ -1,6 +1,5 @@
 @using X.PagedList.Mvc.Core
 @using X.PagedList
-@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Testimonial
 @model TestimonialIndexViewModel
 @{
@@ -108,7 +107,7 @@
 									@if (!string.IsNullOrEmpty(item.ClientAvatar))
 									{
 										<span class="avatar avatar-md rounded"
-											  style="background-image: url(@MediaUrlHelper.GetMinioUrl(item.ClientAvatar, "/img/placeholder.svg"))"></span>
+                                              style="background-image: url('@item.ClientAvatar')"></span>
 									}
 									else
 									{

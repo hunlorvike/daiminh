@@ -11,19 +11,15 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 	<title>@ViewData["Title"]</title>
 	<partial name="__LibStyles" />
-
 	@await RenderSectionAsync("Styles", required: false)
 </head>
 <body data-bs-theme="@(isDark ? "dark" : null)">
 	<div class="page">
-		<!-- Sidebar -->
-		<partial name="Components/_Sidebar" />
+		<partial name="Components/Layout/_Sidebar" />
 
 		<div class="page-wrapper">
-			<!-- Navbar -->
-			<partial name="Components/_Header" />
+            <partial name="Components/Layout/_Header" />
 
-			<!-- Page header -->
 			<div class="page-header d-print-none">
 				<div class="container-xl">
 					<div class="row g-2 align-items-center">
@@ -38,24 +34,22 @@
 				</div>
 			</div>
 
-			<!-- Page body -->
 			<div class="page-body">
 				<div class="container-xl">
 					@RenderBody()
 				</div>
 			</div>
 
-			<partial name="Components/_DeleteModal" />
+			<partial name="Components/Crud/_DeleteModal" />
 
-			<!-- Footer -->
-			<partial name="Components/_Footer" />
+            <partial name="Components/Layout/_Footer" />
 		</div>
 	</div>
 
 	<!-- Toast notifications -->
 	<div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
 
-	<partial name="Components/_SelectMediaModal" />
+	<partial name="Components/Media/_Media.Modal" />
 
 	<partial name="__LibScripts" />
 

@@ -92,7 +92,3 @@
 #upload-progress-container {
     margin-top: 1rem;
 }
-
-.breadcrumb-item + .breadcrumb-item::before { /* Ensure breadcrumb separator shows */
-    content: var(--tblr-breadcrumb-divider, ">") !important; /* Use Tabler variable or default */
-}

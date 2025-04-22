@@ -941,10 +941,6 @@ namespace infrastructure.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("file_size");
 
-                    b.Property<int?>("FolderId")
-                        .HasColumnType("int")
-                        .HasColumnName("folder_id");
-
                     b.Property<int>("MediaType")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
@@ -975,60 +971,11 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FolderId");
+                    b.HasIndex("FilePath")
+                        .IsUnique()
+                        .HasDatabaseName("idx_media_files_file_path");
 
                     b.ToTable("media_files", (string)null);
-                });
-
-            modelBuilder.Entity("domain.Entities.MediaFolder", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETUTCDATE()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("description");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("name");
-
-                    b.Property<int?>("ParentId")
-                        .HasColumnType("int")
-                        .HasColumnName("parent_id");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentId");
-
-                    b.ToTable("media_folders", (string)null);
                 });
 
             modelBuilder.Entity("domain.Entities.Newsletter", b =>
@@ -1665,7 +1612,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 1,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8058),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8571),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên website hiển thị trên trang và tiêu đề trình duyệt.",
                             IsActive = true,
@@ -1677,7 +1624,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 2,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8066),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8577),
                             DefaultValue = "https://localhost:7001",
                             Description = "Địa chỉ URL chính của website (ví dụ: https://www.example.com).",
                             IsActive = true,
@@ -1689,7 +1636,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 3,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8067),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8579),
                             DefaultValue = "sondaiminh@gmail.com",
                             Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống.",
                             IsActive = true,
@@ -1701,7 +1648,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 5,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8069),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8580),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên công ty hoặc tổ chức sở hữu website.",
                             IsActive = true,
@@ -1713,7 +1660,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 6,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8070),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8582),
                             DefaultValue = "123 Main Street, Anytown, CA 91234",
                             Description = "Địa chỉ liên hệ đầy đủ.",
                             IsActive = true,
@@ -1725,7 +1672,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 7,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8071),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8583),
                             DefaultValue = "(123) 456-7890",
                             Description = "Số điện thoại liên hệ chính.",
                             IsActive = true,
@@ -1737,7 +1684,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 8,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8072),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8584),
                             DefaultValue = "contact@example.com",
                             Description = "Địa chỉ email hiển thị công khai để liên hệ.",
                             IsActive = true,
@@ -1749,7 +1696,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 9,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8073),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8586),
                             Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).",
                             IsActive = true,
                             Key = "ContactMapEmbed",
@@ -1759,7 +1706,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 10,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8075),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8587),
                             DefaultValue = "Welcome to My Application",
                             Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
                             IsActive = true,
@@ -1771,7 +1718,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 11,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8077),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8588),
                             DefaultValue = "This is the default description for My Application.",
                             Description = "Mô tả meta mặc định (dưới 160 ký tự).",
                             IsActive = true,
@@ -1783,7 +1730,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 12,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8079),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8589),
                             DefaultValue = "/image/icon.jpg",
                             Description = "Đường dẫn đến file favicon.ico hoặc ảnh favicon.",
                             IsActive = true,
@@ -1795,7 +1742,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 13,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8080),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8590),
                             Description = "URL trang Facebook.",
                             IsActive = true,
                             Key = "SocialFacebookUrl",
@@ -1805,7 +1752,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 14,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8081),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8591),
                             Description = "URL trang Twitter (X).",
                             IsActive = true,
                             Key = "SocialTwitterUrl",
@@ -1815,7 +1762,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 15,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8082),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8592),
                             Description = "URL trang Instagram.",
                             IsActive = true,
                             Key = "SocialInstagramUrl",
@@ -1825,7 +1772,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 16,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8083),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8594),
                             Description = "URL trang LinkedIn.",
                             IsActive = true,
                             Key = "SocialLinkedInUrl",
@@ -1835,7 +1782,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 17,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8085),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8595),
                             Description = "URL kênh Youtube.",
                             IsActive = true,
                             Key = "SocialYoutubeUrl",
@@ -1845,7 +1792,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 18,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8086),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8596),
                             DefaultValue = "smtp.example.com",
                             Description = "Địa chỉ máy chủ SMTP.",
                             IsActive = true,
@@ -1857,7 +1804,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 19,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8087),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8597),
                             DefaultValue = "587",
                             Description = "Cổng SMTP (ví dụ: 587, 465, 25).",
                             IsActive = true,
@@ -1869,7 +1816,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 20,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8088),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8598),
                             DefaultValue = "user@example.com",
                             Description = "Tên đăng nhập SMTP.",
                             IsActive = true,
@@ -1881,7 +1828,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 21,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8089),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8599),
                             Description = "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.",
                             IsActive = true,
                             Key = "SmtpPassword",
@@ -1891,7 +1838,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 22,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8091),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8600),
                             DefaultValue = "true",
                             Description = "Sử dụng mã hóa SSL/TLS khi gửi email.",
                             IsActive = true,
@@ -1903,7 +1850,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 23,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8092),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8602),
                             DefaultValue = "My Application Support",
                             Description = "Tên hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -1915,7 +1862,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 24,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 6, DateTimeKind.Utc).AddTicks(8093),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8603),
                             DefaultValue = "noreply@example.com",
                             Description = "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -2145,11 +2092,11 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 4, 21, 16, 39, 2, 8, DateTimeKind.Utc).AddTicks(3520),
+                            CreatedAt = new DateTime(2025, 4, 22, 3, 21, 52, 29, DateTimeKind.Utc).AddTicks(5668),
                             Email = "admin@admin.com",
                             FullName = "Quản trị viên",
                             IsActive = true,
-                            PasswordHash = "AQAAAAIAAYagAAAAEB7Al9vXqnmle/9WvVuHhQFguAz5j5e9cbb2H2QK3DAOc6f59KmrLIQzPkc/gpTxww==",
+                            PasswordHash = "AQAAAAIAAYagAAAAENue9AKlf7FyoGL44t1WYmfpOngiM2m/0V9PtdZz7dinW2lPKnXB62Wrz9EPYDxQkw==",
                             Username = "admin"
                         });
                 });
@@ -2220,26 +2167,6 @@ namespace infrastructure.Migrations
                         .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("domain.Entities.MediaFile", b =>
-                {
-                    b.HasOne("domain.Entities.MediaFolder", "MediaFolder")
-                        .WithMany("Files")
-                        .HasForeignKey("FolderId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("MediaFolder");
-                });
-
-            modelBuilder.Entity("domain.Entities.MediaFolder", b =>
-                {
-                    b.HasOne("domain.Entities.MediaFolder", "Parent")
-                        .WithMany("Children")
-                        .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>
@@ -2321,13 +2248,6 @@ namespace infrastructure.Migrations
                     b.Navigation("FAQs");
 
                     b.Navigation("Products");
-                });
-
-            modelBuilder.Entity("domain.Entities.MediaFolder", b =>
-                {
-                    b.Navigation("Children");
-
-                    b.Navigation("Files");
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>

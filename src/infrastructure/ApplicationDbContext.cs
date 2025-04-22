@@ -39,7 +39,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<Setting> Settings { get; set; }
 
     // Thêm vào ApplicationDbContext
-    public DbSet<MediaFolder> MediaFolders { get; set; }
     public DbSet<MediaFile> MediaFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

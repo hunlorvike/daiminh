@@ -68,20 +68,6 @@
       ]
     },
     {
-      "library": "@fortawesome/fontawesome-free@6.1.1",
-      "destination": "wwwroot/lib/font-awesome/",
-      "files": [
-        "css/all.min.css",
-        "js/all.min.js",
-        "webfonts/fa-brands-400.ttf",
-        "webfonts/fa-brands-400.woff2",
-        "webfonts/fa-regular-400.ttf",
-        "webfonts/fa-regular-400.woff2",
-        "webfonts/fa-solid-900.ttf",
-        "webfonts/fa-solid-900.woff2"
-      ]
-    },
-    {
       "library": "@tabler/icons-webfont@3.31.0",
       "destination": "wwwroot/lib/tabler/icon/"
     },

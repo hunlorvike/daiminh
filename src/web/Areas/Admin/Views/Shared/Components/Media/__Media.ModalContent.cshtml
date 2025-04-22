@@ -1,0 +1,62 @@
+@using web.Areas.Admin.ViewModels.Media
+@model SelectMediaModalViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions {
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken!;
+    }
+}
+
+<div id="media-browser-content"
+     data-anti-forgery-token="@GetAntiXsrfRequestToken()">
+
+    @* No folder list or folder creation *@
+
+    <div class="d-flex align-items-center mb-3 gap-2">
+        @* Filter by media type *@
+        <select id="modal-media-type-filter" class="form-select form-select-sm" asp-items="@Model.Filter.MediaTypeOptions"></select>
+
+        @* Upload Button / Dropzone Area Toggle *@
+        <button class="btn btn-sm btn-primary ms-auto" id="toggle-upload-area">
+            @* Adjusted btn size *@
+            <i class="ti ti-upload me-1"></i> Tải lên
+        </button>
+    </div>
+
+    @* Upload Area (initially hidden) *@
+    <div id="modal-upload-area" class="mb-3 border p-3 rounded bg-light" style="display: none;">
+        @* Dropzone will attach here *@
+        <div id="modal-dropzone" class="dropzone text-muted text-center p-4">
+            <div class="dz-message" data-dz-message><span>Kéo thả tập tin vào đây hoặc bấm để chọn</span></div>
+            <div class="dropzone-previews"></div> @* For Dropzone previews *@
+        </div>
+        <small class="form-hint mt-2">Hỗ trợ kéo thả hoặc bấm để chọn tập tin. Dung lượng tối đa 100MB.</small>
+    </div>
+
+
+    @* File Grid Container *@
+    <div id="media-browser-grid-container">
+        @* Loading Indicator *@
+        <div class="text-center p-4" id="media-browser-loading-indicator" style="display: none;">
+            <div class="spinner-border text-primary" role="status"></div>
+        </div>
+
+        @* File Grid *@
+        <div id="media-browser-files" class="media-grid" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 1rem;">
+            @if (Model.Files != null)
+            {
+                @foreach (var file in Model.Files)
+                {
+                    @* Corrected partial name *@
+                    <partial name="Components/Media/_Media.FileItem" model="file" view-data='new ViewDataDictionary(ViewData) { { "IsInModal", true } }' />
+                }
+            }
+        </div>
+
+        @* Empty State Indicator *@
+        <div class="text-center text-muted p-5" id="media-browser-empty-indicator" style="display: none;">
+            <p>Không có tập tin nào hoặc khớp với tiêu chí lọc.</p> @* Adjusted message *@
+        </div>
+    </div>
+</div>

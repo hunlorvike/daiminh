@@ -1,6 +1,17 @@
-$(document).ready(function () {
-    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[title]'))
-    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
-        return new bootstrap.Tooltip(tooltipTriggerEl)
-    })
+const TooltipManager = {
+    init: function () {
+        // Lấy tất cả các phần tử có thuộc tính title
+        const $tooltipTriggerList = $('[title]');
+
+        // Khởi tạo Bootstrap Tooltip cho từng phần tử
+        const tooltipList = $tooltipTriggerList.map(function () {
+            return new bootstrap.Tooltip(this);
+        }).get();
+
+        return tooltipList;
+    }
+};
+
+$(function () {
+    TooltipManager.init();
 });

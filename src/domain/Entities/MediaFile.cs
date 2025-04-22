@@ -17,8 +17,6 @@ public class MediaFile : BaseEntity<int>
     public string AltText { get; set; } = string.Empty;
     public int? Duration { get; set; }
     public MediaType MediaType { get; set; }
-    public int? FolderId { get; set; }
-    public virtual MediaFolder? MediaFolder { get; set; }
 }
 
 public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
@@ -45,11 +43,6 @@ public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
             .HasMaxLength(20)
             .HasDefaultValue(MediaType.Image);
 
-        // Foreign key
-        builder.Property(e => e.FolderId).HasColumnName("folder_id");
-        builder.HasOne(e => e.MediaFolder)
-            .WithMany(e => e!.Files)
-            .HasForeignKey(e => e.FolderId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.HasIndex(e => e.FilePath).HasDatabaseName("idx_media_files_file_path").IsUnique();
     }
 }

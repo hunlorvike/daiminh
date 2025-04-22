@@ -1,4 +1,3 @@
-@using shared.Helpers
 @using web.Areas.Admin.ViewModels.Product
 @model ProductViewModel
 @{
@@ -148,7 +147,7 @@
                     } else { toastr.warning(`Ảnh '${selectedFile.name}' đã có trong danh sách.`); } return;
                 }
                  // Add New
-                const displayUrl = `@(MediaUrlHelper.GetMinioUrl("__PATH__", "/img/placeholder.svg"))`.replace('__PATH__', imagePath);
+                const displayUrl = imagePath;
                 const newItemHtml = imageTemplate
                     .replace(/__INDEX__/g, imageNextIndex)
                     .replace(/__IMAGE_PATH__/g, imagePath)

@@ -1,6 +1,6 @@
-using System.ComponentModel.DataAnnotations;
 using shared.Enums;
 using shared.Extensions;
+using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.ViewModels.Media;
 
@@ -25,11 +25,8 @@ public class MediaFileViewModel
     public int? Duration { get; set; }
     public MediaType MediaType { get; set; }
     public string MediaTypeDisplayName => MediaType.GetDisplayName();
-    public int? FolderId { get; set; }
-    public string? FolderName { get; set; }
     public DateTime CreatedAt { get; set; }
     public string? PublicUrl { get; set; }
-
 
     private static string BytesToString(long byteCount)
     {

@@ -201,27 +201,6 @@
 			</div>
 		</a>
 	</div>
-	@* --- Thẻ Thư viện --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Media" asp-area="Admin">
-			@* Giả sử có MediaController *@
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-orange text-white avatar"> <i class="ti ti-photo fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							Thư viện
-						</div>
-						<div class="text-muted">
-							Quản lý hình ảnh, tệp tin
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
 	@* --- Thẻ Cấu hình --- *@
 	<div class="col-sm-6 col-lg-3">
 		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Setting" asp-area="Admin">
@@ -270,7 +249,7 @@
 		<div class="card h-100">
 			<div class="card-body">
 				<h3 class="card-title">Liên hệ (7 ngày qua)</h3>
-				<div id="chart-recent-contacts" style="min-height: 300px;"></div>
+                <div id="chart-recent-contacts" class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 300px;"></div>
 			</div>
 		</div>
 	</div>

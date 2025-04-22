@@ -1,40 +1,93 @@
-/**
- * 
- * @param {string} sourceString The string to be converted to a slug.   
- * @returns {string} The slugified string.  
- */
-function generateVietnameseSlug(sourceString) {
-    if (!sourceString) {
-        return '';
-    };
+const SlugManager = {
+    generateVietnameseSlug: function (sourceString) {
+        if (!sourceString) {
+            return '';
+        }
 
-    let slug = sourceString.toString(); // Ensure it's a string
+        let slug = sourceString.toString();
+        slug = slug.toLowerCase();
+        slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        slug = slug.replace(/đ/g, 'd');
+        slug = slug.replace(/\s+/g, '-');
+        slug = slug.replace(/[^\w-]+/g, '');
+        slug = slug.replace(/-{2,}/g, '-');
+        slug = slug.replace(/^-+/, '');
+        slug = slug.replace(/-+$/, '');
+        return slug;
+    },
 
-    // 1. Convert to lowercase  
-    slug = slug.toLowerCase();
+    init: function (options) {
+        const nameElement = typeof options.nameInput === 'string' ? $(options.nameInput) : $(options.nameInput);
+        const slugElement = typeof options.slugInput === 'string' ? $(options.slugInput) : $(options.slugInput);
+        const buttonElement = options.generateButton
+            ? (typeof options.generateButton === 'string' ? $(options.generateButton) : $(options.generateButton))
+            : null;
 
-    // 2. Normalize Unicode (NFD) and remove diacritics (accents)
-    // \u0300-\u036f is a range of combining diacritical marks in Unicode.
-    slug = slug.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        if (!nameElement.length || !slugElement.length) {
+            console.warn('SlugManager: nameInput and slugInput are required.');
+            return null;
+        }
 
-    // 3. Convert Vietnamese 'đ/Đ' to 'd' 
-    slug = slug.replace(/đ/g, 'd');
+        let userModifiedSlug = false;
 
-    // 4. Replace spaces and consecutive spaces with a single hyphen
-    slug = slug.replace(/\s+/g, '-');
+        const handleSlugInput = function () {
+            userModifiedSlug = true;
+        };
 
-    // 5. Remove all characters that are not letters, numbers, or hyphens
-    slug = slug.replace(/[^\w\-]+/g, '');
+        const handleNameInput = function () {
+            if (!userModifiedSlug) {
+                slugElement.val(SlugManager.generateVietnameseSlug(nameElement.val()));
+            }
+        };
 
-    // 6. Replace multiple consecutive hyphens with a single hyphen
-    slug = slug.replace(/\-\-+/g, '-');
+        const handleGenerateButton = function () {
+            userModifiedSlug = false;
+            slugElement.val(SlugManager.generateVietnameseSlug(nameElement.val()));
+        };
 
-    // 7. Trim hyphens from the start of the string
-    slug = slug.replace(/^-+/, '');
+        slugElement.on('input', handleSlugInput);
+        nameElement.on('input', handleNameInput);
+        if (buttonElement) {
+            buttonElement.on('click', handleGenerateButton);
+        }
 
-    // 8. Trim hyphens from the end of the string
-    slug = slug.replace(/-+$/, '');
+        return {
+            generateSlug: function () {
+                userModifiedSlug = false;
+                slugElement.val(SlugManager.generateVietnameseSlug(nameElement.val()));
+            },
+            reset: function () {
+                userModifiedSlug = false;
+                slugElement.val('');
+            },
+            destroy: function () {
+                slugElement.off('input', handleSlugInput);
+                nameElement.off('input', handleNameInput);
+                if (buttonElement) {
+                    buttonElement.off('click', handleGenerateButton);
+                }
+            }
+        };
+    }
+};
 
-    // 9. Return the slug
-    return slug;
-}
+// Usage in main script
+/*$(document).ready(function () {
+    // Example 1: Using IDs
+    const slugManager = SlugManager.init({
+        nameInput: '#Name',
+        slugInput: '#Slug',
+        generateButton: '#generateSlugButton'
+    });
+
+    // Example 2: Using DOM elements directly
+    const nameInput = $('#Name');
+    const slugInput = $('#Slug');
+    const generateButton = $('#generateSlugButton');
+    const slugManager = SlugManager.init({
+        nameInput: nameInput,
+        slugInput: slugInput,
+        generateButton: generateButton
+    });
+});
+*/

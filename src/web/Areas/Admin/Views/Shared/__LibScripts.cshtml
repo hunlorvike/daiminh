@@ -1,7 +1,7 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
-	var tokens = Antiforgery.GetAndStoreTokens(Context);
-	var antiForgeryTokenValue = tokens.RequestToken;
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+    var antiForgeryTokenValue = tokens.RequestToken;
 }
 
 <!-- Jquery Scripts -->
@@ -22,10 +22,9 @@
 <!-- Tom-select Scripts -->
 <script src="~/lib/tom-select/dist/js/tom-select.complete.min.js" asp-append-version="true"></script>
 
-<!-- Font awesome Scripts -->
-<script src="~/lib/font-awesome/js/all.min.js" asp-append-version="true"></script>
+<script src="~/lib/toastr/build/toastr.min.js" asp-append-version="true"></script>
 
-
+<!-- Dropzone Scripts -->
 <script src="https://unpkg.com/dropzone@5/dist/min/dropzone.min.js"></script>
 
 <!-- Daiminh modules -->
@@ -34,75 +33,77 @@
 <script src="~/js/tooltip.js" asp-append-version="true"></script>
 
 <script>
-	$(document).ready(function () {
-		let deleteUrl = '';
-		let itemIdToDelete = null;
-		let itemNameToDelete = '';
-		let rowToDelete = null;
+    $(document).ready(function () {
+        let deleteUrl = '';
+        let itemIdToDelete = null;
+        let itemNameToDelete = '';
+        let rowToDelete = null;
 
-		const deleteModal = new bootstrap.Modal(document.getElementById('delete-confirmation-modal'));
-		const confirmDeleteButton = document.getElementById('confirm-delete-button');
-		const deleteModalMessage = document.getElementById('delete-modal-message');
+        const deleteModal = new bootstrap.Modal(document.getElementById('delete-confirmation-modal'));
+        const confirmDeleteButton = document.getElementById('confirm-delete-button');
+        const deleteModalMessage = document.getElementById('delete-modal-message');
 
-		function addAntiForgeryToken(data) {
-			data = data || {};
-			data.__RequestVerificationToken = '@antiForgeryTokenValue';
-			return data;
-		}
+        function addAntiForgeryToken(data) {
+            data = data || {};
+            data.__RequestVerificationToken = '@antiForgeryTokenValue';
+            return data;
+        }
 
-		$('body').on('click', '.delete-item-btn', function () {
-			const button = $(this);
-			deleteUrl = button.data('delete-url');
-			itemIdToDelete = button.data('id');
-			itemNameToDelete = button.data('name');
+        $('body').on('click', '.delete-item-btn', function () {
+            const button = $(this);
+            deleteUrl = button.data('delete-url');
+            itemIdToDelete = button.data('id');
+            itemNameToDelete = button.data('name');
 
-			if (itemNameToDelete) {
-				$(deleteModalMessage).text(`Bạn có chắc chắn muốn xóa "${itemNameToDelete}" không? Hành động này không thể hoàn tác.`);
-			} else {
-				$(deleteModalMessage).text('Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.');
-			}
+            if (itemNameToDelete) {
+                $(deleteModalMessage).text(`Bạn có chắc chắn muốn xóa "${itemNameToDelete}" không? Hành động này không thể hoàn tác.`);
+            } else {
+                $(deleteModalMessage).text('Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.');
+            }
 
-			if (deleteUrl && itemIdToDelete !== null) {
-				deleteModal.show();
-			} else {
-				console.error("Delete button is missing data-delete-url or data-id attribute.");
-			}
-		});
+            if (deleteUrl && itemIdToDelete !== null) {
+                deleteModal.show();
+            } else {
+                console.error("Delete button is missing data-delete-url or data-id attribute.");
+            }
+        });
 
-		if (confirmDeleteButton) {
-			confirmDeleteButton.addEventListener('click', function () {
-				const button = $(this);
-				const originalButtonText = button.html();
-				button.prop('disabled', true).html('<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xóa...'); // Indicate loading
+        if (confirmDeleteButton) {
+            confirmDeleteButton.addEventListener('click', function () {
+                const button = $(this);
+                const originalButtonText = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xóa...'; // Indicate loading
 
-				$.ajax({
-					url: deleteUrl,
-					type: 'POST',
-					data: addAntiForgeryToken({ id: itemIdToDelete }),
-					dataType: 'json',
-					success: function (response) {
-						deleteModal.hide();
-						if (response.success) {
-							location.reload();
-						} else {
-							 console.error("Delete failed:", response.message);
-						}
-					},
-					error: function (xhr, status, error) {
-						deleteModal.hide();
-						console.error("AJAX Error:", status, error, xhr.responseText);
-					},
-					complete: function () {
-						button.prop('disabled', false).html(originalButtonText);
-						deleteUrl = '';
-						itemIdToDelete = null;
-						itemNameToDelete = '';
-						rowToDelete = null;
-					}
-				});
-			});
-		} else {
-			console.error("Confirm delete button (#confirm-delete-button) not found.");
-		}
-	});
+                $.ajax({
+                    url: deleteUrl,
+                    type: 'POST',
+                    data: addAntiForgeryToken({ id: itemIdToDelete }),
+                    dataType: 'json',
+                    success: function (response) {
+                        deleteModal.hide();
+                        if (response.success) {
+                            location.reload();
+                        } else {
+                            console.error("Delete failed:", response.message);
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        deleteModal.hide();
+                        console.error("AJAX Error:", status, error, xhr.responseText);
+                    },
+                    complete: function () {
+                        button.disabled = false;
+                        button.innerHTML = originalButtonText;
+                        deleteUrl = '';
+                        itemIdToDelete = null;
+                        itemNameToDelete = '';
+                        rowToDelete = null;
+                    }
+                });
+            });
+        } else {
+            console.error("Confirm delete button (#confirm-delete-button) not found.");
+        }
+    });
 </script>
