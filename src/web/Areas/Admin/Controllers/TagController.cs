@@ -2,7 +2,6 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,18 +22,15 @@ public partial class TagController : Controller
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<TagController> _logger;
-    private readonly IValidator<TagViewModel> _validator;
 
     public TagController(
         ApplicationDbContext context,
         IMapper mapper,
-        ILogger<TagController> logger,
-        IValidator<TagViewModel> validator)
+        ILogger<TagController> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _validator = validator ?? throw new ArgumentNullException(nameof(validator));
     }
 
 
@@ -95,12 +91,6 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TagViewModel viewModel)
     {
-        var validationResult = await _validator.ValidateAsync(viewModel);
-        if (!validationResult.IsValid)
-        {
-            validationResult.AddToModelState(ModelState);
-        }
-
         if (ModelState.IsValid)
         {
             Tag tag = _mapper.Map<Tag>(viewModel);
@@ -144,15 +134,6 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TagViewModel viewModel)
     {
-        if (ModelState.IsValid)
-        {
-            var validationResult = await _validator.ValidateAsync(viewModel);
-            if (!validationResult.IsValid)
-            {
-                validationResult.AddToModelState(ModelState);
-            }
-        }
-
         if (ModelState.IsValid)
         {
             if (id != viewModel.Id)

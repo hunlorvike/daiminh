@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class v1_init : Migration
+    public partial class version1 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -27,25 +27,7 @@ namespace infrastructure.Migrations
                     created_at = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
                     updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
                     created_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    updated_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    meta_title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    meta_description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    meta_keywords = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: true),
-                    canonical_url = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    no_index = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    no_follow = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    og_title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    og_description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    og_image = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    og_type = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, defaultValue: "website"),
-                    twitter_title = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                    twitter_description = table.Column<string>(type: "nvarchar(300)", maxLength: 300, nullable: true),
-                    twitter_image = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    twitter_card = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true, defaultValue: "summary_large_image"),
-                    schema_markup = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    breadcrumb_json = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    sitemap_priority = table.Column<double>(type: "float", nullable: true, defaultValue: 0.5),
-                    sitemap_change_frequency = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true, defaultValue: "monthly")
+                    updated_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -565,90 +547,90 @@ namespace infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "updated_at", "updated_by", "value" },
-                values: new object[] { 1, "General", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8571), null, "Đại Minh Việt Nam", "Tên website hiển thị trên trang và tiêu đề trình duyệt.", true, "SiteName", null, null, "Đại Minh Việt Nam" });
+                values: new object[] { 1, "General", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5364), null, "Đại Minh Việt Nam", "Tên website hiển thị trên trang và tiêu đề trình duyệt.", true, "SiteName", null, null, "Đại Minh Việt Nam" });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "type", "updated_at", "updated_by", "value" },
                 values: new object[,]
                 {
-                    { 2, "General", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8577), null, "https://localhost:7001", "Địa chỉ URL chính của website (ví dụ: https://www.example.com).", true, "SiteUrl", 7, null, null, "https://localhost:7001" },
-                    { 3, "General", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8579), null, "sondaiminh@gmail.com", "Địa chỉ email quản trị viên để nhận thông báo hệ thống.", true, "AdminEmail", 6, null, null, "sondaiminh@gmail.com" }
+                    { 2, "General", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5369), null, "https://localhost:7001", "Địa chỉ URL chính của website (ví dụ: https://www.example.com).", true, "SiteUrl", 7, null, null, "https://localhost:7001" },
+                    { 3, "General", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5371), null, "sondaiminh@gmail.com", "Địa chỉ email quản trị viên để nhận thông báo hệ thống.", true, "AdminEmail", 6, null, null, "sondaiminh@gmail.com" }
                 });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "updated_at", "updated_by", "value" },
-                values: new object[] { 5, "Contact", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8580), null, "Đại Minh Việt Nam", "Tên công ty hoặc tổ chức sở hữu website.", true, "CompanyName", null, null, "Đại Minh Việt Nam" });
+                values: new object[] { 5, "Contact", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5372), null, "Đại Minh Việt Nam", "Tên công ty hoặc tổ chức sở hữu website.", true, "CompanyName", null, null, "Đại Minh Việt Nam" });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "type", "updated_at", "updated_by", "value" },
                 values: new object[,]
                 {
-                    { 6, "Contact", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8582), null, "123 Main Street, Anytown, CA 91234", "Địa chỉ liên hệ đầy đủ.", true, "ContactAddress", 1, null, null, "123 Main Street, Anytown, CA 91234" },
-                    { 7, "Contact", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8583), null, "(123) 456-7890", "Số điện thoại liên hệ chính.", true, "ContactPhone", 4, null, null, "(123) 456-7890" },
-                    { 8, "Contact", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8584), null, "contact@example.com", "Địa chỉ email hiển thị công khai để liên hệ.", true, "ContactEmail", 6, null, null, "contact@example.com" },
-                    { 9, "Contact", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8586), null, null, "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).", true, "ContactMapEmbed", 2, null, null, null }
+                    { 6, "Contact", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5374), null, "123 Main Street, Anytown, CA 91234", "Địa chỉ liên hệ đầy đủ.", true, "ContactAddress", 1, null, null, "123 Main Street, Anytown, CA 91234" },
+                    { 7, "Contact", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5375), null, "(123) 456-7890", "Số điện thoại liên hệ chính.", true, "ContactPhone", 4, null, null, "(123) 456-7890" },
+                    { 8, "Contact", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5377), null, "contact@example.com", "Địa chỉ email hiển thị công khai để liên hệ.", true, "ContactEmail", 6, null, null, "contact@example.com" },
+                    { 9, "Contact", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5378), null, null, "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).", true, "ContactMapEmbed", 2, null, null, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "updated_at", "updated_by", "value" },
-                values: new object[] { 10, "SEO", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8587), null, "Welcome to My Application", "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.", true, "DefaultMetaTitle", null, null, "Welcome to My Application" });
+                values: new object[] { 10, "SEO", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5380), null, "Welcome to My Application", "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.", true, "DefaultMetaTitle", null, null, "Welcome to My Application" });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "type", "updated_at", "updated_by", "value" },
                 values: new object[,]
                 {
-                    { 11, "SEO", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8588), null, "This is the default description for My Application.", "Mô tả meta mặc định (dưới 160 ký tự).", true, "DefaultMetaDescription", 1, null, null, "This is the default description for My Application." },
-                    { 12, "SEO", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8589), null, "/image/icon.jpg", "Đường dẫn đến file favicon.ico hoặc ảnh favicon.", true, "FaviconUrl", 3, null, null, "/image/icon.jpg" },
-                    { 13, "Social Media", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8590), null, null, "URL trang Facebook.", true, "SocialFacebookUrl", 7, null, null, null },
-                    { 14, "Social Media", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8591), null, null, "URL trang Twitter (X).", true, "SocialTwitterUrl", 7, null, null, null },
-                    { 15, "Social Media", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8592), null, null, "URL trang Instagram.", true, "SocialInstagramUrl", 7, null, null, null },
-                    { 16, "Social Media", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8594), null, null, "URL trang LinkedIn.", true, "SocialLinkedInUrl", 7, null, null, null },
-                    { 17, "Social Media", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8595), null, null, "URL kênh Youtube.", true, "SocialYoutubeUrl", 7, null, null, null }
+                    { 11, "SEO", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5381), null, "This is the default description for My Application.", "Mô tả meta mặc định (dưới 160 ký tự).", true, "DefaultMetaDescription", 1, null, null, "This is the default description for My Application." },
+                    { 12, "SEO", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5382), null, "/image/icon.jpg", "Đường dẫn đến file favicon.ico hoặc ảnh favicon.", true, "FaviconUrl", 3, null, null, "/image/icon.jpg" },
+                    { 13, "Social Media", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5383), null, null, "URL trang Facebook.", true, "SocialFacebookUrl", 7, null, null, null },
+                    { 14, "Social Media", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5384), null, null, "URL trang Twitter (X).", true, "SocialTwitterUrl", 7, null, null, null },
+                    { 15, "Social Media", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5386), null, null, "URL trang Instagram.", true, "SocialInstagramUrl", 7, null, null, null },
+                    { 16, "Social Media", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5387), null, null, "URL trang LinkedIn.", true, "SocialLinkedInUrl", 7, null, null, null },
+                    { 17, "Social Media", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5388), null, null, "URL kênh Youtube.", true, "SocialYoutubeUrl", 7, null, null, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "updated_at", "updated_by", "value" },
-                values: new object[] { 18, "Email", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8596), null, "smtp.example.com", "Địa chỉ máy chủ SMTP.", true, "SmtpHost", null, null, "smtp.example.com" });
+                values: new object[] { 18, "Email", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5390), null, "smtp.example.com", "Địa chỉ máy chủ SMTP.", true, "SmtpHost", null, null, "smtp.example.com" });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "type", "updated_at", "updated_by", "value" },
-                values: new object[] { 19, "Email", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8597), null, "587", "Cổng SMTP (ví dụ: 587, 465, 25).", true, "SmtpPort", 8, null, null, "587" });
+                values: new object[] { 19, "Email", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5391), null, "587", "Cổng SMTP (ví dụ: 587, 465, 25).", true, "SmtpPort", 8, null, null, "587" });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "updated_at", "updated_by", "value" },
                 values: new object[,]
                 {
-                    { 20, "Email", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8598), null, "user@example.com", "Tên đăng nhập SMTP.", true, "SmtpUsername", null, null, "user@example.com" },
-                    { 21, "Email", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8599), null, null, "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.", true, "SmtpPassword", null, null, null }
+                    { 20, "Email", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5392), null, "user@example.com", "Tên đăng nhập SMTP.", true, "SmtpUsername", null, null, "user@example.com" },
+                    { 21, "Email", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5393), null, null, "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.", true, "SmtpPassword", null, null, null }
                 });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "type", "updated_at", "updated_by", "value" },
-                values: new object[] { 22, "Email", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8600), null, "true", "Sử dụng mã hóa SSL/TLS khi gửi email.", true, "SmtpUseSsl", 9, null, null, "true" });
+                values: new object[] { 22, "Email", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5395), null, "true", "Sử dụng mã hóa SSL/TLS khi gửi email.", true, "SmtpUseSsl", 9, null, null, "true" });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "updated_at", "updated_by", "value" },
-                values: new object[] { 23, "Email", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8602), null, "My Application Support", "Tên hiển thị trong ô 'From' của email gửi đi.", true, "EmailFromName", null, null, "My Application Support" });
+                values: new object[] { 23, "Email", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5397), null, "My Application Support", "Tên hiển thị trong ô 'From' của email gửi đi.", true, "EmailFromName", null, null, "My Application Support" });
 
             migrationBuilder.InsertData(
                 table: "settings",
                 columns: new[] { "Id", "category", "created_at", "created_by", "default_value", "description", "is_active", "key", "type", "updated_at", "updated_by", "value" },
-                values: new object[] { 24, "Email", new DateTime(2025, 4, 22, 3, 21, 52, 28, DateTimeKind.Utc).AddTicks(8603), null, "noreply@example.com", "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.", true, "EmailFromAddress", 6, null, null, "noreply@example.com" });
+                values: new object[] { 24, "Email", new DateTime(2025, 4, 22, 15, 23, 52, 110, DateTimeKind.Utc).AddTicks(5398), null, "noreply@example.com", "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.", true, "EmailFromAddress", 6, null, null, "noreply@example.com" });
 
             migrationBuilder.InsertData(
                 table: "users",
                 columns: new[] { "Id", "created_at", "created_by", "email", "full_name", "is_active", "password_hash", "updated_at", "updated_by", "username" },
-                values: new object[] { 1, new DateTime(2025, 4, 22, 3, 21, 52, 29, DateTimeKind.Utc).AddTicks(5668), null, "admin@admin.com", "Quản trị viên", true, "AQAAAAIAAYagAAAAENue9AKlf7FyoGL44t1WYmfpOngiM2m/0V9PtdZz7dinW2lPKnXB62Wrz9EPYDxQkw==", null, null, "admin" });
+                values: new object[] { 1, new DateTime(2025, 4, 22, 15, 23, 52, 111, DateTimeKind.Utc).AddTicks(8075), null, "admin@admin.com", "Quản trị viên", true, "AQAAAAIAAYagAAAAEBfGdK3hIIfSblPbhjJQS0oSXW3MVf0xhHVcBN0Th3XljAVR+sypTRKQuLKe5cwOSw==", null, null, "admin" });
 
             migrationBuilder.CreateIndex(
                 name: "idx_article_products_article_id",

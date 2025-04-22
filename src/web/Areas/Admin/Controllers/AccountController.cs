@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Authentication;
@@ -5,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using web.Areas.Admin.ViewModels.Account;
 
 namespace web.Areas.Admin.Controllers;
@@ -142,8 +142,9 @@ public class AccountController : Controller
     // GET: /Admin/Account/AccessDenied
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult AccessDenied()
+    public IActionResult AccessDenied(string? returnUrl = null)
     {
+        ViewData["ReturnUrl"] = returnUrl;
         return View();
     }
 

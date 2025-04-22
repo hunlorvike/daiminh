@@ -93,25 +93,23 @@ public partial class TestimonialController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TestimonialViewModel viewModel)
     {
-        if (!ModelState.IsValid)
+        if (ModelState.IsValid)
         {
-            return View(viewModel);
+            Testimonial testimonial = _mapper.Map<Testimonial>(viewModel);
+            _context.Add(testimonial);
+
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm đánh giá.");
+            }
         }
 
-        Testimonial testimonial = _mapper.Map<Testimonial>(viewModel);
-        _context.Add(testimonial);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Thêm đánh giá thành công!";
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception)
-        {
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm đánh giá.");
-            return View(viewModel);
-        }
+        return View(viewModel);
     }
 
     // GET: Admin/Testimonial/Edit/5
@@ -135,43 +133,34 @@ public partial class TestimonialController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TestimonialViewModel viewModel)
     {
-        if (id != viewModel.Id)
+        if (ModelState.IsValid)
         {
-            return BadRequest("ID mismatch.");
-        }
+            if (id != viewModel.Id)
+            {
+                return BadRequest();
+            }
 
-        if (!ModelState.IsValid)
-        {
-            return View(viewModel);
-        }
+            Testimonial? testimonial = await _context.Set<Testimonial>().FirstOrDefaultAsync(t => t.Id == id);
 
-        Testimonial? testimonial = await _context.Set<Testimonial>().FirstOrDefaultAsync(t => t.Id == id);
+            if (testimonial == null)
+            {
+                return RedirectToAction(nameof(Index));
+            }
 
-        if (testimonial == null)
-        {
-            TempData["ErrorMessage"] = "Không tìm thấy đánh giá để cập nhật.";
-            return RedirectToAction(nameof(Index));
-        }
+            _mapper.Map(viewModel, testimonial);
+            _context.Entry(testimonial).State = EntityState.Modified;
 
-        _mapper.Map(viewModel, testimonial);
-        _context.Entry(testimonial).State = EntityState.Modified;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = "Cập nhật đánh giá thành công!";
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đánh giá.");
+            }
         }
-        catch (DbUpdateConcurrencyException)
-        {
-            ModelState.AddModelError("", "Lỗi xung đột dữ liệu. Dữ liệu có thể đã được thay đổi bởi người khác. Vui lòng tải lại trang và thử lại.");
-            return View(viewModel);
-        }
-        catch (Exception)
-        {
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đánh giá.");
-            return View(viewModel);
-        }
+        return View(viewModel);
     }
 
     // POST: Admin/Testimonial/Delete/5

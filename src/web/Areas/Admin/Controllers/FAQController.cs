@@ -107,6 +107,8 @@ public partial class FAQController : Controller
             }
         }
 
+        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+
         return View(viewModel);
     }
 
@@ -161,6 +163,7 @@ public partial class FAQController : Controller
             }
         }
 
+        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
 
         return View(viewModel);
     }

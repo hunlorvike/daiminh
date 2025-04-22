@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -8,7 +9,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 using web.Areas.Admin.ViewModels.User;
 using X.PagedList;
 using X.PagedList.EF;
@@ -156,6 +156,7 @@ public partial class UserController : Controller
             }
 
             _mapper.Map(viewModel, user);
+            _context.Entry(user).State = EntityState.Modified;
 
             try
             {

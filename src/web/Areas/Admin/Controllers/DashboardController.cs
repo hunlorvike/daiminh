@@ -1,13 +1,12 @@
-// File: web/Areas/Admin/Controllers/DashboardController.cs
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using shared.Extensions; // Cần cho GetDisplayName
+using shared.Extensions;
 using web.Areas.Admin.ViewModels.Dashboard;
-using static web.Areas.Admin.ViewModels.Dashboard.DashboardViewModel; // Để dùng ChartData, ChartSeries
+using static web.Areas.Admin.ViewModels.Dashboard.DashboardViewModel;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -132,7 +131,6 @@ public class DashboardController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi tải dữ liệu trang Dashboard.");
-            TempData["ErrorMessage"] = "Không thể tải dữ liệu Dashboard. Vui lòng thử lại sau.";
             return View(new DashboardViewModel()); // Trả về view rỗng hoặc view lỗi
         }
     }

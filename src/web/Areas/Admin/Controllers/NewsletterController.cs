@@ -176,7 +176,6 @@ public partial class NewsletterController : Controller
             }
         }
 
-
         return View(viewModel);
     }
 
