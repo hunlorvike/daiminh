@@ -63,15 +63,51 @@
 		<textarea asp-for="TwitterDescription" class="form-control" rows="3"></textarea>
 		<span asp-validation-for="TwitterDescription" class="text-danger"></span>
 	</div>
+
 	<div class="col-md-6 mb-3">
 		<label asp-for="OgImage" class="form-label"></label>
-		<input asp-for="OgImage" type="url" class="form-control" />
+		<div class="input-group">
+			<input asp-for="OgImage" class="form-control media-url-input" readonly />
+			<button class="btn btn-outline-secondary select-media-button" type="button"
+					data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+					data-media-type-filter="0">
+				<i class="ti ti-photo"></i>
+			</button>
+		</div>
 		<span asp-validation-for="OgImage" class="text-danger"></span>
+		@if (!string.IsNullOrEmpty(Model.OgImage))
+		{
+			<div class="media-preview-area mt-2">
+				<img src="@Model.OgImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+			</div>
+		}
+		else
+		{
+			<div class="media-preview-area mt-2"></div>
+		}
 	</div>
+
 	<div class="col-md-6 mb-3">
 		<label asp-for="TwitterImage" class="form-label"></label>
-		<input asp-for="TwitterImage" type="url" class="form-control" />
+		<div class="input-group">
+			<input asp-for="TwitterImage" class="form-control media-url-input" readonly />
+			<button class="btn btn-outline-secondary select-media-button" type="button"
+					data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+					data-media-type-filter="0">
+				<i class="ti ti-photo"></i>
+			</button>
+		</div>
 		<span asp-validation-for="TwitterImage" class="text-danger"></span>
+		@if (!string.IsNullOrEmpty(Model.TwitterImage))
+		{
+			<div class="media-preview-area mt-2">
+				<img src="@Model.TwitterImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+			</div>
+		}
+		else
+		{
+			<div class="media-preview-area mt-2"></div>
+		}
 	</div>
 
 	<hr class="my-3">

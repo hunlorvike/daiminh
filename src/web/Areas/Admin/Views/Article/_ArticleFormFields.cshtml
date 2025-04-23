@@ -8,6 +8,9 @@
 	}
 }
 
+<input type="hidden" asp-for="AuthorId" />
+
+
 <div class="card">
 	<div class="card-header">
 		<h3 class="card-title">Thông tin Bài viết</h3>
@@ -34,44 +37,90 @@
 				</div>
 
 				<div class="form-group mb-3">
+					<label asp-for="Content" class="form-label required"></label>
+					<textarea asp-for="Content" class="form-control summernote" rows="10"></textarea>
+					<span asp-validation-for="Content" class="text-danger"></span>
+				</div>
+
+				<div class="form-group mb-3">
 					<label asp-for="Summary" class="form-label"></label>
 					<textarea asp-for="Summary" class="form-control" rows="3"></textarea>
 					<span asp-validation-for="Summary" class="text-danger"></span>
 				</div>
 
-				<div class="form-group mb-3">
-					<label asp-for="Content" class="form-label required"></label>
-					<textarea asp-for="Content" class="form-control" rows="10"></textarea> 
-					<span asp-validation-for="Content" class="text-danger"></span>
-				</div>
+				<div class="row g-3 mb-3">
+					<div class="col-md-6">
+						<div class="form-group">
+							<label asp-for="FeaturedImage" class="form-label"></label>
+							<div class="input-group">
+								<input asp-for="FeaturedImage" class="form-control media-url-input" readonly />
+								<button class="btn btn-outline-secondary select-media-button" type="button"
+										data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+										data-media-type-filter="0">
+									<i class="ti ti-photo"></i>
+								</button>
+							</div>
+							<span asp-validation-for="FeaturedImage" class="text-danger"></span>
+							@if (!string.IsNullOrEmpty(Model.FeaturedImage))
+							{
+								<div class="media-preview-area mt-2">
+									<img src="@Model.FeaturedImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+								</div>
+							}
+							else
+							{
+								<div class="media-preview-area mt-2"></div>
+							}
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group">
+							<label asp-for="ThumbnailImage" class="form-label"></label>
+							<div class="input-group">
+								<input asp-for="ThumbnailImage" class="form-control media-url-input" readonly />
+								<button class="btn btn-outline-secondary select-media-button" type="button"
+										data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+										data-media-type-filter="0">
+									<i class="ti ti-photo"></i>
+								</button>
+							</div>
+							<span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+							@if (!string.IsNullOrEmpty(Model.ThumbnailImage))
+							{
+								<div class="media-preview-area mt-2">
+									<img src="@Model.ThumbnailImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+								</div>
+							}
+							else
+							{
+								<div class="media-preview-area mt-2"></div>
+							}
+						</div>
+					</div>
 
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label asp-for="SelectedTagIds" class="form-label"></label>
+							<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" multiple></select>
+							<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
+						</div>
+					</div>
+
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label asp-for="SelectedProductIds" class="form-label"></label>
+							<select asp-for="SelectedProductIds" asp-items="@Model.ProductOptions" class="form-select tom-selected" multiple></select>
+							<span asp-validation-for="SelectedProductIds" class="text-danger"></span>
+						</div>
+					</div>
+				</div>
 			</div>
 
 			<div class="col-md-4">
 				<div class="form-group mb-3">
 					<label asp-for="CategoryId" class="form-label required"></label>
-                    <select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select tom-selected"></select>
+					<select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select tom-selected"></select>
 					<span asp-validation-for="CategoryId" class="text-danger"></span>
-				</div>
-
-				<div class="form-group mb-3">
-                    <label asp-for="SelectedTagIds" class="form-label required"></label>
-                    <select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" multiple></select>
-					<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
-					<small class="form-hint">Chọn các thẻ liên quan cho bài viết.</small>
-				</div>
-
-				<div class="form-group mb-3">
-					<label asp-for="SelectedProductIds" class="form-label"></label>
-                    <select asp-for="SelectedProductIds" asp-items="@Model.ProductOptions" class="form-select tom-selected" multiple></select>
-                    <span asp-validation-for="SelectedProductIds" class="text-danger"></span>
-					<small class="form-hint">Chọn các sản phẩm được nhắc đến trong bài viết.</small>
-				</div>
-
-				<div class="form-group mb-3">
-					<label asp-for="PublishedAt" class="form-label"></label>
-                    <input asp-for="PublishedAt" class="form-control datepicker" />
-					<span asp-validation-for="PublishedAt" class="text-danger"></span>
 				</div>
 
 				<div class="form-group mb-3">
@@ -81,28 +130,10 @@
 				</div>
 
 				<div class="form-group mb-3">
-					<label asp-for="EstimatedReadingMinutes" class="form-label"></label>
-					<input asp-for="EstimatedReadingMinutes" type="number" min="0" class="form-control" />
-					<span asp-validation-for="EstimatedReadingMinutes" class="text-danger"></span>
-					<small class="form-hint">Thời gian đọc ước tính bằng phút.</small>
-				</div>
-
-				<div class="form-group mb-3">
-					<label asp-for="FeaturedImage" class="form-label"></label>
-					<div class="input-group">
-						<input asp-for="FeaturedImage" class="form-control" placeholder="URL ảnh đại diện" />
-						<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#selectMediaModal">Chọn ảnh</button>
-					</div>
-					<span asp-validation-for="FeaturedImage" class="text-danger"></span>
-				</div>
-
-				<div class="form-group mb-3">
-					<label asp-for="ThumbnailImage" class="form-label"></label>
-					<div class="input-group">
-						<input asp-for="ThumbnailImage" class="form-control" placeholder="URL ảnh thumbnail" />
-						<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#selectMediaModal">Chọn ảnh</button>
-					</div>
-					<span asp-validation-for="ThumbnailImage" class="text-danger"></span>
+					<label asp-for="PublishedAt" class="form-label"></label>
+					<input asp-for="PublishedAt" class="form-control datepicker" />
+					<span asp-validation-for="PublishedAt" class="text-danger"></span>
+					<small class="form-hint">Để trống nếu trạng thái là Nháp. Bắt buộc nếu trạng thái là Đã xuất bản.</small>
 				</div>
 
 				<div class="form-group mb-3">
@@ -114,10 +145,30 @@
 				<div class="form-group mb-3">
 					<label asp-for="AuthorAvatar" class="form-label"></label>
 					<div class="input-group">
-						<input asp-for="AuthorAvatar" class="form-control" placeholder="URL avatar tác giả" />
-						<button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#selectMediaModal">Chọn ảnh</button>
+						<input asp-for="AuthorAvatar" class="form-control media-url-input" readonly />
+						<button class="btn btn-outline-secondary select-media-button" type="button"
+								data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+								data-media-type-filter="0">
+							<i class="ti ti-photo"></i>
+						</button>
 					</div>
 					<span asp-validation-for="AuthorAvatar" class="text-danger"></span>
+					@if (!string.IsNullOrEmpty(Model.AuthorAvatar))
+					{
+						<div class="media-preview-area mt-2">
+							<img src="@Model.AuthorAvatar" style="max-width: 50px; height: auto;" class="img-thumbnail" />
+						</div>
+					}
+					else
+					{
+						<div class="media-preview-area mt-2"></div>
+					}
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="EstimatedReadingMinutes" class="form-label"></label>
+					<input asp-for="EstimatedReadingMinutes" type="number" min="0" class="form-control" />
+					<span asp-validation-for="EstimatedReadingMinutes" class="text-danger"></span>
 				</div>
 
 				<div class="form-check form-switch mb-0 mt-3">

@@ -22,10 +22,10 @@ public class Article : SeoEntity<int>
     public int EstimatedReadingMinutes { get; set; } = 0;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
-    public int? CategoryId { get; set; }
+    public int CategoryId { get; set; }
 
     // Navigation properties
-    public virtual Category? Category { get; set; }
+    public virtual required Category Category { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }
     public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
 }
@@ -57,8 +57,7 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
             .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
 
-        // New property configuration
-        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+        builder.Property(e => e.CategoryId).HasColumnName("category_id").IsRequired();
 
         builder.HasIndex(e => e.Slug).HasDatabaseName("idx_articles_slug").IsUnique();
         builder.HasIndex(e => e.Status).HasDatabaseName("idx_articles_status");
@@ -68,7 +67,6 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.HasIndex(e => e.AuthorId).HasDatabaseName("idx_articles_author_id");
         builder.HasIndex(e => e.CategoryId).HasDatabaseName("idx_articles_category_id");
 
-        // Configure one-to-many relationship
         builder.HasOne(e => e.Category)
             .WithMany(c => c.Articles)
             .HasForeignKey(e => e.CategoryId)

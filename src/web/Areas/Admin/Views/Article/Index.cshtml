@@ -27,24 +27,25 @@
 			<div class="col-md-4">
 				<label asp-for="Filter.SearchTerm" class="form-label"></label>
 				<div class="input-group">
-					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tiêu đề, tóm tắt, nội dung...">
+					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tiêu đề, tóm tắt, tác giả...">
 					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"><i class="ti ti-x"></i></button>
 				</div>
 			</div>
 			<div class="col-md-2">
 				<label asp-for="Filter.CategoryId" class="form-label"></label>
-				<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions" class="form-select"></select>
+				<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions" class="form-select">
+					<option value="">-- Tất cả danh mục --</option>
+				</select>
 			</div>
 			<div class="col-md-2">
 				<label asp-for="Filter.Status" class="form-label"></label>
-				<select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions" class="form-select">
-					<option value="">-- Tất cả trạng thái --</option>
-				</select>
+				<select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions" class="form-select"></select>
 			</div>
 			<div class="col-md-2">
 				<label asp-for="Filter.IsFeatured" class="form-label"></label>
 				<select asp-for="Filter.IsFeatured" asp-items="@Model.Filter.IsFeaturedOptions" class="form-select"></select>
 			</div>
+
 			<div class="col-md-1">
 				<label class="form-label"> </label>
 				<button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i> Lọc</button>
@@ -69,10 +70,10 @@
 		@if (!Model.Articles.Any())
 		{
 			<div class="empty">
-				<div class="empty-icon"><i class="ti ti-file-off fa-5x text-muted"></i></div>
+				<div class="empty-icon"><i class="ti ti-article off fa-5x text-muted"></i></div> @* Assuming ti-article icon exists *@
 				<p class="empty-title">Không tìm thấy bài viết nào</p>
 				<p class="empty-subtitle text-muted">
-					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.CategoryId.HasValue && !Model.Filter.Status.HasValue && !Model.Filter.IsFeatured.HasValue)
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue && !Model.Filter.CategoryId.HasValue && !Model.Filter.IsFeatured.HasValue)
 					{
 						@:Hãy thêm bài viết đầu tiên.
 					}
@@ -93,12 +94,15 @@
 					<thead>
 						<tr>
 							<th>Tiêu đề</th>
-							<th style="width: 15%;">Danh mục</th>
-							<th style="width: 10%;">Trạng thái</th>
-							<th class="text-center" style="width: 8%;">Nổi bật</th>
-							<th class="text-center" style="width: 8%;">Lượt xem</th>
-							<th style="width: 10%;">Ngày xuất bản</th>
-							<th style="width: 10%;">Liên kết</th>
+							<th>Danh mục</th>
+							<th>Slug</th>
+							<th>Tác giả</th>
+							<th class="text-center">Trạng thái</th>
+							<th class="text-center">Nổi bật</th>
+							<th class="text-center">Lượt xem</th>
+							<th class="text-center">Thẻ</th>
+							<th class="text-center">SP liên quan</th>
+							<th>Ngày xuất bản</th>
 							<th class="w-1">Thao tác</th>
 						</tr>
 					</thead>
@@ -108,49 +112,41 @@
 							<tr>
 								<td>
 									<span class="fw-medium">@item.Title</span>
-									@if (!string.IsNullOrWhiteSpace(item.AuthorName))
-									{
-										<div class="small text-muted">Tác giả: @item.AuthorName</div>
-									}
 								</td>
 								<td class="text-muted">@item.CategoryName</td>
-								<td class="text-muted">
-									@if (item.Status == PublishStatus.Published)
-									{
-										<span class="badge bg-success-lt">Đã xuất bản</span>
-									}
-									else if (item.Status == PublishStatus.Draft)
-									{
-										<span class="badge bg-secondary-lt">Bản nháp</span>
-									}
-									else if (item.Status == PublishStatus.Scheduled)
-									{
-										<span class="badge bg-info-lt">Đã lên lịch</span>
-									}
-									else if (item.Status == PublishStatus.Archived)
-									{
-										<span class="badge bg-warning-lt">Đã lưu trữ</span>
-									}
-									else
-									{
-										<span class="badge bg-light">@item.Status.GetDisplayName()</span>
-									}
+								<td class="text-muted"><code>@item.Slug</code></td>
+								<td class="text-muted">@item.AuthorName</td>
+								<td class="text-center">
+									<span class="badge bg-@((item.Status == PublishStatus.Published) ? "success" : (item.Status == PublishStatus.Draft ? "secondary" : "warning"))-lt">
+										@item.Status.GetDisplayName()
+									</span>
 								</td>
 								<td class="text-center">
 									@if (item.IsFeatured)
 									{
-										<i class="ti ti-star text-warning"></i>
+										<span class="badge bg-primary-lt"><i class="ti ti-star"></i></span>
 									}
 									else
 									{
-										<i class="ti ti-star text-muted-lt"></i>
+										<span class="text-muted">—</span>
 									}
 								</td>
 								<td class="text-muted text-center">@item.ViewCount</td>
-								<td class="text-muted">@(item.PublishedAt.HasValue ? item.PublishedAt.Value.ToString("dd/MM/yyyy HH:mm") : "-")</td>
-								<td class="text-muted small">
-									Tags: <span class="badge bg-blue-lt">@item.TagCount</span><br />
-									Sản phẩm: <span class="badge bg-blue-lt">@item.ProductCount</span>
+								<td class="text-muted text-center">
+									<span class="badge bg-blue-lt">@item.TagCount</span>
+								</td>
+								<td class="text-muted text-center">
+									<span class="badge bg-blue-lt">@item.ProductCount</span>
+								</td>
+								<td>
+									@if (item.PublishedAt.HasValue)
+									{
+										<span>@item.PublishedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+									}
+									else
+									{
+										<span class="text-muted">Chưa xuất bản</span>
+									}
 								</td>
 								<td class="text-muted">
 									<div class="btn-list flex-nowrap">
@@ -204,7 +200,6 @@
 </div>
 
 @section Scripts {
-	<script src="~/js/slug.js" asp-append-version="true"></script>
 	<script>
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
@@ -212,4 +207,4 @@
 			});
 		});
 	</script>
- }
+}

@@ -32,36 +32,38 @@
 </form>
 
 @section Scripts {
-	<script src="~/js/slug.js" asp-append-version="true"></script>
-
+	<script src="~/js/slug.js"></script>
 	<script>
 		$(document).ready(function() {
-				const titleInput = $('#Title');
-				const slugInput = $('#Slug');
-				const generateSlugBtn = $('#generateSlugButton');
-
-				titleInput.on('input', function() {
-					if (slugInput.val() === '') {
-						slugInput.val(generateVietnameseSlug(titleInput.val()));
-					}
-				});
-
-				generateSlugBtn.on('click', function() {
-					slugInput.val(generateVietnameseSlug(titleInput.val()));
-				});
-
-				$('#Content').summernote({
-					placeholder: 'Nhập nội dung chi tiết bài viết',
-					height: 300,
-					lang: 'vi-VN',
-					callbacks: {
-						onInit: function() {
-							if ($(this).summernote('isEmpty')) {
-								$(this).summernote('code', '');
-							}
-						}
-					}
-				});
+			const slugManager = SlugManager.init({
+				nameInput: '#Title',
+				slugInput: '#Slug',
+				generateButton: '#generateSlugButton'
 			});
+
+			if ($('#Title').val() && !$('#Slug').val()) {
+					slugManager.generateSlug();
+			}
+
+			$('.select-media-button').on('click', function() {
+				const $button = $(this);
+				const $targetInput = $button.closest('.input-group').find('input[type="text"], input[type="url"]');
+				const $preview = $input.closest('.form-group').find('.media-preview-area');
+
+				const callback = function(selectedFile) {
+					$preview.html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
+				};
+
+				openMediaModal($targetInput, callback);
+			});
+
+			$('#FeaturedImage, #ThumbnailImage, #AuthorAvatar, #OgImage, #TwitterImage').on('input change', function() {
+				const $input = $(this);
+				const $preview = $input.closest('.form-group').find('.media-preview-area');
+				if ($input.val() === '') {
+					$preview.empty();
+				}
+			});
+		});
 	</script>
 }

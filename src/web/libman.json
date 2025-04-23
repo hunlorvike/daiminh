@@ -15,11 +15,6 @@
       "destination": "wwwroot/lib/jquery-validation-unobtrusive"
     },
     {
-      "library": "swiper@11.2.5",
-      "destination": "wwwroot/lib/swiper"
-    },
-
-    {
       "library": "summernote@0.9.1",
       "destination": "wwwroot/lib/summernote/"
     },

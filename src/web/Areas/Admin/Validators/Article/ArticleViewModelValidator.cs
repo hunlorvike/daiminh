@@ -32,25 +32,22 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
             .MaximumLength(500).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
 
         RuleFor(x => x.FeaturedImage)
-             .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
-        // Optional: Add regex validation for URL format if needed
-
+            .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.FeaturedImage));
         RuleFor(x => x.ThumbnailImage)
-             .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
-        // Optional: Add regex validation for URL format if needed
+            .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.ThumbnailImage));
 
         RuleFor(x => x.AuthorName)
              .MaximumLength(100).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
 
         RuleFor(x => x.AuthorAvatar)
-             .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
-        // Optional: Add regex validation for URL format if needed
+              .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.AuthorAvatar));
 
         RuleFor(x => x.EstimatedReadingMinutes)
             .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");
 
         RuleFor(x => x.CategoryId)
-            .Must(CategoryIdExists).When(x => x.CategoryId.HasValue).WithMessage("Danh mục được chọn không tồn tại.");
+            .NotEmpty().WithMessage("Vui lòng chọn {PropertyName}.")
+            .Must((model, categoryId) => CategoryExists(categoryId)).WithMessage("Danh mục được chọn không tồn tại.");
 
         RuleFor(x => x.Status)
              .IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
@@ -68,10 +65,11 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
                               .Any(a => a.Slug == slug && a.Id != viewModel.Id);
     }
 
-    private bool CategoryIdExists(int? categoryId)
+    private bool CategoryExists(int? categoryId)
     {
-        if (!categoryId.HasValue) return true;
+        if (categoryId == null) return false;
 
-        return _context.Set<domain.Entities.Category>().Any(c => c.Id == categoryId.Value);
+        return _context.Set<domain.Entities.Category>()
+                       .Any(c => c.Id == categoryId && c.Type == shared.Enums.CategoryType.Article);
     }
 }

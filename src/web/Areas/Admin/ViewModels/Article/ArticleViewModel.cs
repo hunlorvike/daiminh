@@ -1,7 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using System.ComponentModel.DataAnnotations;
 using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Article;
@@ -24,7 +24,7 @@ public class ArticleViewModel
 
     [Display(Name = "Nội dung", Prompt = "Nhập nội dung chi tiết bài viết")]
     [Required(ErrorMessage = "{0} không được để trống.")]
-    // MaxLength for Content is usually not needed at ViewModel level if DB column is text/ntext/nvarchar(max)
+    [DataType(DataType.Html)]
     public string Content { get; set; } = string.Empty;
 
     [Display(Name = "Tóm tắt", Prompt = "Nhập tóm tắt ngắn gọn")]
@@ -48,6 +48,9 @@ public class ArticleViewModel
     [Display(Name = "Ngày xuất bản")]
     [DataType(DataType.Text)]
     public DateTime? PublishedAt { get; set; }
+
+    [HiddenInput]
+    public string? AuthorId { get; set; }
 
     [Display(Name = "Tên tác giả", Prompt = "Tên hiển thị của tác giả")]
     [MaxLength(100, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
@@ -74,13 +77,9 @@ public class ArticleViewModel
 
     [Display(Name = "Sản phẩm liên quan")]
     public List<int>? SelectedProductIds { get; set; }
-
-    // SelectLists for dropdowns - populated in Controller
     public List<SelectListItem>? CategoryOptions { get; set; }
     public List<SelectListItem>? StatusOptions { get; set; }
     public List<SelectListItem>? TagOptions { get; set; }
     public List<SelectListItem>? ProductOptions { get; set; }
-
-    // Embed SEO Fields
     public SeoViewModel Seo { get; set; } = new();
 }

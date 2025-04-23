@@ -39,7 +39,6 @@ public class SeoViewModel
 
     [Display(Name = "Ảnh Open Graph", Prompt = "URL của ảnh hiển thị khi chia sẻ (tỷ lệ 1.91:1)")]
     [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
-    [DataType(DataType.Url)]
     public string? OgImage { get; set; }
 
     [Display(Name = "Loại Open Graph", Prompt = "Loại nội dung (website, article, video, etc.)")]
@@ -56,7 +55,6 @@ public class SeoViewModel
 
     [Display(Name = "Ảnh Twitter Card", Prompt = "URL của ảnh hiển thị trên Twitter Card (tỷ lệ 1:1 hoặc 1.91:1)")]
     [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
-    [DataType(DataType.Url)]
     public string? TwitterImage { get; set; }
 
     [Display(Name = "Loại Twitter Card", Prompt = "Loại Twitter Card (summary, summary_large_image, app, player)")]
