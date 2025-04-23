@@ -41,6 +41,10 @@
     {
       "library": "litepicker@2.0.12",
       "destination": "wwwroot/lib/litepicker/"
+    },
+    {
+      "library": "hugerte@1.0.9",
+      "destination": "wwwroot/lib/hugerte/"
     }
   ]
 }

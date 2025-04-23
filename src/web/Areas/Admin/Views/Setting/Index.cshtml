@@ -103,7 +103,7 @@
 						<div class="col-sm-9">
 							@if (setting.Type == FieldType.TextArea || setting.Type == FieldType.Html)
 							{
-								<textarea asp-for="@Model.SettingGroups[categoryName][j].Value" name="@valueFieldName" id="@valueFieldName" class="form-control @(setting.Type == FieldType.Html ? "html-editor" : "")" rows="3"></textarea>
+								<textarea asp-for="@Model.SettingGroups[categoryName][j].Value" name="@valueFieldName" id="@valueFieldName" class="form-control @(setting.Type == FieldType.Html ? "wysiwyg" : "")" rows="3"></textarea>
 							}
 							else if (setting.Type == FieldType.Boolean)
 							{
@@ -189,12 +189,6 @@
 @section Scripts {
 	<script>
 		$(document).ready(function() {
-
-			$('.html-editor').summernote({
-				placeholder: 'Nhập nội dung HTML...',
-				height: 200,
-			});
-
 			function handleMediaSelection(selectedFile, $input) {
 				if (selectedFile && selectedFile.path && $input && $input.length) {
 					$input.val(selectedFile.path).trigger('change');

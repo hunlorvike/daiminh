@@ -12,9 +12,8 @@
 <!-- Tabler Scripts -->
 <script src="~/lib/tabler/core/dist/js/tabler.min.js" asp-append-version="true"></script>
 
-<!-- Summernote Scripts -->
-<script src="~/lib/summernote/dist/summernote-bs5.min.js" asp-append-version="true"></script>
-<script src="~/lib/summernote/dist/lang/summernote-vi-VN.min.js" asp-append-version="true"></script>
+<!-- Wysiwyg Scripts -->
+<script src="~/lib/hugerte/hugerte.min.js" asp-append-version="true"></script>
 
 <!-- Tom-select Scripts -->
 <script src="~/lib/tom-select/dist/js/tom-select.complete.min.js" asp-append-version="true"></script>
@@ -31,6 +30,7 @@
 <!-- Daiminh modules -->
 <script src="~/js/media.js" asp-append-version="true"></script>
 <script src="~/js/theme.js" asp-append-version="true"></script>
+<script src="~/js/wysiwyg.js" asp-append-version="true"></script>
 <script src="~/js/tooltip.js" asp-append-version="true"></script>
 <script src="~/js/litepicker.js" asp-append-version="true"></script>
 <script src="~/js/tomselected.js" asp-append-version="true"></script>
@@ -42,7 +42,7 @@
         let itemNameToDelete = '';
         let rowToDelete = null;
 
-        const deleteModal = new bootstrap.Modal(document.getElementById('delete-confirmation-modal'));
+        const deleteModal = new tabler.Modal(document.getElementById('delete-confirmation-modal'));
         const confirmDeleteButton = document.getElementById('confirm-delete-button');
         const deleteModalMessage = document.getElementById('delete-modal-message');
 
