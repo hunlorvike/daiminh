@@ -34,8 +34,6 @@
 
 @section Scripts {
 	<script src="~/js/slug.js" asp-append-version="true"></script>
-	@* Add script for SelectMediaModal integration here if needed for images *@
-
 	<script>
 		$(document).ready(function () {
 			// Slug generation (only generate if slug is empty)
@@ -65,15 +63,8 @@
 							$(this).summernote('code', '');
 						}
 					}
-					 // Add callbacks for image/media upload integration here
 				}
 			});
-
-			// Tom-select initialization for Tags and Products
-			new TomSelect("#SelectedTagIds",{ plugins: { remove_button: { title: 'Xóa' } } });
-			new TomSelect("#SelectedProductIds",{ plugins: { remove_button: { title: 'Xóa' } } });
-
-			// Optional: Datepicker for PublishedAt
 		});
 	</script>
 }

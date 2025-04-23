@@ -49,28 +49,28 @@
 
 			<div class="col-md-4">
 				<div class="form-group mb-3">
-					<label asp-for="CategoryId" class="form-label"></label>
-					<select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select"></select>
+					<label asp-for="CategoryId" class="form-label required"></label>
+                    <select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select tom-selected"></select>
 					<span asp-validation-for="CategoryId" class="text-danger"></span>
 				</div>
 
 				<div class="form-group mb-3">
-					<label asp-for="SelectedTagIds" class="form-label"></label>
-					<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select" multiple></select>
+                    <label asp-for="SelectedTagIds" class="form-label required"></label>
+                    <select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" multiple></select>
 					<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
 					<small class="form-hint">Chọn các thẻ liên quan cho bài viết.</small>
 				</div>
 
 				<div class="form-group mb-3">
 					<label asp-for="SelectedProductIds" class="form-label"></label>
-					<select asp-for="SelectedProductIds" asp-items="@Model.ProductOptions" class="form-select" multiple></select> 
-					<span asp-validation-for="SelectedProductIds" class="text-danger"></span>
+                    <select asp-for="SelectedProductIds" asp-items="@Model.ProductOptions" class="form-select tom-selected" multiple></select>
+                    <span asp-validation-for="SelectedProductIds" class="text-danger"></span>
 					<small class="form-hint">Chọn các sản phẩm được nhắc đến trong bài viết.</small>
 				</div>
 
 				<div class="form-group mb-3">
 					<label asp-for="PublishedAt" class="form-label"></label>
-					<input asp-for="PublishedAt" type="datetime-local" class="form-control" />
+                    <input asp-for="PublishedAt" class="form-control datepicker" />
 					<span asp-validation-for="PublishedAt" class="text-danger"></span>
 				</div>
 

@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
+using System.ComponentModel.DataAnnotations;
 using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Article;
@@ -46,7 +46,7 @@ public class ArticleViewModel
     public bool IsFeatured { get; set; } = false;
 
     [Display(Name = "Ngày xuất bản")]
-    [DataType(DataType.DateTime)]
+    [DataType(DataType.Text)]
     public DateTime? PublishedAt { get; set; }
 
     [Display(Name = "Tên tác giả", Prompt = "Tên hiển thị của tác giả")]
