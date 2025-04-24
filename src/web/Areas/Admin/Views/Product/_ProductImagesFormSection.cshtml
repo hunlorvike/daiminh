@@ -1,0 +1,291 @@
+@using web.Areas.Admin.ViewModels.Product
+@model List<ProductImageViewModel>
+
+<div id="product-images-container">
+    @if (Model != null)
+    {
+        for (int i = 0; i < Model.Count; i++)
+        {
+            var image = Model[i];
+
+            <div class="row g-3 mb-3 product-image-item @(image._Delete ? "d-none" : "")" data-index="@i">
+                <input type="hidden" name="Images[@i]._Delete" value="@image._Delete.ToString()" class="image-delete-flag" />
+                <input type="hidden" name="Images[@i].Id" value="@image.Id" />
+
+                <div class="col-md-2 col-preview d-flex align-items-center justify-content-center border rounded p-2">
+                    @if (!string.IsNullOrEmpty(image.ThumbnailUrl))
+                    {
+                        <img src="@image.ThumbnailUrl" class="img-thumbnail" style="max-width: 80px; height: auto;" data-full-url="@image.ImageUrl" />
+                    }
+                    else if (!string.IsNullOrEmpty(image.ImageUrl))
+                    {
+                        <img src="@image.ImageUrl" class="img-thumbnail" style="max-width: 80px; height: auto;" data-full-url="@image.ImageUrl" />
+                    }
+                    else
+                    {
+                        <i class="ti ti-photo text-muted" style="font-size: 3rem;"></i>
+                    }
+                </div>
+
+                <div class="col-md-9">
+                    <div class="form-group mb-2">
+                        <label asp-for="@($"Images[{i}].ImageUrl")" class="form-label"></label>
+                        <div class="input-group">
+                            <input asp-for="@($"Images[{i}].ImageUrl")" class="form-control media-url-input image-url" readonly />
+                            <button class="btn btn-outline-secondary select-media-button" type="button"
+                                    data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+                                    data-media-type-filter="0">
+                                <i class="ti ti-photo"></i> Chọn
+                            </button>
+                        </div>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="@($"Images[{i}].ImageUrl")" data-valmsg-replace="true"></span>
+                    </div>
+
+                    <div class="form-group mb-2">
+                        <label asp-for="@($"Images[{i}].AltText")" class="form-label"></label>
+                        <input asp-for="@($"Images[{i}].AltText")" class="form-control" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="@($"Images[{i}].AltText")" data-valmsg-replace="true"></span>
+                    </div>
+
+                    <div class="row g-2">
+                        <div class="col-md-6">
+                            <div class="form-group mb-2">
+                                <label asp-for="@($"Images[{i}].Title")" class="form-label"></label>
+                                <input asp-for="@($"Images[{i}].Title")" class="form-control" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="@($"Images[{i}].Title")" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <div class="form-group mb-2">
+                                <label asp-for="@($"Images[{i}].OrderIndex")" class="form-label"></label>
+                                <input asp-for="@($"Images[{i}].OrderIndex")" type="number" min="0" class="form-control" />
+                                <span class="text-danger field-validation-valid" data-valmsg-for="@($"Images[{i}].OrderIndex")" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label"> </label>
+                            <div class="form-check form-switch pt-2">
+                                <input asp-for="@($"Images[{i}].IsMain")" class="form-check-input is-main-checkbox" type="checkbox" role="switch" />
+                                <label asp-for="@($"Images[{i}].IsMain")" class="form-check-label"></label>
+                                <span class="text-danger field-validation-valid" data-valmsg-for="@($"Images[{i}].IsMain")" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-1 d-flex align-items-center justify-content-end">
+                    <button type="button" class="btn btn-icon btn-outline-danger remove-image-button" title="Xóa ảnh">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+<button type="button" class="btn btn-secondary mt-3" id="add-image-button">
+    <i class="ti ti-plus me-2"></i> Thêm ảnh mới
+</button>
+
+
+@section Scripts {
+	@* JavaScript to handle adding/removing image fields dynamically and media picker integration *@
+	<script>
+		$(document).ready(function() {
+			const $imageContainer = $('#product-images-container');
+			const $addImageButton = $('#add-image-button');
+			let imageIndex = @(Model?.Count ?? 0); // Start index after existing items
+
+			 // Template for a new image item form section
+			 // Use __INDEX__ as a placeholder to be replaced by the actual index
+			const imageItemTemplate = `
+				<div class="row g-3 mb-3 product-image-item" data-index="__INDEX__">
+					<input type="hidden" name="Images[__INDEX__]._Delete" value="False" class="image-delete-flag" />
+					<input type="hidden" name="Images[__INDEX__].Id" value="0" /> @* ID 0 indicates new image *@
+
+					<div class="col-md-2 col-preview d-flex align-items-center justify-content-center border rounded p-2">
+						<i class="ti ti-photo text-muted" style="font-size: 3rem;"></i>
+					</div>
+
+					<div class="col-md-9">
+						<div class="form-group mb-2">
+							<label for="Images___INDEX___ImageUrl" class="form-label">@Html.DisplayNameFor(model => model![0].ImageUrl)</label>
+							<div class="input-group">
+								<input type="url" id="Images___INDEX___ImageUrl" name="Images[__INDEX__].ImageUrl" class="form-control media-url-input image-url" value="" readonly />
+								<button class="btn btn-outline-secondary select-media-button" type="button"
+										data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+										data-media-type-filter="0">
+									<i class="ti ti-photo"></i> Chọn
+								</button>
+							</div>
+							 <span class="text-danger field-validation-valid" data-valmsg-for="Images[__INDEX__].ImageUrl" data-valmsg-replace="true"></span>
+						</div>
+						<div class="form-group mb-2">
+							<label for="Images___INDEX___AltText" class="form-label">@Html.DisplayNameFor(model => model![0].AltText)</label>
+							<input type="text" id="Images___INDEX___AltText" name="Images[__INDEX__].AltText" class="form-control" value="" />
+							<span class="text-danger field-validation-valid" data-valmsg-for="Images[__INDEX__].AltText" data-valmsg-replace="true"></span>
+						</div>
+						<div class="row g-2">
+							 <div class="col-md-6">
+								 <div class="form-group mb-2">
+									<label for="Images___INDEX___Title" class="form-label">@Html.DisplayNameFor(model => model![0].Title)</label>
+									<input type="text" id="Images___INDEX___Title" name="Images[__INDEX__].Title" class="form-control" value="" />
+									<span class="text-danger field-validation-valid" data-valmsg-for="Images[__INDEX__].Title" data-valmsg-replace="true"></span>
+								</div>
+							 </div>
+							 <div class="col-md-3">
+								 <div class="form-group mb-2">
+									<label for="Images___INDEX___OrderIndex" class="form-label">@Html.DisplayNameFor(model => model![0].OrderIndex)</label>
+									<input type="number" id="Images___INDEX___OrderIndex" name="Images[__INDEX__].OrderIndex" class="form-control" value="0" min="0" />
+									 <span class="text-danger field-validation-valid" data-valmsg-for="Images[__INDEX__].OrderIndex" data-valmsg-replace="true"></span>
+								</div>
+							 </div>
+							  <div class="col-md-3">
+								 <label class="form-label"> </label>
+								 <div class="form-check form-switch pt-2">
+									 <input type="checkbox" id="Images___INDEX___IsMain" name="Images[__INDEX__].IsMain" value="true" class="form-check-input is-main-checkbox" role="switch">
+		@* Hidden input for false value for checkboxes - needed for model binding *@
+									 <input type="hidden" name="Images[__INDEX__].IsMain" value="false">
+									 <label for="Images___INDEX___IsMain" class="form-check-label">@Html.DisplayNameFor(model => model![0].IsMain)</label>
+									 <span class="text-danger field-validation-valid" data-valmsg-for="Images[__INDEX__].IsMain" data-valmsg-replace="true"></span>
+								 </div>
+							 </div>
+						 </div>
+					</div>
+
+					 <div class="col-md-1 d-flex align-items-center justify-content-end">
+						 <button type="button" class="btn btn-icon btn-outline-danger remove-image-button" title="Xóa ảnh">
+							 <i class="ti ti-trash"></i>
+						 </button>
+					 </div>
+				</div>
+			`;
+
+			 // Function to add a new image item to the form
+			function addImageItem(imageUrl = '', thumbnailUrl = '', altText = '', title = '') {
+				const newItemHtml = imageItemTemplate.replace(/__INDEX__/g, imageIndex);
+				const $newItem = $(newItemHtml);
+
+				 // Pre-fill URL if provided (e.g., from Media Picker)
+				if (imageUrl) {
+					 $newItem.find('.media-url-input.image-url').val(imageUrl);
+					 const $previewCol = $newItem.find('.col-preview');
+					  $previewCol.empty().append(`<img src="${thumbnailUrl || imageUrl}" class="img-thumbnail" style="max-width: 80px; height: auto;" data-full-url="${imageUrl}" />`);
+				}
+
+				$imageContainer.append($newItem);
+
+				// Re-parse validation for the new item (needed for client-side validation)
+				// Ensure the form is available for the validator
+				const $form = $imageContainer.closest('form');
+				$form.removeData('validator').removeData('unobtrusiveValidation');
+				$.validator.unobtrusive.parse($form);
+
+
+				imageIndex++; // Increment index for the next item
+			}
+
+			 // Handle "Add Image" button click
+			$addImageButton.on('click', function() {
+				 addImageItem(); // Add a blank item by default
+				 // Optionally, trigger Media Picker immediately after adding?
+				 // $(this).prev('.product-image-item').find('.select-media-button').click(); // Example
+			});
+
+			 // Handle "Remove Image" button click (using event delegation)
+			$imageContainer.on('click', '.remove-image-button', function() {
+				const $itemToRemove = $(this).closest('.product-image-item');
+				const $deleteFlag = $itemToRemove.find('.image-delete-flag');
+				const imageId = $itemToRemove.find('input[name$=".Id"]').val();
+
+				if (imageId > 0) {
+					 // Mark existing image for deletion instead of removing from DOM
+					 $deleteFlag.val('True');
+					 $itemToRemove.addClass('d-none'); // Hide the item visually
+					 // You might want to add a confirmation message or a way to undo deletion
+					 console.log(`Marked image ${imageId} for deletion.`);
+
+					 // Re-validate the form to update validation messages
+					 const $form = $imageContainer.closest('form');
+					 $form.validate().element($itemToRemove.find('.image-url')); // Trigger validation for one element to refresh summary
+				} else {
+					// Remove new images (ID 0) directly from DOM
+					$itemToRemove.remove();
+					console.log("Removed new image item.");
+					 // Re-index remaining items if necessary (more complex, maybe skip for now)
+				}
+				// Re-index logic is needed if you remove from the middle.
+				// A simpler approach for MVC binding is just hiding/marking for delete.
+			});
+
+
+			// Handle Media Picker Selection within the image list (using event delegation)
+			// Assumes MediaManager.openMediaModal and the modal are initialized in __LibScripts
+			 $imageContainer.on('click', '.select-media-button', function() {
+				 const targetInput = $(this).closest('.input-group').find('.media-url-input');
+				 const mediaTypeFilter = $(this).data('media-type-filter'); // Get filter from button data
+				 const $previewCol = $(this).closest('.product-image-item').find('.col-preview');
+
+				 window.openMediaModal(targetInput, function(selectedFile) {
+					  // Callback after file is selected
+					  // Update the URL input
+					  targetInput.val(selectedFile.url).trigger('change'); // Trigger change for validation/binding
+
+					   // Update the preview area
+					  $previewCol.empty().append(`<img src="${selectedFile.url}" class="img-thumbnail" style="max-width: 80px; height: auto;" data-full-url="${selectedFile.url}" />`); // Use selectedFile.url for both thumb/full if thumb is not separate
+
+					  // Optionally update AltText/Title if MediaManager provides them
+					   if (selectedFile.altText && $item.find('input[name$=".AltText"]').val() === '') {
+							targetInput.closest('.product-image-item').find('input[name$=".AltText"]').val(selectedFile.altText);
+					   }
+						if (selectedFile.title && $item.find('input[name$=".Title"]').val() === '') {
+							targetInput.closest('.product-image-item').find('input[name$=".Title"]').val(selectedFile.title);
+					   }
+
+					 // Re-validate the specific input field
+					 targetInput.valid();
+
+				 }, mediaTypeFilter); // Pass filter to openMediaModal
+			 });
+
+			 // Handle IsMain checkbox logic (using event delegation)
+			 $imageContainer.on('change', '.is-main-checkbox', function() {
+				 const $currentCheckbox = $(this);
+				 if ($currentCheckbox.is(':checked')) {
+					 // Uncheck all other IsMain checkboxes in this container
+					 $imageContainer.find('.is-main-checkbox').not($currentCheckbox).prop('checked', false);
+
+					 // Ensure the hidden false input is correctly handled for others (unchecking removes value=true)
+					 // This is complex with pure JS. jQuery Unobtrusive Validation handles the hidden field.
+					 // A simpler approach is often to let the *server-side* validation ensure only one is true on POST.
+					 // However, client-side validation can give instant feedback. FluentValidation's client-side adapter might handle this correctly if setup.
+
+					  // If using manual JS for hidden field:
+					  // $imageContainer.find('.is-main-checkbox').not($currentCheckbox).each(function() {
+					  //     $(this).next('input[type="hidden"][name]').val('false');
+					  // });
+					   // $currentCheckbox.next('input[type="hidden"][name]').val('true'); // Not needed if value="true" attribute is set and model binding works
+
+
+					 // Trigger validation for all IsMain checkboxes to update the validation summary
+					  $imageContainer.find('.is-main-checkbox').valid();
+				 } else {
+					 // If unchecked, make sure there's still at least one main image selected if required by validator.
+					 // Or just let the validator handle it on submit.
+					  $currentCheckbox.valid(); // Validate just this one
+					  // Also trigger validation for others if needed to clear messages
+					  $imageContainer.find('.is-main-checkbox').not($currentCheckbox).valid();
+				 }
+			 });
+
+
+			 // Client-side validation messages for the Images collection itself
+			 // will appear in the div#product-image-validation-summary
+			 // field-validation-valid spans are added next to each input by unobtrusive validation
+
+
+		});
+	</script>
+}

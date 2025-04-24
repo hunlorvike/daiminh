@@ -12,7 +12,6 @@ public class Brand : BaseEntity<int>
     public string? LogoUrl { get; set; }
     public string? Website { get; set; }
     public bool IsActive { get; set; } = true;
-
     public virtual ICollection<Product>? Products { get; set; }
 }
 
