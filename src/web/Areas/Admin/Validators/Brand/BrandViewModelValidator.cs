@@ -1,6 +1,5 @@
 using FluentValidation;
 using infrastructure;
-using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Brand;
 
 namespace web.Areas.Admin.Validators.Brand;

@@ -1,7 +1,6 @@
 using domain.Entities;
 using FluentValidation;
 using infrastructure;
-using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.Tag;
 
 public class TagViewModelValidator : AbstractValidator<TagViewModel>

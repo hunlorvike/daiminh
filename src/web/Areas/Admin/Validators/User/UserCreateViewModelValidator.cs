@@ -1,6 +1,5 @@
 using FluentValidation;
 using infrastructure;
-using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.ViewModels.User;
 
 namespace web.Areas.Admin.Validators.User;

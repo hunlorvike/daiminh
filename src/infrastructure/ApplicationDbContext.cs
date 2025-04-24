@@ -20,7 +20,6 @@ public class ApplicationDbContext : DbContext
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }
     public DbSet<Brand> Brands { get; set; }
-    public DbSet<ProductVariant> ProductVariants { get; set; }
 
     // Bài viết
     public DbSet<Article> Articles { get; set; }

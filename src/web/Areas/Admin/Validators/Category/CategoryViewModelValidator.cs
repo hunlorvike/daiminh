@@ -1,6 +1,5 @@
 using FluentValidation;
 using infrastructure;
-using Microsoft.EntityFrameworkCore;
 using web.Areas.Admin.Validators.Shared;
 using web.Areas.Admin.ViewModels.Category;
 
