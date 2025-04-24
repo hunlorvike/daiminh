@@ -15,10 +15,6 @@
       "destination": "wwwroot/lib/jquery-validation-unobtrusive"
     },
     {
-      "library": "summernote@0.9.1",
-      "destination": "wwwroot/lib/summernote/"
-    },
-    {
       "library": "tom-select@2.4.3",
       "destination": "wwwroot/lib/tom-select/"
     },
