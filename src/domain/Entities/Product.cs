@@ -86,4 +86,3 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
             .OnDelete(DeleteBehavior.SetNull);
     }
 }
-

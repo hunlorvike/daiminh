@@ -35,4 +35,3 @@ public class NewsletterConfiguration : BaseEntityConfiguration<Newsletter, int>
         builder.HasIndex(e => e.IsActive).HasDatabaseName("idx_newsletters_is_active");
     }
 }
-

@@ -13,4 +13,3 @@ public enum CategoryType : ushort
     [Display(Name = "Câu hỏi")]
     FAQ
 }
-

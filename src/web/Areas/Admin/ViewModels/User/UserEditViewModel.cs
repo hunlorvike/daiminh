@@ -29,4 +29,3 @@ public class UserEditViewModel
 
     // *** Lưu ý: Không có trường mật khẩu ở đây ***
 }
-

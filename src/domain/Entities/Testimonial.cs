@@ -37,4 +37,3 @@ public class TestimonialConfiguration : BaseEntityConfiguration<Testimonial, int
         builder.HasIndex(e => e.Rating).HasDatabaseName("idx_testimonials_rating");
     }
 }
-

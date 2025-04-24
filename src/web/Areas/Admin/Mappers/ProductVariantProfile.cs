@@ -18,4 +18,3 @@ public class ProductVariantProfile : Profile
             .ForMember(dest => dest.ProductId, opt => opt.Ignore()); // Set by Controller
     }
 }
-

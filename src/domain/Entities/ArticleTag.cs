@@ -40,4 +40,3 @@ public class ArticleTagConfiguration : BaseEntityConfiguration<ArticleTag, int>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

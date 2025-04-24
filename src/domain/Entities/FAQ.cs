@@ -37,4 +37,3 @@ public class FAQConfiguration : BaseEntityConfiguration<FAQ, int>
             .OnDelete(DeleteBehavior.SetNull);
     }
 }
-

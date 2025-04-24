@@ -45,4 +45,3 @@ public class ContactConfiguration : BaseEntityConfiguration<Contact, int>
         builder.HasIndex(e => e.Email).HasDatabaseName("idx_contacts_email");
     }
 }
-

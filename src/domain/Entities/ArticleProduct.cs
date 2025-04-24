@@ -43,4 +43,3 @@ public class ArticleProductConfiguration : BaseEntityConfiguration<ArticleProduc
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

@@ -42,4 +42,3 @@ public class ProductImageConfiguration : BaseEntityConfiguration<ProductImage, i
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

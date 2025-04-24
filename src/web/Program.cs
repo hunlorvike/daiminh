@@ -110,4 +110,3 @@ app.MapControllerRoute(
 
 Log.Information("Starting web host");
 await app.RunAsync();
-

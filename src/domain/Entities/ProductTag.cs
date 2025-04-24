@@ -40,4 +40,3 @@ public class ProductTagConfiguration : BaseEntityConfiguration<ProductTag, int>
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
-

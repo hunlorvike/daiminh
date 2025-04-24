@@ -58,4 +58,3 @@ public abstract class SeoEntityConfiguration<TEntity, TKey> : BaseEntityConfigur
         builder.Property(e => e.SitemapChangeFrequency).HasColumnName("sitemap_change_frequency").HasMaxLength(20).HasDefaultValue("monthly");
     }
 }
-
