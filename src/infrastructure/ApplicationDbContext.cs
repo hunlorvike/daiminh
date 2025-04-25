@@ -23,8 +23,9 @@ public class ApplicationDbContext : DbContext
     public DbSet<domain.Entities.Attribute> Attributes { get; set; }
     public DbSet<AttributeValue> AttributeValues { get; set; }
     public DbSet<ProductVariation> ProductVariations { get; set; }
-    public DbSet<ProductAttribute> ProductAttributes { get; set; } = null!;
-    public DbSet<ProductVariationAttributeValue> ProductVariationAttributeValues { get; set; } = null!;
+    public DbSet<ProductAttribute> ProductAttributes { get; set; }
+    public DbSet<ProductVariationAttributeValue> ProductVariationAttributeValues { get; set; }
+    public DbSet<ProductReview> ProductReviews { get; set; }
 
     // Bài viết
     public DbSet<Article> Articles { get; set; }

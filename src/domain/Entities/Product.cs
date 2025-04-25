@@ -28,6 +28,7 @@ public class Product : SeoEntity<int>
     public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
     public virtual ICollection<ProductVariation>? Variations { get; set; }
     public virtual ICollection<ProductAttribute>? ProductAttributes { get; set; }
+    public virtual ICollection<ProductReview>? Reviews { get; set; }
 }
 
 public class ProductConfiguration : SeoEntityConfiguration<Product, int>

@@ -12,6 +12,7 @@ public class User : BaseEntity<int>
     public string PasswordHash { get; set; } = string.Empty;
     public string? FullName { get; set; }
     public bool IsActive { get; set; } = true;
+    public virtual ICollection<ProductReview>? ReviewsWritten { get; set; }
 }
 
 public class UserConfiguration : BaseEntityConfiguration<User, int>
