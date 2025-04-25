@@ -15,12 +15,6 @@ public class Product : SeoEntity<int>
     public string? Origin { get; set; }
     public string? Specifications { get; set; }
     public string? Usage { get; set; }
-    public string? Features { get; set; }
-    public string? PackagingInfo { get; set; }
-    public string? StorageInstructions { get; set; }
-    public string? SafetyInfo { get; set; }
-    public string? ApplicationAreas { get; set; }
-    public string? TechnicalDocuments { get; set; }
     public int ViewCount { get; set; } = 0;
     public bool IsFeatured { get; set; } = false;
     public bool IsActive { get; set; } = true;
@@ -32,6 +26,8 @@ public class Product : SeoEntity<int>
     public virtual ICollection<ProductImage>? Images { get; set; }
     public virtual ICollection<ProductTag>? ProductTags { get; set; }
     public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
+    public virtual ICollection<ProductVariation>? Variations { get; set; }
+    public virtual ICollection<ProductAttribute>? ProductAttributes { get; set; }
 }
 
 public class ProductConfiguration : SeoEntityConfiguration<Product, int>
@@ -51,12 +47,6 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
         builder.Property(e => e.Origin).HasColumnName("origin").HasMaxLength(100);
         builder.Property(e => e.Specifications).HasColumnName("specifications").HasColumnType("nvarchar(max)");
         builder.Property(e => e.Usage).HasColumnName("usage").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.Features).HasColumnName("features").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.PackagingInfo).HasColumnName("packaging_info").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.StorageInstructions).HasColumnName("storage_instructions").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.SafetyInfo).HasColumnName("safety_info").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.ApplicationAreas).HasColumnName("application_areas").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.TechnicalDocuments).HasColumnName("technical_documents").HasColumnType("nvarchar(max)");
         builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
         builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);

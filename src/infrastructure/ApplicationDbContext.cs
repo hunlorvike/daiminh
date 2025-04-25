@@ -20,6 +20,11 @@ public class ApplicationDbContext : DbContext
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }
     public DbSet<Brand> Brands { get; set; }
+    public DbSet<domain.Entities.Attribute> Attributes { get; set; }
+    public DbSet<AttributeValue> AttributeValues { get; set; }
+    public DbSet<ProductVariation> ProductVariations { get; set; }
+    public DbSet<ProductAttribute> ProductAttributes { get; set; } = null!;
+    public DbSet<ProductVariationAttributeValue> ProductVariationAttributeValues { get; set; } = null!;
 
     // Bài viết
     public DbSet<Article> Articles { get; set; }
