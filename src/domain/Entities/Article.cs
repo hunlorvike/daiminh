@@ -21,11 +21,8 @@ public class Article : SeoEntity<int>
     public string? AuthorAvatar { get; set; }
     public int EstimatedReadingMinutes { get; set; } = 0;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
-
-    public int CategoryId { get; set; }
-
-    // Navigation properties
-    public virtual required Category Category { get; set; }
+    public int? CategoryId { get; set; }
+    public virtual Category? Category { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }
     public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
 }
@@ -51,21 +48,13 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.Property(e => e.AuthorName).HasColumnName("author_name").HasMaxLength(100);
         builder.Property(e => e.AuthorAvatar).HasColumnName("author_avatar").HasMaxLength(255);
         builder.Property(e => e.EstimatedReadingMinutes).HasColumnName("estimated_reading_minutes").HasDefaultValue(0);
+        builder.Property(e => e.CategoryId).HasColumnName("category_id");
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()
             .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
 
-        builder.Property(e => e.CategoryId).HasColumnName("category_id").IsRequired();
-
-        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_articles_slug").IsUnique();
-        builder.HasIndex(e => e.Status).HasDatabaseName("idx_articles_status");
-        builder.HasIndex(e => e.ViewCount).HasDatabaseName("idx_articles_view_count");
-        builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_articles_is_featured");
-        builder.HasIndex(e => e.PublishedAt).HasDatabaseName("idx_articles_published_at");
-        builder.HasIndex(e => e.AuthorId).HasDatabaseName("idx_articles_author_id");
-        builder.HasIndex(e => e.CategoryId).HasDatabaseName("idx_articles_category_id");
 
         builder.HasOne(e => e.Category)
             .WithMany(c => c.Articles)

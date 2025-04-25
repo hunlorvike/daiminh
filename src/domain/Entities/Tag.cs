@@ -20,19 +20,13 @@ public class TagConfiguration : BaseEntityConfiguration<Tag, int>
     public override void Configure(EntityTypeBuilder<Tag> builder)
     {
         base.Configure(builder);
-
         builder.ToTable("tags");
-
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(50);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(50);
         builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
         builder.Property(e => e.Type)
             .HasColumnName("type")
             .IsRequired()
-            .HasMaxLength(20)
             .HasDefaultValue(TagType.Product);
-
-        builder.HasIndex(e => new { e.Slug, e.Type }).HasDatabaseName("idx_tags_slug_type").IsUnique();
-        builder.HasIndex(e => e.Type).HasDatabaseName("idx_tags_type");
     }
 }

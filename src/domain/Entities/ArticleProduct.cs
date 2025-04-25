@@ -19,8 +19,6 @@ public class ArticleProductConfiguration : IEntityTypeConfiguration<ArticleProdu
         builder.HasKey(e => new { e.ArticleId, e.ProductId });
         builder.Property(e => e.ArticleId).HasColumnName("article_id");
         builder.Property(e => e.ProductId).HasColumnName("product_id");
-        builder.HasIndex(e => e.ArticleId).HasDatabaseName("idx_article_products_article_id");
-        builder.HasIndex(e => e.ProductId).HasDatabaseName("idx_article_products_product_id");
         builder.HasOne(e => e.Article)
             .WithMany(a => a.ArticleProducts)
             .HasForeignKey(e => e.ArticleId)

@@ -36,9 +36,7 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
     public override void Configure(EntityTypeBuilder<Product> builder)
     {
         base.Configure(builder);
-
         builder.ToTable("products");
-
         builder.Property(e => e.BrandId).HasColumnName("brand_id");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
@@ -52,24 +50,14 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
         builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         builder.Property(e => e.CategoryId).HasColumnName("category_id");
-
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()
-            .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
-
-        builder.HasIndex(e => e.Slug).HasDatabaseName("idx_products_slug").IsUnique();
-        builder.HasIndex(e => e.Status).HasDatabaseName("idx_products_status");
-        builder.HasIndex(e => e.ViewCount).HasDatabaseName("idx_products_view_count");
-        builder.HasIndex(e => e.IsFeatured).HasDatabaseName("idx_products_is_featured");
-        builder.HasIndex(e => e.BrandId).HasDatabaseName("idx_products_brand_id");
-
         builder.HasOne(p => p.Brand)
             .WithMany(b => b.Products)
             .HasForeignKey(p => p.BrandId)
             .OnDelete(DeleteBehavior.Restrict);
-
         builder.HasOne(e => e.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(e => e.CategoryId)

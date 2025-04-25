@@ -30,8 +30,5 @@ public class NewsletterConfiguration : BaseEntityConfiguration<Newsletter, int>
         builder.Property(e => e.UserAgent).HasColumnName("user_agent").HasMaxLength(255);
         builder.Property(e => e.ConfirmedAt).HasColumnName("confirmed_at");
         builder.Property(e => e.UnsubscribedAt).HasColumnName("unsubscribed_at");
-
-        builder.HasIndex(e => e.Email).HasDatabaseName("idx_newsletters_email").IsUnique();
-        builder.HasIndex(e => e.IsActive).HasDatabaseName("idx_newsletters_is_active");
     }
 }

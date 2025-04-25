@@ -40,9 +40,6 @@ public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
         builder.Property(e => e.MediaType)
             .HasColumnName("media_type")
             .IsRequired()
-            .HasMaxLength(20)
             .HasDefaultValue(MediaType.Image);
-
-        builder.HasIndex(e => e.FilePath).HasDatabaseName("idx_media_files_file_path").IsUnique();
     }
 }

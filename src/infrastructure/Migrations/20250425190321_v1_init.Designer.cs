@@ -12,8 +12,8 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250425184100_version5")]
-    partial class version5
+    [Migration("20250425190321_v1_init")]
+    partial class v1_init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,7 +57,7 @@ namespace infrastructure.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("canonical_url");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int")
                         .HasColumnName("category_id");
 
@@ -232,27 +232,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuthorId")
-                        .HasDatabaseName("idx_articles_author_id");
-
-                    b.HasIndex("CategoryId")
-                        .HasDatabaseName("idx_articles_category_id");
-
-                    b.HasIndex("IsFeatured")
-                        .HasDatabaseName("idx_articles_is_featured");
-
-                    b.HasIndex("PublishedAt")
-                        .HasDatabaseName("idx_articles_published_at");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("idx_articles_slug");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("idx_articles_status");
-
-                    b.HasIndex("ViewCount")
-                        .HasDatabaseName("idx_articles_view_count");
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("articles", (string)null);
                 });
@@ -267,22 +247,9 @@ namespace infrastructure.Migrations
                         .HasColumnType("int")
                         .HasColumnName("product_id");
 
-                    b.Property<int>("OrderIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
-
                     b.HasKey("ArticleId", "ProductId");
 
-                    b.HasIndex("ArticleId")
-                        .HasDatabaseName("idx_article_products_article_id");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_article_products_order_index");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("idx_article_products_product_id");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("article_products", (string)null);
                 });
@@ -299,11 +266,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("ArticleId", "TagId");
 
-                    b.HasIndex("ArticleId")
-                        .HasDatabaseName("idx_article_tags_article_id");
-
-                    b.HasIndex("TagId")
-                        .HasDatabaseName("idx_article_tags_tag_id");
+                    b.HasIndex("TagId");
 
                     b.ToTable("article_tags", (string)null);
                 });
@@ -465,13 +428,6 @@ namespace infrastructure.Migrations
                         .HasColumnName("website");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_brands_is_active");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("idx_brands_slug");
 
                     b.ToTable("brands", (string)null);
                 });
@@ -648,21 +604,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_categories_is_active");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_categories_order_index");
-
-                    b.HasIndex("ParentId")
-                        .HasDatabaseName("idx_categories_parent_id");
-
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_categories_type");
-
-                    b.HasIndex("Slug", "Type")
-                        .IsUnique()
-                        .HasDatabaseName("idx_categories_slug_type");
+                    b.HasIndex("ParentId");
 
                     b.ToTable("categories", (string)null);
                 });
@@ -719,7 +661,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("status");
@@ -745,15 +686,6 @@ namespace infrastructure.Migrations
                         .HasColumnName("user_agent");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CreatedAt")
-                        .HasDatabaseName("idx_contacts_created_at");
-
-                    b.HasIndex("Email")
-                        .HasDatabaseName("idx_contacts_email");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("idx_contacts_status");
 
                     b.ToTable("contacts", (string)null);
                 });
@@ -817,12 +749,6 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_faqs_is_active");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_faqs_order_index");
-
                     b.ToTable("faqs", (string)null);
                 });
 
@@ -885,7 +811,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("MediaType")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("media_type");
@@ -912,10 +837,6 @@ namespace infrastructure.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FilePath")
-                        .IsUnique()
-                        .HasDatabaseName("idx_media_files_file_path");
 
                     b.ToTable("media_files", (string)null);
                 });
@@ -984,13 +905,6 @@ namespace infrastructure.Migrations
                         .HasColumnName("user_agent");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Email")
-                        .IsUnique()
-                        .HasDatabaseName("idx_newsletters_email");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_newsletters_is_active");
 
                     b.ToTable("newsletters", (string)null);
                 });
@@ -1147,7 +1061,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("status");
@@ -1195,23 +1108,9 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("BrandId")
-                        .HasDatabaseName("idx_products_brand_id");
+                    b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
-
-                    b.HasIndex("IsFeatured")
-                        .HasDatabaseName("idx_products_is_featured");
-
-                    b.HasIndex("Slug")
-                        .IsUnique()
-                        .HasDatabaseName("idx_products_slug");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("idx_products_status");
-
-                    b.HasIndex("ViewCount")
-                        .HasDatabaseName("idx_products_view_count");
 
                     b.ToTable("products", (string)null);
                 });
@@ -1300,14 +1199,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_product_images_order_index");
-
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("idx_product_images_product_id");
-
-                    b.HasIndex("ProductId", "IsMain")
-                        .HasDatabaseName("idx_product_images_product_main");
+                    b.HasIndex("ProductId");
 
                     b.ToTable("product_images", (string)null);
                 });
@@ -1346,7 +1238,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("status");
@@ -1376,17 +1267,9 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("idx_product_reviews_product_id");
+                    b.HasIndex("ProductId");
 
-                    b.HasIndex("Rating")
-                        .HasDatabaseName("idx_product_reviews_rating");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("idx_product_reviews_status");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("idx_product_reviews_user_id");
+                    b.HasIndex("UserId");
 
                     b.ToTable("product_reviews", (string)null);
                 });
@@ -1403,11 +1286,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("ProductId", "TagId");
 
-                    b.HasIndex("ProductId")
-                        .HasDatabaseName("idx_product_tags_product_id");
-
-                    b.HasIndex("TagId")
-                        .HasDatabaseName("idx_product_tags_tag_id");
+                    b.HasIndex("TagId");
 
                     b.ToTable("product_tags", (string)null);
                 });
@@ -1547,7 +1426,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("type");
@@ -1567,19 +1445,6 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Category")
-                        .HasDatabaseName("idx_settings_category");
-
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_settings_is_active");
-
-                    b.HasIndex("Key")
-                        .IsUnique()
-                        .HasDatabaseName("idx_settings_key");
-
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_settings_type");
-
                     b.ToTable("settings", (string)null);
 
                     b.HasData(
@@ -1587,7 +1452,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 1,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(382),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3559),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên website hiển thị trên trang và tiêu đề trình duyệt.",
                             IsActive = true,
@@ -1599,7 +1464,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 2,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(388),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3569),
                             DefaultValue = "https://localhost:7001",
                             Description = "Địa chỉ URL chính của website (ví dụ: https://www.example.com).",
                             IsActive = true,
@@ -1611,7 +1476,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 3,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(390),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3571),
                             DefaultValue = "sondaiminh@gmail.com",
                             Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống.",
                             IsActive = true,
@@ -1623,7 +1488,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 5,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(392),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3574),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên công ty hoặc tổ chức sở hữu website.",
                             IsActive = true,
@@ -1635,7 +1500,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 6,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(393),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3575),
                             DefaultValue = "123 Main Street, Anytown, CA 91234",
                             Description = "Địa chỉ liên hệ đầy đủ.",
                             IsActive = true,
@@ -1647,7 +1512,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 7,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(395),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3577),
                             DefaultValue = "(123) 456-7890",
                             Description = "Số điện thoại liên hệ chính.",
                             IsActive = true,
@@ -1659,7 +1524,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 8,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(396),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3578),
                             DefaultValue = "contact@example.com",
                             Description = "Địa chỉ email hiển thị công khai để liên hệ.",
                             IsActive = true,
@@ -1671,7 +1536,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 9,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(397),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3580),
                             Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).",
                             IsActive = true,
                             Key = "ContactMapEmbed",
@@ -1681,7 +1546,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 10,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(399),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3582),
                             DefaultValue = "Welcome to My Application",
                             Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
                             IsActive = true,
@@ -1693,7 +1558,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 11,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(401),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3583),
                             DefaultValue = "This is the default description for My Application.",
                             Description = "Mô tả meta mặc định (dưới 160 ký tự).",
                             IsActive = true,
@@ -1705,7 +1570,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 12,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(402),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3585),
                             DefaultValue = "/image/icon.jpg",
                             Description = "Đường dẫn đến file favicon.ico hoặc ảnh favicon.",
                             IsActive = true,
@@ -1717,7 +1582,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 13,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(403),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3586),
                             Description = "URL trang Facebook.",
                             IsActive = true,
                             Key = "SocialFacebookUrl",
@@ -1727,7 +1592,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 14,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(405),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3588),
                             Description = "URL trang Twitter (X).",
                             IsActive = true,
                             Key = "SocialTwitterUrl",
@@ -1737,7 +1602,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 15,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(406),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3589),
                             Description = "URL trang Instagram.",
                             IsActive = true,
                             Key = "SocialInstagramUrl",
@@ -1747,7 +1612,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 16,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(407),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3591),
                             Description = "URL trang LinkedIn.",
                             IsActive = true,
                             Key = "SocialLinkedInUrl",
@@ -1757,7 +1622,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 17,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(408),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3592),
                             Description = "URL kênh Youtube.",
                             IsActive = true,
                             Key = "SocialYoutubeUrl",
@@ -1767,7 +1632,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 18,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(415),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3594),
                             DefaultValue = "smtp.example.com",
                             Description = "Địa chỉ máy chủ SMTP.",
                             IsActive = true,
@@ -1779,7 +1644,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 19,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(416),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3596),
                             DefaultValue = "587",
                             Description = "Cổng SMTP (ví dụ: 587, 465, 25).",
                             IsActive = true,
@@ -1791,7 +1656,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 20,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(417),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3597),
                             DefaultValue = "user@example.com",
                             Description = "Tên đăng nhập SMTP.",
                             IsActive = true,
@@ -1803,7 +1668,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 21,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(418),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3599),
                             Description = "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.",
                             IsActive = true,
                             Key = "SmtpPassword",
@@ -1813,7 +1678,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 22,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(420),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3601),
                             DefaultValue = "true",
                             Description = "Sử dụng mã hóa SSL/TLS khi gửi email.",
                             IsActive = true,
@@ -1825,7 +1690,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 23,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(421),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3602),
                             DefaultValue = "My Application Support",
                             Description = "Tên hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -1837,7 +1702,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 24,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 397, DateTimeKind.Utc).AddTicks(422),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3604),
                             DefaultValue = "noreply@example.com",
                             Description = "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -1885,7 +1750,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("type");
@@ -1900,13 +1764,6 @@ namespace infrastructure.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("Type")
-                        .HasDatabaseName("idx_tags_type");
-
-                    b.HasIndex("Slug", "Type")
-                        .IsUnique()
-                        .HasDatabaseName("idx_tags_slug_type");
 
                     b.ToTable("tags", (string)null);
                 });
@@ -1985,15 +1842,6 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("IsActive")
-                        .HasDatabaseName("idx_testimonials_is_active");
-
-                    b.HasIndex("OrderIndex")
-                        .HasDatabaseName("idx_testimonials_order_index");
-
-                    b.HasIndex("Rating")
-                        .HasDatabaseName("idx_testimonials_rating");
-
                     b.ToTable("testimonials", (string)null);
                 });
 
@@ -2055,23 +1903,17 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Email")
-                        .HasDatabaseName("idx_users_email");
-
-                    b.HasIndex("Username")
-                        .HasDatabaseName("idx_users_username");
-
                     b.ToTable("users", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 4, 25, 18, 40, 59, 398, DateTimeKind.Utc).AddTicks(5152),
+                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 845, DateTimeKind.Utc).AddTicks(6583),
                             Email = "admin@admin.com",
                             FullName = "Quản trị viên",
                             IsActive = true,
-                            PasswordHash = "AQAAAAIAAYagAAAAECUjSCf78YQc+ImmLPmlFpx6KPiEgBpJgP2SCDNTVLISRj2nYtg7aF2weOzJ1H4Q/g==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEPZaAbH4xn31ZNOcHHtmF0GN+x19pVhTaPTuoEAbsIQW/30lIaCjaj3YCI6WwrhDag==",
                             Username = "admin"
                         });
                 });
@@ -2081,8 +1923,7 @@ namespace infrastructure.Migrations
                     b.HasOne("domain.Entities.Category", "Category")
                         .WithMany("Articles")
                         .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("Category");
                 });

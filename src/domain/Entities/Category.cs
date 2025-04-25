@@ -43,12 +43,6 @@ public class CategoryConfiguration : SeoEntityConfiguration<Category, int>
             .HasMaxLength(20)
             .HasDefaultValue(CategoryType.Product);
 
-        builder.HasIndex(e => new { e.Slug, e.Type }).HasDatabaseName("idx_categories_slug_type").IsUnique();
-        builder.HasIndex(e => e.ParentId).HasDatabaseName("idx_categories_parent_id");
-        builder.HasIndex(e => e.IsActive).HasDatabaseName("idx_categories_is_active");
-        builder.HasIndex(e => e.Type).HasDatabaseName("idx_categories_type");
-        builder.HasIndex(e => e.OrderIndex).HasDatabaseName("idx_categories_order_index");
-
         builder.HasOne(e => e.Parent)
             .WithMany(c => c.Children)
             .HasForeignKey(e => e.ParentId)

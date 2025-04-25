@@ -29,17 +29,11 @@ public class SettingConfiguration : BaseEntityConfiguration<Setting, int>
         builder.Property(e => e.Type)
             .HasColumnName("type")
             .IsRequired()
-            .HasMaxLength(20)
             .HasDefaultValue(FieldType.Text);
         builder.Property(s => s.Description).HasColumnName("description").HasMaxLength(500);
         builder.Property(s => s.DefaultValue).HasColumnName("default_value").HasColumnType("nvarchar(max)");
         builder.Property(s => s.Value).HasColumnName("value").HasColumnType("nvarchar(max)");
         builder.Property(s => s.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-        builder.HasIndex(s => s.Key).HasDatabaseName("idx_settings_key").IsUnique();
-        builder.HasIndex(s => s.Category).HasDatabaseName("idx_settings_category");
-        builder.HasIndex(s => s.Type).HasDatabaseName("idx_settings_type");
-        builder.HasIndex(s => s.IsActive).HasDatabaseName("idx_settings_is_active");
-
         builder.HasData(
              new Setting
              {
