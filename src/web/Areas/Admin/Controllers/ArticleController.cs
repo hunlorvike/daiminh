@@ -388,7 +388,7 @@ public partial class ArticleController
         foreach (var productId in productIdsToAdd)
         {
             article.ArticleProducts ??= new List<ArticleProduct>();
-            article.ArticleProducts.Add(new ArticleProduct { ArticleId = article.Id, ProductId = productId, OrderIndex = 0 });
+            article.ArticleProducts.Add(new ArticleProduct { ArticleId = article.Id, ProductId = productId });
         }
     }
 }
