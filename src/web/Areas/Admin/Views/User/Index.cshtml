@@ -61,7 +61,7 @@
 		@if (!Model.Users.Any())
 		{
 			<div class="empty">
-				<div class="empty-icon"><i class="ti ti-users-off fa-5x text-muted"></i></div>
+                <div class="empty-icon"><i class="ti ti-user-off fs-1 text-muted"></i></div>
 				<p class="empty-title">Không tìm thấy người dùng nào</p>
 				<p class="empty-subtitle text-muted">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue)

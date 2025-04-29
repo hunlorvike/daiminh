@@ -70,7 +70,7 @@
 		@if (!Model.Articles.Any())
 		{
 			<div class="empty">
-				<div class="empty-icon"><i class="ti ti-article off fa-5x text-muted"></i></div> @* Assuming ti-article icon exists *@
+				<div class="empty-icon"><i class="ti ti-article off fs-1 text-muted"></i></div> @* Assuming ti-article icon exists *@
 				<p class="empty-title">Không tìm thấy bài viết nào</p>
 				<p class="empty-subtitle text-muted">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue && !Model.Filter.CategoryId.HasValue && !Model.Filter.IsFeatured.HasValue)

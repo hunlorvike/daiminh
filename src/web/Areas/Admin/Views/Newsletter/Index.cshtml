@@ -61,7 +61,7 @@
 		@if (!Model.Newsletters.Any())
 		{
 			<div class="empty">
-				<div class="empty-icon"><i class="ti ti-mail-off fa-5x text-muted"></i></div>
+				<div class="empty-icon"><i class="ti ti-mail-off fs-1 text-muted"></i></div>
 				<p class="empty-title">Không tìm thấy đăng ký nào</p>
 				<p class="empty-subtitle text-muted">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue)
