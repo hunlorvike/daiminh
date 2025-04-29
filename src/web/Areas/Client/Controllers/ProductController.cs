@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace web.Controllers;
+namespace web.Areas.Client.Controllers;
 
+[Area("Client")]
 public class ProductController : Controller
 {
     public IActionResult Index()
