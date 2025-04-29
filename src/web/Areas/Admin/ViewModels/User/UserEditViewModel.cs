@@ -26,6 +26,7 @@ public class UserEditViewModel
 
     [Display(Name = "Kích hoạt")]
     public bool IsActive { get; set; } = true;
-
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     // *** Lưu ý: Không có trường mật khẩu ở đây ***
 }

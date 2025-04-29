@@ -1,80 +1,158 @@
 @using web.Areas.Admin.ViewModels.User
 @model UserCreateViewModel
 @{
-	ViewData["Title"] = "Tạo Người dùng mới - Hệ thống quản trị";
-	ViewData["PageTitle"] = "Tạo Người dùng mới";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-			("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User"),
-			("Tạo mới", "")
-		};
+    ViewData["Title"] = "Tạo Người dùng mới - Hệ thống quản trị";
+    ViewData["PageTitle"] = "Tạo Người dùng mới";
+    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+            ("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User"),
+            ("Tạo mới", "")
+        };
 }
 
-<form asp-action="Create" method="post">
-	<div class="card">
-		<div class="card-header">
-			<h3 class="card-title">Thông tin Người dùng</h3>
-		</div>
-		<div class="card-body">
-			@Html.AntiForgeryToken()
-			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
+<div class="row">
+    <div class="col-lg-8 col-md-12">
+        <form asp-action="Create" method="post">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">
+                        <i class="ti ti-user-plus me-2"></i>Thông tin Người dùng
+                    </h3>
+                </div>
+                <div class="card-body">
+                    @Html.AntiForgeryToken()
+                    <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
 
-			<div class="row g-3">
-				<div class="col-md-6">
-					<div class="form-group mb-3">
-						<label asp-for="Username" class="form-label required"></label>
-						<input asp-for="Username" class="form-control" />
-						<span asp-validation-for="Username" class="text-danger"></span>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="form-group mb-3">
-						<label asp-for="Email" class="form-label required"></label>
-						<input asp-for="Email" type="email" class="form-control" />
-						<span asp-validation-for="Email" class="text-danger"></span>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="form-group mb-3">
-						<label asp-for="FullName" class="form-label"></label>
-						<input asp-for="FullName" class="form-control" />
-						<span asp-validation-for="FullName" class="text-danger"></span>
-					</div>
-				</div>
-				<div class="col-md-6 align-self-center">
-					<div class="form-check form-switch mb-0 pt-3">
-						<input class="form-check-input" type="checkbox" asp-for="IsActive" role="switch">
-						<label class="form-check-label" asp-for="IsActive"></label>
-						<span asp-validation-for="IsActive" class="text-danger"></span>
-					</div>
-				</div>
-			</div>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Username" class="form-label required"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-user"></i>
+                                    </span>
+                                    <input asp-for="Username" class="form-control" />
+                                </div>
+                                <span asp-validation-for="Username" class="text-danger"></span>
+                                <small class="form-hint">Tên đăng nhập không được chứa khoảng trắng và ký tự đặc biệt</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Email" class="form-label required"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-mail"></i>
+                                    </span>
+                                    <input asp-for="Email" type="email" class="form-control" />
+                                </div>
+                                <span asp-validation-for="Email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="FullName" class="form-label"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-id-badge"></i>
+                                    </span>
+                                    <input asp-for="FullName" class="form-control" />
+                                </div>
+                                <span asp-validation-for="FullName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label class="form-label d-block">Trạng thái tài khoản</label>
+                                <label class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" asp-for="IsActive" checked>
+                                    <span class="form-check-label">Kích hoạt tài khoản ngay</span>
+                                </label>
+                                <span asp-validation-for="IsActive" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
 
-			<hr class="my-4">
-			<h4 class="mb-3">Thiết lập Mật khẩu</h4>
+                    <div class="hr-text mt-4 mb-3">Thiết lập Mật khẩu</div>
 
-			<div class="row g-3">
-				<div class="col-md-6">
-					<div class="form-group mb-3">
-						<label asp-for="Password" class="form-label required"></label>
-						<input asp-for="Password" type="password" class="form-control" />
-						<span asp-validation-for="Password" class="text-danger"></span>
-					</div>
-				</div>
-				<div class="col-md-6">
-					<div class="form-group mb-3">
-						<label asp-for="ConfirmPassword" class="form-label required"></label>
-						<input asp-for="ConfirmPassword" type="password" class="form-control" />
-						<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-					</div>
-				</div>
-			</div>
-
-		</div>
-		<div class="card-footer text-end bg-transparent border-top pt-3">
-			<a asp-action="Index" class="btn btn-link">Hủy</a>
-			<button type="submit" class="btn btn-primary ms-2">
-				<i class="ti ti-user-plus me-2"></i> Tạo Người dùng
-			</button>
-		</div>
-	</div>
-</form>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="Password" class="form-label required"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-lock"></i>
+                                    </span>
+                                    <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" />
+                                </div>
+                                <span asp-validation-for="Password" class="text-danger"></span>
+                                <small class="form-hint">Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group mb-3">
+                                <label asp-for="ConfirmPassword" class="form-label required"></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-lock-check"></i>
+                                    </span>
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
+                                </div>
+                                <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
+                    <a asp-action="Index" class="btn btn-link">
+                        <i class="ti ti-x me-1"></i>Hủy
+                    </a>
+                    <button type="submit" class="btn btn-primary ms-2">
+                        <i class="ti ti-user-plus me-2"></i>Tạo Người dùng
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-lg-4 col-md-12">
+        <div class="card">
+            <div class="card-status-top bg-primary"></div>
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-info-circle me-2"></i>Hướng dẫn
+                </h3>
+            </div>
+            <div class="card-body">
+                <h4 class="mb-3">Tạo tài khoản người dùng mới</h4>
+                <p>Khi tạo người dùng mới, hãy lưu ý những điểm sau:</p>
+                <ul class="list-unstyled space-y-2">
+                    <li>
+                        <span class="badge bg-blue-lt me-1">1</span>
+                        <strong>Tên đăng nhập</strong> phải là duy nhất và không chứa khoảng trắng
+                    </li>
+                    <li>
+                        <span class="badge bg-blue-lt me-1">2</span>
+                        <strong>Email</strong> phải là duy nhất và hợp lệ
+                    </li>
+                    <li>
+                        <span class="badge bg-blue-lt me-1">3</span>
+                        <strong>Mật khẩu</strong> nên đủ mạnh và an toàn
+                    </li>
+                    <li>
+                        <span class="badge bg-blue-lt me-1">4</span>
+                        Bạn có thể <strong>kích hoạt</strong> hoặc <strong>khóa</strong> tài khoản ngay khi tạo
+                    </li>
+                </ul>
+                
+                <div class="alert alert-info mt-4 d-flex" role="alert">
+                    <div class="alert-icon">
+                        <i class="ti ti-info-circle"></i>
+                    </div>
+                    <div>
+                        Người dùng mới sẽ cần đăng nhập bằng thông tin bạn cung cấp. Hãy đảm bảo thông báo cho họ về thông tin đăng nhập.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
