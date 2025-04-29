@@ -26,6 +26,7 @@ public class FAQViewModel
     [Display(Name = "Danh mục")]
     [Required(ErrorMessage = "Vui lòng chọn {0}.")]
     public int? CategoryId { get; set; }
-
+    public DateTime? CreatedAt { get; set; }
+    public DateTime? UpdatedAt { get; set; }
     public List<SelectListItem>? Categories { get; set; }
 }
