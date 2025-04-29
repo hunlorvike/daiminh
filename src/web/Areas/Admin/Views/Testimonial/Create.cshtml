@@ -4,57 +4,106 @@
 	ViewData["Title"] = "Thêm Đánh giá Khách hàng";
 	ViewData["PageTitle"] = "Thêm Đánh giá Mới";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-		("Đánh giá", Url.Action(nameof(Index)) ?? "/Admin/Testimonial"),
-		("Thêm mới", "")
-	};
+("Đánh giá", Url.Action(nameof(Index)) ?? "/Admin/Testimonial"),
+("Thêm mới", "")
+};
 }
 
 @section Styles {
-	<link rel="stylesheet" href="~/css/summernote.css" />
+	<style>
+		.rating-stars {
+			display: flex;
+			gap: 5px;
+		}
+
+		.rating-star {
+			color: #ccc;
+			font-size: 24px;
+			cursor: pointer;
+		}
+
+		.rating-star.active {
+			color: #f59f00;
+		}
+	</style>
 }
 
 <form asp-action="Create" method="post">
-	<div class="card">
-		<div class="card-header">
-			<h3 class="card-title">Thông tin Đánh giá</h3>
-		</div>
-		<div class="card-body">
-			@Html.AntiForgeryToken()
-			<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
-			<partial name="_TestimonialFormFields" model="Model" />
-		</div>
-		<div class="card-footer text-end bg-transparent border-top pt-3">
-			<a asp-action="Index" class="btn btn-link">Hủy bỏ</a>
-			<button type="submit" class="btn btn-primary ms-2">
-				<i class="ti ti-device-floppy me-2"></i> Lưu Đánh giá
-			</button>
-		</div>
+	@Html.AntiForgeryToken()
+	<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
+
+	<partial name="_TestimonialFormFields" model="Model" />
+
+	<div class="mt-3 d-flex justify-content-end">
+		<a asp-action="Index" class="btn btn-link">
+			<i class="ti ti-x me-1"></i>Hủy bỏ
+		</a>
+		<button type="submit" class="btn btn-primary ms-2">
+			<i class="ti ti-device-floppy me-2"></i>Lưu Đánh giá
+		</button>
 	</div>
 </form>
 
 @section Scripts {
 	<script>
-		$(document).ready(function() {
-			  $('.select-media-button').on('click', function() {
-				  const $button = $(this);
-				  const $targetInput = $button.closest('.input-group').find('input[type="text"], input[type="url"]');
+		$(document).ready(function () {
+			function setupImageSelection() {
+				const selectBtn = $('#selectImageBtn');
+				const removeBtn = $('#removeImageBtn');
+				const preview = $('#avatar-preview');
+				const input = $('#imagePathInput');
 
-				   const callback = function(selectedFile) {
-					   if ($targetInput.attr('id') === 'ClientAvatar') {
-						   $('#client-avatar-image-preview').html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
-					   }				   
-				   };
+				function updatePreview(url) {
+					if (url) {
+						preview.html(`<img src="${url}" class="avatar-img rounded" />`);
+						removeBtn.removeClass('d-none');
+					} else {
+						preview.html(`<span class="avatar-img bg-blue-lt"><i class="ti ti-user fs-1"></i></span>`);
+						removeBtn.addClass('d-none');
+					}
+				}
 
-				  openMediaModal($targetInput, callback);
-			 });
+				selectBtn.on('click', function () {
+					// Assuming openMediaModal is a function that opens your media selection modal
+					openMediaModal(input, function (selectedFile) {
+						if (selectedFile && selectedFile.url) {
+							console.log(selectedFile);
+							input.val(selectedFile.url).trigger('change');
+							updatePreview(selectedFile.url);
+						}
+					});
+				});
 
-			  $('#ClientAvatar').on('input change', function() {
-				   const $input = $(this);
-				   const $preview = $input.closest('.form-group').find('.mt-2');
-				   if ($input.val() === '') {
-					   $preview.empty();
-				   }
-			  });
+				removeBtn.on('click', function () {
+					input.val('').trigger('change');
+					updatePreview('');
+				});
+			}
+
+			// Star rating handling
+			function setupStarRating() {
+				const stars = $('.rating-star');
+				const ratingInput = $('#Rating');
+
+				stars.on('click', function (e) {
+					e.preventDefault();
+					const rating = $(this).data('rating');
+
+					// Update input value
+					ratingInput.val(rating);
+
+					// Update stars visual
+					stars.removeClass('active');
+					stars.each(function () {
+						if ($(this).data('rating') <= rating) {
+							$(this).addClass('active');
+						}
+					});
+				});
+			}
+
+			setupImageSelection();
+			setupStarRating();
 		});
 	</script>
 }
