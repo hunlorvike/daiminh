@@ -8,22 +8,25 @@
 	}
 }
 
-<div class="card">
-	<div class="card-header">
-		<h3 class="card-title">Thông tin Sản phẩm</h3>
-	</div>
-	<div class="card-body">
-		<div class="row g-3 mb-4">
-			<div class="col-md-8">
-				<div class="form-group mb-3">
+<div class="row g-3">
+    @* --- Main Content Column --- *@
+	<div class="col-lg-8">
+		<div class="card card-stacked">
+			@* Use stacked card for visual grouping *@
+			<div class="card-header">
+				<h3 class="card-title">Thông tin cơ bản</h3>
+			</div>
+			<div class="card-body">
+				<div class="mb-3">
 					<label asp-for="Name" class="form-label required"></label>
 					<input asp-for="Name" class="form-control" />
 					<span asp-validation-for="Name" class="text-danger"></span>
 				</div>
 
-				<div class="form-group mb-3">
+				<div class="mb-3">
 					<label asp-for="Slug" class="form-label required"></label>
 					<div class="input-group">
+						<span class="input-group-text">/</span>
 						<input asp-for="Slug" class="form-control" />
 						<button class="btn btn-outline-secondary" type="button" id="generateSlugButton" title="Tạo slug tự động">
 							<i class="ti ti-refresh"></i>
@@ -33,123 +36,154 @@
 					<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang). Phải là duy nhất.</small>
 				</div>
 
-				<div class="form-group mb-3">
+				<div class="mb-3">
 					<label asp-for="Description" class="form-label required"></label>
 					<textarea asp-for="Description" class="form-control wysiwyg" rows="10"></textarea>
 					<span asp-validation-for="Description" class="text-danger"></span>
 				</div>
 
-				<div class="form-group mb-3">
+				<div class="mb-3">
 					<label asp-for="ShortDescription" class="form-label"></label>
 					<textarea asp-for="ShortDescription" class="form-control" rows="3"></textarea>
 					<span asp-validation-for="ShortDescription" class="text-danger"></span>
 				</div>
+			</div>
+		</div>
 
+		<div class="card card-stacked mt-3">
+			<div class="card-header">
+				<h3 class="card-title">Thông tin bổ sung</h3>
+			</div>
+			<div class="card-body">
 				<div class="row g-3 mb-3">
 					<div class="col-md-6">
-						<div class="form-group">
-							<label asp-for="Manufacturer" class="form-label"></label>
-							<input asp-for="Manufacturer" class="form-control" />
-							<span asp-validation-for="Manufacturer" class="text-danger"></span>
-						</div>
+						<label asp-for="Manufacturer" class="form-label"></label>
+						<input asp-for="Manufacturer" class="form-control" />
+						<span asp-validation-for="Manufacturer" class="text-danger"></span>
 					</div>
 					<div class="col-md-6">
-						<div class="form-group">
-							<label asp-for="Origin" class="form-label"></label>
-							<input asp-for="Origin" class="form-control" />
-							<span asp-validation-for="Origin" class="text-danger"></span>
-						</div>
+						<label asp-for="Origin" class="form-label"></label>
+						<input asp-for="Origin" class="form-control" />
+						<span asp-validation-for="Origin" class="text-danger"></span>
 					</div>
 				</div>
 
-				<div class="form-group mb-3">
+				<div class="mb-3">
 					<label asp-for="Specifications" class="form-label"></label>
 					<textarea asp-for="Specifications" class="form-control wysiwyg" rows="5"></textarea>
 					<span asp-validation-for="Specifications" class="text-danger"></span>
 				</div>
 
-				<div class="form-group mb-3">
+				<div class="mb-0">
+					@* Remove bottom margin for last item *@
 					<label asp-for="Usage" class="form-label"></label>
 					<textarea asp-for="Usage" class="form-control wysiwyg" rows="5"></textarea>
 					<span asp-validation-for="Usage" class="text-danger"></span>
 				</div>
+			</div>
+		</div>
 
-                 <div class="form-group mb-3">
+		<div class="card card-stacked mt-3">
+			<div class="card-header">
+				<h3 class="card-title">Phân loại & Liên kết</h3>
+			</div>
+			<div class="card-body">
+				<div class="mb-3">
 					<label asp-for="SelectedAttributeIds" class="form-label"></label>
 					<select asp-for="SelectedAttributeIds" asp-items="@Model.AttributeOptions" class="form-select tom-selected" multiple></select>
 					<span asp-validation-for="SelectedAttributeIds" class="text-danger"></span>
-                     <small class="form-hint">Chọn các thuộc tính áp dụng cho loại sản phẩm này (vd: Màu sắc, Dung tích).</small>
+					<small class="form-hint">Chọn các thuộc tính áp dụng cho loại sản phẩm này (vd: Màu sắc, Dung tích). Dùng để tạo biến thể.</small>
 				</div>
 
-				<div class="form-group mb-3">
+				<div class="mb-3">
 					<label asp-for="SelectedTagIds" class="form-label"></label>
 					<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" multiple></select>
 					<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
 				</div>
 
-                <div class="form-group mb-3">
+				<div class="mb-0">
+					@* Remove bottom margin for last item *@
 					<label asp-for="SelectedArticleIds" class="form-label"></label>
 					<select asp-for="SelectedArticleIds" asp-items="@Model.ArticleOptions" class="form-select tom-selected" multiple></select>
 					<span asp-validation-for="SelectedArticleIds" class="text-danger"></span>
-                     <small class="form-hint">Chọn các bài viết liên quan đến sản phẩm này.</small>
+					<small class="form-hint">Chọn các bài viết liên quan đến sản phẩm này.</small>
 				</div>
-
-                @* --- Product Image Management --- *@
-                <div class="card mt-4">
-                    <div class="card-header">
-                        <h4 class="card-title mb-0">Hình ảnh sản phẩm</h4>
-                    </div>
-                    <div class="card-body" id="product-images-container">
-                        @if (Model.Images != null && Model.Images.Any())
-                        {
-                            for (int i = 0; i < Model.Images.Count; i++)
-                            {
-                                <partial name="_ProductImageFields" model="Model.Images[i]" view-data='new ViewDataDictionary(ViewData) { { "Index", i } }' />
-                            }
-                        }
-                        else
-                        {
-                             <partial name="_ProductImageFields" model="new ProductImageViewModel()" view-data='new ViewDataDictionary(ViewData) { { "Index", 0 } }' />
-                        }
-                         <input type="hidden" id="image-index-counter" value="@(Model.Images != null ? Model.Images.Count : 1)" />
-                    </div>
-                     <div class="card-footer bg-transparent border-top pt-3">
-                         <button type="button" class="btn btn-secondary" id="add-image-button">
-                             <i class="ti ti-photo-plus me-2"></i> Thêm ảnh
-                         </button>
-                         <small class="form-hint ms-2">Kéo thả các khối ảnh để thay đổi thứ tự.</small>
-                     </div>
-                </div>
 			</div>
+		</div>
 
-			<div class="col-md-4">
-				<div class="form-group mb-3">
+        @* --- Product Image Management --- *@
+		<div class="card card-stacked mt-3">
+			<div class="card-header">
+				<h3 class="card-title">Hình ảnh sản phẩm</h3>
+				<div class="card-actions">
+					<button type="button" class="btn btn-primary btn-sm" id="add-image-button">
+						<i class="ti ti-photo-plus me-1"></i> Thêm ảnh
+					</button>
+				</div>
+			</div>
+			<div class="card-body" id="product-images-container">
+				<span asp-validation-for="Images" class="text-danger d-block mb-2"></span> @* Show collection-level validation message *@
+				@if (Model.Images != null && Model.Images.Any())
+				{
+					for (int i = 0; i < Model.Images.Count; i++)
+					{
+						<partial name="_ProductImageFields" model="Model.Images[i]" view-data='new ViewDataDictionary(ViewData) { { "Index", i } }' />
+					}
+				}
+				else
+				{
+					<partial name="_ProductImageFields" model="new ProductImageViewModel()" view-data='new ViewDataDictionary(ViewData) { { "Index", 0 } }' />
+				}
+				<input type="hidden" id="image-index-counter" value="@(Model.Images != null ? Model.Images.Count : 1)" />
+			</div>
+			<div class="card-footer bg-transparent border-top pt-2 pb-2">
+				<small class="form-hint">Kéo thả ảnh bằng biểu tượng <i class="ti ti-grip-vertical"></i> để thay đổi thứ tự. Phải có 1 ảnh chính.</small>
+			</div>
+		</div>
+	</div>
+
+	@* --- Sidebar Column --- *@
+	<div class="col-lg-4">
+		<div class="card card-stacked">
+			<div class="card-header">
+				<h3 class="card-title">Tổ chức & Trạng thái</h3>
+			</div>
+			<div class="card-body">
+				<div class="mb-3">
 					<label asp-for="CategoryId" class="form-label required"></label>
 					<select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select tom-selected"></select>
 					<span asp-validation-for="CategoryId" class="text-danger"></span>
 				</div>
 
-                <div class="form-group mb-3">
+				<div class="mb-3">
 					<label asp-for="BrandId" class="form-label"></label>
 					<select asp-for="BrandId" asp-items="@Model.BrandOptions" class="form-select tom-selected"></select>
 					<span asp-validation-for="BrandId" class="text-danger"></span>
 				</div>
 
-				<div class="form-group mb-3">
+				<div class="mb-3">
 					<label asp-for="Status" class="form-label required"></label>
 					<select asp-for="Status" asp-items="@Model.StatusOptions" class="form-select"></select>
 					<span asp-validation-for="Status" class="text-danger"></span>
 				</div>
 
-                <div class="form-check form-switch mb-0 mt-3">
-					<input class="form-check-input" type="checkbox" asp-for="IsActive" role="switch">
-					<label class="form-check-label" asp-for="IsActive"></label>
+				<div class="mb-3">
+					<label class="form-label">Tùy chọn</label>
+					<div class="form-selectgroup form-selectgroup-pills">
+						<label class="form-selectgroup-item">
+							<input type="checkbox" asp-for="IsActive" class="form-selectgroup-input">
+							<span class="form-selectgroup-label">
+								<i class="ti ti-activity me-1"></i> Hoạt động
+							</span>
+						</label>
+						<label class="form-selectgroup-item">
+							<input type="checkbox" asp-for="IsFeatured" class="form-selectgroup-input">
+							<span class="form-selectgroup-label">
+								<i class="ti ti-star me-1"></i> Nổi bật
+							</span>
+						</label>
+					</div>
 					<span asp-validation-for="IsActive" class="text-danger"></span>
-				</div>
-
-				<div class="form-check form-switch mb-0 mt-3">
-					<input class="form-check-input" type="checkbox" asp-for="IsFeatured" role="switch">
-					<label class="form-check-label" asp-for="IsFeatured"></label>
 					<span asp-validation-for="IsFeatured" class="text-danger"></span>
 				</div>
 			</div>
@@ -157,72 +191,74 @@
 	</div>
 </div>
 
-@* --- Product Image Partial View Template --- *@
-@* This template is used by JS to add new image fields *@
+@* --- Product Image Partial View Template (Hidden) --- *@
 <script id="image-template" type="text/html">
-     <div class="product-image-item card mb-2" data-id="{{id}}">
-        <div class="card-body p-3 d-flex align-items-start">
-            <div class="handle me-3 cursor-grab">
-                 <i class="ti ti-grip-vertical fs-2"></i>
-            </div>
-            <div class="flex-grow-1">
-                <input type="hidden" name="Images[{{index}}].Id" value="{{id}}" class="image-id" />
-                <input type="hidden" name="Images[{{index}}].ProductId" value="{{productId}}" />
-                <input type="hidden" name="Images[{{index}}].IsDeleted" value="false" class="image-is-deleted" />
+	<div class="product-image-item border rounded mb-3" data-id="{{id}}">
+	   <div class="p-3 d-flex align-items-start">
+		   <div class="handle me-2 text-muted cursor-grab" title="Kéo để sắp xếp">
+				<i class="ti ti-grip-vertical fs-3"></i>
+		   </div>
+		   <div class="flex-grow-1">
+			   <input type="hidden" name="Images[{{index}}].Id" value="{{id}}" class="image-id" />
+			   <input type="hidden" name="Images[{{index}}].ProductId" value="{{productId}}" />
+			   <input type="hidden" name="Images[{{index}}].IsDeleted" value="false" class="image-is-deleted" />
 
-                <div class="form-group mb-3">
-                    <label for="Images_{{index}}__ImageUrl" class="form-label required">URL Ảnh</label>
-                    <div class="input-group">
-                         <input type="text" name="Images[{{index}}].ImageUrl" id="Images_{{index}}__ImageUrl" value="{{imageUrl}}" class="form-control media-url-input" readonly />
-                         <button class="btn btn-outline-secondary select-media-button" type="button"
-                                data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-                                data-media-type-filter="0" data-target-input="#Images_{{index}}__ImageUrl">
-                             <i class="ti ti-photo"></i>
-                         </button>
-                     </div>
-                    <span data-valmsg-for="Images[{{index}}].ImageUrl" class="text-danger"></span>
-                     <div class="media-preview-area mt-2">
-                         {{#if imageUrl}}
-                            <img src="{{imageUrl}}" style="max-width: 100px; height: auto;" class="img-thumbnail" />
-                         {{/if}}
-                     </div>
-                 </div>
-
-                <div class="form-group mb-3">
-                    <label for="Images_{{index}}__ThumbnailUrl" class="form-label">URL Thumbnail</label>
-                     <input type="text" name="Images[{{index}}].ThumbnailUrl" id="Images_{{index}}__ThumbnailUrl" value="{{thumbnailUrl}}" class="form-control" />
-                    <span data-valmsg-for="Images[{{index}}].ThumbnailUrl" class="text-danger"></span>
-                 </div>
-
-                 <div class="form-group mb-3">
-                     <label for="Images_{{index}}__AltText" class="form-label">Alt Text</label>
-                     <input type="text" name="Images[{{index}}].AltText" id="Images_{{index}}__AltText" value="{{altText}}" class="form-control" />
-                     <span data-valmsg-for="Images[{{index}}].AltText" class="text-danger"></span>
-                 </div>
-
-                 <div class="form-group mb-3">
-                     <label for="Images_{{index}}__Title" class="form-label">Tiêu đề ảnh</label>
-                     <input type="text" name="Images[{{index}}].Title" id="Images_{{index}}__Title" value="{{title}}" class="form-control" />
-                     <span data-valmsg-for="Images[{{index}}].Title" class="text-danger"></span>
-                 </div>
-
-                 <input type="hidden" name="Images[{{index}}].OrderIndex" value="{{orderIndex}}" class="image-order-index" />
-
-
-                 <div class="form-check form-switch mb-0 mt-3">
-					<input class="form-check-input image-is-main" type="checkbox" name="Images[{{index}}].IsMain" id="Images_{{index}}__IsMain" role="switch" {{#if isMain}}checked{{/if}} value="true">
-					<label class="form-check-label" for="Images_{{index}}__IsMain">Ảnh chính</label>
-                    {{!-- Need a hidden input for false value for checkbox --}}
-                    <input type="hidden" name="Images[{{index}}].IsMain" value="false" />
-                    <span data-valmsg-for="Images[{{index}}].IsMain" class="text-danger"></span>
+			   <div class="row g-2">
+				   <div class="col-md-6">
+					   <div class="mb-2">
+						   <label for="Images_{{index}}__ImageUrl" class="form-label required visually-hidden">URL Ảnh</label>
+						   <div class="input-group">
+							   <input type="text" name="Images[{{index}}].ImageUrl" id="Images_{{index}}__ImageUrl" value="{{imageUrl}}" class="form-control form-control-sm media-url-input" readonly placeholder="URL Ảnh (*)" />
+							   <button class="btn btn-outline-secondary btn-sm select-media-button" type="button"
+									   data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+									   data-media-type-filter="0" data-target-input="#Images_{{index}}__ImageUrl">
+								   <i class="ti ti-photo"></i> Chọn
+							   </button>
+						   </div>
+						   <span data-valmsg-for="Images[{{index}}].ImageUrl" class="text-danger"></span>
+						   <div class="media-preview-area mt-2 text-center">
+							   {{#if imageUrl}}
+								   <img src="{{imageUrl}}" style="max-height: 80px; width: auto;" class="img-thumbnail img-fluid" />
+							   {{else}}
+									<i class="ti ti-photo-off text-muted fs-1"></i>
+							   {{/if}}
+						   </div>
+					   </div>
+				   </div>
+					<div class="col-md-6">
+					   <div class="mb-2">
+						   <label for="Images_{{index}}__AltText" class="form-label visually-hidden">Alt Text</label>
+						   <input type="text" name="Images[{{index}}].AltText" id="Images_{{index}}__AltText" value="{{altText}}" class="form-control form-control-sm" placeholder="Alt Text" />
+						   <span data-valmsg-for="Images[{{index}}].AltText" class="text-danger"></span>
+					   </div>
+						<div class="mb-2">
+						   <label for="Images_{{index}}__Title" class="form-label visually-hidden">Tiêu đề</label>
+						   <input type="text" name="Images[{{index}}].Title" id="Images_{{index}}__Title" value="{{title}}" class="form-control form-control-sm" placeholder="Tiêu đề ảnh" />
+						   <span data-valmsg-for="Images[{{index}}].Title" class="text-danger"></span>
+					   </div>
+					   <div class="mb-2">
+							<label for="Images_{{index}}__ThumbnailUrl" class="form-label visually-hidden">URL Thumbnail</label>
+							<input type="text" name="Images[{{index}}].ThumbnailUrl" id="Images_{{index}}__ThumbnailUrl" value="{{thumbnailUrl}}" class="form-control form-control-sm" placeholder="URL Thumbnail (tùy chọn)" />
+						   <span data-valmsg-for="Images[{{index}}].ThumbnailUrl" class="text-danger"></span>
+					   </div>
+					</div>
 				</div>
 
-            </div>
-            <div class="flex-shrink-0 ms-3">
-                 <button type="button" class="btn btn-icon btn-outline-danger remove-image-button" title="Xóa ảnh">
-                     <i class="ti ti-x"></i>
-                 </button>
-            </div>
-        </div>
-     </div>
+				<input type="hidden" name="Images[{{index}}].OrderIndex" value="{{orderIndex}}" class="image-order-index" />
+
+				<div class="form-check form-switch mt-2">
+				   <input class="form-check-input image-is-main" type="checkbox" name="Images[{{index}}].IsMain" id="Images_{{index}}__IsMain" role="switch" {{#if isMain}}checked{{/if}} value="true">
+				   <label class="form-check-label" for="Images_{{index}}__IsMain">Ảnh chính</label>
+				   <input type="hidden" name="Images[{{index}}].IsMain" value="false" />
+				   <span data-valmsg-for="Images[{{index}}].IsMain" class="text-danger"></span>
+			   </div>
+
+		   </div>
+		   <div class="flex-shrink-0 ms-2">
+				<button type="button" class="btn btn-sm btn-icon btn-ghost-danger remove-image-button" title="Xóa ảnh">
+					<i class="ti ti-x"></i>
+				</button>
+		   </div>
+	   </div>
+	</div>
 </script>

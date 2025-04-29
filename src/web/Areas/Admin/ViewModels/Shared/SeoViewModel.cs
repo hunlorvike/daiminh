@@ -19,7 +19,6 @@ public class SeoViewModel
 
     [Display(Name = "URL Canonical", Prompt = "URL chính thức của trang này nếu có nội dung trùng lặp")]
     [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
-    [DataType(DataType.Url)]
     public string? CanonicalUrl { get; set; }
 
     [Display(Name = "Không lập chỉ mục (NoIndex)")]

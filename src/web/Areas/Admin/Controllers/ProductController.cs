@@ -11,7 +11,7 @@ using shared.Enums;
 using shared.Extensions;
 using web.Areas.Admin.ViewModels.Product;
 using web.Areas.Admin.ViewModels.ProductVariation;
-using web.Areas.Admin.ViewModels.Shared; // Need SeoViewModel
+using web.Areas.Admin.ViewModels.Shared;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
 
@@ -45,10 +45,10 @@ public partial class ProductController : Controller
         IQueryable<Product> query = _context.Set<Product>()
                                              .Include(p => p.Category)
                                              .Include(p => p.Brand)
-                                             .Include(p => p.Images) // Include to count
-                                             .Include(p => p.ProductTags) // Include to count
-                                             .Include(p => p.Variations) // Include to count
-                                             .Include(p => p.Reviews) // Include to count
+                                             .Include(p => p.Images)
+                                             .Include(p => p.ProductTags)
+                                             .Include(p => p.Variations)
+                                             .Include(p => p.Reviews)
                                              .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -80,9 +80,9 @@ public partial class ProductController : Controller
             query = query.Where(p => p.IsFeatured == filter.IsFeatured.Value);
         }
 
-        // Add filtering by IsActive if needed? For now list all.
-
-        query = query.OrderByDescending(p => p.CreatedAt); // Or by ViewCount, etc.
+        query = query
+            .OrderByDescending(p => p.ViewCount)
+            .ThenByDescending(p => p.CreatedAt);
 
         var productsPaged = await query.ProjectTo<ProductListItemViewModel>(_mapper.ConfigurationProvider)
                                        .ToPagedListAsync(pageNumber, currentPageSize);
@@ -109,12 +109,12 @@ public partial class ProductController : Controller
             IsFeatured = false,
             IsActive = true,
             Status = PublishStatus.Draft,
-            Seo = new SeoViewModel // Assuming SeoViewModel is needed for Product
+            Seo = new SeoViewModel
             {
                 SitemapPriority = 0.5,
                 SitemapChangeFrequency = "monthly"
             },
-            Images = new List<ProductImageViewModel>() // Initialize image list
+            Images = new List<ProductImageViewModel>()
         };
 
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -131,20 +131,17 @@ public partial class ProductController : Controller
         {
             Product product = _mapper.Map<Product>(viewModel);
 
-            // Update relationships (ProductAttributes, ProductTags, ArticleProducts)
             UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
 
-            // Handle Images (basic add logic)
             if (viewModel.Images != null)
             {
                 product.Images = viewModel.Images
                                 .Where(imgVm => !string.IsNullOrWhiteSpace(imgVm.ImageUrl) && !imgVm.IsDeleted)
                                 .Select(imgVm => _mapper.Map<ProductImage>(imgVm))
                                 .ToList();
-                // Ensure ProductId is set for new images
                 foreach (var img in product.Images)
                 {
-                    img.ProductId = product.Id; // Will be updated by EF after product is saved
+                    img.ProductId = product.Id;
                 }
             }
 
@@ -210,8 +207,8 @@ public partial class ProductController : Controller
             }
 
             Product? product = await _context.Set<Product>()
-                                             .Include(p => p.Images) // Must include images to manage updates/deletes
-                                             .Include(p => p.ProductAttributes) // Must include relationships
+                                             .Include(p => p.Images)
+                                             .Include(p => p.ProductAttributes)
                                              .Include(p => p.ProductTags)
                                              .Include(p => p.ArticleProducts)
                                              .FirstOrDefaultAsync(p => p.Id == id);
@@ -221,18 +218,15 @@ public partial class ProductController : Controller
                 return RedirectToAction(nameof(Index));
             }
 
-            // Map basic properties from ViewModel to Entity
             _mapper.Map(viewModel, product);
 
-            // Update relationships (ProductAttributes, ProductTags, ArticleProducts)
             UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
 
-            // Handle Images (add, update, delete)
             UpdateProductImages(product, viewModel.Images);
 
             try
             {
-                _context.Update(product); // Mark as updated
+                _context.Update(product);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
@@ -273,9 +267,6 @@ public partial class ProductController : Controller
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa sản phẩm." });
         }
     }
-
-
-
 }
 
 public partial class ProductController
@@ -349,7 +340,7 @@ public partial class ProductController
 
         var items = new List<SelectListItem>
         {
-        }; // No default "Select All" for multiselect
+        };
 
         items.AddRange(attributes.Select(a => new SelectListItem
         {
@@ -364,7 +355,7 @@ public partial class ProductController
     private async Task<List<SelectListItem>> LoadTagSelectListAsync(TagType tagType, List<int>? selectedValues = null)
     {
         var tags = await _context.Set<Tag>()
-                          .Where(t => t.Type == tagType) // Filter by type
+                          .Where(t => t.Type == tagType)
                           .OrderBy(t => t.Name)
                           .AsNoTracking()
                           .Select(t => new { t.Id, t.Name })
@@ -372,7 +363,7 @@ public partial class ProductController
 
         var items = new List<SelectListItem>
         {
-        }; // No default "Select All" for multiselect
+        };
 
         items.AddRange(tags.Select(t => new SelectListItem
         {
@@ -387,7 +378,7 @@ public partial class ProductController
     private async Task<List<SelectListItem>> LoadArticleSelectListAsync(List<int>? selectedValues = null)
     {
         var articles = await _context.Set<Article>()
-                          .Where(a => a.Status == PublishStatus.Published) // Only show published articles? Or all? Let's show all for simplicity.
+                          .Where(a => a.Status == PublishStatus.Published)
                           .OrderBy(a => a.Title)
                           .AsNoTracking()
                           .Select(a => new { a.Id, a.Title })
@@ -395,7 +386,7 @@ public partial class ProductController
 
         var items = new List<SelectListItem>
         {
-        }; // No default "Select All" for multiselect
+        };
 
         items.AddRange(articles.Select(a => new SelectListItem
         {
@@ -449,7 +440,6 @@ public partial class ProductController
         List<int>? selectedTagIds,
         List<int>? selectedArticleIds)
     {
-        // Update ProductAttributes (Product -> Attribute)
         var existingAttributeIds = product.ProductAttributes?.Select(pa => pa.AttributeId).ToList() ?? new List<int>();
         var attributeIdsToAdd = selectedAttributeIds?.Except(existingAttributeIds).ToList() ?? new List<int>();
         var attributeIdsToRemove = existingAttributeIds.Except(selectedAttributeIds ?? new List<int>()).ToList();
@@ -457,7 +447,7 @@ public partial class ProductController
         foreach (var attributeId in attributeIdsToRemove)
         {
             var productAttribute = product.ProductAttributes!.First(pa => pa.AttributeId == attributeId);
-            _context.Remove(productAttribute); // Mark for deletion
+            _context.Remove(productAttribute);
         }
 
         foreach (var attributeId in attributeIdsToAdd)
@@ -466,7 +456,6 @@ public partial class ProductController
             product.ProductAttributes.Add(new ProductAttribute { ProductId = product.Id, AttributeId = attributeId });
         }
 
-        // Update ProductTags (Product <-> Tag)
         var existingTagIds = product.ProductTags?.Select(pt => pt.TagId).ToList() ?? new List<int>();
         var tagIdsToAdd = selectedTagIds?.Except(existingTagIds).ToList() ?? new List<int>();
         var tagIdsToRemove = existingTagIds.Except(selectedTagIds ?? new List<int>()).ToList();
@@ -483,7 +472,6 @@ public partial class ProductController
             product.ProductTags.Add(new ProductTag { ProductId = product.Id, TagId = tagId });
         }
 
-        // Update ArticleProducts (Article <-> Product)
         var existingArticleIds = product.ArticleProducts?.Select(ap => ap.ArticleId).ToList() ?? new List<int>();
         var articleIdsToAdd = selectedArticleIds?.Except(existingArticleIds).ToList() ?? new List<int>();
         var articleIdsToRemove = existingArticleIds.Except(selectedArticleIds ?? new List<int>()).ToList();
@@ -506,20 +494,17 @@ public partial class ProductController
         var existingImages = product.Images ?? new List<ProductImage>();
         var updatedImageViewModels = imageViewModels?.Where(img => !img.IsDeleted).ToList() ?? new List<ProductImageViewModel>();
 
-        // Track existing images that are still present in the view model
         var imageIdsToKeep = updatedImageViewModels.Where(img => img.Id > 0).Select(img => img.Id).ToHashSet();
 
-        // Remove images that are in the entity but not in the view model or marked for deletion
-        foreach (var existingImage in existingImages.ToList()) // Iterate over a copy
+        foreach (var existingImage in existingImages.ToList())
         {
             if (!imageIdsToKeep.Contains(existingImage.Id))
             {
-                _context.Remove(existingImage); // Mark for deletion
-                existingImages.Remove(existingImage); // Remove from the collection
+                _context.Remove(existingImage);
+                existingImages.Remove(existingImage);
             }
         }
 
-        // Add or Update images from the view model
         var updatedImageList = new List<ProductImage>();
         for (int i = 0; i < updatedImageViewModels.Count; i++)
         {
@@ -528,30 +513,25 @@ public partial class ProductController
 
             if (imgVm.Id > 0)
             {
-                // Existing image: Find and update
                 image = existingImages.FirstOrDefault(img => img.Id == imgVm.Id);
                 if (image != null)
                 {
-                    _mapper.Map(imgVm, image); // Map basic properties
-                    image.OrderIndex = i; // Update order based on list position
-                    _context.Entry(image).State = EntityState.Modified; // Ensure EF tracks changes
-                    updatedImageList.Add(image); // Add to the new list
+                    _mapper.Map(imgVm, image);
+                    image.OrderIndex = i;
+                    _context.Entry(image).State = EntityState.Modified;
+                    updatedImageList.Add(image);
                 }
-                // If image == null here, it means an ID was provided but the entity wasn't loaded or didn't exist,
-                // which shouldn't happen if Images were included in the edit GET, but worth noting.
             }
             else
             {
-                // New image: Create and add
                 image = _mapper.Map<ProductImage>(imgVm);
-                image.ProductId = product.Id; // Link to the product
-                image.OrderIndex = i; // Set order based on list position
-                _context.Add(image); // Mark for addition
-                updatedImageList.Add(image); // Add to the new list
+                image.ProductId = product.Id;
+                image.OrderIndex = i;
+                _context.Add(image);
+                updatedImageList.Add(image);
             }
         }
 
-        // Update the product's image collection reference (important if collection was null initially or items were removed/added)
         product.Images = updatedImageList;
     }
 }

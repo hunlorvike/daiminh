@@ -35,8 +35,6 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
         RuleFor(x => x.Origin)
              .MaximumLength(100).When(x => !string.IsNullOrEmpty(x.Origin));
 
-        // Specifications and Usage allow HTML, rely on sanitization elsewhere if needed. No length validation here.
-
         RuleFor(x => x.Status)
              .IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
 
@@ -47,7 +45,6 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
             .NotEmpty().WithMessage("Vui lòng chọn {PropertyName}.")
             .Must((model, categoryId) => CategoryExists(categoryId)).WithMessage("Danh mục được chọn không tồn tại.");
 
-        // Validate Product Images
         RuleForEach(x => x.Images)
             .ChildRules(image =>
             {
@@ -64,7 +61,6 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
                      .GreaterThanOrEqualTo(0).WithMessage("Thứ tự ảnh phải là số không âm.");
             });
 
-        // Ensure at least one image is marked as main if there are images
         When(x => x.Images != null && x.Images.Any(img => !img.IsDeleted), () =>
         {
             RuleFor(x => x.Images)
@@ -92,7 +88,7 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
 
     private bool BrandExists(int? brandId)
     {
-        if (brandId == null) return true; // Brand is optional
+        if (brandId == null) return true;
 
         return _context.Set<domain.Entities.Brand>()
                        .Any(b => b.Id == brandId);

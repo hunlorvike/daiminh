@@ -86,6 +86,5 @@ public class ProductViewModel
     public List<SelectListItem>? AttributeOptions { get; set; }
     public List<SelectListItem>? TagOptions { get; set; }
     public List<SelectListItem>? ArticleOptions { get; set; }
-
     public SeoViewModel Seo { get; set; } = new();
 }
