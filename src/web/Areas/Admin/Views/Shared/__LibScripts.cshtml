@@ -36,6 +36,34 @@
 <script src="~/js/tomselected.js" asp-append-version="true"></script>
 
 <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.innerWidth < 992) { // Chỉ chạy trên mobile
+            var toggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
+            toggles.forEach(function (toggle) {
+                var icon = toggle.querySelector('i');
+                var targetId = toggle.getAttribute('href');
+                var target = document.querySelector(targetId);
+
+                if (target) {
+                    target.addEventListener('show.bs.collapse', function () {
+                        if (icon) {
+                            icon.classList.remove('ti-chevron-down');
+                            icon.classList.add('ti-chevron-up');
+                        }
+                    });
+                    target.addEventListener('hide.bs.collapse', function () {
+                        if (icon) {
+                            icon.classList.remove('ti-chevron-up');
+                            icon.classList.add('ti-chevron-down');
+                        }
+                    });
+                }
+            });
+        }
+    });
+</script>
+
+<script>
     $(document).ready(function () {
         let deleteUrl = '';
         let itemIdToDelete = null;
