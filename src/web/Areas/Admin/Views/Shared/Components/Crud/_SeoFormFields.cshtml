@@ -2,135 +2,237 @@
 @model SeoViewModel
 
 <div class="row g-3">
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="MetaTitle" class="form-label"></label>
-		<input asp-for="MetaTitle" class="form-control" />
-		<span asp-validation-for="MetaTitle" class="text-danger"></span>
-	</div>
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="MetaKeywords" class="form-label"></label>
-		<input asp-for="MetaKeywords" class="form-control" />
-		<span asp-validation-for="MetaKeywords" class="text-danger"></span>
-	</div>
-	<div class="form-group col-12 mb-3">
-		<label asp-for="MetaDescription" class="form-label"></label>
-		<textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
-		<span asp-validation-for="MetaDescription" class="text-danger"></span>
-	</div>
+    <div class="col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Thông tin Meta</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="MetaTitle" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ti ti-heading"></i>
+                                </span>
+                                <input asp-for="MetaTitle" class="form-control" />
+                            </div>
+                            <span asp-validation-for="MetaTitle" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="MetaKeywords" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ti ti-tags"></i>
+                                </span>
+                                <input asp-for="MetaKeywords" class="form-control" />
+                            </div>
+                            <span asp-validation-for="MetaKeywords" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group mb-3">
+                            <label asp-for="MetaDescription" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ti ti-text-wrap"></i>
+                                </span>
+                                <textarea asp-for="MetaDescription" class="form-control" rows="3"></textarea>
+                            </div>
+                            <span asp-validation-for="MetaDescription" class="text-danger"></span>
+                        </div>
+                    </div>
 
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="CanonicalUrl" class="form-label"></label>
-		<input asp-for="CanonicalUrl" class="form-control" />
-		<span asp-validation-for="CanonicalUrl" class="text-danger"></span>
-	</div>
-	<div class="form-group col-md-3 mb-3">
-		<label class="form-label"> </label>
-		<div class="form-check form-switch">
-			<input class="form-check-input" type="checkbox" asp-for="NoIndex" role="switch">
-			<label class="form-check-label" asp-for="NoIndex"></label>
-			<span asp-validation-for="NoIndex" class="text-danger"></span>
-		</div>
-	</div>
-	<div class="form-group col-md-3 mb-3">
-		<label class="form-label"> </label>
-		<div class="form-check form-switch">
-			<input class="form-check-input" type="checkbox" asp-for="NoFollow" role="switch">
-			<label class="form-check-label" asp-for="NoFollow"></label>
-			<span asp-validation-for="NoFollow" class="text-danger"></span>
-		</div>
-	</div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="CanonicalUrl" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ti ti-link"></i>
+                                </span>
+                                <input asp-for="CanonicalUrl" class="form-control" />
+                            </div>
+                            <span asp-validation-for="CanonicalUrl" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" type="checkbox" asp-for="NoIndex" role="switch">
+                            <label class="form-check-label" asp-for="NoIndex"></label>
+                            <span asp-validation-for="NoIndex" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="form-check form-switch mt-4">
+                            <input class="form-check-input" type="checkbox" asp-for="NoFollow" role="switch">
+                            <label class="form-check-label" asp-for="NoFollow"></label>
+                            <span asp-validation-for="NoFollow" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<hr class="my-3">
-	<h4 class="mb-3">Open Graph / Twitter Card</h4>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Open Graph</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <label asp-for="OgTitle" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-heading"></i>
+                        </span>
+                        <input asp-for="OgTitle" class="form-control" />
+                    </div>
+                    <span asp-validation-for="OgTitle" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="OgDescription" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-text-wrap"></i>
+                        </span>
+                        <textarea asp-for="OgDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <span asp-validation-for="OgDescription" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="OgImage" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-photo"></i>
+                        </span>
+                        <input asp-for="OgImage" class="form-control media-url-input" readonly />
+                        <button class="btn btn-outline-secondary select-media-button" type="button"
+                                data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+                                data-media-type-filter="0">
+                            <i class="ti ti-folder"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="OgImage" class="text-danger"></span>
+                    <div class="media-preview-area mt-2">
+                        @if (!string.IsNullOrEmpty(Model.OgImage))
+                        {
+                            <img src="@Model.OgImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="OgTitle" class="form-label"></label>
-		<input asp-for="OgTitle" class="form-control" />
-		<span asp-validation-for="OgTitle" class="text-danger"></span>
-	</div>
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="TwitterTitle" class="form-label"></label>
-		<input asp-for="TwitterTitle" class="form-control" />
-		<span asp-validation-for="TwitterTitle" class="text-danger"></span>
-	</div>
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="OgDescription" class="form-label"></label>
-		<textarea asp-for="OgDescription" class="form-control" rows="3"></textarea>
-		<span asp-validation-for="OgDescription" class="text-danger"></span>
-	</div>
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="TwitterDescription" class="form-label"></label>
-		<textarea asp-for="TwitterDescription" class="form-control" rows="3"></textarea>
-		<span asp-validation-for="TwitterDescription" class="text-danger"></span>
-	</div>
+    <div class="col-md-6 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Twitter Card</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-3">
+                    <label asp-for="TwitterTitle" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-heading"></i>
+                        </span>
+                        <input asp-for="TwitterTitle" class="form-control" />
+                    </div>
+                    <span asp-validation-for="TwitterTitle" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="TwitterDescription" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-text-wrap"></i>
+                        </span>
+                        <textarea asp-for="TwitterDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    <span asp-validation-for="TwitterDescription" class="text-danger"></span>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="TwitterImage" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-photo"></i>
+                        </span>
+                        <input asp-for="TwitterImage" class="form-control media-url-input" readonly />
+                        <button class="btn btn-outline-secondary select-media-button" type="button"
+                                data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+                                data-media-type-filter="0">
+                            <i class="ti ti-folder"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="TwitterImage" class="text-danger"></span>
+                    <div class="media-preview-area mt-2">
+                        @if (!string.IsNullOrEmpty(Model.TwitterImage))
+                        {
+                            <img src="@Model.TwitterImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="OgImage" class="form-label"></label>
-		<div class="input-group">
-			<input asp-for="OgImage" class="form-control media-url-input" readonly />
-			<button class="btn btn-outline-secondary select-media-button" type="button"
-					data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-					data-media-type-filter="0">
-				<i class="ti ti-photo"></i>
-			</button>
-		</div>
-		<span asp-validation-for="OgImage" class="text-danger"></span>
-		@if (!string.IsNullOrEmpty(Model.OgImage))
-		{
-			<div class="media-preview-area mt-2">
-				<img src="@Model.OgImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
-			</div>
-		}
-		else
-		{
-			<div class="media-preview-area mt-2"></div>
-		}
-	</div>
+    <div class="col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Cài đặt Sitemap</h3>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="SitemapPriority" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ti ti-chart-bar"></i>
+                                </span>
+                                <input asp-for="SitemapPriority" type="number" step="0.1" min="0.0" max="1.0" class="form-control" />
+                            </div>
+                            <span asp-validation-for="SitemapPriority" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group mb-3">
+                            <label asp-for="SitemapChangeFrequency" class="form-label"></label>
+                            <div class="input-group">
+                                <span class="input-group-text">
+                                    <i class="ti ti-refresh"></i>
+                                </span>
+                                <input asp-for="SitemapChangeFrequency" class="form-control" />
+                            </div>
+                            <span asp-validation-for="SitemapChangeFrequency" class="text-danger"></span>
+                            <small class="form-hint">Ví dụ: always, hourly, daily, weekly, monthly, yearly, never</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="TwitterImage" class="form-label"></label>
-		<div class="input-group">
-			<input asp-for="TwitterImage" class="form-control media-url-input" readonly />
-			<button class="btn btn-outline-secondary select-media-button" type="button"
-					data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-					data-media-type-filter="0">
-				<i class="ti ti-photo"></i>
-			</button>
-		</div>
-		<span asp-validation-for="TwitterImage" class="text-danger"></span>
-		@if (!string.IsNullOrEmpty(Model.TwitterImage))
-		{
-			<div class="media-preview-area mt-2">
-				<img src="@Model.TwitterImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
-			</div>
-		}
-		else
-		{
-			<div class="media-preview-area mt-2"></div>
-		}
-	</div>
-
-	<hr class="my-3">
-	<h4 class="mb-3">Cài đặt Sitemap</h4>
-
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="SitemapPriority" class="form-label"></label>
-		<input asp-for="SitemapPriority" type="number" step="0.1" min="0.0" max="1.0" class="form-control" />
-		<span asp-validation-for="SitemapPriority" class="text-danger"></span>
-	</div>
-	<div class="form-group col-md-6 mb-3">
-		<label asp-for="SitemapChangeFrequency" class="form-label"></label>
-		<input asp-for="SitemapChangeFrequency" class="form-control" />
-		<span asp-validation-for="SitemapChangeFrequency" class="text-danger"></span>
-		<small class="form-hint">Ví dụ: always, hourly, daily, weekly, monthly, yearly, never</small>
-	</div>
-
-	<hr class="my-3">
-	<h4 class="mb-3">Dữ liệu có cấu trúc</h4>
-
-	<div class="form-group col-12 mb-3">
-		<label asp-for="SchemaMarkup" class="form-label"></label>
-		<textarea asp-for="SchemaMarkup" class="form-control" rows="5" placeholder="Dán mã JSON-LD Schema.org tại đây..."></textarea>
-		<span asp-validation-for="SchemaMarkup" class="text-danger"></span>
-	</div>
+    <div class="col-md-12 mb-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Dữ liệu có cấu trúc</h3>
+            </div>
+            <div class="card-body">
+                <div class="form-group mb-0">
+                    <label asp-for="SchemaMarkup" class="form-label"></label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-code"></i>
+                        </span>
+                        <textarea asp-for="SchemaMarkup" class="form-control" rows="5" placeholder="Dán mã JSON-LD Schema.org tại đây..."></textarea>
+                    </div>
+                    <span asp-validation-for="SchemaMarkup" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
