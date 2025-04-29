@@ -1,0 +1,23 @@
+@using web.Areas.Admin.ViewModels.ProductReview
+@model ProductReviewViewModel
+@{
+	ViewData["Title"] = "Chi tiết & Xét duyệt Đánh giá - Hệ thống quản trị";
+	ViewData["PageTitle"] = $"Xét duyệt Đánh giá cho: {Model.ProductName}";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("Đánh giá Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/ProductReview"),
+			($"Chi tiết & Xét duyệt: {Model.Id}", "")
+		};
+}
+
+<form asp-action="Edit" method="post">
+	@Html.AntiForgeryToken()
+	<input type="hidden" asp-for="Id" />
+	<div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
+
+	<partial name="_ProductReviewFormFields" model="Model" />
+
+</form>
+
+@section Scripts {
+     @* No specific JS needed for this simple form *@
+}

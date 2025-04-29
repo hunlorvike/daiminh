@@ -1,0 +1,193 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+@using web.Areas.Admin.ViewModels.AttributeValue
+
+@model AttributeValueIndexViewModel
+@{
+	ViewData["Title"] = "Quản lý Giá trị Thuộc tính - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Danh sách Giá trị Thuộc tính";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+			("Thuộc tính", Url.Action("Index", "Attribute") ?? "/Admin/Attribute"), // Link back to Attribute list
+            ("Giá trị thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/AttributeValue")
+		};
+}
+
+@section PageActions {
+	<div class="btn-list">
+        @if (Model.Filter.AttributeId.HasValue)
+        {
+            <a asp-action="Create" asp-route-AttributeId="@Model.Filter.AttributeId.Value" class="btn btn-primary d-sm-inline-block">
+			    <i class="ti ti-plus me-2"></i> Thêm Giá trị
+		    </a>
+        }
+        else
+        {
+             <button type="button" class="btn btn-primary d-sm-inline-block disabled" disabled title="Vui lòng chọn thuộc tính để thêm giá trị">
+			    <i class="ti ti-plus me-2"></i> Thêm Giá trị
+		    </button>
+        }
+	</div>
+}
+
+<div class="card mb-3">
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+			<div class="col-md-4">
+				<label asp-for="Filter.SearchTerm" class="form-label"></label>
+				<div class="input-group">
+					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm giá trị, mô tả...">
+					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"><i class="ti ti-x"></i></button>
+				</div>
+			</div>
+            <div class="col-md-4">
+				<label asp-for="Filter.AttributeId" class="form-label"></label>
+				<select asp-for="Filter.AttributeId" asp-items="@Model.Filter.AttributeOptions" class="form-select">
+					<option value="">-- Tất cả thuộc tính --</option>
+				</select>
+			</div>
+
+			<div class="col-md-auto">
+				<label class="form-label"> </label>
+				<button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i> Lọc</button>
+			</div>
+			<div class="col-md-auto">
+				<label class="form-label"> </label>
+				<a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="ti ti-reload me-2"></i> Đặt lại</a>
+			</div>
+		</form>
+	</div>
+</div>
+
+<div class="card">
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h3 class="card-title mb-0">Danh sách Giá trị Thuộc tính</h3>
+		@if (Model.AttributeValues.TotalItemCount > 0)
+		{
+			<small class="text-muted">Hiển thị @Model.AttributeValues.FirstItemOnPage-@Model.AttributeValues.LastItemOnPage trên tổng số @Model.AttributeValues.TotalItemCount giá trị</small>
+		}
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.AttributeValues.Any())
+		{
+			<div class="empty">
+				<div class="empty-icon"><i class="ti ti-list-check off fs-1 text-muted"></i></div> @* Assuming ti-list-check icon exists *@
+				<p class="empty-title">Không tìm thấy giá trị thuộc tính nào</p>
+				<p class="empty-subtitle text-muted">
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.AttributeId.HasValue)
+					{
+						@:Hãy thêm giá trị thuộc tính đầu tiên.
+					}
+					else
+					{
+						@:Không có giá trị thuộc tính nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+					}
+				</p>
+				<div class="empty-action">
+                     @if (Model.Filter.AttributeId.HasValue)
+                    {
+                        <a asp-action="Create" asp-route-AttributeId="@Model.Filter.AttributeId.Value" class="btn btn-primary d-sm-inline-block">
+                            <i class="ti ti-plus me-2"></i> Thêm Giá trị
+                        </a>
+                    } else {
+                         // Cannot add if no attribute is selected for filter
+                    }
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped">
+					<thead>
+						<tr>
+                            <th>Thuộc tính</th>
+							<th>Giá trị</th>
+							<th>Slug</th>
+                            <th>Thứ tự</th>
+							<th>Cập nhật</th>
+							<th class="w-1">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model.AttributeValues)
+						{
+							<tr>
+                                <td>
+                                     <a asp-area="Admin" asp-controller="Attribute" asp-action="Edit" asp-route-id="@item.AttributeId" class="fw-medium">@item.AttributeName</a>
+                                </td>
+								<td>
+									<span class="fw-medium">@item.Value</span>
+								</td>
+								<td class="text-muted"><code>@item.Slug</code></td>
+                                <td class="text-center text-muted">@item.OrderIndex</td>
+								<td>
+									@if (item.UpdatedAt.HasValue)
+									{
+										<span>@item.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+									}
+									else
+									{
+										<span class="text-muted">N/A</span>
+									}
+								</td>
+								<td class="text-muted">
+									<div class="btn-list flex-nowrap">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
+										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
+												title="Xóa"
+												data-id="@item.Id"
+												data-name="@item.Value"
+												data-delete-url="@Url.Action("Delete", "AttributeValue")">
+											<i class="ti ti-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+	@if (Model.AttributeValues.PageCount > 1)
+	{
+		<div class="card-footer">
+			<div class="d-flex justify-content-center">
+				@Html.PagedListPager(
+								Model.AttributeValues,
+								page => Url.Action("Index", new
+								{
+									page,
+									Model.Filter.SearchTerm,
+                                    Model.Filter.AttributeId
+								}),
+								new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+			})
+			</div>
+		</div>
+	}
+</div>
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+			$('#clearSearch').on('click', function() {
+				$('#Filter_SearchTerm').val('');
+			});
+            $('#Filter_AttributeId').on('change', function() {
+                $('#filterForm').submit();
+            });
+		});
+	</script>
+}

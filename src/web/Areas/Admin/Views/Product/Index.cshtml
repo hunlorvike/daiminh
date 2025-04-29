@@ -1,0 +1,242 @@
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+@using shared.Enums
+@using web.Areas.Admin.ViewModels.Product
+@using shared.Extensions
+
+@model ProductIndexViewModel
+@{
+    ViewData["Title"] = "Quản lý Sản phẩm - Hệ thống quản trị";
+    ViewData["PageTitle"] = "Danh sách Sản phẩm";
+    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product")
+};
+}
+
+@section PageActions {
+    <div class="btn-list">
+        <a asp-action="Create" class="btn btn-primary d-sm-inline-block">
+            <i class="ti ti-plus me-2"></i> Thêm Sản phẩm
+        </a>
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label asp-for="Filter.SearchTerm" class="form-label"></label>
+                <div class="input-group">
+                    <input asp-for="Filter.SearchTerm" class="form-control"
+                        placeholder="Tìm tên, mô tả, nhà sản xuất...">
+                    <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"><i
+                            class="ti ti-x"></i></button>
+                </div>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filter.CategoryId" class="form-label"></label>
+                <select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions" class="form-select">
+                    <option value="">-- Tất cả danh mục --</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filter.BrandId" class="form-label"></label>
+                <select asp-for="Filter.BrandId" asp-items="@Model.Filter.BrandOptions" class="form-select">
+                    <option value="">-- Tất cả thương hiệu --</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filter.Status" class="form-label"></label>
+                <select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions" class="form-select"></select>
+            </div>
+            <div class="col-md-2">
+                <label asp-for="Filter.IsFeatured" class="form-label"></label>
+                <select asp-for="Filter.IsFeatured" asp-items="@Model.Filter.IsFeaturedOptions"
+                    class="form-select"></select>
+            </div>
+            @* Add filter for IsActive if needed *@
+            @* <div class="col-md-auto">
+				<label asp-for="Filter.IsActive" class="form-label"></label>
+				<select asp-for="Filter.IsActive" asp-items="@Model.Filter.IsActiveOptions" class="form-select"></select>
+			</div> *@
+
+            <div class="col-md-1">
+                <label class="form-label"> </label>
+                <button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i> Lọc</button>
+            </div>
+            <div class="col-md-1">
+                <label class="form-label"> </label>
+                <a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="ti ti-reload me-2"></i> Đặt
+                    lại</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title mb-0">Danh sách Sản phẩm</h3>
+        @if (Model.Products.TotalItemCount > 0)
+        {
+            <small class="text-muted">Hiển thị @Model.Products.FirstItemOnPage-@Model.Products.LastItemOnPage trên tổng số
+                @Model.Products.TotalItemCount sản phẩm</small>
+        }
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Products.Any())
+        {
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-package off fs-1 text-muted"></i></div> @* Assuming ti-package icon exists *@
+                <p class="empty-title">Không tìm thấy sản phẩm nào</p>
+                <p class="empty-subtitle text-muted">
+                    @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue &&
+                                    !Model.Filter.CategoryId.HasValue && !Model.Filter.BrandId.HasValue &&
+                                    !Model.Filter.IsFeatured.HasValue)
+                    {
+                        @:Hãy thêm sản phẩm đầu tiên.
+                    }
+                    else
+                    {
+                        @:Không có sản phẩm nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+                    }
+                </p>
+                <div class="empty-action">
+                    <a asp-action="Create" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm sản phẩm </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tên sản phẩm</th>
+                            <th>Danh mục</th>
+                            <th>Thương hiệu</th>
+                            <th class="text-center">Trạng thái</th>
+                            <th class="text-center">Hoạt động</th>
+                            <th class="text-center">Nổi bật</th>
+                            <th class="text-center">Lượt xem</th>
+                            <th class="text-center">Ảnh</th>
+                            <th class="text-center">Thẻ</th>
+                            <th class="text-center">Biến thể</th>
+                            <th class="text-center">Đánh giá</th>
+                            <th>Cập nhật</th>
+                            <th class="w-1">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Products)
+                        {
+                            <tr>
+                                <td>
+                                    <span class="fw-medium">@item.Name</span>
+                                </td>
+                                <td class="text-muted">@item.CategoryName</td>
+                                <td class="text-muted">@item.BrandName</td>
+                                <td class="text-center">
+                                    <span
+                                        class="badge bg-@((item.Status == PublishStatus.Published) ? "success" : (item.Status == PublishStatus.Draft ? "secondary" : "warning"))-lt">
+                                        @item.Status.GetDisplayName()
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <span class="badge bg-@(item.IsActive ? "success" : "danger")-lt">
+                                        @(item.IsActive ? "Có" : "Không")
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    @if (item.IsFeatured)
+                                    {
+                                        <span class="badge bg-primary-lt"><i class="ti ti-star"></i></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td class="text-muted text-center">@item.ViewCount</td>
+                                <td class="text-muted text-center">
+                                    <span class="badge bg-blue-lt">@item.ImageCount</span>
+                                </td>
+                                <td class="text-muted text-center">
+                                    <span class="badge bg-blue-lt">@item.TagCount</span>
+                                </td>
+                                <td class="text-muted text-center">
+                                    <span class="badge bg-blue-lt">@item.VariationCount</span>
+                                </td>
+                                <td class="text-muted text-center">
+                                    <span class="badge bg-blue-lt">@item.ReviewCount</span>
+                                </td>
+                                <td>
+                                    @if (item.UpdatedAt.HasValue)
+                                    {
+                                        <span>@item.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">N/A</span>
+                                    }
+                                </td>
+                                <td class="text-muted">
+                                    <div class="btn-list flex-nowrap">
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                            class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"><i
+                                                class="ti ti-pencil"></i></a>
+                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn" title="Xóa"
+                                            data-id="@item.Id" data-name="@item.Name"
+                                            data-delete-url="@Url.Action("Delete", "Product")">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    @if (Model.Products.PageCount > 1)
+    {
+        <div class="card-footer">
+            <div class="d-flex justify-content-center">
+                @Html.PagedListPager(
+                Model.Products,
+                        page => Url.Action("Index", new
+                        {
+                            page,
+                            Model.Filter.SearchTerm,
+                            Model.Filter.CategoryId,
+                            Model.Filter.BrandId,
+                            Model.Filter.Status,
+                            Model.Filter.IsFeatured
+                        }),
+                        new PagedListRenderOptions
+                        {
+                            UlElementClasses = new[] { "pagination mb-0" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" },
+                            DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            ActiveLiElementClass = "active",
+                            LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                            LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+                        })
+        </div>
+    </div>
+        }
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#clearSearch').on('click', function () {
+                $('#Filter_SearchTerm').val('');
+            });
+        });
+    </script>
+}

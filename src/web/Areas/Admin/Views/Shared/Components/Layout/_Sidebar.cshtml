@@ -1,254 +1,311 @@
 @using shared.Enums;
 @inject Microsoft.AspNetCore.Mvc.Infrastructure.IActionContextAccessor ActionContextAccessor
 @{
-	string? currentController = ActionContextAccessor.ActionContext?.RouteData.Values["controller"]?.ToString();
-	string? currentAction = ActionContextAccessor.ActionContext?.RouteData.Values["action"]?.ToString();
-	string? currentRouteType = ActionContextAccessor.ActionContext?.RouteData.Values["type"]?.ToString();
+    string? currentController = ActionContextAccessor.ActionContext?.RouteData.Values["controller"]?.ToString();
+    string? currentAction = ActionContextAccessor.ActionContext?.RouteData.Values["action"]?.ToString();
+    string? currentRouteType = ActionContextAccessor.ActionContext?.RouteData.Values["type"]?.ToString();
 
-	bool IsMenuActive(params string[] controllers)
-	{
-		return controllers.Contains(currentController, StringComparer.OrdinalIgnoreCase);
-	}
+    bool IsMenuActive(params string[] controllers)
+    {
+        return controllers.Contains(currentController, StringComparer.OrdinalIgnoreCase);
+    }
 
-	string? themeCookie = Context.Request.Cookies["daiminhTheme"];
-	string? theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
+    string? themeCookie = Context.Request.Cookies["daiminhTheme"];
+    string? theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
 }
 
 <aside class="navbar navbar-vertical navbar-expand-lg navbar-light border-end">
-	<div class="container-fluid">
-		<div class="d-flex align-items-center justify-content-between w-100 d-lg-none mb-1">
-			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
-					aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
+    <div class="container-fluid">
+        <div class="d-flex align-items-center justify-content-between w-100 d-lg-none mb-1">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
+                    aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-			<h1 class="navbar-brand navbar-brand-autodark py-2 m-0">
-				<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none fw-bold">DAIMINH</a>
-			</h1>
+            <h1 class="navbar-brand navbar-brand-autodark py-2 m-0">
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none fw-bold">DAIMINH</a>
+            </h1>
 
-			<div class="dropdown">
-				<button class="btn btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-					<i class="ti ti-dots-vertical"></i>
-				</button>
-				<div class="dropdown-menu dropdown-menu-end py-2" style="min-width: 240px;">
-					<div class="px-3 py-2 d-flex align-items-center border-bottom mb-2">
-						<span class="avatar avatar-sm bg-primary-subtle me-2">
-							<i class="ti ti-user-circle"></i>
-						</span>
-						<div>
-							<div class="fw-medium">Tài khoản</div>
-							<div class="text-muted small">Admin</div>
-						</div>
-					</div>
+            <div class="dropdown">
+                <button class="btn btn-icon" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="ti ti-dots-vertical"></i>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end py-2" style="min-width: 240px;">
+                    <div class="px-3 py-2 d-flex align-items-center border-bottom mb-2">
+                        <span class="avatar avatar-sm bg-primary-subtle me-2">
+                            <i class="ti ti-user-circle"></i>
+                        </span>
+                        <div>
+                            <div class="fw-medium">Tài khoản</div>
+                            <div class="text-muted small">Admin</div>
+                        </div>
+                    </div>
 
-					<div class="px-3 py-1 mb-2">
-						<div class="fw-medium mb-2 text-muted small text-uppercase">Giao diện</div>
-						<div class="d-flex gap-2">
-							<a href="?theme=light" class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "light" ? "active" : "")">
-								<i class="ti ti-sun me-1"></i> Sáng
-							</a>
-							<a href="?theme=dark" class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "dark" ? "active" : "")">
-								<i class="ti ti-moon me-1"></i> Tối
-							</a>
-						</div>
-					</div>
+                    <div class="px-3 py-1 mb-2">
+                        <div class="fw-medium mb-2 text-muted small text-uppercase">Giao diện</div>
+                        <div class="d-flex gap-2">
+                            <a href="?theme=light" class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "light" ? "active" : "")">
+                                <i class="ti ti-sun me-1"></i> Sáng
+                            </a>
+                            <a href="?theme=dark" class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "dark" ? "active" : "")">
+                                <i class="ti ti-moon me-1"></i> Tối
+                            </a>
+                        </div>
+                    </div>
 
-					<div class="px-3 py-1 mb-2">
-						<div class="d-flex justify-content-between align-items-center mb-2">
-							<div class="fw-medium text-muted small text-uppercase">Thông báo</div>
-							<a href="#" class="btn btn-sm btn-link p-0">Xem tất cả</a>
-						</div>
-						<div class="list-group list-group-flush list-group-hoverable">
-							<div class="list-group-item px-0 py-2">
-								<div class="row g-2 align-items-center">
-									<div class="col-auto">
-										<span class="status-dot status-dot-animated bg-red d-block"></span>
-									</div>
-									<div class="col text-truncate">
-										<a href="#" class="text-body d-block">Có 5 liên hệ mới cần xử lý</a>
-										<div class="d-block text-muted text-truncate small">
-											Vui lòng kiểm tra và phản hồi sớm
-										</div>
-									</div>
-								</div>
-							</div>
-							<div class="list-group-item px-0 py-2">
-								<div class="row g-2 align-items-center">
-									<div class="col-auto"><span class="status-dot d-block"></span></div>
-									<div class="col text-truncate">
-										<a href="#" class="text-body d-block">Có 3 bình luận mới cần duyệt</a>
-										<div class="d-block text-muted text-truncate small">
-											Vui lòng kiểm tra và duyệt bình luận
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
+                    <div class="px-3 py-1 mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="fw-medium text-muted small text-uppercase">Thông báo</div>
+                            <a href="#" class="btn btn-sm btn-link p-0">Xem tất cả</a>
+                        </div>
+                        <div class="list-group list-group-flush list-group-hoverable">
+                            <div class="list-group-item px-0 py-2">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto">
+                                        <span class="status-dot status-dot-animated bg-red d-block"></span>
+                                    </div>
+                                    <div class="col text-truncate">
+                                        <a href="#" class="text-body d-block">Có 5 liên hệ mới cần xử lý</a>
+                                        <div class="d-block text-muted text-truncate small">
+                                            Vui lòng kiểm tra và phản hồi sớm
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="list-group-item px-0 py-2">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-auto"><span class="status-dot d-block"></span></div>
+                                    <div class="col text-truncate">
+                                        <a href="#" class="text-body d-block">Có 3 bình luận mới cần duyệt</a>
+                                        <div class="d-block text-muted text-truncate small">
+                                            Vui lòng kiểm tra và duyệt bình luận
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-					<div class="dropdown-divider"></div>
-					<a href="#" class="dropdown-item">
-						<i class="ti ti-user me-2"></i>Hồ sơ
-					</a>
-					<a href="#" class="dropdown-item">
-						<i class="ti ti-settings me-2"></i>Cài đặt
-					</a>
-					<div class="dropdown-divider"></div>
-					<form class="form-inline px-3" asp-area="Admin" asp-controller="Account" asp-action="Logout"
-						  method="post">
-						@Html.AntiForgeryToken()
-						<button type="submit" class="dropdown-item text-danger px-0">
-							<i class="ti ti-logout me-2"></i>Đăng xuất
-						</button>
-					</form>
-				</div>
-			</div>
-		</div>
+                    <div class="dropdown-divider"></div>
+                    <a href="#" class="dropdown-item">
+                        <i class="ti ti-user me-2"></i>Hồ sơ
+                    </a>
+                    <a href="#" class="dropdown-item">
+                        <i class="ti ti-settings me-2"></i>Cài đặt
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <form class="form-inline px-3" asp-area="Admin" asp-controller="Account" asp-action="Logout"
+                          method="post">
+                        @Html.AntiForgeryToken()
+                        <button type="submit" class="dropdown-item text-danger px-0">
+                            <i class="ti ti-logout me-2"></i>Đăng xuất
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
-		<!-- Desktop brand -->
-		<h1 class="navbar-brand navbar-brand-autodark py-3 d-none d-lg-block text-center">
-			<a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none fw-bold">DAIMINH</a>
-		</h1>
+        <!-- Desktop brand -->
+        <h1 class="navbar-brand navbar-brand-autodark py-3 d-none d-lg-block text-center">
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none fw-bold">DAIMINH</a>
+        </h1>
 
-		<div class="collapse navbar-collapse" id="sidebar-menu">
-			<ul class="navbar-nav pt-lg-3">
-				<!-- DASHBOARD -->
-				<li class="nav-item mb-2 @(IsMenuActive("Dashboard") ? "active" : "")">
-					<a class="nav-link rounded d-flex align-items-center gap-2 py-2" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-						<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-home"></i></span>
-						<span class="nav-link-title">Trang chủ</span>
-					</a>
-				</li>
+        <div class="collapse navbar-collapse" id="sidebar-menu">
+            <ul class="navbar-nav pt-lg-3">
+                <!-- DASHBOARD -->
+                <li class="nav-item mb-2 @(IsMenuActive("Dashboard") ? "active" : "")">
+                    <a class="nav-link rounded d-flex align-items-center gap-2 py-2" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
+                        <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-home"></i></span>
+                        <span class="nav-link-title">Trang chủ</span>
+                    </a>
+                </li>
 
-				<!-- QUẢN LÝ NỘI DUNG -->
-				<li class="nav-item mb-1 @(IsMenuActive("Article", "Media", "Category", "Tag") ? "active" : "")">
-					<div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
-						<span>Quản lý nội dung</span>
-						<i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Article", "Media", "Category", "Tag") ? "ti-chevron-up" : "")"></i>
-					</div>
-					<div class="@(IsMenuActive("Article", "Media", "Category", "Tag") ? "show" : "")">
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Article" ? "active" : "")" asp-controller="Article" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-file-text"></i></span>
-							<span class="nav-link-title">Bài viết</span>
-						</a>
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Category" ? "active" : "")" asp-controller="Category" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-folders"></i></span>
-							<span class="nav-link-title">Danh mục</span>
-						</a>
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Tag" ? "active" : "")" asp-controller="Tag" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-tags"></i></span>
-							<span class="nav-link-title">Thẻ</span>
-						</a>
-					</div>
-				</li>
+                <!-- QUẢN LÝ NỘI DUNG -->
+                <li class="nav-item mb-1 @(IsMenuActive("Article", "Media", "Category", "Tag") ? "active" : "")">
+                    <div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
+                        <span>Quản lý nội dung</span>
+                        <i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Article", "Media", "Category", "Tag") ? "ti-chevron-up" : "")"></i>
+                    </div>
+                    <div class="@(IsMenuActive("Article", "Media", "Category", "Tag") ? "show" : "")">
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Article" ? "active" : "")" asp-controller="Article" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-file-text"></i></span>
+                            <span class="nav-link-title">Bài viết</span>
+                        </a>
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Category" ? "active" : "")" asp-controller="Category" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-folders"></i></span>
+                            <span class="nav-link-title">Danh mục</span>
+                        </a>
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Tag" ? "active" : "")" asp-controller="Tag" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-tags"></i></span>
+                            <span class="nav-link-title">Thẻ</span>
+                        </a>
+                        @* Optional: Media Library link if you have one *@
+                        @* <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Media" ? "active" : "")" asp-controller="Media" asp-action="Index">
+							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-photo"></i></span>
+							<span class="nav-link-title">Thư viện ảnh</span>
+						</a> *@
+                    </div>
+                </li>
 
-				<!-- QUẢN LÝ SẢN PHẨM -->
-				<li class="nav-item mb-1 @(IsMenuActive("Product", "Brand") ? "active" : "")">
-					<div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
-						<span>Quản lý sản phẩm</span>
-						<i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Product", "Brand") ? "ti-chevron-up" : "")"></i>
-					</div>
-					<div class="@(IsMenuActive("Product", "Brand") ? "show" : "")">
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Product" ? "active" : "")" asp-controller="Product" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-package"></i></span>
-							<span class="nav-link-title">Danh sách sản phẩm</span>
-						</a>
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Brand" ? "active" : "")" asp-controller="Brand" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-building-store"></i></span>
-							<span class="nav-link-title">Thương hiệu</span>
-						</a>
-					</div>
-				</li>
+                <!-- QUẢN LÝ SẢN PHẨM -->
+                <li class="nav-item mb-1 @(IsMenuActive("Product", "Brand", "ProductReview") ? "active" : "")">
+                    @* Added ProductReview *@
+                    <div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
+                        <span>Quản lý sản phẩm</span>
+                        <i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Product", "Brand", "ProductReview") ? "ti-chevron-up" : "")"></i> @* Added ProductReview *@
+                    </div>
+                    <div class="@(IsMenuActive("Product", "Brand", "ProductReview") ? "show" : "")">
+                        @* Added ProductReview *@
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Product" ? "active" : "")" asp-controller="Product" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-package"></i></span>
+                            <span class="nav-link-title">Danh sách sản phẩm</span>
+                        </a>
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Brand" ? "active" : "")" asp-controller="Brand" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-building-store"></i></span>
+                            <span class="nav-link-title">Thương hiệu</span>
+                        </a>
+                        @* Added Product Reviews here as they relate directly to products *@
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "ProductReview" ? "active" : "")" asp-controller="ProductReview" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-message-star"></i></span> @* Using ti-message-star icon *@
+                            <span class="nav-link-title">Đánh giá sản phẩm</span>
+                        </a>
+                        @* Optional: Product Variations link if you create a Variations controller *@
+                        @* <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "ProductVariation" ? "active" : "")" asp-controller="ProductVariation" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-adjustments"></i></span>
+                            <span class="nav-link-title">Biến thể sản phẩm</span>
+                        </a> *@
+                    </div>
+                </li>
 
-				<!-- FAQ -->
-				<li class="nav-item mb-1 @(IsMenuActive("FAQ") ? "active" : "")">
-					<div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
-						<span>FAQ</span>
-						<i class="ti ti-chevron-down d-lg-none @(IsMenuActive("FAQ") ? "ti-chevron-up" : "")"></i>
-					</div>
-					<div class="@(IsMenuActive("FAQ") ? "show" : "")">
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4" asp-controller="FAQ" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-help-circle"></i></span>
-							<span class="nav-link-title">FAQ</span>
-						</a>
-					</div>
-				</li>
+                <!-- FAQ -->
+                <li class="nav-item mb-1 @(IsMenuActive("FAQ") ? "active" : "")">
+                    <div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
+                        <span>FAQ</span>
+                        <i class="ti ti-chevron-down d-lg-none @(IsMenuActive("FAQ") ? "ti-chevron-up" : "")"></i>
+                    </div>
+                    <div class="@(IsMenuActive("FAQ") ? "show" : "")">
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "FAQ" ? "active" : "")" asp-controller="FAQ" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-help-circle"></i></span>
+                            <span class="nav-link-title">Câu hỏi thường gặp</span> @* Changed text for clarity *@
+                        </a>
+                    </div>
+                </li>
 
-				<!-- NGƯỜI DÙNG -->
-				<li class="nav-item mb-1 @(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "active" : "")">
-					<div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
-						<span>Người dùng</span>
-						<i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "ti-chevron-up" : "")"></i>
-					</div>
-					<div class="@(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "show" : "")">
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Testimonial" ? "active" : "")" asp-controller="Testimonial" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-message-circle-2"></i></span>
-							<span class="nav-link-title">Đánh giá</span>
-						</a>
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Contact" ? "active" : "")" asp-controller="Contact" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-mail"></i></span>
-							<span class="nav-link-title">Liên hệ</span>
-						</a>
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Newsletter" ? "active" : "")" asp-controller="Newsletter" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-news"></i></span>
-							<span class="nav-link-title">Đăng ký nhận tin</span>
-						</a>
-					</div>
-				</li>
+                <!-- NGƯỜI DÙNG & TƯƠNG TÁC --> @* Added & Interaction for clarity *@
+                <li class="nav-item mb-1 @(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "active" : "")">
+                    <div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
+                        <span>Người dùng & Tương tác</span> @* Changed section title *@
+                        <i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "ti-chevron-up" : "")"></i>
+                    </div>
+                    <div class="@(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "show" : "")">
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Testimonial" ? "active" : "")" asp-controller="Testimonial" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-message-circle-2"></i></span>
+                            <span class="nav-link-title">Đánh giá khách hàng</span> @* Clarified "Đánh giá" *@
+                        </a>
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Contact" ? "active" : "")" asp-controller="Contact" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-mail"></i></span>
+                            <span class="nav-link-title">Liên hệ</span>
+                        </a>
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Newsletter" ? "active" : "")" asp-controller="Newsletter" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-news"></i></span>
+                            <span class="nav-link-title">Đăng ký nhận tin</span>
+                        </a>
+                    </div>
+                </li>
 
-				<!-- CẤU HÌNH HỆ THỐNG -->
-				<li class="nav-item mb-1 @(IsMenuActive("Setting", "User") ? "active" : "")">
-					<div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
-						<span>Hệ thống</span>
-						<i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Setting", "User") ? "ti-chevron-up" : "")"></i>
-					</div>
-					<div class="@(IsMenuActive("Setting", "User") ? "show" : "")">
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Setting" ? "active" : "")" asp-controller="Setting" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-settings"></i></span>
-							<span class="nav-link-title">Cấu hình</span>
-						</a>
-						<a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "User" ? "active" : "")" asp-controller="User" asp-action="Index">
-							<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-users"></i></span>
-							<span class="nav-link-title">Người dùng</span>
-						</a>
-					</div>
-				</li>
+                <!-- CẤU HÌNH HỆ THỐNG -->
+                <li class="nav-item mb-1 @(IsMenuActive("Setting", "User", "Attribute", "AttributeValue") ? "active" : "")">
+                    @* Added Attribute, AttributeValue *@
+                    <div class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center">
+                        <span>Hệ thống & Cấu hình</span> @* Changed section title *@
+                        <i class="ti ti-chevron-down d-lg-none @(IsMenuActive("Setting", "User", "Attribute", "AttributeValue") ? "ti-chevron-up" : "")"></i> @* Added Attribute, AttributeValue *@
+                    </div>
+                    <div class="@(IsMenuActive("Setting", "User", "Attribute", "AttributeValue") ? "show" : "")">
+                        @* Added Attribute, AttributeValue *@
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Setting" ? "active" : "")" asp-controller="Setting" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-settings"></i></span>
+                            <span class="nav-link-title">Cấu hình chung</span> @* Changed text for clarity *@
+                        </a>
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "User" ? "active" : "")" asp-controller="User" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-users"></i></span>
+                            <span class="nav-link-title">Tài khoản người dùng</span> @* Changed text for clarity *@
+                        </a>
+                        @* Added Attribute and AttributeValue here *@
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Attribute" ? "active" : "")" asp-controller="Attribute" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-adjustments-alt"></i></span> @* Using ti-adjustments-alt icon *@
+                            <span class="nav-link-title">Thuộc tính sản phẩm</span>
+                        </a>
+                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "AttributeValue" ? "active" : "")" asp-controller="AttributeValue" asp-action="Index">
+                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-list-check"></i></span> @* Using ti-list-check icon *@
+                            <span class="nav-link-title">Giá trị thuộc tính</span>
+                        </a>
+                    </div>
+                </li>
 
-				<!-- LINK NGOÀI -->
-				<li class="nav-item mt-auto mb-2">
-					<a class="nav-link rounded d-flex align-items-center gap-2 py-2" href="/" target="_blank">
-						<span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-external-link"></i></span>
-						<span class="nav-link-title">Xem trang web</span>
-					</a>
-				</li>
-			</ul>
-		</div>
-	</div>
+                <!-- LINK NGOÀI -->
+                <li class="nav-item mt-auto mb-2">
+                    <a class="nav-link rounded d-flex align-items-center gap-2 py-2" href="/" target="_blank">
+                        <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-external-link"></i></span>
+                        <span class="nav-link-title">Xem trang web</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
 </aside>
 
 <!-- Add this JavaScript to the bottom of your layout or in a separate JS file -->
 <script>
-	document.addEventListener('DOMContentLoaded', function() {
-		// For mobile: Add toggle functionality to section headers
-		if (window.innerWidth < 992) {
-			const sectionHeaders = document.querySelectorAll('.nav-link.text-muted.text-uppercase');
+    document.addEventListener('DOMContentLoaded', function() {
+        // For mobile: Add toggle functionality to section headers
+        if (window.innerWidth < 992) {
+            const sectionHeaders = document.querySelectorAll('.nav-link.text-muted.text-uppercase');
 
-			sectionHeaders.forEach(header => {
-				header.addEventListener('click', function() {
-					const nextDiv = this.nextElementSibling;
-					const icon = this.querySelector('.ti-chevron-down');
+            sectionHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const nextDiv = this.nextElementSibling;
+                    // Find the specific icon within this header's children
+                    const icon = this.querySelector('.ti-chevron-down, .ti-chevron-up');
 
-					if (nextDiv.classList.contains('show')) {
-						nextDiv.classList.remove('show');
-						icon?.classList.remove('ti-chevron-up');
-						icon?.classList.add('ti-chevron-down');
-					} else {
-						nextDiv.classList.add('show');
-						icon?.classList.remove('ti-chevron-down');
-						icon?.classList.add('ti-chevron-up');
-					}
-				});
-			});
-		}
-	});
+                    if (nextDiv.classList.contains('show')) {
+                        nextDiv.classList.remove('show');
+                        if (icon) {
+                            icon.classList.remove('ti-chevron-up');
+                            icon.classList.add('ti-chevron-down');
+                        }
+                    } else {
+                         // Close other open sections first (optional, but good for mobile UX)
+                         document.querySelectorAll('#sidebar-menu > ul > li > div + div.show').forEach(openDiv => {
+                              openDiv.classList.remove('show');
+                              const openIcon = openDiv.previousElementSibling.querySelector('.ti-chevron-down, .ti-chevron-up');
+                               if (openIcon) {
+                                    openIcon.classList.remove('ti-chevron-up');
+                                    openIcon.classList.add('ti-chevron-down');
+                                }
+                         });
+
+
+                        nextDiv.classList.add('show');
+                        if (icon) {
+                            icon.classList.remove('ti-chevron-down');
+                            icon.classList.add('ti-chevron-up');
+                        }
+                    }
+                });
+
+                 // On page load, if a section is active, ensure its content is shown on mobile
+                 const parentLi = header.closest('li.nav-item');
+                 if (parentLi && parentLi.classList.contains('active')) {
+                      const nextDiv = header.nextElementSibling;
+                      const icon = header.querySelector('.ti-chevron-down, .ti-chevron-up');
+                       if (nextDiv && icon) {
+                           nextDiv.classList.add('show');
+                           icon.classList.remove('ti-chevron-down');
+                           icon.classList.add('ti-chevron-up');
+                       }
+                 }
+
+            });
+        }
+    });
 </script>

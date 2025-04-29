@@ -1,0 +1,71 @@
+@using web.Areas.Admin.ViewModels.ProductReview
+@using shared.Extensions
+@model ProductReviewViewModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions {
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken!;
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h3 class="card-title">Thông tin Đánh giá Sản phẩm</h3>
+    </div>
+    <div class="card-body">
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="ProductName" class="form-label"></label>
+                    <p class="form-control-plaintext">@Model.ProductName</p>
+                    @* Link to product edit page if desired *@
+                    @* <a asp-area="Admin" asp-controller="Product" asp-action="Edit" asp-route-id="@Model.ProductId">@Model.ProductName</a> *@
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="UserName" class="form-label"></label>
+                    <p class="form-control-plaintext">@Model.UserName</p>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="UserEmail" class="form-label"></label>
+                    <p class="form-control-plaintext">@Model.UserEmail</p>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="CreatedAt" class="form-label"></label>
+                    <p class="form-control-plaintext">@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="Rating" class="form-label"></label>
+                    <p class="form-control-plaintext">
+                        @for (int i = 0; i < Model.Rating; i++)
+                        {
+                            <i class="ti ti-star-filled text-warning"></i>
+                        }
+                        @for (int i = Model.Rating; i < 5; i++)
+                        {
+                            <i class="ti ti-star text-muted"></i>
+                        }
+                        (@Model.Rating/5)
+                    </p>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Content" class="form-label"></label>
+                    <p class="form-control-plaintext">@Model.Content</p>
+                </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Status" class="form-label required"></label>
+                    <select asp-for="Status" asp-items="@Model.StatusOptions" class="form-select"></select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="card-footer text-end bg-transparent border-top pt-3">
+        <a asp-action="Index" class="btn btn-link">Hủy</a>
+        <button type="submit" class="btn btn-primary ms-2">
+            <i class="ti ti-device-floppy me-2"></i> Cập nhật Trạng thái
+        </button>
+    </div>
+</div>

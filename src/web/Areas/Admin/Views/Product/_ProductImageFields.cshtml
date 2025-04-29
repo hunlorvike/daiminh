@@ -1,0 +1,79 @@
+@using web.Areas.Admin.ViewModels.Product
+@model ProductImageViewModel
+@{
+    // Get the index from ViewData, default to 0 if not set
+    var index = ViewData["Index"] != null ? (int)ViewData["Index"] : 0;
+    var uniqueIdPrefix = $"Images_{index}__";
+}
+
+<div class="product-image-item card mb-2" data-id="@Model.Id">
+    <div class="card-body p-3 d-flex align-items-start">
+        <div class="handle me-3 cursor-grab">
+            <i class="ti ti-grip-vertical fs-2"></i>
+        </div>
+        <div class="flex-grow-1">
+            <input type="hidden" name="Images[@index].Id" value="@Model.Id" class="image-id" />
+            <input type="hidden" name="Images[@index].ProductId" value="@Model.ProductId" />
+            <input type="hidden" name="Images[@index].IsDeleted" value="false" class="image-is-deleted" />
+
+            <div class="form-group mb-3">
+                <label for="@(uniqueIdPrefix)ImageUrl" class="form-label required">URL Ảnh</label>
+                <div class="input-group">
+                    <input type="text" name="Images[@index].ImageUrl" id="@(uniqueIdPrefix)ImageUrl"
+                        value="@Model.ImageUrl" class="form-control media-url-input" readonly />
+                    <button class="btn btn-outline-secondary select-media-button" type="button" data-bs-toggle="modal"
+                        data-bs-target="#selectMediaModal" data-media-type-filter="0"
+                        data-target-input="#@(uniqueIdPrefix)ImageUrl">
+                        <i class="ti ti-photo"></i>
+                    </button>
+                </div>
+                @* Client-side validation messages will appear here if using JS validation *@
+                <span class="text-danger" data-valmsg-for="Images[@index].ImageUrl"></span>
+                <div class="media-preview-area mt-2">
+                    @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                    {
+                        <img src="@Model.ImageUrl" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+                    }
+                </div>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="@(uniqueIdPrefix)ThumbnailUrl" class="form-label">URL Thumbnail</label>
+                <input type="text" name="Images[@index].ThumbnailUrl" id="@(uniqueIdPrefix)ThumbnailUrl"
+                    value="@Model.ThumbnailUrl" class="form-control" />
+                <span class="text-danger" data-valmsg-for="Images[@index].ThumbnailUrl"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="@(uniqueIdPrefix)AltText" class="form-label">Alt Text</label>
+                <input type="text" name="Images[@index].AltText" id="@(uniqueIdPrefix)AltText" value="@Model.AltText"
+                    class="form-control" />
+                <span class="text-danger" data-valmsg-for="Images[@index].AltText"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label for="@(uniqueIdPrefix)Title" class="form-label">Tiêu đề ảnh</label>
+                <input type="text" name="Images[@index].Title" id="@(uniqueIdPrefix)Title" value="@Model.Title"
+                    class="form-control" />
+                <span class="text-danger" data-valmsg-for="Images[@index].Title"></span>
+            </div>
+
+            <input type="hidden" name="Images[@index].OrderIndex" value="@Model.OrderIndex" class="image-order-index" />
+
+            <div class="form-check form-switch mb-0 mt-3">
+                <input class="form-check-input image-is-main" type="checkbox" name="Images[@index].IsMain"
+                    id="@(uniqueIdPrefix)IsMain" role="switch" value="true" @(Model.IsMain ? "checked" : "")>
+                <label class="form-check-label" for="@(uniqueIdPrefix)IsMain">Ảnh chính</label>
+                @* Hidden input for false value required for checkbox binding *@
+                <input type="hidden" name="Images[@index].IsMain" value="false" />
+                <span class="text-danger" data-valmsg-for="Images[@index].IsMain"></span>
+            </div>
+
+        </div>
+        <div class="flex-shrink-0 ms-3">
+            <button type="button" class="btn btn-icon btn-outline-danger remove-image-button" title="Xóa ảnh">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
+    </div>
+</div>
