@@ -1,49 +1,124 @@
 @using web.Areas.Admin.ViewModels.Newsletter
 @model NewsletterViewModel
 
-<div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3"></div>
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        <div class="d-flex">
+            <div class="alert-icon">
+                <i class="ti ti-alert-circle"></i>
+            </div>
+            <div>
+                <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+            </div>
+        </div>
+        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+    </div>
+}
 
-<div class="mb-3">
-	<label asp-for="Email" class="form-label required"></label>
-	<input asp-for="Email" class="form-control" type="email" />
-	<span asp-validation-for="Email" class="text-danger"></span>
+<div class="form-group mb-3">
+    <label asp-for="Email" class="form-label required"></label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="ti ti-mail"></i>
+        </span>
+        <input asp-for="Email" class="form-control" type="email" placeholder="example@domain.com" />
+    </div>
+    <span asp-validation-for="Email" class="text-danger"></span>
 </div>
 
-<div class="mb-3">
-	<label asp-for="Name" class="form-label"></label>
-	<input asp-for="Name" class="form-control" />
-	<span asp-validation-for="Name" class="text-danger"></span>
+<div class="form-group mb-3">
+    <label asp-for="Name" class="form-label"></label>
+    <div class="input-group">
+        <span class="input-group-text">
+            <i class="ti ti-user"></i>
+        </span>
+        <input asp-for="Name" class="form-control" placeholder="Tên người đăng ký (tùy chọn)" />
+    </div>
+    <span asp-validation-for="Name" class="text-danger"></span>
 </div>
 
-<div class="mb-3">
-	<div class="form-check form-switch">
-		<input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" id="newsletterIsActiveSwitch" />
-		<label asp-for="IsActive" class="form-check-label" for="newsletterIsActiveSwitch">Đang hoạt động (chưa hủy đăng ký)</label>
-	</div>
-	<span asp-validation-for="IsActive" class="text-danger"></span>
-	<small class="form-hint d-block">Bỏ chọn nếu muốn hủy đăng ký thủ công.</small>
+<div class="form-group mb-3">
+    <div class="form-label">Trạng thái đăng ký</div>
+    <label class="form-check form-switch">
+        <input asp-for="IsActive" class="form-check-input" type="checkbox" role="switch" />
+        <span class="form-check-label">
+            <i class="ti ti-activity me-1"></i>Đang hoạt động (chưa hủy đăng ký)
+        </span>
+    </label>
+    <span asp-validation-for="IsActive" class="text-danger"></span>
+    <small class="form-hint d-block">
+        <i class="ti ti-info-circle me-1"></i>Bỏ chọn nếu muốn hủy đăng ký thủ công.
+    </small>
 </div>
 
 @if (Model.Id > 0)
 {
-	<hr>
-	<h4 class="mb-3">Thông tin bổ sung (Chỉ xem)</h4>
-	<div class="row">
-		<div class="col-md-6 mb-3">
-			<label asp-for="IpAddress" class="form-label"></label>
-			<input asp-for="IpAddress" class="form-control" readonly disabled />
-		</div>
-		<div class="col-md-6 mb-3">
-			<label asp-for="ConfirmedAt" class="form-label"></label>
-			<input asp-for="ConfirmedAt" class="form-control" type="text" value="@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")" readonly disabled />
-		</div>
-		<div class="col-md-6 mb-3">
-			<label asp-for="UnsubscribedAt" class="form-label"></label>
-			<input asp-for="UnsubscribedAt" class="form-control" type="text" value="@(Model.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm") ?? "-")" readonly disabled />
-		</div>
-		<div class="col-12 mb-3">
-			<label asp-for="UserAgent" class="form-label"></label>
-			<textarea asp-for="UserAgent" class="form-control" rows="2" readonly disabled></textarea>
-		</div>
-	</div>
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="ti ti-info-circle me-2"></i>Thông tin bổ sung (Chỉ xem)
+            </h3>
+        </div>
+        <div class="card-body">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="IpAddress" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-device-desktop"></i>
+                            </span>
+                            <input asp-for="IpAddress" class="form-control" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="ConfirmedAt" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-check-circle"></i>
+                            </span>
+                            <input class="form-control" type="text" value="@(Model.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="UnsubscribedAt" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-circle-x"></i>
+                            </span>
+                            <input class="form-control" type="text" value="@(Model.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="CreatedAt" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-calendar-event"></i>
+                            </span>
+                            <input class="form-control" type="text" value="@Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")" readonly />
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="form-group">
+                        <label asp-for="UserAgent" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-browser"></i>
+                            </span>
+                            <textarea asp-for="UserAgent" class="form-control" rows="2" readonly></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 }

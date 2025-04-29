@@ -33,4 +33,7 @@ public class NewsletterViewModel
 
     [Display(Name = "Ngày hủy đăng ký")]
     public DateTime? UnsubscribedAt { get; set; }
+
+    [Display(Name = "Ngày tạo")]    
+    public DateTime CreatedAt { get; set; }
 }
