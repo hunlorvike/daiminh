@@ -1,10 +1,9 @@
-using domain.Entities.Shared;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace domain.Entities;
 
-public class ProductTag 
+public class ProductTag
 {
     public int ProductId { get; set; }
     public int TagId { get; set; }

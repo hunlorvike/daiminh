@@ -21,11 +21,17 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
     {
         base.Configure(builder);
         builder.ToTable("users");
+
         builder.Property(x => x.Username).HasColumnName("username").IsRequired().HasMaxLength(50);
+        builder.HasIndex(x => x.Username).IsUnique();
+
         builder.Property(x => x.Email).HasColumnName("email").IsRequired().HasMaxLength(255);
+        builder.HasIndex(x => x.Email).IsUnique();
+
         builder.Property(x => x.PasswordHash).HasColumnName("password_hash").IsRequired();
         builder.Property(x => x.FullName).HasColumnName("full_name").HasMaxLength(100);
         builder.Property(x => x.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+
         var hasher = new PasswordHasher<User>();
 
         User adminUser = new()
@@ -36,6 +42,7 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
             PasswordHash = "",
             FullName = "Quản trị viên",
             IsActive = true,
+            CreatedAt = DateTime.UtcNow
         };
 
         adminUser.PasswordHash = hasher.HashPassword(adminUser, "123123123");

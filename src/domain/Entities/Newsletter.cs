@@ -24,6 +24,8 @@ public class NewsletterConfiguration : BaseEntityConfiguration<Newsletter, int>
         builder.ToTable("newsletters");
 
         builder.Property(e => e.Email).HasColumnName("email").IsRequired().HasMaxLength(100);
+        builder.HasIndex(e => e.Email).IsUnique();
+
         builder.Property(e => e.Name).HasColumnName("name").HasMaxLength(100);
         builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
         builder.Property(e => e.IpAddress).HasColumnName("ip_address").HasMaxLength(50);

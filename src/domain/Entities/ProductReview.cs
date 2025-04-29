@@ -1,6 +1,6 @@
 using domain.Entities.Shared;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using shared.Enums;
 
 namespace domain.Entities;
@@ -27,12 +27,16 @@ public class ProductReviewConfiguration : BaseEntityConfiguration<ProductReview,
         builder.Property(e => e.UserId).HasColumnName("user_id");
         builder.Property(e => e.UserName).HasColumnName("user_name").HasMaxLength(100);
         builder.Property(e => e.UserEmail).HasColumnName("user_email").HasMaxLength(255);
+        builder.HasIndex(e => e.ProductId);
+        builder.HasIndex(e => e.Rating);
+
         builder.Property(e => e.Rating).HasColumnName("rating").IsRequired();
         builder.Property(e => e.Content).HasColumnName("content").HasColumnType("nvarchar(max)").IsRequired();
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()
             .HasDefaultValue(ReviewStatus.Pending);
+
         builder.HasOne(e => e.Product)
             .WithMany(p => p.Reviews)
             .HasForeignKey(e => e.ProductId)

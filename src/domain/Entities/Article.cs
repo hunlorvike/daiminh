@@ -37,6 +37,8 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
 
         builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
+        builder.HasIndex(e => e.Slug).IsUnique();
+
         builder.Property(e => e.Content).HasColumnName("content").HasColumnType("nvarchar(max)").IsRequired();
         builder.Property(e => e.Summary).HasColumnName("summary").HasMaxLength(500);
         builder.Property(e => e.FeaturedImage).HasColumnName("featured_image").HasMaxLength(255);
@@ -44,6 +46,8 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
         builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
         builder.Property(e => e.PublishedAt).HasColumnName("published_at");
+        builder.HasIndex(e => e.PublishedAt);
+
         builder.Property(e => e.AuthorId).HasColumnName("author_id").HasMaxLength(50);
         builder.Property(e => e.AuthorName).HasColumnName("author_name").HasMaxLength(100);
         builder.Property(e => e.AuthorAvatar).HasColumnName("author_avatar").HasMaxLength(255);
@@ -52,9 +56,7 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.Property(e => e.Status)
             .HasColumnName("status")
             .IsRequired()
-            .HasMaxLength(20)
             .HasDefaultValue(PublishStatus.Draft);
-
 
         builder.HasOne(e => e.Category)
             .WithMany(c => c.Articles)

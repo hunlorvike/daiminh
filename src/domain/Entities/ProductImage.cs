@@ -28,6 +28,9 @@ public class ProductImageConfiguration : BaseEntityConfiguration<ProductImage, i
         builder.Property(e => e.AltText).HasColumnName("alt_text").HasMaxLength(255);
         builder.Property(e => e.Title).HasColumnName("title").HasMaxLength(255);
         builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
+        builder.HasIndex(e => e.ProductId);
+        builder.HasIndex(e => e.OrderIndex);
+
         builder.Property(e => e.IsMain).HasColumnName("is_main").HasDefaultValue(false);
         builder.HasOne(e => e.Product)
             .WithMany(p => p.Images)

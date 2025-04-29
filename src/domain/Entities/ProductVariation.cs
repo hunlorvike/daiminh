@@ -32,6 +32,9 @@ public class ProductVariationConfiguration : BaseEntityConfiguration<ProductVari
         builder.Property(v => v.IsDefault).HasColumnName("is_default").IsRequired().HasDefaultValue(false);
         builder.Property(v => v.IsActive).HasColumnName("is_active").IsRequired().HasDefaultValue(true);
 
+        builder.HasIndex(v => v.ProductId);
+        builder.HasIndex(v => v.IsDefault);
+
         builder.HasOne(v => v.Product)
                .WithMany(p => p.Variations)
                .HasForeignKey(v => v.ProductId)

@@ -12,8 +12,8 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250425190321_v1_init")]
-    partial class v1_init
+    [Migration("20250429034449_v2_seed")]
+    partial class v2_seed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -172,7 +172,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("status");
@@ -233,6 +232,11 @@ namespace infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("PublishedAt");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
 
                     b.ToTable("articles", (string)null);
                 });
@@ -313,7 +317,40 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("attributes", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(4607),
+                            Name = "Màu sắc",
+                            Slug = "mau-sac"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(4608),
+                            Name = "Dung tích",
+                            Slug = "dung-tich"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(4610),
+                            Name = "Độ bóng",
+                            Slug = "do-bong"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(4611),
+                            Name = "Bề mặt áp dụng",
+                            Slug = "be-mat-ap-dung"
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.AttributeValue", b =>
@@ -362,9 +399,132 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AttributeId");
+                    b.HasIndex("AttributeId", "Slug")
+                        .IsUnique();
 
                     b.ToTable("attribute_values", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            AttributeId = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8689),
+                            Slug = "trang",
+                            Value = "Trắng"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            AttributeId = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8691),
+                            Slug = "do",
+                            Value = "Đỏ"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            AttributeId = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8692),
+                            Slug = "xanh-duong",
+                            Value = "Xanh dương"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            AttributeId = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8693),
+                            Slug = "vang",
+                            Value = "Vàng"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            AttributeId = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8694),
+                            Slug = "1-lit",
+                            Value = "1 Lít"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            AttributeId = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8695),
+                            Slug = "5-lit",
+                            Value = "5 Lít"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            AttributeId = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8696),
+                            Slug = "18-lit",
+                            Value = "18 Lít"
+                        },
+                        new
+                        {
+                            Id = 8,
+                            AttributeId = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8697),
+                            Slug = "20-kg",
+                            Value = "20 Kg"
+                        },
+                        new
+                        {
+                            Id = 9,
+                            AttributeId = 3,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8698),
+                            Slug = "bong",
+                            Value = "Bóng"
+                        },
+                        new
+                        {
+                            Id = 10,
+                            AttributeId = 3,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8699),
+                            Slug = "mo",
+                            Value = "Mờ"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            AttributeId = 3,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8700),
+                            Slug = "ban-bong",
+                            Value = "Bán bóng"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            AttributeId = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8701),
+                            Slug = "tuong-noi-that",
+                            Value = "Tường nội thất"
+                        },
+                        new
+                        {
+                            Id = 13,
+                            AttributeId = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8702),
+                            Slug = "tuong-ngoai-that",
+                            Value = "Tường ngoại thất"
+                        },
+                        new
+                        {
+                            Id = 14,
+                            AttributeId = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8703),
+                            Slug = "san-be-tong",
+                            Value = "Sàn bê tông"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            AttributeId = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(8704),
+                            Slug = "san-thuong",
+                            Value = "Sân thượng"
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.Brand", b =>
@@ -429,7 +589,60 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("brands", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(2704),
+                            IsActive = true,
+                            Name = "Dulux",
+                            Slug = "dulux"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(2706),
+                            IsActive = true,
+                            Name = "Jotun",
+                            Slug = "jotun"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(2707),
+                            IsActive = true,
+                            Name = "Kova",
+                            Slug = "kova"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(2708),
+                            IsActive = true,
+                            Name = "Sika",
+                            Slug = "sika"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(2709),
+                            IsActive = true,
+                            Name = "Nippon Paint",
+                            Slug = "nippon-paint"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(2710),
+                            IsActive = true,
+                            Name = "My Kolor",
+                            Slug = "my-kolor"
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.Category", b =>
@@ -461,8 +674,7 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("description");
 
                     b.Property<string>("Icon")
@@ -588,7 +800,6 @@ namespace infrastructure.Migrations
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
-                        .HasMaxLength(20)
                         .HasColumnType("int")
                         .HasDefaultValue(0)
                         .HasColumnName("type");
@@ -606,7 +817,245 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("ParentId");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("categories", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9196),
+                            IsActive = true,
+                            Name = "Sơn",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 0,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "son",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9198),
+                            IsActive = true,
+                            Name = "Chống Thấm",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 1,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "chong-tham",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9199),
+                            IsActive = true,
+                            Name = "Vật Liệu Xây Dựng",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 2,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "vat-lieu-xay-dung",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9201),
+                            IsActive = true,
+                            Name = "Tin Tức & Sự Kiện",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 3,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "tin-tuc-su-kien",
+                            TwitterCard = "summary_large_image",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9202),
+                            IsActive = true,
+                            Name = "Câu Hỏi Thường Gặp",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 4,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "cau-hoi-thuong-gap",
+                            TwitterCard = "summary_large_image",
+                            Type = 2
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9204),
+                            IsActive = true,
+                            Name = "Sơn Nội Thất",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 0,
+                            ParentId = 1,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "son-noi-that",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9206),
+                            IsActive = true,
+                            Name = "Sơn Ngoại Thất",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 1,
+                            ParentId = 1,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "son-ngoai-that",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9237),
+                            IsActive = true,
+                            Name = "Sơn Lót",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 2,
+                            ParentId = 1,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "son-lot",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9239),
+                            IsActive = true,
+                            Name = "Sơn Chống Kiềm",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 3,
+                            ParentId = 1,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "son-chong-kiem",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9241),
+                            IsActive = true,
+                            Name = "Chống Thấm Sàn Mái",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 0,
+                            ParentId = 2,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "chong-tham-san-mai",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 11,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9242),
+                            IsActive = true,
+                            Name = "Chống Thấm Tường",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 1,
+                            ParentId = 2,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "chong-tham-tuong",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 12,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9244),
+                            IsActive = true,
+                            Name = "Chống Thấm Nhà Vệ Sinh",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 2,
+                            ParentId = 2,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "chong-tham-nha-ve-sinh",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 13,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9245),
+                            IsActive = true,
+                            Name = "Phụ Gia Bê Tông",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 0,
+                            ParentId = 3,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "phu-gia-be-tong",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 14,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 846, DateTimeKind.Utc).AddTicks(9247),
+                            IsActive = true,
+                            Name = "Keo Chít Mạch",
+                            NoFollow = false,
+                            NoIndex = false,
+                            OgType = "website",
+                            OrderIndex = 1,
+                            ParentId = 3,
+                            SitemapChangeFrequency = "monthly",
+                            SitemapPriority = 0.5,
+                            Slug = "keo-chit-mach",
+                            TwitterCard = "summary_large_image",
+                            Type = 0
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.Contact", b =>
@@ -687,6 +1136,8 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email");
+
                     b.ToTable("contacts", (string)null);
                 });
 
@@ -749,7 +1200,41 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("OrderIndex");
+
                     b.ToTable("faqs", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Answer = "Sơn nội thất và ngoại thất khác nhau về thành phần hóa học để phù hợp với điều kiện môi trường. Sơn ngoại thất chứa các chất chống tia UV, chống thấm tốt hơn để chịu được nắng, mưa, ẩm ướt. Sơn nội thất an toàn hơn cho sức khỏe, ít mùi và có độ bền màu trong nhà tốt.",
+                            CategoryId = 5,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 849, DateTimeKind.Utc).AddTicks(940),
+                            IsActive = true,
+                            OrderIndex = 0,
+                            Question = "Sơn nội thất và sơn ngoại thất khác nhau như thế nào?"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Answer = "Lượng sơn cần dùng phụ thuộc vào diện tích cần sơn, loại sơn, và bề mặt. Trung bình 1 lít sơn có thể phủ được 8-10m2 cho 2 lớp. Bạn cần đo diện tích tường, trần nhà và tham khảo hướng dẫn của nhà sản xuất sơn.",
+                            CategoryId = 5,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 849, DateTimeKind.Utc).AddTicks(942),
+                            IsActive = true,
+                            OrderIndex = 1,
+                            Question = "Làm thế nào để tính toán lượng sơn cần dùng?"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Answer = "Sơn lót chống kiềm cần được sử dụng trên các bề mặt mới xây (vữa, bê tông) hoặc các bề mặt cũ có dấu hiệu bị kiềm hóa (ố vàng, phấn trắng) để ngăn chặn kiềm từ xi măng ăn mòn lớp sơn phủ màu.",
+                            CategoryId = 5,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 849, DateTimeKind.Utc).AddTicks(944),
+                            IsActive = true,
+                            OrderIndex = 2,
+                            Question = "Khi nào cần sử dụng sơn lót chống kiềm?"
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.MediaFile", b =>
@@ -761,7 +1246,6 @@ namespace infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AltText")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("alt_text");
@@ -778,7 +1262,6 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("description");
@@ -801,8 +1284,7 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
+                        .HasColumnType("nvarchar(max)")
                         .HasColumnName("file_path");
 
                     b.Property<long>("FileSize")
@@ -905,6 +1387,9 @@ namespace infrastructure.Migrations
                         .HasColumnName("user_agent");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
 
                     b.ToTable("newsletters", (string)null);
                 });
@@ -1112,6 +1597,9 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("products", (string)null);
                 });
 
@@ -1199,6 +1687,8 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderIndex");
+
                     b.HasIndex("ProductId");
 
                     b.ToTable("product_images", (string)null);
@@ -1268,6 +1758,8 @@ namespace infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("Rating");
 
                     b.HasIndex("UserId");
 
@@ -1355,6 +1847,8 @@ namespace infrastructure.Migrations
                         .HasColumnName("updated_by");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDefault");
 
                     b.HasIndex("ProductId");
 
@@ -1445,6 +1939,9 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Key", "Category")
+                        .IsUnique();
+
                     b.ToTable("settings", (string)null);
 
                     b.HasData(
@@ -1452,19 +1949,19 @@ namespace infrastructure.Migrations
                         {
                             Id = 1,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3559),
-                            DefaultValue = "Đại Minh Việt Nam",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1937),
+                            DefaultValue = "Sơn Đại Minh Việt Nam",
                             Description = "Tên website hiển thị trên trang và tiêu đề trình duyệt.",
                             IsActive = true,
                             Key = "SiteName",
                             Type = 0,
-                            Value = "Đại Minh Việt Nam"
+                            Value = "Sơn Đại Minh Việt Nam"
                         },
                         new
                         {
                             Id = 2,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3569),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1964),
                             DefaultValue = "https://localhost:7001",
                             Description = "Địa chỉ URL chính của website (ví dụ: https://www.example.com).",
                             IsActive = true,
@@ -1476,9 +1973,9 @@ namespace infrastructure.Migrations
                         {
                             Id = 3,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3571),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1966),
                             DefaultValue = "sondaiminh@gmail.com",
-                            Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống.",
+                            Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống (đơn hàng, liên hệ...).",
                             IsActive = true,
                             Key = "AdminEmail",
                             Type = 6,
@@ -1486,155 +1983,261 @@ namespace infrastructure.Migrations
                         },
                         new
                         {
+                            Id = 4,
+                            Category = "General",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1967),
+                            DefaultValue = "/images/logo.png",
+                            Description = "Đường dẫn đến file logo website.",
+                            IsActive = true,
+                            Key = "LogoUrl",
+                            Type = 3,
+                            Value = "/images/logo.png"
+                        },
+                        new
+                        {
                             Id = 5,
-                            Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3574),
-                            DefaultValue = "Đại Minh Việt Nam",
-                            Description = "Tên công ty hoặc tổ chức sở hữu website.",
-                            IsActive = true,
-                            Key = "CompanyName",
-                            Type = 0,
-                            Value = "Đại Minh Việt Nam"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3575),
-                            DefaultValue = "123 Main Street, Anytown, CA 91234",
-                            Description = "Địa chỉ liên hệ đầy đủ.",
-                            IsActive = true,
-                            Key = "ContactAddress",
-                            Type = 1,
-                            Value = "123 Main Street, Anytown, CA 91234"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3577),
-                            DefaultValue = "(123) 456-7890",
-                            Description = "Số điện thoại liên hệ chính.",
-                            IsActive = true,
-                            Key = "ContactPhone",
-                            Type = 4,
-                            Value = "(123) 456-7890"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3578),
-                            DefaultValue = "contact@example.com",
-                            Description = "Địa chỉ email hiển thị công khai để liên hệ.",
-                            IsActive = true,
-                            Key = "ContactEmail",
-                            Type = 6,
-                            Value = "contact@example.com"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Category = "Contact",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3580),
-                            Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe).",
-                            IsActive = true,
-                            Key = "ContactMapEmbed",
-                            Type = 2
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3582),
-                            DefaultValue = "Welcome to My Application",
-                            Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
-                            IsActive = true,
-                            Key = "DefaultMetaTitle",
-                            Type = 0,
-                            Value = "Welcome to My Application"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3583),
-                            DefaultValue = "This is the default description for My Application.",
-                            Description = "Mô tả meta mặc định (dưới 160 ký tự).",
-                            IsActive = true,
-                            Key = "DefaultMetaDescription",
-                            Type = 1,
-                            Value = "This is the default description for My Application."
-                        },
-                        new
-                        {
-                            Id = 12,
-                            Category = "SEO",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3585),
-                            DefaultValue = "/image/icon.jpg",
+                            Category = "General",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1969),
+                            DefaultValue = "/images/favicon.ico",
                             Description = "Đường dẫn đến file favicon.ico hoặc ảnh favicon.",
                             IsActive = true,
                             Key = "FaviconUrl",
                             Type = 3,
-                            Value = "/image/icon.jpg"
+                            Value = "/images/favicon.ico"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = "General",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1970),
+                            DefaultValue = "12",
+                            Description = "Số lượng sản phẩm/bài viết hiển thị trên mỗi trang danh sách mặc định.",
+                            IsActive = true,
+                            Key = "ItemsPerPage",
+                            Type = 8,
+                            Value = "12"
+                        },
+                        new
+                        {
+                            Id = 11,
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1972),
+                            DefaultValue = "Sơn Đại Minh",
+                            Description = "Tên công ty hoặc tổ chức sở hữu website.",
+                            IsActive = true,
+                            Key = "CompanyName",
+                            Type = 0,
+                            Value = "Sơn Đại Minh"
+                        },
+                        new
+                        {
+                            Id = 12,
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1973),
+                            DefaultValue = "Tiên Phương, Chương Mỹ, Hà Nội",
+                            Description = "Địa chỉ liên hệ đầy đủ của công ty.",
+                            IsActive = true,
+                            Key = "ContactAddress",
+                            Type = 1,
+                            Value = "Tiên Phương, Chương Mỹ, Hà Nội"
                         },
                         new
                         {
                             Id = 13,
-                            Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3586),
-                            Description = "URL trang Facebook.",
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1975),
+                            DefaultValue = "0979758340",
+                            Description = "Số điện thoại liên hệ chung.",
                             IsActive = true,
-                            Key = "SocialFacebookUrl",
-                            Type = 7
+                            Key = "ContactPhone",
+                            Type = 4,
+                            Value = "0979758340"
                         },
                         new
                         {
                             Id = 14,
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1976),
+                            DefaultValue = "sondaiminh@gmail.com",
+                            Description = "Địa chỉ email hiển thị công khai để liên hệ.",
+                            IsActive = true,
+                            Key = "ContactEmail",
+                            Type = 6,
+                            Value = "sondaiminh@gmail.com"
+                        },
+                        new
+                        {
+                            Id = 15,
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1977),
+                            DefaultValue = "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5152.719628304902!2d105.68369562421606!3d20.94205043073292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3134539b465b1be5%3A0x279c032890c390c5!2zxJDhuqFpIE1pbmggVmnhu4d0IE5hbQ!5e1!3m2!1svi!2s!4v1745895737603!5m2!1svi!2s\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
+                            Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe) hiển thị trên trang Liên hệ.",
+                            IsActive = true,
+                            Key = "ContactMapEmbed",
+                            Type = 2,
+                            Value = "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5152.719628304902!2d105.68369562421606!3d20.94205043073292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3134539b465b1be5%3A0x279c032890c390c5!2zxJDhuqFpIE1pbmggVmnhu4d0IE5hbQ!5e1!3m2!1svi!2s!4v1745895737603!5m2!1svi!2s\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>"
+                        },
+                        new
+                        {
+                            Id = 16,
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1979),
+                            DefaultValue = "0979758340",
+                            Description = "Số điện thoại Hotline hỗ trợ nhanh.",
+                            IsActive = true,
+                            Key = "HotlinePhone",
+                            Type = 4,
+                            Value = "0979758340"
+                        },
+                        new
+                        {
+                            Id = 17,
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1980),
+                            DefaultValue = "Thứ 2 - Thứ 7: 8h00 - 17h00",
+                            Description = "Giờ làm việc của công ty.",
+                            IsActive = true,
+                            Key = "ContactWorkingHours",
+                            Type = 0,
+                            Value = "Thứ 2 - Thứ 7: 8h00 - 17h00"
+                        },
+                        new
+                        {
+                            Id = 18,
+                            Category = "Contact",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1982),
+                            Description = "Mã số thuế của công ty.",
+                            IsActive = true,
+                            Key = "TaxId",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 21,
+                            Category = "SEO",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1983),
+                            DefaultValue = "Sơn Chống Thấm, Vật Liệu Sơn Chính Hãng | Đại Minh Việt Nam",
+                            Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
+                            IsActive = true,
+                            Key = "DefaultMetaTitle",
+                            Type = 0,
+                            Value = "Sơn Chống Thấm, Vật Liệu Sơn Chính Hãng | Đại Minh Việt Nam"
+                        },
+                        new
+                        {
+                            Id = 22,
+                            Category = "SEO",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1985),
+                            DefaultValue = "Đại Minh Việt Nam chuyên cung cấp sơn, vật liệu chống thấm, phụ gia bê tông chính hãng từ các thương hiệu hàng đầu. Tư vấn giải pháp thi công hiệu quả. Liên hệ 0979758340.",
+                            Description = "Mô tả meta mặc định (dưới 160 ký tự) cho các trang không có mô tả riêng.",
+                            IsActive = true,
+                            Key = "DefaultMetaDescription",
+                            Type = 1,
+                            Value = "Đại Minh Việt Nam chuyên cung cấp sơn, vật liệu chống thấm, phụ gia bê tông chính hãng từ các thương hiệu hàng đầu. Tư vấn giải pháp thi công hiệu quả. Liên hệ 0979758340."
+                        },
+                        new
+                        {
+                            Id = 23,
+                            Category = "SEO",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1987),
+                            Description = "Mã ID Google Analytics (ví dụ: UA-XXXXXXX-Y hoặc G-XXXXXXXXXX).",
+                            IsActive = true,
+                            Key = "GoogleAnalyticsId",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 24,
+                            Category = "SEO",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1988),
+                            Description = "Các meta tag xác minh website (Google, Bing, ...).",
+                            IsActive = true,
+                            Key = "VerificationMetaTags",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 31,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3588),
-                            Description = "URL trang Twitter (X).",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1989),
+                            DefaultValue = "https://www.facebook.com/LienDaiMinh",
+                            Description = "URL trang Facebook của công ty.",
+                            IsActive = true,
+                            Key = "SocialFacebookUrl",
+                            Type = 7,
+                            Value = "https://www.facebook.com/LienDaiMinh"
+                        },
+                        new
+                        {
+                            Id = 32,
+                            Category = "Social Media",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1991),
+                            Description = "URL trang Twitter (X) của công ty.",
                             IsActive = true,
                             Key = "SocialTwitterUrl",
                             Type = 7
                         },
                         new
                         {
-                            Id = 15,
+                            Id = 33,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3589),
-                            Description = "URL trang Instagram.",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1992),
+                            Description = "URL trang Instagram của công ty.",
                             IsActive = true,
                             Key = "SocialInstagramUrl",
                             Type = 7
                         },
                         new
                         {
-                            Id = 16,
+                            Id = 34,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3591),
-                            Description = "URL trang LinkedIn.",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1993),
+                            Description = "URL trang LinkedIn của công ty.",
                             IsActive = true,
                             Key = "SocialLinkedInUrl",
                             Type = 7
                         },
                         new
                         {
-                            Id = 17,
+                            Id = 35,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3592),
-                            Description = "URL kênh Youtube.",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1995),
+                            Description = "URL kênh Youtube của công ty.",
                             IsActive = true,
                             Key = "SocialYoutubeUrl",
                             Type = 7
                         },
                         new
                         {
-                            Id = 18,
+                            Id = 36,
+                            Category = "Social Media",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1996),
+                            DefaultValue = "https://www.tiktok.com/@hung.daiminh",
+                            Description = "URL kênh Tiktok của công ty.",
+                            IsActive = true,
+                            Key = "SocialTiktokUrl",
+                            Type = 7,
+                            Value = "https://www.tiktok.com/@hung.daiminh"
+                        },
+                        new
+                        {
+                            Id = 37,
+                            Category = "Social Media",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1997),
+                            DefaultValue = "0979758340",
+                            Description = "Số điện thoại Zalo để liên hệ nhanh (có thể khác Hotline).",
+                            IsActive = true,
+                            Key = "SocialZaloPhone",
+                            Type = 4,
+                            Value = "0979758340"
+                        },
+                        new
+                        {
+                            Id = 41,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3594),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(1998),
                             DefaultValue = "smtp.example.com",
-                            Description = "Địa chỉ máy chủ SMTP.",
+                            Description = "Địa chỉ máy chủ SMTP để gửi email.",
                             IsActive = true,
                             Key = "SmtpHost",
                             Type = 0,
@@ -1642,9 +2245,9 @@ namespace infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 19,
+                            Id = 42,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3596),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2000),
                             DefaultValue = "587",
                             Description = "Cổng SMTP (ví dụ: 587, 465, 25).",
                             IsActive = true,
@@ -1654,9 +2257,9 @@ namespace infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 20,
+                            Id = 43,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3597),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2001),
                             DefaultValue = "user@example.com",
                             Description = "Tên đăng nhập SMTP.",
                             IsActive = true,
@@ -1666,9 +2269,9 @@ namespace infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 21,
+                            Id = 44,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3599),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2002),
                             Description = "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.",
                             IsActive = true,
                             Key = "SmtpPassword",
@@ -1676,9 +2279,9 @@ namespace infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 22,
+                            Id = 45,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3601),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2004),
                             DefaultValue = "true",
                             Description = "Sử dụng mã hóa SSL/TLS khi gửi email.",
                             IsActive = true,
@@ -1688,27 +2291,133 @@ namespace infrastructure.Migrations
                         },
                         new
                         {
-                            Id = 23,
+                            Id = 46,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3602),
-                            DefaultValue = "My Application Support",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2006),
+                            DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
                             Key = "EmailFromName",
                             Type = 0,
-                            Value = "My Application Support"
+                            Value = "Đại Minh Việt Nam"
                         },
                         new
                         {
-                            Id = 24,
+                            Id = 47,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 844, DateTimeKind.Utc).AddTicks(3604),
-                            DefaultValue = "noreply@example.com",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2007),
+                            DefaultValue = "noreply@daiminhvietnam.com",
                             Description = "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
                             Key = "EmailFromAddress",
                             Type = 6,
-                            Value = "noreply@example.com"
+                            Value = "noreply@daiminhvietnam.com"
+                        },
+                        new
+                        {
+                            Id = 48,
+                            Category = "Email",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2008),
+                            DefaultValue = "ContactReply",
+                            Description = "Mã/tên template email phản hồi tự động khi nhận form liên hệ.",
+                            IsActive = true,
+                            Key = "EmailTemplateContactFormReply",
+                            Type = 0,
+                            Value = "ContactReply"
+                        },
+                        new
+                        {
+                            Id = 49,
+                            Category = "Email",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2009),
+                            DefaultValue = "NewsletterSubscribe",
+                            Description = "Mã/tên template email xác nhận đăng ký nhận tin.",
+                            IsActive = true,
+                            Key = "EmailTemplateNewsletterSubscribe",
+                            Type = 0,
+                            Value = "NewsletterSubscribe"
+                        },
+                        new
+                        {
+                            Id = 51,
+                            Category = "Appearance",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2011),
+                            DefaultValue = "/images/banners/banner1.jpg",
+                            Description = "URL ảnh banner chính trang chủ.",
+                            IsActive = true,
+                            Key = "HomepageBanner1Url",
+                            Type = 3,
+                            Value = "/images/banners/banner1.jpg"
+                        },
+                        new
+                        {
+                            Id = 52,
+                            Category = "Appearance",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2012),
+                            DefaultValue = "/",
+                            Description = "URL liên kết khi click banner chính trang chủ.",
+                            IsActive = true,
+                            Key = "HomepageBanner1Link",
+                            Type = 7,
+                            Value = "/"
+                        },
+                        new
+                        {
+                            Id = 53,
+                            Category = "Appearance",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2057),
+                            DefaultValue = "© 2025 Sơn Đại Minh Việt Nam. All rights reserved.",
+                            Description = "Nội dung text copyright hiển thị ở chân trang.",
+                            IsActive = true,
+                            Key = "CopyrightText",
+                            Type = 0,
+                            Value = "© 2025 Sơn Đại Minh Việt Nam. All rights reserved."
+                        },
+                        new
+                        {
+                            Id = 61,
+                            Category = "Integration",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2058),
+                            Description = "Mã script nhúng Live Chat (Zalo, Tawk.to, subiz...).",
+                            IsActive = true,
+                            Key = "LiveChatScript",
+                            Type = 2
+                        },
+                        new
+                        {
+                            Id = 71,
+                            Category = "E-commerce",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2059),
+                            DefaultValue = "VND",
+                            Description = "Mã tiền tệ chính được sử dụng (ví dụ: VND, USD).",
+                            IsActive = true,
+                            Key = "CurrencyCode",
+                            Type = 0,
+                            Value = "VND"
+                        },
+                        new
+                        {
+                            Id = 72,
+                            Category = "E-commerce",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2060),
+                            DefaultValue = "đ",
+                            Description = "Ký hiệu tiền tệ hiển thị (ví dụ: đ, $).",
+                            IsActive = true,
+                            Key = "CurrencySymbol",
+                            Type = 0,
+                            Value = "đ"
+                        },
+                        new
+                        {
+                            Id = 73,
+                            Category = "E-commerce",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(2062),
+                            DefaultValue = "/images/product-placeholder.png",
+                            Description = "URL ảnh mặc định hiển thị khi sản phẩm không có ảnh.",
+                            IsActive = true,
+                            Key = "DefaultProductImageUrl",
+                            Type = 3,
+                            Value = "/images/product-placeholder.png"
                         });
                 });
 
@@ -1765,7 +2474,92 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
                     b.ToTable("tags", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(514),
+                            Name = "Chống thấm",
+                            Slug = "chong-tham",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 2,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(515),
+                            Name = "Sơn nội thất",
+                            Slug = "son-noi-that",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 3,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(516),
+                            Name = "Sơn ngoại thất",
+                            Slug = "son-ngoai-that",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 4,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(517),
+                            Name = "Phụ gia bê tông",
+                            Slug = "phu-gia-be-tong",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 5,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(519),
+                            Name = "Keo chít mạch",
+                            Slug = "keo-chit-mach",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 6,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(520),
+                            Name = "Vật liệu xây dựng",
+                            Slug = "vat-lieu-xay-dung",
+                            Type = 0
+                        },
+                        new
+                        {
+                            Id = 7,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(521),
+                            Name = "Tư vấn chọn sơn",
+                            Slug = "tu-van-chon-son",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 8,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(522),
+                            Name = "Hướng dẫn thi công",
+                            Slug = "huong-dan-thi-cong",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 9,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(523),
+                            Name = "Kinh nghiệm chống thấm",
+                            Slug = "kinh-nghiem-chong-tham",
+                            Type = 1
+                        },
+                        new
+                        {
+                            Id = 10,
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(524),
+                            Name = "Bảo trì nhà cửa",
+                            Slug = "bao-tri-nha-cua",
+                            Type = 1
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.Testimonial", b =>
@@ -1842,7 +2636,47 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("OrderIndex");
+
+                    b.HasIndex("Rating");
+
                     b.ToTable("testimonials", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            ClientName = "Nguyễn Văn A",
+                            ClientTitle = "Chủ nhà",
+                            Content = "Sơn của Đại Minh rất bền màu và dễ thi công. Tôi rất hài lòng!",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(6617),
+                            IsActive = true,
+                            OrderIndex = 0,
+                            Rating = 5
+                        },
+                        new
+                        {
+                            Id = 2,
+                            ClientCompany = "Công ty Xây dựng B&B",
+                            ClientName = "Trần Thị B",
+                            ClientTitle = "Nhà thầu",
+                            Content = "Vật liệu chống thấm Sika từ Đại Minh luôn đảm bảo chất lượng cho công trình của chúng tôi.",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(6619),
+                            IsActive = true,
+                            OrderIndex = 1,
+                            Rating = 5
+                        },
+                        new
+                        {
+                            Id = 3,
+                            ClientName = "Lê Văn C",
+                            ClientTitle = "Khách hàng cá nhân",
+                            Content = "Được tư vấn rất nhiệt tình để chọn đúng loại sơn cho ngôi nhà cũ. Dịch vụ tuyệt vời!",
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 847, DateTimeKind.Utc).AddTicks(6621),
+                            IsActive = true,
+                            OrderIndex = 2,
+                            Rating = 4
+                        });
                 });
 
             modelBuilder.Entity("domain.Entities.User", b =>
@@ -1903,17 +2737,23 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("Username")
+                        .IsUnique();
+
                     b.ToTable("users", (string)null);
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 4, 25, 19, 3, 20, 845, DateTimeKind.Utc).AddTicks(6583),
+                            CreatedAt = new DateTime(2025, 4, 29, 3, 44, 48, 810, DateTimeKind.Utc).AddTicks(4414),
                             Email = "admin@admin.com",
                             FullName = "Quản trị viên",
                             IsActive = true,
-                            PasswordHash = "AQAAAAIAAYagAAAAEPZaAbH4xn31ZNOcHHtmF0GN+x19pVhTaPTuoEAbsIQW/30lIaCjaj3YCI6WwrhDag==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEGsXko+r8CaeyC70ka+OrGAqCCqUmANz1mZTquSWeno7zFtEFVJXDAU/ZNeU43wLg==",
                             Username = "admin"
                         });
                 });

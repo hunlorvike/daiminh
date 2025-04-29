@@ -19,6 +19,13 @@ public class AttributeConfiguration : BaseEntityConfiguration<Attribute, int>
         builder.ToTable("attributes");
         builder.Property(a => a.Name).HasColumnName("name").HasMaxLength(100).IsRequired();
         builder.Property(a => a.Slug).HasColumnName("slug").HasMaxLength(120).IsRequired();
+        builder.HasIndex(a => a.Slug).IsUnique();
+
+        builder.HasData(
+            new Attribute { Id = 1, Name = "Màu sắc", Slug = "mau-sac", CreatedAt = DateTime.UtcNow },
+            new Attribute { Id = 2, Name = "Dung tích", Slug = "dung-tich", CreatedAt = DateTime.UtcNow },
+            new Attribute { Id = 3, Name = "Độ bóng", Slug = "do-bong", CreatedAt = DateTime.UtcNow },
+            new Attribute { Id = 4, Name = "Bề mặt áp dụng", Slug = "be-mat-ap-dung", CreatedAt = DateTime.UtcNow }
+        );
     }
 }
-

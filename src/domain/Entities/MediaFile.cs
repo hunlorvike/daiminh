@@ -12,9 +12,9 @@ public class MediaFile : BaseEntity<int>
     public string MimeType { get; set; } = string.Empty;
     public string FileExtension { get; set; } = string.Empty;
     public string FilePath { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
+    public string? Description { get; set; }
     public long FileSize { get; set; } = 0;
-    public string AltText { get; set; } = string.Empty;
+    public string? AltText { get; set; }
     public int? Duration { get; set; }
     public MediaType MediaType { get; set; }
 }
@@ -30,7 +30,9 @@ public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
         builder.Property(e => e.OriginalFileName).HasColumnName("original_file_name").HasMaxLength(255);
         builder.Property(e => e.MimeType).HasColumnName("mime_type").HasMaxLength(100);
         builder.Property(e => e.FileExtension).HasColumnName("file_extension").HasMaxLength(10);
-        builder.Property(e => e.FilePath).HasColumnName("file_path").HasMaxLength(255);
+
+        builder.Property(e => e.FilePath).HasColumnName("file_path").HasColumnType("nvarchar(max)").IsRequired();
+
         builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
         builder.Property(e => e.AltText).HasColumnName("alt_text").HasMaxLength(255);
 

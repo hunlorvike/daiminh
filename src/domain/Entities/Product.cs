@@ -37,9 +37,12 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
     {
         base.Configure(builder);
         builder.ToTable("products");
+
         builder.Property(e => e.BrandId).HasColumnName("brand_id");
         builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
+        builder.HasIndex(e => e.Slug).IsUnique();
+
         builder.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)").IsRequired();
         builder.Property(e => e.ShortDescription).HasColumnName("short_description").HasMaxLength(500);
         builder.Property(e => e.Manufacturer).HasColumnName("manufacturer").HasMaxLength(255);
@@ -54,6 +57,7 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
             .HasColumnName("status")
             .IsRequired()
             .HasDefaultValue(PublishStatus.Draft);
+
         builder.HasOne(p => p.Brand)
             .WithMany(b => b.Products)
             .HasForeignKey(p => p.BrandId)
