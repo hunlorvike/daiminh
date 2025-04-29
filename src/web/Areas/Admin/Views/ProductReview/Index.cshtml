@@ -9,60 +9,93 @@
     ViewData["Title"] = "Quản lý Đánh giá Sản phẩm - Hệ thống quản trị";
     ViewData["PageTitle"] = "Danh sách Đánh giá Sản phẩm";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Đánh giá Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/ProductReview")
-        };
+("Đánh giá Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/ProductReview")
+};
 }
 
-
 <div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="ti ti-filter me-2"></i>Bộ lọc đánh giá
+        </h3>
+    </div>
     <div class="card-body">
-        <form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-            <div class="col-md-4">
-                <label asp-for="Filter.SearchTerm" class="form-label"></label>
-                <div class="input-group">
-                    <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, email, nội dung...">
-                    <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"><i class="ti ti-x"></i></button>
+        <form method="get" asp-action="Index" id="filterForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-4 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Filter.SearchTerm" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-search"></i>
+                            </span>
+                            <input asp-for="Filter.SearchTerm" class="form-control"
+                                placeholder="Tìm tên, email, nội dung...">
+                            <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-3">
-                <label asp-for="Filter.ProductId" class="form-label"></label>
-                <select asp-for="Filter.ProductId" asp-items="@Model.Filter.ProductOptions" class="form-select">
-                    <option value="">-- Tất cả sản phẩm --</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <label asp-for="Filter.Status" class="form-label"></label>
-                <select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions" class="form-select"></select>
-            </div>
-            <div class="col-md-1">
-                <label asp-for="Filter.MinRating" class="form-label"></label>
-                <select asp-for="Filter.MinRating" class="form-select">
-                    <option value="">Min</option>
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <option value="@i" selected="@(Model.Filter.MinRating == i)">@i</option>
-                    }
-                </select>
-            </div>
-            <div class="col-md-1">
-                <label asp-for="Filter.MaxRating" class="form-label"></label>
-                <select asp-for="Filter.MaxRating" class="form-select">
-                    <option value="">Max</option>
-                    @for (int i = 1; i <= 5; i++)
-                    {
-                        <option value="@i" selected="@(Model.Filter.MaxRating == i)">@i</option>
-                    }
-                </select>
-            </div>
-
-
-            <div class="col-md-auto">
-                <label class="form-label"> </label>
-                <button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i> Lọc</button>
-            </div>
-            <div class="col-md-auto">
-                <label class="form-label"> </label>
-                <a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="ti ti-reload me-2"></i> Đặt lại</a>
+                <div class="col-md-3 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Filter.ProductId" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-shopping-cart"></i>
+                            </span>
+                            <select asp-for="Filter.ProductId" asp-items="@Model.Filter.ProductOptions"
+                                class="form-select"> </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="Filter.Status" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-circle-check"></i>
+                            </span>
+                            <select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions"
+                                class="form-select"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="form-group">
+                        <label class="form-label">Xếp hạng</label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-star"></i>
+                            </span>
+                            <select asp-for="Filter.MinRating" class="form-select">
+                                <option value="">Từ</option>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <option value="@i" selected="@(Model.Filter.MinRating == i)">@i ★</option>
+                                }
+                            </select>
+                            <span class="input-group-text">đến</span>
+                            <select asp-for="Filter.MaxRating" class="form-select">
+                                <option value="">Đến</option>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <option value="@i" selected="@(Model.Filter.MaxRating == i)">@i ★</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-auto col-6">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
+                    </button>
+                </div>
+                <div class="col-md-auto col-6">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                        <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
+                    </a>
+                </div>
             </div>
         </form>
     </div>
@@ -70,20 +103,30 @@
 
 <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title mb-0">Danh sách Đánh giá</h3>
+        <h3 class="card-title">
+            <i class="ti ti-message-star me-2"></i>Danh sách Đánh giá
+        </h3>
         @if (Model.Reviews.TotalItemCount > 0)
         {
-            <small class="text-muted">Hiển thị @Model.Reviews.FirstItemOnPage-@Model.Reviews.LastItemOnPage trên tổng số @Model.Reviews.TotalItemCount đánh giá</small>
+            <small class="text-muted d-none d-md-block">Hiển thị
+                @Model.Reviews.FirstItemOnPage-@Model.Reviews.LastItemOnPage trên tổng số @Model.Reviews.TotalItemCount đánh
+                giá</small>
         }
     </div>
     <div class="card-body p-0">
         @if (!Model.Reviews.Any())
         {
-            <div class="empty">
-                <div class="empty-icon"><i class="ti ti-message-star off fs-1 text-muted"></i></div> @* Assuming ti-message-star icon exists *@
-                <p class="empty-title">Không tìm thấy đánh giá nào</p>
+            <div class="empty py-5">
+                <div class="empty-icon">
+                    <div class="avatar avatar-xl bg-light-subtle rounded">
+                        <i class="ti ti-message-2-off fs-1 text-muted"></i>
+                    </div>
+                </div>
+                <p class="empty-title mt-3">Không tìm thấy đánh giá nào</p>
                 <p class="empty-subtitle text-muted">
-                    @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue && !Model.Filter.ProductId.HasValue && !Model.Filter.MinRating.HasValue && !Model.Filter.MaxRating.HasValue)
+                    @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue &&
+                                    !Model.Filter.ProductId.HasValue && !Model.Filter.MinRating.HasValue &&
+                                    !Model.Filter.MaxRating.HasValue)
                     {
                         @:Hiện tại chưa có đánh giá nào được gửi.
                     }
@@ -92,22 +135,27 @@
                         @:Không có đánh giá nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
                     }
                 </p>
+                <div class="empty-action">
+                    <a asp-action="Index" class="btn btn-outline-primary">
+                        <i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
+                    </a>
+                </div>
             </div>
         }
         else
         {
             <div class="table-responsive">
-                <table class="table table-vcenter card-table table-striped">
+                <table class="table table-vcenter card-table table-striped table-hover">
                     <thead>
                         <tr>
                             <th>Sản phẩm</th>
                             <th>Người dùng</th>
-                            <th>Email</th>
+                            <th class="d-none d-md-table-cell">Email</th>
                             <th class="text-center">Số sao</th>
-                            <th>Nội dung</th>
+                            <th class="d-none d-lg-table-cell">Nội dung</th>
                             <th class="text-center">Trạng thái</th>
-                            <th>Ngày tạo</th>
-                            <th class="w-1">Thao tác</th>
+                            <th class="d-none d-md-table-cell">Ngày tạo</th>
+                            <th class="text-end">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -115,44 +163,85 @@
                         {
                             <tr>
                                 <td>
-                                    @if (!string.IsNullOrEmpty(item.ProductName))
-                                    {
-                                        <span class="fw-medium">@item.ProductName</span>
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">Sản phẩm không xác định</span>
-                                    }
-                                </td>
-                                <td class="text-muted">@item.UserName</td>
-                                <td class="text-muted">@item.UserEmail</td>
-                                <td class="text-center">
-                                    @for (int i = 0; i < item.Rating; i++)
-                                    {
-                                        <i class="ti ti-star-filled text-warning"></i>
-                                    }
-                                    @for (int i = item.Rating; i < 5; i++)
-                                    {
-                                        <i class="ti ti-star text-muted"></i>
-                                    }
-                                </td>
-                                <td class="text-muted">@item.ContentSummary</td>
-                                <td class="text-center">
-                                    <span class="badge bg-@((item.Status == ReviewStatus.Approved) ? "success" : (item.Status == ReviewStatus.Pending ? "secondary" : "danger"))-lt">
-                                        @item.Status.GetDisplayName()
-                                    </span>
+                                    <div class="d-flex align-items-center">
+                                        <span class="avatar avatar-xs bg-blue-lt me-2">
+                                            <i class="ti ti-shopping-cart"></i>
+                                        </span>
+                                        @if (!string.IsNullOrEmpty(item.ProductName))
+                                        {
+                                            <span class="fw-medium text-truncate" style="max-width: 150px;"
+                                                title="@item.ProductName">@item.ProductName</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Sản phẩm không xác định</span>
+                                        }
+                                    </div>
                                 </td>
                                 <td>
-                                    @item.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
+                                    <div class="d-flex align-items-center">
+                                        <span class="avatar avatar-xs bg-green-lt me-2">
+                                            <i class="ti ti-user"></i>
+                                        </span>
+                                        <span class="text-truncate" style="max-width: 120px;"
+                                            title="@item.UserName">@item.UserName</span>
+                                    </div>
                                 </td>
-                                <td class="text-muted">
-                                    <div class="btn-list flex-nowrap">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Xem chi tiết & Xét duyệt"><i class="ti ti-pencil"></i></a>
-                                        <button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
-                                                title="Xóa"
-                                                data-id="@item.Id"
-                                                data-name="@item.ProductName" @* Use product name for context in confirm message *@
-                                                data-delete-url="@Url.Action("Delete", "ProductReview")">
+                                <td class="text-muted d-none d-md-table-cell">
+                                    <div class="d-flex align-items-center">
+                                        <i class="ti ti-mail me-1"></i>
+                                        <span class="text-truncate" style="max-width: 150px;"
+                                            title="@item.UserEmail">@item.UserEmail</span>
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    <div class="stars">
+                                        @for (int i = 0; i < item.Rating; i++)
+                                        {
+                                            <i class="ti ti-star-filled text-yellow"></i>
+                                        }
+                                        @for (int i = item.Rating; i < 5; i++)
+                                        {
+                                            <i class="ti ti-star text-muted"></i>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-muted d-none d-lg-table-cell">
+                                    <span class="text-truncate d-inline-block" style="max-width: 200px;"
+                                        title="@item.ContentSummary">@item.ContentSummary</span>
+                                </td>
+                                <td class="text-center">
+                                    @{
+                                        var statusClass = item.Status switch
+                                        {
+                                            ReviewStatus.Approved => "status-green",
+                                            ReviewStatus.Pending => "status-yellow",
+                                            ReviewStatus.Rejected => "status-red",
+                                            _ => "status-gray"
+                                        };
+
+                                        var statusDot = item.Status == ReviewStatus.Approved ? "status-dot-animated" : "";
+                                    }
+                                    <span class="status @statusClass">
+                                        <span class="status-dot @statusDot"></span>
+                                        <span class="d-none d-md-inline">@item.Status.GetDisplayName()</span>
+                                    </span>
+                                </td>
+                                <td class="d-none d-md-table-cell">
+                                    <div class="d-flex align-items-center">
+                                        <i class="ti ti-calendar-time me-1"></i>
+                                        @item.CreatedAt?.ToString("dd/MM/yyyy HH:mm")
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
+                                            title="Xem chi tiết & Xét duyệt">
+                                            <i class="ti ti-pencil"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa đánh giá"
+                                            data-id="@item.Id" data-name="đánh giá cho sản phẩm '@item.ProductName'"
+                                            data-delete-url="@Url.Action("Delete", "ProductReview")">
                                             <i class="ti ti-trash"></i>
                                         </button>
                                     </div>
@@ -169,41 +258,39 @@
         <div class="card-footer">
             <div class="d-flex justify-content-center">
                 @Html.PagedListPager(
-                         Model.Reviews,
-                         page => Url.Action("Index", new
-                         {
-                             page,
-                             Model.Filter.SearchTerm,
-                             Model.Filter.ProductId,
-                             Model.Filter.Status,
-                             Model.Filter.MinRating,
-                             Model.Filter.MaxRating
-                         }),
-                         new PagedListRenderOptions
-            {
-                UlElementClasses = new[] { "pagination mb-0" },
-                LiElementClasses = new[] { "page-item" },
-                PageClasses = new[] { "page-link" },
-                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                ActiveLiElementClass = "active",
-                LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-                LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-            })
-            </div>
+                Model.Reviews,
+                        page => Url.Action("Index", new
+                        {
+                            page,
+                            Model.Filter.SearchTerm,
+                            Model.Filter.ProductId,
+                            Model.Filter.Status,
+                            Model.Filter.MinRating,
+                            Model.Filter.MaxRating
+                        }),
+                        new PagedListRenderOptions
+                        {
+                            UlElementClasses = new[] { "pagination mb-0" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" },
+                            DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            ActiveLiElementClass = "active",
+                            LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                            LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+                        })
         </div>
-    }
+    </div>
+        }
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('#clearSearch').on('click', function() {
+            $('#clearSearch').on('click', function () {
                 $('#Filter_SearchTerm').val('');
-            });
-            $('#Filter_ProductId, #Filter_Status, #Filter_MinRating, #Filter_MaxRating').on('change', function() {
                 $('#filterForm').submit();
             });
         });

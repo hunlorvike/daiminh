@@ -1,23 +1,44 @@
 @using web.Areas.Admin.ViewModels.ProductReview
 @model ProductReviewViewModel
 @{
-	ViewData["Title"] = "Chi tiết & Xét duyệt Đánh giá - Hệ thống quản trị";
-	ViewData["PageTitle"] = $"Xét duyệt Đánh giá cho: {Model.ProductName}";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-			("Đánh giá Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/ProductReview"),
-			($"Chi tiết & Xét duyệt: {Model.Id}", "")
-		};
+    ViewData["Title"] = "Chi tiết & Xét duyệt Đánh giá - Hệ thống quản trị";
+    ViewData["PageTitle"] = $"Xét duyệt Đánh giá cho: {Model.ProductName}";
+    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+            ("Đánh giá Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/ProductReview"),
+            ($"Chi tiết & Xét duyệt", "")
+        };
 }
 
-<form asp-action="Edit" method="post">
-	@Html.AntiForgeryToken()
-	<input type="hidden" asp-for="Id" />
-	<div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
+@section PageActions {
+    <div class="btn-list">
+        <button type="submit" form="reviewForm" class="btn btn-primary d-none d-sm-inline-block">
+            <i class="ti ti-device-floppy me-2"></i>Cập nhật Trạng thái
+        </button>
+        <button type="submit" form="reviewForm" class="btn btn-primary d-sm-none btn-icon">
+            <i class="ti ti-device-floppy"></i>
+        </button>
+    </div>
+}
 
-	<partial name="_ProductReviewFormFields" model="Model" />
+<form asp-action="Edit" method="post" id="reviewForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="d-flex">
+                <div class="alert-icon">
+                    <i class="ti ti-alert-circle"></i>
+                </div>
+                <div>
+                    <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                    <div asp-validation-summary="All" class="mb-0"></div>
+                </div>
+            </div>
+            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        </div>
+    }
 
+    <partial name="_ProductReviewFormFields" model="Model" />
 </form>
-
-@section Scripts {
-     @* No specific JS needed for this simple form *@
-}
