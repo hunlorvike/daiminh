@@ -2,42 +2,81 @@
 @using shared.Extensions
 @model TagViewModel
 
-<div class="row mb-3">
-	<div class="col-md-6">
-		<div class="form-group mb-3">
-			<label asp-for="Name" class="form-label required"></label>
-			<input asp-for="Name" class="form-control" />
-			<span asp-validation-for="Name" class="text-danger"></span>
-		</div>
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="form-group mb-3">
+            <label asp-for="Name" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="ti ti-tag"></i>
+                </span>
+                <input asp-for="Name" class="form-control" placeholder="Nhập tên thẻ" />
+            </div>
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
 
-		<div class="form-group mb-3">
-			<label asp-for="Slug" class="form-label required"></label>
-			<div class="input-group">
-				<input asp-for="Slug" class="form-control" />
-				<button class="btn btn-outline-secondary" type="button" id="generateSlugButton">
-					<i class="ti ti-refresh"></i>
-				</button>
-			</div>
-			<span asp-validation-for="Slug" class="text-danger"></span>
-			<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)</small>
-		</div>
-	</div>
+        <div class="form-group mb-3">
+            <label asp-for="Slug" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="ti ti-link"></i>
+                </span>
+                <input asp-for="Slug" class="form-control" placeholder="ten-the" />
+                <button class="btn btn-outline-secondary" type="button" id="generateSlugButton" title="Tạo slug từ tên">
+                    <i class="ti ti-refresh"></i>
+                </button>
+            </div>
+            <span asp-validation-for="Slug" class="text-danger"></span>
+            <small class="form-hint">
+                <i class="ti ti-info-circle me-1"></i>Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang)
+            </small>
+        </div>
+        
+        <div class="form-group mb-3">
+            <label asp-for="Type" class="form-label required"></label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="ti ti-category"></i>
+                </span>
+                <select asp-for="Type" asp-items="@Model.TagTypes" class="form-select" disabled="@(Model.Id > 0)"></select>
+                @if (Model.Id > 0)
+                {
+                    <input type="hidden" asp-for="Type" />
+                }
+            </div>
+            <span asp-validation-for="Type" class="text-danger"></span>
+            @if (Model.Id > 0)
+            {
+                <small class="form-hint text-warning">
+                    <i class="ti ti-alert-triangle me-1"></i>Không thể thay đổi Loại thẻ sau khi đã tạo.
+                </small>
+            }
+        </div>
+    </div>
 
-	<div class="col-md-6">
-		<div class="form-group mb-3">
-			<label asp-for="Description" class="form-label"></label>
-			<textarea asp-for="Description" class="form-control" rows="5"></textarea>
-			<span asp-validation-for="Description" class="text-danger"></span>
-			<small class="form-hint">Mô tả ngắn về thẻ (tối đa 255 ký tự)</small>
-		</div>
-		<div class="form-group mb-3">
-			<label asp-for="Type" class="form-label required"></label>
-			<select asp-for="Type" asp-items="@Model.TagTypes" class="form-select" disabled="@(Model.Id > 0)"></select>
-			<span asp-validation-for="Type" class="text-danger"></span>
-			@if (Model.Id > 0)
-			{
-				<small class="form-hint text-warning">Không thể thay đổi Loại danh mục sau khi đã tạo.</small>
-			}
-		</div>
-	</div>
+    <div class="col-md-6">
+        <div class="form-group mb-3">
+            <label asp-for="Description" class="form-label"></label>
+            <div class="input-group">
+                <span class="input-group-text">
+                    <i class="ti ti-notes"></i>
+                </span>
+                <textarea asp-for="Description" class="form-control" rows="7" placeholder="Mô tả ngắn về thẻ này..."></textarea>
+            </div>
+            <span asp-validation-for="Description" class="text-danger"></span>
+            <small class="form-hint">
+                <i class="ti ti-info-circle me-1"></i>Mô tả ngắn về thẻ (tối đa 255 ký tự)
+            </small>
+        </div>
+        
+        <div class="alert alert-info d-flex" role="alert">
+            <div class="alert-icon">
+                <i class="ti ti-info-circle"></i>
+            </div>
+            <div>
+                <h4 class="alert-title">Thông tin về thẻ</h4>
+                <div class="text-muted">Thẻ giúp phân loại nội dung và tạo liên kết giữa các mục. Mỗi thẻ có thể được sử dụng cho nhiều mục khác nhau.</div>
+            </div>
+        </div>
+    </div>
 </div>
