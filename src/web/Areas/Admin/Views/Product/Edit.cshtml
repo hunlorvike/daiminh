@@ -1,35 +1,35 @@
 @using web.Areas.Admin.ViewModels.Product
 @model ProductViewModel
 @{
-	ViewData["Title"] = "Chỉnh sửa Sản phẩm - Hệ thống quản trị";
-	ViewData["PageTitle"] = $"Chỉnh sửa Sản phẩm: {Model.Name}";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-			("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product"),
-			($"Chỉnh sửa: {Model.Name}", "")
-		};
+    ViewData["Title"] = "Chỉnh sửa Sản phẩm - Hệ thống quản trị";
+    ViewData["PageTitle"] = $"Chỉnh sửa Sản phẩm: {Model.Name}";
+    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+            ("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product"),
+            ($"Chỉnh sửa: {Model.Name}", "")
+        };
 }
 
 <form asp-action="Edit" method="post">
-	@Html.AntiForgeryToken()
-	<input type="hidden" asp-for="Id" />
-	<div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
 
-	<partial name="_ProductFormFields" model="Model" />
+    <partial name="_ProductFormFields" model="Model" />
 
-	<div class="card mt-4">
-		<div class="card-header">
-			<h3 class="card-title">Tối ưu SEO</h3>
-		</div>
-		<div class="card-body">
+    <div class="card mt-4">
+        <div class="card-header">
+            <h3 class="card-title">Tối ưu SEO</h3>
+        </div>
+        <div class="card-body">
             <partial name="Components/Crud/_SeoFormFields" model="Model.Seo" />
-		</div>
-		<div class="card-footer text-end bg-transparent border-top pt-3">
-			<a asp-action="Index" class="btn btn-link">Hủy</a>
-			<button type="submit" class="btn btn-primary ms-2">
-				<i class="ti ti-device-floppy me-2"></i> Cập nhật Sản phẩm
-			</button>
-		</div>
-	</div>
+        </div>
+        <div class="card-footer text-end bg-transparent border-top pt-3">
+            <a asp-action="Index" class="btn btn-link">Hủy</a>
+            <button type="submit" class="btn btn-primary ms-2">
+                <i class="ti ti-device-floppy me-2"></i> Cập nhật Sản phẩm
+            </button>
+        </div>
+    </div>
 </form>
 
 @section Scripts {
@@ -38,7 +38,7 @@
     @* Include Handlebars JS library if not already included globally *@
     <script src="https://cdn.jsdelivr.net/npm/handlebars@4.7.7/dist/handlebars.min.js"></script>
 
-	<script src="~/js/slug.js"></script>
+    <script src="~/js/slug.js"></script>
     @* Assuming you have a JS file for the media modal handling *@
     @* <script src="~/js/media-modal.js"></script> *@
     @* Assuming you have a JS file for WYSIWYG editor initialization *@
@@ -49,17 +49,17 @@
     @* <script src="~/js/datepicker.js"></script> *@
 
 
-	<script>
-		$(document).ready(function() {
-			const slugManager = SlugManager.init({
-				nameInput: '#Name', // Use Product Name for slug generation
-				slugInput: '#Slug',
-				generateButton: '#generateSlugButton'
-			});
+    <script>
+        $(document).ready(function() {
+            const slugManager = SlugManager.init({
+                nameInput: '#Name', // Use Product Name for slug generation
+                slugInput: '#Slug',
+                generateButton: '#generateSlugButton'
+            });
 
-			if ($('#Name').val() && !$('#Slug').val()) {
-					slugManager.generateSlug();
-			}
+            if ($('#Name').val() && !$('#Slug').val()) {
+                    slugManager.generateSlug();
+            }
 
             // --- Product Image Management JS ---
             const $imageContainer = $('#product-images-container');
@@ -224,6 +224,6 @@
              initMediaPickerButtons(); // Attach handlers to existing buttons
              initImageInputWatchers(); // Attach watchers to existing inputs
              updateImageIndices(); // Ensure initial indices are correct
-		});
-	</script>
+        });
+    </script>
 }

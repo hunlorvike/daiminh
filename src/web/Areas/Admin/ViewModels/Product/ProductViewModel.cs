@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
 using System.ComponentModel.DataAnnotations;
+using web.Areas.Admin.ViewModels.ProductVariation;
 using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Product;
@@ -78,6 +79,7 @@ public class ProductViewModel
     public List<ProductImageViewModel> Images { get; set; } = new();
 
     // Select lists for dropdowns
+    public ProductVariationFilterViewModel VariationFilter { get; set; } = new();
     public List<SelectListItem>? CategoryOptions { get; set; }
     public List<SelectListItem>? BrandOptions { get; set; }
     public List<SelectListItem>? StatusOptions { get; set; }

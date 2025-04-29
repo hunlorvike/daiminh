@@ -1,0 +1,22 @@
+@using web.Areas.Admin.ViewModels.ProductVariation
+@model ProductVariationViewModel
+@{
+    ViewData["Title"] = "Chỉnh sửa Biến thể Sản phẩm - Hệ thống quản trị";
+    ViewData["PageTitle"] = $"Chỉnh sửa Biến thể cho: {Model.ProductName}";
+    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+            ("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
+             ($"Sản phẩm: {Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ?? $"/Admin/Product/Edit/{Model.ProductId}"),
+            ("Biến thể", Url.Action(nameof(Index), new { productId = Model.ProductId }) ?? $"/Admin/ProductVariation/Index/{Model.ProductId}"),
+            ($"Chỉnh sửa Biến thể ID {Model.Id}", "")
+        };
+}
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ProductId" /> 
+    <div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
+
+    <partial name="_ProductVariationFormFields" model="Model" />
+
+</form>

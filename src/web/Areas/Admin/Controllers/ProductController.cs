@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
 using web.Areas.Admin.ViewModels.Product;
+using web.Areas.Admin.ViewModels.ProductVariation;
 using web.Areas.Admin.ViewModels.Shared; // Need SeoViewModel
 using X.PagedList.EF;
 using X.PagedList.Extensions;
@@ -178,8 +179,8 @@ public partial class ProductController : Controller
                                          .Include(p => p.ProductAttributes)
                                          .Include(p => p.ProductTags)
                                          .Include(p => p.ArticleProducts)
-                                         // Variations and Reviews might be loaded separately if needed
-                                         .AsNoTracking() // Use AsNoTracking for GET request
+                                         .Include(p => p.Variations)
+                                         .AsNoTracking()
                                          .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -188,6 +189,8 @@ public partial class ProductController : Controller
         }
 
         ProductViewModel viewModel = _mapper.Map<ProductViewModel>(product);
+
+        viewModel.VariationFilter = new ProductVariationFilterViewModel();
 
         await PopulateViewModelSelectListsAsync(viewModel);
 
