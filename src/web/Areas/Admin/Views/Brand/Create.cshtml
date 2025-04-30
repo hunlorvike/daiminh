@@ -4,26 +4,30 @@
     ViewData["Title"] = "Thêm Thương hiệu mới - Hệ thống quản trị";
     ViewData["PageTitle"] = "Thêm Thương hiệu mới";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Thương hiệu", Url.Action(nameof(Index)) ?? "/Admin/Brand"),
-            ("Thêm mới", "")
-        };
+("Thương hiệu", Url.Action(nameof(Index)) ?? "/Admin/Brand"),
+("Thêm mới", "")
+};
 }
 
 <form asp-action="Create" method="post">
-    @Html.AntiForgeryToken()
-    <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
-
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Thông tin cơ bản</h3>
+            <h3 class="card-title">
+                <i class="ti ti-building-store-plus me-2"></i>Thông tin Thương hiệu mới
+            </h3>
         </div>
         <div class="card-body">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
+
             <partial name="_BrandFormFields" model="Model" />
         </div>
-        <div class="card-footer text-end bg-transparent border-top pt-3">
-            <a asp-action="Index" class="btn btn-link">Hủy</a>
+        <div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
+            <a asp-action="Index" class="btn btn-link">
+                <i class="ti ti-x me-1"></i>Hủy
+            </a>
             <button type="submit" class="btn btn-primary ms-2">
-                <i class="ti ti-device-floppy me-2"></i> Lưu Thương hiệu
+                <i class="ti ti-device-floppy me-2"></i>Lưu Thương hiệu
             </button>
         </div>
     </div>
@@ -32,7 +36,7 @@
 @section Scripts {
     <script src="~/js/slug.js" asp-append-version="true"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const slugManager = SlugManager.init({
                 nameInput: '#Name',
                 slugInput: '#Slug',
@@ -40,8 +44,28 @@
             });
 
             if ($('#Name').val() && !$('#Slug').val()) {
-                    slugManager.generateSlug();
+                slugManager.generateSlug();
             }
+
+            $('#logoUrlInput').on('input', function () {
+                const $input = $(this);
+                const $preview = $('#logo-preview');
+                if ($input.val() === '') {
+                    $preview.empty();
+                }
+            });
+
+            $('#selectLogoBtn').on('click', function () {
+                const $button = $(this);
+                const $targetInput = $button.closest('.input-group').find('input[type="text"], input[type="url"]');
+                const $preview = $('#logo-preview');
+
+                const callback = function (selectedFile) {
+                    $preview.html(`<img src="${selectedFile.url}" class="avatar-img rounded" />`);
+                };
+
+                openMediaModal($targetInput, callback);
+            });
         });
     </script>
 }
