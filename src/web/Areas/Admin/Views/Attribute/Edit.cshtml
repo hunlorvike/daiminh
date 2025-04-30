@@ -1,36 +1,76 @@
 @using web.Areas.Admin.ViewModels.Attribute
 @model AttributeViewModel
 @{
-	ViewData["Title"] = "Chỉnh sửa Thuộc tính - Hệ thống quản trị";
-	ViewData["PageTitle"] = $"Chỉnh sửa Thuộc tính: {Model.Name}";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-			("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
-			($"Chỉnh sửa: {Model.Name}", "")
-		};
+    ViewData["Title"] = "Chỉnh sửa Thuộc tính - Hệ thống quản trị";
+    ViewData["PageTitle"] = $"Chỉnh sửa Thuộc tính: {Model.Name}";
+    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+            ("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
+            ($"Chỉnh sửa: {Model.Name}", "")
+        };
 }
 
 <form asp-action="Edit" method="post">
-	@Html.AntiForgeryToken()
-	<input type="hidden" asp-for="Id" />
-	<div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
 
-	<partial name="_AttributeFormFields" model="Model" />
-
+    <div class="row g-3">
+        <div class="col-12">
+            <partial name="_AttributeFormFields" model="Model" />
+        </div>
+        
+        @if (Model.Id > 0)
+        {
+            <div class="col-12 mt-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="ti ti-list me-2"></i>Giá trị Thuộc tính
+                        </h3>
+                        <div class="card-actions">
+                            <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@Model.Id" 
+                               class="btn btn-primary btn-sm">
+                                <i class="ti ti-list me-1"></i>Quản lý giá trị
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-0">
+                            Thuộc tính này có thể có nhiều giá trị khác nhau. Ví dụ: nếu thuộc tính là "Màu sắc", 
+                            các giá trị có thể là "Đỏ", "Xanh", "Vàng", v.v.
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="ti ti-info-circle me-1"></i>
+                                <span class="text-muted">Quản lý các giá trị cho thuộc tính này</span>
+                            </span>
+                            <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create" asp-route-AttributeId="@Model.Id" 
+                               class="btn btn-outline-primary btn-sm">
+                                <i class="ti ti-plus me-1"></i>Thêm giá trị mới
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 </form>
 
 @section Scripts {
-	<script src="~/js/slug.js"></script>
-	<script>
-		$(document).ready(function() {
-			const slugManager = SlugManager.init({
-				nameInput: '#Name',
-				slugInput: '#Slug',
-				generateButton: '#generateSlugButton'
-			});
+    <script src="~/js/slug.js"></script>
+    <script>
+        $(document).ready(function() {
+            const slugManager = SlugManager.init({
+                nameInput: '#Name',
+                slugInput: '#Slug',
+                generateButton: '#generateSlugButton'
+            });
 
-			if ($('#Name').val() && !$('#Slug').val()) {
-					slugManager.generateSlug();
-			}
-		});
-	</script>
+            if ($('#Name').val() && !$('#Slug').val()) {
+                slugManager.generateSlug();
+            }
+        });
+    </script>
 }
