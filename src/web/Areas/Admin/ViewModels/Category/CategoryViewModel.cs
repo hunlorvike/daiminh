@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Category;
 
@@ -45,10 +44,13 @@ public class CategoryViewModel
     [Required(ErrorMessage = "Vui lòng chọn {0}.")]
     public CategoryType Type { get; set; } = CategoryType.Product;
 
+    [Display(Name = "Số mục")]
+    public int ItemCount { get; set; }
+
+    [Display(Name = "Có danh mục con")]
+    public bool HasChildren { get; set; }
+
     // SelectLists for dropdowns - populated in Controller
     public List<SelectListItem>? ParentCategories { get; set; }
     public List<SelectListItem>? CategoryTypes { get; set; }
-
-    // Embed SEO Fields
-    public SeoViewModel Seo { get; set; } = new();
 }

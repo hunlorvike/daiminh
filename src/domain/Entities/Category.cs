@@ -5,7 +5,7 @@ using shared.Enums;
 
 namespace domain.Entities;
 
-public class Category : SeoEntity<int>
+public class Category : BaseEntity<int>
 {
     public string Name { get; set; } = string.Empty;
     public string Slug { get; set; } = string.Empty;
@@ -22,7 +22,7 @@ public class Category : SeoEntity<int>
     public virtual ICollection<FAQ>? FAQs { get; set; }
 }
 
-public class CategoryConfiguration : SeoEntityConfiguration<Category, int>
+public class CategoryConfiguration : BaseEntityConfiguration<Category, int>
 {
     public override void Configure(EntityTypeBuilder<Category> builder)
     {

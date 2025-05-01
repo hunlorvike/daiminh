@@ -15,4 +15,6 @@ public class CategoryListItemViewModel
     public int ItemCount { get; set; } // Combined count of products, articles, etc.
     public DateTime? UpdatedAt { get; set; }
     public int Level { get; set; } // For potential indentation in view
+    public string? Icon { get; set; }
+    public bool HasChildren { get; set; }
 }

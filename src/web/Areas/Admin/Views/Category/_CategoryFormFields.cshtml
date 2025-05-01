@@ -8,67 +8,173 @@
 	}
 }
 
-<div class="row g-3 mb-4">
+<div class="row g-3">
 	<div class="col-md-6">
-		<div class="form-group mb-3">
-			<label asp-for="Name" class="form-label required"></label>
-			<input asp-for="Name" class="form-control" />
-			<span asp-validation-for="Name" class="text-danger"></span>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="Slug" class="form-label required"></label>
-			<div class="input-group">
-				<input asp-for="Slug" class="form-control" />
-				<button class="btn btn-outline-secondary" type="button" id="generateSlugButton" title="Tạo slug tự động">
-					<i class="ti ti-refresh"></i>
-				</button>
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">
+					<i class="ti ti-info-circle me-2"></i>Thông tin cơ bản
+				</h3>
 			</div>
-			<span asp-validation-for="Slug" class="text-danger"></span>
-			<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang). Phải là duy nhất cho mỗi Loại danh mục.</small>
+			<div class="card-body">
+				<div class="form-group mb-3">
+					<label asp-for="Name" class="form-label required"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-tag"></i>
+						</span>
+						<input asp-for="Name" class="form-control" placeholder="Tên danh mục" />
+					</div>
+					<span asp-validation-for="Name" class="text-danger"></span>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="Slug" class="form-label required"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-link"></i>
+						</span>
+						<input asp-for="Slug" class="form-control" placeholder="ten-danh-muc" />
+						<button class="btn btn-outline-secondary" type="button" id="generateSlugButton" title="Tạo slug tự động">
+							<i class="ti ti-refresh"></i>
+						</button>
+					</div>
+					<span asp-validation-for="Slug" class="text-danger"></span>
+					<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang). Phải là duy nhất cho mỗi Loại danh mục.</small>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="Type" class="form-label required"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-category"></i>
+						</span>
+						<select asp-for="Type" asp-items="@Model.CategoryTypes" class="form-select" disabled="@(Model.Id > 0)"></select>
+					</div>
+					<span asp-validation-for="Type" class="text-danger"></span>
+					@if (Model.Id > 0)
+					{
+						<small class="form-hint text-warning">
+							<i class="ti ti-alert-triangle me-1"></i>Không thể thay đổi Loại danh mục sau khi đã tạo.
+						</small>
+					}
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="ParentId" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-folder"></i>
+						</span>
+						<select asp-for="ParentId" asp-items="@Model.ParentCategories" class="form-select"></select>
+					</div>
+					<span asp-validation-for="ParentId" class="text-danger"></span>
+					<small class="form-hint">Để trống nếu đây là danh mục gốc.</small>
+				</div>
+			</div>
 		</div>
 
-		<div class="form-group mb-3">
-			<label asp-for="ParentId" class="form-label"></label>
-			<select asp-for="ParentId" asp-items="@Model.ParentCategories" class="form-select"></select>
-			<span asp-validation-for="ParentId" class="text-danger"></span>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="Icon" class="form-label"></label>
-			<input asp-for="Icon" class="form-control" />
-			<span asp-validation-for="Icon" class="text-danger"></span>
-			<small class="form-hint">Ví dụ: <code>ti ti-tag</code></small>
-		</div>
-
-		<div class="form-group mb-3">
-			<label asp-for="OrderIndex" class="form-label"></label>
-			<input asp-for="OrderIndex" type="number" min="0" class="form-control" />
-			<span asp-validation-for="OrderIndex" class="text-danger"></span>
-			<small class="form-hint">Số nhỏ hơn sẽ hiển thị trước.</small>
-		</div>
-
+		@if (Model.Id > 0)
+		{
+			<div class="card mt-3">
+				<div class="card-header">
+					<h3 class="card-title">
+						<i class="ti ti-info-circle me-2"></i>Thông tin sử dụng
+					</h3>
+				</div>
+				<div class="card-body">
+					<div class="datagrid">
+						<div class="datagrid-item">
+							<div class="datagrid-title">ID</div>
+							<div class="datagrid-content">@Model.Id</div>
+						</div>
+						<div class="datagrid-item">
+							<div class="datagrid-title">Số mục sử dụng</div>
+							<div class="datagrid-content">
+								<span class="badge bg-@(Model.ItemCount > 0 ? "blue" : "gray")-lt">@Model.ItemCount</span>
+								@if (Model.ItemCount > 0)
+								{
+									<small class="text-muted ms-2">Không thể xóa danh mục này</small>
+								}
+							</div>
+						</div>
+						<div class="datagrid-item">
+							<div class="datagrid-title">Danh mục con</div>
+							<div class="datagrid-content">
+								@if (Model.HasChildren)
+								{
+									<span class="badge bg-purple-lt">
+										<i class="ti ti-folders me-1"></i>Có danh mục con
+									</span>
+									<small class="text-muted ms-2">Không thể xóa danh mục này</small>
+								}
+								else
+								{
+									<span class="badge bg-gray-lt">Không có</span>
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
 	</div>
 
 	<div class="col-md-6">
-		<div class="form-group mb-3">
-			<label asp-for="Type" class="form-label required"></label>
-			<select asp-for="Type" asp-items="@Model.CategoryTypes" class="form-select" disabled="@(Model.Id > 0)"></select>
-			<span asp-validation-for="Type" class="text-danger"></span>
-			@if (Model.Id > 0)
-			{
-				<small class="form-hint text-warning">Không thể thay đổi Loại danh mục sau khi đã tạo.</small>
-			}
-		</div>
-		<div class="form-group mb-3">
-			<label asp-for="Description" class="form-label"></label>
-			<textarea asp-for="Description" class="form-control" rows="5"></textarea>
-			<span asp-validation-for="Description" class="text-danger"></span>
-		</div>
-		<div class="form-check form-switch mb-0 mt-3">
-			<input class="form-check-input" type="checkbox" asp-for="IsActive" role="switch">
-			<label class="form-check-label" asp-for="IsActive"></label>
-			<span asp-validation-for="IsActive" class="text-danger"></span>
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">
+					<i class="ti ti-settings me-2"></i>Cài đặt hiển thị
+				</h3>
+			</div>
+			<div class="card-body">
+				<div class="form-group mb-3">
+					<label asp-for="Icon" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-icons"></i>
+						</span>
+						<input asp-for="Icon" class="form-control" placeholder="ti ti-tag" />
+					</div>
+					<span asp-validation-for="Icon" class="text-danger"></span>
+					<div class="mt-2">
+						<small class="form-hint d-block mb-2">Ví dụ: <code>ti ti-tag</code>, <code>ti ti-folder</code>, <code>ti ti-shopping-cart</code></small>
+						<div class="icon-preview d-flex align-items-center">
+							<span class="me-2">Xem trước:</span>
+							<span class="avatar avatar-sm bg-blue-lt" id="iconPreview">
+								<i class="@(string.IsNullOrEmpty(Model.Icon) ? "ti ti-folder" : Model.Icon)"></i>
+							</span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="OrderIndex" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-sort-ascending"></i>
+						</span>
+						<input asp-for="OrderIndex" type="number" min="0" class="form-control" placeholder="0" />
+					</div>
+					<span asp-validation-for="OrderIndex" class="text-danger"></span>
+					<small class="form-hint">Số nhỏ hơn sẽ hiển thị trước.</small>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="Description" class="form-label"></label>
+					<textarea asp-for="Description" class="form-control" rows="4" placeholder="Mô tả ngắn về danh mục này..."></textarea>
+					<span asp-validation-for="Description" class="text-danger"></span>
+				</div>
+
+				<div class="form-group mb-0">
+					<label class="form-label d-block">Trạng thái hiển thị</label>
+					<label class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" asp-for="IsActive" role="switch">
+						<span class="form-check-label">Hiển thị danh mục này trên website</span>
+					</label>
+					<span asp-validation-for="IsActive" class="text-danger"></span>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>

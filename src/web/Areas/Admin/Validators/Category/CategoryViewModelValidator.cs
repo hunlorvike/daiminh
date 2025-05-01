@@ -1,6 +1,5 @@
 using FluentValidation;
 using infrastructure;
-using web.Areas.Admin.Validators.Shared;
 using web.Areas.Admin.ViewModels.Category;
 
 namespace web.Areas.Admin.Validators.Category;
@@ -35,8 +34,6 @@ public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
         RuleFor(x => x.ParentId)
              .NotEqual(x => x.Id).When(x => x.ParentId.HasValue && x.Id > 0).WithMessage("Danh mục cha không thể là chính nó.")
              .Must(NotBeAChildOfItself).WithMessage("Không thể chọn danh mục con của chính nó làm danh mục cha.");
-
-        RuleFor(x => x.Seo).SetValidator(new SeoViewModelValidator());
     }
 
     private bool BeUniqueSlugAndType(CategoryViewModel viewModel, string slug)

@@ -14,39 +14,72 @@
 
 @section PageActions {
 	<div class="btn-list">
-		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary d-sm-inline-block">
+		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary d-none d-sm-inline-block">
 			<i class="ti ti-plus me-2"></i> Thêm Danh mục
+		</a>
+		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary d-sm-none btn-icon">
+			<i class="ti ti-plus"></i>
 		</a>
 	</div>
 }
 
 <div class="card mb-3">
+	<div class="card-header">
+		<h3 class="card-title">
+			<i class="ti ti-filter me-2"></i>Bộ lọc
+		</h3>
+	</div>
 	<div class="card-body">
-		<form method="get" asp-action="Index" id="filterForm" class="row g-3 align-items-end">
-			<div class="col-md-4">
-				<label asp-for="Filter.SearchTerm" class="form-label"></label>
-				<div class="input-group">
-					<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, mô tả...">
-					<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm"><i class="ti ti-x"></i></button>
+		<form method="get" asp-action="Index" id="filterForm">
+			<div class="row g-3 align-items-end">
+				<div class="col-md-4 col-sm-12">
+					<div class="form-group">
+						<label asp-for="Filter.SearchTerm" class="form-label"></label>
+						<div class="input-group">
+							<span class="input-group-text">
+								<i class="ti ti-search"></i>
+							</span>
+							<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, mô tả...">
+							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+								<i class="ti ti-x"></i>
+							</button>
+						</div>
+					</div>
 				</div>
-			</div>
-			<div class="col-md-3">
-				<label asp-for="Filter.Type" class="form-label"></label>
-				<select asp-for="Filter.Type" asp-items="@Model.Filter.TypeOptions" class="form-select">
-					<option value="">-- Tất cả loại --</option>
-				</select>
-			</div>
-			<div class="col-md-2">
-				<label asp-for="Filter.IsActive" class="form-label"></label>
-				<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select"></select>
-			</div>
-			<div class="col-md-1">
-				<label class="form-label"> </label>
-				<button type="submit" class="btn btn-primary w-100"><i class="ti ti-filter me-1"></i> Lọc</button>
-			</div>
-			<div class="col-md-2">
-				<label class="form-label"> </label>
-				<a asp-action="Index" class="btn btn-outline-secondary w-100"><i class="ti ti-reload me-2"></i> Đặt lại</a>
+				<div class="col-md-3 col-sm-6">
+					<div class="form-group">
+						<label asp-for="Filter.Type" class="form-label"></label>
+						<div class="input-group">
+							<span class="input-group-text">
+								<i class="ti ti-category"></i>
+							</span>
+							<select asp-for="Filter.Type" asp-items="@Model.Filter.TypeOptions" class="form-select">
+								<option value="">-- Tất cả loại --</option>
+							</select>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-3 col-sm-6">
+					<div class="form-group">
+						<label asp-for="Filter.IsActive" class="form-label"></label>
+						<div class="input-group">
+							<span class="input-group-text">
+								<i class="ti ti-eye"></i>
+							</span>
+							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select"></select>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-1 col-6">
+					<button type="submit" class="btn btn-primary w-100">
+						<i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
+					</button>
+				</div>
+				<div class="col-md-1 col-6">
+					<a asp-action="Index" class="btn btn-outline-secondary w-100">
+						<i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
+					</a>
+				</div>
 			</div>
 		</form>
 	</div>
@@ -54,18 +87,24 @@
 
 <div class="card">
 	<div class="card-header d-flex justify-content-between align-items-center">
-		<h3 class="card-title mb-0">Danh sách Danh mục</h3>
+		<h3 class="card-title">
+			<i class="ti ti-folders me-2"></i>Danh sách Danh mục
+		</h3>
 		@if (Model.Categories.TotalItemCount > 0)
 		{
-			<small class="text-muted">Hiển thị @Model.Categories.FirstItemOnPage-@Model.Categories.LastItemOnPage trên tổng số @Model.Categories.TotalItemCount danh mục</small>
+			<small class="text-muted d-none d-md-block">Hiển thị @Model.Categories.FirstItemOnPage-@Model.Categories.LastItemOnPage trên tổng số @Model.Categories.TotalItemCount danh mục</small>
 		}
 	</div>
 	<div class="card-body p-0">
 		@if (!Model.Categories.Any())
 		{
-			<div class="empty">
-				<div class="empty-icon"><i class="ti ti-folder-off fs-1 text-muted"></i></div>
-				<p class="empty-title">Không tìm thấy danh mục nào</p>
+			<div class="empty py-5">
+				<div class="empty-icon">
+					<div class="avatar avatar-xl bg-light-subtle rounded">
+						<i class="ti ti-folder-off fs-1 text-muted"></i>
+					</div>
+				</div>
+				<p class="empty-title mt-3">Không tìm thấy danh mục nào</p>
 				<p class="empty-subtitle text-muted">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue && !Model.Filter.Type.HasValue)
 					{
@@ -77,23 +116,25 @@
 					}
 				</p>
 				<div class="empty-action">
-					<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary"> <i class="ti ti-plus me-2"></i> Thêm danh mục </a>
+					<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary">
+						<i class="ti ti-plus me-2"></i> Thêm danh mục
+					</a>
 				</div>
 			</div>
 		}
 		else
 		{
 			<div class="table-responsive">
-				<table class="table table-vcenter card-table table-striped">
+				<table class="table table-vcenter card-table table-striped table-hover">
 					<thead>
 						<tr>
 							<th>Tên danh mục</th>
-							<th style="width: 15%;">Danh mục cha</th>
-							<th style="width: 15%;">Loại</th>
-							<th style="width: 10%;">Slug</th>
-							<th class="text-center" style="width: 5%;">Thứ tự</th>
-							<th class="text-center" style="width: 5%;">Số mục</th>
-							<th class="text-center" style="width: 10%;">Trạng thái</th>
+							<th class="d-none d-md-table-cell">Danh mục cha</th>
+							<th>Loại</th>
+							<th class="d-none d-lg-table-cell">Slug</th>
+							<th class="text-center d-none d-md-table-cell">Thứ tự</th>
+							<th class="text-center">Số mục</th>
+							<th class="text-center">Trạng thái</th>
 							<th class="w-1">Thao tác</th>
 						</tr>
 					</thead>
@@ -102,33 +143,83 @@
 						{
 							<tr>
 								<td>
-									<span class="fw-medium">@item.Name</span>
+									<div class="d-flex align-items-center">
+										@if (!string.IsNullOrEmpty(item.Icon))
+										{
+											<span class="avatar avatar-sm bg-blue-lt me-2">
+												<i class="@item.Icon"></i>
+											</span>
+										}
+										else
+										{
+											<span class="avatar avatar-sm bg-blue-lt me-2">
+												<i class="ti ti-folder"></i>
+											</span>
+										}
+										<div>
+											<span class="fw-medium">@item.Name</span>
+											@if (item.HasChildren)
+											{
+												<span class="badge bg-purple-lt ms-1" title="Có danh mục con">
+													<i class="ti ti-folders me-1"></i>Con
+												</span>
+											}
+										</div>
+									</div>
 								</td>
-								<td class="text-muted">@item.ParentName</td>
-								<td class="text-muted">@item.Type.GetDisplayName()</td>
-								<td class="text-muted"><code>@item.Slug</code></td>
-								<td class="text-muted text-center">@item.OrderIndex</td>
-								<td class="text-muted text-center">
-									<span class="badge bg-blue-lt">@item.ItemCount</span>
-								</td>
-								<td class="text-muted text-center">
-									@if (item.IsActive)
+								<td class="text-muted d-none d-md-table-cell">
+									@if (!string.IsNullOrEmpty(item.ParentName))
 									{
-										<span class="badge bg-success-lt">Kích hoạt</span>
+										<span class="text-muted">@item.ParentName</span>
 									}
 									else
 									{
-										<span class="badge bg-danger-lt">Ẩn</span>
+										<span class="badge bg-azure-lt">Danh mục gốc</span>
 									}
 								</td>
-								<td class="text-muted">
-									<div class="btn-list flex-nowrap">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-icon btn-outline-primary" title="Chỉnh sửa"><i class="ti ti-pencil"></i></a>
-										<button class="btn btn-sm btn-icon btn-outline-danger delete-item-btn"
-												title="Xóa"
+								<td>
+									<span class="badge bg-@(GetCategoryTypeBadgeColor(item.Type))-lt">
+										@item.Type.GetDisplayName()
+									</span>
+								</td>
+								<td class="d-none d-lg-table-cell">
+									<code class="text-muted">@item.Slug</code>
+								</td>
+								<td class="text-center d-none d-md-table-cell">
+									<span class="badge bg-azure-lt">@item.OrderIndex</span>
+								</td>
+								<td class="text-center">
+									<span class="badge bg-@(item.ItemCount > 0 ? "blue" : "gray")-lt">
+										@item.ItemCount
+									</span>
+								</td>
+								<td class="text-center">
+									@if (item.IsActive)
+									{
+										<span class="status status-green">
+											<span class="status-dot status-dot-animated"></span>
+											<span class="d-none d-md-inline">Kích hoạt</span>
+										</span>
+									}
+									else
+									{
+										<span class="status status-red">
+											<span class="status-dot"></span>
+											<span class="d-none d-md-inline">Ẩn</span>
+										</span>
+									}
+								</td>
+								<td>
+									<div class="btn-group">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+											<i class="ti ti-pencil"></i>
+										</a>
+										<button class="btn btn-sm btn-outline-danger delete-item-btn @(item.HasChildren || item.ItemCount > 0 ? "disabled" : "")"
+												title="@(item.HasChildren || item.ItemCount > 0 ? "Không thể xóa danh mục có mục con hoặc đang được sử dụng" : "Xóa")"
 												data-id="@item.Id"
 												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Category")">
+												data-delete-url="@Url.Action("Delete", "Category")"
+										@(item.HasChildren || item.ItemCount > 0 ? "disabled" : "")>
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -176,7 +267,21 @@
 		$(document).ready(function () {
 			$('#clearSearch').on('click', function() {
 				$('#Filter_SearchTerm').val('');
+				$('#filterForm').submit();
 			});
 		});
 	</script>
- }
+}
+
+@functions {
+	private string GetCategoryTypeBadgeColor(shared.Enums.CategoryType type)
+	{
+		return type switch
+		{
+			shared.Enums.CategoryType.Product => "green",
+			shared.Enums.CategoryType.Article => "blue",
+			shared.Enums.CategoryType.FAQ => "cyan",
+			_ => "gray"
+		};
+	}
+}
