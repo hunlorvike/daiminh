@@ -21,8 +21,21 @@
                 <div class="card-body">
                     @Html.AntiForgeryToken()
                     <input type="hidden" asp-for="Id" />
-                    <div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
-
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <div class="d-flex">
+                                <div class="alert-icon">
+                                    <i class="ti ti-alert-circle"></i>
+                                </div>
+                                <div>
+                                    <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                                    <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                                </div>
+                            </div>
+                            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                        </div>
+                    }
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="form-group mb-3">

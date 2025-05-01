@@ -4,9 +4,9 @@
     ViewData["Title"] = "Thêm Đăng ký Newsletter - Hệ thống quản trị";
     ViewData["PageTitle"] = "Thêm Đăng ký Newsletter";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
-            ("Thêm mới", "")
-        };
+("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
+("Thêm mới", "")
+};
 }
 
 @section PageActions {
@@ -29,7 +29,21 @@
     <div class="card-body">
         <form asp-action="Create" method="post" id="newsletterForm">
             @Html.AntiForgeryToken()
-
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex">
+                        <div class="alert-icon">
+                            <i class="ti ti-alert-circle"></i>
+                        </div>
+                        <div>
+                            <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                            <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                        </div>
+                    </div>
+                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                </div>
+            }
             <div class="row">
                 <div class="col-lg-8 mx-auto">
                     <div class="card card-body border-0 shadow-none bg-light-subtle">
@@ -42,7 +56,6 @@
                                 <p class="text-muted mb-0">Thêm người đăng ký mới vào danh sách nhận bản tin</p>
                             </div>
                         </div>
-
                         <partial name="_NewsletterFormFields" model="Model" />
                     </div>
                 </div>

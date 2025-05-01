@@ -7,9 +7,9 @@
     ViewData["Title"] = "Thêm Thẻ mới - Hệ thống quản trị";
     ViewData["PageTitle"] = "Thêm Thẻ mới";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag"),
-            ("Thêm mới", "")
-        };
+("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag"),
+("Thêm mới", "")
+};
 }
 
 <form asp-action="Create" method="post">
@@ -21,8 +21,21 @@
         </div>
         <div class="card-body">
             @Html.AntiForgeryToken()
-            <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
-            
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex">
+                        <div class="alert-icon">
+                            <i class="ti ti-alert-circle"></i>
+                        </div>
+                        <div>
+                            <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                            <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                        </div>
+                    </div>
+                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                </div>
+            }
             <partial name="_TagFormFields" model="Model" />
         </div>
         <div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
@@ -39,41 +52,16 @@
 @section Scripts {
     <script src="~/js/slug.js"></script>
     <script>
-        $(document).ready(function() {
-            // Initialize slug generator
+        $(document).ready(function () {
             const slugManager = SlugManager.init({
                 nameInput: '#Name',
                 slugInput: '#Slug',
                 generateButton: '#generateSlugButton'
             });
 
-            // Auto-generate slug if name is filled but slug is empty
             if ($('#Name').val() && !$('#Slug').val()) {
                 slugManager.generateSlug();
             }
-            
-            // Add visual feedback when generating slug
-            $('#generateSlugButton').on('click', function() {
-                const $button = $(this);
-                const $icon = $button.find('i');
-                
-                // Store original icon class
-                const originalClass = $icon.attr('class');
-                
-                // Change to spinner
-                $icon.attr('class', 'ti ti-loader animate-spin');
-                
-                // Restore after a short delay
-                setTimeout(function() {
-                    $icon.attr('class', originalClass);
-                    
-                    // Show success feedback
-                    $button.removeClass('btn-outline-secondary').addClass('btn-success');
-                    setTimeout(function() {
-                        $button.removeClass('btn-success').addClass('btn-outline-secondary');
-                    }, 1000);
-                }, 300);
-            });
         });
     </script>
 }

@@ -30,7 +30,21 @@
 		<form asp-action="Edit" asp-route-id="@Model.Id" method="post" id="newsletterForm">
 			@Html.AntiForgeryToken()
 			<input type="hidden" asp-for="Id" />
-
+			@if (!ViewData.ModelState.IsValid)
+			{
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<div class="d-flex">
+						<div class="alert-icon">
+							<i class="ti ti-alert-circle"></i>
+						</div>
+						<div>
+							<h4 class="alert-title">Có lỗi xảy ra!</h4>
+							<div asp-validation-summary="ModelOnly" class="mb-0"></div>
+						</div>
+					</div>
+					<a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+				</div>
+			}
 			<div class="row">
 				<div class="col-lg-10 mx-auto">
 					<div class="card card-body border-0 shadow-none bg-light-subtle">

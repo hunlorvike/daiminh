@@ -4,21 +4,34 @@
     ViewData["Title"] = "Chỉnh sửa Thuộc tính - Hệ thống quản trị";
     ViewData["PageTitle"] = $"Chỉnh sửa Thuộc tính: {Model.Name}";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
-            ($"Chỉnh sửa: {Model.Name}", "")
-        };
+("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
+($"Chỉnh sửa: {Model.Name}", "")
+};
 }
 
 <form asp-action="Edit" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
-    <div asp-validation-summary="All" class="text-danger alert alert-danger mb-3" role="alert"></div>
-
+    @if (!ViewData.ModelState.IsValid)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="d-flex">
+                <div class="alert-icon">
+                    <i class="ti ti-alert-circle"></i>
+                </div>
+                <div>
+                    <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                    <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                </div>
+            </div>
+            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        </div>
+    }
     <div class="row g-3">
         <div class="col-12">
             <partial name="_AttributeFormFields" model="Model" />
         </div>
-        
+
         @if (Model.Id > 0)
         {
             <div class="col-12 mt-4">
@@ -28,15 +41,15 @@
                             <i class="ti ti-list me-2"></i>Giá trị Thuộc tính
                         </h3>
                         <div class="card-actions">
-                            <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@Model.Id" 
-                               class="btn btn-primary btn-sm">
+                            <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index"
+                                asp-route-AttributeId="@Model.Id" class="btn btn-primary btn-sm">
                                 <i class="ti ti-list me-1"></i>Quản lý giá trị
                             </a>
                         </div>
                     </div>
                     <div class="card-body">
                         <p class="text-muted mb-0">
-                            Thuộc tính này có thể có nhiều giá trị khác nhau. Ví dụ: nếu thuộc tính là "Màu sắc", 
+                            Thuộc tính này có thể có nhiều giá trị khác nhau. Ví dụ: nếu thuộc tính là "Màu sắc",
                             các giá trị có thể là "Đỏ", "Xanh", "Vàng", v.v.
                         </p>
                     </div>
@@ -46,8 +59,8 @@
                                 <i class="ti ti-info-circle me-1"></i>
                                 <span class="text-muted">Quản lý các giá trị cho thuộc tính này</span>
                             </span>
-                            <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create" asp-route-AttributeId="@Model.Id" 
-                               class="btn btn-outline-primary btn-sm">
+                            <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create"
+                                asp-route-AttributeId="@Model.Id" class="btn btn-outline-primary btn-sm">
                                 <i class="ti ti-plus me-1"></i>Thêm giá trị mới
                             </a>
                         </div>
@@ -61,7 +74,7 @@
 @section Scripts {
     <script src="~/js/slug.js"></script>
     <script>
-        $(document).ready(function() {
+        $(document).ready(function () {
             const slugManager = SlugManager.init({
                 nameInput: '#Name',
                 slugInput: '#Slug',

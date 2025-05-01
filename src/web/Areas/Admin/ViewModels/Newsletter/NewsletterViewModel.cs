@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
 namespace web.Areas.Admin.ViewModels.Newsletter;
 
@@ -34,6 +34,6 @@ public class NewsletterViewModel
     [Display(Name = "Ngày hủy đăng ký")]
     public DateTime? UnsubscribedAt { get; set; }
 
-    [Display(Name = "Ngày tạo")]    
+    [Display(Name = "Ngày tạo")]
     public DateTime CreatedAt { get; set; }
 }

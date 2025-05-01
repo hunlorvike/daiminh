@@ -1,9 +1,9 @@
+using System.Net.Mime;
+using System.Text.RegularExpressions;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using System.Net.Mime;
-using System.Text.RegularExpressions;
 
 namespace web.Areas.Admin.Services;
 

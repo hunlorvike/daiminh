@@ -4,9 +4,9 @@
     ViewData["Title"] = "Tạo Người dùng mới - Hệ thống quản trị";
     ViewData["PageTitle"] = "Tạo Người dùng mới";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User"),
-            ("Tạo mới", "")
-        };
+("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User"),
+("Tạo mới", "")
+};
 }
 
 <div class="row">
@@ -20,8 +20,21 @@
                 </div>
                 <div class="card-body">
                     @Html.AntiForgeryToken()
-                    <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
-
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <div class="d-flex">
+                                <div class="alert-icon">
+                                    <i class="ti ti-alert-circle"></i>
+                                </div>
+                                <div>
+                                    <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                                    <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                                </div>
+                            </div>
+                            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                        </div>
+                    }
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
@@ -33,7 +46,8 @@
                                     <input asp-for="Username" class="form-control" />
                                 </div>
                                 <span asp-validation-for="Username" class="text-danger"></span>
-                                <small class="form-hint">Tên đăng nhập không được chứa khoảng trắng và ký tự đặc biệt</small>
+                                <small class="form-hint">Tên đăng nhập không được chứa khoảng trắng và ký tự đặc
+                                    biệt</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -82,10 +96,12 @@
                                     <span class="input-group-text">
                                         <i class="ti ti-lock"></i>
                                     </span>
-                                    <input asp-for="Password" type="password" class="form-control" autocomplete="new-password" />
+                                    <input asp-for="Password" type="password" class="form-control"
+                                        autocomplete="new-password" />
                                 </div>
                                 <span asp-validation-for="Password" class="text-danger"></span>
-                                <small class="form-hint">Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường, số và ký tự đặc biệt</small>
+                                <small class="form-hint">Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường,
+                                    số và ký tự đặc biệt</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -95,7 +111,8 @@
                                     <span class="input-group-text">
                                         <i class="ti ti-lock-check"></i>
                                     </span>
-                                    <input asp-for="ConfirmPassword" type="password" class="form-control" autocomplete="new-password" />
+                                    <input asp-for="ConfirmPassword" type="password" class="form-control"
+                                        autocomplete="new-password" />
                                 </div>
                                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
                             </div>
@@ -113,7 +130,7 @@
             </div>
         </form>
     </div>
-    
+
     <div class="col-lg-4 col-md-12">
         <div class="card">
             <div class="card-status-top bg-primary"></div>
@@ -143,13 +160,14 @@
                         Bạn có thể <strong>kích hoạt</strong> hoặc <strong>khóa</strong> tài khoản ngay khi tạo
                     </li>
                 </ul>
-                
+
                 <div class="alert alert-info mt-4 d-flex" role="alert">
                     <div class="alert-icon">
                         <i class="ti ti-info-circle"></i>
                     </div>
                     <div>
-                        Người dùng mới sẽ cần đăng nhập bằng thông tin bạn cung cấp. Hãy đảm bảo thông báo cho họ về thông tin đăng nhập.
+                        Người dùng mới sẽ cần đăng nhập bằng thông tin bạn cung cấp. Hãy đảm bảo thông báo cho họ về
+                        thông tin đăng nhập.
                     </div>
                 </div>
             </div>

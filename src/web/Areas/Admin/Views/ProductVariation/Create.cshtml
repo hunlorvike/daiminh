@@ -4,19 +4,33 @@
     ViewData["Title"] = "Thêm Biến thể Sản phẩm - Hệ thống quản trị";
     ViewData["PageTitle"] = $"Thêm Biến thể cho Sản phẩm: {Model.ProductName}";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
-            ($"Sản phẩm: {Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ?? $"/Admin/Product/Edit/{Model.ProductId}"),
-            ("Biến thể", Url.Action(nameof(Index), new { productId = Model.ProductId }) ?? $"/Admin/ProductVariation/Index/{Model.ProductId}"),
-            ("Thêm mới", "")
-        };
+("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
+($"Sản phẩm: {Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ??
+$"/Admin/Product/Edit/{Model.ProductId}"),
+("Biến thể", Url.Action(nameof(Index), new { productId = Model.ProductId }) ??
+$"/Admin/ProductVariation/Index/{Model.ProductId}"),
+("Thêm mới", "")
+};
 }
 
 <form asp-action="Create" method="post">
     @Html.AntiForgeryToken()
-    <input type="hidden" asp-for="ProductId" /> @* Ensure ProductId is passed back *@
-    <div asp-validation-summary="ModelOnly" class="text-danger alert alert-danger mb-3" role="alert"></div>
-
+    <input type="hidden" asp-for="ProductId" />
+    @if (ViewData.ModelState.Any(x => x.Key == ""))
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="d-flex">
+                <div class="alert-icon">
+                    <i class="ti ti-alert-circle"></i>
+                </div>
+                <div>
+                    <h4 class="alert-title">Có lỗi xảy ra!</h4>
+                    <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                </div>
+            </div>
+            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+        </div>
+    }
     <partial name="_ProductVariationFormFields" model="Model" />
 
 </form>
-
