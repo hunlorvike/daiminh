@@ -64,7 +64,7 @@
                     <partial name="_ProductFormFields" model="Model" />
                 </div>
                 <div class="tab-pane" id="tabs-seo">
-                    <partial name="Components/Crud/_SeoFormFields" model="Model.Seo" />
+                    <partial name="Components/Crud/_SeoFormFields" model="Model" />
                 </div>
             </div>
         </div>
@@ -87,29 +87,6 @@
             if ($('#Name').val() && !$('#Slug').val()) {
                 slugManager.generateSlug();
             }
-            
-            // Add visual feedback when generating slug
-            $('#generateSlugButton').on('click', function() {
-                const $button = $(this);
-                const $icon = $button.find('i');
-                
-                // Store original icon class
-                const originalClass = $icon.attr('class');
-                
-                // Change to spinner
-                $icon.attr('class', 'ti ti-loader animate-spin');
-                
-                // Restore after a short delay
-                setTimeout(function() {
-                    $icon.attr('class', originalClass);
-                    
-                    // Show success feedback
-                    $button.removeClass('btn-outline-secondary').addClass('btn-success');
-                    setTimeout(function() {
-                        $button.removeClass('btn-success').addClass('btn-outline-secondary');
-                    }, 1000);
-                }, 300);
-            });
 
             // --- Product Image Management JS ---
             const $imageContainer = $('#product-images-container');

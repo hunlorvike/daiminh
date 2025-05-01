@@ -68,8 +68,7 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
                .WithMessage("Phải có chính xác một ảnh được đánh dấu là ảnh chính.");
         });
 
-
-        RuleFor(x => x.Seo).SetValidator(new SeoViewModelValidator());
+        Include(new SeoViewModelValidator());
     }
 
     private bool BeUniqueSlug(ProductViewModel viewModel, string slug)

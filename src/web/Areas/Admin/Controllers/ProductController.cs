@@ -11,7 +11,6 @@ using shared.Enums;
 using shared.Extensions;
 using web.Areas.Admin.ViewModels.Product;
 using web.Areas.Admin.ViewModels.ProductVariation;
-using web.Areas.Admin.ViewModels.Shared;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
 
@@ -109,11 +108,8 @@ public partial class ProductController : Controller
             IsFeatured = false,
             IsActive = true,
             Status = PublishStatus.Draft,
-            Seo = new SeoViewModel
-            {
-                SitemapPriority = 0.5,
-                SitemapChangeFrequency = "monthly"
-            },
+            SitemapPriority = 0.5,
+            SitemapChangeFrequency = "monthly",
             Images = new List<ProductImageViewModel>()
         };
 
