@@ -22,8 +22,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddFluentValidationAutoValidation(config =>
 {
     config.DisableDataAnnotationsValidation = true;
-})
-.AddFluentValidationClientsideAdapters();
+});
 builder.Services.AddValidatorsFromAssemblyContaining<UserCreateViewModelValidator>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();

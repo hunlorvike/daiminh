@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.Validators.Testimonial;
 using web.Areas.Admin.ViewModels.Testimonial;
 using X.PagedList;
 using X.PagedList.EF;
@@ -93,20 +94,27 @@ public partial class TestimonialController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TestimonialViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var validationResult = await new TestimonialViewModelValidator().ValidateAsync(viewModel);
+        if (!validationResult.IsValid)
         {
-            Testimonial testimonial = _mapper.Map<Testimonial>(viewModel);
-            _context.Add(testimonial);
+            foreach (var error in validationResult.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm đánh giá.");
-            }
+            return View(viewModel);
+        }
+
+        var testimonial = _mapper.Map<Testimonial>(viewModel);
+        _context.Add(testimonial);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi thêm đánh giá của {ClientName}", viewModel.ClientName);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi thêm đánh giá.");
         }
 
         return View(viewModel);
@@ -133,33 +141,38 @@ public partial class TestimonialController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TestimonialViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id)
+            return BadRequest();
+
+        var validationResult = await new TestimonialViewModelValidator().ValidateAsync(viewModel);
+        if (!validationResult.IsValid)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
+            foreach (var error in validationResult.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            Testimonial? testimonial = await _context.Set<Testimonial>().FirstOrDefaultAsync(t => t.Id == id);
-
-            if (testimonial == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            _mapper.Map(viewModel, testimonial);
-            _context.Entry(testimonial).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đánh giá.");
-            }
+            return View(viewModel);
         }
+
+        var testimonial = await _context.Set<Testimonial>().FirstOrDefaultAsync(t => t.Id == id);
+        if (testimonial == null)
+        {
+            _logger.LogWarning("Không tìm thấy đánh giá có id {Id} để cập nhật.", id);
+            return NotFound();
+        }
+
+        _mapper.Map(viewModel, testimonial);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật đánh giá của {ClientName}", viewModel.ClientName);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đánh giá.");
+        }
+
         return View(viewModel);
     }
 
@@ -202,19 +215,11 @@ public partial class TestimonialController
 
     private List<SelectListItem> GetRatingOptions(int? selectedValue)
     {
-        var items = new List<SelectListItem>
+        return [.. Enumerable.Range(1, 5).Select(i => new SelectListItem
         {
-            new() { Value = "", Text = "Tất cả xếp hạng", Selected = !selectedValue.HasValue }
-        };
-        for (int i = 5; i >= 1; i--)
-        {
-            items.Add(new SelectListItem
-            {
-                Value = i.ToString(),
-                Text = $"{i} sao",
+            Value = i.ToString(),
+            Text = $"{i} sao",
                 Selected = selectedValue.HasValue && selectedValue.Value == i
-            });
-        }
-        return items;
+        })];
     }
 }
