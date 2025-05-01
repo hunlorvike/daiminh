@@ -6,7 +6,7 @@ using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels.Article;
 
-public class ArticleViewModel
+public class ArticleViewModel : SeoViewModel
 {
     [HiddenInput(DisplayValue = false)]
     public int Id { get; set; }
@@ -81,5 +81,4 @@ public class ArticleViewModel
     public List<SelectListItem>? StatusOptions { get; set; }
     public List<SelectListItem>? TagOptions { get; set; }
     public List<SelectListItem>? ProductOptions { get; set; }
-    public SeoViewModel Seo { get; set; } = new();
 }

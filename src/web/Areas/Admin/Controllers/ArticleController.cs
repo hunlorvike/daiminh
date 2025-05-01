@@ -98,11 +98,8 @@ public partial class ArticleController : Controller
             IsFeatured = false,
             Status = PublishStatus.Draft,
             PublishedAt = DateTime.UtcNow,
-            Seo = new ViewModels.Shared.SeoViewModel
-            {
-                SitemapPriority = 0.5,
-                SitemapChangeFrequency = "monthly"
-            },
+            SitemapPriority = 0.5,
+            SitemapChangeFrequency = "monthly",
             AuthorName = User.Identity?.Name
         };
 

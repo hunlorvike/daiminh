@@ -55,7 +55,7 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
              .NotNull().When(x => x.Status == PublishStatus.Published || x.Status == PublishStatus.Scheduled)
              .WithMessage("Ngày xuất bản không được để trống khi trạng thái là Đã xuất bản hoặc Đã lên lịch.");
 
-        RuleFor(x => x.Seo).SetValidator(new SeoViewModelValidator());
+        Include(new SeoViewModelValidator());
     }
 
     private bool BeUniqueSlug(ArticleViewModel viewModel, string slug)
