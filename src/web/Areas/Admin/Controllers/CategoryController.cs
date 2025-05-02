@@ -421,7 +421,7 @@ public partial class CategoryController
                 Selected = selectedType.HasValue && t == selectedType.Value
             })
             .OrderBy(t => t.Text));
-       
+
         return items;
     }
 

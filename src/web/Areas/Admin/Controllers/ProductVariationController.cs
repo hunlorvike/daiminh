@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.Validators.ProductVariation;
 using web.Areas.Admin.ViewModels.ProductVariation;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
@@ -31,68 +32,50 @@ public partial class ProductVariationController : Controller
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    // GET: Admin/ProductVariation/Index/{productId}
-    // Lists variations for a specific product
-    [Route("Admin/ProductVariation/Index/{productId}")]
+    // GET: Admin/ProductVariation
     public async Task<IActionResult> Index(int productId, ProductVariationFilterViewModel filter, int page = 1, int pageSize = 25)
     {
-        var product = await _context.Set<Product>().AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId);
+        var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId);
         if (product == null)
         {
-            return NotFound("Product not found."); // Variations must belong to a product
+            TempData["ErrorMessage"] = "Không tìm thấy sản phẩm.";
+            return RedirectToAction("Index", "Product");
         }
 
-        filter ??= new ProductVariationFilterViewModel();
+        filter ??= new ProductVariationFilterViewModel { ProductId = productId };
+        filter.ProductId = productId;
+
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 25;
 
         IQueryable<ProductVariation> query = _context.Set<ProductVariation>()
-                                             .Where(pv => pv.ProductId == productId)
-                                             .Include(pv => pv.Product) // Include parent product
-                                                                        // Crucially, include the relationships needed for the AttributeCombinationResolver
-                                             .Include(pv => pv.ProductVariationAttributeValues)
-                                                 .ThenInclude(pvav => pvav.AttributeValue)
-                                                     .ThenInclude(av => av.Attribute) // Include Attribute from AttributeValue
-                                             .AsNoTracking();
-
-        // Apply filters
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            // Searching variations by text attributes is hard without complex setup.
-            // We'll ignore SearchTerm for now or implement later if needed via joins/full-text search.
-            // As per the ViewModel, SearchTerm isn't tied to any specific filter logic yet.
-        }
+                                                     .Where(v => v.ProductId == productId)
+                                                     .Include(v => v.ProductVariationAttributeValues!)
+                                                        .ThenInclude(pvav => pvav.AttributeValue)
+                                                            .ThenInclude(av => av.Attribute)
+                                                     .AsNoTracking();
 
         if (filter.IsActive.HasValue)
         {
-            query = query.Where(pv => pv.IsActive == filter.IsActive.Value);
+            query = query.Where(v => v.IsActive == filter.IsActive.Value);
         }
 
         if (filter.IsDefault.HasValue)
         {
-            query = query.Where(pv => pv.IsDefault == filter.IsDefault.Value);
+            query = query.Where(v => v.IsDefault == filter.IsDefault.Value);
         }
 
-        if (filter.InStock.HasValue)
-        {
-            query = filter.InStock.Value ? query.Where(pv => pv.StockQuantity > 0) : query.Where(pv => pv.StockQuantity <= 0);
-        }
-
-
-        query = query.OrderBy(pv => pv.IsDefault == false) // Default variations first
-                     .ThenByDescending(pv => pv.CreatedAt); // Then by creation date
-
+        query = query.OrderByDescending(v => v.IsDefault)
+                     .ThenBy(v => v.CreatedAt);
 
         var variationsPaged = await query.ProjectTo<ProductVariationListItemViewModel>(_mapper.ConfigurationProvider)
-                                         .ToPagedListAsync(pageNumber, currentPageSize);
+                                        .ToPagedListAsync(pageNumber, currentPageSize);
 
-        // Populate filter options
-        filter.IsActiveOptions = GetYesNoSelectList(filter.IsActive, "Tất cả");
+
+        filter.StatusOptions = GetYesNoSelectList(filter.IsActive, "Tất cả");
         filter.IsDefaultOptions = GetYesNoSelectList(filter.IsDefault, "Tất cả");
-        filter.InStockOptions = GetInStockSelectList(filter.InStock); // Need a helper for InStock
 
-        // Pass product info and variations to the view
-        var viewModel = new ProductVariationIndexViewModel
+        ProductVariationIndexViewModel viewModel = new()
         {
             ProductId = productId,
             ProductName = product.Name,
@@ -100,280 +83,191 @@ public partial class ProductVariationController : Controller
             Filter = filter
         };
 
-
         return View(viewModel);
     }
 
-    // GET: Admin/ProductVariation/Create/{productId}
-    [Route("Admin/ProductVariation/Create/{productId}")]
+    // GET: Admin/ProductVariation/Create
     public async Task<IActionResult> Create(int productId)
     {
-        var product = await _context.Set<Product>()
-                                    .Include(p => p.ProductAttributes) // Need attributes linked to the product
-                                        .ThenInclude(pa => pa.Attribute) // Need the Attribute details
-                                    .AsNoTracking()
-                                    .FirstOrDefaultAsync(p => p.Id == productId);
-
+        var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId);
         if (product == null)
         {
-            return NotFound("Product not found.");
+            TempData["ErrorMessage"] = "Không tìm thấy sản phẩm để tạo biến thể.";
+            return RedirectToAction("Index", "Product");
         }
-
-        // Check if product has attributes. If not, variations might not be needed/possible via attribute values.
-        // Or maybe a single 'default' variation is always allowed regardless of attributes?
-        // For this implementation, we assume variations are based on product attributes.
-        if (product.ProductAttributes == null || !product.ProductAttributes.Any())
-        {
-            ModelState.AddModelError("", $"Sản phẩm '{product.Name}' chưa được gán thuộc tính nào. Vui lòng gán thuộc tính cho sản phẩm trước khi tạo biến thể.");
-            // Redirect back to product edit? Or display error and keep on empty create page?
-            // Redirecting seems better UX if variations MUST be based on attributes.
-            // return RedirectToAction("Edit", "Product", new { id = productId }); // Need ProductController Edit action
-            // For now, just display the error on the variation create page.
-        }
-
 
         ProductVariationViewModel viewModel = new()
         {
             ProductId = productId,
             ProductName = product.Name,
-            IsActive = true, // Default to active
-            StockQuantity = 0 // Default stock
-            // IsDefault should be false by default unless it's the very first variation
+            Price = 0,
+            StockQuantity = 0,
+            IsActive = true,
+            IsDefault = false,
         };
 
-        // Populate select lists (Attribute Values based on product attributes)
-        await PopulateViewModelSelectListsAsync(viewModel, product.ProductAttributes?.Select(pa => pa.AttributeId).ToList());
-
-        // Store parent product attributes in the ViewModel for the view to render attribute selectors
-        viewModel.ParentProductAttributes = product.ProductAttributes?.Select(pa => pa.Attribute).ToList();
-
+        await PopulateViewModelSelectListsAsync(viewModel);
 
         return View(viewModel);
     }
 
-    // POST: Admin/ProductVariation/Create/{productId}
-    [Route("Admin/ProductVariation/Create/{productId}")]
+    // POST: Admin/ProductVariation/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(int productId, ProductVariationViewModel viewModel)
+    public async Task<IActionResult> Create(ProductVariationViewModel viewModel)
     {
-        if (productId != viewModel.ProductId)
-        {
-            return BadRequest("Product ID mismatch.");
-        }
-
-        var product = await _context.Set<Product>()
-                                    .Include(p => p.ProductAttributes)
-                                       .ThenInclude(pa => pa.Attribute)
-                                    .FirstOrDefaultAsync(p => p.Id == productId);
-
+        var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == viewModel.ProductId);
         if (product == null)
         {
-            return NotFound("Product not found.");
+            TempData["ErrorMessage"] = "Sản phẩm cha không tồn tại.";
+            return RedirectToAction("Index", "Product");
         }
+        viewModel.ProductName = product.Name;
 
-        // Need to manually add ProductAttributes to the ViewModel's validation context
-        // so the validator can check attribute value selections against them.
-        // This is a limitation/quirk when validation depends on related data not directly in the ViewModel.
-        // Alternative: Load ProductAttributes inside the validator itself (current implementation does this).
 
-        if (ModelState.IsValid)
+        var result = await new ProductVariationViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            ProductVariation variation = _mapper.Map<ProductVariation>(viewModel);
-            variation.ProductId = productId; // Ensure ProductId is correct
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            // Handle IsDefault logic: If this one is set to default, un-default others
-            if (variation.IsDefault)
-            {
-                await ClearDefaultVariationsAsync(productId);
-            }
-            else
-            {
-                // If no variations exist or none is marked default, make the first one default
-                var anyExistingVariations = await _context.Set<ProductVariation>().AnyAsync(pv => pv.ProductId == productId && pv.Id != viewModel.Id);
-                if (!anyExistingVariations)
-                {
-                    variation.IsDefault = true; // Make the very first variation default
-                }
-            }
-
-
-            // Handle ProductVariationAttributeValues relationship
-            UpdateVariationAttributeValues(variation, viewModel.SelectedAttributeValueIds);
-
-            _context.Add(variation);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { productId = productId });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating product variation for product ID {ProductId}.", productId);
-                // Check for potential unique constraint violation on AttributeValue combination
-                if (ex is DbUpdateException dbEx && dbEx.InnerException?.Message.Contains("idx_product_variation_unique_attribute_combination") == true) // Assuming you add this unique index in EF config
-                {
-                    ModelState.AddModelError("", "Một biến thể với sự kết hợp các thuộc tính này đã tồn tại.");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu biến thể sản phẩm.");
-                }
-            }
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
         }
 
-        // If validation fails, re-populate select lists and product attributes for the view
-        viewModel.ProductName = product.Name; // Ensure product name is retained
-        await PopulateViewModelSelectListsAsync(viewModel, product.ProductAttributes?.Select(pa => pa.AttributeId).ToList());
-        viewModel.ParentProductAttributes = product.ProductAttributes?.Select(pa => pa.Attribute).ToList();
+        if (viewModel.IsDefault)
+        {
+            await SetOtherVariationsNonDefaultAsync(viewModel.ProductId, 0);
+        }
 
+
+        var variation = _mapper.Map<ProductVariation>(viewModel);
+
+        if (viewModel.SelectedAttributeValueIds != null && viewModel.SelectedAttributeValueIds.Any())
+        {
+            variation.ProductVariationAttributeValues = viewModel.SelectedAttributeValueIds
+                .Select(avId => new ProductVariationAttributeValue { AttributeValueId = avId })
+                .ToList();
+        }
+
+        _context.Add(variation);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã thêm biến thể thành công cho sản phẩm '{product.Name}'.";
+            return RedirectToAction(nameof(Index), new { productId = viewModel.ProductId });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi DB khi thêm biến thể cho sản phẩm ID: {ProductId}. ViewModel: {@ViewModel}", viewModel.ProductId, viewModel);
+            ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu biến thể. Có thể do trùng lặp thuộc tính hoặc dữ liệu không hợp lệ.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi không xác định khi thêm biến thể cho sản phẩm ID: {ProductId}. ViewModel: {@ViewModel}", viewModel.ProductId, viewModel);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu biến thể.");
+        }
+
+        await PopulateViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
 
-
     // GET: Admin/ProductVariation/Edit/5
-    [Route("Admin/ProductVariation/Edit/{id}")]
     public async Task<IActionResult> Edit(int id)
     {
-        ProductVariation? variation = await _context.Set<ProductVariation>()
-                                         .Include(pv => pv.Product) // Need parent product
-                                         .Include(pv => pv.ProductVariationAttributeValues) // Need linked attribute values
-                                         .AsNoTracking() // Use AsNoTracking for GET
-                                         .FirstOrDefaultAsync(pv => pv.Id == id);
+        var variation = await _context.Set<ProductVariation>()
+                                      .Include(v => v.Product)
+                                      .Include(v => v.ProductVariationAttributeValues!)
+                                          .ThenInclude(pvav => pvav.AttributeValue)
+                                      .AsNoTracking()
+                                      .FirstOrDefaultAsync(v => v.Id == id);
 
         if (variation == null)
         {
-            return NotFound();
-        }
-        if (variation.Product == null)
-        {
-            // Should not happen with Include(pv => pv.Product) but defensive check
-            return NotFound("Parent product not found for this variation.");
+            _logger.LogWarning("Không tìm thấy biến thể để chỉnh sửa. ID: {Id}", id);
+            TempData["ErrorMessage"] = "Không tìm thấy biến thể.";
+            return RedirectToAction("Index", "Product", new { area = "Admin" });
         }
 
         ProductVariationViewModel viewModel = _mapper.Map<ProductVariationViewModel>(variation);
+        viewModel.ProductName = variation.Product.Name;
 
-        // Load attributes for the parent product to render attribute selectors
-        var productAttributes = await _context.Set<ProductAttribute>()
-                                              .Where(pa => pa.ProductId == variation.ProductId)
-                                              .Include(pa => pa.Attribute)
-                                              .Select(pa => pa.Attribute!) // Assuming Attribute is never null if ProductAttribute exists
-                                              .AsNoTracking()
-                                              .ToListAsync();
-
-        viewModel.ParentProductAttributes = productAttributes;
-
-        // Populate select lists (Attribute Values based on product attributes)
-        await PopulateViewModelSelectListsAsync(viewModel, productAttributes.Select(a => a.Id).ToList());
-
+        await PopulateViewModelSelectListsAsync(viewModel);
 
         return View(viewModel);
     }
 
     // POST: Admin/ProductVariation/Edit/5
-    [Route("Admin/ProductVariation/Edit/{id}")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProductVariationViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
-
-            ProductVariation? variation = await _context.Set<ProductVariation>()
-                                             .Include(pv => pv.ProductVariationAttributeValues) // Include relationships to update them
-                                             .FirstOrDefaultAsync(pv => pv.Id == id);
-
-            if (variation == null)
-            {
-                return RedirectToAction(nameof(Index), new { productId = viewModel.ProductId }); // Redirect back to product's variation list
-            }
-
-            // Get parent product for validation context and select lists if needed on error
-            var product = await _context.Set<Product>()
-                                        .Include(p => p.ProductAttributes)
-                                           .ThenInclude(pa => pa.Attribute)
-                                        .FirstOrDefaultAsync(p => p.Id == variation.ProductId); // Use variation's ProductId
-
-            if (product == null)
-            {
-                return NotFound("Parent product not found for this variation."); // Data integrity issue
-            }
-
-            // Manually add ProductAttributes to the ViewModel's validation context
-            // (Or ensure validator loads them - current validator loads them)
-
-            // Handle IsDefault logic BEFORE mapping, based on incoming viewModel value
-            bool shouldBecomeDefault = viewModel.IsDefault; // Store the desired state
-            if (shouldBecomeDefault && !variation.IsDefault) // If it wasn't default but should be now
-            {
-                await ClearDefaultVariationsAsync(variation.ProductId, id); // Clear others, excluding this one
-            }
-            // Note: If viewModel.IsDefault is false, we don't clear others.
-            // If the *last* default is unchecked, no variation will be default until one is manually set.
-            // An alternative is to auto-assign a new default if the current default is unchecked.
-            // Let's keep it simple for now: only clear others if this one is explicitly set to default.
-
-
-            // Map basic properties from ViewModel to Entity
-            _mapper.Map(viewModel, variation);
-
-            // If it was already default and remained default, or if it was unset, re-apply the stored state
-            // This ensures we don't accidentally re-default others if it was already default.
-            variation.IsDefault = shouldBecomeDefault; // Apply the desired state from ViewModel
-
-
-            // Handle ProductVariationAttributeValues relationship (add/remove links)
-            UpdateVariationAttributeValues(variation, viewModel.SelectedAttributeValueIds);
-
-
-            try
-            {
-                _context.Update(variation); // Mark as updated
-                await _context.SaveChangesAsync();
-
-                // After save, check if any variation is default. If not, set the first one found as default.
-                var hasDefault = await _context.Set<ProductVariation>().AnyAsync(pv => pv.ProductId == variation.ProductId && pv.IsDefault);
-                if (!hasDefault)
-                {
-                    var firstVariation = await _context.Set<ProductVariation>()
-                                                      .Where(pv => pv.ProductId == variation.ProductId)
-                                                      .OrderBy(pv => pv.Id) // Or some other consistent order
-                                                      .FirstOrDefaultAsync();
-                    if (firstVariation != null)
-                    {
-                        firstVariation.IsDefault = true;
-                        _context.Update(firstVariation);
-                        await _context.SaveChangesAsync(); // Save again
-                    }
-                }
-
-                return RedirectToAction(nameof(Index), new { productId = variation.ProductId });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating product variation with ID {VariationId}.", id);
-                if (ex is DbUpdateException dbEx && dbEx.InnerException?.Message.Contains("idx_product_variation_unique_attribute_combination") == true) // Assuming unique index name
-                {
-                    ModelState.AddModelError("", "Một biến thể với sự kết hợp các thuộc tính này đã tồn tại.");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật biến thể sản phẩm.");
-                }
-            }
-
-            // If validation fails or save fails, re-populate data for the view
-            viewModel.ProductName = product.Name; // Ensure product name is retained
-            var productAttributes = product.ProductAttributes?.Select(pa => pa.Attribute!).ToList() ?? new List<domain.Entities.Attribute>();
-            viewModel.ParentProductAttributes = productAttributes;
-            await PopulateViewModelSelectListsAsync(viewModel, productAttributes.Select(a => a.Id).ToList());
+            _logger.LogWarning("ID không khớp khi cập nhật biến thể. URL: {Id}, ViewModel: {ModelId}", id, viewModel.Id);
+            return BadRequest();
         }
 
+        var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == viewModel.ProductId);
+        if (product == null)
+        {
+            TempData["ErrorMessage"] = "Sản phẩm cha không tồn tại.";
+            return RedirectToAction("Index", "Product");
+        }
+        viewModel.ProductName = product.Name;
+
+
+        var result = await new ProductVariationViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!result.IsValid)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
+
+        var variationToUpdate = await _context.Set<ProductVariation>()
+                                             .Include(v => v.ProductVariationAttributeValues)
+                                             .FirstOrDefaultAsync(v => v.Id == id);
+
+        if (variationToUpdate == null)
+        {
+            _logger.LogWarning("Không tìm thấy biến thể để cập nhật sau validation. ID: {Id}", id);
+            TempData["ErrorMessage"] = "Không tìm thấy biến thể để cập nhật.";
+            return RedirectToAction("Index", "Product");
+        }
+
+        if (viewModel.IsDefault)
+        {
+            await SetOtherVariationsNonDefaultAsync(viewModel.ProductId, viewModel.Id);
+        }
+
+
+        _mapper.Map(viewModel, variationToUpdate);
+
+        UpdateProductVariationRelationships(variationToUpdate, viewModel.SelectedAttributeValueIds);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã cập nhật biến thể thành công cho sản phẩm '{product.Name}'.";
+            return RedirectToAction(nameof(Index), new { productId = viewModel.ProductId });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi DB khi cập nhật biến thể ID: {Id}. ViewModel: {@ViewModel}", id, viewModel);
+            ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu biến thể. Có thể do trùng lặp thuộc tính hoặc dữ liệu không hợp lệ.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi hệ thống khi cập nhật biến thể ID: {Id}. ViewModel: {@ViewModel}", id, viewModel);
+            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
+        }
+
+        await PopulateViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
 
@@ -382,109 +276,105 @@ public partial class ProductVariationController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        ProductVariation? variation = await _context.Set<ProductVariation>()
-                                            .Include(pv => pv.Product) // To get ProductId and Name for redirect/message
-                                            .FirstOrDefaultAsync(pv => pv.Id == id);
-
+        var variation = await _context.Set<ProductVariation>().FirstOrDefaultAsync(v => v.Id == id);
         if (variation == null)
         {
-            return Json(new { success = false, message = "Không tìm thấy biến thể sản phẩm." });
+            _logger.LogWarning("Không tìm thấy biến thể để xóa. ID: {Id}", id);
+            return Json(new { success = false, message = "Không tìm thấy biến thể." });
         }
 
+        var productName = await _context.Products.AsNoTracking().Where(p => p.Id == variation.ProductId).Select(p => p.Name).FirstOrDefaultAsync();
         int productId = variation.ProductId;
-        string productName = variation.Product?.Name ?? "Sản phẩm không xác định"; // Get name before deleting
 
         try
         {
-            bool wasDefault = variation.IsDefault;
             _context.Remove(variation);
             await _context.SaveChangesAsync();
-
-            // If the deleted variation was the default one, find a new default
-            if (wasDefault)
-            {
-                var firstVariation = await _context.Set<ProductVariation>()
-                                                   .Where(pv => pv.ProductId == productId)
-                                                   .OrderBy(pv => pv.Id) // Or some other consistent order
-                                                   .FirstOrDefaultAsync();
-                if (firstVariation != null)
-                {
-                    firstVariation.IsDefault = true;
-                    _context.Update(firstVariation);
-                    await _context.SaveChangesAsync(); // Save the new default
-                }
-            }
-
-            return Json(new { success = true, message = $"Xóa biến thể thành công.", redirectUrl = Url.Action(nameof(Index), new { productId = productId }) });
+            _logger.LogInformation("Đã xóa biến thể ID: {Id} cho sản phẩm '{ProductName}' (ID: {ProductId})", id, productName, productId);
+            return Json(new { success = true, message = $"Xóa biến thể thành công cho sản phẩm '{productName}'." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting product variation with ID {VariationId}.", id);
-            // Check for FK issues if variations are linked to order items, etc. (Beyond current scope)
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa biến thể sản phẩm." });
+            _logger.LogError(ex, "Lỗi khi xóa biến thể ID: {Id} cho sản phẩm '{ProductName}' (ID: {ProductId})", id, productName, productId);
+            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa biến thể." });
         }
     }
 }
 
 public partial class ProductVariationController
 {
-    // Helper to populate AttributeValue select lists for the ViewModel
-    // Only loads values for attributes specified in allowedAttributeIds
-    private async Task PopulateViewModelSelectListsAsync(ProductVariationViewModel viewModel, List<int>? allowedAttributeIds)
+    private async Task PopulateViewModelSelectListsAsync(ProductVariationViewModel viewModel)
     {
-        if (allowedAttributeIds == null || !allowedAttributeIds.Any())
-        {
-            viewModel.AttributeValueOptionsByAttribute = new Dictionary<int, List<SelectListItem>>();
-            return;
-        }
-
-        // Fetch all AttributeValues for the allowed attributes
-        var attributeValues = await _context.Set<AttributeValue>()
-                                            .Where(av => allowedAttributeIds.Contains(av.AttributeId))
-                                            .AsNoTracking()
-                                            .ToListAsync();
-
-        viewModel.AttributeValueOptionsByAttribute = attributeValues
-            .GroupBy(av => av.AttributeId)
-            .ToDictionary(
-                group => group.Key,
-                group => group.Select(av => new SelectListItem
-                {
-                    Value = av.Id.ToString(),
-                    Text = av.Value,
-                    Selected = viewModel.SelectedAttributeValueIds != null && viewModel.SelectedAttributeValueIds.Contains(av.Id)
-                }).ToList()
-            );
+        viewModel.AttributeValueOptions = await LoadAttributeValueSelectListAsync(viewModel.ProductId, viewModel.SelectedAttributeValueIds);
     }
 
-    // Helper to clear the IsDefault flag for all other variations of a product
-    private async Task ClearDefaultVariationsAsync(int productId, int? excludeVariationId = null)
+    private async Task<List<SelectListItem>> LoadAttributeValueSelectListAsync(int productId, List<int>? selectedValues = null)
     {
-        var query = _context.Set<ProductVariation>()
-                            .Where(pv => pv.ProductId == productId && pv.IsDefault);
+        var productAttributeIds = await _context.ProductAttributes
+            .Where(pa => pa.ProductId == productId)
+            .Select(pa => pa.AttributeId)
+            .ToListAsync();
 
-        if (excludeVariationId.HasValue)
+        if (!productAttributeIds.Any())
         {
-            query = query.Where(pv => pv.Id != excludeVariationId.Value);
+            return new List<SelectListItem>();
         }
 
-        await query.ForEachAsync(pv => pv.IsDefault = false);
-        // Note: Changes are tracked but not saved here. SaveChangesAsync is called after this.
-    }
+        var attributeValues = await _context.AttributeValues
+                          .Where(av => productAttributeIds.Contains(av.AttributeId))
+                          .Include(av => av.Attribute)
+                          .AsNoTracking()
+                          .Select(av => new { av.Id, av.Value, AttributeName = av.Attribute!.Name })
+                          .ToListAsync();
 
-
-    // Helper to generate SelectListItems for InStock filter
-    private List<SelectListItem> GetInStockSelectList(bool? selectedValue)
-    {
-        return new List<SelectListItem>
+        var items = new List<SelectListItem>
         {
-            new SelectListItem { Value = "", Text = "Tất cả", Selected = !selectedValue.HasValue },
-            new SelectListItem { Value = "true", Text = "Còn hàng", Selected = selectedValue == true },
-            new SelectListItem { Value = "false", Text = "Hết hàng", Selected = selectedValue == false }
         };
+
+        items.AddRange(attributeValues.Select(av => new SelectListItem
+        {
+            Value = av.Id.ToString(),
+            Text = $"{av.AttributeName}: {av.Value}",
+            Selected = selectedValues != null && selectedValues.Contains(av.Id)
+        }));
+
+        return items;
     }
 
-    // Helper to generate Yes/No SelectListItems (already exists in ArticleController, put in Shared?)
+    private async Task SetOtherVariationsNonDefaultAsync(int productId, int currentVariationId = 0)
+    {
+        var otherDefaultVariations = await _context.ProductVariations
+            .Where(v => v.ProductId == productId && v.Id != currentVariationId && v.IsDefault)
+            .ToListAsync();
+
+        foreach (var variation in otherDefaultVariations)
+        {
+            variation.IsDefault = false;
+            _context.Entry(variation).State = EntityState.Modified;
+        }
+    }
+
+    private void UpdateProductVariationRelationships(
+        ProductVariation variation,
+        List<int>? selectedAttributeValueIds)
+    {
+        var existingValueIds = variation.ProductVariationAttributeValues?.Select(pvav => pvav.AttributeValueId).ToList() ?? new List<int>();
+        var valueIdsToAdd = selectedAttributeValueIds?.Except(existingValueIds).ToList() ?? new List<int>();
+        var valueIdsToRemove = existingValueIds.Except(selectedAttributeValueIds ?? new List<int>()).ToList();
+
+        foreach (var valueId in valueIdsToRemove)
+        {
+            var pvav = variation.ProductVariationAttributeValues!.First(pa => pa.AttributeValueId == valueId);
+            _context.Remove(pvav);
+        }
+
+        foreach (var valueId in valueIdsToAdd)
+        {
+            variation.ProductVariationAttributeValues ??= new List<ProductVariationAttributeValue>();
+            variation.ProductVariationAttributeValues.Add(new ProductVariationAttributeValue { ProductVariation = variation, AttributeValueId = valueId });
+        }
+    }
+
     private List<SelectListItem> GetYesNoSelectList(bool? selectedValue, string allText = "Tất cả")
     {
         return new List<SelectListItem>
@@ -493,42 +383,5 @@ public partial class ProductVariationController
             new SelectListItem { Value = "true", Text = "Có", Selected = selectedValue == true },
             new SelectListItem { Value = "false", Text = "Không", Selected = selectedValue == false }
         };
-    }
-
-
-    // Helper to update ProductVariationAttributeValues collection
-    private void UpdateVariationAttributeValues(ProductVariation variation, List<int>? selectedAttributeValueIds)
-    {
-        var existingValueIds = variation.ProductVariationAttributeValues?.Select(pvav => pvav.AttributeValueId).ToList() ?? new List<int>();
-        var valueIdsToAdd = selectedAttributeValueIds?.Except(existingValueIds).ToList() ?? new List<int>();
-        var valueIdsToRemove = existingValueIds.Except(selectedAttributeValueIds ?? new List<int>()).ToList();
-
-        // Remove relationships
-        if (variation.ProductVariationAttributeValues != null) // Ensure collection exists
-        {
-            foreach (var valueId in valueIdsToRemove)
-            {
-                var pvav = variation.ProductVariationAttributeValues.First(pvav => pvav.AttributeValueId == valueId);
-                _context.Remove(pvav); // Mark for deletion
-            }
-        }
-
-
-        // Add new relationships
-        variation.ProductVariationAttributeValues ??= new List<ProductVariationAttributeValue>(); // Initialize if null
-        foreach (var valueId in valueIdsToAdd)
-        {
-            // Ensure the AttributeValue exists before creating the link (validation should handle this, but defensive)
-            // Check if the link already exists (shouldn't if using Except/Contains, but defensive)
-            if (!_context.Set<AttributeValue>().Any(av => av.Id == valueId) || variation.ProductVariationAttributeValues.Any(pvav => pvav.AttributeValueId == valueId))
-            {
-                _logger.LogWarning("Attempted to add invalid or duplicate AttributeValueId {AttributeValueId} to variation {VariationId}", valueId, variation.Id);
-                continue; // Skip if invalid or already exists
-            }
-            variation.ProductVariationAttributeValues.Add(new ProductVariationAttributeValue { ProductVariationId = variation.Id, AttributeValueId = valueId });
-        }
-
-        // Re-sync the collection reference (optional but can help with complex scenarios)
-        variation.ProductVariationAttributeValues = variation.ProductVariationAttributeValues.Where(pvav => !_context.Entry(pvav).State.HasFlag(EntityState.Deleted)).ToList();
     }
 }

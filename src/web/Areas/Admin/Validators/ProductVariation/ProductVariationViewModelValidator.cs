@@ -1,4 +1,3 @@
-using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -15,132 +14,112 @@ public class ProductVariationViewModelValidator : AbstractValidator<ProductVaria
         _context = context ?? throw new ArgumentNullException(nameof(context));
 
         RuleFor(x => x.ProductId)
-            .NotEmpty().WithMessage("Sản phẩm gốc không được để trống.");
+            .NotEmpty().WithMessage("Biến thể phải thuộc về một Sản phẩm.")
+            .Must(ProductExists).WithMessage("Sản phẩm cha không tồn tại.");
 
         RuleFor(x => x.Price)
-            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
-            .GreaterThan(0).WithMessage("{PropertyName} phải lớn hơn 0.");
+            .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");
 
         RuleFor(x => x.SalePrice)
-             .GreaterThan(0).When(x => x.SalePrice.HasValue).WithMessage("{PropertyName} phải lớn hơn 0.")
-             .LessThanOrEqualTo(x => x.Price).When(x => x.SalePrice.HasValue).WithMessage("{PropertyName} phải nhỏ hơn hoặc bằng Giá bán.");
+            .GreaterThanOrEqualTo(0).When(x => x.SalePrice.HasValue).WithMessage("{PropertyName} phải là số không âm.")
+            .LessThanOrEqualTo(x => x.Price).When(x => x.SalePrice.HasValue && x.Price > 0).WithMessage("{PropertyName} phải nhỏ hơn hoặc bằng Giá bán.");
 
         RuleFor(x => x.StockQuantity)
             .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");
 
         RuleFor(x => x.ImageUrl)
-            .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.ImageUrl));
+            .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.ImageUrl)).WithMessage("URL Ảnh không được vượt quá {MaxLength} ký tự.");
 
         RuleFor(x => x.SelectedAttributeValueIds)
-            .NotEmpty().WithMessage("Vui lòng chọn các giá trị thuộc tính cho biến thể.")
-            .MustAsync(BeValidAttributeValuesAsync).WithMessage("Một hoặc nhiều giá trị thuộc tính được chọn không hợp lệ.")
-            .MustAsync(BelongToProductAttributesAsync).WithMessage("Một hoặc nhiều giá trị thuộc tính được chọn không thuộc các thuộc tính của sản phẩm này.")
-            .MustAsync(HaveOneValuePerProductAttributeAsync).WithMessage("Phải chọn chính xác một giá trị cho mỗi thuộc tính của sản phẩm này.");
+            .NotNull().WithMessage("Vui lòng chọn thuộc tính cho biến thể.")
+            .Must(BeValidAttributeValuesForProduct).WithMessage("Các thuộc tính được chọn không hợp lệ cho sản phẩm này.");
+
+        RuleFor(x => x)
+            .Must(BeUniqueAttributeValueCombinationForProduct).WithMessage("Biến thể với sự kết hợp thuộc tính này đã tồn tại cho sản phẩm này.");
+
+        When(x => x.IsDefault, () =>
+        {
+            RuleFor(x => x.IsDefault)
+                 .Must(BeOnlyDefaultVariation).WithMessage("Chỉ có thể có một biến thể mặc định cho mỗi sản phẩm.");
+        });
     }
 
-    private async Task<bool> BeValidAttributeValuesAsync(List<int>? valueIds, CancellationToken cancellationToken)
+    private bool ProductExists(int productId)
     {
-        if (valueIds == null || !valueIds.Any()) return true;
-
-        var distinctValueIds = valueIds.Distinct().ToList();
-        var existingCount = await _context.Set<domain.Entities.AttributeValue>()
-                                          .Where(av => distinctValueIds.Contains(av.Id))
-                                          .CountAsync(cancellationToken);
-
-        return existingCount == distinctValueIds.Count;
+        return _context.Products.Any(p => p.Id == productId);
     }
 
-    private async Task<bool> BelongToProductAttributesAsync(ProductVariationViewModel viewModel, List<int>? valueIds, CancellationToken cancellationToken)
+    private bool BeValidAttributeValuesForProduct(ProductVariationViewModel viewModel, List<int>? selectedAttributeValueIds)
     {
-        if (valueIds == null || !valueIds.Any()) return true;
-
-        var productAttributeIds = await _context.Set<ProductAttribute>()
-                                                .Where(pa => pa.ProductId == viewModel.ProductId)
-                                                .Select(pa => pa.AttributeId)
-                                                .ToListAsync(cancellationToken);
-
-        if (!productAttributeIds.Any())
+        if (selectedAttributeValueIds == null || !selectedAttributeValueIds.Any())
         {
-            return !valueIds.Any();
-        }
-
-        var selectedAttributeValueAttributeIds = await _context.Set<domain.Entities.AttributeValue>()
-                                                               .Where(av => valueIds.Contains(av.Id))
-                                                               .Select(av => av.AttributeId)
-                                                               .Distinct()
-                                                               .ToListAsync(cancellationToken);
-
-        return selectedAttributeValueAttributeIds.All(attrId => productAttributeIds.Contains(attrId));
-    }
-
-    private async Task<bool> HaveOneValuePerProductAttributeAsync(ProductVariationViewModel viewModel, List<int>? valueIds, CancellationToken cancellationToken)
-    {
-        if (valueIds == null) return false;
-
-        var productAttributeIds = await _context.Set<ProductAttribute>()
-                                               .Where(pa => pa.ProductId == viewModel.ProductId)
-                                               .Select(pa => pa.AttributeId)
-                                               .ToListAsync(cancellationToken);
-
-        if (!productAttributeIds.Any())
-        {
-            return !valueIds.Any();
-        }
-
-        var selectedAttributeIdsForValues = await _context.Set<domain.Entities.AttributeValue>()
-                                                          .Where(av => valueIds.Contains(av.Id))
-                                                          .Select(av => av.AttributeId)
-                                                          .Distinct()
-                                                          .ToListAsync(cancellationToken);
-
-        if (selectedAttributeIdsForValues.Count != productAttributeIds.Count)
-        {
-            return false;
-        }
-
-        foreach (var productAttrId in productAttributeIds)
-        {
-            var count = await _context.Set<domain.Entities.AttributeValue>()
-                                      .Where(av => valueIds.Contains(av.Id) && av.AttributeId == productAttrId)
-                                      .CountAsync(cancellationToken);
-            if (count != 1)
+            var requiredAttributeCountForProduct = _context.ProductAttributes
+                .Count(pa => pa.ProductId == viewModel.ProductId);
+            if (requiredAttributeCountForProduct > 0 && (selectedAttributeValueIds == null || !selectedAttributeValueIds.Any()))
             {
-                return false; 
+                return false;
+            }
+            return true;
+        }
+
+        var productAttributeIds = _context.ProductAttributes
+            .Where(pa => pa.ProductId == viewModel.ProductId)
+            .Select(pa => pa.AttributeId)
+            .ToList();
+
+        if (!productAttributeIds.Any())
+        {
+            return !selectedAttributeValueIds.Any();
+        }
+
+        var validAttributeValueIds = _context.AttributeValues
+            .Where(av => selectedAttributeValueIds.Contains(av.Id) && productAttributeIds.Contains(av.AttributeId))
+            .Select(av => av.Id)
+            .ToList();
+
+        return selectedAttributeValueIds.Count == validAttributeValueIds.Count;
+    }
+
+    private bool BeUniqueAttributeValueCombinationForProduct(ProductVariationViewModel viewModel)
+    {
+        if (viewModel.ProductId <= 0 || viewModel.SelectedAttributeValueIds == null || !viewModel.SelectedAttributeValueIds.Any())
+        {
+            return true;
+        }
+
+        var normalizedSelectedIds = viewModel.SelectedAttributeValueIds.OrderBy(id => id).ToList();
+
+        var existingVariations = _context.ProductVariations
+            .Where(v => v.ProductId == viewModel.ProductId && v.Id != viewModel.Id)
+            .Include(v => v.ProductVariationAttributeValues)
+            .ToList();
+
+        foreach (var existingVariation in existingVariations)
+        {
+            var existingIds = existingVariation.ProductVariationAttributeValues?
+                                             .Select(pvav => pvav.AttributeValueId)
+                                             .OrderBy(id => id)
+                                             .ToList() ?? new List<int>();
+
+            if (existingIds.SequenceEqual(normalizedSelectedIds))
+            {
+                return false;
             }
         }
 
-        return true; 
+        return true;
     }
 
-
-    private bool BeUniqueCombination(ProductVariationViewModel viewModel, List<int>? valueIds, CancellationToken cancellationToken)
+    private bool BeOnlyDefaultVariation(ProductVariationViewModel viewModel, bool isDefault)
     {
+        if (!isDefault)
+        {
+            return true;
+        }
 
-        //// Sort the IDs to compare combinations regardless of order
-        //var sortedSelectedValueIds = valueIds.OrderBy(id => id).ToList();
+        var otherDefaultVariationsCount = _context.ProductVariations
+            .Count(v => v.ProductId == viewModel.ProductId && v.Id != viewModel.Id && v.IsDefault);
 
-        //// Find variations for this product, excluding the one being edited (if any)
-        //var query = _context.Set<domain.Entities.AttributeValue>()
-        //                    .Where(pv => pv.ProductId == viewModel.ProductId && pv.Id != viewModel.Id)
-        //                    .Include(pv => pv.ProductVariationAttributeValues)
-        //                    .AsNoTracking();
-
-        //var existingVariations = await query.ToListAsync(cancellationToken);
-
-        //foreach (var existingVariation in existingVariations)
-        //{
-        //    var existingValueIds = existingVariation.ProductVariationAttributeValues?
-        //                                            .Select(pvav => pvav.AttributeValueId)
-        //                                            .OrderBy(id => id)
-        //                                            .ToList();
-
-        //    // Compare sorted lists
-        //    if (existingValueIds != null && existingValueIds.SequenceEqual(sortedSelectedValueIds))
-        //    {
-        //        return false; // Found a matching combination
-        //    }
-        //}
-
-        return true; 
+        return otherDefaultVariationsCount == 0;
     }
 }
