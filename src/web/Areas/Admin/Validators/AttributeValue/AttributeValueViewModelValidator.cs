@@ -24,10 +24,6 @@ public class AttributeValueViewModelValidator : AbstractValidator<AttributeValue
             .MaximumLength(100).When(x => !string.IsNullOrEmpty(x.Slug))
             .Matches("^[a-z0-9-]+$").When(x => !string.IsNullOrEmpty(x.Slug))
             .WithMessage("{PropertyName} chỉ được chứa chữ cái thường, số và dấu gạch ngang.");
-        // Note: Slug uniqueness is not strictly required across all values, only potentially within the same attribute, which is harder to validate here.
-
-        RuleFor(x => x.Description)
-            .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.Description));
 
         RuleFor(x => x.OrderIndex)
             .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");

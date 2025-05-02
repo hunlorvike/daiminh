@@ -31,23 +31,13 @@ public class ProductVariationViewModelValidator : AbstractValidator<ProductVaria
         RuleFor(x => x.ImageUrl)
             .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.ImageUrl));
 
-        // --- Validation for SelectedAttributeValueIds ---
-        // This is the complex part. We need to ensure:
-        // 1. All selected AttributeValueIds are valid and belong to actual AttributeValues.
-        // 2. Each selected AttributeValue belongs to an Attribute that is associated with the Parent Product (via ProductAttribute).
-        // 3. There is exactly ONE selected AttributeValue for EACH Attribute associated with the Parent Product.
-        // 4. The combination of selected AttributeValues is unique for this Product.
-
         RuleFor(x => x.SelectedAttributeValueIds)
             .NotEmpty().WithMessage("Vui lòng chọn các giá trị thuộc tính cho biến thể.")
             .MustAsync(BeValidAttributeValuesAsync).WithMessage("Một hoặc nhiều giá trị thuộc tính được chọn không hợp lệ.")
             .MustAsync(BelongToProductAttributesAsync).WithMessage("Một hoặc nhiều giá trị thuộc tính được chọn không thuộc các thuộc tính của sản phẩm này.")
             .MustAsync(HaveOneValuePerProductAttributeAsync).WithMessage("Phải chọn chính xác một giá trị cho mỗi thuộc tính của sản phẩm này.");
-        //.MustAsync(BeUniqueCombination).WithMessage("Một biến thể với sự kết hợp các thuộc tính này đã tồn tại.");
-
     }
 
-    // Helper to check if all selected AttributeValueIds are valid IDs
     private async Task<bool> BeValidAttributeValuesAsync(List<int>? valueIds, CancellationToken cancellationToken)
     {
         if (valueIds == null || !valueIds.Any()) return true;
@@ -60,12 +50,10 @@ public class ProductVariationViewModelValidator : AbstractValidator<ProductVaria
         return existingCount == distinctValueIds.Count;
     }
 
-    // Helper to check if selected AttributeValueIds belong to Attributes linked to the Product
     private async Task<bool> BelongToProductAttributesAsync(ProductVariationViewModel viewModel, List<int>? valueIds, CancellationToken cancellationToken)
     {
         if (valueIds == null || !valueIds.Any()) return true;
 
-        // Get the IDs of Attributes linked to the parent product
         var productAttributeIds = await _context.Set<ProductAttribute>()
                                                 .Where(pa => pa.ProductId == viewModel.ProductId)
                                                 .Select(pa => pa.AttributeId)
@@ -73,52 +61,43 @@ public class ProductVariationViewModelValidator : AbstractValidator<ProductVaria
 
         if (!productAttributeIds.Any())
         {
-            // If the product has no attributes configured, no values should be selected
             return !valueIds.Any();
         }
 
-        // Get the AttributeIds for the selected AttributeValueIds
         var selectedAttributeValueAttributeIds = await _context.Set<domain.Entities.AttributeValue>()
                                                                .Where(av => valueIds.Contains(av.Id))
                                                                .Select(av => av.AttributeId)
                                                                .Distinct()
                                                                .ToListAsync(cancellationToken);
 
-        // Check if all AttributeIds of selected values are present in the product's attribute IDs
         return selectedAttributeValueAttributeIds.All(attrId => productAttributeIds.Contains(attrId));
     }
 
-    // Helper to check if there is exactly one value selected per product attribute
     private async Task<bool> HaveOneValuePerProductAttributeAsync(ProductVariationViewModel viewModel, List<int>? valueIds, CancellationToken cancellationToken)
     {
-        if (valueIds == null) return false; // Handled by NotEmpty
+        if (valueIds == null) return false;
 
-        // Get the IDs of Attributes linked to the parent product
         var productAttributeIds = await _context.Set<ProductAttribute>()
                                                .Where(pa => pa.ProductId == viewModel.ProductId)
                                                .Select(pa => pa.AttributeId)
                                                .ToListAsync(cancellationToken);
 
-        // If the product has no attributes, there should be no selected values
         if (!productAttributeIds.Any())
         {
             return !valueIds.Any();
         }
 
-        // Get the AttributeIds for the selected AttributeValueIds
         var selectedAttributeIdsForValues = await _context.Set<domain.Entities.AttributeValue>()
                                                           .Where(av => valueIds.Contains(av.Id))
                                                           .Select(av => av.AttributeId)
                                                           .Distinct()
                                                           .ToListAsync(cancellationToken);
 
-        // Ensure the number of distinct selected AttributeIds equals the number of product attributes
         if (selectedAttributeIdsForValues.Count != productAttributeIds.Count)
         {
             return false;
         }
 
-        // Ensure each AttributeId of the product has exactly one value selected
         foreach (var productAttrId in productAttributeIds)
         {
             var count = await _context.Set<domain.Entities.AttributeValue>()
@@ -126,18 +105,16 @@ public class ProductVariationViewModelValidator : AbstractValidator<ProductVaria
                                       .CountAsync(cancellationToken);
             if (count != 1)
             {
-                return false; // Found an attribute with more or less than one value selected
+                return false; 
             }
         }
 
-        return true; // Passed all checks
+        return true; 
     }
 
 
-    // Helper to check if the combination of selected AttributeValues is unique for this Product
     private bool BeUniqueCombination(ProductVariationViewModel viewModel, List<int>? valueIds, CancellationToken cancellationToken)
     {
-        //if (valueIds == null || !valueIds.Any()) return true; // Handled by NotEmpty/HaveOneValuePerProductAttribute
 
         //// Sort the IDs to compare combinations regardless of order
         //var sortedSelectedValueIds = valueIds.OrderBy(id => id).ToList();
@@ -164,6 +141,6 @@ public class ProductVariationViewModelValidator : AbstractValidator<ProductVaria
         //    }
         //}
 
-        return true; // Combination is unique
+        return true; 
     }
 }

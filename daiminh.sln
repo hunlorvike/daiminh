@@ -30,6 +30,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{8EC462FD-D
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{6FB2BA5D-4828-4AD0-B784-8964F013F718}"
 	ProjectSection(SolutionItems) = preProject
+		docker-compose.db.yml = docker-compose.db.yml
+		docker-compose.minio.yml = docker-compose.minio.yml
+		docker-compose.web.yml = docker-compose.web.yml
 		docker-compose.yml = docker-compose.yml
 		Dockerfile = Dockerfile
 	EndProjectSection

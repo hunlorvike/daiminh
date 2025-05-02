@@ -12,8 +12,8 @@ public class SettingViewModelValidator : AbstractValidator<SettingViewModel>
         RuleFor(x => x.Value)
             .Must((model, value) => BeValidBasedOnType(model.Type, value))
             .WithMessage((model, value) => $"Giá trị nhập không hợp lệ cho loại '{model.Type}'. {GetExpectedFormatMessage(model.Type)}");
-        // Có thể thêm các rule khác như NotEmpty nếu cần cho một số Key cụ thể
 
+        // Có thể thêm các rule khác như NotEmpty nếu cần cho một số Key cụ thể
         // Ví dụ thêm rule cho một Key cụ thể nếu cần
         // When(x => x.Key == "SiteName", () => {
         //     RuleFor(x => x.Value).NotEmpty().WithMessage("Tên website không được để trống.");

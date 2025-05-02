@@ -18,19 +18,18 @@ public class ProductVariationProfile : Profile
         CreateMap<ProductVariation, ProductVariationViewModel>()
              .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "N/A"))
              .ForMember(dest => dest.SelectedAttributeValueIds, opt => opt.MapFrom(src => src.ProductVariationAttributeValues != null ? src.ProductVariationAttributeValues.Select(pvav => pvav.AttributeValueId).ToList() : new List<int>()))
-             .ForMember(dest => dest.AttributeValueOptionsByAttribute, opt => opt.Ignore()) // Populated in controller
-             .ForMember(dest => dest.ParentProductAttributes, opt => opt.Ignore()); // Populated in controller
+             .ForMember(dest => dest.AttributeValueOptionsByAttribute, opt => opt.Ignore())
+             .ForMember(dest => dest.ParentProductAttributes, opt => opt.Ignore());
 
         // ViewModel -> Entity (POST Create/Edit)
         CreateMap<ProductVariationViewModel, ProductVariation>()
-             .ForMember(dest => dest.Product, opt => opt.Ignore()) // Handled by ProductId FK
-             .ForMember(dest => dest.ProductVariationAttributeValues, opt => opt.Ignore()) // Managed in controller
-             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()) // CreatedAt is set by DB/BaseEntity logic
-             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow)); // Update UpdatedAt on save
+             .ForMember(dest => dest.Product, opt => opt.Ignore())
+             .ForMember(dest => dest.ProductVariationAttributeValues, opt => opt.Ignore())
+             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+             .ForMember(dest => dest.UpdatedAt, opt => opt.MapFrom(_ => DateTime.UtcNow));
     }
 }
 
-// Custom resolver to build the attribute combination string for the list view
 public class ProductVariationAttributeCombinationResolver : IValueResolver<ProductVariation, ProductVariationListItemViewModel, string>
 {
     private readonly ApplicationDbContext _context;

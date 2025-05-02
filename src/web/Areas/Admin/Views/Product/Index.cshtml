@@ -57,7 +57,7 @@
 								<i class="ti ti-category"></i>
 							</span>
 							<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions"
-									class="form-select">
+									class="form-select tom-selected">
 							</select>
 						</div>
 					</div>
@@ -69,7 +69,7 @@
 							<span class="input-group-text">
 								<i class="ti ti-building-store"></i>
 							</span>
-							<select asp-for="Filter.BrandId" asp-items="@Model.Filter.BrandOptions" class="form-select">
+							<select asp-for="Filter.BrandId" asp-items="@Model.Filter.BrandOptions" class="form-select tom-selected">
 							</select>
 						</div>
 					</div>
@@ -82,7 +82,7 @@
 								<i class="ti ti-eye"></i>
 							</span>
 							<select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions"
-									class="form-select"></select>
+									class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -94,7 +94,7 @@
 								<i class="ti ti-star"></i>
 							</span>
 							<select asp-for="Filter.IsFeatured" asp-items="@Model.Filter.IsFeaturedOptions"
-									class="form-select"></select>
+									class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>

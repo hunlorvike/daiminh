@@ -39,7 +39,7 @@ public partial class AttributeValueController : Controller
         int currentPageSize = pageSize > 0 ? pageSize : 25;
 
         IQueryable<AttributeValue> query = _context.Set<AttributeValue>()
-                                                .Include(av => av.Attribute) // Include parent attribute
+                                                .Include(av => av.Attribute)
                                                 .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -54,7 +54,7 @@ public partial class AttributeValueController : Controller
             query = query.Where(av => av.AttributeId == filter.AttributeId.Value);
         }
 
-        query = query.OrderBy(av => av.Attribute!.Name) // Order by parent attribute name
+        query = query.OrderBy(av => av.Attribute!.Name) 
                      .ThenBy(av => av.Value);
 
         var valuesPaged = await query.ProjectTo<AttributeValueListItemViewModel>(_mapper.ConfigurationProvider)

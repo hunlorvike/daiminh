@@ -14,12 +14,12 @@ public class AttributeValueProfile : Profile
 
         // Entity -> ViewModel (GET Edit)
         CreateMap<AttributeValue, AttributeValueViewModel>()
-            .ForMember(dest => dest.AttributeOptions, opt => opt.Ignore()); // Populated in controller
+            .ForMember(dest => dest.AttributeOptions, opt => opt.Ignore());
 
         // ViewModel -> Entity (POST Create / PUT Edit)
         CreateMap<AttributeValueViewModel, AttributeValue>()
-            .ForMember(dest => dest.Attribute, opt => opt.Ignore()) // Handled by FK
-            .ForMember(dest => dest.ProductVariationAttributeValues, opt => opt.Ignore()) // Managed separately
+            .ForMember(dest => dest.Attribute, opt => opt.Ignore())
+            .ForMember(dest => dest.ProductVariationAttributeValues, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
     }

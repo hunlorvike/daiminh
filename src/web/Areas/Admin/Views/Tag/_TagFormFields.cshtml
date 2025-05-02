@@ -38,7 +38,7 @@
                 <span class="input-group-text">
                     <i class="ti ti-category"></i>
                 </span>
-                <select asp-for="Type" asp-items="@Model.TagTypes" class="form-select" disabled="@(Model.Id > 0)"></select>
+                <select asp-for="Type" asp-items="@Model.TagTypes" class="form-select tom-selected" disabled="@(Model.Id > 0)"></select>
                 @if (Model.Id > 0)
                 {
                     <input type="hidden" asp-for="Type" />

@@ -16,8 +16,8 @@ public class AttributeProfile : Profile
 
         // ViewModel -> Entity (POST Create / PUT Edit)
         CreateMap<AttributeViewModel, domain.Entities.Attribute>()
-            .ForMember(dest => dest.Values, opt => opt.Ignore()) // Managed separately
-            .ForMember(dest => dest.ProductAttributes, opt => opt.Ignore()) // Managed separately
+            .ForMember(dest => dest.Values, opt => opt.Ignore())
+            .ForMember(dest => dest.ProductAttributes, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
     }

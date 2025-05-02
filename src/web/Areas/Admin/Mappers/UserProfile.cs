@@ -16,15 +16,15 @@ public class UserProfile : Profile
 
         // CreateViewModel -> Entity
         CreateMap<UserCreateViewModel, User>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // ID được tạo tự động
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Hash sẽ được tạo ở Controller
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
 
         // EditViewModel -> Entity
         CreateMap<UserEditViewModel, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore()) // Không bao giờ map mật khẩu từ EditViewModel
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore()); // Nên để DbContext tự cập nhật
+            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
     }
 }

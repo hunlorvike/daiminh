@@ -308,6 +308,7 @@ public partial class ArticleController
 
         var items = new List<SelectListItem>
         {
+            new SelectListItem { Value = "", Text = "-- Chọn thẻ --", Selected = selectedValues == null || !selectedValues.Any() }
         };
 
         items.AddRange(tags.Select(t => new SelectListItem
@@ -329,8 +330,9 @@ public partial class ArticleController
                           .ToListAsync();
 
         var items = new List<SelectListItem>
-        {
-        };
+    {
+        new SelectListItem { Value = "", Text = "-- Chọn sản phẩm --", Selected = selectedValues == null || !selectedValues.Any() }
+    };
 
         items.AddRange(products.Select(p => new SelectListItem
         {

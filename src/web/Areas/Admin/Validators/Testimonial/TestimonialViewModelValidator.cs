@@ -19,8 +19,6 @@ public class TestimonialViewModelValidator : AbstractValidator<TestimonialViewMo
 
         RuleFor(x => x.ClientAvatar)
             .MaximumLength(255).WithMessage("Đường dẫn ảnh đại diện không được vượt quá 255 ký tự.");
-        // Optional: Add URL validation if needed
-        // .Matches(@"^(http|https)://.*").WithMessage("Đường dẫn ảnh đại diện phải là URL hợp lệ.").When(x => !string.IsNullOrEmpty(x.ClientAvatar));
 
         RuleFor(x => x.Content)
             .NotEmpty().WithMessage("Vui lòng nhập nội dung đánh giá.");

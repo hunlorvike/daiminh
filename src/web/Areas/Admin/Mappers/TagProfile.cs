@@ -20,7 +20,7 @@ public class TagProfile : Profile
 
         // ViewModel -> Entity (For Create/Edit POST)
         CreateMap<TagViewModel, Tag>()
-            .ForMember(dest => dest.Id, opt => opt.Ignore()) // Ignore Id and Nav properties
+            .ForMember(dest => dest.Id, opt => opt.Ignore())
             .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
             .ForMember(dest => dest.ArticleTags, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())

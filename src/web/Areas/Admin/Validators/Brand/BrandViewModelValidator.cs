@@ -28,7 +28,6 @@ public class BrandViewModelValidator : AbstractValidator<BrandViewModel>
              .MaximumLength(2048).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
              .Matches(@"^(https?://|/).*$").When(x => !string.IsNullOrWhiteSpace(x.LogoUrl)).WithMessage("{PropertyName} phải là một URL hợp lệ (http, https hoặc tương đối /).");
 
-
         RuleFor(x => x.Website)
             .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
             .Matches(@"^https?://.*$").When(x => !string.IsNullOrWhiteSpace(x.Website)).WithMessage("{PropertyName} phải là một URL hợp lệ bắt đầu bằng http hoặc https.");

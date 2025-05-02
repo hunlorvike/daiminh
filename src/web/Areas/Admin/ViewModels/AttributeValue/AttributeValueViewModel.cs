@@ -23,10 +23,6 @@ public class AttributeValueViewModel
     [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "{0} chỉ được chứa chữ cái thường, số và dấu gạch ngang.")]
     public string? Slug { get; set; }
 
-    [Display(Name = "Mô tả", Prompt = "Mô tả ngắn về giá trị")]
-    [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
-    public string? Description { get; set; }
-
     [Display(Name = "Thứ tự")]
     [Range(0, int.MaxValue, ErrorMessage = "{0} phải là số không âm.")]
     public int OrderIndex { get; set; } = 0;

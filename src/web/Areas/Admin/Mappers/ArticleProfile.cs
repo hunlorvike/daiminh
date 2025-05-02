@@ -12,7 +12,7 @@ public class ArticleProfile : Profile
     {
         // Entity -> ListItemViewModel
         CreateMap<Article, ArticleListItemViewModel>()
-            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+            .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category!.Name))
             .ForMember(dest => dest.TagCount, opt => opt.MapFrom(src => src.ArticleTags != null ? src.ArticleTags.Count : 0))
             .ForMember(dest => dest.ProductCount, opt => opt.MapFrom(src => src.ArticleProducts != null ? src.ArticleProducts.Count : 0));
 

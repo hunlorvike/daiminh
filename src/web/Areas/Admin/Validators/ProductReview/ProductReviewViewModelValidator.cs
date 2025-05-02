@@ -17,8 +17,5 @@ public class ProductReviewViewModelValidator : AbstractValidator<ProductReviewVi
 
         RuleFor(x => x.Status)
              .IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
-
-        // We could add rules here to prevent changing status if the review was already approved/rejected,
-        // or add validation for User/Email/Rating/Content if they were editable by admin (they aren't in the ViewModel)
     }
 }

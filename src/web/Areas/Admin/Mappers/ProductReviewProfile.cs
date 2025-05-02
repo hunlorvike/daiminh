@@ -11,16 +11,14 @@ public class ProductReviewProfile : Profile
         // Entity -> ListItemViewModel
         CreateMap<ProductReview, ProductReviewListItemViewModel>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "N/A"))
-            // Truncate content for list view
             .ForMember(dest => dest.ContentSummary, opt => opt.MapFrom(src => src.Content.Length > 100 ? src.Content.Substring(0, 100) + "..." : src.Content));
 
         // Entity -> ViewModel (GET Edit)
         CreateMap<ProductReview, ProductReviewViewModel>()
             .ForMember(dest => dest.ProductName, opt => opt.MapFrom(src => src.Product != null ? src.Product.Name : "N/A"))
-            .ForMember(dest => dest.StatusOptions, opt => opt.Ignore()); // Populated in controller
+            .ForMember(dest => dest.StatusOptions, opt => opt.Ignore());
 
         // ViewModel -> Entity (POST Edit)
-        // Only mapping Status back, as other fields are read-only for admin update
         CreateMap<ProductReviewViewModel, ProductReview>()
             .ForMember(dest => dest.ProductId, opt => opt.Ignore())
             .ForMember(dest => dest.UserId, opt => opt.Ignore())

@@ -13,14 +13,12 @@ public class ContactProfile : Profile
 
         // Entity -> ViewModel (For Details GET)
         CreateMap<Contact, ContactViewModel>()
-            .ForMember(dest => dest.StatusOptions, opt => opt.Ignore()); // Ignore SelectList
+            .ForMember(dest => dest.StatusOptions, opt => opt.Ignore());
 
         // ViewModel -> Entity
-        // Chỉ map các trường Admin có thể sửa
         CreateMap<ContactViewModel, Contact>()
              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
              .ForMember(dest => dest.AdminNotes, opt => opt.MapFrom(src => src.AdminNotes))
-             // Ignore tất cả các trường khác để tránh ghi đè dữ liệu gốc
              .ForMember(dest => dest.FullName, opt => opt.Ignore())
              .ForMember(dest => dest.Email, opt => opt.Ignore())
              .ForMember(dest => dest.Phone, opt => opt.Ignore())

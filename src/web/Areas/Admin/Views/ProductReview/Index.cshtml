@@ -46,7 +46,7 @@
                                 <i class="ti ti-shopping-cart"></i>
                             </span>
                             <select asp-for="Filter.ProductId" asp-items="@Model.Filter.ProductOptions"
-                                class="form-select"> </select>
+                                class="form-select tom-selected"> </select>
                         </div>
                     </div>
                 </div>
@@ -58,7 +58,7 @@
                                 <i class="ti ti-circle-check"></i>
                             </span>
                             <select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions"
-                                class="form-select"></select>
+                                class="form-select tom-selected"></select>
                         </div>
                     </div>
                 </div>
@@ -69,7 +69,7 @@
                             <span class="input-group-text">
                                 <i class="ti ti-star"></i>
                             </span>
-                            <select asp-for="Filter.MinRating" class="form-select">
+                            <select asp-for="Filter.MinRating" class="form-select tom-selected">
                                 <option value="">Từ</option>
                                 @for (int i = 1; i <= 5; i++)
                                 {
@@ -77,7 +77,7 @@
                                 }
                             </select>
                             <span class="input-group-text">đến</span>
-                            <select asp-for="Filter.MaxRating" class="form-select">
+                            <select asp-for="Filter.MaxRating" class="form-select tom-selected">
                                 <option value="">Đến</option>
                                 @for (int i = 1; i <= 5; i++)
                                 {

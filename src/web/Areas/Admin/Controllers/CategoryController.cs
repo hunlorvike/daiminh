@@ -407,7 +407,12 @@ public partial class CategoryController
 
     private List<SelectListItem> GetCategoryTypesSelectList(CategoryType? selectedType)
     {
-        var items = Enum.GetValues(typeof(CategoryType))
+        var items = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Tất cả các loại --", Selected = !selectedType.HasValue }
+        };
+
+        items.AddRange(Enum.GetValues(typeof(CategoryType))
             .Cast<CategoryType>()
             .Select(t => new SelectListItem
             {
@@ -415,8 +420,8 @@ public partial class CategoryController
                 Text = t.GetDisplayName(),
                 Selected = selectedType.HasValue && t == selectedType.Value
             })
-            .OrderBy(t => t.Text)
-            .ToList();
+            .OrderBy(t => t.Text));
+       
         return items;
     }
 

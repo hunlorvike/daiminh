@@ -100,9 +100,7 @@
 					<div class="col-md-6">
 						<div class="form-group mb-3">
 							<label asp-for="SelectedTagIds" class="form-label"></label>
-							<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" multiple>
-								<option value="">-- Chọn thẻ --</option>
-							</select>
+							<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" multiple></select>
 							<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
 						</div>
 					</div>
@@ -110,9 +108,7 @@
 					<div class="col-md-6">
 						<div class="form-group mb-3">
 							<label asp-for="SelectedProductIds" class="form-label"></label>
-							<select asp-for="SelectedProductIds" asp-items="@Model.ProductOptions" class="form-select tom-selected" multiple>
-								<option value="">-- Chọn sản phẩm --</option>
-							</select>
+							<select asp-for="SelectedProductIds" asp-items="@Model.ProductOptions" class="form-select tom-selected" multiple></select>
 							<span asp-validation-for="SelectedProductIds" class="text-danger"></span>
 						</div>
 					</div>
@@ -146,7 +142,7 @@
 						<span class="input-group-text">
 							<i class="ti ti-status-change"></i>
 						</span>
-						<select asp-for="Status" asp-items="@Model.StatusOptions" class="form-select"></select>
+						<select asp-for="Status" asp-items="@Model.StatusOptions" class="form-select tom-selected"></select>
 					</div>
 					<span asp-validation-for="Status" class="text-danger"></span>
 				</div>
