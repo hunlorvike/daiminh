@@ -12,7 +12,7 @@ $(function () {
         height: 500,
         language: 'vi',
         language_url: '/js/vi.js',
-              plugins: [
+        plugins: [
             'advlist anchor autolink autosave charmap code codesample',
             'directionality emoticons fullscreen help image importcss insertdatetime',
             'link lists media nonbreaking preview save searchreplace table template',
@@ -27,7 +27,27 @@ $(function () {
         ].join(' '),
         skin: theme === 'dark' ? 'oxide-dark' : 'oxide',
         content_css: contentCssFiles,
-        content_style: "body { font-family: 'Inter', sans-serif; }",
+        content_style: `
+        .mce-content-body[data-mce-placeholder]:not(.mce-visualblocks)::before {
+          content: attr(data-mce-placeholder);
+          display: block;
+          padding: 10px;
+          color: #999;
+          font-style: italic;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          pointer-events: none;
+        }
+      
+        body.mce-content-body {
+          padding: 10px !important;
+          font-family: 'Inter', sans-serif !important;
+          position: relative;
+        }
+      `,
+        statusbar: false,
     };
 
     hugerte.init(options);
