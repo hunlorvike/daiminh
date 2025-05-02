@@ -48,6 +48,7 @@ public class AccountController : Controller
     public async Task<IActionResult> Login(LoginViewModel model, string? returnUrl = null)
     {
         ViewData["ReturnUrl"] = returnUrl;
+
         if (User.Identity?.IsAuthenticated == true)
         {
             return LocalRedirect(returnUrl ?? Url.Action("Index", "Dashboard", new { Area = "Admin" }) ?? "/Admin");
@@ -63,70 +64,61 @@ public class AccountController : Controller
 
         if (user == null)
         {
+            _logger.LogWarning("Đăng nhập thất bại - sai tên đăng nhập: {Username}", model.Username);
             ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
             return View(model);
         }
 
         if (!user.IsActive)
         {
+            _logger.LogWarning("Đăng nhập thất bại - tài khoản bị khóa: {Username}", user.Username);
             ModelState.AddModelError(string.Empty, "Tài khoản của bạn đã bị khóa.");
             return View(model);
         }
 
-
-        var passwordVerificationResult = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
-
-        if (passwordVerificationResult == PasswordVerificationResult.Success || passwordVerificationResult == PasswordVerificationResult.SuccessRehashNeeded)
+        var result = _passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password);
+        if (result == PasswordVerificationResult.Failed)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Username),
-                new Claim(ClaimTypes.Email, user.Email),
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, AuthenticationScheme);
-            var authProperties = new AuthenticationProperties
-            {
-                AllowRefresh = true,
-                IsPersistent = model.RememberMe,
-                ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60),
-            };
-
-            await HttpContext.SignInAsync(
-                AuthenticationScheme,
-                new ClaimsPrincipal(claimsIdentity),
-                authProperties);
-
-            if (passwordVerificationResult == PasswordVerificationResult.SuccessRehashNeeded)
-            {
-                try
-                {
-                    user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
-                    _context.Update(user);
-                    await _context.SaveChangesAsync();
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogError(ex, "Failed to rehash password for user '{Username}' after login.", user.Username);
-                }
-            }
-
-
-            if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
-            {
-                return LocalRedirect(returnUrl);
-            }
-            else
-            {
-                return RedirectToAction("Index", "Dashboard", new { Area = "Admin" });
-            }
-        }
-        else
-        {
+            _logger.LogWarning("Đăng nhập thất bại - sai mật khẩu: {Username}", user.Username);
             ModelState.AddModelError(string.Empty, "Tên đăng nhập hoặc mật khẩu không chính xác.");
             return View(model);
         }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Name, user.Username),
+            new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
+        };
+
+        var claimsIdentity = new ClaimsIdentity(claims, AuthenticationScheme);
+        var authProperties = new AuthenticationProperties
+        {
+            AllowRefresh = true,
+            IsPersistent = model.RememberMe,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddMinutes(60)
+        };
+
+        await HttpContext.SignInAsync(AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
+
+        _logger.LogInformation("Đăng nhập thành công: {Username}", user.Username);
+
+        if (result == PasswordVerificationResult.SuccessRehashNeeded)
+        {
+            try
+            {
+                user.PasswordHash = _passwordHasher.HashPassword(user, model.Password);
+                _context.Update(user);
+                await _context.SaveChangesAsync();
+                _logger.LogInformation("Rehash mật khẩu sau khi đăng nhập cho: {Username}", user.Username);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Không thể rehash mật khẩu cho user '{Username}'", user.Username);
+            }
+        }
+
+        return LocalRedirect(returnUrl ?? Url.Action("Index", "Dashboard", new { Area = "Admin" }) ?? "/Admin");
     }
 
     // POST: /Admin/Account/Logout
@@ -136,6 +128,7 @@ public class AccountController : Controller
     {
         var userName = User.Identity?.Name ?? "Unknown";
         await HttpContext.SignOutAsync(AuthenticationScheme);
+        _logger.LogInformation("Đăng xuất: {Username}", userName);
         return RedirectToAction(nameof(Login));
     }
 

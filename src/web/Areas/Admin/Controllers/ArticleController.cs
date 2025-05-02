@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
+using web.Areas.Admin.Validators.Article;
 using web.Areas.Admin.ViewModels.Article;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
@@ -113,36 +114,45 @@ public partial class ArticleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ArticleViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var result = await new ArticleViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            Article article = _mapper.Map<Article>(viewModel);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            article.AuthorId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrWhiteSpace(article.AuthorName))
-            {
-                article.AuthorName = User.FindFirst(ClaimTypes.Name)?.Value ?? "Admin";
-            }
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
 
-            UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
+        var article = _mapper.Map<Article>(viewModel);
+        article.AuthorId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        article.AuthorName ??= User.Identity?.Name ?? "Admin";
 
-            _context.Add(article);
+        UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu bài viết.");
-            }
+        _context.Add(article);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã thêm bài viết '{article.Title}' thành công.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi DB khi tạo bài viết: {Title}", viewModel.Title);
+            ModelState.AddModelError("", "Slug có thể đã tồn tại hoặc dữ liệu không hợp lệ.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo bài viết.");
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu bài viết.");
         }
 
         await PopulateViewModelSelectListsAsync(viewModel);
-
         return View(viewModel);
     }
-
 
     // GET: Admin/Article/Edit/5
     public async Task<IActionResult> Edit(int id)
@@ -171,41 +181,55 @@ public partial class ArticleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ArticleViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
-
-            Article? article = await _context.Set<Article>()
-                                             .Include(a => a.Category)
-                                             .Include(a => a.ArticleTags)
-                                             .Include(a => a.ArticleProducts)
-                                             .FirstOrDefaultAsync(a => a.Id == id);
-
-            if (article == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            _mapper.Map(viewModel, article);
-
-            UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật bài viết.");
-            }
-
-            await PopulateViewModelSelectListsAsync(viewModel);
+            _logger.LogWarning("ID không khớp khi chỉnh sửa bài viết. URL: {Id}, ViewModel: {ModelId}", id, viewModel.Id);
+            return BadRequest();
         }
 
+        var result = await new ArticleViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
+
+        var article = await _context.Set<Article>()
+            .Include(a => a.ArticleTags)
+            .Include(a => a.ArticleProducts)
+            .FirstOrDefaultAsync(a => a.Id == id);
+
+        if (article == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy bài viết.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _mapper.Map(viewModel, article);
+        UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã cập nhật bài viết '{article.Title}' thành công.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi DB khi cập nhật bài viết: ID {Id}", id);
+            ModelState.AddModelError("", "Slug có thể đã bị trùng hoặc dữ liệu không hợp lệ.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi hệ thống khi cập nhật bài viết: ID {Id}", id);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật bài viết.");
+        }
+
+        await PopulateViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
 

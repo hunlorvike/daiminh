@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
+using web.Areas.Admin.Validators.Contact;
 using web.Areas.Admin.ViewModels.Contact;
 using X.PagedList;
 using X.PagedList.EF;
@@ -96,35 +97,20 @@ public class ContactController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateDetails(int id, ContactViewModel viewModel)
     {
-        if (id != viewModel.Id)
-        {
-            return BadRequest("ID mismatch.");
-        }
+        if (id != viewModel.Id) return BadRequest("ID không khớp.");
 
-        if (!ModelState.IsValid)
+        var result = await new ContactViewModelValidator().ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            viewModel.StatusOptions = GetStatusOptionsSelectList(viewModel.Status);
-            var originalContact = await _context.Set<Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-            if (originalContact != null)
-            {
-                viewModel.FullName = originalContact.FullName;
-                viewModel.Email = originalContact.Email;
-                viewModel.Phone = originalContact.Phone;
-                viewModel.Subject = originalContact.Subject;
-                viewModel.Message = originalContact.Message;
-                viewModel.CreatedAt = originalContact.CreatedAt;
-                viewModel.IpAddress = originalContact.IpAddress;
-                viewModel.UserAgent = originalContact.UserAgent;
-            }
-            else
-            {
-                return NotFound();
-            }
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            await RefillViewModelFromDbAsync(id, viewModel);
             return View("Details", viewModel);
         }
 
-        Contact? contact = await _context.Set<Contact>().FirstOrDefaultAsync(c => c.Id == id);
-
+        var contact = await _context.Set<Contact>().FirstOrDefaultAsync(c => c.Id == id);
         if (contact == null)
         {
             TempData["ErrorMessage"] = "Không tìm thấy liên hệ để cập nhật.";
@@ -137,6 +123,7 @@ public class ContactController : Controller
             contact.Status = viewModel.Status;
             changed = true;
         }
+
         if (contact.AdminNotes != viewModel.AdminNotes)
         {
             contact.AdminNotes = viewModel.AdminNotes;
@@ -145,28 +132,16 @@ public class ContactController : Controller
 
         if (changed)
         {
-            _context.Entry(contact).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
                 TempData["SuccessMessage"] = "Cập nhật trạng thái và ghi chú thành công!";
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật liên hệ.");
-                viewModel.StatusOptions = GetStatusOptionsSelectList(viewModel.Status);
-                var originalContact = await _context.Set<Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
-                if (originalContact != null)
-                {
-                    viewModel.FullName = originalContact.FullName;
-                    viewModel.Email = originalContact.Email;
-                    viewModel.Phone = originalContact.Phone;
-                    viewModel.Subject = originalContact.Subject;
-                    viewModel.Message = originalContact.Message;
-                    viewModel.CreatedAt = originalContact.CreatedAt;
-                    viewModel.IpAddress = originalContact.IpAddress;
-                    viewModel.UserAgent = originalContact.UserAgent;
-                }
+                _logger.LogError(ex, "Lỗi khi cập nhật liên hệ: {Id}", id);
+                ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật liên hệ.");
+                await RefillViewModelFromDbAsync(id, viewModel);
                 return View("Details", viewModel);
             }
         }
@@ -175,16 +150,15 @@ public class ContactController : Controller
             TempData["InfoMessage"] = "Không có thay đổi nào được lưu.";
         }
 
-        return RedirectToAction(nameof(Details), new { id = contact.Id });
+        return RedirectToAction(nameof(Details), new { id });
     }
-
 
     // POST: Admin/Contact/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        Contact? contact = await _context.Set<Contact>().FindAsync(id);
+        var contact = await _context.Set<Contact>().FindAsync(id);
         if (contact == null)
         {
             return Json(new { success = false, message = "Không tìm thấy liên hệ." });
@@ -198,8 +172,9 @@ public class ContactController : Controller
             TempData["SuccessMessage"] = $"Xóa liên hệ '{subject}' thành công.";
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Lỗi khi xóa liên hệ ID {Id}", id);
             TempData["ErrorMessage"] = "Đã xảy ra lỗi không mong muốn khi xóa liên hệ.";
             return RedirectToAction(nameof(Index));
         }
@@ -219,5 +194,23 @@ public class ContactController : Controller
             .ToList();
 
         return items;
+    }
+
+    private async Task RefillViewModelFromDbAsync(int id, ContactViewModel viewModel)
+    {
+        var contact = await _context.Set<Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == id);
+        if (contact != null)
+        {
+            viewModel.FullName = contact.FullName;
+            viewModel.Email = contact.Email;
+            viewModel.Phone = contact.Phone;
+            viewModel.Subject = contact.Subject;
+            viewModel.Message = contact.Message;
+            viewModel.CreatedAt = contact.CreatedAt;
+            viewModel.IpAddress = contact.IpAddress;
+            viewModel.UserAgent = contact.UserAgent;
+        }
+
+        viewModel.StatusOptions = GetStatusOptionsSelectList(viewModel.Status);
     }
 }

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.Validators.User;
 using web.Areas.Admin.ViewModels.User;
 using X.PagedList;
 using X.PagedList.EF;
@@ -90,27 +91,32 @@ public partial class UserController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(UserCreateViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var result = await new UserCreateViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!result.IsValid)
         {
-            User user = _mapper.Map<User>(viewModel);
-            user.PasswordHash = _passwordHasher.HashPassword(user, viewModel.Password);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            _context.Add(user);
+            return View(viewModel);
+        }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi tạo người dùng.");
-            }
+        var user = _mapper.Map<User>(viewModel);
+        user.PasswordHash = _passwordHasher.HashPassword(user, viewModel.Password);
+
+        _context.Add(user);
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo người dùng: {Username}", user.Username);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi tạo người dùng.");
         }
 
         return View(viewModel);
     }
-
 
     // GET: Admin/User/Edit/5
     public async Task<IActionResult> Edit(int id)
@@ -134,44 +140,47 @@ public partial class UserController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, UserEditViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id) return BadRequest();
+
+        var result = await new UserEditViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!result.IsValid)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            int? currentUserId = int.TryParse(currentUserIdString, out int uid) ? uid : (int?)null;
+            return View(viewModel);
+        }
 
-            User? user = await _context.Set<User>().FirstOrDefaultAsync(u => u.Id == id);
-            if (user == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+        var currentUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int uid) ? uid : 0;
 
-            if (!viewModel.IsActive && (user.Id == currentUserId || user.Id == 1))
-            {
-                ModelState.AddModelError(nameof(viewModel.IsActive), "Bạn không thể hủy kích hoạt tài khoản của chính mình hoặc tài khoản quản trị viên chính.");
-            }
+        var user = await _context.Set<User>().FirstOrDefaultAsync(u => u.Id == id);
+        if (user == null)
+        {
+            _logger.LogWarning("Không tìm thấy người dùng để cập nhật. ID = {Id}", id);
+            return NotFound();
+        }
 
-            _mapper.Map(viewModel, user);
-            _context.Entry(user).State = EntityState.Modified;
+        if (!viewModel.IsActive && (user.Id == currentUserId || user.Id == 1))
+        {
+            ModelState.AddModelError(nameof(viewModel.IsActive), "Không thể hủy kích hoạt chính mình hoặc tài khoản quản trị viên chính.");
+            return View(viewModel);
+        }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật người dùng.");
-            }
+        _mapper.Map(viewModel, user);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật người dùng: {Username}", user.Username);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật người dùng.");
         }
 
         return View(viewModel);
     }
-
 
     // POST: Admin/User/Delete/5
     [HttpPost]

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
+using web.Areas.Admin.Validators.ProductReview;
 using web.Areas.Admin.ViewModels.ProductReview;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
@@ -15,7 +16,7 @@ using X.PagedList.Extensions;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize] // Add authorization if needed
+[Authorize]
 public partial class ProductReviewController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -90,7 +91,7 @@ public partial class ProductReviewController : Controller
         return View(viewModel);
     }
 
-    // GET: Admin/ProductReview/Edit/5 (View details and change status)
+    // GET: Admin/ProductReview/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
         ProductReview? review = await _context.Set<ProductReview>()
@@ -113,84 +114,76 @@ public partial class ProductReviewController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProductReviewViewModel viewModel)
     {
-        // Only validate the status property
-        ModelState.Remove(nameof(viewModel.ProductId));
-        ModelState.Remove(nameof(viewModel.ProductName));
-        ModelState.Remove(nameof(viewModel.UserName));
-        ModelState.Remove(nameof(viewModel.UserEmail));
-        ModelState.Remove(nameof(viewModel.Rating));
-        ModelState.Remove(nameof(viewModel.Content));
-        ModelState.Remove(nameof(viewModel.CreatedAt));
-
-
-        if (ModelState.IsValid)
+        if (id != viewModel.Id)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
-
-            ProductReview? review = await _context.Set<ProductReview>().FirstOrDefaultAsync(r => r.Id == id);
-
-            if (review == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            // Only update the status property
-            review.Status = viewModel.Status;
-
-            try
-            {
-                _context.Update(review); // Mark as updated
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating product review status with ID {ReviewId}.", id);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật trạng thái đánh giá.");
-            }
+            _logger.LogWarning("ID không khớp khi cập nhật đánh giá. URL: {Id}, ViewModel: {ModelId}", id, viewModel.Id);
+            return BadRequest();
         }
 
-        // Reload data needed for the view model if validation fails
-        ProductReview? reviewToDisplay = await _context.Set<ProductReview>()
-                                         .Include(r => r.Product)
-                                         .AsNoTracking()
-                                         .FirstOrDefaultAsync(r => r.Id == id);
-        if (reviewToDisplay != null)
+        var result = await new ProductReviewViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            // Re-map to get product name etc.
-            viewModel = _mapper.Map<ProductReviewViewModel>(reviewToDisplay);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            await ReloadReviewViewModel(viewModel);
+            return View(viewModel);
         }
-        PopulateViewModelSelectLists(viewModel);
+
+        var review = await _context.Set<ProductReview>().FirstOrDefaultAsync(r => r.Id == id);
+        if (review == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy đánh giá.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        review.Status = viewModel.Status;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Cập nhật trạng thái đánh giá cho sản phẩm '{review.Product?.Name ?? "[ẩn]"}' thành công.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật trạng thái đánh giá. ID = {Id}", id);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đánh giá.");
+        }
+
+        await ReloadReviewViewModel(viewModel);
         return View(viewModel);
     }
-
 
     // POST: Admin/ProductReview/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        ProductReview? review = await _context.Set<ProductReview>().FirstOrDefaultAsync(r => r.Id == id);
+        var review = await _context.Set<ProductReview>()
+                                   .Include(r => r.Product)
+                                   .FirstOrDefaultAsync(r => r.Id == id);
 
         if (review == null)
         {
+            _logger.LogWarning("Không tìm thấy đánh giá để xóa. ID = {Id}", id);
             return Json(new { success = false, message = "Không tìm thấy đánh giá." });
         }
 
         try
         {
-            string productName = review.Product?.Name ?? "Sản phẩm không xác định"; // Get product name before deleting review
+            string productName = review.Product?.Name ?? "[Không rõ]";
             _context.Remove(review);
             await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Đã xóa đánh giá của {Email} cho sản phẩm '{Product}'", review.UserEmail, productName);
             return Json(new { success = true, message = $"Xóa đánh giá cho sản phẩm '{productName}' thành công." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting product review with ID {ReviewId}.", id);
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đánh giá." });
+            _logger.LogError(ex, "Lỗi khi xóa đánh giá ID {Id}", id);
+            return Json(new { success = false, message = "Đã xảy ra lỗi hệ thống khi xóa đánh giá." });
         }
     }
 }
@@ -266,5 +259,26 @@ public partial class ProductReviewController
         items.Insert(0, new SelectListItem { Value = "", Text = "Tất cả", Selected = !minSelected.HasValue && !maxSelected.HasValue }); // Add a default "All"
 
         return items; // This helper might need refinement based on actual filter UI implementation (two dropdowns or one range slider etc.)
+    }
+
+    private async Task ReloadReviewViewModel(ProductReviewViewModel viewModel)
+    {
+        var reviewFromDb = await _context.Set<ProductReview>()
+            .Include(r => r.Product)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(r => r.Id == viewModel.Id);
+
+        if (reviewFromDb != null)
+        {
+            viewModel.ProductName = reviewFromDb.Product!.Name;
+            viewModel.ProductId = reviewFromDb.ProductId;
+            viewModel.UserEmail = reviewFromDb.UserEmail;
+            viewModel.UserName = reviewFromDb.UserName;
+            viewModel.Rating = reviewFromDb.Rating;
+            viewModel.Content = reviewFromDb.Content;
+            viewModel.CreatedAt = reviewFromDb.CreatedAt;
+        }
+
+        PopulateViewModelSelectLists(viewModel);
     }
 }

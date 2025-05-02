@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
+using web.Areas.Admin.Validators.Product;
 using web.Areas.Admin.ViewModels.Product;
 using web.Areas.Admin.ViewModels.ProductVariation;
 using X.PagedList.EF;
@@ -123,44 +124,44 @@ public partial class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var result = await new ProductViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            Product product = _mapper.Map<Product>(viewModel);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
 
-            if (viewModel.Images != null)
-            {
-                product.Images = viewModel.Images
-                                .Where(imgVm => !string.IsNullOrWhiteSpace(imgVm.ImageUrl) && !imgVm.IsDeleted)
-                                .Select(imgVm => _mapper.Map<ProductImage>(imgVm))
-                                .ToList();
-                foreach (var img in product.Images)
-                {
-                    img.ProductId = product.Id;
-                }
-            }
+        var product = _mapper.Map<Product>(viewModel);
 
+        UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
+        UpdateProductImages(product, viewModel.Images);
 
-            _context.Add(product);
+        _context.Add(product);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error creating product.");
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu sản phẩm.");
-            }
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã thêm sản phẩm '{product.Name}' thành công.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi DB khi thêm sản phẩm: {Name}", viewModel.Name);
+            ModelState.AddModelError("", "Slug có thể đã tồn tại hoặc dữ liệu không hợp lệ.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi không xác định khi thêm sản phẩm.");
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu sản phẩm.");
         }
 
         await PopulateViewModelSelectListsAsync(viewModel);
-
         return View(viewModel);
     }
-
 
     // GET: Admin/Product/Edit/5
     public async Task<IActionResult> Edit(int id)
@@ -195,46 +196,57 @@ public partial class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProductViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
+            _logger.LogWarning("ID không khớp khi cập nhật sản phẩm. URL: {Id}, ViewModel: {ModelId}", id, viewModel.Id);
+            return BadRequest();
+        }
 
-            Product? product = await _context.Set<Product>()
-                                             .Include(p => p.Images)
-                                             .Include(p => p.ProductAttributes)
-                                             .Include(p => p.ProductTags)
-                                             .Include(p => p.ArticleProducts)
-                                             .FirstOrDefaultAsync(p => p.Id == id);
+        var result = await new ProductViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!result.IsValid)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            if (product == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
 
-            _mapper.Map(viewModel, product);
+        var product = await _context.Set<Product>()
+            .Include(p => p.Images)
+            .Include(p => p.ProductAttributes)
+            .Include(p => p.ProductTags)
+            .Include(p => p.ArticleProducts)
+            .FirstOrDefaultAsync(p => p.Id == id);
 
-            UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
+        if (product == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy sản phẩm.";
+            return RedirectToAction(nameof(Index));
+        }
 
-            UpdateProductImages(product, viewModel.Images);
+        _mapper.Map(viewModel, product);
+        UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
+        UpdateProductImages(product, viewModel.Images);
 
-            try
-            {
-                _context.Update(product);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error updating product with ID {ProductId}.", id);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong unexpected khi cập nhật sản phẩm.");
-            }
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã cập nhật sản phẩm '{product.Name}' thành công.";
+            return RedirectToAction(nameof(Index));
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi DB khi cập nhật sản phẩm ID: {Id}", id);
+            ModelState.AddModelError("", "Slug có thể đã tồn tại hoặc dữ liệu không hợp lệ.");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi hệ thống khi cập nhật sản phẩm ID: {Id}", id);
+            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
         }
 
         await PopulateViewModelSelectListsAsync(viewModel);
-
         return View(viewModel);
     }
 
@@ -243,23 +255,24 @@ public partial class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        Product? product = await _context.Set<Product>().FirstOrDefaultAsync(p => p.Id == id);
-
+        var product = await _context.Set<Product>().FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
         {
+            _logger.LogWarning("Không tìm thấy sản phẩm để xóa. ID: {Id}", id);
             return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
         }
 
         try
         {
-            string productName = product.Name;
+            string name = product.Name;
             _context.Remove(product);
             await _context.SaveChangesAsync();
-            return Json(new { success = true, message = $"Xóa sản phẩm '{productName}' thành công." });
+            _logger.LogInformation("Đã xóa sản phẩm '{Name}' (ID: {Id})", name, id);
+            return Json(new { success = true, message = $"Xóa sản phẩm '{name}' thành công." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting product with ID {ProductId}.", id);
+            _logger.LogError(ex, "Lỗi khi xóa sản phẩm ID: {Id}", id);
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa sản phẩm." });
         }
     }

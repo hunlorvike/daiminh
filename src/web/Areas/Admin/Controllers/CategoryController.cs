@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
+using web.Areas.Admin.Validators.Category;
 using web.Areas.Admin.ViewModels.Category;
 using X.PagedList;
 using X.PagedList.Extensions;
@@ -124,42 +125,40 @@ public partial class CategoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CategoryViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var result = await new CategoryViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            Category category = _mapper.Map<Category>(viewModel);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            _context.Add(category);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Category created successfully: {Name} (ID: {Id})", category.Name, category.Id);
-                TempData["SuccessMessage"] = $"Đã thêm danh mục '{category.Name}' thành công.";
-                return RedirectToAction(nameof(Index), new { type = (int)category.Type });
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Error creating category: {Name}", viewModel.Name);
-                if (ex.InnerException?.Message.Contains("idx_categories_slug_type", StringComparison.OrdinalIgnoreCase) == true ||
-                    ex.InnerException?.Message.Contains("categories.slug", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại cho loại danh mục này.");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu danh mục.");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error creating category: {Name}", viewModel.Name);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu danh mục.");
-            }
-
-            viewModel.ParentCategories = await LoadParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId);
-            viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
+            await RefillCategorySelectListsAsync(viewModel);
+            return View(viewModel);
         }
 
+        var category = _mapper.Map<Category>(viewModel);
+        _context.Add(category);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã thêm danh mục '{category.Name}' thành công.";
+            return RedirectToAction(nameof(Index), new { type = (int)category.Type });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo danh mục: {Name}", viewModel.Name);
+            if (ex.InnerException?.Message?.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại cho loại danh mục này.");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu danh mục.");
+            }
+        }
+
+        await RefillCategorySelectListsAsync(viewModel);
         return View(viewModel);
     }
 
@@ -201,71 +200,51 @@ public partial class CategoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, CategoryViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id)
         {
-            if (id != viewModel.Id)
-            {
-                _logger.LogWarning("Bad request: ID mismatch during Category edit. Path ID: {PathId}, ViewModel ID: {ViewModelId}", id, viewModel.Id);
-                return BadRequest();
-            }
-
-            // Get the current category with its item count
-            var categoryData = await _context.Set<Category>()
-                .Where(c => c.Id == id)
-                .Select(c => new
-                {
-                    Category = c,
-                    ItemCount = c.Type == CategoryType.Product ? c.Products.Count :
-                                c.Type == CategoryType.Article ? c.Articles.Count :
-                                c.Type == CategoryType.FAQ ? c.FAQs.Count : 0,
-                    HasChildren = c.Children.Any()
-                })
-                .FirstOrDefaultAsync();
-
-            if (categoryData == null)
-            {
-                _logger.LogWarning("Category not found for editing (POST): ID {Id}", id);
-                TempData["ErrorMessage"] = "Không tìm thấy danh mục để cập nhật.";
-                return RedirectToAction(nameof(Index));
-            }
-
-            // Preserve the type and update other properties
-            viewModel.Type = categoryData.Category.Type;
-            _mapper.Map(viewModel, categoryData.Category);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                _logger.LogInformation("Category updated successfully: {Name} (ID: {Id})", categoryData.Category.Name, categoryData.Category.Id);
-                TempData["SuccessMessage"] = $"Đã cập nhật danh mục '{categoryData.Category.Name}' thành công.";
-                return RedirectToAction(nameof(Index), new { type = (int)categoryData.Category.Type });
-            }
-            catch (DbUpdateException ex)
-            {
-                _logger.LogError(ex, "Error updating category: ID {Id}, Name: {Name}", id, viewModel.Name);
-                if (ex.InnerException?.Message.Contains("idx_categories_slug_type", StringComparison.OrdinalIgnoreCase) == true ||
-                    ex.InnerException?.Message.Contains("categories.slug", StringComparison.OrdinalIgnoreCase) == true)
-                {
-                    ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã được sử dụng bởi danh mục khác cùng loại.");
-                }
-                else
-                {
-                    ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật danh mục.");
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error updating category: ID {Id}, Name: {Name}", id, viewModel.Name);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật danh mục.");
-            }
-
-            // Restore the view model state for redisplay
-            viewModel.ItemCount = categoryData.ItemCount;
-            viewModel.HasChildren = categoryData.HasChildren;
-            viewModel.ParentCategories = await LoadParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId, viewModel.Id);
-            viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
+            _logger.LogWarning("ID không khớp khi cập nhật danh mục. URL: {Id}, Model: {ModelId}", id, viewModel.Id);
+            return BadRequest();
         }
 
+        var result = await new CategoryViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!result.IsValid)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            await RefillCategorySelectListsAsync(viewModel);
+            return View(viewModel);
+        }
+
+        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
+        if (category == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy danh mục để cập nhật.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        _mapper.Map(viewModel, category);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Đã cập nhật danh mục '{category.Name}' thành công.";
+            return RedirectToAction(nameof(Index), new { type = (int)category.Type });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật danh mục: ID = {Id}, Name = {Name}", id, viewModel.Name);
+            if (ex.InnerException?.Message?.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                ModelState.AddModelError(nameof(viewModel.Slug), "Slug đã được sử dụng.");
+            }
+            else
+            {
+                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật danh mục.");
+            }
+        }
+
+        await RefillCategorySelectListsAsync(viewModel);
         return View(viewModel);
     }
 
@@ -449,5 +428,11 @@ public partial class CategoryController
             new SelectListItem { Value = "true", Text = "Đang kích hoạt", Selected = selectedValue == true },
             new SelectListItem { Value = "false", Text = "Đã hủy kích hoạt", Selected = selectedValue == false }
         };
+    }
+
+    private async Task RefillCategorySelectListsAsync(CategoryViewModel viewModel)
+    {
+        viewModel.ParentCategories = await LoadParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId, viewModel.Id);
+        viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
     }
 }

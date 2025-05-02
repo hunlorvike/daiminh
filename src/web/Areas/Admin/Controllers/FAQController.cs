@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
+using web.Areas.Admin.Validators.FAQ;
 using web.Areas.Admin.ViewModels.FAQ;
 using X.PagedList;
 using X.PagedList.EF;
@@ -91,25 +92,32 @@ public partial class FAQController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(FAQViewModel viewModel)
     {
-        if (ModelState.IsValid)
-        {
-            FAQ faq = _mapper.Map<FAQ>(viewModel);
-            _context.Add(faq);
+        var result = await new FAQViewModelValidator().ValidateAsync(viewModel);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi thêm FAQ.");
-            }
+        if (!result.IsValid)
+        {
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            return View(viewModel);
         }
 
-        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+        var faq = _mapper.Map<FAQ>(viewModel);
+        _context.Add(faq);
 
-        return View(viewModel);
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo FAQ: {Question}", viewModel.Question);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi thêm FAQ.");
+            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/FAQ/Edit/5
@@ -135,39 +143,41 @@ public partial class FAQController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, FAQViewModel viewModel)
     {
-        if (id != viewModel.Id)
+        if (id != viewModel.Id) return BadRequest();
+
+        var result = await new FAQViewModelValidator().ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            return BadRequest();
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            return View(viewModel);
         }
 
-        if (ModelState.IsValid)
+        var faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == id);
+        if (faq == null)
         {
-            FAQ? faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == id);
-
-            if (faq == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            _mapper.Map(viewModel, faq);
-            _context.Entry(faq).State = EntityState.Modified;
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật FAQ.");
-            }
+            _logger.LogWarning("Không tìm thấy FAQ có Id = {Id}", id);
+            return RedirectToAction(nameof(Index));
         }
 
-        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+        _mapper.Map(viewModel, faq);
 
-        return View(viewModel);
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật FAQ: {Question}", viewModel.Question);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật FAQ.");
+            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            return View(viewModel);
+        }
     }
-
 
     // POST: Admin/FAQ/Delete/5
     [HttpPost]

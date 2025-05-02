@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.Validators.Newsletter;
 using web.Areas.Admin.ViewModels.Newsletter;
 using X.PagedList;
 using X.PagedList.EF;
@@ -84,39 +85,35 @@ public partial class NewsletterController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(NewsletterViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var result = await new NewsletterViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            Newsletter newsletter = _mapper.Map<Newsletter>(viewModel);
-            if (newsletter.IsActive)
-            {
-                newsletter.UnsubscribedAt = null;
-                newsletter.ConfirmedAt = DateTime.UtcNow;
-            }
-            else
-            {
-                newsletter.UnsubscribedAt = DateTime.UtcNow;
-                newsletter.ConfirmedAt = null;
-            }
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            newsletter.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-            newsletter.UserAgent = Request.Headers["User-Agent"].ToString();
+            return View(viewModel);
+        }
 
-            _context.Add(newsletter);
+        var newsletter = _mapper.Map<Newsletter>(viewModel);
+        ApplyStatusTracking(newsletter);
+        SetTrackingInfo(newsletter);
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu đăng ký.");
-            }
+        _context.Add(newsletter);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo đăng ký mới cho email: {Email}", viewModel.Email);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu đăng ký.");
         }
 
         return View(viewModel);
     }
-
 
     // GET: Admin/Newsletter/Edit/5
     public async Task<IActionResult> Edit(int id)
@@ -139,46 +136,41 @@ public partial class NewsletterController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, NewsletterViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id) return BadRequest();
+
+        var result = await new NewsletterViewModelValidator(_context).ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            Newsletter? newsletter = await _context.Set<Newsletter>().FindAsync(id);
-            if (newsletter == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
+            return View(viewModel);
+        }
 
-            _mapper.Map(viewModel, newsletter);
-            if (newsletter.IsActive)
-            {
-                newsletter.UnsubscribedAt = null;
-                newsletter.ConfirmedAt = DateTime.UtcNow;
-            }
-            else
-            {
-                newsletter.UnsubscribedAt = DateTime.UtcNow;
-                newsletter.ConfirmedAt = null;
-            }
-            _context.Entry(newsletter).State = EntityState.Modified;
+        var newsletter = await _context.Set<Newsletter>().FindAsync(id);
+        if (newsletter == null)
+        {
+            _logger.LogWarning("Không tìm thấy đăng ký có Id = {Id} để cập nhật", id);
+            return RedirectToAction(nameof(Index));
+        }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật đăng ký.");
-            }
+        _mapper.Map(viewModel, newsletter);
+        ApplyStatusTracking(newsletter);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật đăng ký email: {Email}", viewModel.Email);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đăng ký.");
         }
 
         return View(viewModel);
     }
-
 
     // POST: Admin/Newsletter/Delete/5
     [HttpPost]
@@ -215,5 +207,25 @@ public partial class NewsletterController
             new SelectListItem { Value = "true", Text = "Đang hoạt động", Selected = selectedValue == true },
             new SelectListItem { Value = "false", Text = "Không hoạt động", Selected = selectedValue == false }
         };
+    }
+
+    private void ApplyStatusTracking(Newsletter newsletter)
+    {
+        if (newsletter.IsActive)
+        {
+            newsletter.UnsubscribedAt = null;
+            newsletter.ConfirmedAt = DateTime.UtcNow;
+        }
+        else
+        {
+            newsletter.UnsubscribedAt = DateTime.UtcNow;
+            newsletter.ConfirmedAt = null;
+        }
+    }
+
+    private void SetTrackingInfo(Newsletter newsletter)
+    {
+        newsletter.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        newsletter.UserAgent = Request.Headers["User-Agent"].ToString();
     }
 }

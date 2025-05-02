@@ -43,18 +43,17 @@ public partial class SettingController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Update(SettingsIndexViewModel viewModel)
     {
+        // Validate từng setting
         bool hasError = false;
-
-        // --- Manual Validation ---
         foreach (var group in viewModel.SettingGroups)
         {
             for (int i = 0; i < group.Value.Count; i++)
             {
                 var settingVM = group.Value[i];
-                var validationResult = await _settingValidator.ValidateAsync(settingVM);
-                if (!validationResult.IsValid)
+                var result = await _settingValidator.ValidateAsync(settingVM);
+                if (!result.IsValid)
                 {
-                    validationResult.AddToModelState(ModelState, $"SettingGroups[{group.Key}][{i}]");
+                    result.AddToModelState(ModelState, $"SettingGroups[{group.Key}][{i}]");
                     hasError = true;
                 }
             }
@@ -62,93 +61,42 @@ public partial class SettingController : Controller
 
         if (hasError || !ModelState.IsValid)
         {
-            // Cần load lại dữ liệu gốc cho các trường readonly nếu view bị trả về
-            var freshViewModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
-            // Cập nhật lại giá trị người dùng đã nhập vào freshViewModel để không bị mất dữ liệu form
-            foreach (var updatedGroup in viewModel.SettingGroups)
-            {
-                if (freshViewModel.SettingGroups.TryGetValue(updatedGroup.Key, out var freshGroup))
-                {
-                    foreach (var updatedSetting in updatedGroup.Value)
-                    {
-                        var freshSetting = freshGroup.FirstOrDefault(s => s.Id == updatedSetting.Id);
-                        if (freshSetting != null)
-                        {
-                            freshSetting.Value = updatedSetting.Value;
-                        }
-                    }
-                }
-            }
-            TempData["ErrorMessage"] = "Cập nhật thất bại. Vui lòng kiểm tra lại các giá trị đã nhập.";
-            return View("Index", freshViewModel);
+            var freshModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
+            MergeInputWithFreshData(viewModel, freshModel);
+            TempData["ErrorMessage"] = "Cập nhật thất bại. Vui lòng kiểm tra lại.";
+            return View("Index", freshModel);
         }
 
         try
         {
-            var settingIdsToUpdate = viewModel.SettingGroups
-                                            .SelectMany(g => g.Value.Select(s => s.Id))
-                                            .ToList();
+            var settingIds = viewModel.SettingGroups.SelectMany(g => g.Value.Select(s => s.Id)).ToList();
+            var settingsInDb = await _context.Set<Setting>().Where(s => settingIds.Contains(s.Id)).ToListAsync();
+            var dict = settingsInDb.ToDictionary(s => s.Id);
 
-            var settingsInDb = await _context.Set<Setting>()
-                                           .Where(s => settingIdsToUpdate.Contains(s.Id))
-                                           .ToListAsync();
-
-            var settingsDict = settingsInDb.ToDictionary(s => s.Id);
-            bool changed = false;
-
-            foreach (var group in viewModel.SettingGroups)
-            {
-                foreach (var settingVM in group.Value)
-                {
-                    if (settingsDict.TryGetValue(settingVM.Id, out var settingEntity))
-                    {
-                        if (settingEntity.Value != settingVM.Value)
-                        {
-                            settingEntity.Value = settingVM.Value;
-                            _context.Entry(settingEntity).State = EntityState.Modified;
-                            changed = true;
-                            _logger.LogInformation("Updating Setting Key: {Key}, New Value: {Value}", settingEntity.Key, settingVM.Value);
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Setting with ID {SettingId} not found in database during update.", settingVM.Id);
-                    }
-                }
-            }
+            bool changed = ApplySettingChanges(viewModel, dict);
 
             if (changed)
             {
                 await _context.SaveChangesAsync();
-                TempData["SuccessMessage"] = "Cập nhật cài đặt thành công!";
+                TempData["SuccessMessage"] = "Cập nhật cài đặt thành công.";
             }
             else
             {
-                TempData["InfoMessage"] = "Không có thay đổi nào được lưu.";
+                TempData["InfoMessage"] = "Không có thay đổi nào cần lưu.";
+                _logger.LogInformation("Không có thay đổi nào trong cập nhật cài đặt.");
             }
 
-            return RedirectToAction(nameof(Index), new { searchTerm = viewModel.SearchTerm });
+            return RedirectToAction(nameof(Index), new { viewModel.SearchTerm });
         }
-        catch (DbUpdateException)
+        catch (DbUpdateException ex)
         {
+            _logger.LogError(ex, "Lỗi DB khi cập nhật cài đặt.");
             ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu cài đặt. Vui lòng thử lại.");
-            var freshViewModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
-            foreach (var updatedGroup in viewModel.SettingGroups)
-            {
-                if (freshViewModel.SettingGroups.TryGetValue(updatedGroup.Key, out var freshGroup))
-                {
-                    foreach (var updatedSetting in updatedGroup.Value)
-                    {
-                        var freshSetting = freshGroup.FirstOrDefault(s => s.Id == updatedSetting.Id);
-                        if (freshSetting != null)
-                        {
-                            freshSetting.Value = updatedSetting.Value;
-                        }
-                    }
-                }
-            }
-            TempData["ErrorMessage"] = "Đã xảy ra lỗi khi lưu cài đặt.";
-            return View("Index", freshViewModel);
+
+            var freshModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
+            MergeInputWithFreshData(viewModel, freshModel);
+            TempData["ErrorMessage"] = "Lỗi hệ thống khi cập nhật.";
+            return View("Index", freshModel);
         }
     }
 }
@@ -185,4 +133,51 @@ public partial class SettingController
 
         return viewModel;
     }
+
+    private bool ApplySettingChanges(SettingsIndexViewModel viewModel, Dictionary<int, Setting> settingsDict)
+    {
+        bool changed = false;
+
+        foreach (var group in viewModel.SettingGroups)
+        {
+            foreach (var settingVM in group.Value)
+            {
+                if (settingsDict.TryGetValue(settingVM.Id, out var settingEntity))
+                {
+                    if (settingEntity.Value != settingVM.Value)
+                    {
+                        settingEntity.Value = settingVM.Value;
+                        _context.Entry(settingEntity).State = EntityState.Modified;
+                        _logger.LogInformation("Cập nhật Setting: {Key} => {Value}", settingEntity.Key, settingEntity.Value);
+                        changed = true;
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Không tìm thấy setting ID {Id} trong DB khi cập nhật.", settingVM.Id);
+                }
+            }
+        }
+
+        return changed;
+    }
+
+    private void MergeInputWithFreshData(SettingsIndexViewModel source, SettingsIndexViewModel destination)
+    {
+        foreach (var inputGroup in source.SettingGroups)
+        {
+            if (destination.SettingGroups.TryGetValue(inputGroup.Key, out var freshGroup))
+            {
+                foreach (var input in inputGroup.Value)
+                {
+                    var match = freshGroup.FirstOrDefault(s => s.Id == input.Id);
+                    if (match != null)
+                    {
+                        match.Value = input.Value;
+                    }
+                }
+            }
+        }
+    }
+
 }

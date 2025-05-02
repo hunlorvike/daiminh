@@ -27,7 +27,6 @@ public class DashboardController : Controller
     {
         try
         {
-            // --- Lấy dữ liệu thống kê cơ bản (như trước) ---
             var viewModel = new DashboardViewModel
             {
                 TotalPublishedArticles = await _context.Set<Article>().CountAsync(a => a.Status == PublishStatus.Published),
@@ -46,9 +45,6 @@ public class DashboardController : Controller
                 TotalActiveUsers = await _context.Set<User>().CountAsync(u => u.IsActive),
                 TotalActiveFAQs = await _context.Set<FAQ>().CountAsync(f => f.IsActive),
             };
-
-
-            // --- Chuẩn bị dữ liệu cho Biểu đồ ---
 
             // 1. Biểu đồ trạng thái bài viết (Pie/Donut Chart)
             var articleStatusCounts = await _context.Set<Article>()

@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using web.Areas.Admin.Validators.AttributeValue;
 using web.Areas.Admin.ViewModels.AttributeValue;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
@@ -13,7 +14,7 @@ using X.PagedList.Extensions;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize] // Add authorization if needed
+[Authorize]
 public partial class AttributeValueController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -83,22 +84,41 @@ public partial class AttributeValueController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(AttributeValueViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var result = await new AttributeValueViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!result.IsValid)
         {
-            AttributeValue attributeValue = _mapper.Map<AttributeValue>(viewModel);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            _context.Add(attributeValue);
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
 
-            try
+        var attributeValue = _mapper.Map<AttributeValue>(viewModel);
+        _context.Add(attributeValue);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Thêm giá trị '{attributeValue.Value}' thành công.";
+            return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo giá trị thuộc tính.");
+            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
             {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId }); // Redirect back to list filtered by parent
+                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại.");
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error creating attribute value.");
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu giá trị thuộc tính.");
+                ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu.");
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi không xác định khi tạo giá trị thuộc tính.");
+            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu.");
         }
 
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -127,34 +147,49 @@ public partial class AttributeValueController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, AttributeValueViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id) return BadRequest();
+
+        var result = await new AttributeValueViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!result.IsValid)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            AttributeValue? attributeValue = await _context.Set<AttributeValue>().FirstOrDefaultAsync(av => av.Id == id);
+            await PopulateViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
 
-            if (attributeValue == null)
-            {
-                // Should not happen if loaded in GET, but good practice
-                return RedirectToAction(nameof(Index));
-            }
+        var attributeValue = await _context.Set<AttributeValue>().FirstOrDefaultAsync(av => av.Id == id);
+        if (attributeValue == null)
+        {
+            TempData["ErrorMessage"] = "Không tìm thấy giá trị thuộc tính để cập nhật.";
+            return RedirectToAction(nameof(Index));
+        }
 
-            _mapper.Map(viewModel, attributeValue);
+        _mapper.Map(viewModel, attributeValue);
 
-            try
+        try
+        {
+            await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = $"Cập nhật giá trị '{attributeValue.Value}' thành công.";
+            return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật giá trị thuộc tính ID {Id}", id);
+            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
             {
-                _context.Update(attributeValue);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId }); // Redirect back to list filtered by parent
+                ModelState.AddModelError(nameof(viewModel.Slug), "Slug đã tồn tại.");
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error updating attribute value with ID {AttributeValueId}.", id);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật giá trị thuộc tính.");
+                ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi cập nhật.");
             }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi không xác định khi cập nhật giá trị thuộc tính ID {Id}", id);
+            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
         }
 
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -166,30 +201,43 @@ public partial class AttributeValueController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        AttributeValue? attributeValue = await _context.Set<AttributeValue>().FirstOrDefaultAsync(av => av.Id == id);
+        var attributeValue = await _context.Set<AttributeValue>().FirstOrDefaultAsync(av => av.Id == id);
 
         if (attributeValue == null)
         {
+            _logger.LogWarning("Không tìm thấy giá trị thuộc tính để xóa. ID = {Id}", id);
             return Json(new { success = false, message = "Không tìm thấy giá trị thuộc tính." });
         }
 
         try
         {
-            int parentAttributeId = attributeValue.AttributeId;
-            string attributeValueName = attributeValue.Value;
+            string value = attributeValue.Value;
+            int parentId = attributeValue.AttributeId;
+
             _context.Remove(attributeValue);
             await _context.SaveChangesAsync();
-            return Json(new { success = true, message = $"Xóa giá trị thuộc tính '{attributeValueName}' thành công.", redirectUrl = Url.Action(nameof(Index), new { AttributeId = parentAttributeId }) }); // Redirect after delete
+
+            _logger.LogInformation("Đã xóa giá trị thuộc tính '{Value}' (ID: {Id})", value, id);
+            return Json(new
+            {
+                success = true,
+                message = $"Xóa giá trị '{value}' thành công.",
+                redirectUrl = Url.Action(nameof(Index), new { AttributeId = parentId })
+            });
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi FK khi xóa giá trị thuộc tính ID {Id}", id);
+            if (ex.InnerException?.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return Json(new { success = false, message = "Không thể xóa giá trị này vì đang được sử dụng trong sản phẩm." });
+            }
+            return Json(new { success = false, message = "Lỗi cơ sở dữ liệu khi xóa giá trị." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting attribute value with ID {AttributeValueId}.", id);
-            // Check for FK issues
-            if (ex is DbUpdateException dbEx && dbEx.InnerException?.Message.Contains("FOREIGN KEY constraint") == true)
-            {
-                return Json(new { success = false, message = "Không thể xóa giá trị thuộc tính này vì nó đang được sử dụng bởi các biến thể sản phẩm." });
-            }
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa giá trị thuộc tính." });
+            _logger.LogError(ex, "Lỗi không xác định khi xóa giá trị thuộc tính ID {Id}", id);
+            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa." });
         }
     }
 }
