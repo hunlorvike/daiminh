@@ -10,6 +10,12 @@ SerilogConfig.Configure();
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration
+    .SetBasePath(Directory.GetCurrentDirectory())
+    .AddJsonFile("appsettings.json", optional: false)
+    .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
+    .AddEnvironmentVariables();
+
 builder.Host.UseSerilog();
 
 builder.Services.AddDatabase(builder.Configuration)
