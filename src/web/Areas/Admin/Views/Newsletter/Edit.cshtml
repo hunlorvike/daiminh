@@ -1,8 +1,9 @@
 @using web.Areas.Admin.ViewModels.Newsletter
+@using web.Extensions
 @model NewsletterViewModel
 @{
 	ViewData["Title"] = "Chỉnh sửa Đăng ký Newsletter - Hệ thống quản trị";
-	ViewData["PageTitle"] = $"Chỉnh sửa Đăng ký: {Model.Email}";
+	ViewData["PageTitle"] = $"Chỉnh sửa Đăng ký Newsletter: {Model.Email}";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
 ("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
 ($"Chỉnh sửa: {Model.Email}", "")
@@ -38,7 +39,7 @@
 							<i class="ti ti-alert-circle"></i>
 						</div>
 						<div>
-							<h4 class="alert-title">Có lỗi xảy ra!</h4>
+							<h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
 							<div asp-validation-summary="ModelOnly" class="mb-0"></div>
 						</div>
 					</div>
@@ -58,7 +59,7 @@
 									<span class="badge @(Model.IsActive ? "bg-green-lt" : "bg-red-lt") me-2">
 										@(Model.IsActive ? "Đang hoạt động" : "Đã hủy đăng ký")
 									</span>
-									<span>Đăng ký lúc: @Model.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+									<span>Đăng ký lúc:	@Html.ToLocalTime(Model.CreatedAt, "Asia/Ho_Chi_Minh")</span>
 								</p>
 							</div>
 						</div>

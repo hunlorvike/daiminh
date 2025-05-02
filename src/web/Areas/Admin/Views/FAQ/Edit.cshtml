@@ -1,4 +1,5 @@
 @using web.Areas.Admin.ViewModels.FAQ
+@using web.Extensions
 @model FAQViewModel
 @{
 	ViewData["Title"] = "Chỉnh sửa FAQ - Hệ thống quản trị";
@@ -47,7 +48,7 @@
 							<i class="ti ti-alert-circle"></i>
 						</div>
 						<div>
-							<h4 class="alert-title">Có lỗi xảy ra!</h4>
+							<h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
 							<div asp-validation-summary="ModelOnly" class="mb-0"></div>
 						</div>
 					</div>
@@ -65,7 +66,9 @@
 					<div class="datagrid-content">
 						<div class="d-flex align-items-center">
 							<i class="ti ti-calendar-event me-1"></i>
-							<span>@Model?.CreatedAt?.ToString("dd/MM/yyyy HH:mm")</span>
+							<span>
+								@Html.ToLocalTime(Model.CreatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm")
+							</span>
 						</div>
 					</div>
 				</div>
@@ -76,7 +79,9 @@
 						{
 							<div class="d-flex align-items-center">
 								<i class="ti ti-calendar-time me-1"></i>
-								<span>@Model.UpdatedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+								<span>
+									@Html.ToLocalTime(Model.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm")
+								</span>
 							</div>
 						}
 						else

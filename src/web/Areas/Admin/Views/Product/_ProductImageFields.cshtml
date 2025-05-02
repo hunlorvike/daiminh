@@ -18,18 +18,20 @@
 			<div class="row g-2">
 				<div class="col-md-6">
 					<div class="mb-2">
-						<label for="@(uniqueIdPrefix)ImageUrl" class="form-label required visually-hidden">URL
-							Ảnh</label>
+						<label for="@(uniqueIdPrefix)ImageUrl" class="form-label required visually-hidden">
+							URL
+							Ảnh
+						</label>
 						<div class="input-group">
 							<span class="input-group-text">
 								<i class="ti ti-photo"></i>
 							</span>
 							<input type="text" name="Images[@index].ImageUrl" id="@(uniqueIdPrefix)ImageUrl"
-								value="@Model.ImageUrl" class="form-control form-control-sm media-url-input" readonly
-								placeholder="URL Ảnh (*)" />
+								   value="@Model.ImageUrl" class="form-control form-control-sm media-url-input" readonly
+								   placeholder="URL Ảnh (*)" />
 							<button class="btn btn-outline-secondary btn-sm select-media-button" type="button"
-								data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-media-type-filter="0"
-								data-target-input="#@(uniqueIdPrefix)ImageUrl">
+									data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-media-type-filter="0"
+									data-target-input="#@(uniqueIdPrefix)ImageUrl">
 								<i class="ti ti-photo-search"></i>
 							</button>
 						</div>
@@ -38,7 +40,7 @@
 							@if (!string.IsNullOrEmpty(Model.ImageUrl))
 							{
 								<img src="@Model.ImageUrl" style="max-height: 80px; width: auto;"
-									class="img-thumbnail img-fluid" />
+									 class="img-thumbnail img-fluid" />
 							}
 							else
 							{
@@ -55,7 +57,7 @@
 								<i class="ti ti-a-b"></i>
 							</span>
 							<input type="text" name="Images[@index].AltText" id="@(uniqueIdPrefix)AltText"
-								value="@Model.AltText" class="form-control form-control-sm" placeholder="Alt Text" />
+								   value="@Model.AltText" class="form-control form-control-sm" placeholder="Alt Text" />
 						</div>
 						<span class="text-danger d-block" data-valmsg-for="Images[@index].AltText"></span>
 					</div>
@@ -66,20 +68,22 @@
 								<i class="ti ti-heading"></i>
 							</span>
 							<input type="text" name="Images[@index].Title" id="@(uniqueIdPrefix)Title"
-								value="@Model.Title" class="form-control form-control-sm" placeholder="Tiêu đề ảnh" />
+								   value="@Model.Title" class="form-control form-control-sm" placeholder="Tiêu đề ảnh" />
 						</div>
 						<span class="text-danger d-block" data-valmsg-for="Images[@index].Title"></span>
 					</div>
 					<div class="mb-2">
-						<label for="@(uniqueIdPrefix)ThumbnailUrl" class="form-label visually-hidden">URL
-							Thumbnail</label>
+						<label for="@(uniqueIdPrefix)ThumbnailUrl" class="form-label visually-hidden">
+							URL
+							Thumbnail
+						</label>
 						<div class="input-group">
 							<span class="input-group-text">
 								<i class="ti ti-photo-down"></i>
 							</span>
 							<input type="text" name="Images[@index].ThumbnailUrl" id="@(uniqueIdPrefix)ThumbnailUrl"
-								value="@Model.ThumbnailUrl" class="form-control form-control-sm"
-								placeholder="URL Thumbnail (tùy chọn)" />
+								   value="@Model.ThumbnailUrl" class="form-control form-control-sm"
+								   placeholder="URL Thumbnail (tùy chọn)" />
 						</div>
 						<span class="text-danger d-block" data-valmsg-for="Images[@index].ThumbnailUrl"></span>
 					</div>
@@ -90,7 +94,7 @@
 
 			<div class="form-check form-switch mt-2">
 				<input class="form-check-input image-is-main" type="checkbox" name="Images[@index].IsMain"
-					id="@(uniqueIdPrefix)IsMain" role="switch" value="true" @(Model.IsMain ? "checked" : "")>
+					   id="@(uniqueIdPrefix)IsMain" role="switch" value="true" @(Model.IsMain ? "checked" : "")>
 				<label class="form-check-label" for="@(uniqueIdPrefix)IsMain">
 					<i class="ti ti-star me-1"></i>Ảnh chính
 				</label>

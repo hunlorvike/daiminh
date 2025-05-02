@@ -3,6 +3,7 @@
 @using web.Areas.Admin.ViewModels.Tag
 @using shared.Extensions
 @using shared.Enums
+@using web.Extensions
 
 @model TagIndexViewModel
 @{
@@ -175,10 +176,10 @@
 									<span class="badge bg-blue-lt">@item.ItemCount</span>
 								</td>
 								<td class="text-muted d-none d-lg-table-cell"
-									title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
+									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@(item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")
+										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
 									</div>
 								</td>
 								<td class="text-end">

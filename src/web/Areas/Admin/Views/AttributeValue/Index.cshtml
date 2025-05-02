@@ -1,6 +1,7 @@
 @using X.PagedList.Mvc.Core
 @using X.PagedList
 @using web.Areas.Admin.ViewModels.AttributeValue
+@using web.Extensions
 
 @model AttributeValueIndexViewModel
 @{
@@ -17,22 +18,22 @@
 		@if (Model.Filter.AttributeId.HasValue)
 		{
 			<a asp-action="Create" asp-route-AttributeId="@Model.Filter.AttributeId.Value"
-				class="btn btn-primary d-none d-sm-inline-block">
+			   class="btn btn-primary d-none d-sm-inline-block">
 				<i class="ti ti-plus me-2"></i> Thêm Giá trị
 			</a>
 			<a asp-action="Create" asp-route-AttributeId="@Model.Filter.AttributeId.Value"
-				class="btn btn-primary d-sm-none btn-icon">
+			   class="btn btn-primary d-sm-none btn-icon">
 				<i class="ti ti-plus"></i>
 			</a>
 		}
 		else
 		{
 			<button type="button" class="btn btn-primary d-none d-sm-inline-block" disabled
-				title="Vui lòng chọn thuộc tính để thêm giá trị">
+					title="Vui lòng chọn thuộc tính để thêm giá trị">
 				<i class="ti ti-plus me-2"></i> Thêm Giá trị
 			</button>
 			<button type="button" class="btn btn-primary d-sm-none btn-icon" disabled
-				title="Vui lòng chọn thuộc tính để thêm giá trị">
+					title="Vui lòng chọn thuộc tính để thêm giá trị">
 				<i class="ti ti-plus"></i>
 			</button>
 		}
@@ -56,7 +57,7 @@
 								<i class="ti ti-adjustments-alt"></i>
 							</span>
 							<select asp-for="Filter.AttributeId" asp-items="@Model.Filter.AttributeOptions"
-								class="form-select">
+									class="form-select">
 							</select>
 						</div>
 					</div>
@@ -97,9 +98,11 @@
 		</h3>
 		@if (Model.AttributeValues.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị
+			<small class="text-muted d-none d-md-block">
+				Hiển thị
 				@Model.AttributeValues.FirstItemOnPage-@Model.AttributeValues.LastItemOnPage trên tổng số
-				@Model.AttributeValues.TotalItemCount giá trị</small>
+				@Model.AttributeValues.TotalItemCount giá trị
+			</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -166,8 +169,8 @@
 									<div class="d-flex align-items-center">
 										<i class="ti ti-adjustments-alt me-2 text-muted"></i>
 										<a asp-area="Admin" asp-controller="Attribute" asp-action="Edit"
-											asp-route-id="@item.AttributeId"
-											class="text-reset fw-medium">@item.AttributeName</a>
+										   asp-route-id="@item.AttributeId"
+										   class="text-reset fw-medium">@item.AttributeName</a>
 									</div>
 								</td>
 								<td>
@@ -185,21 +188,21 @@
 									<span class="badge bg-azure-lt">@item.OrderIndex</span>
 								</td>
 								<td class="text-muted d-none d-lg-table-cell"
-									title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
+									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@(item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")
+										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
 									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
-											title="Chỉnh sửa">
+										   title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
 										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-											data-id="@item.Id" data-name="@item.Value"
-											data-delete-url="@Url.Action("Delete", "AttributeValue")">
+												data-id="@item.Id" data-name="@item.Value"
+												data-delete-url="@Url.Action("Delete", "AttributeValue")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -216,29 +219,29 @@
 		<div class="card-footer">
 			<div class="d-flex justify-content-center">
 				@Html.PagedListPager(
-				Model.AttributeValues,
-						page => Url.Action("Index", new
-						{
-							page,
-							Model.Filter.SearchTerm,
-							Model.Filter.AttributeId
-						}),
-						new PagedListRenderOptions
-						{
-							UlElementClasses = new[] { "pagination mb-0" },
-							LiElementClasses = new[] { "page-item" },
-							PageClasses = new[] { "page-link" },
-							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-							DisplayLinkToNextPage = PagedListDisplayMode.Always,
-							ActiveLiElementClass = "active",
-							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-						})
+								Model.AttributeValues,
+								page => Url.Action("Index", new
+								{
+									page,
+									Model.Filter.SearchTerm,
+									Model.Filter.AttributeId
+								}),
+								new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+			})
+			</div>
 		</div>
-	</div>
-		}
+	}
 </div>
 
 @section Scripts {

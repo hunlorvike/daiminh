@@ -4,9 +4,9 @@
 	ViewData["Title"] = "Thêm Đánh giá Khách hàng";
 	ViewData["PageTitle"] = "Thêm Đánh giá Mới";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Đánh giá", Url.Action(nameof(Index)) ?? "/Admin/Testimonial"),
-("Thêm mới", "")
-};
+		("Đánh giá", Url.Action(nameof(Index)) ?? "/Admin/Testimonial"),
+		("Thêm mới", "")
+	};
 }
 
 @section Styles {
@@ -38,7 +38,7 @@
 					<i class="ti ti-alert-circle"></i>
 				</div>
 				<div>
-					<h4 class="alert-title">Có lỗi xảy ra!</h4>
+					<h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
 					<div asp-validation-summary="ModelOnly" class="mb-0"></div>
 				</div>
 			</div>

@@ -91,22 +91,28 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TagViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        var validationResult = await new TagViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!validationResult.IsValid)
         {
-            Tag tag = _mapper.Map<Tag>(viewModel);
+            foreach (var error in validationResult.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            _context.Add(tag);
+            viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
+            return View(viewModel);
+        }
 
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error creating tag: {Name}", viewModel.Name);
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu thẻ.");
-            }
+        var tag = _mapper.Map<Tag>(viewModel);
+        _context.Add(tag);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi tạo thẻ mới '{Name}'", viewModel.Name);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi tạo thẻ.");
         }
 
         viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
@@ -134,33 +140,40 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TagViewModel viewModel)
     {
-        if (ModelState.IsValid)
+        if (id != viewModel.Id)
+            return BadRequest();
+
+        var validationResult = await new TagViewModelValidator(_context).ValidateAsync(viewModel);
+        if (!validationResult.IsValid)
         {
-            if (id != viewModel.Id)
-            {
-                return BadRequest();
-            }
+            foreach (var error in validationResult.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            Tag? tag = await _context.Set<Tag>().FirstOrDefaultAsync(t => t.Id == id);
-            if (tag == null)
-            {
-                return RedirectToAction(nameof(Index));
-            }
-
-            _mapper.Map(viewModel, tag);
-
-            try
-            {
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            catch (Exception)
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thẻ.");
-            }
+            viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
+            return View(viewModel);
         }
-        viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
 
+        var tag = await _context.Set<Tag>().FirstOrDefaultAsync(t => t.Id == id);
+        if (tag == null)
+        {
+            _logger.LogWarning("Không tìm thấy thẻ có id '{Id}' để chỉnh sửa.", id);
+            return NotFound();
+        }
+
+        _mapper.Map(viewModel, tag);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Lỗi khi cập nhật thẻ '{Name}'", viewModel.Name);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật thẻ.");
+        }
+
+        viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
         return View(viewModel);
     }
 

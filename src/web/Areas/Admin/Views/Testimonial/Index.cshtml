@@ -1,6 +1,7 @@
 @using X.PagedList.Mvc.Core
 @using X.PagedList
 @using web.Areas.Admin.ViewModels.Testimonial
+@using web.Extensions
 @model TestimonialIndexViewModel
 @{
     ViewData["Title"] = "Quản lý Đánh giá Khách hàng";
@@ -204,12 +205,13 @@
                                         </span>
                                     }
                                 </td>
-                                <td class="text-muted d-none d-md-table-cell" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
-                                    <div class="d-flex align-items-center">
-                                        <i class="ti ti-calendar-time me-1"></i>
-                                        @(item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")
-                                    </div>
-                                </td>
+								<td class="text-muted d-none d-lg-table-cell"
+									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+									<div class="d-flex align-items-center">
+										<i class="ti ti-calendar-time me-1"></i>
+										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+									</div>
+								</td>
                                 <td>
                                     <div class="btn-group">
                                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">

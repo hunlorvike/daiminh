@@ -2,114 +2,116 @@
 @model AttributeValueViewModel
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @functions {
-    public string GetAntiXsrfRequestToken()
-    {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken!;
-    }
+	public string GetAntiXsrfRequestToken()
+	{
+		return Xsrf.GetAndStoreTokens(Context).RequestToken!;
+	}
 }
 
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="ti ti-list-check me-2"></i>Thông tin Giá trị thuộc tính
-        </h3>
-    </div>
-    <div class="card-body">
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label asp-for="AttributeId" class="form-label required"></label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="ti ti-adjustments-alt"></i>
-                        </span>
-                        <select asp-for="AttributeId" asp-items="@Model.AttributeOptions"
-                            class="form-select tom-selected"></select>
-                    </div>
-                    <span asp-validation-for="AttributeId" class="text-danger"></span>
-                    <small class="form-hint">Thuộc tính mà giá trị này thuộc về</small>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label asp-for="Value" class="form-label required"></label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="ti ti-forms"></i>
-                        </span>
-                        <input asp-for="Value" class="form-control" placeholder="Nhập giá trị thuộc tính" />
-                    </div>
-                    <span asp-validation-for="Value" class="text-danger"></span>
-                </div>
-            </div>
-        </div>
-        <div class="row g-3">
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label asp-for="Slug" class="form-label"></label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="ti ti-link"></i>
-                        </span>
-                        <input asp-for="Slug" class="form-control" placeholder="gia-tri-thuoc-tinh" />
-                        <button class="btn btn-outline-secondary" type="button" id="generateSlugButton"
-                            title="Tạo slug tự động">
-                            <i class="ti ti-refresh"></i>
-                        </button>
-                    </div>
-                    <span asp-validation-for="Slug" class="text-danger"></span>
-                    <small class="form-hint">
-                        <i class="ti ti-info-circle me-1"></i>Tùy chọn. Dùng cho URL hoặc định danh.
-                    </small>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="form-group mb-3">
-                    <label asp-for="OrderIndex" class="form-label"></label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="ti ti-sort-ascending"></i>
-                        </span>
-                        <input asp-for="OrderIndex" type="number" min="0" class="form-control" placeholder="0" />
-                    </div>
-                    <span asp-validation-for="OrderIndex" class="text-danger"></span>
-                    <small class="form-hint">Thứ tự hiển thị của giá trị trong danh sách (số nhỏ hơn hiển thị
-                        trước)</small>
-                </div>
-            </div>
-        </div>
-        <div class="form-group mb-3">
-            <label asp-for="Description" class="form-label"></label>
-            <div class="input-group ">
-                <span class="input-group-text">
-                    <i class="ti ti-notes"></i>
-                </span>
-                <textarea asp-for="Description" class="form-control" rows="3"
-                    placeholder="Mô tả về giá trị thuộc tính này..."></textarea>
-            </div>
-            <span asp-validation-for="Description" class="text-danger"></span>
-            <small class="form-hint">Mô tả ngắn gọn về giá trị thuộc tính này (tùy chọn)</small>
-        </div>
+	<div class="card-header">
+		<h3 class="card-title">
+			<i class="ti ti-list-check me-2"></i>Thông tin Giá trị thuộc tính
+		</h3>
+	</div>
+	<div class="card-body">
+		<div class="row g-3">
+			<div class="col-md-6">
+				<div class="form-group mb-3">
+					<label asp-for="AttributeId" class="form-label required"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-adjustments-alt"></i>
+						</span>
+						<select asp-for="AttributeId" asp-items="@Model.AttributeOptions"
+								class="form-select tom-selected"></select>
+					</div>
+					<span asp-validation-for="AttributeId" class="text-danger"></span>
+					<small class="form-hint">Thuộc tính mà giá trị này thuộc về</small>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group mb-3">
+					<label asp-for="Value" class="form-label required"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-forms"></i>
+						</span>
+						<input asp-for="Value" class="form-control" placeholder="Nhập giá trị thuộc tính" />
+					</div>
+					<span asp-validation-for="Value" class="text-danger"></span>
+				</div>
+			</div>
+		</div>
+		<div class="row g-3">
+			<div class="col-md-6">
+				<div class="form-group mb-3">
+					<label asp-for="Slug" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-link"></i>
+						</span>
+						<input asp-for="Slug" class="form-control" placeholder="gia-tri-thuoc-tinh" />
+						<button class="btn btn-outline-secondary" type="button" id="generateSlugButton"
+								title="Tạo slug tự động">
+							<i class="ti ti-refresh"></i>
+						</button>
+					</div>
+					<span asp-validation-for="Slug" class="text-danger"></span>
+					<small class="form-hint">
+						<i class="ti ti-info-circle me-1"></i>Tùy chọn. Dùng cho URL hoặc định danh.
+					</small>
+				</div>
+			</div>
+			<div class="col-md-6">
+				<div class="form-group mb-3">
+					<label asp-for="OrderIndex" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-sort-ascending"></i>
+						</span>
+						<input asp-for="OrderIndex" type="number" min="0" class="form-control" placeholder="0" />
+					</div>
+					<span asp-validation-for="OrderIndex" class="text-danger"></span>
+					<small class="form-hint">
+						Thứ tự hiển thị của giá trị trong danh sách (số nhỏ hơn hiển thị
+						trước)
+					</small>
+				</div>
+			</div>
+		</div>
+		<div class="form-group mb-3">
+			<label asp-for="Description" class="form-label"></label>
+			<div class="input-group ">
+				<span class="input-group-text">
+					<i class="ti ti-notes"></i>
+				</span>
+				<textarea asp-for="Description" class="form-control" rows="3"
+						  placeholder="Mô tả về giá trị thuộc tính này..."></textarea>
+			</div>
+			<span asp-validation-for="Description" class="text-danger"></span>
+			<small class="form-hint">Mô tả ngắn gọn về giá trị thuộc tính này (tùy chọn)</small>
+		</div>
 
-        <div class="alert alert-info d-flex mt-4" role="alert">
-            <div class="alert-icon">
-                <i class="ti ti-info-circle"></i>
-            </div>
-            <div>
-                <h4 class="alert-title">Thông tin về giá trị thuộc tính</h4>
-                <div class="text-muted">
-                    Giá trị thuộc tính là các tùy chọn cụ thể cho một thuộc tính. Ví dụ: nếu thuộc tính là "Màu sắc",
-                    các giá trị có thể là "Đỏ", "Xanh", "Vàng", v.v.
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
-        <a asp-action="Index" asp-route-AttributeId="@Model.AttributeId" class="btn btn-link">
-            <i class="ti ti-x me-1"></i>Hủy
-        </a>
-        <button type="submit" class="btn btn-primary ms-2">
-            <i class="ti ti-device-floppy me-2"></i> @(Model.Id > 0 ? "Cập nhật" : "Lưu") Giá trị
-        </button>
-    </div>
+		<div class="alert alert-info d-flex mt-4" role="alert">
+			<div class="alert-icon">
+				<i class="ti ti-info-circle"></i>
+			</div>
+			<div>
+				<h4 class="alert-title mb-0">Thông tin về giá trị thuộc tính</h4>
+				<div class="text-muted">
+					Giá trị thuộc tính là các tùy chọn cụ thể cho một thuộc tính. Ví dụ: nếu thuộc tính là "Màu sắc",
+					các giá trị có thể là "Đỏ", "Xanh", "Vàng", v.v.
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
+		<a asp-action="Index" asp-route-AttributeId="@Model.AttributeId" class="btn btn-link">
+			<i class="ti ti-x me-1"></i>Hủy
+		</a>
+		<button type="submit" class="btn btn-primary ms-2">
+			<i class="ti ti-device-floppy me-2"></i> @(Model.Id > 0 ? "Cập nhật" : "Lưu") Giá trị
+		</button>
+	</div>
 </div>

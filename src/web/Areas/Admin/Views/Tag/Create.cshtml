@@ -7,9 +7,9 @@
     ViewData["Title"] = "Thêm Thẻ mới - Hệ thống quản trị";
     ViewData["PageTitle"] = "Thêm Thẻ mới";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag"),
-("Thêm mới", "")
-};
+		("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag"),
+		("Thêm mới", "")
+	};
 }
 
 <form asp-action="Create" method="post">
@@ -21,21 +21,21 @@
         </div>
         <div class="card-body">
             @Html.AntiForgeryToken()
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <div class="d-flex">
-                        <div class="alert-icon">
-                            <i class="ti ti-alert-circle"></i>
-                        </div>
-                        <div>
-                            <h4 class="alert-title">Có lỗi xảy ra!</h4>
-                            <div asp-validation-summary="ModelOnly" class="mb-0"></div>
-                        </div>
-                    </div>
-                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-                </div>
-            }
+			@if (!ViewData.ModelState.IsValid)
+			{
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<div class="d-flex">
+						<div class="alert-icon">
+							<i class="ti ti-alert-circle"></i>
+						</div>
+						<div>
+							<h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
+							<div asp-validation-summary="ModelOnly" class="mb-0"></div>
+						</div>
+					</div>
+					<a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+				</div>
+			}
             <partial name="_TagFormFields" model="Model" />
         </div>
         <div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">

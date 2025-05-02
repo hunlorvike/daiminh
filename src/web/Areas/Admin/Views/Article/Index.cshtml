@@ -3,6 +3,7 @@
 @using shared.Enums
 @using web.Areas.Admin.ViewModels.Article
 @using shared.Extensions
+@using web.Extensions
 
 @model ArticleIndexViewModel
 @{
@@ -162,7 +163,7 @@
                                 <td class="d-none d-md-table-cell">
                                     @if (item.PublishedAt.HasValue)
                                     {
-                                        <span>@item.PublishedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+										<span>@Html.ToLocalTime(item.PublishedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy")</span>
                                     }
                                     else
                                     {

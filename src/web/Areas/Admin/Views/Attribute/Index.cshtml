@@ -1,6 +1,7 @@
 @using X.PagedList.Mvc.Core
 @using X.PagedList
 @using web.Areas.Admin.ViewModels.Attribute
+@using web.Extensions
 
 @model AttributeIndexViewModel
 @{
@@ -12,219 +13,220 @@
 }
 
 @section PageActions {
-	    <div class="btn-list">
-	        <a asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
-	            <i class="ti ti-plus me-2"></i> Thêm Thuộc tính
-	        </a>
-	        <a asp-action="Create" class="btn btn-primary d-sm-none btn-icon">
-	            <i class="ti ti-plus"></i>
-	        </a>
-	    </div>
+	<div class="btn-list">
+		<a asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
+			<i class="ti ti-plus me-2"></i> Thêm Thuộc tính
+		</a>
+		<a asp-action="Create" class="btn btn-primary d-sm-none btn-icon">
+			<i class="ti ti-plus"></i>
+		</a>
+	</div>
 }
 
 <div class="card mb-3">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="ti ti-filter me-2"></i>Bộ lọc
-        </h3>
-    </div>
-    <div class="card-body">
-        <form method="get" asp-action="Index" id="filterForm">
-            <div class="row g-3 align-items-end">
-                <div class="col-md-6 col-sm-12">
-                    <div class="form-group">
-                        <label asp-for="Filter.SearchTerm" class="form-label"></label>
-                        <div class="input-group">
-                            <span class="input-group-text">
-                                <i class="ti ti-search"></i>
-                            </span>
-                            <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, slug...">
-                            <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
-                                <i class="ti ti-x"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2 col-6">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
-                    </button>
-                </div>
-                <div class="col-md-2 col-6">
-                    <a asp-action="Index" class="btn btn-outline-secondary w-100">
-                        <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
-                    </a>
-                </div>
-            </div>
-        </form>
-    </div>
+	<div class="card-header">
+		<h3 class="card-title">
+			<i class="ti ti-filter me-2"></i>Bộ lọc
+		</h3>
+	</div>
+	<div class="card-body">
+		<form method="get" asp-action="Index" id="filterForm">
+			<div class="row g-3 align-items-end">
+				<div class="col-md-6 col-sm-12">
+					<div class="form-group">
+						<label asp-for="Filter.SearchTerm" class="form-label"></label>
+						<div class="input-group">
+							<span class="input-group-text">
+								<i class="ti ti-search"></i>
+							</span>
+							<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên, slug...">
+							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+								<i class="ti ti-x"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+				<div class="col-md-2 col-6">
+					<button type="submit" class="btn btn-primary w-100">
+						<i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
+					</button>
+				</div>
+				<div class="col-md-2 col-6">
+					<a asp-action="Index" class="btn btn-outline-secondary w-100">
+						<i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
+					</a>
+				</div>
+			</div>
+		</form>
+	</div>
 </div>
 
 <div class="card">
-    <div class="card-header d-flex justify-content-between align-items-center">
-        <h3 class="card-title">
-            <i class="ti ti-adjustments-alt me-2"></i>Danh sách Thuộc tính
-        </h3>
-        @if (Model.Attributes.TotalItemCount > 0)
-        {
-	            <small class="text-muted d-none d-md-block">Hiển thị @Model.Attributes.FirstItemOnPage-@Model.Attributes.LastItemOnPage trên tổng số @Model.Attributes.TotalItemCount thuộc tính</small>
-        }
-    </div>
-    <div class="card-body p-0">
-        @if (!Model.Attributes.Any())
-        {
-	            <div class="empty py-5">
-	                <div class="empty-icon">
-	                    <div class="avatar avatar-xl bg-light-subtle rounded">
-	                        <i class="ti ti-adjustments-off fs-1 text-muted"></i>
-	                    </div>
-	                </div>
-	                <p class="empty-title mt-3">Không tìm thấy thuộc tính nào</p>
-	                <p class="empty-subtitle text-muted">
-	                    @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm))
-	                    {
-		                        @:Hãy thêm thuộc tính đầu tiên để phân loại sản phẩm của bạn.
-	                    }
-	                    else
-	                    {
-		                        @:Không có thuộc tính nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
-	                    }
-	                </p>
-	                <div class="empty-action">
-	                    @if (!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm))
-	                    {
-		                        <a asp-action="Index" class="btn btn-outline-secondary">
-		                            <i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
-		                        </a>
-	                    }
-	                    <a asp-action="Create" class="btn btn-primary @(!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) ? "ms-2" : "")">
-	                        <i class="ti ti-plus me-2"></i> Thêm thuộc tính
-	                    </a>
-	                </div>
-	            </div>
-        }
-        else
-        {
-	            <div class="table-responsive">
-	                <table class="table table-vcenter card-table table-striped table-hover">
-	                    <thead>
-	                        <tr>
-	                            <th>Tên thuộc tính</th>
-	                            <th class="d-none d-md-table-cell">Slug</th>
-	                            <th class="text-center">Giá trị</th>
-	                            <th class="d-none d-lg-table-cell">Cập nhật</th>
-	                            <th class="text-end">Thao tác</th>
-	                        </tr>
-	                    </thead>
-	                    <tbody>
-	                        @foreach (var item in Model.Attributes)
-	                        {
-		                            <tr>
-		                                <td>
-		                                    <div class="d-flex flex-column">
-		                                        <div class="d-flex align-items-center">
-		                                            <i class="ti ti-adjustments me-2 text-muted"></i>
-		                                            <span class="fw-medium">@item.Name</span>
-		                                        </div>
-		                                    </div>
-		                                </td>
-		                                <td class="text-muted d-none d-md-table-cell">
-		                                    <div class="d-flex align-items-center">
-		                                        <i class="ti ti-link me-1"></i>
-		                                        <code>@item.Slug</code>
-		                                    </div>
-		                                </td>
-		                                <td class="text-center">
-		                                    @if (item.ValueCount > 0)
-		                                    {
-			                                        <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@item.Id" 
-			                                           class="badge bg-azure-lt hover-shadow" title="Xem các giá trị">
-			                                            <i class="ti ti-list me-1"></i>
-			                                            @item.ValueCount giá trị
-			                                        </a>
-		                                    }
-		                                    else
-		                                    {
-			                                        <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create" asp-route-AttributeId="@item.Id"
-			                                           class="badge bg-muted-lt" title="Thêm giá trị">
-			                                            <i class="ti ti-plus me-1"></i>
-			                                            Thêm giá trị
-			                                        </a>
-		                                    }
-		                                </td>
-		                                <td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
-		                                    <div class="d-flex align-items-center">
-		                                        <i class="ti ti-calendar-time me-1"></i>
-		                                        @(item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm") ?? "—")
-		                                    </div>
-		                                </td>
-		                                <td class="text-end">
-		                                    <div class="btn-group">
-		                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
-		                                            <i class="ti ti-pencil"></i>
-		                                        </a>
-		                                        <a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@item.Id" 
-		                                           class="btn btn-sm btn-outline-info" title="Quản lý giá trị">
-		                                            <i class="ti ti-list"></i>
-		                                        </a>
-		                                        <button class="btn btn-sm btn-outline-danger delete-item-btn"
-		                                                title="Xóa"
-		                                                data-id="@item.Id"
-		                                                data-name="@item.Name"
-		                                                data-delete-url="@Url.Action("Delete", "Attribute")">
-		                                            <i class="ti ti-trash"></i>
-		                                        </button>
-		                                    </div>
-		                                </td>
-		                            </tr>
-	                        }
-	                    </tbody>
-	                </table>
-	            </div>
-        }
-    </div>
-    @if (Model.Attributes.PageCount > 1)
-    {
-	        <div class="card-footer">
-	            <div class="d-flex justify-content-center">
-	                @Html.PagedListPager(
-	                    Model.Attributes,
-                                        page => Url.Action("Index", new
-					                    {
-						                        page,
-						                        Model.Filter.SearchTerm
-					                    }),
-                                        new PagedListRenderOptions
-					                    {
-						                        UlElementClasses = new[] { "pagination mb-0" },
-						                        LiElementClasses = new[] { "page-item" },
-						                        PageClasses = new[] { "page-link" },
-						                        DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-						                        DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-						                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-						                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
-						                        ActiveLiElementClass = "active",
-						                        LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-						                        LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-					                    })
-            </div>
-        </div>
-        }
+	<div class="card-header d-flex justify-content-between align-items-center">
+		<h3 class="card-title">
+			<i class="ti ti-adjustments-alt me-2"></i>Danh sách Thuộc tính
+		</h3>
+		@if (Model.Attributes.TotalItemCount > 0)
+		{
+			<small class="text-muted d-none d-md-block">Hiển thị @Model.Attributes.FirstItemOnPage-@Model.Attributes.LastItemOnPage trên tổng số @Model.Attributes.TotalItemCount thuộc tính</small>
+		}
+	</div>
+	<div class="card-body p-0">
+		@if (!Model.Attributes.Any())
+		{
+			<div class="empty py-5">
+				<div class="empty-icon">
+					<div class="avatar avatar-xl bg-light-subtle rounded">
+						<i class="ti ti-adjustments-off fs-1 text-muted"></i>
+					</div>
+				</div>
+				<p class="empty-title mt-3">Không tìm thấy thuộc tính nào</p>
+				<p class="empty-subtitle text-muted">
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm))
+					{
+						@:Hãy thêm thuộc tính đầu tiên để phân loại sản phẩm của bạn.
+					}
+					else
+					{
+						@:Không có thuộc tính nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+					}
+				</p>
+				<div class="empty-action">
+					@if (!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm))
+					{
+						<a asp-action="Index" class="btn btn-outline-secondary">
+							<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
+						</a>
+					}
+					<a asp-action="Create" class="btn btn-primary @(!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) ? "ms-2" : "")">
+						<i class="ti ti-plus me-2"></i> Thêm thuộc tính
+					</a>
+				</div>
+			</div>
+		}
+		else
+		{
+			<div class="table-responsive">
+				<table class="table table-vcenter card-table table-striped table-hover">
+					<thead>
+						<tr>
+							<th>Tên thuộc tính</th>
+							<th class="d-none d-md-table-cell">Slug</th>
+							<th class="text-center">Giá trị</th>
+							<th class="d-none d-lg-table-cell">Cập nhật</th>
+							<th class="text-end">Thao tác</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var item in Model.Attributes)
+						{
+							<tr>
+								<td>
+									<div class="d-flex flex-column">
+										<div class="d-flex align-items-center">
+											<i class="ti ti-adjustments me-2 text-muted"></i>
+											<span class="fw-medium">@item.Name</span>
+										</div>
+									</div>
+								</td>
+								<td class="text-muted d-none d-md-table-cell">
+									<div class="d-flex align-items-center">
+										<i class="ti ti-link me-1"></i>
+										<code>@item.Slug</code>
+									</div>
+								</td>
+								<td class="text-center">
+									@if (item.ValueCount > 0)
+									{
+										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@item.Id"
+										   class="badge bg-azure-lt hover-shadow" title="Xem các giá trị">
+											<i class="ti ti-list me-1"></i>
+											@item.ValueCount giá trị
+										</a>
+									}
+									else
+									{
+										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create" asp-route-AttributeId="@item.Id"
+										   class="badge bg-muted-lt" title="Thêm giá trị">
+											<i class="ti ti-plus me-1"></i>
+											Thêm giá trị
+										</a>
+									}
+								</td>
+								<td class="text-muted d-none d-lg-table-cell"
+									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+									<div class="d-flex align-items-center">
+										<i class="ti ti-calendar-time me-1"></i>
+										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+									</div>
+								</td>
+								<td class="text-end">
+									<div class="btn-group">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+											<i class="ti ti-pencil"></i>
+										</a>
+										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@item.Id"
+										   class="btn btn-sm btn-outline-info" title="Quản lý giá trị">
+											<i class="ti ti-list"></i>
+										</a>
+										<button class="btn btn-sm btn-outline-danger delete-item-btn"
+												title="Xóa"
+												data-id="@item.Id"
+												data-name="@item.Name"
+												data-delete-url="@Url.Action("Delete", "Attribute")">
+											<i class="ti ti-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	</div>
+	@if (Model.Attributes.PageCount > 1)
+	{
+		<div class="card-footer">
+			<div class="d-flex justify-content-center">
+				@Html.PagedListPager(
+								Model.Attributes,
+								page => Url.Action("Index", new
+								{
+									page,
+									Model.Filter.SearchTerm
+								}),
+								new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+			})
+			</div>
+		</div>
+	}
 </div>
 
 @section Scripts {
-	    <script>
-	        $(document).ready(function () {
-	            $('#clearSearch').on('click', function() {
-	                $('#Filter_SearchTerm').val('');
-	                $('#filterForm').submit();
-	            });
-            
-	            // Add hover effect to value badges
-	            $('.badge.bg-azure-lt').hover(
-	                function() { $(this).removeClass('bg-azure-lt').addClass('bg-azure'); },
-	                function() { $(this).removeClass('bg-azure').addClass('bg-azure-lt'); }
-	            );
-	        });
-	    </script>
+	<script>
+		$(document).ready(function () {
+			$('#clearSearch').on('click', function() {
+				$('#Filter_SearchTerm').val('');
+				$('#filterForm').submit();
+			});
+
+			// Add hover effect to value badges
+			$('.badge.bg-azure-lt').hover(
+				function() { $(this).removeClass('bg-azure-lt').addClass('bg-azure'); },
+				function() { $(this).removeClass('bg-azure').addClass('bg-azure-lt'); }
+			);
+		});
+	</script>
 }

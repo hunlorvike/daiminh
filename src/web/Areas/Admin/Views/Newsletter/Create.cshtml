@@ -1,73 +1,73 @@
 @using web.Areas.Admin.ViewModels.Newsletter
 @model NewsletterViewModel
 @{
-    ViewData["Title"] = "Thêm Đăng ký Newsletter - Hệ thống quản trị";
-    ViewData["PageTitle"] = "Thêm Đăng ký Newsletter";
-    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+	ViewData["Title"] = "Thêm Đăng ký Newsletter - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Thêm Đăng ký Newsletter";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
 ("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
 ("Thêm mới", "")
 };
 }
 
 @section PageActions {
-    <div class="btn-list">
-        <button type="submit" form="newsletterForm" class="btn btn-primary d-none d-sm-inline-block">
-            <i class="ti ti-device-floppy me-2"></i>Lưu đăng ký
-        </button>
-        <button type="submit" form="newsletterForm" class="btn btn-primary d-sm-none btn-icon">
-            <i class="ti ti-device-floppy"></i>
-        </button>
-    </div>
+	<div class="btn-list">
+		<button type="submit" form="newsletterForm" class="btn btn-primary d-none d-sm-inline-block">
+			<i class="ti ti-device-floppy me-2"></i>Lưu đăng ký
+		</button>
+		<button type="submit" form="newsletterForm" class="btn btn-primary d-sm-none btn-icon">
+			<i class="ti ti-device-floppy"></i>
+		</button>
+	</div>
 }
 
 <div class="card">
-    <div class="card-header">
-        <h3 class="card-title">
-            <i class="ti ti-mail-plus me-2"></i>Thêm đăng ký mới
-        </h3>
-    </div>
-    <div class="card-body">
-        <form asp-action="Create" method="post" id="newsletterForm">
-            @Html.AntiForgeryToken()
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <div class="d-flex">
-                        <div class="alert-icon">
-                            <i class="ti ti-alert-circle"></i>
-                        </div>
-                        <div>
-                            <h4 class="alert-title">Có lỗi xảy ra!</h4>
-                            <div asp-validation-summary="ModelOnly" class="mb-0"></div>
-                        </div>
-                    </div>
-                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-                </div>
-            }
-            <div class="row">
-                <div class="col-lg-8 mx-auto">
-                    <div class="card card-body border-0 shadow-none bg-light-subtle">
-                        <div class="d-flex align-items-center mb-4">
-                            <div class="avatar avatar-lg bg-blue-lt me-3">
-                                <i class="ti ti-mail-plus fs-1"></i>
-                            </div>
-                            <div>
-                                <h3 class="mb-0">Thêm đăng ký mới</h3>
-                                <p class="text-muted mb-0">Thêm người đăng ký mới vào danh sách nhận bản tin</p>
-                            </div>
-                        </div>
-                        <partial name="_NewsletterFormFields" model="Model" />
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-    <div class="card-footer d-flex justify-content-end bg-transparent">
-        <a asp-action="Index" class="btn btn-link">
-            <i class="ti ti-arrow-left me-1"></i>Quay lại
-        </a>
-        <button type="submit" form="newsletterForm" class="btn btn-primary ms-2">
-            <i class="ti ti-device-floppy me-2"></i>Lưu đăng ký
-        </button>
-    </div>
+	<div class="card-header">
+		<h3 class="card-title">
+			<i class="ti ti-mail-plus me-2"></i>Thêm đăng ký mới
+		</h3>
+	</div>
+	<div class="card-body">
+		<form asp-action="Create" method="post" id="newsletterForm">
+			@Html.AntiForgeryToken()
+			@if (!ViewData.ModelState.IsValid)
+			{
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<div class="d-flex">
+						<div class="alert-icon">
+							<i class="ti ti-alert-circle"></i>
+						</div>
+						<div>
+							<h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
+							<div asp-validation-summary="ModelOnly" class="mb-0"></div>
+						</div>
+					</div>
+					<a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+				</div>
+			}
+			<div class="row">
+				<div class="col-lg-8 mx-auto">
+					<div class="card card-body border-0 shadow-none bg-light-subtle">
+						<div class="d-flex align-items-center mb-4">
+							<div class="avatar avatar-lg bg-blue-lt me-3">
+								<i class="ti ti-mail-plus fs-1"></i>
+							</div>
+							<div>
+								<h3 class="mb-0">Thêm đăng ký mới</h3>
+								<p class="text-muted mb-0">Thêm người đăng ký mới vào danh sách nhận bản tin</p>
+							</div>
+						</div>
+						<partial name="_NewsletterFormFields" model="Model" />
+					</div>
+				</div>
+			</div>
+		</form>
+	</div>
+	<div class="card-footer d-flex justify-content-end bg-transparent">
+		<a asp-action="Index" class="btn btn-link">
+			<i class="ti ti-arrow-left me-1"></i>Quay lại
+		</a>
+		<button type="submit" form="newsletterForm" class="btn btn-primary ms-2">
+			<i class="ti ti-device-floppy me-2"></i>Lưu đăng ký
+		</button>
+	</div>
 </div>

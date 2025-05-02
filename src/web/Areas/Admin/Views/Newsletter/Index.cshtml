@@ -1,6 +1,7 @@
 @using X.PagedList.Mvc.Core
 @using X.PagedList
 @using web.Areas.Admin.ViewModels.Newsletter
+@using web.Extensions
 
 @model NewsletterIndexViewModel
 @{
@@ -53,7 +54,7 @@
 								<i class="ti ti-activity"></i>
 							</span>
 							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions"
-								class="form-select"></select>
+									class="form-select"></select>
 						</div>
 					</div>
 				</div>
@@ -79,9 +80,11 @@
 		</h3>
 		@if (Model.Newsletters.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị
+			<small class="text-muted d-none d-md-block">
+				Hiển thị
 				@Model.Newsletters.FirstItemOnPage-@Model.Newsletters.LastItemOnPage trên tổng số
-				@Model.Newsletters.TotalItemCount đăng ký</small>
+				@Model.Newsletters.TotalItemCount đăng ký
+			</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -145,13 +148,15 @@
 										</span>
 										<div>
 											<div class="fw-medium">@item.Email</div>
-											<div class="text-muted small d-md-none">@(string.IsNullOrEmpty(item.Name) ? "-" :
-																						item.Name)</div>
-								</div>
-							</div>
-						</td>
-						<td class="d-none d-md-table-cell">
-							@if (!string.IsNullOrEmpty(item.Name))
+											<div class="text-muted small d-md-none">
+												@(string.IsNullOrEmpty(item.Name) ? "-" :
+																						item.Name)
+											</div>
+										</div>
+									</div>
+								</td>
+								<td class="d-none d-md-table-cell">
+									@if (!string.IsNullOrEmpty(item.Name))
 									{
 										<span>@item.Name</span>
 									}
@@ -176,18 +181,19 @@
 										</span>
 									}
 								</td>
-								<td class="d-none d-lg-table-cell" title="@item.CreatedAt.ToString("dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell"
+									title="@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
 									<div class="d-flex align-items-center">
-										<i class="ti ti-calendar-event me-1"></i>
-										<span>@item.CreatedAt.ToString("dd/MM/yyyy HH:mm")</span>
+										<i class="ti ti-calendar-time me-1"></i>
+										@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh")
 									</div>
 								</td>
-								<td class="d-none d-xl-table-cell" title="@item.ConfirmedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
+								<td class="d-none d-xl-table-cell" title="@Html.ToLocalTime(item.ConfirmedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
 									@if (item.ConfirmedAt.HasValue)
 									{
 										<div class="d-flex align-items-center">
 											<i class="ti ti-check-circle me-1 text-success"></i>
-											<span>@item.ConfirmedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+											<span>@Html.ToLocalTime(item.ConfirmedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm")</span>
 										</div>
 									}
 									else
@@ -196,12 +202,12 @@
 									}
 								</td>
 								<td class="d-none d-xl-table-cell"
-									title="@item.UnsubscribedAt?.ToString("dd/MM/yyyy HH:mm:ss")">
+									title="@Html.ToLocalTime(item.UnsubscribedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
 									@if (item.UnsubscribedAt.HasValue)
 									{
 										<div class="d-flex align-items-center">
 											<i class="ti ti-circle-x me-1 text-danger"></i>
-											<span>@item.UnsubscribedAt.Value.ToString("dd/MM/yyyy HH:mm")</span>
+											<span>@Html.ToLocalTime(item.UnsubscribedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")</span>
 										</div>
 									}
 									else
@@ -212,12 +218,12 @@
 								<td class="text-end">
 									<div class="btn-group">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
-											title="Chỉnh sửa">
+										   title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
 										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-											data-id="@item.Id" data-name="@item.Email"
-											data-delete-url="@Url.Action("Delete", "Newsletter")">
+												data-id="@item.Id" data-name="@item.Email"
+												data-delete-url="@Url.Action("Delete", "Newsletter")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -234,29 +240,29 @@
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-				Model.Newsletters,
-						page => Url.Action("Index", new
-						{
-							page,
-							searchTerm = Model.Filter.SearchTerm,
-							isActive = Model.Filter.IsActive
-						}),
-						new PagedListRenderOptions
-						{
-							UlElementClasses = new[] { "pagination mb-0" },
-							LiElementClasses = new[] { "page-item" },
-							PageClasses = new[] { "page-link" },
-							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-							DisplayLinkToNextPage = PagedListDisplayMode.Always,
-							ActiveLiElementClass = "active",
-							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-						})
+								Model.Newsletters,
+								page => Url.Action("Index", new
+								{
+									page,
+									searchTerm = Model.Filter.SearchTerm,
+									isActive = Model.Filter.IsActive
+								}),
+								new PagedListRenderOptions
+			{
+				UlElementClasses = new[] { "pagination mb-0" },
+				LiElementClasses = new[] { "page-item" },
+				PageClasses = new[] { "page-link" },
+				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+				DisplayLinkToNextPage = PagedListDisplayMode.Always,
+				ActiveLiElementClass = "active",
+				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+			})
+			</div>
 		</div>
-	</div>
-		}
+	}
 </div>
 
 @section Scripts {
