@@ -1,25 +1,33 @@
 @{
-	ViewData.TryGetValue("Title", out var title);
+	var themeCookie = Context.Request.Cookies["daiminhTheme"];
+	var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
+	var isDark = theme == "dark";
 }
+
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-bs-theme="@(isDark ? "dark" : null)" data-bs-theme-primary="blue">
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 	<title>@ViewData["Title"]</title>
+	<!-- Favicon -->
+    <link rel="shortcut icon" href="@(ViewBag.FaviconUrl ?? "/img/icon.jpg")" />
 	<partial name="__LibStyles" />
-    @await RenderSectionAsync("Head", required: false)
     @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
 	<div class="page">
 		<partial name="Components/Header" />
+
 		<div class="page-wrapper">
 			@RenderBody()
 		</div>
+
 		<partial name="Components/Footer" />
 	</div>
+
 	<partial name="__LibScripts" />
+
 	@await RenderSectionAsync("Scripts", false)
 </body>
 </html>
