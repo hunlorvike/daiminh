@@ -1,12 +1,5 @@
 @using web.Areas.Admin.ViewModels.Article
 @model ArticleViewModel
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions {
-	public string GetAntiXsrfRequestToken()
-	{
-		return Xsrf.GetAndStoreTokens(Context).RequestToken!;
-	}
-}
 
 <input type="hidden" asp-for="AuthorId" />
 

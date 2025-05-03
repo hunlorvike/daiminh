@@ -1,15 +1,12 @@
-@using shared.Extensions
 @using web.Areas.Admin.ViewModels.Contact
-@using shared.Enums
-@using web.Extensions
 @model ContactViewModel
 @{
 	ViewData["Title"] = $"Chi tiết Liên hệ: {Model.Subject}";
 	ViewData["PageTitle"] = "Chi tiết Liên hệ";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Liên hệ", Url.Action(nameof(Index)) ?? "/Admin/Contact"),
-(Model.Subject, "")
-};
+		("Liên hệ", Url.Action(nameof(Index)) ?? "/Admin/Contact"),
+		(Model.Subject, "")
+	};
 }
 
 <div class="row g-3">

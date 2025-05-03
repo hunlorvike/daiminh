@@ -1,2 +1,16 @@
 @addTagHelper *,Microsoft.AspNetCore.Mvc.TagHelpers
 @addTagHelper *, FluentValidation.AspNetCore
+@using System.Globalization
+
+@using X.PagedList.Mvc.Core
+@using X.PagedList
+@using shared.Enums
+@using shared.Extensions
+@using web.Extensions
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions {
+	public string GetAntiXsrfRequestToken()
+	{
+		return Xsrf.GetAndStoreTokens(Context).RequestToken!;
+	}
+}

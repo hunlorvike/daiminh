@@ -1,15 +1,11 @@
-@using X.PagedList.Mvc.Core
-@using shared.Enums
-@using shared.Extensions
 @using web.Areas.Admin.ViewModels.Contact
-@using web.Extensions
 @model ContactIndexViewModel
 @{
 	ViewData["Title"] = "Quản lý Liên hệ";
 	ViewData["PageTitle"] = "Danh sách Liên hệ";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Liên hệ", "")
-};
+		("Liên hệ", "")
+	};
 }
 
 <div class="card mb-3">

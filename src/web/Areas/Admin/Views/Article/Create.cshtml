@@ -4,9 +4,9 @@
 	ViewData["Title"] = "Thêm Bài viết mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm Bài viết mới";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article"),
-("Thêm mới", "")
-};
+		("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article"),
+		("Thêm mới", "")
+	};
 }
 
 <form asp-action="Create" method="post">

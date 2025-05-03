@@ -1,12 +1,5 @@
 @using web.Areas.Admin.ViewModels.ProductVariation
 @model ProductVariationViewModel
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions {
-    public string GetAntiXsrfRequestToken()
-    {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken!;
-    }
-}
 
 <input type="hidden" asp-for="Id" />
 <input type="hidden" asp-for="ProductId" />

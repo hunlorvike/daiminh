@@ -4,9 +4,9 @@
 	ViewData["Title"] = "Chỉnh sửa Sản phẩm - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Sản phẩm: {Model.Name}";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product"),
-($"Chỉnh sửa: {Model.Name}", "")
-};
+		("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product"),
+		($"Chỉnh sửa: {Model.Name}", "")
+	};
 }
 
 @section PageActions {

@@ -4,10 +4,10 @@
 	ViewData["Title"] = "Thêm Giá trị thuộc tính mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm Giá trị thuộc tính mới";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Thuộc tính", Url.Action("Index", "Attribute") ?? "/Admin/Attribute"), // Link back to Attribute list
-("Giá trị thuộc tính", Url.Action(nameof(Index), new { AttributeId = Model.AttributeId}) ?? "/Admin/AttributeValue"),
-("Thêm mới", "")
-};
+		("Thuộc tính", Url.Action("Index", "Attribute") ?? "/Admin/Attribute"), // Link back to Attribute list
+		("Giá trị thuộc tính", Url.Action(nameof(Index), new { AttributeId = Model.AttributeId}) ?? "/Admin/AttributeValue"),
+		("Thêm mới", "")
+	};
 }
 
 <form asp-action="Create" method="post">

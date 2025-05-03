@@ -1,15 +1,12 @@
-@using X.PagedList.Mvc.Core
-@using X.PagedList
 @using web.Areas.Admin.ViewModels.User
-@using web.Extensions
 
 @model UserIndexViewModel
 @{
     ViewData["Title"] = "Quản lý Người dùng - Hệ thống quản trị";
     ViewData["PageTitle"] = "Danh sách Người dùng";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-            ("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User")
-        };
+        ("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User")
+    };
 }
 
 @section PageActions {

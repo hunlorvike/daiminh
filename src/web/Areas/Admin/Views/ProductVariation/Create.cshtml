@@ -4,11 +4,11 @@
     ViewData["Title"] = $"Thêm Biến thể - {Model.ProductName} - Hệ thống quản trị";
     ViewData["PageTitle"] = $"Thêm Biến thể mới";
     ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
-($"{Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ??
-$"/Admin/Product/Edit/{Model.ProductId}"),
-("Thêm biến thể", "")
-};
+		("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
+		($"{Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ??
+		$"/Admin/Product/Edit/{Model.ProductId}"),
+		("Thêm biến thể", "")
+	};
 }
 
 @section PageActions {

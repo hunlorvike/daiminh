@@ -1,13 +1,6 @@
 @using web.Areas.Admin.ViewModels.ProductReview
 @using shared.Extensions
 @model ProductReviewViewModel
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions {
-    public string GetAntiXsrfRequestToken()
-    {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken!;
-    }
-}
 
 <div class="row row-cards">
     <div class="col-12">
@@ -102,7 +95,7 @@
                                         <div class="card-body">
                                             <div class="d-flex mb-3">
                                                 <span class="avatar avatar-sm bg-green-lt me-2">
-                                                    @(Model.UserName.Length > 0 ? Model.UserName[0].ToString().ToUpper() : "?")
+                                                    @(Model.UserName!.Length > 0 ? Model.UserName[0].ToString().ToUpper() : "?")
                                                 </span>
                                                 <div>
                                                     <div class="fw-medium">@Model.UserName</div>

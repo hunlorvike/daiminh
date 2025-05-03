@@ -1,17 +1,12 @@
-@using X.PagedList.Mvc.Core
-@using X.PagedList
-@using shared.Enums
 @using web.Areas.Admin.ViewModels.Product
-@using shared.Extensions
-@using web.Extensions
 
 @model ProductIndexViewModel
 @{
 	ViewData["Title"] = "Quản lý Sản phẩm - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Sản phẩm";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product")
-};
+		("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product")
+	};
 }
 
 @section PageActions {

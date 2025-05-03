@@ -4,9 +4,9 @@
 	ViewData["Title"] = "Chỉnh sửa Thương hiệu - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Thương hiệu: {Model.Name}";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Thương hiệu", Url.Action(nameof(Index)) ?? "/Admin/Brand"),
-($"Chỉnh sửa: {Model.Name}", "")
-};
+		("Thương hiệu", Url.Action(nameof(Index)) ?? "/Admin/Brand"),
+		($"Chỉnh sửa: {Model.Name}", "")
+	};
 }
 
 <form asp-action="Edit" method="post">

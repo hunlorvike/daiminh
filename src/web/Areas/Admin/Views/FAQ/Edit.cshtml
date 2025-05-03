@@ -5,9 +5,9 @@
 	ViewData["Title"] = "Chỉnh sửa FAQ - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa FAQ: {Truncate(@Model.Question)}";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("FAQ", Url.Action(nameof(Index)) ?? "/Admin/FAQ"),
-($"Chỉnh sửa: {Truncate(@Model.Question)}", "")
-};
+		("FAQ", Url.Action(nameof(Index)) ?? "/Admin/FAQ"),
+		($"Chỉnh sửa: {Truncate(@Model.Question)}", "")
+	};
 }
 
 @functions {

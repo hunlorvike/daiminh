@@ -1,15 +1,12 @@
-@using X.PagedList.Mvc.Core
-@using X.PagedList
 @using web.Areas.Admin.ViewModels.Newsletter
-@using web.Extensions
 
 @model NewsletterIndexViewModel
 @{
 	ViewData["Title"] = "Quản lý Đăng ký Newsletter - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Đăng ký Newsletter";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter")
-};
+		("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter")
+	};
 }
 
 @section PageActions {

@@ -1,13 +1,12 @@
 @using web.Areas.Admin.ViewModels.Newsletter
-@using web.Extensions
 @model NewsletterViewModel
 @{
 	ViewData["Title"] = "Chỉnh sửa Đăng ký Newsletter - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Đăng ký Newsletter: {Model.Email}";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
-($"Chỉnh sửa: {Model.Email}", "")
-};
+		("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
+		($"Chỉnh sửa: {Model.Email}", "")
+	};
 }
 
 @section PageActions {

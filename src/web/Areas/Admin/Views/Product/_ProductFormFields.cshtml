@@ -1,12 +1,5 @@
 @using web.Areas.Admin.ViewModels.Product
 @model ProductViewModel
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions {
-	public string GetAntiXsrfRequestToken()
-	{
-		return Xsrf.GetAndStoreTokens(Context).RequestToken!;
-	}
-}
 
 <div class="row g-3">
     @* --- Main Content Column --- *@

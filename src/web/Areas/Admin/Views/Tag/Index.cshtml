@@ -1,17 +1,12 @@
-@using X.PagedList.Mvc.Core
-@using X.PagedList
 @using web.Areas.Admin.ViewModels.Tag
-@using shared.Extensions
-@using shared.Enums
-@using web.Extensions
 
 @model TagIndexViewModel
 @{
 	ViewData["Title"] = "Quản lý Thẻ - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Thẻ";
 	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag")
-};
+		("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag")
+	};
 }
 
 @section PageActions {
