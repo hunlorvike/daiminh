@@ -1,0 +1,173 @@
+@using web.Areas.Admin.ViewModels.Slide
+@model SlideViewModel
+
+<div class="row g-3">
+	<div class="col-md-8">
+		<div class="card mb-3">
+			<div class="card-header">
+				<h3 class="card-title">Thông tin Slide</h3>
+			</div>
+			<div class="card-body">
+				<div class="form-group mb-3">
+					<label asp-for="Title" class="form-label required"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-heading"></i>
+						</span>
+						<input asp-for="Title" class="form-control" placeholder="Tiêu đề chính slide" />
+					</div>
+					<span asp-validation-for="Title" class="text-danger"></span>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="Subtitle" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-subtask"></i>
+						</span>
+						<input asp-for="Subtitle" class="form-control" placeholder="Tiêu đề phụ slide (nếu có)" />
+					</div>
+					<span asp-validation-for="Subtitle" class="text-danger"></span>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="Description" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-notes"></i>
+						</span>
+						<textarea asp-for="Description" class="form-control" rows="3"
+								  placeholder="Mô tả ngắn gọn..."></textarea>
+					</div>
+					<span asp-validation-for="Description" class="text-danger"></span>
+					<small class="form-hint">Mô tả ngắn gọn hiển thị trên slide.</small>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="ImageUrl" class="form-label required"></label>
+					<div class="row g-2 align-items-center mb-2">
+						<div class="col-auto">
+							<div class="avatar avatar-lg" id="image-preview">
+								@if (!string.IsNullOrEmpty(Model.ImageUrl))
+								{
+									<img src="@Model.ImageUrl" class="avatar-img rounded" />
+								}
+								else
+								{
+									<span class="avatar-img">
+										<i class="ti ti-photo fs-1"></i>
+									</span>
+								}
+							</div>
+						</div>
+						<div class="col">
+							<div class="input-group">
+								<span class="input-group-text">
+									<i class="ti ti-photo"></i>
+								</span>
+								<input asp-for="ImageUrl" class="form-control media-url-input" id="imageUrlInput"
+									   placeholder="https://example.com/slide.jpg" readonly />
+								<button class="btn btn-outline-secondary select-media-button" type="button"
+										title="Chọn ảnh" data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+										data-media-type-filter="0">
+									<i class="ti ti-folder"></i>
+								</button>
+							</div>
+						</div>
+					</div>
+					<span asp-validation-for="ImageUrl" class="text-danger"></span>
+					<small class="form-hint">URL đầy đủ đến ảnh nền của slide. Đây là trường bắt buộc.</small>
+                     <div class="media-preview-area mt-2">
+                         @if (!string.IsNullOrEmpty(Model.ImageUrl))
+                        {
+                            <img src="@Model.ImageUrl" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+                        }
+                    </div>
+				</div>
+
+				<div class="row g-3">
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label asp-for="CtaText" class="form-label"></label>
+							<div class="input-group">
+								<span class="input-group-text">
+									<i class="ti ti-cursor-text"></i>
+								</span>
+								<input asp-for="CtaText" class="form-control" placeholder="Ví dụ: Xem ngay" />
+							</div>
+							<span asp-validation-for="CtaText" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label asp-for="CtaLink" class="form-label"></label>
+							<div class="input-group">
+								<span class="input-group-text">
+									<i class="ti ti-link"></i>
+								</span>
+								<input asp-for="CtaLink" type="url" class="form-control" placeholder="https://example.com/product" />
+							</div>
+							<span asp-validation-for="CtaLink" class="text-danger"></span>
+						</div>
+					</div>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="Target" class="form-label"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-external-link"></i>
+						</span>
+						<input asp-for="Target" class="form-control" placeholder="Ví dụ: _self hoặc _blank" />
+					</div>
+					<span asp-validation-for="Target" class="text-danger"></span>
+					<small class="form-hint">Cách mở liên kết: _self (mặc định, cùng tab), _blank (mở tab mới).</small>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="col-md-4">
+		<div class="card mb-3">
+			<div class="card-header">
+				<h3 class="card-title">Thiết lập hiển thị</h3>
+			</div>
+			<div class="card-body">
+				<div class="form-group mb-3">
+					<label asp-for="OrderIndex" class="form-label required"></label>
+					<div class="input-group">
+						<span class="input-group-text">
+							<i class="ti ti-sort-ascending-numbers"></i>
+						</span>
+						<input asp-for="OrderIndex" type="number" min="0" class="form-control" />
+					</div>
+					<span asp-validation-for="OrderIndex" class="text-danger"></span>
+					<small class="form-hint">Slide có số thứ tự nhỏ hơn sẽ hiển thị trước.</small>
+				</div>
+
+				<div class="form-group mb-3">
+					<label class="form-label d-block">Trạng thái kích hoạt</label>
+					<label class="form-check form-switch">
+						<input class="form-check-input" type="checkbox" asp-for="IsActive">
+						<span class="form-check-label">Hiển thị slide này trên website</span>
+					</label>
+					<span asp-validation-for="IsActive" class="text-danger"></span>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="StartAt" class="form-label"></label>
+					<input asp-for="StartAt" type="text" class="form-control datepicker" />
+					<span asp-validation-for="StartAt" class="text-danger"></span>
+					<small class="form-hint">Thời gian bắt đầu hiển thị slide (để trống nếu hiển thị ngay khi kích hoạt)</small>
+				</div>
+
+				<div class="form-group mb-3">
+					<label asp-for="EndAt" class="form-label"></label>
+					<input asp-for="EndAt" type="text" class="form-control datepick" />
+					<span asp-validation-for="EndAt" class="text-danger"></span>
+					<small class="form-hint">Thời gian kết thúc hiển thị slide (để trống nếu hiển thị vô thời hạn)</small>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

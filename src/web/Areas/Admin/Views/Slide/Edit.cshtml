@@ -1,0 +1,82 @@
+@using web.Areas.Admin.ViewModels.Slide
+@model SlideViewModel
+@{
+	ViewData["Title"] = "Chỉnh sửa Slide - Hệ thống quản trị";
+	ViewData["PageTitle"] = $"Chỉnh sửa Slide: {Model.Title}";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+		("Slide", Url.Action(nameof(Index)) ?? "/Admin/Slide"),
+		($"Chỉnh sửa: {Model.Title}", "")
+	};
+}
+
+<form asp-area="Admin" asp-controller="Slide" asp-action="Edit" method="post">
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">
+				<i class="ti ti-edit me-2"></i>Chỉnh sửa Slide
+			</h3>
+		</div>
+		<div class="card-body">
+			@Html.AntiForgeryToken()
+			<input type="hidden" asp-for="Id" />
+			@if (!ViewData.ModelState.IsValid)
+			{
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<div class="d-flex">
+						<div class="alert-icon">
+							<i class="ti ti-alert-circle"></i>
+						</div>
+						<div>
+							<h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
+							<div asp-validation-summary="ModelOnly" class="mb-0"></div>
+						</div>
+					</div>
+					<a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+				</div>
+			}
+			<partial name="_SlideFormFields" model="Model" />
+		</div>
+		<div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
+			<a asp-area="Admin" asp-controller="Slide" asp-action="Index" class="btn btn-link">
+				<i class="ti ti-x me-1"></i>Hủy
+			</a>
+			<button type="submit" class="btn btn-primary ms-2">
+				<i class="ti ti-device-floppy me-2"></i>Cập nhật Slide
+			</button>
+		</div>
+	</div>
+</form>
+
+@section Scripts {
+	<script>
+		$(document).ready(function () {
+             $('.select-media-button').on('click', function () {
+                const $button = $(this);
+                const $targetInput = $button.closest('.input-group').find('.media-url-input');
+                const $previewArea = $button.closest('.form-group').find('.media-preview-area'); 
+
+                const callback = function (selectedFile) {
+                    $targetInput.review image
+                    $previewArea.html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
+					$('#image-preview').html(`<img src="${selectedFile.url}" class="avatar-img rounded" />`);
+                };
+
+                if (typeof openMediaModal === 'function') {
+                    openMediaModal($targetInput, callback);
+                } else {
+                    console.error('openMediaModal function not found.');
+                }
+            });
+
+            $('.media-url-input').on('input', function() {
+                const $input = $(this);
+                if ($input.val() === '') {
+                    $input.closest('.form-group').find('.media-preview-area').empty();
+					$('#image-preview').html(`<span class="avatar-img"><i class="ti ti-photo fs-1"></i></span>`);
+                } else {
+                     $('#image-preview').html(`<img src="${$input.val()}" class="avatar-img rounded" />`);
+                }
+            });
+		});
+	</script>
+}

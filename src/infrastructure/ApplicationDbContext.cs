@@ -55,6 +55,10 @@ public partial class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new MediaFileConfiguration()); // Độc lập
         modelBuilder.ApplyConfiguration(new NewsletterConfiguration()); // Độc lập
         modelBuilder.ApplyConfiguration(new TestimonialConfiguration()); // Độc lập
+        modelBuilder.ApplyConfiguration(new BannerConfiguration()); // Độc lập
+        modelBuilder.ApplyConfiguration(new PageConfiguration()); // Độc lập
+        modelBuilder.ApplyConfiguration(new PopupModalConfiguration()); // Độc lập
+        modelBuilder.ApplyConfiguration(new SlideConfiguration()); // Độc lập
 
         // Các thực thể phụ thuộc vào các thực thể trên
         modelBuilder.ApplyConfiguration(new AttributeValueConfiguration()); // Phụ thuộc Attribute
@@ -75,7 +79,6 @@ public partial class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new ProductAttributeConfiguration()); // Phụ thuộc Product, Attribute
         modelBuilder.ApplyConfiguration(new ProductTagConfiguration());     // Phụ thuộc Product, Tag
         modelBuilder.ApplyConfiguration(new ProductVariationAttributeValueConfiguration()); // Phụ thuộc ProductVariation, AttributeValue
-
     }
 }
 
