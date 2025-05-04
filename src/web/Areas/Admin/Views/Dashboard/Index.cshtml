@@ -10,13 +10,6 @@
 	<link rel="stylesheet" href="~/lib/apexcharts/dist/apexcharts.min.css" asp-append-version="true" />
 }
 
-@if (TempData["ErrorMessage"] != null)
-{
-	<div class="alert alert-danger" role="alert">
-		@TempData["ErrorMessage"]
-	</div>
-}
-
 <div class="row row-deck row-cards mb-4">
 	@* --- Thẻ Bài viết --- *@
 	<div class="col-sm-6 col-lg-3">
