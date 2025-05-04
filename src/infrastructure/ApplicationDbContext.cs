@@ -35,6 +35,9 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Testimonial> Testimonials { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Banner> Banners { get; set; }
+    public DbSet<Page> Pages { get; set; }
+    public DbSet<PopupModal> PopupModals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
