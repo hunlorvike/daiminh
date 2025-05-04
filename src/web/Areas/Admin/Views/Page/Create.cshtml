@@ -1,0 +1,99 @@
+@using web.Areas.Admin.ViewModels.Page
+@model PageViewModel
+@{
+	ViewData["Title"] = "Thêm Trang mới - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Thêm Trang mới";
+	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+		("Trang tĩnh", Url.Action(nameof(Index)) ?? "/Admin/Page"),
+		("Thêm mới", "")
+	};
+}
+
+<form asp-area="Admin" asp-controller="Page" asp-action="Create" method="post">
+	<div class="card">
+		<div class="card-header">
+			<h3 class="card-title">
+				<i class="ti ti-file-plus me-2"></i>Thông tin Trang mới
+			</h3>
+		</div>
+		<div class="card-body">
+			@Html.AntiForgeryToken()
+			@if (!ViewData.ModelState.IsValid)
+			{
+				<div class="alert alert-danger alert-dismissible fade show" role="alert">
+					<div class="d-flex">
+						<div class="alert-icon">
+							<i class="ti ti-alert-circle"></i>
+						</div>
+						<div>
+							<h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
+							<div asp-validation-summary="ModelOnly" class="mb-0"></div>
+						</div>
+					</div>
+					<a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+				</div>
+			}
+			<partial name="_PageFormFields" model="Model" />
+		</div>
+		<div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
+			<a asp-area="Admin" asp-controller="Page" asp-action="Index" class="btn btn-link">
+				<i class="ti ti-x me-1"></i>Hủy
+			</a>
+			<button type="submit" class="btn btn-primary ms-2">
+				<i class="ti ti-device-floppy me-2"></i>Lưu Trang
+			</button>
+		</div>
+	</div>
+</form>
+
+@section Scripts {
+	@* Thêm script cho Rich Text Editor nếu sử dụng *@
+	@* <script src="~/lib/tinymce/tinymce.min.js"></script> *@
+	@* <script>
+		tinymce.init({ selector: 'textarea.rich-text-editor' });
+	</script> *@
+
+	@* Script cho tạo Slug tự động *@
+	<script src="~/js/slug.js" asp-append-version="true"></script>
+	<script>
+		$(document).ready(function () {
+			const slugManager = SlugManager.init({
+				nameInput: '#Title', // Use Title for Page
+				slugInput: '#Slug',
+				generateButton: '#generateSlugButton'
+			});
+
+			// Generate slug on load if Title has value and Slug is empty
+			if ($('#Title').val() && !$('#Slug').val()) {
+				slugManager.generateSlug();
+			}
+
+            $('.select-media-button').on('click', function () {
+                const $button = $(this);
+                const $targetInput = $button.closest('.input-group').find('.media-url-input');
+                const $previewArea = $button.closest('.form-group').find('.media-preview-area'); // Find the associated preview area
+
+                const callback = function (selectedFile) {
+                    // Update the input value
+                    $targetInput.val(selectedFile.url);
+                    // Optional: Update preview image
+                    $previewArea.html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
+                };
+
+                if (typeof openMediaModal === 'function') {
+                    openMediaModal($targetInput, callback);
+                } else {
+                    console.error('openMediaModal function not found.');
+                }
+            });
+
+            $('.media-url-input').on('input', function() {
+                const $input = $(this);
+                if ($input.val() === '') {
+                    $input.closest('.form-group').find('.media-preview-area').empty();
+                }
+            });
+
+		});
+	</script>
+}
