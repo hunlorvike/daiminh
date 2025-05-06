@@ -7,7 +7,8 @@
 <!-- Jquery Scripts -->
 <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
 <script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
-<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js" asp-append-version="true"></script>
+<script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"
+    asp-append-version="true"></script>
 
 <!-- Tabler Scripts -->
 <script src="~/lib/tabler/core/dist/js/tabler.min.js" asp-append-version="true"></script>
@@ -34,6 +35,19 @@
 <script src="~/js/tooltip.js" asp-append-version="true"></script>
 <script src="~/js/litepicker.js" asp-append-version="true"></script>
 <script src="~/js/tomselected.js" asp-append-version="true"></script>
+
+<script>
+    $(function () {
+        $('.toast').each(function () {
+            var toast = new tabler.Toast(this, {
+                autohide: true,
+                delay: 5000
+            });
+            toast.show();
+        });
+    });
+</script>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

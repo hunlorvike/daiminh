@@ -43,9 +43,9 @@ public class PageViewModelValidator : AbstractValidator<PageViewModel>
 
         RuleFor(x => x.TwitterTitle).MaximumLength(100).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
         RuleFor(x => x.TwitterDescription).MaximumLength(300).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
-         RuleFor(x => x.TwitterImage)
-             .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
-             .Matches(@"^(https?://|/).*$").When(x => !string.IsNullOrWhiteSpace(x.TwitterImage)).WithMessage("{PropertyName} phải là một URL hợp lệ (http, https hoặc tương đối /).");
+        RuleFor(x => x.TwitterImage)
+            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
+            .Matches(@"^(https?://|/).*$").When(x => !string.IsNullOrWhiteSpace(x.TwitterImage)).WithMessage("{PropertyName} phải là một URL hợp lệ (http, https hoặc tương đối /).");
 
         RuleFor(x => x.SitemapPriority)
             .InclusiveBetween(0.0, 1.0).When(x => x.SitemapPriority.HasValue).WithMessage("{PropertyName} phải nằm trong khoảng từ {From} đến {To}.");

@@ -34,8 +34,8 @@ public class SlideViewModelValidator : AbstractValidator<SlideViewModel>
             .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
             .Matches(@"^(https?://|/|mailto:|tel:|#).*$").When(x => !string.IsNullOrWhiteSpace(x.CtaLink)).WithMessage("{PropertyName} phải là một URL, đường dẫn tương đối, mailto, tel hoặc neo (#) hợp lệ.");
 
-         RuleFor(x => x.Target)
-            .MaximumLength(10).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
+        RuleFor(x => x.Target)
+           .MaximumLength(10).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
 
         RuleFor(x => x.OrderIndex)
             .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");

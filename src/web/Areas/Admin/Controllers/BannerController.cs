@@ -1,17 +1,17 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
-using domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Extensions;
 using web.Areas.Admin.Validators.Banner;
 using web.Areas.Admin.ViewModels.Banner;
 using X.PagedList;
 using X.PagedList.EF;
-using shared.Extensions;
 
 namespace web.Areas.Admin.Controllers;
 

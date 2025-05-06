@@ -121,13 +121,12 @@ public class DashboardController : Controller
                  }
             };
 
-
             return View(viewModel);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi tải dữ liệu trang Dashboard.");
-            return View(new DashboardViewModel()); // Trả về view rỗng hoặc view lỗi
+            return View(new DashboardViewModel());
         }
     }
 }

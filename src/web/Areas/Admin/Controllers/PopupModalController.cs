@@ -1,8 +1,8 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
-using domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

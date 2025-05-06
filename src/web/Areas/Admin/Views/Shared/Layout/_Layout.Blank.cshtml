@@ -1,28 +1,41 @@
+@using System.Text.Json
+@using shared.Models
 @{
-	var themeCookie = Context.Request.Cookies["daiminhTheme"];
-	var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
-	var isDark = theme == "dark";
+    var themeCookie = Context.Request.Cookies["daiminhTheme"];
+    var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
+    var isDark = theme == "dark";
 }
 
 <!DOCTYPE html>
 <html lang="vi" data-bs-theme="@(isDark ? "dark" : null)" data-bs-theme-primary="blue">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-	<title>@ViewData["Title"]</title>
-	<partial name="__LibStyles" />
-	@await RenderSectionAsync("Styles", required: false)
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>@ViewData["Title"]</title>
+    <partial name="__LibStyles" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
-	<div class="page page-center">
-		@RenderBody()
-	</div>
+    <div class="page page-center">
+        @RenderBody()
+    </div>
 
-	<!-- Toast notifications -->
-	<div id="toast-container" class="toast-container position-fixed top-0 end-0 p-3"></div>
+    <!-- Toast notifications -->
+    @{
+        var toastJson = TempData["ToastMessage"] as string;
+        var toastData = !string.IsNullOrEmpty(toastJson)
+        ? JsonSerializer.Deserialize<ToastData>(toastJson)
+        : null;
+    }
+    @if (toastData is not null
+    && !string.IsNullOrEmpty(toastData.Title)
+    && !string.IsNullOrEmpty(toastData.Message))
+    {
+        <partial name="Components/Layout/_Toast" model="toastData" />
+    }
 
-	<partial name="__LibScripts" />
+    <partial name="__LibScripts" />
 
-	@await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

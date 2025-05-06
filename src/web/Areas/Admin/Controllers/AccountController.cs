@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Authentication;
@@ -6,6 +5,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using shared.Enums;
+using shared.Models;
+using System.Security.Claims;
+using System.Text.Json;
 using web.Areas.Admin.ViewModels.Account;
 
 namespace web.Areas.Admin.Controllers;
@@ -102,6 +105,9 @@ public class AccountController : Controller
         await HttpContext.SignInAsync(AuthenticationScheme, new ClaimsPrincipal(claimsIdentity), authProperties);
 
         _logger.LogInformation("Đăng nhập thành công: {Username}", user.Username);
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Thành công", "Đăng nhập thành công!", ToastType.Success)
+        );
 
         if (result == PasswordVerificationResult.SuccessRehashNeeded)
         {
@@ -121,16 +127,20 @@ public class AccountController : Controller
         return LocalRedirect(returnUrl ?? Url.Action("Index", "Dashboard", new { Area = "Admin" }) ?? "/Admin");
     }
 
-    // POST: /Admin/Account/Logout
-    [HttpPost]
+    // GET: /Admin/Account/Logout
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Logout()
     {
         var userName = User.Identity?.Name ?? "Unknown";
         await HttpContext.SignOutAsync(AuthenticationScheme);
         _logger.LogInformation("Đăng xuất: {Username}", userName);
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Thành công", "Đăng xuất thành công!", ToastType.Success)
+        );
+
         return RedirectToAction(nameof(Login));
     }
+
 
     // GET: /Admin/Account/AccessDenied
     [HttpGet]
