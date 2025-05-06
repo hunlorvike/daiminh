@@ -12,6 +12,8 @@ using web.Areas.Admin.Validators.Category;
 using web.Areas.Admin.ViewModels.Category;
 using X.PagedList;
 using X.PagedList.Extensions;
+using System.Text.Json;
+using shared.Models;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -142,7 +144,9 @@ public partial class CategoryController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Đã thêm danh mục '{category.Name}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm danh mục '{category.Name}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index), new { type = (int)category.Type });
         }
         catch (DbUpdateException ex)
@@ -158,6 +162,9 @@ public partial class CategoryController : Controller
             }
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm danh mục '{viewModel.Name}'.", ToastType.Error)
+        );
         await RefillCategorySelectListsAsync(viewModel);
         return View(viewModel);
     }
@@ -202,8 +209,10 @@ public partial class CategoryController : Controller
     {
         if (id != viewModel.Id)
         {
-            _logger.LogWarning("ID không khớp khi cập nhật danh mục. URL: {Id}, Model: {ModelId}", id, viewModel.Id);
-            return BadRequest();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
         var result = await new CategoryViewModelValidator(_context).ValidateAsync(viewModel);
@@ -219,7 +228,9 @@ public partial class CategoryController : Controller
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
         if (category == null)
         {
-            TempData["ErrorMessage"] = "Không tìm thấy danh mục để cập nhật.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy danh mục để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -228,7 +239,9 @@ public partial class CategoryController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Đã cập nhật danh mục '{category.Name}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật danh mục '{category.Name}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index), new { type = (int)category.Type });
         }
         catch (DbUpdateException ex)
@@ -244,6 +257,9 @@ public partial class CategoryController : Controller
             }
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật danh mục '{viewModel.Name}'.", ToastType.Error)
+        );
         await RefillCategorySelectListsAsync(viewModel);
         return View(viewModel);
     }
@@ -267,14 +283,18 @@ public partial class CategoryController : Controller
 
         if (categoryData == null)
         {
-            _logger.LogWarning("Category not found for deletion: ID {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy danh mục.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy danh mục." });
         }
 
         if (categoryData.HasChildren)
         {
-            _logger.LogWarning("Attempted to delete category '{Name}' (ID: {Id}) which has child categories.", categoryData.Category.Name, categoryData.Category.Id);
-            return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì nó chứa danh mục con. Vui lòng xóa hoặc di chuyển các danh mục con trước." });
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", $"Không thể xóa danh mục '{categoryData.Category.Name}' vì nó chứa danh mục con.", ToastType.Error)
+            );
+            return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì nó chứa danh mục con." });
         }
 
         if (categoryData.ItemCount > 0)
@@ -286,27 +306,28 @@ public partial class CategoryController : Controller
                 CategoryType.FAQ => "FAQ",
                 _ => "mục"
             };
-            _logger.LogWarning("Attempted to delete category '{Name}' (ID: {Id}) which is used by {ItemCount} {ItemType}.", categoryData.Category.Name, categoryData.Category.Id, categoryData.ItemCount, itemTypeName);
-            return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì đang được sử dụng bởi {categoryData.ItemCount} {itemTypeName}. Vui lòng gỡ danh mục khỏi các {itemTypeName} trước." });
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", $"Không thể xóa danh mục '{categoryData.Category.Name}' vì đang được sử dụng bởi {categoryData.ItemCount} {itemTypeName}.", ToastType.Error)
+            );
+            return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì đang được sử dụng bởi {categoryData.ItemCount} {itemTypeName}." });
         }
 
         try
         {
             string categoryName = categoryData.Category.Name;
-            var categoryType = categoryData.Category.Type;
             _context.Remove(categoryData.Category);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Category deleted successfully: {Name} (ID: {Id})", categoryName, id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa danh mục '{categoryName}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa danh mục '{categoryName}' thành công." });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Error deleting category (DbUpdateException): ID {Id}, Name: {Name}", id, categoryData.Category.Name);
-            return Json(new { success = false, message = "Đã xảy ra lỗi cơ sở dữ liệu khi xóa danh mục. Có thể danh mục vẫn còn được liên kết." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error deleting category: ID {Id}, Name: {Name}", id, categoryData.Category.Name);
+            _logger.LogError(ex, "Lỗi khi xóa danh mục: ID {Id}, Name: {Name}", id, categoryData.Category.Name);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa danh mục.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa danh mục." });
         }
     }

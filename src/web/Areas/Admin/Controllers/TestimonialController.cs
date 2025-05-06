@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Enums;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.Testimonial;
 using web.Areas.Admin.ViewModels.Testimonial;
 using X.PagedList;
@@ -109,6 +112,9 @@ public partial class TestimonialController : Controller
         try
         {
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm đánh giá của '{testimonial.ClientName}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
@@ -117,6 +123,9 @@ public partial class TestimonialController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi thêm đánh giá.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm đánh giá của '{viewModel.ClientName}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -142,7 +151,12 @@ public partial class TestimonialController : Controller
     public async Task<IActionResult> Edit(int id, TestimonialViewModel viewModel)
     {
         if (id != viewModel.Id)
-            return BadRequest();
+        {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
+        }
 
         var validationResult = await new TestimonialViewModelValidator().ValidateAsync(viewModel);
         if (!validationResult.IsValid)
@@ -156,8 +170,10 @@ public partial class TestimonialController : Controller
         var testimonial = await _context.Set<Testimonial>().FirstOrDefaultAsync(t => t.Id == id);
         if (testimonial == null)
         {
-            _logger.LogWarning("Không tìm thấy đánh giá có id {Id} để cập nhật.", id);
-            return NotFound();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy đánh giá để cập nhật.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
         _mapper.Map(viewModel, testimonial);
@@ -165,6 +181,9 @@ public partial class TestimonialController : Controller
         try
         {
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật đánh giá của '{testimonial.ClientName}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
@@ -173,6 +192,9 @@ public partial class TestimonialController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đánh giá.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật đánh giá của '{viewModel.ClientName}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -184,6 +206,9 @@ public partial class TestimonialController : Controller
         Testimonial? testimonial = await _context.Set<Testimonial>().FindAsync(id);
         if (testimonial == null)
         {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy đánh giá.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy đánh giá." });
         }
 
@@ -192,10 +217,16 @@ public partial class TestimonialController : Controller
             string clientName = testimonial.ClientName;
             _context.Remove(testimonial);
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa đánh giá của '{clientName}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa đánh giá của '{clientName}' thành công." });
         }
         catch (Exception)
         {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa đánh giá.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đánh giá." });
         }
     }

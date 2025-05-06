@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Enums;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.Brand;
 using web.Areas.Admin.ViewModels.Brand;
 using X.PagedList;
@@ -102,7 +105,9 @@ public partial class BrandController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Thêm thương hiệu '{brand.Name}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm thương hiệu '{brand.Name}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException ex)
@@ -123,6 +128,9 @@ public partial class BrandController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu thương hiệu.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm thương hiệu '{viewModel.Name}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -147,7 +155,13 @@ public partial class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, BrandViewModel viewModel)
     {
-        if (id != viewModel.Id) return BadRequest();
+        if (id != viewModel.Id)
+        {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
+        }
 
         var result = await new BrandViewModelValidator(_context).ValidateAsync(viewModel);
         if (!result.IsValid)
@@ -161,7 +175,9 @@ public partial class BrandController : Controller
         var brand = await _context.Set<Brand>().FirstOrDefaultAsync(b => b.Id == id);
         if (brand == null)
         {
-            TempData["ErrorMessage"] = "Không tìm thấy thương hiệu để cập nhật.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy thương hiệu để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -170,7 +186,9 @@ public partial class BrandController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Cập nhật thương hiệu '{brand.Name}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật thương hiệu '{brand.Name}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException ex)
@@ -191,6 +209,9 @@ public partial class BrandController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thương hiệu.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật thương hiệu '{viewModel.Name}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -205,17 +226,21 @@ public partial class BrandController : Controller
 
         if (brand == null)
         {
-            _logger.LogWarning("Thương hiệu không tồn tại khi xóa. ID: {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy thương hiệu.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy thương hiệu." });
         }
 
         if (brand.Products?.Any() == true)
         {
-            _logger.LogWarning("Không thể xóa thương hiệu '{Name}' vì có {Count} sản phẩm.", brand.Name, brand.Products.Count);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", $"Không thể xóa thương hiệu '{brand.Name}' vì đang được sử dụng bởi {brand.Products.Count} sản phẩm.", ToastType.Error)
+            );
             return Json(new
             {
                 success = false,
-                message = $"Không thể xóa thương hiệu '{brand.Name}' vì đang được sử dụng bởi {brand.Products.Count} sản phẩm. Vui lòng gỡ thương hiệu khỏi các sản phẩm trước."
+                message = $"Không thể xóa thương hiệu '{brand.Name}' vì đang được sử dụng bởi {brand.Products.Count} sản phẩm."
             });
         }
 
@@ -224,12 +249,17 @@ public partial class BrandController : Controller
             string brandName = brand.Name;
             _context.Remove(brand);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Đã xóa thương hiệu: {Name}", brandName);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa thương hiệu '{brandName}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa thương hiệu '{brandName}' thành công." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa thương hiệu: {Name}", brand.Name);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa thương hiệu.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa thương hiệu." });
         }
     }

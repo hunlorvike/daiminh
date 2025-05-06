@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Enums;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.ProductVariation;
 using web.Areas.Admin.ViewModels.ProductVariation;
 using X.PagedList.EF;
@@ -119,11 +122,12 @@ public partial class ProductVariationController : Controller
         var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == viewModel.ProductId);
         if (product == null)
         {
-            TempData["ErrorMessage"] = "Sản phẩm cha không tồn tại.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Sản phẩm cha không tồn tại.", ToastType.Error)
+            );
             return RedirectToAction("Index", "Product");
         }
         viewModel.ProductName = product.Name;
-
 
         var result = await new ProductVariationViewModelValidator(_context).ValidateAsync(viewModel);
 
@@ -141,7 +145,6 @@ public partial class ProductVariationController : Controller
             await SetOtherVariationsNonDefaultAsync(viewModel.ProductId, 0);
         }
 
-
         var variation = _mapper.Map<ProductVariation>(viewModel);
 
         if (viewModel.SelectedAttributeValueIds != null && viewModel.SelectedAttributeValueIds.Any())
@@ -156,17 +159,14 @@ public partial class ProductVariationController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Đã thêm biến thể thành công cho sản phẩm '{product.Name}'.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Đã thêm biến thể thành công cho sản phẩm '{product.Name}'.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index), new { productId = viewModel.ProductId });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi thêm biến thể cho sản phẩm ID: {ProductId}. ViewModel: {@ViewModel}", viewModel.ProductId, viewModel);
-            ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu biến thể. Có thể do trùng lặp thuộc tính hoặc dữ liệu không hợp lệ.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi không xác định khi thêm biến thể cho sản phẩm ID: {ProductId}. ViewModel: {@ViewModel}", viewModel.ProductId, viewModel);
+            _logger.LogError(ex, "Lỗi khi thêm biến thể cho sản phẩm ID: {ProductId}.", viewModel.ProductId);
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu biến thể.");
         }
 
@@ -206,20 +206,24 @@ public partial class ProductVariationController : Controller
     {
         if (id != viewModel.Id)
         {
-            _logger.LogWarning("ID không khớp khi cập nhật biến thể. URL: {Id}, ViewModel: {ModelId}", id, viewModel.Id);
-            return BadRequest();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
         var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == viewModel.ProductId);
         if (product == null)
         {
-            TempData["ErrorMessage"] = "Sản phẩm cha không tồn tại.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Sản phẩm cha không tồn tại.", ToastType.Error)
+            );
             return RedirectToAction("Index", "Product");
         }
         viewModel.ProductName = product.Name;
 
-
         var result = await new ProductVariationViewModelValidator(_context).ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
@@ -230,21 +234,21 @@ public partial class ProductVariationController : Controller
         }
 
         var variationToUpdate = await _context.Set<ProductVariation>()
-                                             .Include(v => v.ProductVariationAttributeValues)
-                                             .FirstOrDefaultAsync(v => v.Id == id);
+                                              .Include(v => v.ProductVariationAttributeValues)
+                                              .FirstOrDefaultAsync(v => v.Id == id);
 
         if (variationToUpdate == null)
         {
-            _logger.LogWarning("Không tìm thấy biến thể để cập nhật sau validation. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy biến thể để cập nhật.";
-            return RedirectToAction("Index", "Product");
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy biến thể để cập nhật.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
         if (viewModel.IsDefault)
         {
             await SetOtherVariationsNonDefaultAsync(viewModel.ProductId, viewModel.Id);
         }
-
 
         _mapper.Map(viewModel, variationToUpdate);
 
@@ -253,18 +257,15 @@ public partial class ProductVariationController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Đã cập nhật biến thể thành công cho sản phẩm '{product.Name}'.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Đã cập nhật biến thể thành công cho sản phẩm '{product.Name}'.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index), new { productId = viewModel.ProductId });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật biến thể ID: {Id}. ViewModel: {@ViewModel}", id, viewModel);
-            ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu biến thể. Có thể do trùng lặp thuộc tính hoặc dữ liệu không hợp lệ.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi hệ thống khi cập nhật biến thể ID: {Id}. ViewModel: {@ViewModel}", id, viewModel);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
+            _logger.LogError(ex, "Lỗi khi cập nhật biến thể ID: {Id}.", id);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật biến thể.");
         }
 
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -279,23 +280,32 @@ public partial class ProductVariationController : Controller
         var variation = await _context.Set<ProductVariation>().FirstOrDefaultAsync(v => v.Id == id);
         if (variation == null)
         {
-            _logger.LogWarning("Không tìm thấy biến thể để xóa. ID: {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy biến thể.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy biến thể." });
         }
 
-        var productName = await _context.Products.AsNoTracking().Where(p => p.Id == variation.ProductId).Select(p => p.Name).FirstOrDefaultAsync();
-        int productId = variation.ProductId;
+        var productName = await _context.Products.AsNoTracking()
+                                                 .Where(p => p.Id == variation.ProductId)
+                                                 .Select(p => p.Name)
+                                                 .FirstOrDefaultAsync();
 
         try
         {
             _context.Remove(variation);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Đã xóa biến thể ID: {Id} cho sản phẩm '{ProductName}' (ID: {ProductId})", id, productName, productId);
-            return Json(new { success = true, message = $"Xóa biến thể thành công cho sản phẩm '{productName}'." });
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Đã xóa biến thể thành công cho sản phẩm '{productName}'.", ToastType.Success)
+            );
+            return Json(new { success = true, message = $"Đã xóa biến thể thành công cho sản phẩm '{productName}'." });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi khi xóa biến thể ID: {Id} cho sản phẩm '{ProductName}' (ID: {ProductId})", id, productName, productId);
+            _logger.LogError(ex, "Lỗi khi xóa biến thể ID: {Id}.", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa biến thể.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa biến thể." });
         }
     }

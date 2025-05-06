@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Enums;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.AttributeValue;
 using web.Areas.Admin.ViewModels.AttributeValue;
 using X.PagedList.EF;
@@ -100,7 +103,9 @@ public partial class AttributeValueController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Thêm giá trị '{attributeValue.Value}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm giá trị '{attributeValue.Value}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId });
         }
         catch (DbUpdateException ex)
@@ -121,6 +126,9 @@ public partial class AttributeValueController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm giá trị '{viewModel.Value}'.", ToastType.Error)
+        );
         await PopulateViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
@@ -147,7 +155,13 @@ public partial class AttributeValueController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, AttributeValueViewModel viewModel)
     {
-        if (id != viewModel.Id) return BadRequest();
+        if (id != viewModel.Id)
+        {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
+        }
 
         var result = await new AttributeValueViewModelValidator(_context).ValidateAsync(viewModel);
         if (!result.IsValid)
@@ -162,7 +176,9 @@ public partial class AttributeValueController : Controller
         var attributeValue = await _context.Set<AttributeValue>().FirstOrDefaultAsync(av => av.Id == id);
         if (attributeValue == null)
         {
-            TempData["ErrorMessage"] = "Không tìm thấy giá trị thuộc tính để cập nhật.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy giá trị thuộc tính để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -171,7 +187,9 @@ public partial class AttributeValueController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Cập nhật giá trị '{attributeValue.Value}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật giá trị '{attributeValue.Value}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId });
         }
         catch (DbUpdateException ex)
@@ -192,6 +210,9 @@ public partial class AttributeValueController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật giá trị '{viewModel.Value}'.", ToastType.Error)
+        );
         await PopulateViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
@@ -205,7 +226,9 @@ public partial class AttributeValueController : Controller
 
         if (attributeValue == null)
         {
-            _logger.LogWarning("Không tìm thấy giá trị thuộc tính để xóa. ID = {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy giá trị thuộc tính.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy giá trị thuộc tính." });
         }
 
@@ -217,7 +240,9 @@ public partial class AttributeValueController : Controller
             _context.Remove(attributeValue);
             await _context.SaveChangesAsync();
 
-            _logger.LogInformation("Đã xóa giá trị thuộc tính '{Value}' (ID: {Id})", value, id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa giá trị '{value}' thành công.", ToastType.Success)
+            );
             return Json(new
             {
                 success = true,
@@ -230,13 +255,22 @@ public partial class AttributeValueController : Controller
             _logger.LogError(ex, "Lỗi FK khi xóa giá trị thuộc tính ID {Id}", id);
             if (ex.InnerException?.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) == true)
             {
+                TempData["ToastMessage"] = JsonSerializer.Serialize(
+                    new ToastData("Lỗi", "Không thể xóa giá trị này vì đang được sử dụng trong sản phẩm.", ToastType.Error)
+                );
                 return Json(new { success = false, message = "Không thể xóa giá trị này vì đang được sử dụng trong sản phẩm." });
             }
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Lỗi cơ sở dữ liệu khi xóa giá trị.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Lỗi cơ sở dữ liệu khi xóa giá trị." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi không xác định khi xóa giá trị thuộc tính ID {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa." });
         }
     }

@@ -11,6 +11,8 @@ using web.Areas.Admin.Validators.FAQ;
 using web.Areas.Admin.ViewModels.FAQ;
 using X.PagedList;
 using X.PagedList.EF;
+using System.Text.Json;
+using shared.Models;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -109,15 +111,22 @@ public partial class FAQController : Controller
         try
         {
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm FAQ '{faq.Question}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi tạo FAQ: {Question}", viewModel.Question);
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi thêm FAQ.");
-            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
-            return View(viewModel);
         }
+
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm FAQ '{viewModel.Question}'.", ToastType.Error)
+        );
+        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+        return View(viewModel);
     }
 
     // GET: Admin/FAQ/Edit/5
@@ -143,7 +152,13 @@ public partial class FAQController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, FAQViewModel viewModel)
     {
-        if (id != viewModel.Id) return BadRequest();
+        if (id != viewModel.Id)
+        {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
+        }
 
         var result = await new FAQViewModelValidator().ValidateAsync(viewModel);
 
@@ -159,7 +174,9 @@ public partial class FAQController : Controller
         var faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == id);
         if (faq == null)
         {
-            _logger.LogWarning("Không tìm thấy FAQ có Id = {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy FAQ để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -168,15 +185,22 @@ public partial class FAQController : Controller
         try
         {
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật FAQ '{faq.Question}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi cập nhật FAQ: {Question}", viewModel.Question);
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật FAQ.");
-            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
-            return View(viewModel);
         }
+
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật FAQ '{viewModel.Question}'.", ToastType.Error)
+        );
+        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+        return View(viewModel);
     }
 
     // POST: Admin/FAQ/Delete/5
@@ -187,6 +211,9 @@ public partial class FAQController : Controller
         FAQ? faq = await _context.Set<FAQ>().FindAsync(id);
         if (faq == null)
         {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy FAQ.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy FAQ." });
         }
 
@@ -195,11 +222,17 @@ public partial class FAQController : Controller
             string question = faq.Question;
             _context.Remove(faq);
             await _context.SaveChangesAsync();
-
-            return Json(new { success = true, message = $"Xóa FAQ thành công." });
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa FAQ '{question}' thành công.", ToastType.Success)
+            );
+            return Json(new { success = true, message = $"Xóa FAQ '{question}' thành công." });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Lỗi khi xóa FAQ ID {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa FAQ.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa FAQ." });
         }
     }

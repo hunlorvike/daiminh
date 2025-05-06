@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Enums;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.Slide;
 using web.Areas.Admin.ViewModels.Slide;
 using X.PagedList;
@@ -109,20 +112,20 @@ public partial class SlideController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Thêm Slide '{slide.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm Slide '{slide.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi khi tạo Slide: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu Slide.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi không xác định khi tạo Slide: {Title}", viewModel.Title);
+            _logger.LogError(ex, "Lỗi khi tạo Slide: {Title}", viewModel.Title);
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu Slide.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm Slide '{viewModel.Title}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -152,8 +155,9 @@ public partial class SlideController : Controller
     {
         if (id != viewModel.Id)
         {
-            _logger.LogWarning("ID trong route ({RouteId}) và ViewModel ({ViewModelId}) không khớp khi chỉnh sửa Slide.", id, viewModel.Id);
-            TempData["ErrorMessage"] = "Yêu cầu chỉnh sửa không hợp lệ.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -171,8 +175,9 @@ public partial class SlideController : Controller
         var slide = await _context.Set<Slide>().FirstOrDefaultAsync(s => s.Id == id);
         if (slide == null)
         {
-            _logger.LogWarning("Slide không tồn tại khi cập nhật. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy Slide để cập nhật.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy Slide để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -181,20 +186,20 @@ public partial class SlideController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Cập nhật Slide '{slide.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật Slide '{slide.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật Slide ID {Id}, Title {Title}", id, slide.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi cập nhật Slide.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật Slide ID {Id}", id);
+            _logger.LogError(ex, "Lỗi khi cập nhật Slide: {Title}", viewModel.Title);
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật Slide.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật Slide '{viewModel.Title}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -203,12 +208,13 @@ public partial class SlideController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var slide = await _context.Set<Slide>()
-                                  .FirstOrDefaultAsync(s => s.Id == id);
+        var slide = await _context.Set<Slide>().FirstOrDefaultAsync(s => s.Id == id);
 
         if (slide == null)
         {
-            _logger.LogWarning("Slide không tồn tại khi xóa. ID: {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy Slide.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy Slide." });
         }
 
@@ -217,12 +223,17 @@ public partial class SlideController : Controller
             string slideTitle = slide.Title;
             _context.Remove(slide);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Đã xóa Slide: {Title}", slideTitle);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa Slide '{slideTitle}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa Slide '{slideTitle}' thành công." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa Slide: {Title}", slide.Title);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Slide.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa Slide." });
         }
     }

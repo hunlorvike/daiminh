@@ -9,7 +9,9 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
+using shared.Models;
 using System.Security.Claims;
+using System.Text.Json;
 using web.Areas.Admin.Validators.Article;
 using web.Areas.Admin.ViewModels.Article;
 using X.PagedList.EF;
@@ -136,7 +138,9 @@ public partial class ArticleController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Đã thêm bài viết '{article.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm bài viết '{article.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException ex)
@@ -150,6 +154,9 @@ public partial class ArticleController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu bài viết.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm bài viết '{viewModel.Title}'.", ToastType.Error)
+        );
         await PopulateViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
@@ -183,8 +190,10 @@ public partial class ArticleController : Controller
     {
         if (id != viewModel.Id)
         {
-            _logger.LogWarning("ID không khớp khi chỉnh sửa bài viết. URL: {Id}, ViewModel: {ModelId}", id, viewModel.Id);
-            return BadRequest();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
         var result = await new ArticleViewModelValidator(_context).ValidateAsync(viewModel);
@@ -205,7 +214,9 @@ public partial class ArticleController : Controller
 
         if (article == null)
         {
-            TempData["ErrorMessage"] = "Không tìm thấy bài viết.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy bài viết để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -215,7 +226,9 @@ public partial class ArticleController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Đã cập nhật bài viết '{article.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật bài viết '{article.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException ex)
@@ -229,6 +242,9 @@ public partial class ArticleController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật bài viết.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật bài viết '{viewModel.Title}'.", ToastType.Error)
+        );
         await PopulateViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
@@ -238,10 +254,13 @@ public partial class ArticleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        Article? article = await _context.Set<Article>().FirstOrDefaultAsync(a => a.Id == id);
+        var article = await _context.Set<Article>().FirstOrDefaultAsync(a => a.Id == id);
 
         if (article == null)
         {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy bài viết.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy bài viết." });
         }
 
@@ -250,18 +269,21 @@ public partial class ArticleController : Controller
             string articleTitle = article.Title;
             _context.Remove(article);
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa bài viết '{articleTitle}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa bài viết '{articleTitle}' thành công." });
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "Lỗi khi xóa bài viết: {Title}", article.Title);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa bài viết.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa bài viết." });
         }
     }
-
-
-
 }
-
 
 public partial class ArticleController
 {
@@ -330,9 +352,9 @@ public partial class ArticleController
                           .ToListAsync();
 
         var items = new List<SelectListItem>
-    {
-        new SelectListItem { Value = "", Text = "-- Chọn sản phẩm --", Selected = selectedValues == null || !selectedValues.Any() }
-    };
+        {
+            new SelectListItem { Value = "", Text = "-- Chọn sản phẩm --", Selected = selectedValues == null || !selectedValues.Any() }
+        };
 
         items.AddRange(products.Select(p => new SelectListItem
         {
@@ -343,7 +365,6 @@ public partial class ArticleController
 
         return items;
     }
-
 
     private List<SelectListItem> GetPublishStatusSelectList(PublishStatus? selectedStatus)
     {

@@ -38,49 +38,7 @@
             <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
         </div>
     }
-    @if (TempData["SuccessMessage"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <div class="d-flex">
-                <div class="alert-icon">
-                    <i class="ti ti-circle-check"></i>
-                </div>
-                <div>
-                    @TempData["SuccessMessage"]
-                </div>
-            </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-        </div>
-    }
-    @if (TempData["ErrorMessage"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <div class="d-flex">
-                <div class="alert-icon">
-                    <i class="ti ti-alert-circle"></i>
-                </div>
-                <div>
-                    @TempData["ErrorMessage"]
-                </div>
-            </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-        </div>
-    }
-    @if (TempData["InfoMessage"] != null)
-    {
-        <div class="alert alert-info alert-dismissible fade show" role="alert">
-            <div class="d-flex">
-                <div class="alert-icon">
-                    <i class="ti ti-info-circle"></i>
-                </div>
-                <div>
-                    @TempData["InfoMessage"]
-                </div>
-            </div>
-            <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-        </div>
-    }
-
+    
     <div class="card mb-3">
         <div class="card-header">
             <h3 class="card-title">

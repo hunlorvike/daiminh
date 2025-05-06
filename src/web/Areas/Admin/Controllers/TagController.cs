@@ -12,6 +12,8 @@ using shared.Extensions;
 using web.Areas.Admin.ViewModels.Tag;
 using X.PagedList;
 using X.PagedList.EF;
+using System.Text.Json;
+using shared.Models;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -107,6 +109,9 @@ public partial class TagController : Controller
         try
         {
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm thẻ '{tag.Name}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
@@ -115,6 +120,9 @@ public partial class TagController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi tạo thẻ.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm thẻ '{viewModel.Name}'.", ToastType.Error)
+        );
         viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
         return View(viewModel);
     }
@@ -141,7 +149,12 @@ public partial class TagController : Controller
     public async Task<IActionResult> Edit(int id, TagViewModel viewModel)
     {
         if (id != viewModel.Id)
-            return BadRequest();
+        {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
+        }
 
         var validationResult = await new TagViewModelValidator(_context).ValidateAsync(viewModel);
         if (!validationResult.IsValid)
@@ -156,8 +169,10 @@ public partial class TagController : Controller
         var tag = await _context.Set<Tag>().FirstOrDefaultAsync(t => t.Id == id);
         if (tag == null)
         {
-            _logger.LogWarning("Không tìm thấy thẻ có id '{Id}' để chỉnh sửa.", id);
-            return NotFound();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy thẻ để cập nhật.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
         _mapper.Map(viewModel, tag);
@@ -165,6 +180,9 @@ public partial class TagController : Controller
         try
         {
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật thẻ '{tag.Name}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
@@ -173,6 +191,9 @@ public partial class TagController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật thẻ.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật thẻ '{viewModel.Name}'.", ToastType.Error)
+        );
         viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
         return View(viewModel);
     }
@@ -197,6 +218,9 @@ public partial class TagController : Controller
 
         if (tag == null)
         {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy thẻ.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy thẻ." });
         }
 
@@ -205,7 +229,10 @@ public partial class TagController : Controller
 
         if (totalItems > 0)
         {
-            return Json(new { success = false, message = $"Không thể xóa thẻ '{tag.Name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}. Vui lòng gỡ thẻ khỏi các {itemTypeName} trước." });
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", $"Không thể xóa thẻ '{tag.Name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}.", ToastType.Error)
+            );
+            return Json(new { success = false, message = $"Không thể xóa thẻ '{tag.Name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}." });
         }
 
         Tag tagToDelete = new() { Id = id };
@@ -214,10 +241,16 @@ public partial class TagController : Controller
         try
         {
             await _context.SaveChangesAsync();
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa thẻ '{tag.Name}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa thẻ '{tag.Name}' thành công." });
         }
         catch (Exception)
         {
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa thẻ.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa thẻ." });
         }
     }

@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Enums;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.PopupModal;
 using web.Areas.Admin.ViewModels.PopupModal;
 using X.PagedList;
@@ -94,7 +97,6 @@ public partial class PopupModalController : Controller
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            // Re-populate select lists if any (not needed for this simple VM, but good practice)
             return View(viewModel);
         }
 
@@ -105,20 +107,20 @@ public partial class PopupModalController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Thêm Popup '{popupModal.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm Popup '{popupModal.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi khi tạo Popup: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu Popup.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi không xác định khi tạo Popup: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu Popup.");
+            _logger.LogError(ex, "Lỗi khi tạo Popup: {Title}", viewModel.Title);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu Popup.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm Popup '{viewModel.Title}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -148,8 +150,9 @@ public partial class PopupModalController : Controller
     {
         if (id != viewModel.Id)
         {
-            _logger.LogWarning("ID trong route ({RouteId}) và ViewModel ({ViewModelId}) không khớp khi chỉnh sửa Popup.", id, viewModel.Id);
-            TempData["ErrorMessage"] = "Yêu cầu chỉnh sửa không hợp lệ.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -167,8 +170,9 @@ public partial class PopupModalController : Controller
         var popupModal = await _context.Set<PopupModal>().FirstOrDefaultAsync(p => p.Id == id);
         if (popupModal == null)
         {
-            _logger.LogWarning("Popup không tồn tại khi cập nhật. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy Popup để cập nhật.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy Popup để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
@@ -176,22 +180,21 @@ public partial class PopupModalController : Controller
 
         try
         {
-            _context.Update(popupModal);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Cập nhật Popup '{popupModal.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật Popup '{popupModal.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật Popup ID {Id}, Title {Title}", id, popupModal.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi cập nhật Popup.");
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật Popup ID {Id}", id);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật Popup.");
+            _logger.LogError(ex, "Lỗi khi cập nhật Popup: {Title}", viewModel.Title);
+            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật Popup.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật Popup '{viewModel.Title}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -200,12 +203,13 @@ public partial class PopupModalController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var popupModal = await _context.Set<PopupModal>()
-                                  .FirstOrDefaultAsync(p => p.Id == id);
+        var popupModal = await _context.Set<PopupModal>().FirstOrDefaultAsync(p => p.Id == id);
 
         if (popupModal == null)
         {
-            _logger.LogWarning("Popup không tồn tại khi xóa. ID: {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy Popup.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy Popup." });
         }
 
@@ -214,12 +218,17 @@ public partial class PopupModalController : Controller
             string popupTitle = popupModal.Title;
             _context.Remove(popupModal);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Đã xóa Popup: {Title}", popupTitle);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa Popup '{popupTitle}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa Popup '{popupTitle}' thành công." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa Popup: {Title}", popupModal.Title);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Popup.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa Popup." });
         }
     }

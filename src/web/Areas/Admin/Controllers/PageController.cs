@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Extensions;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.Page;
 using web.Areas.Admin.ViewModels.Page;
 using X.PagedList;
@@ -103,22 +105,19 @@ public partial class PageController : Controller
 
         var page = _mapper.Map<Page>(viewModel);
 
-        // Set PublishedAt if status is Published and date is not provided
         if (page.Status == PublishStatus.Published && page.PublishedAt == null)
         {
-            // Use UtcNow for consistency with BaseEntity
             page.PublishedAt = DateTime.UtcNow;
         }
-        // If status is not Published, ensure PublishedAt is null or keep as is if it was previously published?
-        // Let's clear it if status changes FROM published, but the entity structure doesn't track old status.
-        // Simplest: only set PublishedAt if status IS Published and date IS NULL.
 
         _context.Add(page);
 
         try
         {
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Thêm trang '{page.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Thêm trang '{page.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException ex)
@@ -130,7 +129,6 @@ public partial class PageController : Controller
             }
             else
             {
-                // More general DB error
                 ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu trang.");
             }
         }
@@ -140,6 +138,9 @@ public partial class PageController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu trang.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể thêm trang '{viewModel.Title}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
 
@@ -172,9 +173,10 @@ public partial class PageController : Controller
     {
         if (id != viewModel.Id)
         {
-            _logger.LogWarning("ID trong route ({RouteId}) và ViewModel ({ViewModelId}) không khớp khi chỉnh sửa trang.", id, viewModel.Id);
-            TempData["ErrorMessage"] = "Yêu cầu chỉnh sửa không hợp lệ.";
-            return RedirectToAction(nameof(Index)); // Redirect for invalid ID
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
         var validator = new PageViewModelValidator(_context);
@@ -188,39 +190,30 @@ public partial class PageController : Controller
             return View(viewModel);
         }
 
-        // Fetch the entity to update
         var page = await _context.Set<Page>().FirstOrDefaultAsync(p => p.Id == id);
         if (page == null)
         {
-            _logger.LogWarning("Trang không tồn tại khi cập nhật. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy trang để cập nhật.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy trang để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
-        // Store old status to check for publish transition
         var oldStatus = page.Status;
-
-        // Map updated values from ViewModel to Entity
         _mapper.Map(viewModel, page);
 
-        // Handle PublishedAt on status change to Published
         if (oldStatus != PublishStatus.Published && page.Status == PublishStatus.Published && page.PublishedAt == null)
         {
-            // Use UtcNow for consistency
             page.PublishedAt = DateTime.UtcNow;
         }
-        // If status changes from Published to Draft/Archived, should PublishedAt be cleared?
-        // Based on the entity, keeping it might be okay (indicates *first* publish date),
-        // but clearing it could indicate it's no longer "currently" published.
-        // Let's keep it simple: only set on the first transition TO Published.
-        // If they manually set a PublishedAt date in the form, the mapper handles it.
-
 
         try
         {
-            _context.Update(page); // Mark as modified explicitly if not tracking, though FirstOrDefaultAsync tracks.
+            _context.Update(page);
             await _context.SaveChangesAsync();
-            TempData["SuccessMessage"] = $"Cập nhật trang '{page.Title}' thành công.";
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Cập nhật trang '{page.Title}' thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index));
         }
         catch (DbUpdateException ex)
@@ -241,38 +234,44 @@ public partial class PageController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật trang.");
         }
 
+        TempData["ToastMessage"] = JsonSerializer.Serialize(
+            new ToastData("Lỗi", $"Không thể cập nhật trang '{viewModel.Title}'.", ToastType.Error)
+        );
         return View(viewModel);
     }
+
 
     // POST: Admin/Page/Delete/5
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var page = await _context.Set<Page>()
-                                  .FirstOrDefaultAsync(p => p.Id == id);
+        var page = await _context.Set<Page>().FirstOrDefaultAsync(p => p.Id == id);
 
         if (page == null)
         {
-            _logger.LogWarning("Trang không tồn tại khi xóa. ID: {Id}", id);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy trang.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Không tìm thấy trang." });
         }
-
-        // Unlike Brand, Page has no dependent entities in its current definition,
-        // so no dependency check needed here.
 
         try
         {
             string pageTitle = page.Title;
             _context.Remove(page);
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Đã xóa trang: {Title}", pageTitle);
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Thành công", $"Xóa trang '{pageTitle}' thành công.", ToastType.Success)
+            );
             return Json(new { success = true, message = $"Xóa trang '{pageTitle}' thành công." });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa trang: {Title}", page.Title);
-            // Check for specific constraint violations if needed, but generic error is often enough
+            TempData["ToastMessage"] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", $"Không thể xóa trang '{page.Title}'.", ToastType.Error)
+            );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa trang." });
         }
     }
