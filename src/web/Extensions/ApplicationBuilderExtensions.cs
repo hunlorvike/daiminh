@@ -14,6 +14,11 @@ public static class ApplicationBuilderExtensions
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapDefaultControllerRoute();
+            endpoints.MapDefaultRoutes();
+        });
         app.UseAuthentication();
         app.UseAuthorization();
 

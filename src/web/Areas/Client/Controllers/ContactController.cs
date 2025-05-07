@@ -6,6 +6,7 @@ namespace web.Areas.Client.Controllers;
 [Route("lien-he")]
 public class ContactController : Controller
 {
+    [HttpGet]
     public IActionResult Index()
     {
         return View();

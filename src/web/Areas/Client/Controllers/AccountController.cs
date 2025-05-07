@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
+[Route("tai-khoan")]
 public class AccountController : Controller
 {
     public IActionResult Login()
