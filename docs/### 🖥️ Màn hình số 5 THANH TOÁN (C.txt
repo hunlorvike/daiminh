@@ -1,0 +1,42 @@
+### 🖥️ Màn hình số 5: THANH TOÁN (Checkout)
+
+---
+
+#### 🎯 Mục tiêu UX chính
+
+* Giúp người dùng hoàn tất đơn hàng **nhanh, đơn giản, chính xác**.
+* Thiết kế mobile-first, tránh multi-step phức tạp.
+* Hiển thị tóm tắt đơn hàng, nhập thông tin giao hàng và chọn phương thức thanh toán.
+
+---
+
+#### 🧱 Thành phần UI
+
+```plaintext
+Breadcrumb: Trang chủ > Giỏ hàng > Thanh toán
+
+Form nhập thông tin giao hàng
+└── Họ tên, số điện thoại, email (tùy chọn)
+└── Địa chỉ giao hàng
+└── Ghi chú đơn hàng (tuỳ ý)
+
+Phương thức thanh toán
+└── COD, chuyển khoản, (tùy chọn: Momo/VNPAY...)
+
+Tóm tắt đơn hàng
+└── Tên, số lượng, giá
+└── Tổng cộng
+
+CTA: Đặt hàng
+└── Nút “Xác nhận đặt hàng” (nổi bật)
+```
+
+---
+
+#### 🔄 Luồng tương tác chính
+
+* Người dùng nhập thông tin → chọn thanh toán → kiểm tra đơn hàng → bấm “Xác nhận đặt hàng”.
+* Nếu chưa đăng nhập: cho phép điền nhanh → tạo tài khoản tạm sau đặt hàng (nếu cần).
+
+---
+

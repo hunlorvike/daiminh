@@ -1,0 +1,40 @@
+### 🖥️ Màn hình số 8: DANH SÁCH BÀI VIẾT / TIN TỨC (Article Listing / Blog)
+
+---
+
+#### 🎯 Mục tiêu UX chính
+
+* Giúp người dùng **khám phá nhanh nội dung hữu ích**: tư vấn thi công, chống thấm, hướng dẫn chọn sơn...
+* Hiển thị bài viết dạng **thẻ (card)** dễ đọc, tối ưu mobile.
+* Điều hướng rõ ràng đến trang chi tiết.
+
+---
+
+#### 🧱 Thành phần UI
+
+```plaintext
+Breadcrumb: Trang chủ > Tin tức / Tư vấn kỹ thuật
+
+Tiêu đề trang: H1 "Tư vấn kỹ thuật" hoặc "Tin tức"
+
+Bộ lọc (tuỳ chọn)
+└── Chuyên mục (dropdown), tìm kiếm (input)
+
+Danh sách bài viết (Grid/List)
+└── Ảnh thumbnail
+└── Tiêu đề, đoạn mô tả ngắn (excerpt), ngày đăng
+└── Link → chi tiết bài viết
+
+Phân trang hoặc "Tải thêm"
+```
+
+---
+
+#### 🔄 Luồng tương tác chính
+
+* Người dùng vào chuyên mục → đọc nhanh tiêu đề + trích đoạn → nhấn bài muốn xem.
+* Trên mobile: card hiển thị 1 cột, có thể scroll liên tục hoặc phân trang.
+
+---
+
+

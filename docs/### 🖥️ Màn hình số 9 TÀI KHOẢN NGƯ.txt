@@ -1,0 +1,41 @@
+### 🖥️ Màn hình số 9: TÀI KHOẢN NGƯỜI DÙNG (My Account)
+
+---
+
+#### 🎯 Mục tiêu UX chính
+
+* Cho phép người dùng xem và cập nhật thông tin cá nhân.
+* Theo dõi đơn hàng đã đặt (trạng thái, chi tiết).
+* Đăng xuất hoặc thay đổi mật khẩu đơn giản.
+
+---
+
+#### 🧱 Thành phần UI
+
+```plaintext
+Tabs hoặc menu dọc (trên desktop), collapse (trên mobile):
+└── Thông tin cá nhân
+└── Đơn hàng của tôi
+└── Đổi mật khẩu
+└── Đăng xuất
+
+Trang "Thông tin cá nhân":
+└── Họ tên, email, sđt, địa chỉ mặc định (form)
+
+Trang "Đơn hàng của tôi":
+└── Danh sách đơn hàng: mã đơn, ngày đặt, trạng thái, tổng tiền
+└── Link xem chi tiết đơn hàng
+
+Trang "Đổi mật khẩu":
+└── Mật khẩu cũ, mới, xác nhận
+```
+
+---
+
+#### 🔄 Luồng tương tác chính
+
+* Người dùng đăng nhập → vào tài khoản → xem trạng thái đơn → cập nhật thông tin.
+* Tất cả form cần có xác thực và thông báo lỗi trực quan.
+
+---
+

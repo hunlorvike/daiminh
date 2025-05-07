@@ -1,0 +1,43 @@
+### 🖥️ Màn hình số 7: BÀI VIẾT / TIN TỨC (Article / Blog)
+
+---
+
+#### 🎯 Mục tiêu UX chính
+
+* Cung cấp kiến thức chuyên môn, tư vấn giải pháp → tăng uy tín và dẫn dắt hành động (CTA gián tiếp).
+* Trình bày nội dung dễ đọc trên mobile: font lớn, chia đoạn rõ ràng.
+* Tăng khám phá nội dung qua "Bài viết liên quan".
+
+---
+
+#### 🧱 Thành phần UI
+
+```plaintext
+Breadcrumb: Trang chủ > Tư vấn kỹ thuật > [Tên bài viết]
+
+Tiêu đề bài viết (H1)
+
+Meta: ngày đăng, chuyên mục, lượt xem (tuỳ chọn)
+
+Ảnh đại diện đầu bài (cover)
+
+Nội dung HTML:
+└── Chia đoạn rõ ràng
+└── Heading (H2, H3), danh sách ul/ol
+└── Blockquote, ảnh chèn, video (tuỳ)
+
+CTA mềm:
+└── Banner trong bài hoặc dưới cuối: "Xem sản phẩm liên quan", "Liên hệ tư vấn"
+
+Bài viết liên quan:
+└── 2–4 bài viết khác (ảnh + tiêu đề)
+```
+
+---
+
+#### 🔄 Luồng tương tác chính
+
+* Người dùng từ danh sách tin → click đọc bài → xem nội dung → nhấn CTA hoặc chuyển tiếp bài khác.
+
+---
+

@@ -1,0 +1,83 @@
+## 🧭 SƠ ĐỒ LUỒNG UX TOÀN TRANG
+
+```plaintext
+[Trang chủ]
+│
+├─> [Danh mục sản phẩm]
+│    └─> [Chi tiết sản phẩm]
+│         ├─> [Thêm giỏ hàng]
+│         └─> [Mua ngay] ─> [Giỏ hàng] ─> [Thanh toán] ─> [Đơn hàng thành công]
+│
+├─> [Tin tức / Tư vấn kỹ thuật]
+│    └─> [Chi tiết bài viết] ─> [CTA mềm] ─> [Sản phẩm liên quan / Liên hệ]
+│
+├─> [Đăng nhập / Đăng ký]
+│    └─> [Tài khoản của tôi]
+│          ├─> [Thông tin cá nhân]
+│          ├─> [Đơn hàng của tôi] ─> [Chi tiết đơn hàng]
+│          └─> [Đổi mật khẩu]
+│
+├─> [Liên hệ] ─> [Gửi yêu cầu] ─> [Xác nhận gửi]
+├─> [Zalo Chat] (nổi ở góc phải)
+└─> [Giỏ hàng] (truy cập nhanh mọi lúc)
+
+```
+
+---
+
+## 📦 DANH SÁCH COMPONENT UI TÁI SỬ DỤNG (cho Razor Partial View)
+
+| Component        | Tên file Razor gợi ý       | Công dụng UI                                                 |
+| ---------------- | -------------------------- | ------------------------------------------------------------ |
+| ✅ Layout chính   | `_Layout.cshtml`           | Header + Footer + Zalo chat + Import Tabler/Bootstrap        |
+| 🔍 Tìm kiếm      | `_SearchBar.cshtml`        | Ô tìm kiếm toàn site, hiển thị trong navbar                  |
+| 🧭 Breadcrumb    | `_Breadcrumb.cshtml`       | Hiển thị đường dẫn trang hiện tại                            |
+| 📦 Card sản phẩm | `_ProductCard.cshtml`      | Hiển thị 1 sản phẩm (ảnh, tên, giá, nút CTA)                 |
+| 📰 Card bài viết | `_ArticleCard.cshtml`      | Hiển thị 1 bài viết (ảnh, tiêu đề, excerpt, ngày)            |
+| 🛒 Cart item     | `_CartItem.cshtml`         | Hiển thị sản phẩm trong giỏ hàng với số lượng, xóa, giá      |
+| 📜 Đơn hàng row  | `_OrderRow.cshtml`         | Hiển thị đơn hàng trong danh sách lịch sử đơn hàng           |
+| 💬 Alert/Toast   | `_Alert.cshtml` / JS Toast | Hiển thị thông báo thành công/thất bại khi submit form       |
+| 🧾 Tabs wrapper  | `_Tabs.cshtml` (optional)  | UI tab dạng Bootstrap 5, dùng cho Tài khoản hoặc Product Tab |
+| 📍 Zalo widget   | `_ZaloChat.cshtml`         | Nhúng script chat Zalo nổi                                   |
+| 📍 Google Map    | `_MapEmbed.cshtml`         | Bản đồ iframe (trang Liên hệ)                                |
+| 📩 Contact form  | `_ContactForm.cshtml`      | Form liên hệ nhanh tái sử dụng (liên hệ / popup)             |
+
+---
+
+## 💡 Cấu trúc folder Razor View gợi ý (theo tính năng)
+
+```
+Views/
+├── Shared/
+│   ├── _Layout.cshtml
+│   ├── _Breadcrumb.cshtml
+│   ├── _SearchBar.cshtml
+│   ├── _Alert.cshtml
+│   ├── _ZaloChat.cshtml
+│   └── Components/ (sub-folder cho card, map...)
+│       ├── _ProductCard.cshtml
+│       ├── _ArticleCard.cshtml
+│       ├── _CartItem.cshtml
+│       └── _OrderRow.cshtml
+├── Home/
+│   ├── Index.cshtml
+├── Product/
+│   ├── List.cshtml
+│   ├── Detail.cshtml
+├── Cart/
+│   ├── Index.cshtml
+├── Checkout/
+│   ├── Index.cshtml
+│   └── Success.cshtml
+├── Account/
+│   ├── Login.cshtml
+│   ├── Register.cshtml
+│   ├── MyAccount.cshtml
+├── Article/
+│   ├── Index.cshtml
+│   ├── Detail.cshtml
+├── Contact/
+│   ├── Index.cshtml
+```
+
+
