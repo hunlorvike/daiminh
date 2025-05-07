@@ -1,0 +1,134 @@
+@{
+    ViewData["Title"] = "Đăng ký";
+    Layout = "Layout/Layout.Blank";
+}
+
+<div class="container container-tight py-4">
+    <div class="text-center mb-4">
+        <a href="/" class="navbar-brand navbar-brand-autodark">
+            <h1 class="navbar-brand-autodark">DAIMINH</h1>
+        </a>
+    </div>
+
+    <div class="card card-md">
+        <div class="card-body">
+            <h2 class="h2 text-center mb-4">Tạo tài khoản mới</h2>
+
+            <form method="post" autocomplete="off" novalidate>
+                @Html.AntiForgeryToken()
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="d-flex">
+                            <div class="alert-icon">
+                                <i class="ti ti-alert-circle"></i>
+                            </div>
+                            <div>
+                                <h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
+                                <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                            </div>
+                        </div>
+                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+                }
+                <div class="mb-3">
+                    <label class="form-label required">Họ tên</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-user"></i>
+                        </span>
+                        <input type="text" name="FullName" class="form-control" placeholder="Họ và tên"
+                            autocomplete="off" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required">Email hoặc số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-mail"></i>
+                        </span>
+                        <input type="text" name="Email" class="form-control" placeholder="Email hoặc số điện thoại"
+                            autocomplete="off" required>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required">Mật khẩu</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-lock"></i>
+                        </span>
+                        <input type="password" name="Password" id="Password" class="form-control" placeholder="Mật khẩu"
+                            autocomplete="off" required>
+                        <span class="input-group-text cursor-pointer toggle-password">
+                            <i class="ti ti-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required">Xác nhận mật khẩu</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-lock-check"></i>
+                        </span>
+                        <input type="password" name="ConfirmPassword" class="form-control"
+                            placeholder="Xác nhận mật khẩu" autocomplete="off" required>
+                        <span class="input-group-text cursor-pointer toggle-password">
+                            <i class="ti ti-eye"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input type="checkbox" name="AgreeTerms" class="form-check-input" required />
+                        <span class="form-check-label">
+                            Tôi đồng ý với <a href="/terms" tabindex="-1">điều khoản dịch vụ</a> và <a href="/privacy"
+                                tabindex="-1">chính sách bảo mật</a>
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-user-plus me-2"></i>Tạo tài khoản
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center text-muted mt-3">
+        Đã có tài khoản? <a tabindex="-1">Đăng nhập</a>
+    </div>
+
+    <div class="text-center text-muted mt-3">
+        <a href="/" class="text-muted">Quay lại trang chủ</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const input = this.closest('.input-group').querySelector('input');
+                    const icon = this.querySelector('i');
+
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('ti-eye');
+                        icon.classList.add('ti-eye-off');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('ti-eye-off');
+                        icon.classList.add('ti-eye');
+                    }
+                });
+            });
+        });
+    </script>
+}

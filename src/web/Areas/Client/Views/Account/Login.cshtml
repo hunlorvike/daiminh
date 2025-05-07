@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Đăng nhập";
+    Layout = "Layout/Layout.Blank";
+}
+
+<div class="container container-tight py-4">
+    <div class="text-center mb-4">
+        <a href="/" class="navbar-brand navbar-brand-autodark">
+            <h1 class="navbar-brand-autodark">DAIMINH</h1>
+        </a>
+    </div>
+
+    <div class="card card-md">
+        <div class="card-body">
+            <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản</h2>
+            <form method="post" autocomplete="off" novalidate>
+                @Html.AntiForgeryToken()
+                @if (!ViewData.ModelState.IsValid)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <div class="d-flex">
+                            <div class="alert-icon">
+                                <i class="ti ti-alert-circle"></i>
+                            </div>
+                            <div>
+                                <h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
+                                <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                            </div>
+                        </div>
+                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                    </div>
+                }
+                <div class="mb-3">
+                    <label class="form-label required">Email hoặc số điện thoại</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-mail"></i>
+                        </span>
+                        <input type="text" name="Email" class="form-control" placeholder="Email hoặc số điện thoại"
+                            autocomplete="off" required>
+                    </div>
+                    <div class="invalid-feedback">Vui lòng nhập email hoặc số điện thoại</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required">
+                        Mật khẩu
+                        <span class="form-label-description">
+                            <a href="/Account/ForgotPassword">Quên mật khẩu?</a>
+                        </span>
+                    </label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="ti ti-lock"></i>
+                        </span>
+                        <input type="password" name="Password" class="form-control" placeholder="Mật khẩu"
+                            autocomplete="off" required>
+                        <span class="input-group-text cursor-pointer toggle-password">
+                            <i class="ti ti-eye"></i>
+                        </span>
+                    </div>
+                    <div class="invalid-feedback">Vui lòng nhập mật khẩu</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-check">
+                        <input type="checkbox" name="RememberMe" class="form-check-input" />
+                        <span class="form-check-label">Ghi nhớ tôi</span>
+                    </label>
+                </div>
+
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-login me-2"></i>Đăng nhập
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center text-muted mt-3">
+        Chưa có tài khoản? <a tabindex="-1">Đăng ký</a>
+    </div>
+
+    <div class="text-center text-muted mt-3">
+        <a href="/" class="text-muted">Quay lại trang chủ</a>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
+            togglePasswordButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const input = this.closest('.input-group').querySelector('input');
+                    const icon = this.querySelector('i');
+
+                    if (input.type === 'password') {
+                        input.type = 'text';
+                        icon.classList.remove('ti-eye');
+                        icon.classList.add('ti-eye-off');
+                    } else {
+                        input.type = 'password';
+                        icon.classList.remove('ti-eye-off');
+                        icon.classList.add('ti-eye');
+                    }
+                });
+            });
+        });
+    </script>
+}
