@@ -1,20 +1,64 @@
 @{
+	// Theme logic
 	var themeCookie = Context.Request.Cookies["daiminhTheme"];
 	var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
 	var isDark = theme == "dark";
+
+	// Get SEO data from ViewData or fallback to defaults
+	var pageTitle = ViewData["Title"]?.ToString() ?? "Sơn Đại Minh";
+	var metaDescription = ViewData["MetaDescription"]?.ToString()
+	?? "Công ty Đại Minh Việt Nam chuyên cung cấp sơn chống thấm, sơn nội ngoại thất và vật liệu xây dựng chính hãng từ Dulux, Jotun, Sika, KOVA... Dịch vụ thi công sơn trọn gói tại Hà Nội. Cam kết chất lượng – Giá tốt – Tư vấn tận tâm.";
+	var metaKeywords = ViewData["MetaKeywords"]?.ToString()
+	?? "sơn chống thấm, sơn đại minh, đại minh việt nam, đại lý sơn hà nội, sơn dulux, sơn jotun, sơn kova, vật liệu chống thấm, thi công sơn nhà, sơn nội thất, sơn ngoại thất, công ty sơn hà nội";
+	var canonicalUrl = ViewData["CanonicalUrl"]?.ToString();
+
+	// Open Graph (OG) properties - fallback to basic meta or default values
+	var ogTitle = ViewData["OgTitle"]?.ToString() ?? pageTitle;
+	var ogDescription = ViewData["OgDescription"]?.ToString() ?? metaDescription;
+	var ogImage = ViewData["OgImage"]?.ToString() ?? "/images/default-og-image.jpg";
+	var ogType = ViewData["OgType"]?.ToString() ?? "website";
+
+	// Twitter Card properties - fallback to OG/basic meta or default values
+	var twitterCard = ViewData["TwitterCard"]?.ToString() ?? "summary_large_image";
+	var twitterTitle = ViewData["TwitterTitle"]?.ToString() ?? ogTitle;
+	var twitterDescription = ViewData["TwitterDescription"]?.ToString() ?? ogDescription;
+	var twitterImage = ViewData["TwitterImage"]?.ToString() ?? ogImage;
+
+	// Site name - ideally from a global settings or config
+	var siteName = "Sơn Đại Minh";
+
+	// Fallback for canonical URL if not provided
+	canonicalUrl ??=
+	$"{Context.Request.Scheme}://{Context.Request.Host}{Context.Request.Path}{Context.Request.QueryString}";
 }
 
 <!DOCTYPE html>
 <html lang="vi" data-bs-theme="@(isDark ? "dark" : null)" data-bs-theme-primary="blue">
+
 <head>
 	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-	<title>@ViewData["Title"]</title>
-	<!-- Favicon -->
-    <link rel="shortcut icon" href="@(ViewBag.FaviconUrl ?? "/img/icon.jpg")" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no, viewport-fit=cover" />
+
+	<title>@(pageTitle)</title>
+	<meta name="description" content="@Html.Raw(metaDescription)" />
+	<meta name="keywords" content="@Html.Raw(metaKeywords)" />
+	<link rel="canonical" href="@Html.Raw(canonicalUrl)" />
+	<meta property="og:locale" content="vi_VN" />
+	<meta property="og:title" content="@Html.Raw(ogTitle)" />
+	<meta property="og:description" content="@Html.Raw(ogDescription)" />
+	<meta property="og:image" content="@Html.Raw(ogImage)" />
+	<meta property="og:url" content="@Html.Raw(canonicalUrl)" />
+	<meta property="og:type" content="@Html.Raw(ogType)" />
+	<meta property="og:site_name" content="@Html.Raw(siteName)" />
+	<meta name="twitter:card" content="@Html.Raw(twitterCard)" />
+	<meta name="twitter:title" content="@Html.Raw(twitterTitle)" />
+	<meta name="twitter:description" content="@Html.Raw(twitterDescription)" />
+	<meta name="twitter:image" content="@Html.Raw(twitterImage)" />
+	<link rel="shortcut icon" href="@Html.Raw(ViewData["FaviconUrl"]?.ToString() ?? "/favicon.ico")" />
 	<partial name="__LibStyles" />
-    @await RenderSectionAsync("Styles", required: false)
+	@await RenderSectionAsync("Styles", required: false)
 </head>
+
 <body>
 	<div class="page">
 		<partial name="Components/Header" />
@@ -32,4 +76,5 @@
 
 	@await RenderSectionAsync("Scripts", false)
 </body>
+
 </html>
