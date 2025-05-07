@@ -5,12 +5,14 @@ namespace web.Areas.Client.Controllers;
 [Area("Client")]
 public class ProductController : Controller
 {
+    [HttpGet("san-pham")]
     public IActionResult Index()
     {
         return View();
     }
 
-    public IActionResult Detail()
+    [HttpGet("san-pham/{slug}")]  
+    public IActionResult Detail(string slug)
     {
         return View();
     }
