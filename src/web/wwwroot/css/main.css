@@ -2,6 +2,7 @@
     --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
     --bs-body-bg: var(--tblr-body-bg);
     font-family: var(--tblr-font-sans-serif);
+    margin-left: 0px;
 }
 
 @supports (font-variation-settings: normal) {
@@ -9,4 +10,8 @@
         --tblr-font-sans-serif: 'Inter Var', -apple-system, BlinkMacSystemFont, San Francisco, Segoe UI, Roboto, Helvetica Neue, sans-serif;
         font-family: var(--tblr-font-sans-serif);
     }
+}
+
+.social-app-zalo {
+    background-image: url(../img/zalo.svg);
 }

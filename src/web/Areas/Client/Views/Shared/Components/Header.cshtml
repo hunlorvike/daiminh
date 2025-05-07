@@ -1,151 +1,452 @@
-<header>
-	<!-- Top Bar - Simplified and enhanced -->
-	<div class="navbar-expand-md border-bottom py-2 d-none d-md-block">
-		<div class="container-xl">
-			<div class="d-flex justify-content-between align-items-center">
-				<div>
-					<p class="text-muted mb-0 d-flex align-items-center">
-						<i class="ti ti-award me-2"></i>
-						<span class="fw-medium">Chất lượng vượt niềm tin</span>
-					</p>
-				</div>
-				<div>
-					<p class="text-muted mb-0">
-						<span class="d-inline-flex align-items-center me-3">
-							<i class="ti ti-phone me-1 text-primary"></i>
-							<a href="tel:0359021323" class="text-decoration-none text-primary fw-medium">035 902 1323</a>
-						</span>
-						<span class="d-inline-flex align-items-center">
-							<i class="ti ti-mail me-1 text-primary"></i>
-							<a href="mailto:viethung0106.developer@gmail.com" class="text-decoration-none text-primary fw-medium">viethung0106.developer@gmail.com</a>
-						</span>
-					</p>
-				</div>
-			</div>
+<!-- Top bar with contact info - desktop only -->
+<header class="navbar navbar-expand-md py-2 d-none d-md-block" style="min-height: unset;">
+	<div class="container-xl justify-content-between align-items-center small fw-medium">
+		<div>
+			<span class="me-3 text-muted">
+				<i class="ti ti-phone me-1 text-primary"></i>
+				Hotline: <a href="tel:0359021323" class="text-reset">035.902.1323</a>
+			</span>
+			<span class="text-muted">
+				<i class="ti ti-mail me-1 text-primary"></i>
+				Email: <a href="mailto:daiminhvietnam@gmail.com" class="text-reset">daiminhvietnam@gmail.com</a>
+			</span>
+		</div>
+		<div class="d-flex align-items-center gap-3">
+			<a href="/ho-tro" class="text-decoration-none text-muted">
+				<i class="ti ti-help-circle me-1"></i>Hỗ trợ
+			</a>
+			<a href="/chinh-sach-van-chuyen" class="text-decoration-none text-muted">
+				<i class="ti ti-truck-delivery me-1"></i>Chính sách vận chuyển
+			</a>
+			<a href="/bao-hanh" class="text-decoration-none text-muted">
+				<i class="ti ti-shield-check me-1"></i>Bảo hành
+			</a>
 		</div>
 	</div>
+</header>
 
-	<!-- Main Header - Enhanced with better styling and animations -->
-	<div class="navbar navbar-expand-md sticky-top shadow-sm">
-		<div class="container-xl py-3">
-			<!-- Brand - Improved with better styling -->
-			<a href="#" class="navbar-brand d-flex align-items-center text-decoration-none me-4">
-				<span class="bg-primary rounded-3 d-flex justify-content-center align-items-center p-2 p-sm-3 shadow-sm"
-					  style="transition: all 0.3s ease;">
-					<i class="ti ti-paint text-white" style="font-size: 28px;"></i>
+<header class="sticky-top">
+	<!-- Main Header  -->
+	<div class="navbar navbar-expand-md">
+		<div class="container-xl align-items-center justify-content-between py-3">
+			<!-- Logo -->
+			<a asp-controller="Home" asp-action="Index"
+				class="navbar-brand d-flex align-items-center text-decoration-none">
+				<span class="bg-primary rounded-3 p-2 p-sm-3">
+					<i class="ti ti-paint text-white"></i>
 				</span>
 				<div class="ms-3">
-					<span class="fw-bold h2 text-uppercase text-primary m-0" style="letter-spacing: 0.5px;">Daiminh</span>
-					<div class="text-muted small d-none d-xl-block">Giải pháp sơn & chống thấm</div>
+					<span class="fw-bold h2 text-uppercase text-primary m-0">Daiminh</span>
+					<div class="text-secondary small d-none d-xl-block">Giải pháp sơn & chống thấm</div>
 				</div>
 			</a>
 
-			<!-- Search - Desktop - Improved with better styling -->
-			<div class="d-none d-md-block mx-4 flex-grow-1">
-				<form action="#" method="get" class="input-icon">
+			<!-- Search Bar -->
+			<div class="flex-grow-1 mx-3 d-none d-md-block">
+				<form action="#" method="get" class="input-icon w-100">
 					<span class="input-icon-addon">
-						<i class="ti ti-search"></i>
+						<i class="ti ti-search text-muted"></i>
 					</span>
 					<input type="text" class="form-control form-control-rounded" placeholder="Tìm kiếm sản phẩm...">
+					<span class="input-icon-addon">
+						<button type="submit" class="btn btn-link p-0 text-primary">
+							<i class="ti ti-arrow-right"></i>
+						</button>
+					</span>
 				</form>
 			</div>
 
-			<!-- Mobile Toggle - Improved with better styling -->
-			<div class="d-flex align-items-center gap-3">
-				<!-- Search button for mobile -->
-				<div class="nav-item d-md-none">
-					<a href="#" class="btn btn-icon btn-light" data-bs-toggle="collapse" data-bs-target="#mobile-search">
-						<i class="ti ti-search"></i>
+			<!-- Desktop Actions -->
+			<div class="d-none d-md-flex align-items-center gap-3">
+				<div class="dropdown">
+					<a href="#" class="btn btn-icon rounded-circle" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="ti ti-user"></i>
 					</a>
+					<div class="dropdown-menu dropdown-menu-end shadow-sm">
+						<a href="/dang-nhap" class="dropdown-item">
+							<i class="ti ti-login me-2"></i>Đăng nhập
+						</a>
+						<a href="/dang-ky" class="dropdown-item">
+							<i class="ti ti-user-plus me-2"></i>Đăng ký
+						</a>
+						<div class="dropdown-divider"></div>
+						<a href="/tai-khoan" class="dropdown-item">
+							<i class="ti ti-settings me-2"></i>Quản lý tài khoản
+						</a>
+					</div>
 				</div>
 
-				<!-- Mobile Toggle -->
-				<div class="nav-item d-md-none">
-					<a href="#" class="btn btn-icon btn-light" data-bs-toggle="collapse" data-bs-target="#navbar-menu">
-						<i class="ti ti-menu-2"></i>
+				<div class="d-none d-lg-flex align-items-center">
+					<a href="tel:0359021323" class="btn btn-primary btn-pill">
+						<i class="ti ti-phone-call me-2"></i>
+						035.902.1323
 					</a>
 				</div>
 			</div>
-		</div>
 
-		<!-- Search - Mobile - Improved with better styling -->
-		<div class="collapse w-100 mt-2" id="mobile-search">
-			<div class="container-xl px-3 pb-3">
-				<form action="#" method="get" class="input-icon">
-					<span class="input-icon-addon">
-						<i class="ti ti-search"></i>
-					</span>
-					<input type="text" class="form-control form-control-rounded" placeholder="Tìm kiếm sản phẩm...">
-				</form>
+			<!-- Mobile Menu -->
+			<div class="d-flex d-md-none align-items-center">
+				<!-- Mobile Search Toggle -->
+				<button type="button" class="btn btn-icon me-1" data-bs-toggle="modal" data-bs-target="#searchModal">
+					<i class="ti ti-search"></i>
+				</button>
+
+				<!-- Mobile Menu Trigger -->
+				<button class="btn btn-icon" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu"
+					aria-controls="mobileMenu">
+					<i class="ti ti-menu-2"></i>
+				</button>
 			</div>
 		</div>
 	</div>
 
-	<!-- Navbar - Enhanced with better styling and animations -->
-	<div class="navbar-expand-md border-bottom">
-		<div class="collapse navbar-collapse" id="navbar-menu">
-			<div class="navbar navbar-light">
-				<div class="container-xl">
-					<ul class="navbar-nav">
-						<li class="nav-item">
-							<a class="nav-link" href="#">
-								<span class="nav-link-icon d-md-none d-lg-inline-block">
-									<i class="ti ti-home"></i>
-								</span>
-								<span class="nav-link-title">Trang chủ</span>
+	<!-- Desktop Navigation - Separated into its own div -->
+	<div class="navbar navbar-expand-md d-none d-md-block" id="desktop-navigation">
+		<div class="container-xl">
+			<ul class="navbar-nav">
+				<li class="nav-item active">
+					<a class="nav-link" href="/">
+						<i class="ti ti-home me-1"></i>Trang chủ
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/gioi-thieu">
+						<i class="ti ti-info-circle me-1"></i>Giới thiệu
+					</a>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link dropdown-toggle" href="/san-pham" id="productDropdown" role="button"
+						data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="ti ti-package me-1"></i>Sản phẩm
+					</a>
+					<div class="dropdown-menu mega-dropdown px-3 py-2 shadow rounded-3"
+						aria-labelledby="productDropdown" style="width: 800px; margin-top: 0;">
+						<div class="row g-4">
+							<div class="col-md-3">
+								<h5 class="fw-medium mb-2 text-primary">Sơn Nội Thất & Ngoại Thất</h5>
+								<ul class="list-unstyled">
+									<li><a href="/san-pham/son-noi-that" class="dropdown-item small rounded-2">
+											Sơn Nội Thất</a>
+									</li>
+									<li><a href="/san-pham/son-ngoai-that" class="dropdown-item small rounded-2">
+											Sơn Ngoại Thất</a>
+									</li>
+									<li><a href="/san-pham/son-trang-tri" class="dropdown-item small rounded-2">
+											Sơn Trang Trí</a></li>
+									<li><a href="/san-pham/son-alkyd-dau" class="dropdown-item small rounded-2">
+											Sơn Alkyd & Sơn Dầu</a>
+									</li>
+									<li><a href="/san-pham/son-chong-tham" class="dropdown-item small rounded-2">
+											Sơn Chống Thấm</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col-md-3">
+								<h5 class="fw-medium mb-2 text-primary">Vật Liệu Chống Thấm</h5>
+								<ul class="list-unstyled">
+									<li><a href="/san-pham/hoa-chat-chong-tham" class="dropdown-item small rounded-2">
+											Hóa Chất Chống Thấm</a>
+									</li>
+									<li><a href="/san-pham/mang-bitum" class="dropdown-item small rounded-2">
+											Màng Chống Thấm Bitum</a></li>
+									<li><a href="/san-pham/chat-tram-ket-cau" class="dropdown-item small rounded-2">
+											Chất Trám Khe & Kết Cấu</a>
+									</li>
+									<li><a href="/san-pham/phu-gia-be-tong" class="dropdown-item small rounded-2">
+											Phụ Gia Bê Tông & Vữa</a>
+									</li>
+									<li><a href="/san-pham/bang-keo-chong-tham" class="dropdown-item small rounded-2">
+											Băng Keo Chống Thấm</a>
+									</li>
+								</ul>
+							</div>
+							<div class="col-md-3">
+								<h5 class="fw-medium mb-2 text-primary">Sơn Công Nghiệp & Dụng Cụ</h5>
+								<ul class="list-unstyled">
+									<li><a href="/san-pham/son-cong-nghiep" class="dropdown-item small rounded-2">
+											Sơn Công Nghiệp</a>
+									</li>
+									<li><a href="/san-pham/son-epoxy" class="dropdown-item small rounded-2">
+											Sơn Epoxy Sàn</a>
+									</li>
+									<li><a href="/san-pham/dung-cu-thi-cong" class="dropdown-item small rounded-2">
+											Dụng Cụ Thi Công</a></li>
+									<li><a href="/san-pham/bot-ba-va-chuan-bi-be-mat"
+											class="dropdown-item small rounded-2">
+											Bột Bả & Chuẩn Bị Bề Mặt</a>
+									</li>
+									<li><a href="/san-pham/thiet-bi-phun-son" class="dropdown-item small rounded-2">
+											Thiết Bị Phun Sơn</a></li>
+								</ul>
+							</div>
+							<div class="col-md-3">
+								<h5 class="fw-medium mb-2 text-primary">Thương hiệu nổi bật</h5>
+								<ul class="list-unstyled">
+									<li><a href="/thuong-hieu/dulux" class="dropdown-item small rounded-2">
+											Dulux</a>
+									</li>
+									<li><a href="/thuong-hieu/kova" class="dropdown-item small rounded-2">
+											Kova</a></li>
+									<li><a href="/thuong-hieu/jotun" class="dropdown-item small rounded-2">
+											Jotun</a>
+									</li>
+									<li><a href="/thuong-hieu/nippon-paint" class="dropdown-item small rounded-2">
+											Nippon Paint</a>
+									</li>
+									<li><a href="/thuong-hieu/sika" class="dropdown-item small rounded-2">
+											Sika</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+						<div class="p-3 d-flex justify-content-between align-items-center rounded-3">
+							<p class="small text-secondary mb-0">Xem tất cả sản phẩm và danh mục</p>
+							<a href="/san-pham" class="btn btn-primary btn-sm">
+								<i class="ti ti-arrow-right me-1"></i>Xem tất cả
 							</a>
-						</li>
-						<li class="nav-item dropdown">
-							<a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" role="button" aria-expanded="false">
-								<span class="nav-link-icon d-md-none d-lg-inline-block">
-									<i class="ti ti-category"></i>
-								</span>
-								<span class="nav-link-title">Sản phẩm</span>
+						</div>
+					</div>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/dich-vu">
+						<i class="ti ti-tool me-1"></i>Dịch vụ & Tư vấn
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/tin-tuc">
+						<i class="ti ti-news me-1"></i>Tin tức
+					</a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="/lien-he">
+						<i class="ti ti-mail me-1"></i>Liên hệ
+					</a>
+				</li>
+			</ul>
+		</div>
+	</div>
+
+	<!-- Mobile Search Modal -->
+	<div class="modal fade" id="searchModal" data-bs-backdrop="false" tabindex="-1" aria-labelledby="searchModalLabel"
+		aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content border-0">
+				<div class="modal-header border-0">
+					<h5 class="modal-title" id="searchModalLabel">
+						<i class="ti ti-search me-2"></i>Tìm kiếm sản phẩm
+					</h5>
+					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+				</div>
+				<div class="modal-body p-4">
+					<form action="#" method="get" class="input-icon w-100 mb-4">
+						<span class="input-icon-addon">
+							<i class="ti ti-search"></i>
+						</span>
+						<input type="text" class="form-control" placeholder="Nhập từ khóa tìm kiếm...">
+						<span class="input-icon-addon end">
+							<button type="submit" class="btn btn-link p-0 text-primary">
+								<i class="ti ti-arrow-right"></i>
+							</button>
+						</span>
+					</form>
+					<div>
+						<h5 class="text-primary mb-3 d-flex align-items-center">
+							<i class="ti ti-trending-up me-2"></i>Tìm kiếm phổ biến
+						</h5>
+						<div class="d-flex flex-wrap gap-2">
+							<a href="#" class="btn btn-sm btn-outline-primary rounded-pill">
+								<i class="ti ti-paint me-1"></i>Sơn Nội Thất
 							</a>
-							<div class="dropdown-menu">
-								<div class="dropdown-menu-columns">
-									<div class="dropdown-menu-column">
-										<a class="dropdown-item" href="#">
-											Sơn nội thất
-										</a>
-										<a class="dropdown-item" href="#">
-											Sơn ngoại thất
-										</a>
-										<a class="dropdown-item" href="#">
-											Sơn chống thấm
-										</a>
-									</div>
-									<div class="dropdown-menu-column">
-										<a class="dropdown-item" href="#">
-											Sơn epoxy
-										</a>
-										<a class="dropdown-item" href="#">
-											Vật liệu phụ
-										</a>
-										<a class="dropdown-item" href="#">
-											Tất cả sản phẩm
-										</a>
-									</div>
+							<a href="#" class="btn btn-sm btn-outline-primary rounded-pill">
+								<i class="ti ti-droplet-dollar me-1"></i>Chất Chống Thấm
+							</a>
+							<a href="#" class="btn btn-sm btn-outline-primary rounded-pill">
+								<i class="ti ti-brush me-1"></i>Sơn Trang Trí
+							</a>
+							<a href="#" class="btn btn-sm btn-outline-primary rounded-pill">
+								<i class="ti ti-building-factory me-1"></i>Sơn Dulux
+							</a>
+							<a href="#" class="btn btn-sm btn-outline-primary rounded-pill">
+								<i class="ti ti-paint-roller me-1"></i>Dụng Cụ Sơn
+							</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Mobile Menu Offcanvas -->
+	<div class="offcanvas offcanvas-end" tabindex="-1" id="mobileMenu" aria-labelledby="mobileMenuLabel">
+		<div class="offcanvas-header bg-primary text-white">
+			<h5 class="offcanvas-title" id="mobileMenuLabel">
+				<i class="ti ti-paint me-2"></i>Đại Minh Việt Nam
+			</h5>
+			<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+				aria-label="Close"></button>
+		</div>
+		<div class="offcanvas-body p-0">
+			<!-- Mobile Search -->
+			<div class="p-3 border-bottom">
+				<form action="#" method="get" class="input-icon">
+					<span class="input-icon-addon">
+						<i class="ti ti-search"></i>
+					</span>
+					<input type="text" class="form-control" placeholder="Tìm kiếm...">
+					<span class="input-icon-addon end">
+						<button type="submit" class="btn btn-link p-0 text-primary">
+							<i class="ti ti-arrow-right"></i>
+						</button>
+					</span>
+				</form>
+			</div>
+
+			<!-- Mobile Navigation -->
+			<div class="nav flex-column">
+				<a href="/" class="nav-link py-3 px-4 border-bottom d-flex align-items-center">
+					<i class="ti ti-home me-2 text-primary"></i>Trang chủ
+				</a>
+				<a href="/gioi-thieu" class="nav-link py-3 px-4 border-bottom d-flex align-items-center">
+					<i class="ti ti-info-circle me-2 text-primary"></i>Giới thiệu
+				</a>
+
+				<div class="accordion accordion-flush" id="mobileProductAccordion">
+					<div class="accordion-item">
+						<h2 class="accordion-header">
+							<button class="accordion-button collapsed py-3 px-4 d-flex align-items-center" type="button"
+								data-bs-toggle="collapse" data-bs-target="#productCollapse" aria-expanded="false"
+								aria-controls="productCollapse">
+								Sản phẩm
+							</button>
+						</h2>
+						<div id="productCollapse" class="accordion-collapse collapse"
+							data-bs-parent="#mobileProductAccordion">
+							<div class="accordion-body px-4 py-0">
+								<!-- Sơn Nội Thất & Ngoại Thất -->
+								<div class="mb-3">
+									<h5 class="fw-medium mb-2 text-primary">Sơn Nội Thất & Ngoại Thất</h5>
+									<ul class="list-unstyled ps-2">
+										<li><a href="/san-pham/son-noi-that"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sơn Nội Thất</a>
+										</li>
+										<li><a href="/san-pham/son-ngoai-that"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sơn Ngoại Thất</a></li>
+										<li><a href="/san-pham/son-trang-tri"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sơn Trang Trí</a>
+										</li>
+										<li><a href="/san-pham/son-alkyd-dau"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sơn Alkyd & Sơn Dầu</a></li>
+										<li><a href="/san-pham/son-chong-tham"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sơn Chống Thấm</a></li>
+									</ul>
+								</div>
+
+								<!-- Vật Liệu Chống Thấm -->
+								<div class="mb-3">
+									<h5 class="fw-medium mb-2 text-primary">Vật Liệu Chống Thấm</h5>
+									<ul class="list-unstyled ps-2">
+										<li><a href="/san-pham/hoa-chat-chong-tham"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Hóa Chất Chống Thấm</a></li>
+										<li><a href="/san-pham/mang-bitum"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Màng Chống Thấm Bitum</a>
+										</li>
+										<li><a href="/san-pham/chat-tram-ket-cau"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Chất Trám Khe & Kết Cấu</a>
+										</li>
+										<li><a href="/san-pham/phu-gia-be-tong"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Phụ Gia Bê Tông & Vữa</a></li>
+										<li><a href="/san-pham/bang-keo-chong-tham"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Băng Keo Chống Thấm</a></li>
+									</ul>
+								</div>
+
+								<!-- Sơn Công Nghiệp & Dụng Cụ -->
+								<div class="mb-3">
+									<h5 class="fw-medium mb-2 text-primary">Sơn Công Nghiệp & Dụng Cụ</h5>
+									<ul class="list-unstyled ps-2">
+										<li><a href="/san-pham/son-cong-nghiep"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sơn Công Nghiệp</a></li>
+										<li><a href="/san-pham/son-epoxy"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sơn Epoxy Sàn</a></li>
+										<li><a href="/san-pham/dung-cu-thi-cong"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Dụng Cụ Thi Công</a>
+										</li>
+										<li><a href="/san-pham/bot-ba-va-chuan-bi-be-mat"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Bột Bả & Chuẩn Bị Bề Mặt</a></li>
+										<li><a href="/san-pham/thiet-bi-phun-son"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Thiết Bị Phun Sơn</a></li>
+									</ul>
+								</div>
+
+								<!-- Thương hiệu nổi bật -->
+								<div class="mb-3">
+									<h5 class="fw-medium mb-2 text-primary">Thương hiệu nổi bật</h5>
+									<ul class="list-unstyled ps-2">
+										<li><a href="/thuong-hieu/dulux"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Dulux</a>
+										</li>
+										<li><a href="/thuong-hieu/kova"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Kova</a>
+										</li>
+										<li><a href="/thuong-hieu/jotun"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Jotun</a>
+										</li>
+										<li><a href="/thuong-hieu/nippon-paint"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Nippon Paint</a>
+										</li>
+										<li><a href="/thuong-hieu/sika"
+												class="nav-link py-1 px-0 small d-flex align-items-center">
+												Sika</a>
+										</li>
+									</ul>
 								</div>
 							</div>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#">
-								<span class="nav-link-icon d-md-none d-lg-inline-block">
-									<i class="ti ti-file-text"></i>
-								</span>
-								<span class="nav-link-title">Bài viết</span>
-							</a>
-						</li>
-						<li class="nav-item">
-							<a class="nav-link" href="#">
-								<span class="nav-link-icon d-md-none d-lg-inline-block">
-									<i class="ti ti-mail"></i>
-								</span>
-								<span class="nav-link-title">Liên hệ</span>
-							</a>
-						</li>
-					</ul>
+						</div>
+					</div>
+				</div>
+
+				<a href="/dich-vu" class="nav-link py-3 px-4 border-bottom d-flex align-items-center">
+					<i class="ti ti-tool me-2 text-primary"></i>Dịch vụ & Tư vấn
+				</a>
+				<a href="/tin-tuc" class="nav-link py-3 px-4 border-bottom d-flex align-items-center">
+					<i class="ti ti-news me-2 text-primary"></i>Tin tức
+				</a>
+				<a href="/lien-he" class="nav-link py-3 px-4 border-bottom d-flex align-items-center">
+					<i class="ti ti-mail me-2 text-primary"></i>Liên hệ
+				</a>
+			</div>
+
+			<!-- Mobile Account & Contact -->
+			<div class="p-4 mt-auto">
+				<div class="d-grid gap-2">
+					<a href="/tai-khoan"
+						class="btn btn-outline-primary d-flex align-items-center justify-content-center">
+						<i class="ti ti-user me-2"></i>
+						Đăng nhập / Đăng ký
+					</a>
+					<a href="tel:0359021323" class="btn btn-primary d-flex align-items-center justify-content-center">
+						<i class="ti ti-phone-call me-2"></i>
+						Gọi ngay: 035.902.1323
+					</a>
 				</div>
 			</div>
 		</div>
