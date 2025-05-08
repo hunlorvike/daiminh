@@ -1,3 +1,6 @@
+@using System.Text.Json
+@using shared.Constants
+@using shared.Models
 @{
 	// Theme logic
 	var themeCookie = Context.Request.Cookies["daiminhTheme"];
@@ -72,6 +75,20 @@
 		<partial name="Components/FloatingButton" />
 	</div>
 
+  <!-- Toast notifications -->
+    @{
+        var toastJson = TempData[TempDataConstants.ToastMessage] as string;
+        var toastData = !string.IsNullOrEmpty(toastJson)
+        ? JsonSerializer.Deserialize<ToastData>(toastJson)
+        : null;
+    }
+    @if (toastData is not null
+    && !string.IsNullOrEmpty(toastData.Title)
+    && !string.IsNullOrEmpty(toastData.Message))
+    {
+        <partial name="Components/_Toast" model="toastData" />
+    }
+	
 	<partial name="__LibScripts" />
 
 	@await RenderSectionAsync("Scripts", false)

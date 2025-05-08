@@ -1,3 +1,6 @@
+@using web.Areas.Client.ViewModels.Contact
+@model ContactViewModel
+
 @{
     ViewData["Title"] = "Liên hệ - Sơn Đại Minh";
 }
@@ -77,54 +80,39 @@
                 <div class="card-body">
                     <h2 class="card-title mb-4">Gửi tin nhắn cho chúng tôi</h2>
 
-                    <form asp-controller="Contact" asp-action="Submit" method="post" id="contactForm">
+                    <form asp-controller="Contact" asp-action="Index" method="post">
+                        @Html.AntiForgeryToken()
+
                         <div class="row mb-3">
                             <div class="col-sm-6 mb-3 mb-sm-0">
-                                <label class="form-label required" for="fullName">Họ và tên</label>
-                                <input type="text" class="form-control" id="fullName" name="FullName"
-                                    placeholder="Nhập họ và tên" required>
+                                <label class="form-label required" asp-for="FullName"></label>
+                                <input type="text" class="form-control" asp-for="FullName">
+                                <span asp-validation-for="FullName" class="text-danger"></span>
                             </div>
                             <div class="col-sm-6">
-                                <label class="form-label required" for="email">Email</label>
-                                <input type="email" class="form-control" id="email" name="Email"
-                                    placeholder="Nhập email" required>
+                                <label asp-for="Email" class="form-label required"></label>
+                                <input asp-for="Email" class="form-control" />
+                                <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="row mb-3">
                             <div class="col-sm-6 mb-3 mb-sm-0">
-                                <label class="form-label required" for="phone">Số điện thoại</label>
-                                <input type="tel" class="form-control" id="phone" name="Phone"
-                                    placeholder="Nhập số điện thoại" required>
+                                <label asp-for="Phone" class="form-label">Số điện thoại</label>
+                                <input asp-for="Phone" class="form-control" type="tel" />
+                                <span asp-validation-for="Phone" class="text-danger"></span>
                             </div>
                             <div class="col-sm-6">
-                                <label class="form-label" for="subject">Chủ đề</label>
-                                <select class="form-select tom-selected"  name="Subject">
-                                    <option value="">Chọn chủ đề</option>
-                                    <option value="product">Thông tin sản phẩm</option>
-                                    <option value="price">Báo giá</option>
-                                    <option value="service">Dịch vụ thi công</option>
-                                    <option value="support">Hỗ trợ kỹ thuật</option>
-                                    <option value="other">Khác</option>
-                                </select>
+                                <label asp-for="Subject" class="form-label"></label>
+                                <select asp-for="Subject" asp-items="Model.SubjectOptions" class="form-select"></select>
+                                <span asp-validation-for="Subject" class="text-danger"></span>
                             </div>
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label required" for="message">Nội dung tin nhắn</label>
-                            <textarea class="form-control" id="message" name="Message" rows="6"
-                                placeholder="Nhập nội dung tin nhắn" required></textarea>
-                        </div>
-
-                        <div class="mb-4">
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" id="privacyPolicy" name="PrivacyPolicy"
-                                    required>
-                                <span class="form-check-label">
-                                    Tôi đồng ý với <a href="/privacy-policy" class="text-primary">chính sách bảo mật</a>
-                                    của website
-                                </span>
-                            </label>
+                            <label asp-for="Message" class="form-label required"></label>
+                            <textarea asp-for="Message" class="form-control" rows="5"></textarea>
+                            <span asp-validation-for="Message" class="text-danger"></span>
                         </div>
 
                         <button type="submit" class="btn btn-primary">

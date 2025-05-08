@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text.Json;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Authentication;
@@ -8,8 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Security.Claims;
-using System.Text.Json;
 using web.Areas.Admin.ViewModels.Account;
 
 namespace web.Areas.Admin.Controllers;

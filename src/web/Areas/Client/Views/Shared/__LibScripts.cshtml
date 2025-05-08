@@ -21,3 +21,15 @@
 <script src="~/js/tooltip.js" asp-append-version="true"></script>
 <script src="~/js/tomselected.js" asp-append-version="true"></script>
 <script src="~/js/scroll.js" asp-append-version="true"></script>
+
+<script>
+    $(function () {
+        $('.toast').each(function () {
+            var toast = new tabler.Toast(this, {
+                autohide: true,
+                delay: 5000
+            });
+            toast.show();
+        });
+    });
+</script>
