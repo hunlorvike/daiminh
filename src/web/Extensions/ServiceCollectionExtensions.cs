@@ -25,7 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = configuration["Redis:DefaultConnection"];
-            options.InstanceName = "DaiMinhCache_";
+            options.InstanceName = configuration["Redis:InstanceName"];
         });
 
         return services;
