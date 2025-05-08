@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
@@ -138,7 +139,7 @@ public partial class ArticleController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm bài viết '{article.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -154,7 +155,7 @@ public partial class ArticleController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu bài viết.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm bài viết '{viewModel.Title}'.", ToastType.Error)
         );
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -190,7 +191,7 @@ public partial class ArticleController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -214,7 +215,7 @@ public partial class ArticleController : Controller
 
         if (article == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy bài viết để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -226,7 +227,7 @@ public partial class ArticleController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật bài viết '{article.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -242,7 +243,7 @@ public partial class ArticleController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật bài viết.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật bài viết '{viewModel.Title}'.", ToastType.Error)
         );
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -258,7 +259,7 @@ public partial class ArticleController : Controller
 
         if (article == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy bài viết.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy bài viết." });
@@ -269,7 +270,7 @@ public partial class ArticleController : Controller
             string articleTitle = article.Title;
             _context.Remove(article);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa bài viết '{articleTitle}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa bài viết '{articleTitle}' thành công." });
@@ -277,7 +278,7 @@ public partial class ArticleController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa bài viết: {Title}", article.Title);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa bài viết.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa bài viết." });

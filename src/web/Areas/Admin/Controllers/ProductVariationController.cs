@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
@@ -122,7 +123,7 @@ public partial class ProductVariationController : Controller
         var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == viewModel.ProductId);
         if (product == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Sản phẩm cha không tồn tại.", ToastType.Error)
             );
             return RedirectToAction("Index", "Product");
@@ -159,7 +160,7 @@ public partial class ProductVariationController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Đã thêm biến thể thành công cho sản phẩm '{product.Name}'.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index), new { productId = viewModel.ProductId });
@@ -206,7 +207,7 @@ public partial class ProductVariationController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -215,7 +216,7 @@ public partial class ProductVariationController : Controller
         var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == viewModel.ProductId);
         if (product == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Sản phẩm cha không tồn tại.", ToastType.Error)
             );
             return RedirectToAction("Index", "Product");
@@ -239,7 +240,7 @@ public partial class ProductVariationController : Controller
 
         if (variationToUpdate == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy biến thể để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -257,7 +258,7 @@ public partial class ProductVariationController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Đã cập nhật biến thể thành công cho sản phẩm '{product.Name}'.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index), new { productId = viewModel.ProductId });
@@ -280,7 +281,7 @@ public partial class ProductVariationController : Controller
         var variation = await _context.Set<ProductVariation>().FirstOrDefaultAsync(v => v.Id == id);
         if (variation == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy biến thể.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy biến thể." });
@@ -295,7 +296,7 @@ public partial class ProductVariationController : Controller
         {
             _context.Remove(variation);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Đã xóa biến thể thành công cho sản phẩm '{productName}'.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Đã xóa biến thể thành công cho sản phẩm '{productName}'." });
@@ -303,7 +304,7 @@ public partial class ProductVariationController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa biến thể ID: {Id}.", id);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa biến thể.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa biến thể." });

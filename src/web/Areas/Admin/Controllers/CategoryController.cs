@@ -14,6 +14,7 @@ using X.PagedList;
 using X.PagedList.Extensions;
 using System.Text.Json;
 using shared.Models;
+using shared.Constants;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -144,7 +145,7 @@ public partial class CategoryController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm danh mục '{category.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index), new { type = (int)category.Type });
@@ -162,7 +163,7 @@ public partial class CategoryController : Controller
             }
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm danh mục '{viewModel.Name}'.", ToastType.Error)
         );
         await RefillCategorySelectListsAsync(viewModel);
@@ -209,7 +210,7 @@ public partial class CategoryController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -228,7 +229,7 @@ public partial class CategoryController : Controller
         var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
         if (category == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy danh mục để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -239,7 +240,7 @@ public partial class CategoryController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật danh mục '{category.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index), new { type = (int)category.Type });
@@ -257,7 +258,7 @@ public partial class CategoryController : Controller
             }
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật danh mục '{viewModel.Name}'.", ToastType.Error)
         );
         await RefillCategorySelectListsAsync(viewModel);
@@ -283,7 +284,7 @@ public partial class CategoryController : Controller
 
         if (categoryData == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy danh mục.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy danh mục." });
@@ -291,7 +292,7 @@ public partial class CategoryController : Controller
 
         if (categoryData.HasChildren)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", $"Không thể xóa danh mục '{categoryData.Category.Name}' vì nó chứa danh mục con.", ToastType.Error)
             );
             return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì nó chứa danh mục con." });
@@ -306,7 +307,7 @@ public partial class CategoryController : Controller
                 CategoryType.FAQ => "FAQ",
                 _ => "mục"
             };
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", $"Không thể xóa danh mục '{categoryData.Category.Name}' vì đang được sử dụng bởi {categoryData.ItemCount} {itemTypeName}.", ToastType.Error)
             );
             return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì đang được sử dụng bởi {categoryData.ItemCount} {itemTypeName}." });
@@ -317,7 +318,7 @@ public partial class CategoryController : Controller
             string categoryName = categoryData.Category.Name;
             _context.Remove(categoryData.Category);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa danh mục '{categoryName}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa danh mục '{categoryName}' thành công." });
@@ -325,7 +326,7 @@ public partial class CategoryController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa danh mục: ID {Id}, Name: {Name}", id, categoryData.Category.Name);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa danh mục.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa danh mục." });

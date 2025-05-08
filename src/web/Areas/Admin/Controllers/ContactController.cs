@@ -15,6 +15,7 @@ using X.PagedList;
 using X.PagedList.EF;
 using System.Text.Json;
 using shared.Models;
+using shared.Constants;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -101,7 +102,7 @@ public class ContactController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu cập nhật không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -121,7 +122,7 @@ public class ContactController : Controller
         var contact = await _context.Set<Contact>().FirstOrDefaultAsync(c => c.Id == id);
         if (contact == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy liên hệ để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -145,7 +146,7 @@ public class ContactController : Controller
             try
             {
                 await _context.SaveChangesAsync();
-                TempData["ToastMessage"] = JsonSerializer.Serialize(
+                TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                     new ToastData("Thành công", "Cập nhật trạng thái và ghi chú thành công.", ToastType.Success)
                 );
             }
@@ -159,7 +160,7 @@ public class ContactController : Controller
         }
         else
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thông báo", "Không có thay đổi nào được lưu.", ToastType.Info)
             );
         }
@@ -175,7 +176,7 @@ public class ContactController : Controller
         var contact = await _context.Set<Contact>().FindAsync(id);
         if (contact == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy liên hệ.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy liên hệ." });
@@ -186,7 +187,7 @@ public class ContactController : Controller
             string subject = contact.Subject;
             _context.Remove(contact);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa liên hệ '{subject}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa liên hệ '{subject}' thành công." });
@@ -194,7 +195,7 @@ public class ContactController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa liên hệ ID {Id}", id);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa liên hệ.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa liên hệ." });

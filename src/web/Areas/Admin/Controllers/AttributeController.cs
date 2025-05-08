@@ -4,6 +4,7 @@ using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
@@ -90,7 +91,7 @@ public class AttributeController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm thuộc tính '{attribute.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -113,7 +114,7 @@ public class AttributeController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm thuộc tính '{viewModel.Name}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -142,7 +143,7 @@ public class AttributeController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -160,7 +161,7 @@ public class AttributeController : Controller
         var attribute = await _context.Set<domain.Entities.Attribute>().FirstOrDefaultAsync(a => a.Id == id);
         if (attribute == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy thuộc tính để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -171,7 +172,7 @@ public class AttributeController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật thuộc tính '{attribute.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -194,7 +195,7 @@ public class AttributeController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật thuộc tính '{viewModel.Name}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -211,7 +212,7 @@ public class AttributeController : Controller
 
         if (attribute == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy thuộc tính.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy thuộc tính." });
@@ -222,7 +223,7 @@ public class AttributeController : Controller
             string name = attribute.Name;
             _context.Remove(attribute);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa thuộc tính '{name}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa thuộc tính '{name}' thành công." });
@@ -232,12 +233,12 @@ public class AttributeController : Controller
             _logger.LogError(ex, "Lỗi quan hệ khi xóa thuộc tính ID {Id}", id);
             if (ex.InnerException?.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) == true)
             {
-                TempData["ToastMessage"] = JsonSerializer.Serialize(
+                TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                     new ToastData("Lỗi", "Không thể xóa vì thuộc tính đang được sử dụng.", ToastType.Error)
                 );
                 return Json(new { success = false, message = "Không thể xóa vì thuộc tính đang được sử dụng." });
             }
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Lỗi cơ sở dữ liệu khi xóa thuộc tính.", ToastType.Error)
             );
             return Json(new { success = false, message = "Lỗi cơ sở dữ liệu khi xóa thuộc tính." });
@@ -245,7 +246,7 @@ public class AttributeController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi không xác định khi xóa thuộc tính ID {Id}", id);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa thuộc tính.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa thuộc tính." });

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace shared.Enums;
+
 public enum BannerType : ushort
 {
     [Display(Name = "Đầu trang")]

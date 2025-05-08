@@ -16,6 +16,7 @@ using X.PagedList.EF;
 using X.PagedList.Extensions;
 using System.Text.Json;
 using shared.Models;
+using shared.Constants;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -147,7 +148,7 @@ public partial class ProductController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Đã thêm sản phẩm '{product.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -163,7 +164,7 @@ public partial class ProductController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu sản phẩm.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm sản phẩm '{viewModel.Name}'.", ToastType.Error)
         );
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -205,7 +206,7 @@ public partial class ProductController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -230,7 +231,7 @@ public partial class ProductController : Controller
 
         if (product == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy sản phẩm.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -243,7 +244,7 @@ public partial class ProductController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Đã cập nhật sản phẩm '{product.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -259,7 +260,7 @@ public partial class ProductController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật sản phẩm '{viewModel.Name}'.", ToastType.Error)
         );
         await PopulateViewModelSelectListsAsync(viewModel);
@@ -274,7 +275,7 @@ public partial class ProductController : Controller
         var product = await _context.Set<Product>().FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy sản phẩm.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
@@ -285,7 +286,7 @@ public partial class ProductController : Controller
             string name = product.Name;
             _context.Remove(product);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa sản phẩm '{name}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa sản phẩm '{name}' thành công." });
@@ -293,7 +294,7 @@ public partial class ProductController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa sản phẩm ID: {Id}", id);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa sản phẩm.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa sản phẩm." });

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Security.Claims;
@@ -110,7 +111,7 @@ public partial class UserController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm người dùng '{user.Username}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -121,7 +122,7 @@ public partial class UserController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi tạo người dùng.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm người dùng '{viewModel.Username}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -151,7 +152,7 @@ public partial class UserController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -171,7 +172,7 @@ public partial class UserController : Controller
         var user = await _context.Set<User>().FirstOrDefaultAsync(u => u.Id == id);
         if (user == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy người dùng để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -188,7 +189,7 @@ public partial class UserController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật người dùng '{user.Username}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -199,7 +200,7 @@ public partial class UserController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật người dùng.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật người dùng '{viewModel.Username}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -215,7 +216,7 @@ public partial class UserController : Controller
 
         if (id == currentUserId)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Bạn không thể xóa tài khoản của chính mình.", ToastType.Error)
             );
             return Json(new { success = false, message = "Bạn không thể xóa tài khoản của chính mình." });
@@ -223,7 +224,7 @@ public partial class UserController : Controller
 
         if (id == 1)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không thể xóa tài khoản quản trị viên chính.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không thể xóa tài khoản quản trị viên chính." });
@@ -232,7 +233,7 @@ public partial class UserController : Controller
         User? user = await _context.Set<User>().FindAsync(id);
         if (user == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy người dùng.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy người dùng." });
@@ -243,7 +244,7 @@ public partial class UserController : Controller
             string username = user.Username;
             _context.Remove(user);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa người dùng '{username}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa người dùng '{username}' thành công." });
@@ -251,7 +252,7 @@ public partial class UserController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa người dùng: {Username}", user.Username);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", $"Không thể xóa người dùng '{user.Username}'.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa người dùng." });

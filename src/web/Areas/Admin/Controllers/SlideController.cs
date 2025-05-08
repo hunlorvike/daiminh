@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
@@ -112,7 +113,7 @@ public partial class SlideController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm Slide '{slide.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -123,7 +124,7 @@ public partial class SlideController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu Slide.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm Slide '{viewModel.Title}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -155,7 +156,7 @@ public partial class SlideController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -175,7 +176,7 @@ public partial class SlideController : Controller
         var slide = await _context.Set<Slide>().FirstOrDefaultAsync(s => s.Id == id);
         if (slide == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy Slide để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -186,7 +187,7 @@ public partial class SlideController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật Slide '{slide.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -197,7 +198,7 @@ public partial class SlideController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật Slide.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật Slide '{viewModel.Title}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -212,7 +213,7 @@ public partial class SlideController : Controller
 
         if (slide == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy Slide.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy Slide." });
@@ -223,7 +224,7 @@ public partial class SlideController : Controller
             string slideTitle = slide.Title;
             _context.Remove(slide);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa Slide '{slideTitle}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa Slide '{slideTitle}' thành công." });
@@ -231,7 +232,7 @@ public partial class SlideController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa Slide: {Title}", slide.Title);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Slide.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa Slide." });

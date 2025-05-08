@@ -15,6 +15,7 @@ using X.PagedList.EF;
 using System.Text.Json;
 using shared.Models;
 using shared.Enums;
+using shared.Constants;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -119,7 +120,7 @@ public partial class BannerController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm Banner '{banner.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -135,7 +136,7 @@ public partial class BannerController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu Banner.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm Banner '{viewModel.Title}'.", ToastType.Error)
         );
         viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
@@ -169,7 +170,7 @@ public partial class BannerController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -190,7 +191,7 @@ public partial class BannerController : Controller
         var banner = await _context.Set<Banner>().FirstOrDefaultAsync(b => b.Id == id);
         if (banner == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy Banner để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -201,7 +202,7 @@ public partial class BannerController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật Banner '{banner.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -217,7 +218,7 @@ public partial class BannerController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật Banner.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật Banner '{viewModel.Title}'.", ToastType.Error)
         );
         viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
@@ -233,7 +234,7 @@ public partial class BannerController : Controller
 
         if (banner == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy Banner.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy Banner." });
@@ -244,7 +245,7 @@ public partial class BannerController : Controller
             string bannerTitle = banner.Title;
             _context.Remove(banner);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa Banner '{bannerTitle}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa Banner '{bannerTitle}' thành công." });
@@ -252,7 +253,7 @@ public partial class BannerController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa Banner: {Title}", banner.Title);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Banner.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa Banner." });

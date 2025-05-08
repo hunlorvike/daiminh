@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
@@ -115,7 +116,7 @@ public partial class PageController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm trang '{page.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -138,7 +139,7 @@ public partial class PageController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu trang.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm trang '{viewModel.Title}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -173,7 +174,7 @@ public partial class PageController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -193,7 +194,7 @@ public partial class PageController : Controller
         var page = await _context.Set<Page>().FirstOrDefaultAsync(p => p.Id == id);
         if (page == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy trang để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -211,7 +212,7 @@ public partial class PageController : Controller
         {
             _context.Update(page);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật trang '{page.Title}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -234,7 +235,7 @@ public partial class PageController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật trang.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật trang '{viewModel.Title}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -250,7 +251,7 @@ public partial class PageController : Controller
 
         if (page == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy trang.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy trang." });
@@ -261,7 +262,7 @@ public partial class PageController : Controller
             string pageTitle = page.Title;
             _context.Remove(page);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa trang '{pageTitle}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa trang '{pageTitle}' thành công." });
@@ -269,7 +270,7 @@ public partial class PageController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa trang: {Title}", page.Title);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", $"Không thể xóa trang '{page.Title}'.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa trang." });

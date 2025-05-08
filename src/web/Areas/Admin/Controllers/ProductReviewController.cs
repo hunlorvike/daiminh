@@ -14,6 +14,7 @@ using X.PagedList.EF;
 using X.PagedList.Extensions;
 using System.Text.Json;
 using shared.Models;
+using shared.Constants;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -118,7 +119,7 @@ public partial class ProductReviewController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -138,7 +139,7 @@ public partial class ProductReviewController : Controller
         var review = await _context.Set<ProductReview>().FirstOrDefaultAsync(r => r.Id == id);
         if (review == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy đánh giá.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -149,7 +150,7 @@ public partial class ProductReviewController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật trạng thái đánh giá cho sản phẩm '{review.Product?.Name ?? "[ẩn]"}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -175,7 +176,7 @@ public partial class ProductReviewController : Controller
 
         if (review == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy đánh giá.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy đánh giá." });
@@ -187,7 +188,7 @@ public partial class ProductReviewController : Controller
             _context.Remove(review);
             await _context.SaveChangesAsync();
 
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa đánh giá cho sản phẩm '{productName}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa đánh giá cho sản phẩm '{productName}' thành công." });
@@ -195,7 +196,7 @@ public partial class ProductReviewController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa đánh giá ID {Id}", id);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi hệ thống khi xóa đánh giá.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi hệ thống khi xóa đánh giá." });

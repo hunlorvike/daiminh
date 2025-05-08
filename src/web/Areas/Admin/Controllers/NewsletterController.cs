@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
@@ -107,7 +108,7 @@ public partial class NewsletterController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm đăng ký email '{newsletter.Email}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -118,7 +119,7 @@ public partial class NewsletterController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu đăng ký.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm đăng ký email '{viewModel.Email}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -147,7 +148,7 @@ public partial class NewsletterController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -166,7 +167,7 @@ public partial class NewsletterController : Controller
         var newsletter = await _context.Set<Newsletter>().FindAsync(id);
         if (newsletter == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy đăng ký để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -178,7 +179,7 @@ public partial class NewsletterController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật đăng ký email '{newsletter.Email}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -189,7 +190,7 @@ public partial class NewsletterController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đăng ký.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật đăng ký email '{viewModel.Email}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -203,7 +204,7 @@ public partial class NewsletterController : Controller
         var newsletter = await _context.Set<Newsletter>().FindAsync(id);
         if (newsletter == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy đăng ký.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy đăng ký." });
@@ -214,7 +215,7 @@ public partial class NewsletterController : Controller
             string email = newsletter.Email;
             _context.Remove(newsletter);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa đăng ký email '{email}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa đăng ký email '{email}' thành công." });
@@ -222,7 +223,7 @@ public partial class NewsletterController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa đăng ký email: {Email}", newsletter.Email);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa đăng ký.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đăng ký." });

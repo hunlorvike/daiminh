@@ -7,6 +7,7 @@ using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using web.Areas.Admin.ViewModels.Setting;
@@ -66,7 +67,7 @@ public partial class SettingController : Controller
         {
             var freshModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
             MergeInputWithFreshData(viewModel, freshModel);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Cập nhật thất bại. Vui lòng kiểm tra lại.", ToastType.Error)
             );
             return View("Index", freshModel);
@@ -83,13 +84,13 @@ public partial class SettingController : Controller
             if (changed)
             {
                 await _context.SaveChangesAsync();
-                TempData["ToastMessage"] = JsonSerializer.Serialize(
+                TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                     new ToastData("Thành công", "Cập nhật cài đặt thành công.", ToastType.Success)
                 );
             }
             else
             {
-                TempData["ToastMessage"] = JsonSerializer.Serialize(
+                TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                     new ToastData("Thông báo", "Không có thay đổi nào cần lưu.", ToastType.Info)
                 );
                 _logger.LogInformation("Không có thay đổi nào trong cập nhật cài đặt.");
@@ -104,7 +105,7 @@ public partial class SettingController : Controller
 
             var freshModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
             MergeInputWithFreshData(viewModel, freshModel);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Lỗi hệ thống khi cập nhật.", ToastType.Error)
             );
             return View("Index", freshModel);

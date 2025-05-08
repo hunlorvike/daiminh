@@ -14,6 +14,7 @@ using X.PagedList;
 using X.PagedList.EF;
 using System.Text.Json;
 using shared.Models;
+using shared.Constants;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -109,7 +110,7 @@ public partial class TagController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm thẻ '{tag.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -120,7 +121,7 @@ public partial class TagController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi tạo thẻ.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm thẻ '{viewModel.Name}'.", ToastType.Error)
         );
         viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
@@ -150,7 +151,7 @@ public partial class TagController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -169,7 +170,7 @@ public partial class TagController : Controller
         var tag = await _context.Set<Tag>().FirstOrDefaultAsync(t => t.Id == id);
         if (tag == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy thẻ để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -180,7 +181,7 @@ public partial class TagController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật thẻ '{tag.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -191,7 +192,7 @@ public partial class TagController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật thẻ.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật thẻ '{viewModel.Name}'.", ToastType.Error)
         );
         viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
@@ -218,7 +219,7 @@ public partial class TagController : Controller
 
         if (tag == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy thẻ.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy thẻ." });
@@ -229,7 +230,7 @@ public partial class TagController : Controller
 
         if (totalItems > 0)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", $"Không thể xóa thẻ '{tag.Name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}.", ToastType.Error)
             );
             return Json(new { success = false, message = $"Không thể xóa thẻ '{tag.Name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}." });
@@ -241,14 +242,14 @@ public partial class TagController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa thẻ '{tag.Name}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa thẻ '{tag.Name}' thành công." });
         }
         catch (Exception)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa thẻ.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa thẻ." });

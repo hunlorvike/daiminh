@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
@@ -105,7 +106,7 @@ public partial class BrandController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Thêm thương hiệu '{brand.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -128,7 +129,7 @@ public partial class BrandController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu thương hiệu.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể thêm thương hiệu '{viewModel.Name}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -157,7 +158,7 @@ public partial class BrandController : Controller
     {
         if (id != viewModel.Id)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -175,7 +176,7 @@ public partial class BrandController : Controller
         var brand = await _context.Set<Brand>().FirstOrDefaultAsync(b => b.Id == id);
         if (brand == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy thương hiệu để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
@@ -186,7 +187,7 @@ public partial class BrandController : Controller
         try
         {
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Cập nhật thương hiệu '{brand.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
@@ -209,7 +210,7 @@ public partial class BrandController : Controller
             ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thương hiệu.");
         }
 
-        TempData["ToastMessage"] = JsonSerializer.Serialize(
+        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
             new ToastData("Lỗi", $"Không thể cập nhật thương hiệu '{viewModel.Name}'.", ToastType.Error)
         );
         return View(viewModel);
@@ -226,7 +227,7 @@ public partial class BrandController : Controller
 
         if (brand == null)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy thương hiệu.", ToastType.Error)
             );
             return Json(new { success = false, message = "Không tìm thấy thương hiệu." });
@@ -234,7 +235,7 @@ public partial class BrandController : Controller
 
         if (brand.Products?.Any() == true)
         {
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", $"Không thể xóa thương hiệu '{brand.Name}' vì đang được sử dụng bởi {brand.Products.Count} sản phẩm.", ToastType.Error)
             );
             return Json(new
@@ -249,7 +250,7 @@ public partial class BrandController : Controller
             string brandName = brand.Name;
             _context.Remove(brand);
             await _context.SaveChangesAsync();
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa thương hiệu '{brandName}' thành công.", ToastType.Success)
             );
             return Json(new { success = true, message = $"Xóa thương hiệu '{brandName}' thành công." });
@@ -257,7 +258,7 @@ public partial class BrandController : Controller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Lỗi khi xóa thương hiệu: {Name}", brand.Name);
-            TempData["ToastMessage"] = JsonSerializer.Serialize(
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa thương hiệu.", ToastType.Error)
             );
             return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa thương hiệu." });

@@ -1,3 +1,5 @@
+using shared.Enums;
+
 namespace web.Areas.Admin.ViewModels.Banner;
 
 public class BannerListItemViewModel
