@@ -11,6 +11,7 @@ public static class ApplicationBuilderExtensions
             app.UseHsts();
         }
 
+        app.UseStatusCodePagesWithReExecute("/error?statusCode={0}");
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
