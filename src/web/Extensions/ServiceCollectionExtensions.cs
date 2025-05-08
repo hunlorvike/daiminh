@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using web.Areas.Admin.Services;
+using web.Areas.Client.Services;
 
 namespace web.Extensions;
 
@@ -66,7 +67,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IMinioService, MinioService>();
         services.AddScoped<IMediaService, MediaService>();
-
+        services.AddScoped<ISettingService, SettingService>();
+        
         return services;
     }
 }

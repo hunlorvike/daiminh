@@ -19,6 +19,8 @@ builder.Configuration
 builder.Host.UseSerilog();
 
 builder.Services.AddDatabase(builder.Configuration)
+    .AddMemoryCache()
+    .AddDistributedMemoryCache()
     .AddRedis(builder.Configuration)
     .AddMinioService(builder.Configuration)
     .AddAuthenticationServices()
