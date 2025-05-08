@@ -6,15 +6,15 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
+using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Validators.Category;
 using web.Areas.Admin.ViewModels.Category;
 using X.PagedList;
 using X.PagedList.Extensions;
-using System.Text.Json;
-using shared.Models;
-using shared.Constants;
 
 namespace web.Areas.Admin.Controllers;
 

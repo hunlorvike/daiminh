@@ -68,7 +68,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMinioService, MinioService>();
         services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<ISettingService, SettingService>();
-        
+
         return services;
     }
 }

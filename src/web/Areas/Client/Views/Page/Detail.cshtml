@@ -1,0 +1,47 @@
+@using web.Areas.Client.ViewModels.Page
+@model PageDetailViewModel
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["Description"] = Model.MetaDescription;
+    ViewData["Keywords"] = Model.MetaKeywords;
+
+    if (!string.IsNullOrEmpty(Model.SchemaMarkup))
+    {
+        <script type="application/ld+json">
+            @Html.Raw(Model.SchemaMarkup)
+        </script>
+    }
+    if (!string.IsNullOrEmpty(Model.BreadcrumbJson))
+    {
+        <script type="application/ld+json">
+            @Html.Raw(Model.BreadcrumbJson)
+        </script>
+    }
+}
+
+<div class="container-xl py-4">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex flex-column">
+                <!-- Tiêu đề trang -->
+                <h1 class="card-title">@Model.Title</h1>
+
+                <!-- Ngày xuất bản -->
+                @if (Model.PublishedAt.HasValue)
+                {
+                    <div class="text-muted">
+                        <i class="ti ti-calendar me-1"></i>Xuất bản ngày: @Html.ToLocalTime(Model.PublishedAt.Value, "Asia/Ho_Chi_Minh", "dd/MM/yyyy")
+                    </div>
+                }
+
+                <!-- Đường phân cách -->
+                <div class="hr-text"></div>
+
+                <!-- Nội dung bài viết -->
+                <div class="markdown">
+                    @Html.Raw(Model.Content)
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

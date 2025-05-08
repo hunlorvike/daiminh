@@ -15,7 +15,7 @@
 	<div class="card card-md">
 		<div class="card-body">
 			<h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản Quản trị</h2>
-			<form asp-action="Login" asp-route-returnurl="@returnUrl" method="post" novalidate>
+            <form asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-returnurl="@returnUrl" method="post" novalidate>
 				@Html.AntiForgeryToken()
 				@if (!ViewData.ModelState.IsValid)
 				{
@@ -35,7 +35,7 @@
 				<div class="mb-3">
 					<label asp-for="Username" class="form-label"></label>
 					<input asp-for="Username" type="text" class="form-control" placeholder="Nhập tên đăng nhập của bạn"
-						   autofocus>
+						autofocus>
 					<span asp-validation-for="Username" class="text-danger"></span>
 				</div>
 				<div class="mb-2">
