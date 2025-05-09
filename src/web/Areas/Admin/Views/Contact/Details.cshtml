@@ -3,7 +3,7 @@
 @{
 	ViewData["Title"] = $"Chi tiết Liên hệ: {Model.Subject}";
 	ViewData["PageTitle"] = "Chi tiết Liên hệ";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
 		("Liên hệ", Url.Action(nameof(Index)) ?? "/Admin/Contact"),
 		(Model.Subject, "")
 	};

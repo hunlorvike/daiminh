@@ -3,7 +3,7 @@
 @{
 	ViewData["Title"] = "Thêm Popup mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm Popup mới";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
 		("Popup", Url.Action(nameof(Index)) ?? "/Admin/PopupModal"),
 		("Thêm mới", "")
 	};

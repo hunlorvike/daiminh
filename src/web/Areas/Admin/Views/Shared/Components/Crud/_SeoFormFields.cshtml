@@ -111,8 +111,7 @@
                         </span>
                         <input asp-for="OgImage" class="form-control media-url-input" readonly />
                         <button class="btn btn-outline-secondary select-media-button" type="button"
-                                data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-                                data-media-type-filter="0">
+                            data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-media-type-filter="0">
                             <i class="ti ti-folder"></i>
                         </button>
                     </div>
@@ -162,8 +161,7 @@
                         </span>
                         <input asp-for="TwitterImage" class="form-control media-url-input" readonly />
                         <button class="btn btn-outline-secondary select-media-button" type="button"
-                                data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-                                data-media-type-filter="0">
+                            data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-media-type-filter="0">
                             <i class="ti ti-folder"></i>
                         </button>
                     </div>
@@ -193,7 +191,8 @@
                                 <span class="input-group-text">
                                     <i class="ti ti-chart-bar"></i>
                                 </span>
-                                <input asp-for="SitemapPriority" type="number" step="0.1" min="0.0" max="1.0" class="form-control" />
+                                <input asp-for="SitemapPriority" type="number" step="0.1" min="0.0" max="1.0"
+                                    class="form-control" />
                             </div>
                             <span asp-validation-for="SitemapPriority" class="text-danger"></span>
                         </div>
@@ -208,7 +207,8 @@
                                 <input asp-for="SitemapChangeFrequency" class="form-control" />
                             </div>
                             <span asp-validation-for="SitemapChangeFrequency" class="text-danger"></span>
-                            <small class="form-hint">Ví dụ: always, hourly, daily, weekly, monthly, yearly, never</small>
+                            <small class="form-hint">Ví dụ: always, hourly, daily, weekly, monthly, yearly,
+                                never</small>
                         </div>
                     </div>
                 </div>
@@ -228,7 +228,8 @@
                         <span class="input-group-text">
                             <i class="ti ti-code"></i>
                         </span>
-                        <textarea asp-for="SchemaMarkup" class="form-control" rows="5" placeholder="Dán mã JSON-LD Schema.org tại đây..."></textarea>
+                        <textarea asp-for="SchemaMarkup" class="form-control" rows="5"
+                            placeholder="Dán mã JSON-LD Schema.org tại đây..."></textarea>
                     </div>
                     <span asp-validation-for="SchemaMarkup" class="text-danger"></span>
                 </div>

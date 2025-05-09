@@ -12,18 +12,63 @@
 
     string? themeCookie = Context.Request.Cookies["daiminhTheme"];
     string? theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
+
+    // Định nghĩa danh sách các mục điều hướng
+    var navItems = new List<(string Title, string Icon, string Controller, string Action, string Area, List<(string
+    SubTitle, string SubIcon, string SubController, string SubAction)> SubItems, string MenuId)>
+{
+("Trang chủ", "ti-home", "Dashboard", "Index", "Admin", new List<(string, string, string, string)>(), ""),
+("Trang chủ & Marketing", "", "", "", "", new List<(string, string, string, string)>
+{
+("Trang tĩnh", "ti-files", "Page", "Index"),
+("Slide", "ti-slideshow", "Slide", "Index"),
+("Banner", "ti-photo", "Banner", "Index"),
+("Popup", "ti-ad", "PopupModal", "Index")
+}, "menu-homepage-marketing"),
+("Quản lý nội dung", "", "", "", "", new List<(string, string, string, string)>
+{
+("Bài viết", "ti-file-text", "Article", "Index"),
+("Danh mục", "ti-folders", "Category", "Index"),
+("Thẻ", "ti-tags", "Tag", "Index")
+}, "menu-content"),
+("Quản lý sản phẩm", "", "", "", "", new List<(string, string, string, string)>
+{
+("Danh sách sản phẩm", "ti-package", "Product", "Index"),
+("Thương hiệu", "ti-building-store", "Brand", "Index"),
+("Đánh giá sản phẩm", "ti-message-star", "ProductReview", "Index")
+}, "menu-product"),
+("FAQ", "", "", "", "", new List<(string, string, string, string)>
+{
+("Câu hỏi thường gặp", "ti-help-circle", "FAQ", "Index")
+}, "menu-faq"),
+("Người dùng & Tương tác", "", "", "", "", new List<(string, string, string, string)>
+{
+("Đánh giá khách hàng", "ti-message-circle-2", "Testimonial", "Index"),
+("Liên hệ", "ti-mail", "Contact", "Index"),
+("Đăng ký nhận tin", "ti-news", "Newsletter", "Index")
+}, "menu-userinteraction"),
+("Hệ thống & Cấu hình", "", "", "", "", new List<(string, string, string, string)>
+{
+("Cấu hình chung", "ti-settings", "Setting", "Index"),
+("Tài khoản người dùng", "ti-users", "User", "Index"),
+("Thuộc tính sản phẩm", "ti-adjustments-alt", "Attribute", "Index"),
+("Giá trị thuộc tính", "ti-list-check", "AttributeValue", "Index")
+}, "menu-system"),
+("Xem trang web", "ti-external-link", "Home", "Index", "Client", new List<(string, string, string, string)>(), "")
+};
 }
 
 <aside class="navbar navbar-vertical navbar-expand-lg navbar-light border-end">
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between w-100 d-lg-none mb-1">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
-                    aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <h1 class="navbar-brand navbar-brand-autodark py-2 m-0">
-                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none fw-bold">DAIMINH</a>
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                    class="text-decoration-none fw-bold">DAIMINH</a>
             </h1>
 
             <div class="dropdown">
@@ -37,17 +82,19 @@
                         </span>
                         <div>
                             <div class="fw-medium">Tài khoản</div>
-                            <div class="text-muted small">Admin</div> 
+                            <div class="text-muted small">Admin</div>
                         </div>
                     </div>
 
                     <div class="px-3 py-1 mb-2">
                         <div class="fw-medium mb-2 text-muted small text-uppercase">Giao diện</div>
                         <div class="d-flex gap-2">
-                            <a href="?theme=light" class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "light" ? "active" : "")">
+                            <a href="?theme=light"
+                                class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "light" ? "active" : "")">
                                 <i class="ti ti-sun me-1"></i> Sáng
                             </a>
-                            <a href="?theme=dark" class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "dark" ? "active" : "")">
+                            <a href="?theme=dark"
+                                class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "dark" ? "active" : "")">
                                 <i class="ti ti-moon me-1"></i> Tối
                             </a>
                         </div>
@@ -95,7 +142,7 @@
                     </a>
                     <div class="dropdown-divider"></div>
                     <form class="form-inline px-3" asp-area="Admin" asp-controller="Account" asp-action="Logout"
-                          method="post">
+                        method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="dropdown-item text-danger px-0">
                             <i class="ti ti-logout me-2"></i>Đăng xuất
@@ -107,286 +154,69 @@
 
         <!-- Desktop brand -->
         <h1 class="navbar-brand navbar-brand-autodark py-3 d-none d-lg-block text-center">
-            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="text-decoration-none fw-bold">DAIMINH</a>
+            <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
+                class="text-decoration-none fw-bold">DAIMINH</a>
         </h1>
 
         <div class="collapse navbar-collapse" id="sidebar-menu">
             <ul class="navbar-nav pt-lg-3">
-                <!-- DASHBOARD -->
-                <li class="nav-item mb-2 @(IsMenuActive("Dashboard") ? "active" : "")">
-                    <a class="nav-link rounded d-flex align-items-center gap-2 py-2" asp-area="Admin" asp-controller="Dashboard" asp-action="Index">
-                        <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-home"></i></span>
-                        <span class="nav-link-title">Trang chủ</span>
-                    </a>
-                </li>
+                @foreach (var item in navItems)
+                {
+                    // Xác định các controller con để kiểm tra trạng thái active
+                    var subControllers = item.SubItems.Select(sub => sub.SubController).ToArray();
+                    var isActive = item.Controller != "" ? IsMenuActive(item.Controller) : IsMenuActive(subControllers);
 
-                <li class="nav-item mb-1 @(IsMenuActive("Page", "PopupModal", "Banner", "Slide") ? "active" : "")">
-                    <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
-                       data-bs-toggle="collapse" href="#menu-homepage-marketing" role="button"
-                       aria-expanded="@(IsMenuActive("Page", "PopupModal", "Banner", "Slide") ? "true" : "false")"
-                       aria-controls="menu-homepage-marketing">
-                        <span>Trang chủ & Marketing</span>
-                        <i class="ti d-lg-none @(IsMenuActive("Page", "PopupModal", "Banner", "Slide") ? "ti-chevron-up" : "ti-chevron-down")"></i>
-                    </a>
-                    <div class="collapse d-lg-none @(IsMenuActive("Page", "PopupModal", "Banner", "Slide") ? "show" : "")" id="menu-homepage-marketing">
-                         <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Page" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Page" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-files"></i></span>
-                            <span class="nav-link-title">Trang tĩnh</span>
-                        </a>
-                         <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Slide" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Slide" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-slideshow"></i></span>
-                            <span class="nav-link-title">Slide</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Banner" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Banner" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-photo"></i></span>
-                            <span class="nav-link-title">Banner</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "PopupModal" ? "active" : "")"
-                           asp-area="Admin" asp-controller="PopupModal" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-ad"></i></span>
-                            <span class="nav-link-title">Popup</span>
-                        </a>
-                    </div>
-                    <div class="d-none d-lg-block">
-                         <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Page" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Page" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-files"></i></span>
-                            <span class="nav-link-title">Trang tĩnh</span>
-                        </a>
-                         <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Slide" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Slide" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-slideshow"></i></span>
-                            <span class="nav-link-title">Slide</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Banner" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Banner" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-photo"></i></span>
-                            <span class="nav-link-title">Banner</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "PopupModal" ? "active" : "")"
-                           asp-area="Admin" asp-controller="PopupModal" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-ad"></i></span>
-                            <span class="nav-link-title">Popup</span>
-                        </a>
-                    </div>
-                </li>
-
-                <li class="nav-item mb-1 @(IsMenuActive("Article", "Media", "Category", "Tag") ? "active" : "")">
-                    <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
-                       data-bs-toggle="collapse" href="#menu-content" role="button" aria-expanded="@(IsMenuActive("Article", "Media", "Category", "Tag") ? "true" : "false")"
-                       aria-controls="menu-content">
-                        <span>Quản lý nội dung</span>
-                        <i class="ti d-lg-none @(IsMenuActive("Article", "Media", "Category", "Tag") ? "ti-chevron-up" : "ti-chevron-down")"></i>
-                    </a>
-                    <div class="collapse d-lg-none @(IsMenuActive("Article", "Media", "Category", "Tag") ? "show" : "")" id="menu-content">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Article" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Article" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-file-text"></i></span>
-                            <span class="nav-link-title">Bài viết</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Category" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Category" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-folders"></i></span>
-                            <span class="nav-link-title">Danh mục</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Tag" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Tag" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-tags"></i></span>
-                            <span class="nav-link-title">Thẻ</span>
-                        </a>
-                    </div>
-                    <div class="d-none d-lg-block">
-                         <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Article" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Article" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-file-text"></i></span>
-                            <span class="nav-link-title">Bài viết</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Category" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Category" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-folders"></i></span>
-                            <span class="nav-link-title">Danh mục</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Tag" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Tag" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-tags"></i></span>
-                            <span class="nav-link-title">Thẻ</span>
-                        </a>
-                    </div>
-                </li>
-
-                <li class="nav-item mb-1 @(IsMenuActive("Product", "Brand", "ProductReview") ? "active" : "")">
-                    <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
-                       data-bs-toggle="collapse" href="#menu-product" role="button" aria-expanded="@(IsMenuActive("Product", "Brand", "ProductReview") ? "true" : "false")"
-                       aria-controls="menu-product">
-                        <span>Quản lý sản phẩm</span>
-                        <i class="ti d-lg-none @(IsMenuActive("Product", "Brand", "ProductReview") ? "ti-chevron-up" : "ti-chevron-down")"></i>
-                    </a>
-                    <div class="collapse d-lg-none @(IsMenuActive("Product", "Brand", "ProductReview") ? "show" : "")" id="menu-product">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Product" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Product" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-package"></i></span>
-                            <span class="nav-link-title">Danh sách sản phẩm</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Brand" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Brand" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-building-store"></i></span>
-                            <span class="nav-link-title">Thương hiệu</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "ProductReview" ? "active" : "")"
-                           asp-area="Admin" asp-controller="ProductReview" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-message-star"></i></span>
-                            <span class="nav-link-title">Đánh giá sản phẩm</span>
-                        </a>
-                    </div>
-                    <div class="d-none d-lg-block">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Product" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Product" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-package"></i></span>
-                            <span class="nav-link-title">Danh sách sản phẩm</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Brand" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Brand" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-building-store"></i></span>
-                            <span class="nav-link-title">Thương hiệu</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "ProductReview" ? "active" : "")"
-                           asp-area="Admin" asp-controller="ProductReview" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-message-star"></i></span>
-                            <span class="nav-link-title">Đánh giá sản phẩm</span>
-                        </a>
-                    </div>
-                </li>
-
-                <li class="nav-item mb-1 @(IsMenuActive("FAQ") ? "active" : "")">
-                    <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
-                       data-bs-toggle="collapse" href="#menu-faq" role="button" aria-expanded="@(IsMenuActive("FAQ") ? "true" : "false")"
-                       aria-controls="menu-faq">
-                        <span>FAQ</span>
-                        <i class="ti d-lg-none @(IsMenuActive("FAQ") ? "ti-chevron-up" : "ti-chevron-down")"></i>
-                    </a>
-                    <div class="collapse d-lg-none @(IsMenuActive("FAQ") ? "show" : "")" id="menu-faq">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "FAQ" ? "active" : "")"
-                           asp-area="Admin" asp-controller="FAQ" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-help-circle"></i></span>
-                            <span class="nav-link-title">Câu hỏi thường gặp</span>
-                        </a>
-                    </div>
-                    <div class="d-none d-lg-block">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "FAQ" ? "active" : "")"
-                           asp-area="Admin" asp-controller="FAQ" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-help-circle"></i></span>
-                            <span class="nav-link-title">Câu hỏi thường gặp</span>
-                        </a>
-                    </div>
-                </li>
-
-                <li class="nav-item mb-1 @(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "active" : "")">
-                    <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
-                       data-bs-toggle="collapse" href="#menu-userinteraction" role="button" aria-expanded="@(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "true" : "false")"
-                       aria-controls="menu-userinteraction">
-                        <span>Người dùng & Tương tác</span>
-                        <i class="ti d-lg-none @(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "ti-chevron-up" : "ti-chevron-down")"></i>
-                    </a>
-                    <div class="collapse d-lg-none @(IsMenuActive("Testimonial", "Contact", "Newsletter") ? "show" : "")" id="menu-userinteraction">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Testimonial" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Testimonial" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-message-circle-2"></i></span>
-                            <span class="nav-link-title">Đánh giá khách hàng</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Contact" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Contact" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-mail"></i></span>
-                            <span class="nav-link-title">Liên hệ</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Newsletter" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Newsletter" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-news"></i></span>
-                            <span class="nav-link-title">Đăng ký nhận tin</span>
-                        </a>
-                    </div>
-                    <div class="d-none d-lg-block">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Testimonial" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Testimonial" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-message-circle-2"></i></span>
-                            <span class="nav-link-title">Đánh giá khách hàng</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Contact" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Contact" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-mail"></i></span>
-                            <span class="nav-link-title">Liên hệ</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Newsletter" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Newsletter" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-news"></i></span>
-                            <span class="nav-link-title">Đăng ký nhận tin</span>
-                        </a>
-                    </div>
-                </li>
-
-                <li class="nav-item mb-1 @(IsMenuActive("Setting", "User", "Attribute", "AttributeValue") ? "active" : "")">
-                    <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
-                       data-bs-toggle="collapse" href="#menu-system" role="button" aria-expanded="@(IsMenuActive("Setting", "User", "Attribute", "AttributeValue") ? "true" : "false")"
-                       aria-controls="menu-system">
-                        <span>Hệ thống & Cấu hình</span>
-                        <i class="ti d-lg-none @(IsMenuActive("Setting", "User", "Attribute", "AttributeValue") ? "ti-chevron-up" : "ti-chevron-down")"></i>
-                    </a>
-                    <div class="collapse d-lg-none @(IsMenuActive("Setting", "User", "Attribute", "AttributeValue") ? "show" : "")" id="menu-system">
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Setting" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Setting" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-settings"></i></span>
-                            <span class="nav-link-title">Cấu hình chung</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "User" ? "active" : "")"
-                           asp-area="Admin" asp-controller="User" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-users"></i></span>
-                            <span class="nav-link-title">Tài khoản người dùng</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Attribute" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Attribute" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-adjustments-alt"></i></span>
-                            <span class="nav-link-title">Thuộc tính sản phẩm</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "AttributeValue" ? "active" : "")"
-                           asp-area="Admin" asp-controller="AttributeValue" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-list-check"></i></span>
-                            <span class="nav-link-title">Giá trị thuộc tính</span>
-                        </a>
-                    </div>
-                    <div class="d-none d-lg-block">
-                         <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Setting" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Setting" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-settings"></i></span>
-                            <span class="nav-link-title">Cấu hình chung</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "User" ? "active" : "")"
-                           asp-area="Admin" asp-controller="User" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-users"></i></span>
-                            <span class="nav-link-title">Tài khoản người dùng</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "Attribute" ? "active" : "")"
-                           asp-area="Admin" asp-controller="Attribute" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-adjustments-alt"></i></span>
-                            <span class="nav-link-title">Thuộc tính sản phẩm</span>
-                        </a>
-                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == "AttributeValue" ? "active" : "")"
-                           asp-area="Admin" asp-controller="AttributeValue" asp-action="Index">
-                            <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-list-check"></i></span>
-                            <span class="nav-link-title">Giá trị thuộc tính</span>
-                        </a>
-                    </div>
-                </li>
-
-
-                <!-- LINK NGOÀI -->
-                <li class="nav-item mt-auto mb-2">
-                    <a class="nav-link rounded d-flex align-items-center gap-2 py-2" href="/" target="_blank">
-                        <span class="nav-link-icon d-flex align-items-center justify-content-center"><i class="ti ti-external-link"></i></span>
-                        <span class="nav-link-title">Xem trang web</span>
-                    </a>
-                </li>
+                    <!-- Menu cấp 1 -->
+                    <li class="nav-item mb-1 @(isActive ? "active" : "") @(item.Title == "Xem trang web" ? "mt-auto" : "")">
+                        @if (item.SubItems.Any())
+                        {
+                            <!-- Menu có mục con -->
+                            <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
+                                data-bs-toggle="collapse" href="#@(item.MenuId)" role="button"
+                                aria-expanded="@(isActive ? "true" : "false")" aria-controls="@(item.MenuId)">
+                                <span>@item.Title</span>
+                                <i class="ti d-lg-none @(isActive ? "ti-chevron-up" : "ti-chevron-down")"></i>
+                            </a>
+                            <!-- Menu con cho mobile -->
+                            <div class="collapse d-lg-none @(isActive ? "show" : "")" id="@(item.MenuId)">
+                                @foreach (var subItem in item.SubItems)
+                                {
+                                    <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == subItem.SubController ? "active" : "")"
+                                        asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
+                                        <span class="nav-link-icon d-flex align-items-center justify-content-center">
+                                            <i class="ti @subItem.SubIcon"></i>
+                                        </span>
+                                        <span class="nav-link-title">@subItem.SubTitle</span>
+                                    </a>
+                                }
+                            </div>
+                            <!-- Menu con cho desktop -->
+                            <div class="d-none d-lg-block">
+                                @foreach (var subItem in item.SubItems)
+                                {
+                                    <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == subItem.SubController ? "active" : "")"
+                                        asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
+                                        <span class="nav-link-icon d-flex align-items-center justify-content-center">
+                                            <i class="ti @subItem.SubIcon"></i>
+                                        </span>
+                                        <span class="nav-link-title">@subItem.SubTitle</span>
+                                    </a>
+                                }
+                            </div>
+                        }
+                        else
+                        {
+                            <!-- Menu không có mục con -->
+                            <a class="nav-link rounded d-flex align-items-center gap-2 py-2"
+                               asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">
+                                <span class="nav-link-icon d-flex align-items-center justify-content-center">
+                                    <i class="ti @item.Icon"></i>
+                                </span>
+                                <span class="nav-link-title">@item.Title</span>
+                            </a>
+                        }
+                    </li>
+                }
             </ul>
         </div>
     </div>

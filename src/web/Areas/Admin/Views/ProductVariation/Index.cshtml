@@ -4,7 +4,7 @@
 @{
     ViewData["Title"] = $"Biến thể - {Model.ProductName} - Hệ thống quản trị";
     ViewData["PageTitle"] = $"Biến thể sản phẩm: {Model.ProductName}";
-    ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
         ("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
         ($"{Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ?? $"/Admin/Product/Edit/{Model.ProductId}"),
         ("Biến thể", "")

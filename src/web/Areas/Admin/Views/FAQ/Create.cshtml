@@ -3,7 +3,7 @@
 @{
 	ViewData["Title"] = "Thêm FAQ mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm FAQ mới";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
 			("FAQ", Url.Action(nameof(Index)) ?? "Admin/FAQ"),
 			("Thêm mới", "")
 		};

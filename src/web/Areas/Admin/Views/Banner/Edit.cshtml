@@ -3,7 +3,7 @@
 @{
 	ViewData["Title"] = "Chỉnh sửa Banner - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Banner: {Model.Title}";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
 		("Banner", Url.Action(nameof(Index)) ?? "/Admin/Banner"),
 		($"Chỉnh sửa: {Model.Title}", "")
 	};

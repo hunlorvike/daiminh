@@ -3,10 +3,10 @@
 @{
 	ViewData["Title"] = "Thêm Bài viết mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm Bài viết mới";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
-		("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article"),
-		("Thêm mới", "")
-	};
+	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article"),
+("Thêm mới", "")
+};
 }
 
 <form asp-action="Create" method="post">
@@ -33,7 +33,7 @@
 					<ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
 						<li class="nav-item" role="presentation">
 							<a href="#tabs-content" class="nav-link active" data-bs-toggle="tab" role="tab"
-							   aria-selected="true">
+								aria-selected="true">
 								<i class="ti ti-file-text me-2"></i>Nội dung
 							</a>
 						</li>

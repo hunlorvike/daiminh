@@ -1,3 +1,5 @@
+@using shared.Constants
+
 <header class="navbar navbar-expand-md d-none d-lg-flex d-print-none border-bottom">
     <div class="container-xl">
         <div class="d-none d-md-block">
@@ -5,7 +7,7 @@
                 <li class="breadcrumb-item">
                     <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index">Trang chủ</a>
                 </li>
-                @if (ViewData["Breadcrumbs"] is List<(string Text, string Url)> breadcrumbs)
+                @if (ViewData[TempDataConstants.Breadcrumbs] is List<(string Text, string Url)> breadcrumbs)
                 {
                     foreach (var breadcrumb in breadcrumbs)
                     {

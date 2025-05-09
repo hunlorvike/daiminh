@@ -4,7 +4,7 @@
 	ViewData["ReturnUrl"] = returnUrl;
 	ViewData["Title"] = "Truy cập bị từ chối - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Bạn không có quyền truy cập";
-	ViewData["Breadcrumbs"] = new List<(string Text, string Url)> {
+	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
 			("Truy cập bị từ chối", "")
 		};
 }

@@ -7,8 +7,3 @@ public static class ApplicationConstants
     public const string AppAuthor = "Nguyen Viet Hung";
     public const string AppWebsite = "https://sondaiminh.com";
 }
-
-public static class TempDataConstants
-{
-    public const string ToastMessage = "ToastMessage";
-}
