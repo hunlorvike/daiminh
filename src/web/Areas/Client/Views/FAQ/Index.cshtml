@@ -1,0 +1,68 @@
+@using web.Areas.Client.ViewModels.FAQ;
+@model FAQIndexViewModel
+
+@{
+    ViewData["Title"] = "Câu Hỏi Thường Gặp - Sơn Đại Minh";
+    ViewData["MetaDescription"] = "Tìm hiểu các câu hỏi thường gặp về sản phẩm sơn, dịch vụ thi công và các vấn đề liên quan tại Sơn Đại Minh.";
+    ViewData["MetaKeywords"] = "câu hỏi thường gặp, faq, hỗ trợ khách hàng, sơn đại minh, tư vấn sơn";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+        new("Câu hỏi thường gặp", "")
+    };
+}   
+
+<div class="container-xl py-4">
+    <div class="page-header mt-0">
+        <h1 class="page-title">Câu Hỏi Thường Gặp</h1>
+    </div>
+
+    @if (!Model.Categories.Any())
+    {
+        <div class="alert alert-info" role="alert">
+            <i class="ti ti-info-circle me-2"></i>
+            Hiện tại chưa có câu hỏi thường gặp nào.
+        </div>
+    }
+    else
+    {
+        foreach (var category in Model.Categories)
+        {
+            @if (Model.Categories.Count > 1 || !string.IsNullOrEmpty(category.CategoryName) && category.CategoryName != "Câu hỏi chung") 
+            {
+                <h2 class="h3 mb-3 mt-4">@category.CategoryName</h2>
+                @if (!string.IsNullOrEmpty(category.CategoryDescription))
+                {
+                    <p class="text-muted">@category.CategoryDescription</p>
+                }
+            }
+
+            @if (!category.Faqs.Any())
+            {
+                <p class="text-muted fst-italic">Không có câu hỏi nào trong mục này.</p>
+                continue;
+            }
+
+            <div class="accordion" id="faqAccordion_@category.GetHashCode()">
+                @foreach (var faqItem in category.Faqs)
+                {
+                    var collapseId = $"collapse_{faqItem.GetHashCode()}";
+                    var headingId = $"heading_{faqItem.GetHashCode()}";
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="@headingId">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                                    data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                @faqItem.Question
+                            </button>
+                        </h2>
+                        <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId"
+                             data-bs-parent="#faqAccordion_@category.GetHashCode()">
+                            <div class="accordion-body">
+                                @Html.Raw(faqItem.Answer)
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    }
+</div>
