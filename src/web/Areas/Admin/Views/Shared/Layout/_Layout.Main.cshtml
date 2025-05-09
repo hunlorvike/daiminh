@@ -8,7 +8,7 @@
 }
 
 <!DOCTYPE html>
-<html lang="vi" data-bs-theme="@(isDark ? "dark" : null)" data-bs-theme-primary="blue">
+<html lang="vi">
 
 <head>
     <meta charset="utf-8" />
@@ -18,7 +18,7 @@
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body>
+<body data-bs-theme="@(isDark ? "dark" : null)" data-bs-theme-primary="blue">
     <div class="page">
         <partial name="Components/Layout/_Sidebar" />
 
@@ -59,8 +59,8 @@
         : null;
     }
     @if (toastData is not null
-    && !string.IsNullOrEmpty(toastData.Title)
-    && !string.IsNullOrEmpty(toastData.Message))
+        && !string.IsNullOrEmpty(toastData.Title)
+        && !string.IsNullOrEmpty(toastData.Message))
     {
         <partial name="Components/Layout/_Toast" model="toastData" />
     }

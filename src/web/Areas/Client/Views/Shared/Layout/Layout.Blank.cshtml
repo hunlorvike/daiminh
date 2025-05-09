@@ -36,7 +36,7 @@
 }
 
 <!DOCTYPE html>
-<html lang="vi" data-bs-theme="@(isDark ? "dark" : null)" data-bs-theme-primary="blue">
+<html lang="vi">
 
 <head>
 	<meta charset="utf-8" />
@@ -62,7 +62,7 @@
 	@await RenderSectionAsync("Styles", required: false)
 </head>
 
-<body class="d-flex flex-column">
+<body class="d-flex flex-column" data-bs-theme="@(isDark ? "dark" : null)" data-bs-theme-primary="blue">
     <div class="page page-center">
         @RenderBody()
     </div>
