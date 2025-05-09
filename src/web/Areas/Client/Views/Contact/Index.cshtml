@@ -8,62 +8,103 @@
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
         new("Liên hệ", "")
     };
-
 }
 
-<div class="container-lg py-4">
+@section Styles {
+    <style>
+        .transition-all {
+            transition: all 0.3s ease;
+        }
+    </style>
+}
+
+<div class="container-lg py-5">
     <div class="row g-4 mb-5">
+        <!-- Contact Information Card -->
         <div class="col-lg-4">
-            <div class="card h-100">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-status-start bg-primary"></div>
                 <div class="card-body">
-                    <h2 class="card-title mb-4">Thông tin liên hệ</h2>
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-address-book text-primary me-2"></i>Thông tin liên hệ
+                    </h2>
 
                     <div class="list-group list-group-flush">
                         <div class="list-group-item d-flex align-items-start border-0 px-0 py-3">
-                            <div class="avatar avatar-rounded bg-primary-lt me-3 flex-shrink-0">
-                                <i class="ti ti-map-pin fs-3"></i>
+                            <div class="avatar avatar-rounded bg-primary-subtle text-primary me-3 flex-shrink-0">
+                                <i class="ti ti-map-pin"></i>
                             </div>
                             <div>
-                                <h3 class="mb-1">Địa chỉ</h3>
+                                <h3 class="h5 mb-1">Địa chỉ</h3>
                                 <p class="text-muted mb-0">Tiên Phương, Chương Mỹ, Hà Nội</p>
                             </div>
                         </div>
 
-                        <div class="list-group-item d-flex align-items-start border-0 px-0 py-3">
-                            <div class="avatar avatar-rounded bg-primary-lt me-3 flex-shrink-0">
-                                <i class="ti ti-phone fs-3"></i>
+                        <div class="list-group-item d-flex align-items-start border-0 px-0 py-3 transition-all">
+                            <div class="avatar avatar-rounded bg-primary-subtle text-primary me-3 flex-shrink-0">
+                                <i class="ti ti-phone"></i>
                             </div>
                             <div>
-                                <h3 class="mb-1">Điện thoại</h3>
-                                <p class="text-muted mb-1">Hotline: <a href="tel:0359021323"
-                                        class="text-reset">035.902.1323</a></p>
-                                <p class="text-muted mb-0">Tư vấn kỹ thuật: <a href="tel:0359021323"
-                                        class="text-reset">035.902.1323</a></p>
+                                <h3 class="h5 mb-1">Điện thoại</h3>
+                                <p class="text-muted mb-1">
+                                    <span class="badge badge-outline text-blue me-2">Hotline</span>
+                                    <a href="tel:0359021323" class="text-reset">035.902.1323</a>
+                                </p>
+                                <p class="text-muted mb-0">
+                                    <span class="badge badge-outline text-blue me-2">Kỹ thuật</span>
+                                    <a href="tel:0359021323" class="text-reset">035.902.1323</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="list-group-item d-flex align-items-start border-0 px-0 py-3 transition-all">
+                            <div class="avatar avatar-rounded bg-primary-subtle text-primary me-3 flex-shrink-0">
+                                <i class="ti ti-mail"></i>
+                            </div>
+                            <div>
+                                <h3 class="h5 mb-1">Email</h3>
+                                <p class="text-muted mb-1">
+                                    <a href="mailto:daiminhvietnam@gmail.com" class="text-reset">daiminhvietnam@gmail.com</a>
+                                </p>
+                                <p class="text-muted mb-0">
+                                    <a href="mailto:sondaiminh@gmail.com" class="text-reset">sondaiminh@gmail.com</a>
+                                </p>
                             </div>
                         </div>
 
                         <div class="list-group-item d-flex align-items-start border-0 px-0 py-3">
-                            <div class="avatar avatar-rounded bg-primary-lt me-3 flex-shrink-0">
-                                <i class="ti ti-mail fs-3"></i>
+                            <div class="avatar avatar-rounded bg-primary-subtle text-primary me-3 flex-shrink-0">
+                                <i class="ti ti-clock"></i>
                             </div>
                             <div>
-                                <h3 class="mb-1">Email</h3>
-                                <p class="text-muted mb-1"><a href="mailto:daiminhvietnam@gmail.com"
-                                        class="text-reset">daiminhvietnam@gmail.com</a></p>
-                                <p class="text-muted mb-0"><a href="mailto:daiminhvietnam@gmail.com"
-                                        class="text-reset">sondaiminh@gmail.com</a></p>
+                                <h3 class="h5 mb-1">Giờ làm việc</h3>
+                                <div class="datagrid mb-2">
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">Thứ 2 - Thứ 7</div>
+                                        <div class="datagrid-content">8:00 - 18:30</div>
+                                    </div>
+                                    <div class="datagrid-item">
+                                        <div class="datagrid-title">Chủ nhật</div>
+                                        <div class="datagrid-content">Nghỉ</div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+                    </div>
 
-                        <div class="list-group-item d-flex align-items-start border-0 px-0 py-3">
-                            <div class="avatar avatar-rounded bg-primary-lt me-3 flex-shrink-0">
-                                <i class="ti ti-clock fs-3"></i>
-                            </div>
-                            <div>
-                                <h3 class="mb-1">Giờ làm việc</h3>
-                                <p class="text-muted mb-1">Thứ 2 - Thứ 76: 8:00 - 18:30</p>
-                                <p class="text-muted mb-0">Chủ nhật: Nghỉ</p>
-                            </div>
+                    <!-- Social Media Links -->
+                    <div class="mt-4">
+                        <h3 class="h5 mb-3">Kết nối với chúng tôi</h3>
+                        <div class="d-flex gap-2">
+                            <a href="#" class="btn btn-icon btn-facebook">
+                                <i class="ti ti-brand-facebook"></i>
+                            </a>
+                            <a href="#" class="btn btn-icon btn-youtube">
+                                <i class="ti ti-brand-youtube"></i>
+                            </a>
+                            <a href="#" class="btn btn-icon btn-tiktok">
+                                <i class="ti ti-brand-tiktok"></i>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -72,22 +113,36 @@
 
         <!-- Contact Form Card -->
         <div class="col-lg-8">
-            <div class="card h-100">
+            <div class="card h-100 shadow-sm border-0" id="contact-form">
+                <div class="card-status-start bg-primary"></div>
                 <div class="card-body">
-                    <h2 class="card-title mb-4">Gửi tin nhắn cho chúng tôi</h2>
+                    <h2 class="card-title mb-4">
+                        <i class="ti ti-message-circle text-primary me-2"></i>Gửi tin nhắn cho chúng tôi
+                    </h2>
+                    <p class="text-muted mb-4">Vui lòng điền đầy đủ thông tin bên dưới, chúng tôi sẽ liên hệ lại với bạn trong thời gian sớm nhất.</p>
 
-                    <form asp-controller="Contact" asp-action="Index" method="post">
+                    <form asp-controller="Contact" asp-action="Index" method="post" class="needs-validation" novalidate>
                         @Html.AntiForgeryToken()
 
                         <div class="row mb-3">
                             <div class="col-sm-6 mb-3 mb-sm-0">
-                                <label class="form-label required" asp-for="FullName"></label>
-                                <input type="text" class="form-control" asp-for="FullName">
+                                <label class="form-label required" asp-for="FullName">Họ và tên</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-user"></i>
+                                    </span>
+                                    <input type="text" class="form-control" asp-for="FullName" placeholder="Nhập họ và tên của bạn">
+                                </div>
                                 <span asp-validation-for="FullName" class="text-danger"></span>
                             </div>
                             <div class="col-sm-6">
-                                <label asp-for="Email" class="form-label required"></label>
-                                <input asp-for="Email" class="form-control" />
+                                <label asp-for="Email" class="form-label required">Email</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-mail"></i>
+                                    </span>
+                                    <input asp-for="Email" class="form-control" placeholder="example@gmail.com" />
+                                </div>
                                 <span asp-validation-for="Email" class="text-danger"></span>
                             </div>
                         </div>
@@ -95,26 +150,38 @@
                         <div class="row mb-3">
                             <div class="col-sm-6 mb-3 mb-sm-0">
                                 <label asp-for="Phone" class="form-label">Số điện thoại</label>
-                                <input asp-for="Phone" class="form-control" type="tel" />
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-phone"></i>
+                                    </span>
+                                    <input asp-for="Phone" class="form-control" type="tel" placeholder="0xxxxxxxxx" />
+                                </div>
                                 <span asp-validation-for="Phone" class="text-danger"></span>
                             </div>
                             <div class="col-sm-6">
-                                <label asp-for="Subject" class="form-label"></label>
-                                <select asp-for="Subject" asp-items="Model.SubjectOptions" class="form-select"></select>
+                                <label asp-for="Subject" class="form-label required">Chủ đề</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="ti ti-tag"></i>
+                                    </span>
+                                    <select asp-for="Subject" asp-items="Model.SubjectOptions" class="form-select"></select>
+                                </div>
                                 <span asp-validation-for="Subject" class="text-danger"></span>
                             </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label asp-for="Message" class="form-label required"></label>
-                            <textarea asp-for="Message" class="form-control" rows="5"></textarea>
+                        <div class="mb-4">
+                            <label asp-for="Message" class="form-label required">Nội dung tin nhắn</label>
+                            <textarea asp-for="Message" class="form-control" rows="5" placeholder="Nhập nội dung tin nhắn của bạn..."></textarea>
                             <span asp-validation-for="Message" class="text-danger"></span>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ti ti-send me-2"></i>
-                            Gửi tin nhắn
-                        </button>
+                        <div class="form-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ti ti-send me-2"></i>
+                                Gửi tin nhắn
+                            </button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -123,8 +190,14 @@
 
     <!-- Map Section -->
     <div class="mb-5">
-        <h2 class="h3 mb-3">Bản đồ</h2>
-        <div class="card">
+        <div class="d-flex align-items-center mb-3">
+            <div class="avatar bg-primary-subtle text-primary me-3">
+                <i class="ti ti-map-2"></i>
+            </div>
+            <h2 class="h3 mb-0">Bản đồ</h2>
+        </div>
+        <div class="card shadow-sm border-0">
+            <div class="card-status-bottom bg-primary"></div>
             <div class="card-body p-0">
                 <iframe
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5152.719626588438!2d105.6859916119948!3d20.94205048060509!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3134539b465b1be5%3A0x279c032890c390c5!2zxJDhuqFpIE1pbmggVmnhu4d0IE5hbQ!5e1!3m2!1svi!2s!4v1746603351659!5m2!1svi!2s"
@@ -133,4 +206,52 @@
             </div>
         </div>
     </div>
+
+    <!-- FAQ Section -->
+    <div class="mb-5">
+        <div class="d-flex align-items-center mb-3">
+            <div class="avatar bg-primary-subtle text-primary me-3">
+                <i class="ti ti-help"></i>
+            </div>
+            <h2 class="h3 mb-0">Câu hỏi thường gặp</h2>
+        </div>
+        <div class="card shadow-sm border-0">
+            <div class="card-status-bottom bg-primary"></div>
+            <div class="card-body">
+                <div class="accordion" id="faqAccordion">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                                <i class="ti ti-question-mark text-primary me-2"></i>
+                                Làm thế nào để đặt lịch tư vấn?
+                            </button>
+                        </h2>
+                        <div id="faq1" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body pt-0">
+                                <div class="text-muted">
+                                    Bạn có thể đặt lịch tư vấn bằng cách gọi điện trực tiếp đến hotline 035.902.1323 hoặc điền form liên hệ trên trang web của chúng tôi.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                                <i class="ti ti-question-mark text-primary me-2"></i>
+                                Thời gian phản hồi yêu cầu tư vấn là bao lâu?
+                            </button>
+                        </h2>
+                        <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                            <div class="accordion-body pt-0">
+                                <div class="text-muted">
+                                    Chúng tôi sẽ phản hồi yêu cầu tư vấn của bạn trong vòng 24 giờ làm việc kể từ khi nhận được thông tin.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
