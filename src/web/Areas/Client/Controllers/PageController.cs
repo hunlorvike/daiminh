@@ -8,7 +8,6 @@ using web.Areas.Client.ViewModels.Page;
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
-[Route("trang")]
 public class PageController : Controller
 {
     private readonly ApplicationDbContext _dbContext;
@@ -22,22 +21,22 @@ public class PageController : Controller
         _logger = logger;
     }
 
-    // GET: /{pageSlug}
-    [HttpGet("{pageSlug}")]
-    public async Task<IActionResult> Detail(string pageSlug)
+    public async Task<IActionResult> Detail(string slug)
     {
-        if (string.IsNullOrEmpty(pageSlug))
+        if (string.IsNullOrEmpty(slug))
         {
-            _logger.LogWarning("Page slug is null or empty.");
+            _logger.LogWarning("Slug của trang là null hoặc rỗng.");
             return NotFound();
         }
+
         var page = await _dbContext.Pages
                                 .AsNoTracking()
-                                .Where(p => p.Slug == pageSlug && p.Status == PublishStatus.Published)
+                                .Where(p => p.Slug == slug && p.Status == PublishStatus.Published)
                                 .FirstOrDefaultAsync();
+
         if (page == null)
         {
-            _logger.LogInformation("Page with slug '{Slug}' not found or not published.", pageSlug);
+            _logger.LogInformation("Không tìm thấy trang với slug '{Slug}' hoặc trang chưa được xuất bản.", slug);
             return NotFound();
         }
 

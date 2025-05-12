@@ -13,7 +13,6 @@ using web.Areas.Client.ViewModels.Contact;
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
-[Route("lien-he")]
 public partial class ContactController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -30,8 +29,6 @@ public partial class ContactController : Controller
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
-    // GET: /lien-he
-    [HttpGet("")]
     public IActionResult Index()
     {
         var viewModel = new ContactViewModel
@@ -41,8 +38,7 @@ public partial class ContactController : Controller
         return View(viewModel);
     }
 
-    // POST: /lien-he
-    [HttpPost("")]
+    [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(ContactViewModel viewModel)
     {
