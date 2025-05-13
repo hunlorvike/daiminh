@@ -13,6 +13,8 @@ public class User : BaseEntity<int>
     public string? FullName { get; set; }
     public bool IsActive { get; set; } = true;
     public virtual ICollection<ProductReview>? ReviewsWritten { get; set; }
+    public virtual ICollection<UserRole>? UserRoles { get; set; }
+    public virtual ICollection<UserPermission>? UserPermissions { get; set; }
 }
 
 public class UserConfiguration : BaseEntityConfiguration<User, int>

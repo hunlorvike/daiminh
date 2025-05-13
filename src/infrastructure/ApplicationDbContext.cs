@@ -35,50 +35,54 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Testimonial> Testimonials { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<Permission> Permissions { get; set; }
+    public DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<RolePermission> RolePermissions { get; set; }
+    public DbSet<UserPermission> UserPermissions { get; set; }
     public DbSet<Banner> Banners { get; set; }
     public DbSet<Page> Pages { get; set; }
     public DbSet<PopupModal> PopupModals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        // Cần giữ lại để Identity hoạt động (nếu có) và các cấu hình base khác
         base.OnModelCreating(modelBuilder);
 
-        // Độc lập hoặc ít phụ thuộc cho seeding ban đầu
-        modelBuilder.ApplyConfiguration(new UserConfiguration()); // User có thể được tham chiếu bởi ProductReview
-        modelBuilder.ApplyConfiguration(new BrandConfiguration()); // Brand được tham chiếu bởi Product
-        modelBuilder.ApplyConfiguration(new AttributeConfiguration()); // Attribute được tham chiếu bởi AttributeValue và ProductAttribute
-        modelBuilder.ApplyConfiguration(new CategoryConfiguration()); // Category được tham chiếu bởi Article, Product, FAQ
-        modelBuilder.ApplyConfiguration(new TagConfiguration());     // Tag được tham chiếu bởi ArticleTag, ProductTag
-        modelBuilder.ApplyConfiguration(new SettingConfiguration()); // Độc lập, chứa nhiều HasData
-        modelBuilder.ApplyConfiguration(new ContactConfiguration()); // Độc lập
-        modelBuilder.ApplyConfiguration(new MediaFileConfiguration()); // Độc lập
-        modelBuilder.ApplyConfiguration(new NewsletterConfiguration()); // Độc lập
-        modelBuilder.ApplyConfiguration(new TestimonialConfiguration()); // Độc lập
-        modelBuilder.ApplyConfiguration(new BannerConfiguration()); // Độc lập
-        modelBuilder.ApplyConfiguration(new PageConfiguration()); // Độc lập
-        modelBuilder.ApplyConfiguration(new PopupModalConfiguration()); // Độc lập
-        modelBuilder.ApplyConfiguration(new SlideConfiguration()); // Độc lập
+        modelBuilder.ApplyConfiguration(new UserConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleConfiguration());
+        modelBuilder.ApplyConfiguration(new PermissionConfiguration());
+        modelBuilder.ApplyConfiguration(new BrandConfiguration());
+        modelBuilder.ApplyConfiguration(new AttributeConfiguration());
+        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
+        modelBuilder.ApplyConfiguration(new TagConfiguration());
+        modelBuilder.ApplyConfiguration(new SettingConfiguration());
+        modelBuilder.ApplyConfiguration(new ContactConfiguration());
+        modelBuilder.ApplyConfiguration(new MediaFileConfiguration());
+        modelBuilder.ApplyConfiguration(new NewsletterConfiguration());
+        modelBuilder.ApplyConfiguration(new TestimonialConfiguration());
+        modelBuilder.ApplyConfiguration(new BannerConfiguration());
+        modelBuilder.ApplyConfiguration(new PageConfiguration());
+        modelBuilder.ApplyConfiguration(new PopupModalConfiguration());
+        modelBuilder.ApplyConfiguration(new SlideConfiguration());
 
-        // Các thực thể phụ thuộc vào các thực thể trên
-        modelBuilder.ApplyConfiguration(new AttributeValueConfiguration()); // Phụ thuộc Attribute
-        modelBuilder.ApplyConfiguration(new ProductConfiguration()); // Phụ thuộc Brand, Category
-        modelBuilder.ApplyConfiguration(new ArticleConfiguration()); // Phụ thuộc Category
-        modelBuilder.ApplyConfiguration(new FAQConfiguration());      // Phụ thuộc Category (ĐẶT SAU Category để fix lỗi FK)
+        modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
+        modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
+        modelBuilder.ApplyConfiguration(new UserPermissionConfiguration());
 
+        modelBuilder.ApplyConfiguration(new AttributeValueConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductConfiguration());
+        modelBuilder.ApplyConfiguration(new ArticleConfiguration());
+        modelBuilder.ApplyConfiguration(new FAQConfiguration());
 
-        // Các bảng join và thực thể chi tiết (thường không có HasData phức tạp,
-        // nhưng cấu hình mối quan hệ vẫn cần các bảng chính tồn tại)
-        modelBuilder.ApplyConfiguration(new ProductVariationConfiguration()); // Phụ thuộc Product
-        modelBuilder.ApplyConfiguration(new ProductImageConfiguration()); // Phụ thuộc Product
-        modelBuilder.ApplyConfiguration(new ProductReviewConfiguration()); // Phụ thuộc Product, User
+        modelBuilder.ApplyConfiguration(new ProductVariationConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductReviewConfiguration());
 
-        // Các bảng Many-to-Many Join Tables
-        modelBuilder.ApplyConfiguration(new ArticleProductConfiguration()); // Phụ thuộc Article, Product
-        modelBuilder.ApplyConfiguration(new ArticleTagConfiguration());   // Phụ thuộc Article, Tag
-        modelBuilder.ApplyConfiguration(new ProductAttributeConfiguration()); // Phụ thuộc Product, Attribute
-        modelBuilder.ApplyConfiguration(new ProductTagConfiguration());     // Phụ thuộc Product, Tag
-        modelBuilder.ApplyConfiguration(new ProductVariationAttributeValueConfiguration()); // Phụ thuộc ProductVariation, AttributeValue
+        modelBuilder.ApplyConfiguration(new ArticleProductConfiguration());
+        modelBuilder.ApplyConfiguration(new ArticleTagConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductAttributeConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductTagConfiguration());
+        modelBuilder.ApplyConfiguration(new ProductVariationAttributeValueConfiguration());
     }
 }
 
