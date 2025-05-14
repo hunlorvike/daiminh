@@ -1,5 +1,6 @@
 using System.Text.Json;
 using AutoMapper;
+using CommunityToolkit.HighPerformance.Helpers;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -36,6 +37,10 @@ public partial class ContactController : Controller
             SubjectOptions = GetSubjectOptions(),
         };
         return View(viewModel);
+    }
+
+    public IActionResult Quote(){
+        return View();
     }
 
     [HttpPost]

@@ -1,630 +1,527 @@
-@{
-	ViewData["Title"] = "Chi tiết sản phẩm";
+<div class="container-xl mt-3 mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-arrows mb-0">
+            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="/san-pham" class="text-reset">Sản phẩm</a></li>
+            <li class="breadcrumb-item"><a href="/san-pham/son-noi-that" class="text-reset">Sơn Nội Thất</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Sơn nội thất Dulux EasyClean Lau chùi vượt trội</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-xl mb-5">
+    <div class="card">
+        <div class="card-body">
+            <div class="row g-4">
+                <!-- Product Gallery -->
+                <div class="col-lg-6">
+                    <div class="mb-3">
+                        <img id="mainProductImage" src="/img/placeholder.svg" alt="Sơn nội thất Dulux EasyClean - Ảnh lớn" class="img-fluid rounded w-100" style="max-height: 500px; object-fit: contain; border: 1px solid #dee2e6;">
+                    </div>
+                    <div class="row g-2" id="productThumbnails">
+                        <div class="col-3">
+                            <img src="/img/placeholder.svg" alt="Thumbnail 1" class="img-fluid rounded cursor-pointer border border-primary" onclick="changeMainImage(this.src)">
+                        </div>
+                        <div class="col-3">
+                            <img src="/img/placeholder.svg" alt="Thumbnail 2" class="img-fluid rounded cursor-pointer border" onclick="changeMainImage(this.src)">
+                        </div>
+                        <div class="col-3">
+                            <img src="/img/placeholder.svg" alt="Thumbnail 3" class="img-fluid rounded cursor-pointer border" onclick="changeMainImage(this.src)">
+                        </div>
+                        <div class="col-3">
+                             <div class="bg-light rounded d-flex align-items-center justify-content-center cursor-pointer border" style="height: 100px;" onclick="openColorPaletteModal()">
+                                <i class="ti ti-palette fs-1 text-primary"></i>
+                                <span class="ms-1 small">Bảng màu</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Info & Actions -->
+                <div class="col-lg-6">
+                    <h1 class="h2 mb-2">Sơn nội thất Dulux EasyClean Lau chùi vượt trội</h1>
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="badge bg-blue-lt me-2 fs-6">Dulux</span>
+                        <div class="text-warning me-2">
+                            <i class="ti ti-star-filled"></i>
+                            <i class="ti ti-star-filled"></i>
+                            <i class="ti ti-star-filled"></i>
+                            <i class="ti ti-star-filled"></i>
+                            <i class="ti ti-star-half-filled"></i>
+                        </div>
+                        <a href="#product-reviews" class="text-muted small">(28 đánh giá)</a>
+                        <span class="mx-2 text-muted">|</span>
+                        <span class="text-muted small">Mã SP: DLX-EC-001</span>
+                    </div>
+
+                    <div class="mb-3">
+                        <span class="h1 fw-bold text-primary">650.000₫</span>
+                        <span class="text-muted text-decoration-line-through ms-2">720.000₫</span>
+                        <span class="badge bg-red-lt ms-2">-10%</span>
+                    </div>
+
+                    <p class="text-muted mb-3">
+                        Công nghệ Colourguard giữ màu sắc luôn tươi mới. Khả năng lau chùi vượt trội, chống nấm mốc, mùi hương dễ chịu. An toàn cho sức khỏe.
+                    </p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            <label for="productColor" class="form-label fw-medium">Màu sắc:</label>
+                            <select id="productColor" class="form-select">
+                                <option value="white">Trắng sứ (001)</option>
+                                <option value="cream">Kem nhạt (105)</option>
+                                <option value="blue_sky">Xanh da trời (234)</option>
+                                <option>Xem bảng màu đầy đủ...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="productVolume" class="form-label fw-medium">Dung tích:</label>
+                            <select id="productVolume" class="form-select">
+                                <option value="1L">1 Lít</option>
+                                <option value="5L" selected>5 Lít</option>
+                                <option value="18L">18 Lít</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row g-3 align-items-center mb-4">
+                        <div class="col-md-6 col-lg-4">
+                            <label for="productQuantity" class="form-label fw-medium">Số lượng:</label>
+                            <div class="input-group">
+                                <button class="btn btn-outline-secondary" type="button" onclick="changeQuantity(-1)">-</button>
+                                <input type="number" id="productQuantity" class="form-control text-center" value="1" min="1">
+                                <button class="btn btn-outline-secondary" type="button" onclick="changeQuantity(1)">+</button>
+                            </div>
+                        </div>
+                         <div class="col-md-6 col-lg-8">
+                            <div class="d-grid gap-2 mt-md-4 pt-md-1">
+                                <a href="/yeu-cau-bao-gia?sp_id=DLX-EC-001&vol=5L&color=white" class="btn btn-primary btn-lg">
+                                    <i class="ti ti-file-invoice me-2"></i>Yêu Cầu Báo Giá
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                         <button type="button" class="btn btn-outline-secondary">
+                            <i class="ti ti-heart me-2"></i>Thêm vào yêu thích
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#shareModal">
+                            <i class="ti ti-share me-2"></i>Chia sẻ
+                        </button>
+                    </div>
+                    
+                    <div class="card bg-light-subtle border">
+                        <div class="card-body">
+                             <div class="d-flex align-items-center mb-2">
+                                <i class="ti ti-truck-delivery text-primary me-2 fs-3"></i>
+                                <div>
+                                    <span class="fw-medium">Giao hàng miễn phí</span>
+                                    <div class="small text-muted">Cho đơn hàng từ 2.000.000₫ trong nội thành Hà Nội.</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="ti ti-shield-check text-primary me-2 fs-3"></i>
+                                <div>
+                                    <span class="fw-medium">Cam kết chính hãng</span>
+                                    <div class="small text-muted">Hoàn tiền 200% nếu phát hiện hàng giả.</div>
+                                </div>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <i class="ti ti-headset text-primary me-2 fs-3"></i>
+                                <div>
+                                    <span class="fw-medium">Hỗ trợ kỹ thuật</span>
+                                    <div class="small text-muted">Tư vấn 24/7 qua hotline: <a href="tel:0359021323">035.902.1323</a></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product Details Tabs -->
+    <div class="mt-5">
+        <ul class="nav nav-tabs nav-fill mb-3" id="productInfoTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="description-tab" data-bs-toggle="tab" data-bs-target="#description-content" type="button" role="tab" aria-controls="description-content" aria-selected="true">
+                    <i class="ti ti-file-text me-2"></i>Mô tả chi tiết
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs-content" type="button" role="tab" aria-controls="specs-content" aria-selected="false">
+                    <i class="ti ti-settings me-2"></i>Thông số kỹ thuật
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="color-palette-tab" data-bs-toggle="tab" data-bs-target="#color-palette-content" type="button" role="tab" aria-controls="color-palette-content" aria-selected="false">
+                    <i class="ti ti-palette me-2"></i>Bảng màu
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-content" type="button" role="tab" aria-controls="reviews-content" aria-selected="false">
+                    <i class="ti ti-star me-2"></i>Đánh giá (<span id="reviewCount">28</span>)
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="qa-tab" data-bs-toggle="tab" data-bs-target="#qa-content" type="button" role="tab" aria-controls="qa-content" aria-selected="false">
+                    <i class="ti ti-message-circle-question me-2"></i>Hỏi & Đáp
+                </button>
+            </li>
+        </ul>
+        <div class="tab-content card" id="productInfoTabsContent">
+            <div class="tab-pane fade show active card-body" id="description-content" role="tabpanel" aria-labelledby="description-tab">
+                <h4>Tính năng nổi bật của Sơn nội thất Dulux EasyClean Lau chùi vượt trội:</h4>
+                <p>Sơn nội thất cao cấp Dulux EasyClean Lau Chùi Vượt Trội với các tính năng ưu việt:</p>
+                <ul>
+                    <li><strong>Công nghệ Colourguard tiên tiến:</strong> Giúp màu sơn luôn tươi mới, bền đẹp theo thời gian.</li>
+                    <li><strong>Khả năng lau chùi vượt trội:</strong> Dễ dàng làm sạch các vết bẩn cứng đầu như bùn đất, cà phê, dấu tay... mà không làm hỏng màng sơn.</li>
+                    <li><strong>Chống nấm mốc hiệu quả:</strong> Bảo vệ tường nhà khỏi sự tấn công của nấm mốc, vi khuẩn.</li>
+                    <li><strong>Mùi hương dễ chịu:</strong> Sản phẩm có mùi nhẹ, không gây khó chịu trong quá trình thi công và sử dụng.</li>
+                    <li><strong>An toàn cho sức khỏe:</strong> Hàm lượng VOC thấp, không chứa chì và thủy ngân, đạt chứng nhận Xanh của Singapore.</li>
+                </ul>
+                <h4>Hướng dẫn thi công:</h4>
+                <ol>
+                    <li><strong>Chuẩn bị bề mặt:</strong> Bề mặt tường phải sạch, khô, không bám bụi, dầu mỡ. Cạo bỏ lớp sơn cũ nếu có.</li>
+                    <li><strong>Sơn lót:</strong> Thi công 1-2 lớp sơn lót Dulux A934 để tăng độ bám dính và kháng kiềm.</li>
+                    <li><strong>Sơn phủ:</strong> Thi công 2 lớp sơn phủ Dulux EasyClean. Mỗi lớp cách nhau 2-3 giờ.</li>
+                </ol>
+                <p><strong>Định mức:</strong> 10-12 m²/lít/lớp.</p>
+            </div>
+            <div class="tab-pane fade card-body" id="specs-content" role="tabpanel" aria-labelledby="specs-tab">
+                <table class="table table-striped">
+                    <tbody>
+                        <tr>
+                            <th scope="row" style="width: 30%;">Thương hiệu</th>
+                            <td>Dulux (AkzoNobel)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Dòng sản phẩm</th>
+                            <td>EasyClean Lau Chùi Vượt Trội</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Loại sơn</th>
+                            <td>Sơn nước nội thất</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Bề mặt hoàn thiện</th>
+                            <td>Bóng mờ</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Độ phủ lý thuyết</th>
+                            <td>10 - 12 m²/lít/lớp</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Thời gian khô bề mặt</th>
+                            <td>30 phút (ở 30°C)</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Thời gian sơn lớp kế tiếp</th>
+                            <td>2 - 3 giờ</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Dụng cụ thi công</th>
+                            <td>Cọ, rulo, máy phun sơn</td>
+                        </tr>
+                         <tr>
+                            <th scope="row">Pha loãng</th>
+                            <td>Tối đa 10% nước sạch</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="tab-pane fade card-body" id="color-palette-content" role="tabpanel" aria-labelledby="color-palette-tab">
+                <h4 class="mb-3">Bảng màu tham khảo</h4>
+                <p>Lưu ý: Màu sắc trên màn hình có thể khác biệt so với màu thực tế. Vui lòng tham khảo bảng màu vật lý tại cửa hàng hoặc yêu cầu mẫu thử.</p>
+                <div class="row g-2">
+                    <!-- Example color swatches -->
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="card card-sm cursor-pointer">
+                            <div class="card-body p-2 text-center">
+                                <div style="background-color: #FFFFFF; height: 50px; border: 1px solid #eee;" class="mb-1 rounded"></div>
+                                <div class="small fw-medium">Trắng Sứ</div>
+                                <div class="small text-muted">001</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="card card-sm cursor-pointer">
+                            <div class="card-body p-2 text-center">
+                                <div style="background-color: #FAF0E6; height: 50px; border: 1px solid #eee;" class="mb-1 rounded"></div>
+                                <div class="small fw-medium">Kem Nhạt</div>
+                                <div class="small text-muted">105</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="card card-sm cursor-pointer">
+                            <div class="card-body p-2 text-center">
+                                <div style="background-color: #ADD8E6; height: 50px; border: 1px solid #eee;" class="mb-1 rounded"></div>
+                                <div class="small fw-medium">Xanh Da Trời</div>
+                                <div class="small text-muted">234</div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Add more swatches -->
+                    <div class="col-12 mt-3">
+                        <button class="btn btn-primary" onclick="openColorPaletteModal()">
+                            <i class="ti ti-palette me-2"></i>Xem Bảng Màu Đầy Đủ (Hơn 2000 màu)
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-pane fade card-body" id="reviews-content" role="tabpanel" aria-labelledby="reviews-tab">
+                <div class="row">
+                    <div class="col-md-7">
+                        <h4 class="mb-3">Đánh giá từ khách hàng (<span id="reviewCountInner">28</span>)</h4>
+                        <!-- Review Item 1 -->
+                        <div class="d-flex mb-4">
+                            <span class="avatar avatar-sm me-3" style="background-image: url(/img/placeholder.svg)"></span>
+                            <div>
+                                <div class="fw-medium">Nguyễn Văn A <span class="ms-2 text-warning"><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-half-filled"></i></span></div>
+                                <div class="small text-muted mb-1">Đã mua 2 tuần trước - Màu Trắng Sứ, 5L</div>
+                                <p>Sơn chất lượng tốt, màu lên đẹp, dễ lau chùi. Nhân viên tư vấn nhiệt tình. Sẽ ủng hộ tiếp.</p>
+                            </div>
+                        </div>
+                        <!-- Review Item 2 -->
+                         <div class="d-flex mb-4 border-top pt-3">
+                            <span class="avatar avatar-sm me-3" style="background-image: url(/img/placeholder.svg)"></span>
+                            <div>
+                                <div class="fw-medium">Trần Thị B <span class="ms-2 text-warning"><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i></span></div>
+                                <div class="small text-muted mb-1">Đã mua 1 tháng trước - Màu Kem Nhạt, 18L</div>
+                                <p>Sơn lên màu chuẩn, mùi nhẹ. Nhà mình có trẻ con nên chọn loại này rất yên tâm. Giao hàng nhanh.</p>
+                            </div>
+                        </div>
+                        <a href="#" class="btn btn-outline-primary">Xem tất cả đánh giá</a>
+                    </div>
+                    <div class="col-md-5 border-md-start ps-md-4 mt-4 mt-md-0">
+                        <h4 class="mb-3">Viết đánh giá của bạn</h4>
+                        <form>
+                            <div class="mb-2">
+                                <label class="form-label">Đánh giá chung:</label>
+                                <div id="ratingStars" class="fs-2 text-warning">
+                                    <i class="ti ti-star cursor-pointer"></i>
+                                    <i class="ti ti-star cursor-pointer"></i>
+                                    <i class="ti ti-star cursor-pointer"></i>
+                                    <i class="ti ti-star cursor-pointer"></i>
+                                    <i class="ti ti-star cursor-pointer"></i>
+                                </div>
+                            </div>
+                            <div class="mb-2">
+                                <label for="reviewName" class="form-label">Tên của bạn:</label>
+                                <input type="text" id="reviewName" class="form-control" placeholder="Nhập tên">
+                            </div>
+                            <div class="mb-2">
+                                <label for="reviewText" class="form-label">Nội dung đánh giá:</label>
+                                <textarea id="reviewText" class="form-control" rows="4" placeholder="Chia sẻ cảm nhận của bạn về sản phẩm..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary">Gửi đánh giá</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+             <div class="tab-pane fade card-body" id="qa-content" role="tabpanel" aria-labelledby="qa-tab">
+                <h4 class="mb-3">Câu hỏi thường gặp về sản phẩm</h4>
+                <!-- Q&A Item 1 -->
+                <div class="mb-3">
+                    <div class="fw-medium"><i class="ti ti-message-circle-question text-primary me-1"></i> Sơn này có dùng cho bề mặt gỗ được không?</div>
+                    <div class="text-muted ps-4 ms-1"><i class="ti ti-message-circle-2 text-muted me-1"></i> Dạ chào bạn, sơn Dulux EasyClean là sơn nước nội thất chuyên dùng cho tường bê tông, thạch cao. Để sơn gỗ, bạn nên tham khảo dòng sơn dầu hoặc sơn PU chuyên dụng ạ.</div>
+                </div>
+                <!-- Q&A Item 2 -->
+                <div class="mb-3 border-top pt-3">
+                    <div class="fw-medium"><i class="ti ti-message-circle-question text-primary me-1"></i> Một thùng 18L sơn được bao nhiêu m2 tường?</div>
+                    <div class="text-muted ps-4 ms-1"><i class="ti ti-message-circle-2 text-muted me-1"></i> Chào bạn, với bề mặt tường tiêu chuẩn, 1 thùng 18L sơn Dulux EasyClean có thể sơn được khoảng 90-100m² cho 2 lớp phủ ạ. Tuy nhiên, độ phủ thực tế có thể thay đổi tùy thuộc vào bề mặt và tay nghề thợ.</div>
+                </div>
+                <div class="mt-4">
+                    <h5 class="mb-2">Đặt câu hỏi của bạn</h5>
+                    <form>
+                        <div class="mb-2">
+                            <textarea class="form-control" rows="3" placeholder="Nhập câu hỏi của bạn về sản phẩm này..."></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Gửi câu hỏi</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products -->
+    <div class="mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="h3 mb-0">Sản phẩm liên quan</h2>
+            <a href="/san-pham/son-noi-that" class="btn btn-outline-primary btn-sm">
+                Xem tất cả <i class="ti ti-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-3">
+            <!-- Related Product Card 1 -->
+            <div class="col-6 col-md-4 col-lg-3">
+                <div class="card h-100">
+                    <a href="#">
+                        <img src="/img/placeholder.svg" alt="Sơn lót Dulux A934" class="card-img-top" style="height: 180px; object-fit: cover;">
+                    </a>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="badge bg-blue-lt me-2 small">Dulux</span>
+                        </div>
+                        <h4 class="h6 mb-1 card-title"><a href="#" class="text-reset">Sơn lót nội thất Dulux A934</a></h4>
+                        <div class="fw-bold text-primary small">Từ 450.000₫</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Related Product Card 2 -->
+            <div class="col-6 col-md-4 col-lg-3">
+                 <div class="card h-100">
+                    <a href="#">
+                        <img src="/img/placeholder.svg" alt="Sơn Jotun Majestic" class="card-img-top" style="height: 180px; object-fit: cover;">
+                    </a>
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-1">
+                            <span class="badge bg-orange-lt me-2 small">Jotun</span>
+                        </div>
+                        <h4 class="h6 mb-1 card-title"><a href="#" class="text-reset">Sơn Jotun Majestic Đẹp Hoàn Hảo</a></h4>
+                        <div class="fw-bold text-primary small">Từ 850.000₫</div>
+                    </div>
+                </div>
+            </div>
+            <!-- Add more related products -->
+        </div>
+    </div>
+</div>
+
+<!-- Modals (Share, Color Palette) -->
+<div class="modal fade" id="shareModal" tabindex="-1" aria-labelledby="shareModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="shareModalLabel"><i class="ti ti-share me-2"></i>Chia sẻ sản phẩm</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <p>Chia sẻ sản phẩm này với bạn bè:</p>
+        <div class="d-flex justify-content-center gap-2">
+            <a href="#" class="btn btn-icon btn-facebook" title="Facebook"><i class="ti ti-brand-facebook"></i></a>
+            <a href="#" class="btn btn-icon btn-twitter" title="Twitter"><i class="ti ti-brand-twitter"></i></a>
+            <a href="#" class="btn btn-icon btn-pinterest" title="Pinterest"><i class="ti ti-brand-pinterest"></i></a>
+            <a href="#" class="btn btn-icon btn-linkedin" title="LinkedIn"><i class="ti ti-brand-linkedin"></i></a>
+            <button type="button" class="btn btn-icon btn-light" title="Copy link" onclick="copyLink()"><i class="ti ti-link"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal modal-lg fade" id="colorPaletteModal" tabindex="-1" aria-labelledby="colorPaletteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="colorPaletteModalLabel"><i class="ti ti-palette me-2"></i>Bảng Màu Dulux EasyClean (Hơn 2000 màu)</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small">Lưu ý: Màu sắc trên màn hình có thể không hoàn toàn chính xác. Vui lòng tham khảo cây màu thực tế tại cửa hàng.</p>
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="ti ti-search"></i></span>
+            <input type="text" class="form-control" placeholder="Tìm kiếm màu theo tên hoặc mã...">
+        </div>
+        <div class="row g-2">
+            <!-- Example: Populate with many color swatches -->
+            <div class="col-4 col-md-2">
+                 <div class="card card-sm cursor-pointer" data-bs-dismiss="modal" onclick="selectColor('Trắng Sứ', '001', '#FFFFFF')">
+                    <div class="card-body p-2 text-center">
+                        <div style="background-color: #FFFFFF; height: 40px; border: 1px solid #eee;" class="mb-1 rounded"></div>
+                        <div class="small fw-medium" style="font-size: 0.75rem;">Trắng Sứ</div>
+                        <div class="small text-muted" style="font-size: 0.7rem;">001</div>
+                    </div>
+                </div>
+            </div>
+             <div class="col-4 col-md-2">
+                 <div class="card card-sm cursor-pointer" data-bs-dismiss="modal" onclick="selectColor('Vàng Kem', '10YY 83/087', '#FFF8DC')">
+                    <div class="card-body p-2 text-center">
+                        <div style="background-color: #FFF8DC; height: 40px; border: 1px solid #eee;" class="mb-1 rounded"></div>
+                        <div class="small fw-medium" style="font-size: 0.75rem;">Vàng Kem</div>
+                        <div class="small text-muted" style="font-size: 0.7rem;">10YY 83/087</div>
+                    </div>
+                </div>
+            </div>
+            <!-- ... (repeat for many colors) ... -->
+        </div>
+      </div>
+       <div class="modal-footer">
+            <div class="me-auto">Màu đã chọn: <strong id="selectedColorName">Chưa chọn</strong> (<span id="selectedColorCode">---</span>)</div>
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Xác nhận chọn màu</button>
+      </div>
+    </div>
+  </div>
+</div>
+@section Scripts {
+<script>
+    // Basic JS for gallery and quantity (for demo purposes)
+    function changeMainImage(src) {
+        document.getElementById('mainProductImage').src = src;
+        const thumbnails = document.getElementById('productThumbnails').getElementsByTagName('img');
+        for (let thumb of thumbnails) {
+            thumb.classList.remove('border-primary');
+            thumb.classList.add('border');
+        }
+        event.target.classList.remove('border');
+        event.target.classList.add('border-primary');
+    }
+
+    function changeQuantity(amount) {
+        const quantityInput = document.getElementById('productQuantity');
+        let currentValue = parseInt(quantityInput.value);
+        currentValue += amount;
+        if (currentValue < 1) currentValue = 1;
+        quantityInput.value = currentValue;
+    }
+    
+    function openColorPaletteModal() {
+        var myModal = new bootstrap.Modal(document.getElementById('colorPaletteModal'));
+        myModal.show();
+    }
+
+    function selectColor(name, code, hex) {
+        // This is a placeholder. In a real app, you'd update the main product selection.
+        console.log("Selected color:", name, code, hex);
+        document.getElementById('selectedColorName').textContent = name;
+        document.getElementById('selectedColorCode').textContent = code;
+        // Potentially change the main image to a swatch of this color or update a hidden field
+        // For now, let's update the dropdown (if it exists with a matching value)
+        const colorSelect = document.getElementById('productColor');
+        // Try to find an option that vaguely matches to simulate selection
+        for (let i = 0; i < colorSelect.options.length; i++) {
+            if (colorSelect.options[i].text.toLowerCase().includes(name.toLowerCase().split(' ')[0])) {
+                colorSelect.selectedIndex = i;
+                break;
+            }
+        }
+    }
+    
+    function copyLink() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            alert('Đã sao chép liên kết sản phẩm!');
+        }).catch(err => {
+            console.error('Không thể sao chép: ', err);
+        });
+    }
+
+    // Star rating simple interaction
+    document.querySelectorAll('#ratingStars .ti-star').forEach((star, index, stars) => {
+        star.addEventListener('mouseover', () => {
+            for (let i = 0; i < stars.length; i++) {
+                stars[i].classList.toggle('ti-star-filled', i <= index);
+                stars[i].classList.toggle('ti-star', i > index);
+            }
+        });
+        star.addEventListener('click', () => {
+            // Here you would save the rating (index + 1)
+            console.log('Rated:', index + 1, 'stars');
+        });
+         star.addEventListener('mouseout', () => {
+            // Optional: Reset to a saved rating or default state if not clicked
+        });
+    });
+</script>
 }
-
-		<div class="container-xl py-4">
-			<!-- Breadcrumb -->
-			<div class="mb-4">
-				<ol class="breadcrumb text-muted small">
-					<li class="breadcrumb-item"><a href="/" class="text-reset hover-text-primary">Trang chủ</a></li>
-					<li class="breadcrumb-item"><a href="/san-pham" class="text-reset hover-text-primary">Sản phẩm</a></li>
-					<li class="breadcrumb-item"><a href="/san-pham/son-noi-that" class="text-reset hover-text-primary">Sơn nội thất</a></li>
-					<li class="breadcrumb-item active">Sơn nội thất cao cấp kháng khuẩn Dulux</li>
-				</ol>
-			</div>
-
-			<!-- Product Detail -->
-			<div class="row g-4">
-				<!-- Product Images -->
-				<div class="col-lg-5">
-					<div class="card overflow-hidden">
-						<div class="position-relative">
-							<div class="img-responsive img-responsive-1x1" style="background-image: url('/img/placeholder.svg?text=Sơn+nội+thất+cao+cấp')"></div>
-							<div class="ribbon bg-primary">Bán chạy</div>
-						</div>
-					</div>
-					<div class="row g-2 mt-2">
-						@for (int i = 0; i < 4; i++)
-						{
-							<div class="col-3">
-								<div class="card p-0 cursor-pointer @(i == 0 ? "border-primary" : "")">
-									<div class="img-responsive img-responsive-1x1" style="background-image: url('/img/placeholder.svg?text=Ảnh+@(i+1)')"></div>
-								</div>
-							</div>
-						}
-					</div>
-				</div>
-
-				<!-- Product Info -->
-				<div class="col-lg-7">
-					<div class="card">
-						<div class="card-body">
-							<div class="d-flex flex-wrap gap-2 mb-3">
-								<span class="badge bg-light text-primary">Sơn nội thất</span>
-								<span class="badge bg-light text-primary">Kháng khuẩn</span>
-								<span class="badge bg-light text-primary">Không mùi</span>
-							</div>
-
-							<h1 class="h2 mb-3">Sơn nội thất cao cấp kháng khuẩn Dulux</h1>
-
-							<div class="d-flex align-items-center mb-3">
-								<div class="d-flex me-3">
-									@for (int i = 0; i < 5; i++)
-									{
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="@(i < 4 ? "currentColor" : "none")" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-											<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-										</svg>
-									}
-								</div>
-								<span class="text-muted small">4.0 (86 đánh giá)</span>
-								<span class="mx-2 text-muted">|</span>
-								<span class="text-muted small">Đã bán: 256</span>
-							</div>
-
-							<div class="d-flex align-items-baseline gap-2 mb-4">
-								<span class="h1 text-primary mb-0">650.000₫</span>
-								<span class="h5 text-muted text-decoration-line-through">800.000₫</span>
-								<span class="badge bg-red ms-2">-19%</span>
-							</div>
-
-							<div class="mb-4">
-								<p class="text-muted">
-									Sơn nội thất cao cấp kháng khuẩn Dulux với công nghệ Silver Ion giúp ngăn ngừa vi khuẩn, nấm mốc phát triển trên bề mặt tường, đảm bảo không gian sống luôn sạch sẽ và an toàn cho sức khỏe gia đình bạn.
-								</p>
-							</div>
-
-							<div class="row g-3 mb-4">
-								<div class="col-md-6">
-									<div class="d-flex align-items-center">
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-building-factory-2 text-primary me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-											<path d="M3 21h18"></path>
-											<path d="M5 21v-12l5 4v-4l5 4h4"></path>
-											<path d="M19 21v-8l-1.436 -9.574a.5 .5 0 0 0 -.495 -.426h-1.145a.5 .5 0 0 0 -.494 .418l-1.43 8.582"></path>
-											<path d="M9 17h1"></path>
-											<path d="M14 17h1"></path>
-										</svg>
-										<div>
-											<div class="small text-muted">Thương hiệu</div>
-											<div class="fw-medium">Dulux</div>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="d-flex align-items-center">
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-pin text-primary me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-											<path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
-											<path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path>
-										</svg>
-										<div>
-											<div class="small text-muted">Xuất xứ</div>
-											<div class="fw-medium">Singapore</div>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="d-flex align-items-center">
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-box text-primary me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-											<path d="M12 3l8 4.5v9l-8 4.5l-8 -4.5v-9l8 -4.5"></path>
-											<path d="M12 12l8 -4.5"></path>
-											<path d="M12 12v9"></path>
-											<path d="M12 12l-8 -4.5"></path>
-										</svg>
-										<div>
-											<div class="small text-muted">Đóng gói</div>
-											<div class="fw-medium">5L, 18L</div>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="d-flex align-items-center">
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-truck-delivery text-primary me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-											<path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-											<path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-											<path d="M5 17h-2v-4m0 -4v-8h11v12m-4 0h6m4 0h2v-6h-8m0 -5h5l3 5"></path>
-											<path d="M3 9l4 0"></path>
-										</svg>
-										<div>
-											<div class="small text-muted">Vận chuyển</div>
-											<div class="fw-medium">Miễn phí (>1.000.000₫)</div>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div class="mb-4">
-								<div class="fw-medium mb-2">Dung tích</div>
-								<div class="d-flex flex-wrap gap-2">
-									<label class="form-selectgroup-item">
-										<input type="radio" name="size" value="1L" class="form-selectgroup-input">
-										<span class="form-selectgroup-label">1L</span>
-									</label>
-									<label class="form-selectgroup-item">
-										<input type="radio" name="size" value="5L" class="form-selectgroup-input" checked>
-										<span class="form-selectgroup-label">5L</span>
-									</label>
-									<label class="form-selectgroup-item">
-										<input type="radio" name="size" value="18L" class="form-selectgroup-input">
-										<span class="form-selectgroup-label">18L</span>
-									</label>
-								</div>
-							</div>
-
-							<div class="mb-4">
-								<div class="fw-medium mb-2">Màu sắc</div>
-								<div class="d-flex flex-wrap gap-2">
-									<label class="form-colorinput">
-										<input name="color" type="radio" value="white" class="form-colorinput-input" checked>
-										<span class="form-colorinput-color bg-white"></span>
-									</label>
-									<label class="form-colorinput">
-										<input name="color" type="radio" value="blue" class="form-colorinput-input">
-										<span class="form-colorinput-color bg-blue"></span>
-									</label>
-									<label class="form-colorinput">
-										<input name="color" type="radio" value="azure" class="form-colorinput-input">
-										<span class="form-colorinput-color bg-azure"></span>
-									</label>
-									<label class="form-colorinput">
-										<input name="color" type="radio" value="indigo" class="form-colorinput-input">
-										<span class="form-colorinput-color bg-indigo"></span>
-									</label>
-									<label class="form-colorinput">
-										<input name="color" type="radio" value="green" class="form-colorinput-input">
-										<span class="form-colorinput-color bg-green"></span>
-									</label>
-								</div>
-							</div>
-
-							<div class="mb-4">
-								<div class="fw-medium mb-2">Số lượng</div>
-								<div class="d-flex align-items-center">
-									<div class="input-group w-25">
-										<button type="button" class="btn btn-outline-secondary">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-minus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M5 12l14 0"></path>
-											</svg>
-										</button>
-										<input type="text" class="form-control text-center" value="1">
-										<button type="button" class="btn btn-outline-secondary">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M12 5l0 14"></path>
-												<path d="M5 12l14 0"></path>
-											</svg>
-										</button>
-									</div>
-									<span class="ms-3 text-muted small">Còn 45 sản phẩm</span>
-								</div>
-							</div>
-
-							<div class="d-flex flex-wrap gap-3">
-								<button class="btn btn-primary ">
-									<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shopping-cart me-2" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-										<path d="M6 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-										<path d="M17 19m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path>
-										<path d="M17 17h-11v-14h-2"></path>
-										<path d="M6 5l14 1l-1 7h-13"></path>
-									</svg>
-									Thêm vào giỏ hàng
-								</button>
-								<button class="btn btn-outline-primary ">Mua ngay</button>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Product Tabs -->
-			<div class="card mt-4">
-				<div class="card-body">
-					<div class="d-flex overflow-auto mb-3">
-						<ul class="nav nav-tabs nav-fill flex-nowrap">
-							<li class="nav-item">
-								<a href="#tab-description" class="nav-link active" data-bs-toggle="tab">Mô tả sản phẩm</a>
-							</li>
-							<li class="nav-item">
-								<a href="#tab-specifications" class="nav-link" data-bs-toggle="tab">Thông số kỹ thuật</a>
-							</li>
-							<li class="nav-item">
-								<a href="#tab-usage" class="nav-link" data-bs-toggle="tab">Hướng dẫn sử dụng</a>
-							</li>
-							<li class="nav-item">
-								<a href="#tab-reviews" class="nav-link" data-bs-toggle="tab">Đánh giá (86)</a>
-							</li>
-						</ul>
-					</div>
-					<div class="tab-content">
-						<!-- Description Tab -->
-						<div class="tab-pane active show" id="tab-description">
-							<h3 class="mb-3">Sơn nội thất cao cấp kháng khuẩn Dulux</h3>
-							<p>Sơn nội thất cao cấp kháng khuẩn Dulux là dòng sản phẩm sơn nước cao cấp được phát triển đặc biệt cho các không gian nội thất, với công nghệ Silver Ion tiên tiến giúp ngăn ngừa vi khuẩn, nấm mốc phát triển trên bề mặt tường, đảm bảo không gian sống luôn sạch sẽ và an toàn cho sức khỏe gia đình bạn.</p>
-
-							<h4 class="mt-4 mb-3">Tính năng nổi bật</h4>
-							<div class="row g-3 mb-4">
-								<div class="col-md-6">
-									<div class="d-flex">
-										<div class="flex-shrink-0 text-primary me-3">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-shield-check" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M9 12l2 2l4 -4"></path>
-												<path d="M12 3a12 12 0 0 0 8.5 3a12 12 0 0 1 -8.5 15a12 12 0 0 1 -8.5 -15a12 12 0 0 0 8.5 -3"></path>
-											</svg>
-										</div>
-										<div>
-											<h5 class="mb-1">Kháng khuẩn hiệu quả</h5>
-											<p class="text-muted">Công nghệ Silver Ion tiên tiến giúp ngăn ngừa vi khuẩn, nấm mốc phát triển trên bề mặt tường.</p>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="d-flex">
-										<div class="flex-shrink-0 text-primary me-3">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-wash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M3.486 8.965c.168 .02 .34 .033 .514 .035c.79 .009 1.539 -.178 2 -.5c.461 -.32 1.21 -.507 2 -.5c.79 -.007 1.539 .18 2 .5c.461 .322 1.21 .509 2 .5c.79 .009 1.539 -.178 2 -.5c.461 -.32 1.21 -.507 2 -.5c.79 -.007 1.539 .18 2 .5c.461 .322 1.21 .509 2 .5c.17 -.002 .339 -.014 .503 -.034"></path>
-												<path d="M3 6l1.721 10.329a2 2 0 0 0 1.973 1.671h10.612a2 2 0 0 0 1.973 -1.671l1.721 -10.329"></path>
-											</svg>
-										</div>
-										<div>
-											<h5 class="mb-1">Dễ dàng lau chùi</h5>
-											<p class="text-muted">Bề mặt sơn có khả năng chống bám bẩn và dễ dàng lau chùi, giữ tường luôn sạch sẽ.</p>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="d-flex">
-										<div class="flex-shrink-0 text-primary me-3">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-wind" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M5 8h8.5a2.5 2.5 0 1 0 -2.34 -3.24"></path>
-												<path d="M3 12h15.5a2.5 2.5 0 1 1 -2.34 3.24"></path>
-												<path d="M4 16h5.5a2.5 2.5 0 1 1 -2.34 3.24"></path>
-											</svg>
-										</div>
-										<div>
-											<h5 class="mb-1">Không mùi, ít VOC</h5>
-											<p class="text-muted">Công thức không mùi và ít VOC, an toàn cho sức khỏe gia đình và thân thiện với môi trường.</p>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="d-flex">
-										<div class="flex-shrink-0 text-primary me-3">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-palette" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M12 21a9 9 0 0 1 0 -18c4.97 0 9 3.582 9 8c0 1.06 -.474 2.078 -1.318 2.828c-.844 .75 -1.989 1.172 -3.182 1.172h-2.5a2 2 0 0 0 -1 3.75a1.3 1.3 0 0 1 -1 2.25"></path>
-												<path d="M8.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-												<path d="M12.5 7.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-												<path d="M16.5 10.5m-1 0a1 1 0 1 0 2 0a1 1 0 1 0 -2 0"></path>
-											</svg>
-										</div>
-										<div>
-											<h5 class="mb-1">Màu sắc bền đẹp</h5>
-											<p class="text-muted">Màu sắc bền đẹp, không phai theo thời gian, giữ không gian sống luôn tươi mới.</p>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<h4 class="mt-4 mb-3">Khu vực ứng dụng</h4>
-							<p>Sơn nội thất cao cấp kháng khuẩn Dulux phù hợp cho các khu vực:</p>
-							<ul class="mb-4">
-								<li>Phòng khách, phòng ngủ</li>
-								<li>Phòng trẻ em, phòng học</li>
-								<li>Phòng bếp, phòng ăn</li>
-								<li>Hành lang, cầu thang</li>
-								<li>Văn phòng, trường học, bệnh viện</li>
-							</ul>
-
-							<div class="row g-3 mb-4">
-								<div class="col-md-6">
-									<div class="img-responsive img-responsive-16x9 rounded" style="background-image: url('/img/placeholder.svg?text=Phòng+khách')"></div>
-								</div>
-								<div class="col-md-6">
-									<div class="img-responsive img-responsive-16x9 rounded" style="background-image: url('/img/placeholder.svg?text=Phòng+ngủ')"></div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Specifications Tab -->
-						<div class="tab-pane" id="tab-specifications">
-							<h3 class="mb-4">Thông số kỹ thuật</h3>
-							<div class="table-responsive">
-								<table class="table table-bordered">
-									<tbody>
-										<tr>
-											<td class="bg-light fw-medium" style="width: 30%">Thành phần</td>
-											<td>Nhựa acrylic, bột màu, phụ gia, nước</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Độ phủ lý thuyết</td>
-											<td>12-14 m²/lít/lớp</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Thời gian khô</td>
-											<td>Khô bề mặt: 30 phút<br>Sơn lớp kế tiếp: 2-3 giờ</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Dụng cụ</td>
-											<td>Cọ, ru-lô, súng phun sơn</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Độ bóng</td>
-											<td>Mờ (Matt)</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Hàm lượng VOC</td>
-											<td>< 30g/L (Tiêu chuẩn Green Label Singapore)</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Đóng gói</td>
-											<td>1L, 5L, 18L</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Hạn sử dụng</td>
-											<td>36 tháng kể từ ngày sản xuất</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Bảo quản</td>
-											<td>Nơi khô ráo, thoáng mát, tránh ánh nắng trực tiếp</td>
-										</tr>
-										<tr>
-											<td class="bg-light fw-medium">Chứng nhận</td>
-											<td>Singapore Green Label, ASTM D3273 (Kháng nấm mốc)</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-
-						<!-- Usage Tab -->
-						<div class="tab-pane" id="tab-usage">
-							<h3 class="mb-4">Hướng dẫn sử dụng</h3>
-
-							<div class="row g-4 mb-4">
-								<div class="col-md-6">
-									<div class="card h-100">
-										<div class="card-body">
-											<h4 class="card-title">Chuẩn bị bề mặt</h4>
-											<ol class="mb-0">
-												<li class="mb-2">Đảm bảo bề mặt khô ráo, sạch sẽ, không có bụi bẩn, dầu mỡ.</li>
-												<li class="mb-2">Đối với tường mới: Chờ tường khô hoàn toàn (28 ngày), sau đó quét 1 lớp sơn lót Dulux.</li>
-												<li class="mb-2">Đối với tường cũ: Cạo bỏ lớp sơn cũ bị bong tróc, sửa chữa các vết nứt, lỗ hổng bằng bột trét.</li>
-												<li>Đối với tường bị nấm mốc: Xử lý bằng dung dịch chống nấm mốc trước khi sơn.</li>
-											</ol>
-										</div>
-									</div>
-								</div>
-								<div class="col-md-6">
-									<div class="card h-100">
-										<div class="card-body">
-											<h4 class="card-title">Thi công sơn</h4>
-											<ol class="mb-0">
-												<li class="mb-2">Khuấy đều sơn trước khi sử dụng.</li>
-												<li class="mb-2">Pha loãng với nước sạch theo tỷ lệ: 10-15% nước (theo thể tích).</li>
-												<li class="mb-2">Sơn 2-3 lớp, mỗi lớp cách nhau 2-3 giờ.</li>
-												<li class="mb-2">Sử dụng cọ, ru-lô hoặc súng phun sơn để thi công.</li>
-												<li>Nhiệt độ thi công lý tưởng: 25-30°C, độ ẩm không khí < 80%.</li>
-											</ol>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div class="alert alert-info">
-								<div class="d-flex">
-									<div>
-										<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-info-circle" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-											<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-											<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
-											<path d="M12 9h.01"></path>
-											<path d="M11 12h1v4h1"></path>
-										</svg>
-									</div>
-									<div class="ms-2">
-										<h4 class="alert-title mb-0">Lưu ý quan trọng</h4>
-										<div class="text-muted">
-											<ul class="mb-0">
-												<li>Đảm bảo thông thoáng khi thi công và trong quá trình sơn khô.</li>
-												<li>Rửa sạch dụng cụ bằng nước sau khi sử dụng.</li>
-												<li>Đậy kín thùng sơn sau khi sử dụng và bảo quản ở nơi khô ráo, thoáng mát.</li>
-												<li>Tránh thi công khi trời mưa hoặc độ ẩm không khí cao.</li>
-											</ul>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div class="mt-4">
-								<h4 class="mb-3">Video hướng dẫn</h4>
-								<div class="ratio ratio-16x9">
-									<div class="bg-light d-flex align-items-center justify-content-center">
-										<div class="text-center">
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-player-play text-muted mb-2" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M7 4v16l13 -8z"></path>
-											</svg>
-											<p class="text-muted">Video hướng dẫn thi công sơn nội thất Dulux</p>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-
-						<!-- Reviews Tab -->
-						<div class="tab-pane" id="tab-reviews">
-							<div class="d-flex flex-column flex-md-row gap-4 mb-4">
-								<div class="text-center">
-									<div class="display-6 fw-bold text-primary mb-1">4.0</div>
-									<div class="d-flex justify-content-center mb-2">
-										@for (int i = 0; i < 5; i++)
-										{
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="@(i < 4 ? "currentColor" : "none")" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-											</svg>
-										}
-									</div>
-									<div class="text-muted small">Dựa trên 86 đánh giá</div>
-								</div>
-								<div class="flex-grow-1">
-									<div class="d-flex align-items-center mb-2">
-										<div class="text-muted small me-3" style="width: 60px;">5 sao</div>
-										<div class="flex-grow-1">
-											<div class="progress" style="height: 8px;">
-												<div class="progress-bar bg-warning" style="width: 65%"></div>
-											</div>
-										</div>
-										<div class="text-muted small ms-3" style="width: 40px;">65%</div>
-									</div>
-									<div class="d-flex align-items-center mb-2">
-										<div class="text-muted small me-3" style="width: 60px;">4 sao</div>
-										<div class="flex-grow-1">
-											<div class="progress" style="height: 8px;">
-												<div class="progress-bar bg-warning" style="width: 20%"></div>
-											</div>
-										</div>
-										<div class="text-muted small ms-3" style="width: 40px;">20%</div>
-									</div>
-									<div class="d-flex align-items-center mb-2">
-										<div class="text-muted small me-3" style="width: 60px;">3 sao</div>
-										<div class="flex-grow-1">
-											<div class="progress" style="height: 8px;">
-												<div class="progress-bar bg-warning" style="width: 10%"></div>
-											</div>
-										</div>
-										<div class="text-muted small ms-3" style="width: 40px;">10%</div>
-									</div>
-									<div class="d-flex align-items-center mb-2">
-										<div class="text-muted small me-3" style="width: 60px;">2 sao</div>
-										<div class="flex-grow-1">
-											<div class="progress" style="height: 8px;">
-												<div class="progress-bar bg-warning" style="width: 3%"></div>
-											</div>
-										</div>
-										<div class="text-muted small ms-3" style="width: 40px;">3%</div>
-									</div>
-									<div class="d-flex align-items-center">
-										<div class="text-muted small me-3" style="width: 60px;">1 sao</div>
-										<div class="flex-grow-1">
-											<div class="progress" style="height: 8px;">
-												<div class="progress-bar bg-warning" style="width: 2%"></div>
-											</div>
-										</div>
-										<div class="text-muted small ms-3" style="width: 40px;">2%</div>
-									</div>
-								</div>
-							</div>
-
-							<div class="mb-4">
-								<button class="btn btn-primary">Viết đánh giá</button>
-							</div>
-
-							<div class="border-top pt-4">
-								<h4 class="mb-4">Đánh giá từ khách hàng</h4>
-
-								@for (int i = 0; i < 3; i++)
-								{
-									<div class="card mb-3">
-										<div class="card-body">
-											<div class="d-flex justify-content-between mb-2">
-												<div class="d-flex align-items-center">
-													<div class="avatar avatar-md me-3" style="background-color: #e0f2fe;">
-														<span class="avatar-text">@("ABCNHT"[i].ToString())</span>
-													</div>
-													<div>
-														<div class="fw-medium">@(new[] { "Nguyễn Văn A", "Trần Thị B", "Hoàng Văn C" }[i])</div>
-														<div class="text-muted small">@(new[] { "15/03/2023", "02/04/2023", "18/02/2023" }[i])</div>
-													</div>
-												</div>
-												<div class="d-flex">
-													@for (int star = 0; star < 5; star++)
-													{
-														bool filled = i == 0 ? star < 5 : (i == 1 ? star < 4 : star < 3);
-														<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler text-warning" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="@(filled ? "currentColor" : "none")" stroke-linecap="round" stroke-linejoin="round">
-															<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-															<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-														</svg>
-													}
-												</div>
-											</div>
-											<h5 class="card-title">@(new[] { "Sản phẩm tuyệt vời", "Chất lượng tốt, giá hợp lý", "Khá ổn nhưng còn hạn chế" }[i])</h5>
-											<p class="card-text">
-												@(new[] {
-											"Tôi rất hài lòng với sản phẩm này. Sơn mịn, dễ thi công, mùi nhẹ và nhanh khô. Đặc biệt là tính năng kháng khuẩn rất hiệu quả, phù hợp với gia đình có trẻ nhỏ như nhà tôi. Sẽ tiếp tục ủng hộ!",
-											"Sơn có chất lượng tốt, dễ thi công và mùi không quá nồng. Độ phủ khá tốt, chỉ cần 2 lớp là đủ. Giá thành hợp lý so với chất lượng. Trừ 1 sao vì thời gian giao hàng hơi chậm.",
-											"Sơn có chất lượng ổn, dễ sử dụng. Tuy nhiên, độ phủ không được như quảng cáo, tôi phải sơn đến 3 lớp mới đạt. Mùi sơn cũng còn khá nồng dù quảng cáo là ít mùi. Cần cải thiện thêm."
-											}[i])
-											</p>
-											
-										</div>
-									</div>
-								}
-
-								<div class="text-center mt-4">
-									<button class="btn btn-outline-primary">Xem thêm đánh giá</button>
-								</div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<!-- Related Products -->
-			<div class="mt-5">
-				<h2 class="mb-4">Sản phẩm liên quan</h2>
-				<div class="row row-cards">
-					@for (int i = 0; i < 4; i++)
-					{
-						<div class="col-sm-6 col-lg-3">
-							<div class="card card-sm h-100">
-								<div class="position-relative">
-									<div class="img-responsive img-responsive-4x3 card-img-top" style="background-image: url('/img/placeholder.svg?text=Sản+phẩm+@(i+1)')"></div>
-									@if (i == 2)
-									{
-										<div class="ribbon bg-orange">Bán chạy</div>
-									}
-								</div>
-								<div class="card-body d-flex flex-column">
-									<div class="text-muted small mb-1">@(new[] { "Dulux", "Jotun", "Nippon", "Kova" }[i])</div>
-									<h3 class="card-title mb-1">
-										<a href="#" class="text-reset hover-text-primary">
-											@(new[] {
-										"Sơn ngoại thất chống thấm và chống nắng",
-										"Sơn lót chống kiềm",
-										"Sơn chống thấm đàn hồi",
-										"Bột trét tường nội thất"
-										}[i])
-										</a>
-									</h3>
-									<div class="d-flex align-items-center mb-2">
-										@for (int star = 0; star < 5; star++)
-										{
-											bool filled = star < 4;
-											<svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler @(filled ? "text-warning" : "text-muted")" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="@(filled ? "currentColor" : "none")" stroke-linecap="round" stroke-linejoin="round">
-												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-												<path d="M12 17.75l-6.172 3.245l1.179 -6.873l-5 -4.867l6.9 -1l3.086 -6.253l3.086 6.253l6.9 1l-5 4.867l1.179 6.873z"></path>
-											</svg>
-										}
-										<span class="text-muted small ms-1">(45)</span>
-									</div>
-									<div class="d-flex align-items-baseline gap-2 mb-3">
-										<span class="h4 text-primary mb-0">@(new[] { "850.000₫", "450.000₫", "750.000₫", "350.000₫" }[i])</span>
-									</div>
-									<div class="mt-auto">
-										<a href="#" class="btn btn-primary w-100">Xem chi tiết</a>
-									</div>
-								</div>
-							</div>
-						</div>
-					}
-				</div>
-			</div>
-		</div>

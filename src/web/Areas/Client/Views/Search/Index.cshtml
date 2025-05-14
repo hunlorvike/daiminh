@@ -1,0 +1,211 @@
+<div class="container-xl mt-3 mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-arrows mb-0">
+            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Kết quả tìm kiếm</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-xl mb-5">
+    <div class="page-header mb-4">
+        <h1 class="page-title">Kết quả tìm kiếm cho: "<span class="text-primary">Sơn Jotun chống thấm</span>"</h1>
+        <p class="text-muted mt-1">Tìm thấy <span class="fw-medium">15</span> kết quả phù hợp.</p>
+        <!-- Hoặc nếu không có kết quả:
+        <h1 class="page-title">Không tìm thấy kết quả cho: "<span class="text-primary">Từ khóa không có</span>"</h1>
+        <p class="text-muted mt-1">Vui lòng thử lại với từ khóa khác hoặc <a href="/lien-he">liên hệ</a> với chúng tôi để được hỗ trợ.</p>
+        -->
+    </div>
+
+    <!-- Tabs for result types (optional, if searching multiple content types) -->
+    <ul class="nav nav-tabs mb-4" id="searchResultsTabs" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="all-results-tab" data-bs-toggle="tab" data-bs-target="#all-results-content" type="button" role="tab" aria-controls="all-results-content" aria-selected="true">
+                <i class="ti ti-list-search me-2"></i>Tất cả (<span class="result-count-all">15</span>)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="product-results-tab" data-bs-toggle="tab" data-bs-target="#product-results-content" type="button" role="tab" aria-controls="product-results-content" aria-selected="false">
+                <i class="ti ti-package me-2"></i>Sản phẩm (<span class="result-count-products">10</span>)
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="news-results-tab" data-bs-toggle="tab" data-bs-target="#news-results-content" type="button" role="tab" aria-controls="news-results-content" aria-selected="false">
+                <i class="ti ti-news me-2"></i>Tin tức & Tư vấn (<span class="result-count-news">5</span>)
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="searchResultsTabsContent">
+        <!-- All Results Pane (Can just list products then news, or mix if relevance is good) -->
+        <div class="tab-pane fade show active" id="all-results-content" role="tabpanel" aria-labelledby="all-results-tab">
+            <h3 class="h4 mb-3">Sản phẩm liên quan:</h3>
+            <div class="row row-cards g-3 mb-4">
+                <!-- Product Card (copy from PLP structure) -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100">
+                        <a href="#">
+                            <img src="/img/placeholder.svg" alt="Sơn Jotun WaterGuard" class="card-img-top" style="height: 180px; object-fit: cover;">
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <span class="badge bg-orange-lt me-2 mb-1 align-self-start">Jotun</span>
+                            <h4 class="h6 card-title mb-1">
+                                <a href="#" class="text-reset">Sơn Chống Thấm Màu Jotun WaterGuard</a>
+                            </h4>
+                            <p class="text-muted small mb-2 flex-grow-1">Chống thấm hiệu quả, màu sắc đa dạng.</p>
+                            <div class="fw-bold text-primary">Liên hệ báo giá</div>
+                            <a href="#" class="btn btn-sm btn-outline-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more product cards -->
+            </div>
+
+            <h3 class="h4 mb-3">Tin tức & Tư vấn liên quan:</h3>
+            <div class="list-group list-group-flush">
+                <!-- News Item (similar to blog listing items) -->
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">Kinh nghiệm chọn sơn chống thấm Jotun cho từng hạng mục</h5>
+                        <small class="text-muted">3 ngày trước</small>
+                    </div>
+                    <p class="mb-1 text-muted">Jotun cung cấp nhiều dòng sơn chống thấm khác nhau. Bài viết này sẽ giúp bạn phân biệt và lựa chọn sản phẩm phù hợp...</p>
+                    <small class="text-primary">Đọc thêm <i class="ti ti-arrow-right"></i></small>
+                </a>
+                <!-- Add more news items -->
+            </div>
+        </div>
+
+        <!-- Product Results Pane -->
+        <div class="tab-pane fade" id="product-results-content" role="tabpanel" aria-labelledby="product-results-tab">
+            <div class="row align-items-center mb-3">
+                <div class="col">
+                     <p class="text-muted">Hiển thị 1-10 của <span class="result-count-products">10</span> sản phẩm</p>
+                </div>
+                <div class="col-auto">
+                     <select class="form-select form-select-sm">
+                        <option>Sắp xếp theo: Liên quan nhất</option>
+                        <option>Giá tăng dần</option>
+                        <option>Giá giảm dần</option>
+                    </select>
+                </div>
+            </div>
+           
+            <div class="row row-cards g-3">
+                <!-- Product Card 1 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100">
+                        <a href="#">
+                            <img src="/img/placeholder.svg" alt="Sơn Jotun WaterGuard" class="card-img-top" style="height: 180px; object-fit: cover;">
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <span class="badge bg-orange-lt me-2 mb-1 align-self-start">Jotun</span>
+                            <h4 class="h6 card-title mb-1">
+                                <a href="#" class="text-reset">Sơn Chống Thấm Màu Jotun WaterGuard</a>
+                            </h4>
+                            <p class="text-muted small mb-2 flex-grow-1">Chống thấm hiệu quả, màu sắc đa dạng.</p>
+                            <div class="fw-bold text-primary">Liên hệ báo giá</div>
+                            <a href="#" class="btn btn-sm btn-outline-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Product Card 2 -->
+                <div class="col-sm-6 col-md-4 col-lg-3">
+                    <div class="card h-100">
+                        <a href="#">
+                            <img src="/img/placeholder.svg" alt="Sơn Jotun Tough Shield" class="card-img-top" style="height: 180px; object-fit: cover;">
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <span class="badge bg-orange-lt me-2 mb-1 align-self-start">Jotun</span>
+                            <h4 class="h6 card-title mb-1">
+                                <a href="#" class="text-reset">Sơn Ngoại Thất Jotun Tough Shield Max</a>
+                            </h4>
+                            <p class="text-muted small mb-2 flex-grow-1">Bền màu, chống nấm mốc, dễ thi công.</p>
+                            <div class="fw-bold text-primary">Liên hệ báo giá</div>
+                            <a href="#" class="btn btn-sm btn-outline-primary mt-2">Xem chi tiết</a>
+                        </div>
+                    </div>
+                </div>
+                <!-- Add more product cards for search results -->
+            </div>
+            <!-- Pagination for product results -->
+            <nav aria-label="Product search pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled"><a class="page-link" href="#">Trước</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Sau</a></li>
+                </ul>
+            </nav>
+        </div>
+
+        <!-- News Results Pane -->
+        <div class="tab-pane fade" id="news-results-content" role="tabpanel" aria-labelledby="news-results-tab">
+             <div class="row align-items-center mb-3">
+                <div class="col">
+                     <p class="text-muted">Hiển thị 1-5 của <span class="result-count-news">5</span> bài viết</p>
+                </div>
+            </div>
+            <div class="list-group list-group-flush">
+                <!-- News Item 1 -->
+                <a href="#" class="list-group-item list-group-item-action px-0 py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 mb-2 mb-md-0">
+                            <img src="/img/placeholder.svg" alt="Kinh nghiệm chống thấm" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">Kinh nghiệm chọn sơn chống thấm Jotun cho từng hạng mục</h5>
+                                <small class="text-muted">3 ngày trước</small>
+                            </div>
+                            <p class="mb-1 text-muted">Jotun cung cấp nhiều dòng sơn chống thấm khác nhau. Bài viết này sẽ giúp bạn phân biệt và lựa chọn sản phẩm phù hợp với nhu cầu cụ thể của công trình, từ tường đứng, sàn mái, cho đến khu vực ẩm ướt như nhà vệ sinh...</p>
+                            <small class="text-primary">Đọc thêm <i class="ti ti-arrow-right"></i></small>
+                        </div>
+                    </div>
+                </a>
+                 <!-- News Item 2 -->
+                <a href="#" class="list-group-item list-group-item-action px-0 py-3">
+                    <div class="row align-items-center">
+                        <div class="col-md-3 mb-2 mb-md-0">
+                            <img src="/img/placeholder.svg" alt="Sơn Jotun" class="img-fluid rounded">
+                        </div>
+                        <div class="col-md-9">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h5 class="mb-1">So sánh các dòng sơn ngoại thất Jotun: Nên chọn loại nào?</h5>
+                                <small class="text-muted">1 tuần trước</small>
+                            </div>
+                            <p class="mb-1 text-muted">JotunGuard, Jotashield,... mỗi dòng sơn ngoại thất của Jotun đều có những ưu điểm riêng. So sánh chi tiết để bạn có lựa chọn tốt nhất.</p>
+                            <small class="text-primary">Đọc thêm <i class="ti ti-arrow-right"></i></small>
+                        </div>
+                    </div>
+                </a>
+                <!-- Add more news items for search results -->
+            </div>
+            <!-- Pagination for news results -->
+             <nav aria-label="News search pagination" class="mt-4">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+
+    <!-- No results found message (alternative to the one in page-header) -->
+    <!--
+    <div class="empty mt-5" style="display: none;">
+        <div class="empty-icon">
+            <i class="ti ti-mood-empty" style="font-size: 3rem;"></i>
+        </div>
+        <p class="empty-title">Không tìm thấy kết quả nào</p>
+        <p class="empty-subtitle text-muted">
+            Chúng tôi không tìm thấy kết quả nào phù hợp với từ khóa "<span class="text-primary">Từ khóa không có</span>".<br>
+            Vui lòng thử lại với từ khóa khác, kiểm tra lỗi chính tả hoặc duyệt qua các <a href="/san-pham">danh mục sản phẩm</a> của chúng tôi.
+        </p>
+        <div class="empty-action">
+            <a href="/" class="btn btn-primary">
+                <i class="ti ti-arrow-left me-2"></i>Về trang chủ
+            </a>
+        </div>
+    </div>
+    -->
+</div>
