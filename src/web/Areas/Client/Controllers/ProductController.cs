@@ -29,4 +29,8 @@ public class ProductController : Controller
     {
         return View();
     }
+
+    public IActionResult Compare(){
+        return View();
+    }
 }

@@ -1,0 +1,190 @@
+@{
+    ViewData["Title"] = "So sánh sản phẩm - Sơn Đại Minh";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+        new("Trang chủ", "/"),
+        new("So sánh sản phẩm", "")
+    };
+     // Simulate Product Data for Comparison
+     var productsToCompare = 3; // Number of columns (products)
+}
+
+<div class="container-xl mt-3 mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-arrows mb-0">
+            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">So sánh sản phẩm</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-xl mb-5">
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="ti ti-columns me-2"></i>So sánh sản phẩm
+        </h1>
+    </div>
+
+    @* Simulate Empty State *@
+     @*
+     <div class="card card-body">
+         <div class="empty">
+            <div class="empty-icon">
+                <i class="ti ti-list-details text-muted" style="font-size: 3rem;"></i>
+            </div>
+            <p class="empty-title">Chưa có sản phẩm để so sánh</p>
+            <p class="empty-subtitle text-muted">
+                Vui lòng thêm ít nhất 2 sản phẩm vào danh sách so sánh từ trang chi tiết sản phẩm hoặc danh sách sản phẩm.
+            </p>
+            <div class="empty-action">
+                <a href="/san-pham" class="btn btn-primary">
+                    <i class="ti ti-package me-2"></i>Khám phá sản phẩm
+                </a>
+            </div>
+        </div>
+     </div>
+     *@
+
+    @* Simulate Comparison Table *@
+     <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-bordered table-vcenter mb-0">
+                    <thead>
+                        <tr>
+                            <th class="text-center" style="width: 200px;">@* Attribute Column Header *@</th>
+                            @* Simulate Product Columns *@
+                            <th class="text-center" style="width: calc(80% / @productsToCompare);">
+                                @* Product 1 Header *@
+                                <div class="d-flex justify-content-end mb-2">
+                                    <button type="button" class="btn btn-icon btn-link text-danger" title="Xóa khỏi so sánh">
+                                        <i class="ti ti-x fs-3"></i>
+                                    </button>
+                                </div>
+                                 <a href="/san-pham/san-pham-1" class="text-reset">
+                                    <img src="/img/placeholder.svg" alt="Sản phẩm 1" class="mb-2 rounded" style="width: 100%; max-height: 150px; object-fit: cover;">
+                                 </a>
+                                <h3 class="h5 mb-2"><a href="/san-pham/san-pham-1" class="text-reset">Sơn nội thất Dulux EasyClean</a></h3>
+                                <span class="badge bg-blue-lt">Dulux</span>
+                            </th>
+                             <th class="text-center" style="width: calc(80% / @productsToCompare);">
+                                @* Product 2 Header *@
+                                <div class="d-flex justify-content-end mb-2">
+                                    <button type="button" class="btn btn-icon btn-link text-danger" title="Xóa khỏi so sánh">
+                                        <i class="ti ti-x fs-3"></i>
+                                    </button>
+                                </div>
+                                <a href="/san-pham/san-pham-2" class="text-reset">
+                                    <img src="/img/placeholder.svg" alt="Sản phẩm 2" class="mb-2 rounded" style="width: 100%; max-height: 150px; object-fit: cover;">
+                                </a>
+                                <h3 class="h5 mb-2"><a href="/san-pham/san-pham-2" class="text-reset">Sơn Jotun Majestic Đẹp Hoàn Hảo</a></h3>
+                                <span class="badge bg-orange-lt">Jotun</span>
+                            </th>
+                            @if (productsToCompare > 2) {
+                                 <th class="text-center" style="width: calc(80% / @productsToCompare);">
+                                    @* Product 3 Header *@
+                                    <div class="d-flex justify-content-end mb-2">
+                                        <button type="button" class="btn btn-icon btn-link text-danger" title="Xóa khỏi so sánh">
+                                            <i class="ti ti-x fs-3"></i>
+                                        </button>
+                                    </div>
+                                    <a href="/san-pham/san-pham-3" class="text-reset">
+                                        <img src="/img/placeholder.svg" alt="Sản phẩm 3" class="mb-2 rounded" style="width: 100%; max-height: 150px; object-fit: cover;">
+                                    </a>
+                                    <h3 class="h5 mb-2"><a href="/san-pham/san-pham-3" class="text-reset">Chống thấm Sika Topseal 107</a></h3>
+                                    <span class="badge bg-green-lt">Sika</span>
+                                </th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @* Simulate Price Row *@
+                        <tr>
+                            <th scope="row" class="fw-bold">Giá</th>
+                             @* Price for Product 1 *@
+                            <td class="text-center fw-bold text-primary">650.000₫</td>
+                             @* Price for Product 2 *@
+                            <td class="text-center fw-bold text-primary">850.000₫</td>
+                            @if (productsToCompare > 2) {
+                                @* Price for Product 3 *@
+                                <td class="text-center fw-bold text-primary">420.000₫</td>
+                            }
+                        </tr>
+                         @* Simulate Rating Row *@
+                        <tr>
+                            <th scope="row" class="fw-bold">Đánh giá</th>
+                             @* Rating for Product 1 *@
+                            <td class="text-center text-warning small">
+                                <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-half-filled"></i><i class="ti ti-star"></i> (28)
+                            </td>
+                             @* Rating for Product 2 *@
+                            <td class="text-center text-warning small">
+                                <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i> (42)
+                            </td>
+                            @if (productsToCompare > 2) {
+                                @* Rating for Product 3 *@
+                                <td class="text-center text-warning small">
+                                    <i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-filled"></i><i class="ti ti-star-half-filled"></i><i class="ti ti-star"></i> (36)
+                                </td>
+                            }
+                        </tr>
+                         @* Simulate Finish Type Row *@
+                        <tr>
+                            <th scope="row" class="fw-bold">Bề mặt hoàn thiện</th>
+                             @* Finish Type for Product 1 *@
+                            <td class="text-center">Bóng mờ</td>
+                             @* Finish Type for Product 2 *@
+                            <td class="text-center">Bóng</td>
+                            @if (productsToCompare > 2) {
+                                @* Finish Type for Product 3 (N/A or different attribute) *@
+                                <td class="text-center text-muted">- Không áp dụng -</td>
+                            }
+                        </tr>
+                         @* Simulate Features Row *@
+                         <tr>
+                            <th scope="row" class="fw-bold">Tính năng nổi bật</th>
+                             @* Features for Product 1 *@
+                            <td>Lau chùi vượt trội, chống nấm mốc</td>
+                             @* Features for Product 2 *@
+                            <td>Bền màu, chống bám bẩn, kháng khuẩn</td>
+                            @if (productsToCompare > 2) {
+                                @* Features for Product 3 *@
+                                <td class="text-center">Chống thấm đàn hồi</td>
+                            }
+                        </tr>
+                        @* Add more attribute rows *@
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td>@* Empty cell *@</td>
+                             @* Action Buttons for Product 1 *@
+                            <td class="text-center">
+                                 @* Choose one based on product type (simple/variant) *@
+                                 <button class="btn btn-primary w-100 mb-2"><i class="ti ti-shopping-cart me-1"></i>Thêm vào giỏ</button>
+                                 @* <a href="/san-pham/san-pham-1" class="btn btn-primary w-100 mb-2"><i class="ti ti-eye me-1"></i>Xem chi tiết</a> *@
+                                 <a href="/yeu-cau-bao-gia?sp=san-pham-1" class="btn btn-outline-primary w-100 btn-sm"><i class="ti ti-file-invoice me-1"></i>Báo giá</a>
+                            </td>
+                             @* Action Buttons for Product 2 *@
+                            <td class="text-center">
+                                 @* Choose one *@
+                                <button class="btn btn-primary w-100 mb-2"><i class="ti ti-shopping-cart me-1"></i>Thêm vào giỏ</button>
+                                @* <a href="/san-pham/san-pham-2" class="btn btn-primary w-100 mb-2"><i class="ti ti-eye me-1"></i>Xem chi tiết</a> *@
+                                <a href="/yeu-cau-bao-gia?sp=san-pham-2" class="btn btn-outline-primary w-100 btn-sm"><i class="ti ti-file-invoice me-1"></i>Báo giá</a>
+                            </td>
+                            @if (productsToCompare > 2) {
+                                 @* Action Buttons for Product 3 *@
+                                <td class="text-center">
+                                     @* Choose one *@
+                                     <button class="btn btn-primary w-100 mb-2"><i class="ti ti-shopping-cart me-1"></i>Thêm vào giỏ</button>
+                                     @* <a href="/san-pham/san-pham-3" class="btn btn-primary w-100 mb-2"><i class="ti ti-eye me-1"></i>Xem chi tiết</a> *@
+                                    <a href="/yeu-cau-bao-gia?sp=san-pham-3" class="btn btn-outline-primary w-100 btn-sm"><i class="ti ti-file-invoice me-1"></i>Báo giá</a>
+                                </td>
+                            }
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+     </div>
+
+
+</div>

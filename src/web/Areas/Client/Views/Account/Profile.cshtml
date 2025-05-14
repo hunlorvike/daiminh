@@ -1,0 +1,112 @@
+@{
+    ViewData["Title"] = "Thông tin cá nhân - Sơn Đại Minh";
+    // Simulate Active Menu Item
+    var activeMenuItem = "profile";
+}
+
+<div class="container-xl mt-3 mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-arrows mb-0">
+            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="/tai-khoan" class="text-reset">Tài khoản</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Thông tin cá nhân</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-xl mb-5">
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="ti ti-user me-2"></i>Thông tin cá nhân
+        </h1>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Navigation (Same as Dashboard) -->
+        <div class="col-lg-3">
+            <div class="card sticky-lg-top" style="top: 80px;">
+                <div class="list-group list-group-flush">
+                    <a href="/tai-khoan" class="list-group-item list-group-item-action @(activeMenuItem == "dashboard" ? "active" : "")">
+                        <i class="ti ti-dashboard me-2"></i>Tổng quan
+                    </a>
+                    <a href="/tai-khoan/thong-tin-ca-nhan" class="list-group-item list-group-item-action @(activeMenuItem == "profile" ? "active" : "")">
+                        <i class="ti ti-user me-2"></i>Thông tin cá nhân
+                    </a>
+                     <a href="/tai-khoan/don-hang" class="list-group-item list-group-item-action @(activeMenuItem == "orders" ? "active" : "")">
+                        <i class="ti ti-list-check me-2"></i>Lịch sử đơn hàng
+                    </a>
+                     <a href="/tai-khoan/so-dia-chi" class="list-group-item list-group-item-action @(activeMenuItem == "addresses" ? "active" : "")">
+                        <i class="ti ti-map-pin me-2"></i>Sổ địa chỉ
+                    </a>
+                     <a href="/tai-khoan/san-pham-yeu-thich" class="list-group-item list-group-item-action @(activeMenuItem == "wishlist" ? "active" : "")">
+                        <i class="ti ti-heart me-2"></i>Sản phẩm yêu thích
+                    </a>
+                     <a href="/tai-khoan/doi-mat-khau" class="list-group-item list-group-item-action @(activeMenuItem == "change-password" ? "active" : "")">
+                        <i class="ti ti-lock me-2"></i>Đổi mật khẩu
+                    </a>
+                     <a href="/tai-khoan/dang-xuat" class="list-group-item list-group-item-action text-danger">
+                        <i class="ti ti-logout me-2"></i>Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card mb-4">
+                <div class="card-header"><h3 class="card-title"><i class="ti ti-info-circle me-2 text-primary"></i>Cập nhật thông tin cá nhân</h3></div>
+                <div class="card-body">
+                     <form action="/tai-khoan/thong-tin-ca-nhan" method="post">
+                         @* Simulate Anti-forgery token *@
+                        <input type="hidden" name="__RequestVerificationToken" value="SIMULATED_CSRF_TOKEN_VALUE">
+
+                         <div class="mb-3">
+                             <label for="profileFullName" class="form-label required">Họ và tên</label>
+                             <input type="text" class="form-control" id="profileFullName" value="Nguyễn Văn A">
+                         </div>
+                         <div class="mb-3">
+                             <label for="profileEmail" class="form-label required">Email</label>
+                             @* Email might not be editable or require re-authentication *@
+                             <input type="email" class="form-control" id="profileEmail" value="nguyenvana@example.com" readonly>
+                             <small class="form-hint">Email thường không thể thay đổi hoặc cần xác minh lại.</small>
+                         </div>
+                         <div class="mb-3">
+                             <label for="profilePhone" class="form-label">Số điện thoại</label>
+                             <input type="tel" class="form-control" id="profilePhone" value="0912 345 678">
+                         </div>
+                         <div class="form-footer">
+                             <button type="submit" class="btn btn-primary"><i class="ti ti-device-floppy me-2"></i>Lưu thay đổi</button>
+                         </div>
+                     </form>
+                </div>
+            </div>
+
+             <div class="card">
+                <div class="card-header"><h3 class="card-title"><i class="ti ti-lock me-2 text-primary"></i>Đổi mật khẩu</h3></div>
+                <div class="card-body">
+                     <form action="/tai-khoan/doi-mat-khau" method="post">
+                         @* Simulate Anti-forgery token *@
+                        <input type="hidden" name="__RequestVerificationToken" value="SIMULATED_CSRF_TOKEN_VALUE">
+
+                         <div class="mb-3">
+                             <label for="currentPassword" class="form-label required">Mật khẩu hiện tại</label>
+                             <input type="password" class="form-control" id="currentPassword">
+                         </div>
+                          <div class="mb-3">
+                             <label for="newPassword" class="form-label required">Mật khẩu mới</label>
+                             <input type="password" class="form-control" id="newPassword">
+                         </div>
+                         <div class="mb-3">
+                             <label for="confirmNewPassword" class="form-label required">Xác nhận mật khẩu mới</label>
+                             <input type="password" class="form-control" id="confirmNewPassword">
+                         </div>
+                         <div class="form-footer">
+                              <button type="submit" class="btn btn-primary"><i class="ti ti-lock-open me-2"></i>Đổi mật khẩu</button>
+                         </div>
+                     </form>
+                </div>
+             </div>
+
+        </div>
+    </div>
+</div>

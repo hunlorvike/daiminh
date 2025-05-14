@@ -1,0 +1,153 @@
+@{
+    ViewData["Title"] = "Lịch sử đơn hàng - Sơn Đại Minh";
+    var activeMenuItem = "orders";
+}
+
+<div class="container-xl mt-3 mb-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-arrows mb-0">
+            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="/tai-khoan" class="text-reset">Tài khoản</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Lịch sử đơn hàng</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container-xl mb-5">
+    <div class="page-header mb-4">
+        <h1 class="page-title">
+            <i class="ti ti-list-check me-2"></i>Lịch sử đơn hàng
+        </h1>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Navigation (Same as Dashboard) -->
+        <div class="col-lg-3">
+            <div class="card sticky-lg-top" style="top: 80px;">
+                <div class="list-group list-group-flush">
+                    <a href="/tai-khoan" class="list-group-item list-group-item-action @(activeMenuItem == "dashboard" ? "active" : "")">
+                        <i class="ti ti-dashboard me-2"></i>Tổng quan
+                    </a>
+                    <a href="/tai-khoan/thong-tin-ca-nhan" class="list-group-item list-group-item-action @(activeMenuItem == "profile" ? "active" : "")">
+                        <i class="ti ti-user me-2"></i>Thông tin cá nhân
+                    </a>
+                     <a href="/tai-khoan/don-hang" class="list-group-item list-group-item-action @(activeMenuItem == "orders" ? "active" : "")">
+                        <i class="ti ti-list-check me-2"></i>Lịch sử đơn hàng
+                    </a>
+                     <a href="/tai-khoan/so-dia-chi" class="list-group-item list-group-item-action @(activeMenuItem == "addresses" ? "active" : "")">
+                        <i class="ti ti-map-pin me-2"></i>Sổ địa chỉ
+                    </a>
+                     <a href="/tai-khoan/san-pham-yeu-thich" class="list-group-item list-group-item-action @(activeMenuItem == "wishlist" ? "active" : "")">
+                        <i class="ti ti-heart me-2"></i>Sản phẩm yêu thích
+                    </a>
+                     <a href="/tai-khoan/doi-mat-khau" class="list-group-item list-group-item-action @(activeMenuItem == "change-password" ? "active" : "")">
+                        <i class="ti ti-lock me-2"></i>Đổi mật khẩu
+                    </a>
+                     <a href="/tai-khoan/dang-xuat" class="list-group-item list-group-item-action text-danger">
+                        <i class="ti ti-logout me-2"></i>Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="card-title mb-0">Danh sách đơn hàng</h3>
+                         @* Optional Filter/Sort *@
+                        @*
+                         <div class="col-auto ms-auto d-print-none">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3 d-none d-sm-block">
+                                    <select class="form-select form-select-sm">
+                                        <option value="newest">Mới nhất</option>
+                                        <option value="oldest">Cũ nhất</option>
+                                        <option value="status">Theo trạng thái</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        *@
+                    </div>
+
+
+                    <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                                <tr>
+                                    <th>Mã đơn hàng</th>
+                                    <th>Ngày đặt</th>
+                                    <th>Tổng tiền</th>
+                                    <th>Trạng thái</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @* Simulate Order 1 *@
+                                <tr>
+                                    <td>#DMVN123456789</td>
+                                    <td class="text-muted">25/07/2024</td>
+                                    <td class="fw-medium text-primary">1.745.000₫</td>
+                                    <td>
+                                        <span class="badge bg-orange-lt">Đang xử lý</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="/tai-khoan/don-hang/DMVN123456789" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                                    </td>
+                                </tr>
+                                @* Simulate Order 2 *@
+                                 <tr>
+                                    <td>#DMVN123456788</td>
+                                    <td class="text-muted">20/07/2024</td>
+                                    <td class="fw-medium text-primary">2.500.000₫</td>
+                                    <td>
+                                        <span class="badge bg-green-lt">Đã giao hàng</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="/tai-khoan/don-hang/DMVN123456788" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                                    </td>
+                                </tr>
+                                 @* Simulate Order 3 *@
+                                 <tr>
+                                    <td>#DMVN123456787</td>
+                                    <td class="text-muted">18/07/2024</td>
+                                    <td class="fw-medium text-primary">850.000₫</td>
+                                    <td>
+                                        <span class="badge bg-red-lt">Đã hủy</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="/tai-khoan/don-hang/DMVN123456787" class="btn btn-sm btn-outline-primary">Xem chi tiết</a>
+                                    </td>
+                                </tr>
+                                @* Add more rows for other orders *@
+                            </tbody>
+                        </table>
+                    </div>
+
+                    @* Pagination *@
+                    <div class="mt-4">
+                        <nav aria-label="Order History navigation">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                        <i class="ti ti-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">
+                                        <i class="ti ti-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
