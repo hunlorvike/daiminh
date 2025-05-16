@@ -139,7 +139,7 @@
                                 var categorySlug = categoryName.ToLower().Replace(" ", "-");
                                 
                                 <div class="tab-pane @(isActive ? "active show" : "")" id="@categorySlug" role="tabpanel">
-                                    <h3 class="card-title mb-4">
+                                    <h3 class="card-title mb-3">
  										@Html.Raw(GetCategoryIcon(categoryName))
                                          <span class="ms-2">@categoryName</span>
                                     </h3>

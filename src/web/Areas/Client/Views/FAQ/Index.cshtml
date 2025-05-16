@@ -8,141 +8,85 @@
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
         new("Câu hỏi thường gặp", "")
     };
-}   
-
-@section Styles {
-    <style>
-        .transition-all {
-            transition: all 0.3s ease;
-        }
-    </style>
 }
 
-<div class="container-xl py-5">
-    <div class="page-header d-print-none mb-4">
-        <div class="row align-items-center">
-            <div class="col">
-                <h1 class="page-title text-primary">
-                    <i class="ti ti-help-circle me-2"></i>
-                    Câu Hỏi Thường Gặp
-                </h1>
-                <p class="text-muted mt-2">Tìm câu trả lời cho những thắc mắc phổ biến về sản phẩm và dịch vụ của chúng tôi</p>
+@if (!Model.Categories.Any())
+{
+    <div class="card card-body">
+        <div class="empty">
+            <div class="empty-img">
+                <i class="ti ti-info-circle text-azure" style="font-size: 3rem;"></i>
             </div>
-            <div class="col-auto ms-auto">
-                <div class="btn-list">
-                    <a asp-area="Client" asp-controller="Contact" asp-action="Index" class="btn btn-outline-primary d-none d-sm-inline-block">
-                        <i class="ti ti-message-circle me-2"></i>
-                        Liên hệ hỗ trợ
-                    </a>
-                </div>
-            </div>
+            <p class="empty-title">Chưa có câu hỏi thường gặp</p>
+            <p class="empty-subtitle text-muted">
+                Chúng tôi đang cập nhật danh sách câu hỏi thường gặp. Vui lòng quay lại sau.
+            </p>
         </div>
     </div>
+}
+else
+{
+    <section class="card mb-3">
+        <div class="card-body">
+            @foreach (var category in Model.Categories)
+            {
+                @if (Model.Categories.Count > 1 || !string.IsNullOrEmpty(category.CategoryName) && category.CategoryName != "Câu hỏi chung") 
+                {
+                    <div class="d-flex align-items-center mb-3">
+                        <span class="avatar bg-primary-subtle text-primary me-3">
+                            <i class="ti ti-category"></i>
+                        </span>
+                        <h2 class="h3 mb-0">@category.CategoryName</h2>
+                    </div>
+                    @if (!string.IsNullOrEmpty(category.CategoryDescription))
+                    {
+                        <p class="text-muted mb-3 ps-5">@category.CategoryDescription</p>
+                    }
+                }
 
-    @if (!Model.Categories.Any())
-    {
-        <div class="card card-body">
-            <div class="empty">
-                <div class="empty-img">
-                    <i class="ti ti-info-circle text-azure" style="font-size: 3rem;"></i>
-                </div>
-                <p class="empty-title">Chưa có câu hỏi thường gặp</p>
-                <p class="empty-subtitle text-muted">
-                    Chúng tôi đang cập nhật danh sách câu hỏi thường gặp. Vui lòng quay lại sau.
-                </p>
-            </div>
-        </div>
-    }
-    else
-    {
-        <div class="row g-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="row g-4">
-                            @foreach (var category in Model.Categories)
-                            {
-                                <div class="col-12 mb-4">
-                                    @if (Model.Categories.Count > 1 || !string.IsNullOrEmpty(category.CategoryName) && category.CategoryName != "Câu hỏi chung") 
-                                    {
-                                        <div class="d-flex align-items-center mb-3">
-                                            <span class="avatar bg-primary-subtle text-primary me-3">
-                                                <i class="ti ti-category"></i>
-                                            </span>
-                                            <h2 class="h3 mb-0">@category.CategoryName</h2>
-                                        </div>
-                                        @if (!string.IsNullOrEmpty(category.CategoryDescription))
-                                        {
-                                            <p class="text-muted mb-4 ps-5">@category.CategoryDescription</p>
-                                        }
-                                    }
+                @if (!category.Faqs.Any())
+                {
+                    <div class="alert alert-info bg-info-subtle border-info-subtle text-info">
+                        <div class="d-flex">
+                            <div>
+                                <i class="ti ti-info-circle alert-icon me-2"></i>
+                            </div>
+                            <div>
+                                Không có câu hỏi nào trong mục này.
+                            </div>
+                        </div>
+                    </div>
+                    continue;
+                }
 
-                                    @if (!category.Faqs.Any())
-                                    {
-                                        <div class="alert alert-info bg-info-subtle border-info-subtle text-info">
-                                            <div class="d-flex">
-                                                <div>
-                                                    <i class="ti ti-info-circle alert-icon me-2"></i>
-                                                </div>
-                                                <div>
-                                                    Không có câu hỏi nào trong mục này.
-                                                </div>
-                                            </div>
-                                        </div>
-                                        continue;
-                                    }
+                <div class="accordion" id="faqAccordion_@category.GetHashCode()">
+                    @foreach (var faqItem in category.Faqs)
+                    {
+                        var collapseId = $"collapse_{faqItem.GetHashCode()}";
+                        var headingId = $"heading_{faqItem.GetHashCode()}";
 
-                                    <div class="accordion" id="faqAccordion_@category.GetHashCode()">
-                                        @foreach (var faqItem in category.Faqs)
-                                        {
-                                            var collapseId = $"collapse_{faqItem.GetHashCode()}";
-                                            var headingId = $"heading_{faqItem.GetHashCode()}";
-
-                                            <div class="accordion-item">
-                                                <h2 class="accordion-header" id="@headingId">
-                                                    <button class="accordion-button collapsed fw-medium" type="button" data-bs-toggle="collapse"
-                                                            data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
-                                                        <i class="ti ti-question-mark text-primary me-2"></i>
-                                                        @faqItem.Question
-                                                    </button>
-                                                </h2>
-                                                <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId"
-                                                    data-bs-parent="#faqAccordion_@category.GetHashCode()">
-                                                    <div class="accordion-body pt-0">
-                                                        <div class="text-muted border-start ps-3 border-3 border-primary">
-                                                            @Html.Raw(faqItem.Answer)
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        }
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="@headingId">
+                                <button class="accordion-button collapsed fw-medium" type="button" data-bs-toggle="collapse"
+                                        data-bs-target="#@collapseId" aria-expanded="false" aria-controls="@collapseId">
+                                    <i class="ti ti-question-mark text-primary me-2"></i>
+                                    @faqItem.Question
+                                </button>
+                            </h2>
+                            <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId"
+                                data-bs-parent="#faqAccordion_@category.GetHashCode()">
+                                <div class="accordion-body pt-0">
+                                    <div class="text-muted border-start ps-3 border-3 border-primary">
+                                        @Html.Raw(faqItem.Answer)
                                     </div>
                                 </div>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-12 mt-4">
-                <div class="card bg-primary-subtle">
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <h3 class="card-title mb-1">Không tìm thấy câu trả lời bạn cần?</h3>
-                                <p class="text-muted">Liên hệ với chúng tôi để được hỗ trợ trực tiếp</p>
-                            </div>
-                            <div class="col-auto">
-                                <a asp-area="Client" asp-controller="Contact" asp-action="Index" class="btn btn-primary">
-                                    <i class="ti ti-mail me-2"></i>
-                                    Gửi yêu cầu hỗ trợ
-                                </a>
                             </div>
                         </div>
-                    </div>
+                    }
                 </div>
-            </div>
+            }
         </div>
-    }
-</div>
+    </section>
 
+    <partial name="Components/CTA" />
+}

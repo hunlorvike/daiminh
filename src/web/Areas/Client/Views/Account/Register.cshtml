@@ -4,7 +4,7 @@
 }
 
 <div class="container-tight py-4">
-    <div class="text-center mb-4">
+    <div class="text-center mb-3">
          <a asp-controller="Home" asp-action="Index" class="navbar-brand navbar-brand-autodark d-flex align-items-center text-decoration-none justify-content-center">
             <span class="bg-primary rounded-3 p-2 p-sm-3 me-3">
                 <i class="ti ti-paint text-white fs-2"></i>
@@ -18,7 +18,7 @@
     <div class="card card-md">
         <div class="card-status-top bg-primary"></div>
         <div class="card-body">
-            <h2 class="h2 text-center mb-4">Tạo tài khoản mới</h2>
+            <h2 class="h2 text-center mb-3">Tạo tài khoản mới</h2>
             <form action="/tai-khoan/dang-ky" method="post" autocomplete="off">
                  @* Simulate Anti-forgery token *@
                 <input type="hidden" name="__RequestVerificationToken" value="SIMULATED_CSRF_TOKEN_VALUE">

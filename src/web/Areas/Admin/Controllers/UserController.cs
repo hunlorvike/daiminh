@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using System.Text.Json;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -13,6 +11,8 @@ using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
+using System.Security.Claims;
+using System.Text.Json;
 using web.Areas.Admin.Validators.User;
 using web.Areas.Admin.ViewModels.User;
 using X.PagedList;

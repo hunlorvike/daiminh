@@ -1,386 +1,97 @@
-<div class="container-xl mt-3 mb-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb breadcrumb-arrows mb-0">
-            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="/san-pham" class="text-reset">Sản phẩm</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Sơn Nội Thất</li>
-        </ol>
-    </nav>
-</div>
-
-<div class="container-xl mb-5">
-    <div class="page-header mb-4">
-        <div class="row align-items-center">
-            <div class="col">
-                <h1 class="page-title">Sơn Nội Thất</h1>
-                <div class="text-muted mt-1">Tìm thấy 125 sản phẩm</div>
-            </div>
-            <div class="col-auto ms-auto d-print-none">
-                <div class="d-flex align-items-center">
-                    <div class="me-3 d-none d-sm-block">
-						<select class="form-select form-select-sm" style="min-width: 180px;">
-							<option value="default">Mặc định</option>
-							<option value="price_asc">Giá: Tăng dần</option>
-							<option value="price_desc">Giá: Giảm dần</option>
-							<option value="newest">Mới nhất</option>
-							<option value="bestselling">Bán chạy</option>
-						</select>
-                    </div>
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-sm btn-outline-secondary active" title="Xem dạng lưới">
-                            <i class="ti ti-layout-grid"></i>
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary" title="Xem dạng danh sách">
-                            <i class="ti ti-list"></i>
-                        </button>
-                    </div>
+@{
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> { new("Sản phẩm", "/product"), new("Sơn Nội Thất", "") };
+}
+<section class="mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">Sơn Nội Thất</h1>
+            <div class="text-muted mt-1">Tìm thấy 125 sản phẩm</div>
+        </div>
+        <div class="col-auto ms-auto d-print-none">
+            <div class="d-flex align-items-center">
+                <div class="me-3 d-none d-sm-block">
+                    <select class="form-select" style="min-width: 180px;">
+                        <option value="default">Mặc định</option>
+                        <option value="price_asc">Giá: Tăng dần</option>
+                        <option value="price_desc">Giá: Giảm dần</option>
+                        <option value="newest">Mới nhất</option>
+                        <option value="bestselling">Bán chạy</option>
+                    </select>
                 </div>
+                <div class="btn-group"> <button type="button" class="btn btn-outline-secondary active" title="Xem dạng lưới"> <i class="ti ti-layout-grid"></i> </button> <button type="button" class="btn btn-outline-secondary" title="Xem dạng danh sách"> <i class="ti ti-list"></i> </button> </div>
             </div>
         </div>
     </div>
-
-    <div class="row g-4">
-        <!-- Sidebar Filters -->
-        <div class="col-lg-3">
-            <div class="card sticky-lg-top" style="top: 80px;"> <!-- Offset for sticky header -->
-                <div class="card-header">
-                    <h3 class="card-title"><i class="ti ti-filter me-2"></i>Bộ lọc sản phẩm</h3>
-                </div>
-                <div class="card-body">
-                    <!-- Filter by Brand -->
-                    <div class="mb-4">
-                        <h4 class="mb-3 h5">Thương hiệu</h4>
-                        <div class="form-selectgroup form-selectgroup-pills">
-                             <label class="form-selectgroup-item">
-                                <input type="checkbox" name="brand" value="Jotun" class="form-selectgroup-input">
-                                <span class="form-selectgroup-label">Jotun</span>
-                            </label>
-                            <label class="form-selectgroup-item">
-                                <input type="checkbox" name="brand" value="Dulux" class="form-selectgroup-input" checked>
-                                <span class="form-selectgroup-label">Dulux</span>
-                            </label>
-                             <label class="form-selectgroup-item">
-                                <input type="checkbox" name="brand" value="Kova" class="form-selectgroup-input">
-                                <span class="form-selectgroup-label">Kova</span>
-                            </label>
-                            <label class="form-selectgroup-item">
-                                <input type="checkbox" name="brand" value="Nippon" class="form-selectgroup-input">
-                                <span class="form-selectgroup-label">Nippon</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Filter by Paint Type -->
-                    <div class="mb-4">
-                        <h4 class="mb-3 h5">Loại sơn</h4>
-                        <div>
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" value="son-lot">
-                                <span class="form-check-label">Sơn lót</span>
-                            </label>
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" value="son-phu" checked>
-                                <span class="form-check-label">Sơn phủ</span>
-                            </label>
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" value="son-chong-kiem">
-                                <span class="form-check-label">Sơn chống kiềm</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Filter by Feature -->
-                    <div class="mb-4">
-                        <h4 class="mb-3 h5">Tính năng</h4>
-                         <div>
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" value="chong-nam-moc">
-                                <span class="form-check-label">Chống nấm mốc</span>
-                            </label>
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" value="lau-chui">
-                                <span class="form-check-label">Lau chùi hiệu quả</span>
-                            </label>
-                            <label class="form-check">
-                                <input class="form-check-input" type="checkbox" value="bong">
-                                <span class="form-check-label">Bề mặt bóng</span>
-                            </label>
-                             <label class="form-check">
-                                <input class="form-check-input" type="checkbox" value="mo">
-                                <span class="form-check-label">Bề mặt mờ</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <!-- Filter by Price Range -->
-                    <div class="mb-4">
-                        <h4 class="mb-3 h5">Khoảng giá</h4>
-                        <div class="row g-2 align-items-center">
-                            <div class="col">
-                                <input type="number" class="form-control form-control-sm" placeholder="Từ">
-                            </div>
-                            <div class="col-auto">-</div>
-                            <div class="col">
-                                <input type="number" class="form-control form-control-sm" placeholder="Đến">
-                            </div>
-                        </div>
-                         <div class="mt-2">
-                            <label class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="price_range" value="0-500000">
-                                <span class="form-check-label">Dưới 500K</span>
-                            </label>
-                            <label class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="price_range" value="500000-1000000">
-                                <span class="form-check-label">500K - 1TR</span>
-                            </label>
-                             <label class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="price_range" value="1000000-2000000">
-                                <span class="form-check-label">1TR - 2TR</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <!-- Filter by Volume -->
-                    <div class="mb-4">
-                        <h4 class="mb-3 h5">Dung tích</h4>
-                        <div class="form-selectgroup form-selectgroup-pills">
-                             <label class="form-selectgroup-item">
-                                <input type="checkbox" name="volume" value="1L" class="form-selectgroup-input">
-                                <span class="form-selectgroup-label">1L</span>
-                            </label>
-                            <label class="form-selectgroup-item">
-                                <input type="checkbox" name="volume" value="5L" class="form-selectgroup-input" checked>
-                                <span class="form-selectgroup-label">5L</span>
-                            </label>
-                             <label class="form-selectgroup-item">
-                                <input type="checkbox" name="volume" value="15L" class="form-selectgroup-input">
-                                <span class="form-selectgroup-label">15L</span>
-                            </label>
-                            <label class="form-selectgroup-item">
-                                <input type="checkbox" name="volume" value="18L" class="form-selectgroup-input">
-                                <span class="form-selectgroup-label">18L</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="mt-4 d-grid gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="ti ti-check me-2"></i>Áp dụng bộ lọc
-                        </button>
-                        <button type="reset" class="btn btn-outline-secondary">
-                            <i class="ti ti-reload me-2"></i>Xóa bộ lọc
-                        </button>
-                    </div>
-                </div>
-            </div>
+</section>
+<section class="row">
+    <div class="card col-lg-3 mb-md-3">
+        <div class="card-header">
+            <h3 class="card-title"><i class="ti ti-filter me-2"></i>Bộ lọc sản phẩm</h3>
         </div>
-
-        <!-- Product Grid -->
-        <div class="col-lg-9">
-            <div class="row row-cards g-3">
-                <!-- Product Card 1 -->
-                <div class="col-sm-6 col-md-4">
-                    <div class="card h-100">
-                        <div class="card-img-top position-relative">
-                             <a href="/san-pham/son-noi-that-dulux-easyclean-lau-chui-vuot-troi">
-                                <img src="/img/placeholder.svg" alt="Sơn nội thất Dulux EasyClean Lau chùi vượt trội" class="w-100" style="height: 220px; object-fit: cover;">
-                            </a>
-                            <span class="badge bg-red position-absolute top-0 end-0 m-2">-10%</span>
-                            <button class="btn btn-icon btn-light rounded-circle position-absolute top-0 start-0 m-2" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-blue-lt me-2">Dulux</span>
-                                <div class="text-warning small">
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-half-filled"></i>
-                                    <span class="text-muted ms-1">(28)</span>
-                                </div>
-                            </div>
-                            <h3 class="h5 mb-1">
-                                <a href="/san-pham/son-noi-that-dulux-easyclean-lau-chui-vuot-troi" class="text-reset text-decoration-none stretched-link-pseudo">Sơn nội thất Dulux EasyClean Lau chùi vượt trội - 5L</a>
-                            </h3>
-                            <p class="text-muted small mb-2 flex-grow-1">Màng sơn bóng mờ, chống bám bẩn, dễ lau chùi.</p>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div>
-                                    <div class="fw-bold h5 mb-0">650.000₫</div>
-                                    <div class="text-muted text-decoration-line-through small">720.000₫</div>
-                                </div>
-                                <div class="fs-6 text-muted">5L / Thùng</div>
-                            </div>
-                             <div class="d-flex gap-2 mt-auto">
-                                <a href="/yeu-cau-bao-gia?sp=dulux-easyclean-5l" class="btn btn-outline-primary w-100">
-                                    <i class="ti ti-file-invoice me-1"></i>Báo giá
-                                </a>
-                                <a href="/san-pham/son-noi-that-dulux-easyclean-lau-chui-vuot-troi" class="btn btn-primary">
-                                    <i class="ti ti-eye me-1"></i>Xem
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Product Card 2 -->
-                 <div class="col-sm-6 col-md-4">
-                    <div class="card h-100">
-                        <div class="card-img-top position-relative">
-                            <a href="/san-pham/son-noi-that-jotun-majestic-dep-hoan-hao-bong">
-                                <img src="/img/placeholder.svg" alt="Sơn Jotun Majestic Đẹp Hoàn Hảo (Bóng)" class="w-100" style="height: 220px; object-fit: cover;">
-                            </a>
-                            <span class="badge bg-green position-absolute top-0 end-0 m-2">Mới</span>
-                            <button class="btn btn-icon btn-light rounded-circle position-absolute top-0 start-0 m-2" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-orange-lt me-2">Jotun</span>
-                                 <div class="text-warning small">
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <span class="text-muted ms-1">(42)</span>
-                                </div>
-                            </div>
-                            <h3 class="h5 mb-1">
-                                <a href="/san-pham/son-noi-that-jotun-majestic-dep-hoan-hao-bong" class="text-reset text-decoration-none stretched-link-pseudo">Sơn Jotun Majestic Đẹp Hoàn Hảo (Bóng) - 15L</a>
-                            </h3>
-                            <p class="text-muted small mb-2 flex-grow-1">Bề mặt bóng sang trọng, màu sắc rực rỡ, bền màu.</p>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div>
-                                    <div class="fw-bold h5 mb-0">2.150.000₫</div>
-                                </div>
-                                 <div class="fs-6 text-muted">15L / Thùng</div>
-                            </div>
-                            <div class="d-flex gap-2 mt-auto">
-                                <a href="/yeu-cau-bao-gia?sp=jotun-majestic-15l" class="btn btn-outline-primary w-100">
-                                    <i class="ti ti-file-invoice me-1"></i>Báo giá
-                                </a>
-                                <a href="/san-pham/son-noi-that-jotun-majestic-dep-hoan-hao-bong" class="btn btn-primary">
-                                    <i class="ti ti-eye me-1"></i>Xem
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Add more product cards as needed (6-9 per page) -->
-                <div class="col-sm-6 col-md-4">
-                    <div class="card h-100">
-                         <div class="card-img-top position-relative">
-                            <a href="#">
-                                <img src="/img/placeholder.svg" alt="Sản phẩm mẫu 3" class="w-100" style="height: 220px; object-fit: cover;">
-                            </a>
-                             <button class="btn btn-icon btn-light rounded-circle position-absolute top-0 start-0 m-2" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                         <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-purple-lt me-2">Kova</span>
-                                 <div class="text-warning small">
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star"></i>
-                                    <i class="ti ti-star"></i>
-                                    <span class="text-muted ms-1">(15)</span>
-                                </div>
-                            </div>
-                            <h3 class="h5 mb-1">
-                                <a href="#" class="text-reset text-decoration-none stretched-link-pseudo">Sơn nội thất Kova K260 Siêu bóng - 4Kg</a>
-                            </h3>
-                            <p class="text-muted small mb-2 flex-grow-1">Độ phủ cao, siêu bóng, chống rêu mốc.</p>
-                           <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div>
-                                    <div class="fw-bold h5 mb-0">480.000₫</div>
-                                </div>
-                                 <div class="fs-6 text-muted">4Kg / Lon</div>
-                            </div>
-                            <div class="d-flex gap-2 mt-auto">
-                                <a href="#" class="btn btn-outline-primary w-100">
-                                    <i class="ti ti-file-invoice me-1"></i>Báo giá
-                                </a>
-                                <a href="#" class="btn btn-primary">
-                                    <i class="ti ti-eye me-1"></i>Xem
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                 <!-- Product Card 4 -->
-                <div class="col-sm-6 col-md-4">
-                    <div class="card h-100">
-                        <div class="card-img-top position-relative">
-                             <a href="#">
-                                <img src="/img/placeholder.svg" alt="Sản phẩm mẫu 4" class="w-100" style="height: 220px; object-fit: cover;">
-                            </a>
-                            <button class="btn btn-icon btn-light rounded-circle position-absolute top-0 start-0 m-2" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-blue-lt me-2">Dulux</span>
-                                 <div class="text-warning small">
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-filled"></i>
-                                    <i class="ti ti-star-half-filled"></i>
-                                    <span class="text-muted ms-1">(33)</span>
-                                </div>
-                            </div>
-                            <h3 class="h5 mb-1">
-                                <a href="#" class="text-reset text-decoration-none stretched-link-pseudo">Sơn lót nội thất Dulux A934 - 18L</a>
-                            </h3>
-                            <p class="text-muted small mb-2 flex-grow-1">Kháng kiềm, tạo độ bám dính cho lớp sơn phủ.</p>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div>
-                                    <div class="fw-bold h5 mb-0">1.350.000₫</div>
-                                </div>
-                                <div class="fs-6 text-muted">18L / Thùng</div>
-                            </div>
-                             <div class="d-flex gap-2 mt-auto">
-                                <a href="#" class="btn btn-outline-primary w-100">
-                                    <i class="ti ti-file-invoice me-1"></i>Báo giá
-                                </a>
-                                <a href="#" class="btn btn-primary">
-                                    <i class="ti ti-eye me-1"></i>Xem
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        <div class="card-body">
+            <div class="mb-3">
+                <h4 class="h5">Thương hiệu</h4>
+                <div class="form-selectgroup form-selectgroup-pills gap-2"> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Jotun" class="form-selectgroup-input"> <span class="form-selectgroup-label">Jotun</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Dulux" class="form-selectgroup-input" checked> <span class="form-selectgroup-label">Dulux</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Kova" class="form-selectgroup-input"> <span class="form-selectgroup-label">Kova</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Nippon" class="form-selectgroup-input"> <span class="form-selectgroup-label">Nippon</span> </label> </div>
             </div>
-
-            <!-- Pagination -->
-            <div class="mt-4">
-                <nav aria-label="Page navigation">
-                    <ul class="pagination justify-content-center">
-                        <li class="page-item disabled">
-                            <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
-                                <i class="ti ti-chevron-left"></i>
-                            </a>
-                        </li>
-                        <li class="page-item active" aria-current="page"><a class="page-link" href="#">1</a></li>
-                        <li class="page-item"><a class="page-link" href="#">2</a></li>
-                        <li class="page-item"><a class="page-link" href="#">3</a></li>
-                        <li class="page-item">
-                            <a class="page-link" href="#">
-                                <i class="ti ti-chevron-right"></i>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
+            <div class="mb-3">
+                <h4 class="h5">Loại sơn</h4>
+                <div> <label class="form-check"> <input class="form-check-input" type="checkbox" value="son-lot"> <span class="form-check-label">Sơn lót</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="son-phu" checked> <span class="form-check-label">Sơn phủ</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="son-chong-kiem"> <span class="form-check-label">Sơn chống kiềm</span> </label> </div>
             </div>
+            <div class="mb-3">
+                <h4 class="h5">Tính năng</h4>
+                <div> <label class="form-check"> <input class="form-check-input" type="checkbox" value="chong-nam-moc"> <span class="form-check-label">Chống nấm mốc</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="lau-chui"> <span class="form-check-label">Lau chùi hiệu quả</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="bong"> <span class="form-check-label">Bề mặt bóng</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="mo"> <span class="form-check-label">Bề mặt mờ</span> </label> </div>
+            </div>
+            <div class="mb-3">
+                <h4 class="h5">Khoảng giá</h4>
+                <div class="row g-2 align-items-center">
+                    <div class="col"> <input type="number" class="form-control" placeholder="Từ"> </div>
+                    <div class="col-auto">-</div>
+                    <div class="col"> <input type="number" class="form-control" placeholder="Đến"> </div>
+                </div>
+                <div class="mt-2"> <label class="form-check form-check-inline"> <input class="form-check-input" type="radio" name="price_range" value="0-500000"> <span class="form-check-label">Dưới 500K</span> </label> <label class="form-check form-check-inline"> <input class="form-check-input" type="radio" name="price_range" value="500000-1000000"> <span class="form-check-label">500K - 1TR</span> </label> <label class="form-check form-check-inline"> <input class="form-check-input" type="radio" name="price_range" value="1000000-2000000"> <span class="form-check-label">1TR - 2TR</span> </label> </div>
+            </div>
+            <div class="mb-3">
+                <h4 class="h5">Dung tích</h4>
+                <div class="form-selectgroup form-selectgroup-pills gap-2"> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="1L" class="form-selectgroup-input"> <span class="form-selectgroup-label">1L</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="5L" class="form-selectgroup-input" checked> <span class="form-selectgroup-label">5L</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="15L" class="form-selectgroup-input"> <span class="form-selectgroup-label">15L</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="18L" class="form-selectgroup-input"> <span class="form-selectgroup-label">18L</span> </label> </div>
+            </div>
+            <div class="d-grid gap-2"> <button type="submit" class="btn btn-primary"> <i class="ti ti-check me-2"></i>Áp dụng bộ lọc </button> <button type="reset" class="btn btn-outline-secondary"> <i class="ti ti-reload me-2"></i>Xóa bộ lọc </button> </div>
         </div>
     </div>
-</div>
+    <div class="col-lg-9">
+        <div class="row row-cards g-3">
+            @for (int i = 0; i < 9; i++)
+            {
+                <div class="col-6 col-md-4">
+                    <div class="card card-sm h-100">
+                        <div class="ribbon ribbon-top ribbon-start bg-green"> Mới </div> <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="d-block"> <img src="/img/placeholder.svg" alt="Sơn nước nội thất Jotun Majestic" class="card-img-top" style="height: 200px; object-fit: cover;" /> </a>
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-blue-lt me-2">Jotun</span>
+                                <div class="ms-auto text-warning"> <i class="ti ti-star-filled"></i> <span class="text-muted ms-1">5.0 (42)</span> </div>
+                            </div>
+                            <h3 class="h5 mb-1"> <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="text-reset">Sơn nước nội thất Jotun Majestic</a> </h3>
+                            <p class="text-muted small mb-3">Sơn nội thất cao cấp, kháng khuẩn, chống bám bẩn</p>
+                            <div class="mt-auto">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="h5 mb-0 text-primary">850.000₫</div>
+                                </div>
+                                <div class="d-flex gap-2"> <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="btn btn-primary w-100"> <i class="ti ti-shopping-cart me-1"></i>Mua ngay </a> <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích"> <i class="ti ti-heart"></i> </button> </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        <div class="mt-3">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled"> <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="ti ti-chevron-left"></i></a> </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"> <a class="page-link" href="#"><i class="ti ti-chevron-right"></i></a> </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</section>

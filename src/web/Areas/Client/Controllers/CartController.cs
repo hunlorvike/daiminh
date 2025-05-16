@@ -14,9 +14,4 @@ public class CartController : Controller
     {
         return View();
     }
-
-    public IActionResult Orderconfirmation()
-    {
-        return View();
-    }
 }

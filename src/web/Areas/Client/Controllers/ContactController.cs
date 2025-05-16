@@ -1,6 +1,4 @@
-using System.Text.Json;
 using AutoMapper;
-using CommunityToolkit.HighPerformance.Helpers;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -8,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
+using System.Text.Json;
 using web.Areas.Client.Validators.Contact;
 using web.Areas.Client.ViewModels.Contact;
 
@@ -39,7 +38,8 @@ public partial class ContactController : Controller
         return View(viewModel);
     }
 
-    public IActionResult Quote(){
+    public IActionResult Quote()
+    {
         return View();
     }
 

@@ -1,182 +1,187 @@
-<div class="container-xl mt-3 mb-4">
-    <nav aria-label="breadcrumb">
-        <ol class="breadcrumb breadcrumb-arrows mb-0">
-            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
-            <li class="breadcrumb-item"><a href="/tin-tuc" class="text-reset">Tin tức & Tư vấn</a></li>
-            <li class="breadcrumb-item"><a href="/tin-tuc/danh-muc/tu-van-chon-son" class="text-reset">Tư vấn chọn sơn</a></li>
-            <li class="breadcrumb-item active" aria-current="page">Cách chọn sơn ngoại thất bền đẹp...</li>
-        </ol>
-    </nav>
-</div>
+@{
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> { new("Tin tức & Tư vấn", "/bai-viet"),
+new("Tư vấn chọn sơn", "/danh-muc/tu-van-chon-son"), new("Cách chọn sơn ngoại thất bền đẹp..", "") };
+}
 
-<div class="container-xl mb-5">
-    <div class="row g-4">
-        <!-- Main Content: Article -->
-        <div class="col-lg-8">
-            <div class="card">
-                <div class="card-body">
-                    <!-- Article Header -->
-                    <div class="mb-4">
-                        <h1 class="card-title h2">Cách chọn sơn ngoại thất bền đẹp, chống phai màu cho ngôi nhà của bạn</h1>
-                        <div class="d-flex align-items-center text-muted mt-2">
-                            <span class="me-3"><i class="ti ti-calendar me-1"></i>20/07/2024</span>
-                            <span class="me-3"><i class="ti ti-user-circle me-1"></i>Bởi: Đại Minh Admin</span>
-                            <a href="/tin-tuc/danh-muc/tu-van-chon-son" class="text-reset"><i class="ti ti-category me-1"></i>Tư vấn chọn sơn</a>
+<section class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-body">
+                <div class="mb-3">
+                    <h1 class="card-title h2">Cách chọn sơn ngoại thất bền đẹp, chống phai màu cho ngôi nhà của bạn</h1>
+                    <div class="d-flex align-items-center text-muted mt-2">
+                        <span class="me-3"><i class="ti ti-calendar me-1"></i>20/07/2024</span>
+                        <span class="me-3"><i class="ti ti-user-circle me-1"></i>Bởi: Đại Minh Admin</span>
+                        <a href="/tin-tuc/danh-muc/tu-van-chon-son" class="text-reset"><i
+                                class="ti ti-category me-1"></i>Tư vấn chọn sơn</a>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <img src="/img/placeholder.svg" alt="Cách chọn sơn ngoại thất" class="img-fluid rounded w-100"
+                        style="max-height: 450px; object-fit: cover;" />
+                </div>
+
+                <div class="markdown">
+                    <p class="lead">
+                        Sơn ngoại thất không chỉ đóng vai trò thẩm mỹ, khoác lên ngôi nhà một chiếc áo mới mà còn là lớp
+                        bảo vệ quan trọng, giúp công trình chống chọi lại các tác động khắc nghiệt của thời tiết như
+                        nắng, mưa, ẩm mốc, rong
+                        rêu. Việc lựa chọn đúng loại sơn ngoại thất sẽ đảm bảo độ bền màu, tuổi thọ cho công trình và vẻ
+                        đẹp dài lâu.
+                    </p>
+
+                    <h2>1. Các yếu tố cần quan tâm khi chọn sơn ngoại thất</h2>
+                    <h3>a. Khả năng chống thấm và chống ẩm mốc</h3>
+                    <p>
+                        Đây là yếu tố hàng đầu bởi Việt Nam có khí hậu nóng ẩm, mưa nhiều. Sơn ngoại thất cần có khả
+                        năng chống thấm tốt để ngăn nước mưa ngấm vào tường, gây ẩm mốc, loang lổ, làm giảm tuổi thọ
+                        công trình. Các sản phẩm sơn
+                        có công nghệ chống thấm tiên tiến, tạo màng co giãn sẽ là lựa chọn tối ưu.
+                    </p>
+
+                    <h3>b. Độ bền màu và khả năng chống tia UV</h3>
+                    <p>
+                        Ánh nắng mặt trời chứa tia UV là nguyên nhân chính gây phai màu sơn. Hãy chọn những dòng sơn có
+                        khả năng chống tia UV cao, được bổ sung các hạt màu đặc biệt giúp màu sắc luôn tươi mới, không
+                        bị bay màu sau thời gian
+                        dài sử dụng.
+                    </p>
+                    <figure class="figure text-center my-3">
+                        <img src="/img/placeholder.svg" class="figure-img img-fluid rounded"
+                            alt="Minh họa khả năng chống tia UV" style="max-width: 80%;" />
+                        <figcaption class="figure-caption">Sơn chất lượng cao giúp chống lại tác động của tia UV hiệu
+                            quả.</figcaption>
+                    </figure>
+
+                    <h3>c. Khả năng chống bám bụi và dễ lau chùi</h3>
+                    <p>Môi trường đô thị thường có nhiều khói bụi. Sơn ngoại thất có bề mặt trơn láng, khả năng tự làm
+                        sạch hoặc dễ lau chùi sẽ giúp ngôi nhà luôn sạch sẽ, sáng bóng.</p>
+
+                    <h3>d. Thương hiệu uy tín và chất lượng đảm bảo</h3>
+                    <p>Ưu tiên lựa chọn sản phẩm từ các thương hiệu lớn, có uy tín trên thị trường như Jotun, Dulux,
+                        Kova, Nippon. Các thương hiệu này thường có quy trình kiểm định chất lượng nghiêm ngặt và chính
+                        sách bảo hành tốt.</p>
+
+                    <h2>2. Gợi ý một số dòng sơn ngoại thất chất lượng</h2>
+                    <ul>
+                        <li><strong>Jotun Jotashield Bền Màu Tối Ưu:</strong> Khả năng chống phai màu vượt trội, chống
+                            thấm, chống rong rêu, nấm mốc.</li>
+                        <li><strong>Dulux Weathershield Powerflexx:</strong> Màng sơn co giãn gấp 6 lần, che phủ vết
+                            nứt, chống thấm tuyệt đối.</li>
+                        <li><strong>Kova CT-04T Chống thấm tường đứng:</strong> Chuyên dụng cho chống thấm, độ bền cao.
+                        </li>
+                    </ul>
+
+                    <h2>3. Lưu ý khi thi công sơn ngoại thất</h2>
+                    <p>Để lớp sơn ngoại thất đạt hiệu quả tối đa, cần tuân thủ quy trình thi công chuẩn:</p>
+                    <ol>
+                        <li>Chuẩn bị bề mặt kỹ lưỡng: Vệ sinh sạch sẽ, xử lý các vết nứt, đảm bảo bề mặt khô ráo.</li>
+                        <li>Sử dụng sơn lót kháng kiềm: Giúp tăng độ bám dính, bảo vệ lớp sơn phủ.</li>
+                        <li>Thi công đủ số lớp sơn phủ (thường là 2 lớp).</li>
+                        <li>Chọn thời điểm thi công phù hợp, tránh ngày mưa hoặc nắng gắt.</li>
+                    </ol>
+                    <p>Hy vọng những thông tin trên sẽ giúp bạn lựa chọn được loại sơn ngoại thất phù hợp nhất cho ngôi
+                        nhà của mình. Nếu cần tư vấn chi tiết, đừng ngần ngại liên hệ với Sơn Đại Minh nhé!</p>
+                </div>
+
+                <div class="mt-5 pt-4 border-top">
+                    <div class="row align-items-center">
+                        <div class="col-md-7">
+                            <strong class="me-2">Tags:</strong>
+                            <a href="#" class="badge bg-secondary-lt">Sơn ngoại thất</a>
+                            <a href="#" class="badge bg-secondary-lt">Jotun</a>
+                            <a href="#" class="badge bg-secondary-lt">Dulux</a>
+                            <a href="#" class="badge bg-secondary-lt">Bền màu</a>
+                            <a href="#" class="badge bg-secondary-lt">Chống thấm</a>
                         </div>
-                    </div>
-
-                    <!-- Optional: Featured Image -->
-                    <div class="mb-4">
-                        <img src="/img/placeholder.svg" alt="Cách chọn sơn ngoại thất" class="img-fluid rounded w-100" style="max-height: 450px; object-fit: cover;">
-                    </div>
-                    
-                    <!-- Article Content (Markdown rendered) -->
-                    <div class="markdown">
-                        <p class="lead">Sơn ngoại thất không chỉ đóng vai trò thẩm mỹ, khoác lên ngôi nhà một chiếc áo mới mà còn là lớp bảo vệ quan trọng, giúp công trình chống chọi lại các tác động khắc nghiệt của thời tiết như nắng, mưa, ẩm mốc, rong rêu. Việc lựa chọn đúng loại sơn ngoại thất sẽ đảm bảo độ bền màu, tuổi thọ cho công trình và vẻ đẹp dài lâu.</p>
-                        
-                        <h2>1. Các yếu tố cần quan tâm khi chọn sơn ngoại thất</h2>
-                        <h3>a. Khả năng chống thấm và chống ẩm mốc</h3>
-                        <p>Đây là yếu tố hàng đầu bởi Việt Nam có khí hậu nóng ẩm, mưa nhiều. Sơn ngoại thất cần có khả năng chống thấm tốt để ngăn nước mưa ngấm vào tường, gây ẩm mốc, loang lổ, làm giảm tuổi thọ công trình. Các sản phẩm sơn có công nghệ chống thấm tiên tiến, tạo màng co giãn sẽ là lựa chọn tối ưu.</p>
-                        
-                        <h3>b. Độ bền màu và khả năng chống tia UV</h3>
-                        <p>Ánh nắng mặt trời chứa tia UV là nguyên nhân chính gây phai màu sơn. Hãy chọn những dòng sơn có khả năng chống tia UV cao, được bổ sung các hạt màu đặc biệt giúp màu sắc luôn tươi mới, không bị bay màu sau thời gian dài sử dụng.</p>
-                        <figure class="figure text-center my-3">
-                            <img src="/img/placeholder.svg" class="figure-img img-fluid rounded" alt="Minh họa khả năng chống tia UV" style="max-width: 80%;">
-                            <figcaption class="figure-caption">Sơn chất lượng cao giúp chống lại tác động của tia UV hiệu quả.</figcaption>
-                        </figure>
-
-                        <h3>c. Khả năng chống bám bụi và dễ lau chùi</h3>
-                        <p>Môi trường đô thị thường có nhiều khói bụi. Sơn ngoại thất có bề mặt trơn láng, khả năng tự làm sạch hoặc dễ lau chùi sẽ giúp ngôi nhà luôn sạch sẽ, sáng bóng.</p>
-
-                        <h3>d. Thương hiệu uy tín và chất lượng đảm bảo</h3>
-                        <p>Ưu tiên lựa chọn sản phẩm từ các thương hiệu lớn, có uy tín trên thị trường như Jotun, Dulux, Kova, Nippon. Các thương hiệu này thường có quy trình kiểm định chất lượng nghiêm ngặt và chính sách bảo hành tốt.</p>
-                        
-                        <h2>2. Gợi ý một số dòng sơn ngoại thất chất lượng</h2>
-                        <ul>
-                            <li><strong>Jotun Jotashield Bền Màu Tối Ưu:</strong> Khả năng chống phai màu vượt trội, chống thấm, chống rong rêu, nấm mốc.</li>
-                            <li><strong>Dulux Weathershield Powerflexx:</strong> Màng sơn co giãn gấp 6 lần, che phủ vết nứt, chống thấm tuyệt đối.</li>
-                            <li><strong>Kova CT-04T Chống thấm tường đứng:</strong> Chuyên dụng cho chống thấm, độ bền cao.</li>
-                        </ul>
-                        
-                        <h2>3. Lưu ý khi thi công sơn ngoại thất</h2>
-                        <p>Để lớp sơn ngoại thất đạt hiệu quả tối đa, cần tuân thủ quy trình thi công chuẩn:</p>
-                        <ol>
-                            <li>Chuẩn bị bề mặt kỹ lưỡng: Vệ sinh sạch sẽ, xử lý các vết nứt, đảm bảo bề mặt khô ráo.</li>
-                            <li>Sử dụng sơn lót kháng kiềm: Giúp tăng độ bám dính, bảo vệ lớp sơn phủ.</li>
-                            <li>Thi công đủ số lớp sơn phủ (thường là 2 lớp).</li>
-                            <li>Chọn thời điểm thi công phù hợp, tránh ngày mưa hoặc nắng gắt.</li>
-                        </ol>
-                        <p>Hy vọng những thông tin trên sẽ giúp bạn lựa chọn được loại sơn ngoại thất phù hợp nhất cho ngôi nhà của mình. Nếu cần tư vấn chi tiết, đừng ngần ngại liên hệ với Sơn Đại Minh nhé!</p>
-                    </div>
-
-                    <!-- Article Footer: Tags & Share -->
-                    <div class="mt-5 pt-4 border-top">
-                        <div class="row align-items-center">
-                            <div class="col-md-7">
-                                <strong class="me-2">Tags:</strong>
-                                <a href="#" class="badge bg-secondary-lt">Sơn ngoại thất</a>
-                                <a href="#" class="badge bg-secondary-lt">Jotun</a>
-                                <a href="#" class="badge bg-secondary-lt">Dulux</a>
-                                <a href="#" class="badge bg-secondary-lt">Bền màu</a>
-                                <a href="#" class="badge bg-secondary-lt">Chống thấm</a>
-                            </div>
-                            <div class="col-md-5 text-md-end mt-3 mt-md-0">
-                                <strong class="me-2">Chia sẻ bài viết:</strong>
-                                <a href="#" class="btn btn-icon btn-sm btn-facebook" title="Facebook"><i class="ti ti-brand-facebook"></i></a>
-                                <a href="#" class="btn btn-icon btn-sm btn-twitter" title="Twitter"><i class="ti ti-brand-twitter"></i></a>
-                                <a href="#" class="btn btn-icon btn-sm btn-linkedin" title="LinkedIn"><i class="ti ti-brand-linkedin"></i></a>
-                                <button type="button" class="btn btn-icon btn-sm btn-light" title="Copy link"><i class="ti ti-link"></i></button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Optional: Author Box -->
-                    <div class="card mt-4 bg-light-subtle">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <span class="avatar avatar-lg me-3 rounded-circle" style="background-image: url(/img/placeholder.svg)"></span>
-                                <div>
-                                    <h4 class="m-0"><a href="#" class="text-reset">Đại Minh Admin</a></h4>
-                                    <p class="text-muted small mb-0">Chuyên gia tư vấn sơn tại Sơn Đại Minh</p>
-                                    <div class="mt-1">
-                                        <a href="#" class="text-reset me-2"><i class="ti ti-mail"></i> Email</a>
-                                        <a href="#" class="text-reset"><i class="ti ti-world-www"></i> Website</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Comments Section (e.g., Facebook Comments Plugin or custom) -->
-                    <div class="mt-5" id="comments-section">
-                        <h3 class="mb-3">Bình luận</h3>
-                        <!-- Placeholder for Facebook comments plugin -->
-                        <div class="bg-light p-3 rounded text-center">
-                            <p class="m-0">Khu vực hiển thị bình luận (ví dụ: Facebook Comments).</p>
-                            <p class="small text-muted">Để tích hợp, bạn cần thêm mã SDK của Facebook tại đây.</p>
+                        <div class="col-md-5 text-md-end mt-3 mt-md-0">
+                            <strong class="me-2">Chia sẻ bài viết:</strong>
+                            <a href="#" class="btn btn-icon btn-sm btn-facebook" title="Facebook"><i
+                                    class="ti ti-brand-facebook"></i></a>
+                            <a href="#" class="btn btn-icon btn-sm btn-twitter" title="Twitter"><i
+                                    class="ti ti-brand-twitter"></i></a>
+                            <a href="#" class="btn btn-icon btn-sm btn-linkedin" title="LinkedIn"><i
+                                    class="ti ti-brand-linkedin"></i></a>
+                            <button type="button" class="btn btn-icon btn-sm btn-light" title="Copy link"><i
+                                    class="ti ti-link"></i></button>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
-        <!-- Sidebar (Same as BlogList sidebar, potentially with "Related Posts" instead of "Recent") -->
-        <div class="col-lg-4">
-            <div class="sticky-lg-top" style="top: 80px;">
-                <!-- Search Widget -->
-                 <div class="card mb-4">
+                <div class="card mt-3 bg-light-subtle">
                     <div class="card-body">
-                         <div class="input-icon">
-                            <input type="text" class="form-control" placeholder="Tìm kiếm bài viết...">
-                            <span class="input-icon-addon">
-                                <i class="ti ti-search"></i>
-                            </span>
+                        <div class="d-flex align-items-center">
+                            <span class="avatar avatar-lg me-3 rounded-circle"
+                                style="background-image: url(/img/placeholder.svg);"></span>
+                            <div>
+                                <h4 class="m-0"><a href="#" class="text-reset">Đại Minh Admin</a></h4>
+                                <p class="text-muted small mb-0">Chuyên gia tư vấn sơn tại Sơn Đại Minh</p>
+                                <div class="mt-1">
+                                    <a href="#" class="text-reset me-2"><i class="ti ti-mail"></i> Email</a>
+                                    <a href="#" class="text-reset"><i class="ti ti-world-www"></i> Website</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                <!-- Categories Widget -->
-                <div class="card mb-4">
-                    <div class="card-header"><h3 class="card-title"><i class="ti ti-category me-2"></i>Danh mục</h3></div>
-                    <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item list-group-item-action">Tư vấn chọn sơn</a>
-                        <a href="#" class="list-group-item list-group-item-action">Kinh nghiệm thi công</a>
-                    </div>
-                </div>
-                <!-- Related Posts Widget (or Recent) -->
-                <div class="card mb-4">
-                    <div class="card-header"><h3 class="card-title"><i class="ti ti-article me-2"></i>Bài viết liên quan</h3></div>
-                     <div class="list-group list-group-flush">
-                        <a href="#" class="list-group-item list-group-item-action">
-                            <div class="d-flex">
-                                <img src="/img/placeholder.svg" alt="Bài viết liên quan 1" class="avatar me-3 rounded">
-                                <div>
-                                    <div class="fw-medium">Top 5 màu sơn ngoại thất được ưa chuộng 2024</div>
-                                    <div class="text-muted small">18/07/2024</div>
-                                </div>
-                            </div>
-                        </a>
-                         <a href="#" class="list-group-item list-group-item-action">
-                             <div class="d-flex">
-                                <img src="/img/placeholder.svg" alt="Bài viết liên quan 2" class="avatar me-3 rounded">
-                                <div>
-                                    <div class="fw-medium">Bí quyết giữ màu sơn ngoại thất luôn mới</div>
-                                    <div class="text-muted small">12/07/2024</div>
-                                </div>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-                 <!-- Tags Widget -->
-                <div class="card">
-                    <div class="card-header"><h3 class="card-title"><i class="ti ti-tags me-2"></i>Tags</h3></div>
-                    <div class="card-body">
-                        <div class="d-flex flex-wrap gap-2">
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Sơn ngoại thất</a>
-                            <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Chống thấm</a>
-                        </div>
+
+                <div class="mt-5" id="comments-section">
+                    <h3 class="mb-3">Bình luận</h3>
+                    <div class="bg-light p-3 rounded text-center">
+                        <p class="m-0">Khu vực hiển thị bình luận (ví dụ: Facebook Comments).</p>
+                        <p class="small text-muted">Để tích hợp, bạn cần thêm mã SDK của Facebook tại đây.</p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+    <div class="col-lg-4 position-sticky align-self-start" style="top: 140px;">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-category me-2"></i>Danh mục</h3>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action">Tư vấn chọn sơn</a>
+                <a href="#" class="list-group-item list-group-item-action">Kinh nghiệm thi công</a>
+            </div>
+        </div>
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-article me-2"></i>Bài viết liên quan</h3>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex">
+                        <img src="/img/placeholder.svg" alt="Bài viết liên quan 1" class="avatar me-3 rounded" />
+                        <div>
+                            <div class="fw-medium">Top 5 màu sơn ngoại thất được ưa chuộng 2024</div>
+                            <div class="text-muted small">18/07/2024</div>
+                        </div>
+                    </div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex">
+                        <img src="/img/placeholder.svg" alt="Bài viết liên quan 2" class="avatar me-3 rounded" />
+                        <div>
+                            <div class="fw-medium">Bí quyết giữ màu sơn ngoại thất luôn mới</div>
+                            <div class="text-muted small">12/07/2024</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-tags me-2"></i>Tags</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Sơn ngoại thất</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Chống thấm</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

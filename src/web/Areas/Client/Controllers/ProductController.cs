@@ -14,23 +14,4 @@ public class ProductController : Controller
     {
         return View();
     }
-
-    public IActionResult ListByCategory(string categorySlug)
-    {
-        return View();
-    }
-
-    public IActionResult ListByTag(string tagSlug)
-    {
-        return View();
-    }
-
-    public IActionResult ListByBrand(string brandSlug)
-    {
-        return View();
-    }
-
-    public IActionResult Compare(){
-        return View();
-    }
 }

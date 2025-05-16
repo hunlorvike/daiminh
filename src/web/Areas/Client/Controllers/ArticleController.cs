@@ -14,14 +14,4 @@ public class ArticleController : Controller
     {
         return View();
     }
-
-    public IActionResult ListByCategory(string categorySlug)
-    {
-        return View();
-    }
-
-    public IActionResult ListByTag(string tagSlug)
-    {
-        return View();
-    }
 }
