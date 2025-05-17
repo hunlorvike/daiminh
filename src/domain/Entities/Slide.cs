@@ -24,20 +24,16 @@ public class SlideConfiguration : BaseEntityConfiguration<Slide, int>
     public override void Configure(EntityTypeBuilder<Slide> builder)
     {
         base.Configure(builder);
-        builder.ToTable("slides");
+        builder.Property(e => e.Title).IsRequired().HasMaxLength(150);
+        builder.Property(e => e.Subtitle).HasMaxLength(150);
+        builder.Property(e => e.Description).HasMaxLength(500);
+        builder.Property(e => e.ImageUrl).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.CtaText).HasMaxLength(100);
+        builder.Property(e => e.CtaLink).HasMaxLength(255);
+        builder.Property(e => e.Target).HasMaxLength(10).HasDefaultValue("_self");
 
-        builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(150);
-        builder.Property(e => e.Subtitle).HasColumnName("subtitle").HasMaxLength(150);
-        builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(500);
-        builder.Property(e => e.ImageUrl).HasColumnName("image_url").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.CtaText).HasColumnName("cta_text").HasMaxLength(100);
-        builder.Property(e => e.CtaLink).HasColumnName("cta_link").HasMaxLength(255);
-        builder.Property(e => e.Target).HasColumnName("target").HasMaxLength(10).HasDefaultValue("_self");
-
-        builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-        builder.Property(e => e.StartAt).HasColumnName("start_at");
-        builder.Property(e => e.EndAt).HasColumnName("end_at");
+        builder.Property(e => e.OrderIndex).HasDefaultValue(0);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
 
         builder.HasIndex(e => e.IsActive);
         builder.HasIndex(e => e.OrderIndex);

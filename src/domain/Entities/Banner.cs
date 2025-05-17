@@ -22,14 +22,12 @@ public class BannerConfiguration : BaseEntityConfiguration<Banner, int>
     {
         base.Configure(builder);
 
-        builder.ToTable("banners");
-
-        builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.ImageUrl).HasColumnName("image_url").IsRequired().HasMaxLength(2048);
-        builder.Property(e => e.LinkUrl).HasColumnName("link_url").HasMaxLength(2048);
-        builder.Property(e => e.Type).HasColumnName("type").IsRequired().HasDefaultValue(BannerType.Header);
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-        builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
+        builder.Property(e => e.Title).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Description).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.ImageUrl).IsRequired().HasMaxLength(2048);
+        builder.Property(e => e.LinkUrl).HasMaxLength(2048);
+        builder.Property(e => e.Type).IsRequired().HasDefaultValue(BannerType.Header);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
+        builder.Property(e => e.OrderIndex).HasDefaultValue(0);
     }
 }

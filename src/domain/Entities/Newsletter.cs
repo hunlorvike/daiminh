@@ -20,17 +20,13 @@ public class NewsletterConfiguration : BaseEntityConfiguration<Newsletter, int>
     public override void Configure(EntityTypeBuilder<Newsletter> builder)
     {
         base.Configure(builder);
-
-        builder.ToTable("newsletters");
-
-        builder.Property(e => e.Email).HasColumnName("email").IsRequired().HasMaxLength(100);
+        builder.Property(e => e.Email).IsRequired().HasMaxLength(100);
         builder.HasIndex(e => e.Email).IsUnique();
-
-        builder.Property(e => e.Name).HasColumnName("name").HasMaxLength(100);
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-        builder.Property(e => e.IpAddress).HasColumnName("ip_address").HasMaxLength(50);
-        builder.Property(e => e.UserAgent).HasColumnName("user_agent").HasMaxLength(255);
-        builder.Property(e => e.ConfirmedAt).HasColumnName("confirmed_at");
-        builder.Property(e => e.UnsubscribedAt).HasColumnName("unsubscribed_at");
+        builder.Property(e => e.Name).HasMaxLength(100);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
+        builder.Property(e => e.IpAddress).HasMaxLength(50);
+        builder.Property(e => e.UserAgent).HasMaxLength(255);
+        builder.Property(e => e.ConfirmedAt);
+        builder.Property(e => e.UnsubscribedAt);
     }
 }

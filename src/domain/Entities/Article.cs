@@ -33,28 +33,25 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
     {
         base.Configure(builder);
 
-        builder.ToTable("articles");
-
-        builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Title).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Content).HasColumnName("content").HasColumnType("nvarchar(max)").IsRequired();
-        builder.Property(e => e.Summary).HasColumnName("summary").HasMaxLength(500);
-        builder.Property(e => e.FeaturedImage).HasColumnName("featured_image").HasMaxLength(255);
-        builder.Property(e => e.ThumbnailImage).HasColumnName("thumbnail_image").HasMaxLength(255);
-        builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
-        builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
-        builder.Property(e => e.PublishedAt).HasColumnName("published_at");
+        builder.Property(e => e.Content).HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.Summary).HasMaxLength(500);
+        builder.Property(e => e.FeaturedImage).HasMaxLength(255);
+        builder.Property(e => e.ThumbnailImage).HasMaxLength(255);
+        builder.Property(e => e.ViewCount).HasDefaultValue(0);
+        builder.Property(e => e.IsFeatured).HasDefaultValue(false);
+        builder.Property(e => e.PublishedAt);
         builder.HasIndex(e => e.PublishedAt);
 
-        builder.Property(e => e.AuthorId).HasColumnName("author_id").HasMaxLength(50);
-        builder.Property(e => e.AuthorName).HasColumnName("author_name").HasMaxLength(100);
-        builder.Property(e => e.AuthorAvatar).HasColumnName("author_avatar").HasMaxLength(255);
-        builder.Property(e => e.EstimatedReadingMinutes).HasColumnName("estimated_reading_minutes").HasDefaultValue(0);
-        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+        builder.Property(e => e.AuthorId).HasMaxLength(50);
+        builder.Property(e => e.AuthorName).HasMaxLength(100);
+        builder.Property(e => e.AuthorAvatar).HasMaxLength(255);
+        builder.Property(e => e.EstimatedReadingMinutes).HasDefaultValue(0);
+        builder.Property(e => e.CategoryId);
         builder.Property(e => e.Status)
-            .HasColumnName("status")
             .IsRequired()
             .HasDefaultValue(PublishStatus.Draft);
 

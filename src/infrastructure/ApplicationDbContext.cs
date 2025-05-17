@@ -35,11 +35,6 @@ public partial class ApplicationDbContext : DbContext
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Testimonial> Testimonials { get; set; }
     public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<Permission> Permissions { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<RolePermission> RolePermissions { get; set; }
-    public DbSet<UserPermission> UserPermissions { get; set; }
     public DbSet<Banner> Banners { get; set; }
     public DbSet<Page> Pages { get; set; }
     public DbSet<PopupModal> PopupModals { get; set; }
@@ -49,8 +44,6 @@ public partial class ApplicationDbContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.ApplyConfiguration(new UserConfiguration());
-        modelBuilder.ApplyConfiguration(new RoleConfiguration());
-        modelBuilder.ApplyConfiguration(new PermissionConfiguration());
         modelBuilder.ApplyConfiguration(new BrandConfiguration());
         modelBuilder.ApplyConfiguration(new AttributeConfiguration());
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
@@ -64,10 +57,6 @@ public partial class ApplicationDbContext : DbContext
         modelBuilder.ApplyConfiguration(new PageConfiguration());
         modelBuilder.ApplyConfiguration(new PopupModalConfiguration());
         modelBuilder.ApplyConfiguration(new SlideConfiguration());
-
-        modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
-        modelBuilder.ApplyConfiguration(new RolePermissionConfiguration());
-        modelBuilder.ApplyConfiguration(new UserPermissionConfiguration());
 
         modelBuilder.ApplyConfiguration(new AttributeValueConfiguration());
         modelBuilder.ApplyConfiguration(new ProductConfiguration());

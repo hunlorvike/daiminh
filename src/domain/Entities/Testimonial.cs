@@ -21,19 +21,18 @@ public class TestimonialConfiguration : BaseEntityConfiguration<Testimonial, int
     public override void Configure(EntityTypeBuilder<Testimonial> builder)
     {
         base.Configure(builder);
-        builder.ToTable("testimonials");
-        builder.Property(e => e.ClientName).HasColumnName("client_name").IsRequired().HasMaxLength(100);
-        builder.Property(e => e.ClientTitle).HasColumnName("client_title").HasMaxLength(100);
-        builder.Property(e => e.ClientCompany).HasColumnName("client_company").HasMaxLength(100);
-        builder.Property(e => e.ClientAvatar).HasColumnName("client_avatar").HasMaxLength(255);
-        builder.Property(e => e.Content).HasColumnName("content").IsRequired().HasColumnType("nvarchar(max)");
-        builder.Property(e => e.Rating).HasColumnName("rating").HasDefaultValue(5);
+        builder.Property(e => e.ClientName).IsRequired().HasMaxLength(100);
+        builder.Property(e => e.ClientTitle).HasMaxLength(100);
+        builder.Property(e => e.ClientCompany).HasMaxLength(100);
+        builder.Property(e => e.ClientAvatar).HasMaxLength(255);
+        builder.Property(e => e.Content).IsRequired().HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Rating).HasDefaultValue(5);
 
         builder.HasIndex(e => e.Rating);
         builder.HasIndex(e => e.OrderIndex);
 
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-        builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
+        builder.Property(e => e.OrderIndex).HasDefaultValue(0);
 
         builder.HasData(
              new Testimonial { Id = 1, ClientName = "Nguyễn Văn A", ClientTitle = "Chủ nhà", Content = "Sơn của Đại Minh rất bền màu và dễ thi công. Tôi rất hài lòng!", Rating = 5, IsActive = true, OrderIndex = 0, CreatedAt = DateTime.UtcNow },

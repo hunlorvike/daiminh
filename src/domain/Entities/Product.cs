@@ -36,25 +36,22 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
     public override void Configure(EntityTypeBuilder<Product> builder)
     {
         base.Configure(builder);
-        builder.ToTable("products");
-
-        builder.Property(e => e.BrandId).HasColumnName("brand_id");
-        builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
+        builder.Property(e => e.BrandId);
+        builder.Property(e => e.Name).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)").IsRequired();
-        builder.Property(e => e.ShortDescription).HasColumnName("short_description").HasMaxLength(500);
-        builder.Property(e => e.Manufacturer).HasColumnName("manufacturer").HasMaxLength(255);
-        builder.Property(e => e.Origin).HasColumnName("origin").HasMaxLength(100);
-        builder.Property(e => e.Specifications).HasColumnName("specifications").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.Usage).HasColumnName("usage").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.ViewCount).HasColumnName("view_count").HasDefaultValue(0);
-        builder.Property(e => e.IsFeatured).HasColumnName("is_featured").HasDefaultValue(false);
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+        builder.Property(e => e.Description).HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.ShortDescription).HasMaxLength(500);
+        builder.Property(e => e.Manufacturer).HasMaxLength(255);
+        builder.Property(e => e.Origin).HasMaxLength(100);
+        builder.Property(e => e.Specifications).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Usage).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.ViewCount).HasDefaultValue(0);
+        builder.Property(e => e.IsFeatured).HasDefaultValue(false);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
+        builder.Property(e => e.CategoryId);
         builder.Property(e => e.Status)
-            .HasColumnName("status")
             .IsRequired()
             .HasDefaultValue(PublishStatus.Draft);
 

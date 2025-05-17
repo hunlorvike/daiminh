@@ -19,13 +19,12 @@ public class FAQConfiguration : BaseEntityConfiguration<FAQ, int>
     public override void Configure(EntityTypeBuilder<FAQ> builder)
     {
         base.Configure(builder);
-        builder.ToTable("faqs");
-        builder.Property(e => e.Question).HasColumnName("question").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Answer).HasColumnName("answer").IsRequired().HasColumnType("nvarchar(max)");
-        builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
+        builder.Property(e => e.Question).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Answer).IsRequired().HasColumnType("nvarchar(max)");
+        builder.Property(e => e.OrderIndex).HasDefaultValue(0);
         builder.HasIndex(e => e.OrderIndex);
 
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
         builder.Property(e => e.CategoryId).HasColumnName("category_id");
         builder.HasOne(e => e.Category)
             .WithMany(c => c.FAQs)
