@@ -18,19 +18,15 @@ public class PageConfiguration : BaseEntityConfiguration<Page, int>
     public override void Configure(EntityTypeBuilder<Page> builder)
     {
         base.Configure(builder);
-
-        builder.ToTable("pages");
-
-        builder.Property(e => e.Title).HasColumnName("title").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Title).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Content).HasColumnName("content").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Content).HasColumnType("nvarchar(max)");
         builder.Property(e => e.Status)
-            .HasColumnName("status")
             .IsRequired()
             .HasDefaultValue(PublishStatus.Draft);
-        builder.Property(e => e.PublishedAt).HasColumnName("published_at");
+        builder.Property(e => e.PublishedAt);
 
         builder.HasData(
             new Page

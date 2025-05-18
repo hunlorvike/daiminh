@@ -18,10 +18,35 @@ builder.Configuration
 
 builder.Host.UseSerilog();
 
+var cacheProvider = builder.Configuration.GetValue<string>("CacheProvider:Type")?.ToLowerInvariant();
+
+switch (cacheProvider)
+{
+    case "redis":
+        var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection"); // Hoặc đọc từ section Redis
+        if (string.IsNullOrEmpty(redisConnectionString))
+        {
+            redisConnectionString = builder.Configuration["Redis:DefaultConnection"];
+        }
+        if (string.IsNullOrEmpty(redisConnectionString))
+        {
+            throw new InvalidOperationException("Redis connection string 'Redis:DefaultConnection' or 'ConnectionStrings:RedisConnection' not found.");
+        }
+        builder.Services.AddStackExchangeRedisCache(options =>
+        {
+            options.Configuration = redisConnectionString;
+            options.InstanceName = builder.Configuration["Redis:InstanceName"]; // "DaiMinh_"
+        });
+        Log.Information("Đã cấu hình Redis Cache.");
+        break;
+
+    case "sqlserver":
+    case "memory":
+    default:
+        break;
+}
+
 builder.Services.AddDatabase(builder.Configuration)
-    .AddMemoryCache()
-    .AddDistributedMemoryCache()
-    .AddRedis(builder.Configuration)
     .AddMinioService(builder.Configuration)
     .AddAuthenticationServices()
     .AddCustomServices();

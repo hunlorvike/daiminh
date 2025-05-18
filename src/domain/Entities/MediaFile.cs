@@ -24,23 +24,20 @@ public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
     public override void Configure(EntityTypeBuilder<MediaFile> builder)
     {
         base.Configure(builder);
-        builder.ToTable("media_files");
+        builder.Property(e => e.FileName).IsRequired().HasMaxLength(100);
+        builder.Property(e => e.OriginalFileName).HasMaxLength(255);
+        builder.Property(e => e.MimeType).HasMaxLength(100);
+        builder.Property(e => e.FileExtension).HasMaxLength(10);
 
-        builder.Property(e => e.FileName).HasColumnName("file_name").IsRequired().HasMaxLength(100);
-        builder.Property(e => e.OriginalFileName).HasColumnName("original_file_name").HasMaxLength(255);
-        builder.Property(e => e.MimeType).HasColumnName("mime_type").HasMaxLength(100);
-        builder.Property(e => e.FileExtension).HasColumnName("file_extension").HasMaxLength(10);
+        builder.Property(e => e.FilePath).HasColumnType("nvarchar(max)").IsRequired();
 
-        builder.Property(e => e.FilePath).HasColumnName("file_path").HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.Description).HasMaxLength(255);
+        builder.Property(e => e.AltText).HasMaxLength(255);
 
-        builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(255);
-        builder.Property(e => e.AltText).HasColumnName("alt_text").HasMaxLength(255);
-
-        builder.Property(e => e.FileSize).HasColumnName("file_size");
-        builder.Property(e => e.Duration).HasColumnName("duration");
+        builder.Property(e => e.FileSize);
+        builder.Property(e => e.Duration);
 
         builder.Property(e => e.MediaType)
-            .HasColumnName("media_type")
             .IsRequired()
             .HasDefaultValue(MediaType.Image);
     }

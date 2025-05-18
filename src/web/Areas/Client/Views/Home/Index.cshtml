@@ -1,137 +1,157 @@
-@{
-    ViewData["Title"] = "Sơn Đại Minh - Chuyên cung cấp sơn và vật liệu chống thấm chính hãng";
-    ViewData["MetaDescription"] = "Công ty Đại Minh Việt Nam chuyên cung cấp sơn chống thấm, sơn nội ngoại thất và vật liệu xây dựng chính hãng từ Dulux, Jotun, Sika, KOVA... Dịch vụ thi công sơn trọn gói tại Hà Nội.";
-}
-
 <!-- SECTION: Hero Banner / Carousel -->
-<div class="hero-carousel position-relative mb-5">
-    <div id="heroCarousel" class="carousel slide" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
-            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+<section class="mb-3">
+    <div id="heroCarouselCard" class="carousel slide carousel-fade" data-bs-ride="carousel">
+        <div class="carousel-indicators carousel-indicators-thumb">
+            <button type="button" data-bs-target="#heroCarouselCard" data-bs-slide-to="0" class="ratio ratio-4x3" style="background-image: url(./img/placeholder.svg);"></button>
+            <button type="button" data-bs-target="#heroCarouselCard" data-bs-slide-to="1" class="ratio ratio-4x3" style="background-image: url(./img/placeholder.svg);"></button>
+            <button type="button" data-bs-target="#heroCarouselCard" data-bs-slide-to="2" class="ratio ratio-4x3 active" style="background-image: url(./img/placeholder.svg);"></button>
         </div>
-        
         <div class="carousel-inner">
             <!-- Slide 1 -->
             <div class="carousel-item active">
-                <div class="container-xl">
-                    <div class="row align-items-center min-vh-50">
-                        <div class="col-lg-6 py-5">
-                            <h1 class="display-4 fw-bold mb-3">Giải pháp chống thấm toàn diện</h1>
-                            <p class="fs-4 text-muted mb-4">Sản phẩm chính hãng từ các thương hiệu uy tín hàng đầu thế giới</p>
-                            <div class="d-flex gap-3">
-                                <a href="/san-pham/chong-tham" class="btn btn-primary btn-lg">
-                                    <i class="ti ti-shopping-cart me-2"></i>Mua ngay
-                                </a>
-                                <a href="/tu-van" class="btn btn-outline-primary btn-lg">
-                                    <i class="ti ti-phone me-2"></i>Tư vấn miễn phí
-                                </a>
+                <div class="position-relative">
+                    <img src="/img/placeholder.svg" class="d-block w-100" alt="Sơn chất lượng cao" style="height: 500px; object-fit: cover;" />
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <span class="badge bg-blue text-blue-fg mb-2">Đại lý chính hãng Dulux, Jotun, Kova</span>
+                                    <h2 class="display-4 fw-bold mb-3">Sơn chất lượng cao</h2>
+                                    <p class="mb-3">Cung cấp các sản phẩm sơn nội thất, ngoại thất chính hãng với giá tốt nhất thị trường</p>
+                                    <a href="/san-pham" class="btn btn-primary"> Xem sản phẩm <i class="ti ti-chevron-right ms-2"></i> </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 d-none d-lg-block">
-                            <img src="/img/placeholder.svg" alt="Giải pháp chống thấm" class="img-fluid rounded-3">
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Slide 2 -->
             <div class="carousel-item">
-                <div class="container-xl">
-                    <div class="row align-items-center min-vh-50">
-                        <div class="col-lg-6 py-5">
-                            <h1 class="display-4 fw-bold mb-3">Sơn nội thất cao cấp</h1>
-                            <p class="fs-4 text-muted mb-4">Màu sắc bền đẹp, an toàn cho sức khỏe gia đình bạn</p>
-                            <div class="d-flex gap-3">
-                                <a href="/san-pham/son-noi-that" class="btn btn-primary btn-lg">
-                                    <i class="ti ti-shopping-cart me-2"></i>Khám phá ngay
-                                </a>
-                                <a href="/tu-van/mau-sac" class="btn btn-outline-primary btn-lg">
-                                    <i class="ti ti-palette me-2"></i>Tư vấn màu sắc
-                                </a>
+                <div class="position-relative">
+                    <img src="/img/placeholder.svg" class="d-block w-100" alt="Giải pháp chống thấm" style="height: 500px; object-fit: cover;" />
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <span class="badge bg-green text-green-fg mb-2">Chống thấm hiệu quả, bền lâu</span>
+                                    <h2 class="display-4 fw-bold mb-3">Giải pháp chống thấm</h2>
+                                    <p class="mb-3">Đa dạng sản phẩm chống thấm cho mọi công trình từ nhà ở đến công trình lớn</p>
+                                    <a href="/tu-van" class="btn btn-success"> Tư vấn ngay <i class="ti ti-chevron-right ms-2"></i> </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 d-none d-lg-block">
-                            <img src="/img/placeholder.svg" alt="Sơn nội thất cao cấp" class="img-fluid rounded-3">
                         </div>
                     </div>
                 </div>
             </div>
-            
+
             <!-- Slide 3 -->
             <div class="carousel-item">
-                <div class="container-xl">
-                    <div class="row align-items-center min-vh-50">
-                        <div class="col-lg-6 py-5">
-                            <h1 class="display-4 fw-bold mb-3">Dịch vụ thi công chuyên nghiệp</h1>
-                            <p class="fs-4 text-muted mb-4">Đội ngũ thợ lành nghề, bảo hành dài hạn</p>
-                            <div class="d-flex gap-3">
-                                <a href="/dich-vu" class="btn btn-primary btn-lg">
-                                    <i class="ti ti-building me-2"></i>Xem dịch vụ
-                                </a>
-                                <a href="/bao-gia" class="btn btn-outline-primary btn-lg">
-                                    <i class="ti ti-file-invoice me-2"></i>Báo giá miễn phí
-                                </a>
+                <div class="position-relative">
+                    <img src="/img/placeholder.svg" class="d-block w-100" alt="Dịch vụ thi công" style="height: 500px; object-fit: cover;" />
+                    <div class="position-absolute top-0 start-0 w-100 h-100 d-flex align-items-center">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-lg-6">
+                                    <span class="badge bg-yellow text-yellow-fg mb-2">Đội ngũ thợ chuyên nghiệp</span>
+                                    <h2 class="display-4 fw-bold mb-3">Dịch vụ thi công</h2>
+                                    <p class="mb-3">Cung cấp dịch vụ thi công sơn và chống thấm trọn gói, bảo hành dài hạn</p>
+                                    <a href="/lien-he" class="btn btn-warning"> Liên hệ <i class="ti ti-chevron-right ms-2"></i> </a>
+                                </div>
                             </div>
-                        </div>
-                        <div class="col-lg-6 d-none d-lg-block">
-                            <img src="/img/placeholder.svg" alt="Dịch vụ thi công chuyên nghiệp" class="img-fluid rounded-3">
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <button class="carousel-control-prev" type="button" data-bs-target="#heroCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#heroCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
     </div>
-</div>
+</section>
 
 <!-- SECTION: Giới thiệu nhanh công ty -->
-<div class="py-5 mb-5">
-    <div class="container-xl">
-        <div class="row align-items-center">
-            <div class="col-lg-7 mb-4 mb-lg-0">
-                <h2 class="h1 mb-3">Đại Minh Việt Nam</h2>
-                <p class="lead mb-3">Với hơn 10 năm kinh nghiệm, chúng tôi tự hào là đối tác phân phối chính thức của các thương hiệu sơn và vật liệu chống thấm hàng đầu thế giới.</p>
-                <p class="mb-4">Cam kết mang đến cho khách hàng sản phẩm chính hãng, chất lượng cao với giá thành hợp lý cùng dịch vụ tư vấn và hỗ trợ kỹ thuật chuyên nghiệp.</p>
-                <a href="/gioi-thieu" class="btn btn-primary">
-                    <i class="ti ti-building me-2"></i>Xem thêm về chúng tôi
-                </a>
+<section class="row align-items-center mb-3">
+    <div class="col-lg-6 mb-5 mb-lg-0">
+        <div class="d-flex align-items-center mb-3">
+            <div class="avatar bg-primary text-white me-3">
+                <i class="ti ti-building-store"></i>
             </div>
-            <div class="col-lg-5">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="text-center mb-3">
-                            <h3 class="h4">Đối tác chính thức</h3>
+            <h2 class="h1 mb-0">Đại Minh Việt Nam</h2>
+        </div>
+        <div class="datagrid mb-3">
+            <div class="datagrid-item">
+                <div class="datagrid-title">Kinh nghiệm</div>
+                <div class="datagrid-content">3+ năm</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">Khách hàng</div>
+                <div class="datagrid-content">100+</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">Dự án</div>
+                <div class="datagrid-content">100+</div>
+            </div>
+            <div class="datagrid-item">
+                <div class="datagrid-title">Đối tác</div>
+                <div class="datagrid-content">15+ thương hiệu</div>
+            </div>
+        </div>
+        <p class="mb-3">Với hơn nhiều năm kinh nghiệm, chúng tôi tự hào là đối tác phân phối chính thức của các thương hiệu sơn và vật liệu chống thấm hàng đầu thế giới.</p>
+        <p class="mb-3">Cam kết mang đến cho khách hàng sản phẩm chính hãng, chất lượng cao với giá thành hợp lý cùng dịch vụ tư vấn và hỗ trợ kỹ thuật chuyên nghiệp.</p>
+        <a href="/gioi-thieu" class="btn btn-primary"> <i class="ti ti-building me-2"></i>Xem thêm về chúng tôi </a>
+    </div>
+    <div class="col-lg-6">
+        <div class="card shadow">
+            <div class="card-status-top bg-primary"></div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <h3 class="card-title">Đối tác chính thức</h3>
+                    <p class="text-muted">Chúng tôi là đại lý phân phối chính thức của các thương hiệu hàng đầu</p>
+                </div>
+                <div class="row g-3 text-center">
+                    <div class="col-6 col-md-4">
+                        <div class="card card-sm card-link border">
+                            <div class="card-body">
+                                <img src="/img/placeholder.svg" alt="Dulux" class="img-fluid mb-2" style="max-height: 60px;" />
+                                <span class="d-block fw-medium">Dulux</span>
+                            </div>
                         </div>
-                        <div class="d-flex flex-wrap justify-content-center gap-4">
-                            <div class="text-center">
-                                <img src="/img/placeholder.svg" alt="Dulux" class="img-fluid mb-2" style="max-height: 60px;">
-                                <span class="d-block small text-muted">Dulux</span>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="card card-sm card-link border">
+                            <div class="card-body">
+                                <img src="/img/placeholder.svg" alt="Jotun" class="img-fluid mb-2" style="max-height: 60px;" />
+                                <span class="d-block fw-medium">Jotun</span>
                             </div>
-                            <div class="text-center">
-                                <img src="/img/placeholder.svg" alt="Jotun" class="img-fluid mb-2" style="max-height: 60px;">
-                                <span class="d-block small text-muted">Jotun</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="card card-sm card-link border">
+                            <div class="card-body">
+                                <img src="/img/placeholder.svg" alt="Kova" class="img-fluid mb-2" style="max-height: 60px;" />
+                                <span class="d-block fw-medium">Kova</span>
                             </div>
-                            <div class="text-center">
-                                <img src="/img/placeholder.svg" alt="Kova" class="img-fluid mb-2" style="max-height: 60px;">
-                                <span class="d-block small text-muted">Kova</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="card card-sm card-link border">
+                            <div class="card-body">
+                                <img src="/img/placeholder.svg" alt="Sika" class="img-fluid mb-2" style="max-height: 60px;" />
+                                <span class="d-block fw-medium">Sika</span>
                             </div>
-                            <div class="text-center">
-                                <img src="/img/placeholder.svg" alt="Sika" class="img-fluid mb-2" style="max-height: 60px;">
-                                <span class="d-block small text-muted">Sika</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="card card-sm card-link border">
+                            <div class="card-body">
+                                <img src="/img/placeholder.svg" alt="Nippon Paint" class="img-fluid mb-2" style="max-height: 60px;" />
+                                <span class="d-block fw-medium">Nippon</span>
                             </div>
-                            <div class="text-center">
-                                <img src="/img/placeholder.svg" alt="Nippon Paint" class="img-fluid mb-2" style="max-height: 60px;">
-                                <span class="d-block small text-muted">Nippon</span>
+                        </div>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <div class="card card-sm card-link border">
+                            <div class="card-body">
+                                <img src="/img/placeholder.svg" alt="MyKolor" class="img-fluid mb-2" style="max-height: 60px;" />
+                                <span class="d-block fw-medium">MyKolor</span>
                             </div>
                         </div>
                     </div>
@@ -139,434 +159,416 @@
             </div>
         </div>
     </div>
-</div>
+</section>
 
 <!-- SECTION: Danh mục sản phẩm nổi bật -->
-<div class="container-xl mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h1 mb-0">Danh mục sản phẩm</h2>
-        <a href="/san-pham" class="btn btn-outline-primary">
-            <i class="ti ti-category me-2"></i>Xem tất cả
-        </a>
+<section class="mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="h1 mb-0">Danh mục sản phẩm</h2>
+            <p class="text-muted mb-0">Đa dạng sản phẩm chất lượng cao cho mọi nhu cầu</p>
+        </div>
+        <a href="/san-pham" class="btn btn-outline-primary"> <i class="ti ti-category me-2"></i>Xem tất cả </a>
     </div>
-    
+
     <div class="row g-3">
         <!-- Danh mục 1 -->
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/son-noi-that" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-primary-lt rounded">
+            <a href="/san-pham/son-noi-that" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-stamp">
+                    <div class="card-stamp-icon bg-primary">
+                        <i class="ti ti-paint"></i>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-primary-lt rounded">
                         <i class="ti ti-paint fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Sơn nội thất</h3>
                     <p class="text-muted small mb-0">Sơn tường, trần nhà, gỗ nội thất</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
-        
+
         <!-- Danh mục 2 -->
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/son-ngoai-that" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-azure-lt rounded">
+            <a href="/san-pham/son-ngoai-that" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-azure-lt rounded">
                         <i class="ti ti-building fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Sơn ngoại thất</h3>
                     <p class="text-muted small mb-0">Sơn tường ngoài, chống thời tiết</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
-        
+
         <!-- Danh mục 3 -->
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/chong-tham" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-green-lt rounded">
+            <a href="/san-pham/chong-tham" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-stamp">
+                    <div class="card-stamp-icon bg-green">
+                        <i class="ti ti-discount-check"></i>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-green-lt rounded">
                         <i class="ti ti-droplet-half-filled fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Chống thấm</h3>
                     <p class="text-muted small mb-0">Sàn, tường, mái, nhà vệ sinh</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
-        
+
         <!-- Danh mục 4 -->
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/bot-tret" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-yellow-lt rounded">
+            <a href="/san-pham/bot-tret" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-yellow-lt rounded">
                         <i class="ti ti-bucket fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Bột trét</h3>
                     <p class="text-muted small mb-0">Bột trét tường nội và ngoại thất</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
-        
-        <!-- Danh mục 5 -->
+
+        <!-- Danh mục 5-8 (giữ nguyên cấu trúc nhưng áp dụng style mới) -->
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/keo-dan" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-red-lt rounded">
+            <a href="/san-pham/keo-dan" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-red-lt rounded">
                         <i class="ti ti-bottle fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Keo dán</h3>
                     <p class="text-muted small mb-0">Keo dán gạch, đá, gỗ, kim loại</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
-        
-        <!-- Danh mục 6 -->
+
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/phu-kien" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-purple-lt rounded">
+            <a href="/san-pham/phu-kien" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-purple-lt rounded">
                         <i class="ti ti-brush fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Phụ kiện</h3>
                     <p class="text-muted small mb-0">Cọ, rulô, băng keo, dụng cụ</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
-        
-        <!-- Danh mục 7 -->
+
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/son-dac-biet" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-cyan-lt rounded">
+            <a href="/san-pham/son-dac-biet" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-stamp">
+                    <div class="card-stamp-icon bg-cyan">
+                        <i class="ti ti-flame"></i>
+                    </div>
+                </div>
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-cyan-lt rounded">
                         <i class="ti ti-sparkles fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Sơn đặc biệt</h3>
                     <p class="text-muted small mb-0">Sơn chống cháy, kháng khuẩn</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
-        
-        <!-- Danh mục 8 -->
+
         <div class="col-6 col-md-4 col-lg-3">
-            <a href="/san-pham/xi-mang" class="card card-link h-100 text-decoration-none">
-                <div class="card-body text-center py-4">
-                    <div class="avatar avatar-lg mb-3 bg-indigo-lt rounded">
+            <a href="/san-pham/xi-mang" class="card card-link text-decoration-none shadow-sm">
+                <div class="card-body text-center">
+                    <div class="avatar mb-3 bg-indigo-lt rounded">
                         <i class="ti ti-building-factory-2 fs-1"></i>
                     </div>
                     <h3 class="h4 mb-2">Xi măng</h3>
                     <p class="text-muted small mb-0">Xi măng đặc biệt, vữa sửa chữa</p>
                 </div>
+                <div class="card-footer bg-transparent border-0">
+                    <div class="text-center text-primary"><i class="ti ti-chevron-right"></i> Xem sản phẩm</div>
+                </div>
             </a>
         </div>
     </div>
-</div>
+</section>
 
 <!-- SECTION: Sản phẩm nổi bật / mới -->
-<div class="container-xl mb-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="h1 mb-0">Sản phẩm nổi bật</h2>
-        <a href="/san-pham/noi-bat" class="btn btn-outline-primary">
-            <i class="ti ti-star me-2"></i>Xem tất cả
-        </a>
+<div class="mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+            <h2 class="h1 mb-0">Sản phẩm nổi bật</h2>
+            <p class="text-muted mb-0">Các sản phẩm bán chạy và được đánh giá cao</p>
+        </div>
+        <a href="/san-pham/noi-bat" class="btn btn-outline-primary"> <i class="ti ti-star me-2"></i>Xem tất cả </a>
     </div>
-    
-    <div class="row g-3">
-        <!-- Sản phẩm 1 -->
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100">
-                <div class="card-img-top position-relative">
-                    <span class="badge bg-red position-absolute top-0 end-0 m-2">-10%</span>
-                    <img src="/img/placeholder.svg" alt="Sơn lót kháng kiềm Dulux" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Dulux</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-half-filled"></i>
-                            <span class="text-muted ms-1">(28)</span>
+
+    <!-- Tabs cho các loại sản phẩm -->
+    <div class="card mb-3">
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs nav-fill" data-bs-toggle="tabs">
+                <li class="nav-item">
+                    <a href="#tabs-all" class="nav-link active" data-bs-toggle="tab"> <i class="ti ti-list me-2"></i>Tất cả </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tabs-interior" class="nav-link" data-bs-toggle="tab"> <i class="ti ti-paint me-2"></i>Sơn nội thất </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tabs-exterior" class="nav-link" data-bs-toggle="tab"> <i class="ti ti-building me-2"></i>Sơn ngoại thất </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#tabs-waterproof" class="nav-link" data-bs-toggle="tab"> <i class="ti ti-droplet me-2"></i>Chống thấm </a>
+                </li>
+            </ul>
+        </div>
+        <div class="card-body">
+            <div class="tab-content">
+                <div class="tab-pane active show" id="tabs-all">
+                    <div class="row g-3">
+                        <!-- Sản phẩm 1 -->
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="card card-sm h-100">
+                                <div class="ribbon ribbon-top ribbon-start bg-red">
+                                    -10%
+                                </div>
+                                <a href="/san-pham/son-lot-khang-kiem-dulux" class="d-block">
+                                    <img src="/img/placeholder.svg" alt="Sơn lót kháng kiềm Dulux" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-blue-lt me-2">Dulux</span>
+                                        <div class="ms-auto text-warning">
+                                            <i class="ti ti-star-filled"></i>
+                                            <span class="text-muted ms-1">4.5 (28)</span>
+                                        </div>
+                                    </div>
+                                    <h3 class="h5 mb-1">
+                                        <a href="/san-pham/son-lot-khang-kiem-dulux" class="text-reset">Sơn lót kháng kiềm Dulux</a>
+                                    </h3>
+                                    <p class="text-muted small mb-3">Sơn lót gốc nước cao cấp, kháng kiềm tốt, bám dính cao</p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="h5 mb-0 me-2 text-primary">650.000₫</div>
+                                            <div class="text-muted text-decoration-line-through small">720.000₫</div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a href="/san-pham/son-lot-khang-kiem-dulux" class="btn btn-primary w-100"> <i class="ti ti-shopping-cart me-1"></i>Mua ngay </a>
+                                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
+                                                <i class="ti ti-heart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sản phẩm 2 -->
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="card card-sm h-100">
+                                <div class="ribbon ribbon-top ribbon-start bg-green">
+                                    Mới
+                                </div>
+                                <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="d-block">
+                                    <img src="/img/placeholder.svg" alt="Sơn nước nội thất Jotun Majestic" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-blue-lt me-2">Jotun</span>
+                                        <div class="ms-auto text-warning">
+                                            <i class="ti ti-star-filled"></i>
+                                            <span class="text-muted ms-1">5.0 (42)</span>
+                                        </div>
+                                    </div>
+                                    <h3 class="h5 mb-1">
+                                        <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="text-reset">Sơn nước nội thất Jotun Majestic</a>
+                                    </h3>
+                                    <p class="text-muted small mb-3">Sơn nội thất cao cấp, kháng khuẩn, chống bám bẩn</p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="h5 mb-0 text-primary">850.000₫</div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="btn btn-primary w-100"> <i class="ti ti-shopping-cart me-1"></i>Mua ngay </a>
+                                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
+                                                <i class="ti ti-heart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sản phẩm 3 -->
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="card card-sm h-100">
+                                <a href="/san-pham/chong-tham-sika-topseal-107" class="d-block">
+                                    <img src="/img/placeholder.svg" alt="Chống thấm Sika Topseal 107" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-blue-lt me-2">Sika</span>
+                                        <div class="ms-auto text-warning">
+                                            <i class="ti ti-star-filled"></i>
+                                            <span class="text-muted ms-1">4.0 (36)</span>
+                                        </div>
+                                    </div>
+                                    <h3 class="h5 mb-1">
+                                        <a href="/san-pham/chong-tham-sika-topseal-107" class="text-reset">Chống thấm Sika Topseal 107</a>
+                                    </h3>
+                                    <p class="text-muted small mb-3">Vữa chống thấm gốc xi măng-polymer, đàn hồi</p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="h5 mb-0 text-primary">420.000₫</div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a href="/san-pham/chong-tham-sika-topseal-107" class="btn btn-primary w-100"> <i class="ti ti-shopping-cart me-1"></i>Mua ngay </a>
+                                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
+                                                <i class="ti ti-heart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Sản phẩm 4 -->
+                        <div class="col-6 col-md-4 col-lg-3">
+                            <div class="card card-sm h-100">
+                                <div class="ribbon ribbon-top ribbon-start bg-orange">
+                                    Bán chạy
+                                </div>
+                                <a href="/san-pham/bot-tret-tuong-dulux" class="d-block">
+                                    <img src="/img/placeholder.svg" alt="Bột trét tường Dulux" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                                </a>
+                                <div class="card-body d-flex flex-column">
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-blue-lt me-2">Dulux</span>
+                                        <div class="ms-auto text-warning">
+                                            <i class="ti ti-star-filled"></i>
+                                            <span class="text-muted ms-1">4.0 (52)</span>
+                                        </div>
+                                    </div>
+                                    <h3 class="h5 mb-1">
+                                        <a href="/san-pham/bot-tret-tuong-dulux" class="text-reset">Bột trét tường Dulux</a>
+                                    </h3>
+                                    <p class="text-muted small mb-3">Bột trét tường nội thất, mịn, dễ thi công</p>
+                                    <div class="mt-auto">
+                                        <div class="d-flex align-items-center mb-3">
+                                            <div class="h5 mb-0 text-primary">180.000₫</div>
+                                        </div>
+                                        <div class="d-flex gap-2">
+                                            <a href="/san-pham/bot-tret-tuong-dulux" class="btn btn-primary w-100"> <i class="ti ti-shopping-cart me-1"></i>Mua ngay </a>
+                                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
+                                                <i class="ti ti-heart"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <h3 class="h5 mb-2">Sơn lót kháng kiềm Dulux</h3>
-                    <p class="text-muted small mb-3">Sơn lót gốc nước cao cấp, kháng kiềm tốt, bám dính cao</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0 me-2">650.000₫</div>
-                            <div class="text-muted text-decoration-line-through small">720.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/son-lot-khang-kiem-dulux" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
+                </div>
+
+                <!-- Các tab khác (có thể thêm nội dung tương tự) -->
+                <div class="tab-pane" id="tabs-interior">
+                    <div class="empty">
+                        <div class="empty-img"><i class="ti ti-paint fs-1 text-muted"></i></div>
+                        <p class="empty-title">Sơn nội thất</p>
+                        <p class="empty-subtitle text-muted">
+                            Đang tải dữ liệu sản phẩm sơn nội thất...
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-pane" id="tabs-exterior">
+                    <div class="empty">
+                        <div class="empty-img"><i class="ti ti-building fs-1 text-muted"></i></div>
+                        <p class="empty-title">Sơn ngoại thất</p>
+                        <p class="empty-subtitle text-muted">
+                            Đang tải dữ liệu sản phẩm sơn ngoại thất...
+                        </p>
+                    </div>
+                </div>
+                <div class="tab-pane" id="tabs-waterproof">
+                    <div class="empty">
+                        <div class="empty-img"><i class="ti ti-droplet fs-1 text-muted"></i></div>
+                        <p class="empty-title">Chống thấm</p>
+                        <p class="empty-subtitle text-muted">
+                            Đang tải dữ liệu sản phẩm chống thấm...
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Sản phẩm 2 -->
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100">
-                <div class="card-img-top position-relative">
-                    <span class="badge bg-green position-absolute top-0 end-0 m-2">Mới</span>
-                    <img src="/img/placeholder.svg" alt="Sơn nước nội thất Jotun Majestic" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Jotun</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <span class="text-muted ms-1">(42)</span>
-                        </div>
-                    </div>
-                    <h3 class="h5 mb-2">Sơn nước nội thất Jotun Majestic</h3>
-                    <p class="text-muted small mb-3">Sơn nội thất cao cấp, kháng khuẩn, chống bám bẩn</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0">850.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
+    </div>
+
+    <!-- Carousel sản phẩm bán chạy -->
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">Sản phẩm bán chạy</h3>
+            <div class="card-actions">
+                <button type="button" class="btn btn-icon btn-outline-primary me-2" id="carousel-prev">
+                    <i class="ti ti-chevron-left"></i>
+                </button>
+                <button type="button" class="btn btn-icon btn-outline-primary" id="carousel-next">
+                    <i class="ti ti-chevron-right"></i>
+                </button>
             </div>
         </div>
-        
-        <!-- Sản phẩm 3 -->
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100">
-                <div class="card-img-top">
-                    <img src="/img/placeholder.svg" alt="Chống thấm Sika Topseal 107" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Sika</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star"></i>
-                            <span class="text-muted ms-1">(36)</span>
+        <div class="card-body">
+            <div class="row g-3" id="product-carousel">
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card card-sm h-100">
+                        <div class="ribbon ribbon-top ribbon-start bg-red">
+                            -15%
                         </div>
-                    </div>
-                    <h3 class="h5 mb-2">Chống thấm Sika Topseal 107</h3>
-                    <p class="text-muted small mb-3">Vữa chống thấm gốc xi măng-polymer, đàn hồi</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0">420.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/chong-tham-sika-topseal-107" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Sản phẩm 4 -->
-        <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100">
-                <div class="card-img-top position-relative">
-                    <span class="badge bg-orange position-absolute top-0 end-0 m-2">Bán chạy</span>
-                    <img src="/img/placeholder.svg" alt="Bột trét tường Dulux" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Dulux</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star"></i>
-                            <span class="text-muted ms-1">(52)</span>
-                        </div>
-                    </div>
-                    <h3 class="h5 mb-2">Bột trét tường Dulux</h3>
-                    <p class="text-muted small mb-3">Bột trét tường nội thất, mịn, dễ thi công</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0">180.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/bot-tret-tuong-dulux" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Sản phẩm 5 -->
-        <div class="col-6 col-md-4 col-lg-3 d-none d-md-block">
-            <div class="card h-100">
-                <div class="card-img-top">
-                    <img src="/img/placeholder.svg" alt="Sơn chống nóng Kova CT-11A" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Kova</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-half-filled"></i>
-                            <span class="text-muted ms-1">(19)</span>
-                        </div>
-                    </div>
-                    <h3 class="h5 mb-2">Sơn chống nóng Kova CT-11A</h3>
-                    <p class="text-muted small mb-3">Sơn chống nóng mái, cách nhiệt hiệu quả</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0 me-2">520.000₫</div>
-                            <div class="text-muted text-decoration-line-through small">580.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/son-chong-nong-kova-ct-11a" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Sản phẩm 6 -->
-        <div class="col-6 col-md-4 col-lg-3 d-none d-md-block">
-            <div class="card h-100">
-                <div class="card-img-top position-relative">
-                    <span class="badge bg-green position-absolute top-0 end-0 m-2">Mới</span>
-                    <img src="/img/placeholder.svg" alt="Keo dán gạch Sika Ceram" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="car  style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Sika</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star"></i>
-                            <span class="text-muted ms-1">(15)</span>
-                        </div>
-                    </div>
-                    <h3 class="h5 mb-2">Keo dán gạch Sika Ceram</h3>
-                    <p class="text-muted small mb-3">Keo dán gạch cao cấp, độ bám dính cao</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0">210.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/keo-dan-gach-sika-ceram" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Sản phẩm 7 -->
-        <div class="col-6 col-md-4 col-lg-3 d-none d-lg-block">
-            <div class="card h-100">
-                <div class="card-img-top">
-                    <img src="/img/placeholder.svg" alt="Sơn epoxy Jotun Penguard" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Jotun</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-half-filled"></i>
-                            <span class="text-muted ms-1">(23)</span>
-                        </div>
-                    </div>
-                    <h3 class="h5 mb-2">Sơn epoxy Jotun Penguard</h3>
-                    <p class="text-muted small mb-3">Sơn epoxy sàn công nghiệp, chịu mài mòn cao</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0">1.250.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/son-epoxy-jotun-penguard" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Sản phẩm 8 -->
-        <div class="col-6 col-md-4 col-lg-3 d-none d-lg-block">
-            <div class="card h-100">
-                <div class="card-img-top position-relative">
-                    <span class="badge bg-red position-absolute top-0 end-0 m-2">-15%</span>
-                    <img src="/img/placeholder.svg" alt="Chống thấm Kova CT-8C" class="w-100" style="height: 200px; object-fit: cover;">
-                </div>
-                <div class="card-body d-flex flex-column">
-                    <div class="d-flex align-items-center mb-2">
-                        <span class="badge bg-blue-lt me-2">Kova</span>
-                        <div class="text-warning">
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star-filled"></i>
-                            <i class="ti ti-star"></i>
-                            <span class="text-muted ms-1">(31)</span>
-                        </div>
-                    </div>
-                    <h3 class="h5 mb-2">Chống thấm Kova CT-8C</h3>
-                    <p class="text-muted small mb-3">Chống thấm đàn hồi, lý tưởng cho mái, sân thượng</p>
-                    <div class="mt-auto">
-                        <div class="d-flex align-items-center mb-3">
-                            <div class="h5 mb-0 me-2">380.000₫</div>
-                            <div class="text-muted text-decoration-line-through small">450.000₫</div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <a href="/san-pham/chong-tham-kova-ct-8c" class="btn btn-primary w-100">
-                                <i class="ti ti-shopping-cart me-1"></i>Mua ngay
-                            </a>
-                            <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
-                                <i class="ti ti-heart"></i>
-                            </button>
+                        <a href="/san-pham/chong-tham-kova-ct-8c" class="d-block">
+                            <img src="/img/placeholder.svg" alt="Chống thấm Kova CT-8C" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-center mb-2">
+                                <span class="badge bg-blue-lt me-2">Kova</span>
+                                <div class="ms-auto text-warning">
+                                    <i class="ti ti-star-filled"></i>
+                                    <span class="text-muted ms-1">4.0 (31)</span>
+                                </div>
+                            </div>
+                            <h3 class="h5 mb-1">
+                                <a href="/san-pham/chong-tham-kova-ct-8c" class="text-reset">Chống thấm Kova CT-8C</a>
+                            </h3>
+                            <p class="text-muted small mb-3">Chống thấm đàn hồi, lý tưởng cho mái, sân thượng</p>
+                            <div class="mt-auto">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="h5 mb-0 me-2 text-primary">380.000₫</div>
+                                    <div class="text-muted text-decoration-line-through small">450.000₫</div>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <a href="/san-pham/chong-tham-kova-ct-8c" class="btn btn-primary w-100"> <i class="ti ti-shopping-cart me-1"></i>Mua ngay </a>
+                                    <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
+                                        <i class="ti ti-heart"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -576,142 +578,100 @@
 </div>
 
 <!-- SECTION: Bài viết / tư vấn gần đây -->
-<div class="py-5 mb-5">
-    <div class="container-xl">
-        <div class="d-flex justify-content-between align-items-center mb-4">
+<section class="mb-3">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
             <h2 class="h1 mb-0">Tư vấn & Hướng dẫn</h2>
-            <a href="/bai-viet" class="btn btn-outline-primary">
-                <i class="ti ti-article me-2"></i>Xem tất cả
-            </a>
+            <p class="text-muted mb-0">Kiến thức hữu ích về sơn và chống thấm</p>
         </div>
-        
-        <div class="row g-4">
-            <!-- Bài viết 1 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
-                    <img src="/img/placeholder.svg" class="card-img-top" alt="Cách chọn sơn nội thất phù hợp">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-blue-lt me-2">Tư vấn</span>
-                            <span class="text-muted small">
-                                <i class="ti ti-calendar me-1"></i>15/04/2023
-                            </span>
-                        </div>
-                        <h3 class="h4 card-title">Cách chọn sơn nội thất phù hợp với từng không gian</h3>
-                        <p class="card-text text-muted">Hướng dẫn chi tiết cách lựa chọn loại sơn và màu sắc phù hợp với từng không gian trong nhà để tạo nên không gian sống hoàn hảo.</p>
-                    </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a href="/bai-viet/cach-chon-son-noi-that-phu-hop" class="btn btn-outline-primary">
-                            <i class="ti ti-arrow-right me-2"></i>Đọc tiếp
-                        </a>
+        <a href="/bai-viet" class="btn btn-outline-primary"> <i class="ti ti-article me-2"></i>Xem tất cả </a>
+    </div>
+
+    <div class="row g-4">
+        <!-- Bài viết 1 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-img-top position-relative">
+                    <img src="/img/placeholder.svg" class="w-100" alt="Cách chọn sơn nội thất phù hợp" style="height: 200px; object-fit: cover;" />
+                    <div class="position-absolute bottom-0 start-0 p-3">
+                        <span class="badge bg-blue text-blue-fg">Tư vấn</span>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Bài viết 2 -->
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100">
-                    <img src="/img/placeholder.svg" class="card-img-top" alt="Giải pháp chống thấm hiệu quả">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-green-lt me-2">Hướng dẫn</span>
-                            <span class="text-muted small">
-                                <i class="ti ti-calendar me-1"></i>02/05/2023
-                            </span>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar avatar-sm me-2">
+                            <i class="ti ti-user-circle"></i>
                         </div>
-                        <h3 class="h4 card-title">Giải pháp chống thấm hiệu quả cho mùa mưa</h3>
-                        <p class="card-text text-muted">Những giải pháp chống thấm hiệu quả giúp bảo vệ ngôi nhà của bạn trong mùa mưa, từ sân thượng đến tường và sàn nhà.</p>
+                        <div>
+                            <div class="fw-medium">Chuyên gia sơn</div>
+                            <div class="text-muted small"><i class="ti ti-calendar me-1"></i>15/04/2023</div>
+                        </div>
                     </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a href="/bai-viet/giai-phap-chong-tham-hieu-qua" class="btn btn-outline-primary">
-                            <i class="ti ti-arrow-right me-2"></i>Đọc tiếp
-                        </a>
-                    </div>
+                    <h3 class="h4 card-title">Cách chọn sơn nội thất phù hợp với từng không gian</h3>
+                    <p class="card-text text-muted">Hướng dẫn chi tiết cách lựa chọn loại sơn và màu sắc phù hợp với từng không gian trong nhà để tạo nên không gian sống hoàn hảo.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="/bai-viet/cach-chon-son-noi-that-phu-hop" class="btn btn-outline-primary w-100"> <i class="ti ti-arrow-right me-2"></i>Đọc tiếp </a>
                 </div>
             </div>
-            
-            <!-- Bài viết 3 -->
-            <div class="col-md-6 col-lg-4 d-none d-lg-block">
-                <div class="card h-100">
-                    <img src="/img/placeholder.svg" class="card-img-top" alt="Quy trình sơn nhà đúng kỹ thuật">
-                    <div class="card-body">
-                        <div class="d-flex align-items-center mb-3">
-                            <span class="badge bg-orange-lt me-2">Kỹ thuật</span>
-                            <span class="text-muted small">
-                                <i class="ti ti-calendar me-1"></i>20/05/2023
-                            </span>
+        </div>
+
+        <!-- Bài viết 2 -->
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100">
+                <div class="card-img-top position-relative">
+                    <img src="/img/placeholder.svg" class="w-100" alt="Giải pháp chống thấm hiệu quả" style="height: 200px; object-fit: cover;" />
+                    <div class="position-absolute bottom-0 start-0 p-3">
+                        <span class="badge bg-green text-green-fg">Hướng dẫn</span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar avatar-sm me-2">
+                            <i class="ti ti-user-circle"></i>
                         </div>
-                        <h3 class="h4 card-title">Quy trình sơn nhà đúng kỹ thuật từ A-Z</h3>
-                        <p class="card-text text-muted">Hướng dẫn chi tiết quy trình sơn nhà đúng kỹ thuật từ khâu chuẩn bị bề mặt đến hoàn thiện để đảm bảo độ bền và thẩm mỹ.</p>
+                        <div>
+                            <div class="fw-medium">Kỹ sư xây dựng</div>
+                            <div class="text-muted small"><i class="ti ti-calendar me-1"></i>02/05/2023</div>
+                        </div>
                     </div>
-                    <div class="card-footer bg-transparent border-0">
-                        <a href="/bai-viet/quy-trinh-son-nha-dung-ky-thuat" class="btn btn-outline-primary">
-                            <i class="ti ti-arrow-right me-2"></i>Đọc tiếp
-                        </a>
+                    <h3 class="h4 card-title">Giải pháp chống thấm hiệu quả cho mùa mưa</h3>
+                    <p class="card-text text-muted">Những giải pháp chống thấm hiệu quả giúp bảo vệ ngôi nhà của bạn trong mùa mưa, từ sân thượng đến tường và sàn nhà.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="/bai-viet/giai-phap-chong-tham-hieu-qua" class="btn btn-outline-primary w-100"> <i class="ti ti-arrow-right me-2"></i>Đọc tiếp </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bài viết 3 -->
+        <div class="col-md-6 col-lg-4 d-none d-lg-block">
+            <div class="card h-100">
+                <div class="card-img-top position-relative">
+                    <img src="/img/placeholder.svg" class="w-100" alt="Quy trình sơn nhà đúng kỹ thuật" style="height: 200px; object-fit: cover;" />
+                    <div class="position-absolute bottom-0 start-0 p-3">
+                        <span class="badge bg-orange text-orange-fg">Kỹ thuật</span>
                     </div>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="avatar avatar-sm me-2">
+                            <i class="ti ti-user-circle"></i>
+                        </div>
+                        <div>
+                            <div class="fw-medium">Chuyên gia thi công</div>
+                            <div class="text-muted small"><i class="ti ti-calendar me-1"></i>20/05/2023</div>
+                        </div>
+                    </div>
+                    <h3 class="h4 card-title">Quy trình sơn nhà đúng kỹ thuật từ A-Z</h3>
+                    <p class="card-text text-muted">Hướng dẫn chi tiết quy trình sơn nhà đúng kỹ thuật từ khâu chuẩn bị bề mặt đến hoàn thiện để đảm bảo độ bền và thẩm mỹ.</p>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="/bai-viet/quy-trinh-son-nha-dung-ky-thuat" class="btn btn-outline-primary w-100"> <i class="ti ti-arrow-right me-2"></i>Đọc tiếp </a>
                 </div>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-@section Styles {
-    <style>
-        .min-vh-50 {
-            min-height: 50vh;
-        }
-        
-        @@media (max-width: 767.98px) {
-            .min-vh-50 {
-                min-height: auto;
-            }
-        }
-        
-        .card-link:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-        
-        .card-img-top {
-            height: 200px;
-            object-fit: cover;
-        }
-        
-        /* Tùy chỉnh carousel */
-        .hero-carousel .carousel-control-prev,
-        .hero-carousel .carousel-control-next {
-            width: 5%;
-        }
-        
-        .hero-carousel .carousel-indicators {
-            bottom: 1rem;
-        }
-        
-        .hero-carousel .carousel-item {
-            transition: transform 0.6s ease-in-out;
-        }
-        
-        /* Tùy chỉnh màu sắc cho carousel controls */
-        .hero-carousel .carousel-control-prev-icon,
-        .hero-carousel .carousel-control-next-icon {
-            background-color: rgba(0, 0, 0, 0.2);
-            border-radius: 50%;
-            padding: 1.5rem;
-            background-size: 50%;
-        }
-    </style>
-}
-
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // Khởi tạo carousel với các tùy chọn
-            const heroCarousel = new tabler.Carousel(document.getElementById('heroCarousel'), {
-                interval: 5000,
-                wrap: true,
-                touch: true
-            });
-        });
-    </script>
-}
+<partial name="Components/CTA" />

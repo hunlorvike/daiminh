@@ -1,9 +1,9 @@
-using System.Text;
-using System.Text.Json;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
+using System.Text;
+using System.Text.Json;
 
 namespace web.Areas.Client.Services;
 

@@ -21,24 +21,16 @@ public class SettingConfiguration : BaseEntityConfiguration<Setting, int>
     public override void Configure(EntityTypeBuilder<Setting> builder)
     {
         base.Configure(builder);
-
-        builder.ToTable("settings");
-
-        builder.Property(s => s.Key).HasColumnName("key").IsRequired().HasMaxLength(100);
-        builder.Property(s => s.Category).HasColumnName("category").IsRequired().HasMaxLength(50);
+        builder.Property(s => s.Key).IsRequired().HasMaxLength(100);
+        builder.Property(s => s.Category).IsRequired().HasMaxLength(50);
         builder.HasIndex(s => new { s.Key, s.Category }).IsUnique();
-
         builder.Property(e => e.Type)
-            .HasColumnName("type")
             .IsRequired()
-            .HasDefaultValue(FieldType.Text); // Enum mặc định lưu int (hoặc string tùy cấu hình global của enum)
-
-        builder.Property(s => s.Description).HasColumnName("description").HasMaxLength(500);
-        builder.Property(s => s.DefaultValue).HasColumnName("default_value").HasColumnType("nvarchar(max)");
-        builder.Property(s => s.Value).HasColumnName("value").HasColumnType("nvarchar(max)");
-        builder.Property(s => s.IsActive).HasColumnName("is_active").HasDefaultValue(true);
-
-        // Dữ liệu seed cho Sơn Đại Minh, sắp xếp và đánh lại ID
+            .HasDefaultValue(FieldType.Text);
+        builder.Property(s => s.Description).HasMaxLength(500);
+        builder.Property(s => s.DefaultValue).HasColumnType("nvarchar(max)");
+        builder.Property(s => s.Value).HasColumnType("nvarchar(max)");
+        builder.Property(s => s.IsActive).HasDefaultValue(true);
         builder.HasData(
             // General Settings (ID 1-10)
             new Setting

@@ -68,40 +68,41 @@
 	<div class="page">
 		<partial name="Components/Header" />
 
-		<div class="page-wrapper mt-3">
-			@if (breadcrumbs != null && breadcrumbs.Any())
-			{
-				<div class="container-xl">
-					<nav aria-label="breadcrumb">
-						<ol class="breadcrumb breadcrumb-arrows mb-0">
-							<li class="breadcrumb-item">
-								<a href="/" class="text-reset">
-									<i class="ti ti-home"></i>Trang chủ
-								</a>
-							</li>
-							@foreach (var breadcrumb in breadcrumbs)
-							{
-								if (string.IsNullOrEmpty(breadcrumb.Url))
+		<div class="page-wrapper">
+			<div class="page-body">
+				<div class="container">
+					@if (breadcrumbs != null && breadcrumbs.Any())
+					{
+						<nav aria-label="breadcrumb">
+							<ol class="breadcrumb breadcrumb-arrows fs-3 mb-3">
+								<li class="breadcrumb-item">
+									<a href="/" class="text-reset">
+										Trang chủ
+									</a>
+								</li>
+								@foreach (var breadcrumb in breadcrumbs)
 								{
-									<li class="breadcrumb-item active" aria-current="page">
-										@breadcrumb.Text
-									</li>
-								}
-								else
-								{
-									<li class="breadcrumb-item">
-										<a href="@breadcrumb.Url" class="text-reset">
+									if (string.IsNullOrEmpty(breadcrumb.Url))
+									{
+										<li class="breadcrumb-item active" aria-current="page">
 											@breadcrumb.Text
-										</a>
-									</li>
+										</li>
+									}
+									else
+									{
+										<li class="breadcrumb-item">
+											<a href="@breadcrumb.Url" class="text-reset">
+												@breadcrumb.Text
+											</a>
+										</li>
+									}
 								}
-							}
-						</ol>
-					</nav>
+							</ol>
+						</nav>
+					}
+					@RenderBody()
 				</div>
-			}
-
-			@RenderBody()
+			</div>
 		</div>
 
 		<partial name="Components/Footer" />

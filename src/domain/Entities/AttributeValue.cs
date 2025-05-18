@@ -17,11 +17,9 @@ public class AttributeValueConfiguration : BaseEntityConfiguration<AttributeValu
     public override void Configure(EntityTypeBuilder<AttributeValue> builder)
     {
         base.Configure(builder);
-        builder.ToTable("attribute_values");
-
-        builder.Property(v => v.AttributeId).HasColumnName("attribute_id").IsRequired();
-        builder.Property(v => v.Value).HasColumnName("value").HasMaxLength(100).IsRequired();
-        builder.Property(v => v.Slug).HasColumnName("slug").HasMaxLength(120).IsRequired();
+        builder.Property(v => v.AttributeId).IsRequired();
+        builder.Property(v => v.Value).HasMaxLength(100).IsRequired();
+        builder.Property(v => v.Slug).HasMaxLength(120).IsRequired();
         builder.HasIndex(v => new { v.AttributeId, v.Slug }).IsUnique();
 
         builder.HasOne(v => v.Attribute)

@@ -1,6 +1,6 @@
 <!-- Top bar with contact info - desktop only -->
-<header class="navbar navbar-expand-md py-2 d-none d-md-block" style="min-height: unset;">
-	<div class="container-xl justify-content-between align-items-center small fw-medium">
+<header class="navbar p-0 navbar-expand-md py-2 d-none d-md-block" style="min-height: unset;">
+	<div class="container justify-content-between align-items-center small fw-medium">
 		<div>
 			<span class="me-3 text-muted">
 				<i class="ti ti-phone me-1 text-primary"></i>
@@ -27,8 +27,8 @@
 
 <header class="sticky-top">
 	<!-- Main Header  -->
-	<div class="navbar navbar-expand-md">
-		<div class="container-xl align-items-center justify-content-between py-3">
+	<div class="navbar p-0 navbar-expand-md">
+		<div class="container align-items-center justify-content-between">
 			<!-- Logo -->
 			<a asp-controller="Home" asp-action="Index"
 				class="navbar-brand d-flex align-items-center text-decoration-none">
@@ -101,8 +101,8 @@
 	</div>
 
 	<!-- Desktop Navigation - Separated into its own div -->
-	<div class="navbar navbar-expand-md d-none d-md-block" id="desktop-navigation">
-		<div class="container-xl">
+	<div class="navbar p-0 navbar-expand-md d-none d-md-block" id="desktop-navigation">
+		<div class="container">
 			<ul class="navbar-nav">
 				<li class="nav-item active">
 					<a class="nav-link" href="/">
@@ -229,7 +229,7 @@
 	<!-- Mobile Search Modal -->
 	<div class="modal fade" id="searchModal" data-bs-backdrop="false" tabindex="-1" aria-labelledby="searchModalLabel"
 		aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-dialog modal-fullscreen modal-dialog-centered">
 			<div class="modal-content border-0">
 				<div class="modal-header border-0">
 					<h5 class="modal-title" id="searchModalLabel">
@@ -238,7 +238,7 @@
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body p-4">
-					<form action="#" method="get" class="input-icon w-100 mb-4">
+					<form action="#" method="get" class="input-icon w-100 mb-3">
 						<span class="input-icon-addon">
 							<i class="ti ti-search"></i>
 						</span>
@@ -286,21 +286,6 @@
 				aria-label="Close"></button>
 		</div>
 		<div class="offcanvas-body p-0">
-			<!-- Mobile Search -->
-			<div class="p-3 border-bottom">
-				<form action="#" method="get" class="input-icon">
-					<span class="input-icon-addon">
-						<i class="ti ti-search"></i>
-					</span>
-					<input type="text" class="form-control" placeholder="Tìm kiếm...">
-					<span class="input-icon-addon end">
-						<button type="submit" class="btn btn-link p-0 text-primary">
-							<i class="ti ti-arrow-right"></i>
-						</button>
-					</span>
-				</form>
-			</div>
-
 			<!-- Mobile Navigation -->
 			<div class="nav flex-column">
 				<a href="/" class="nav-link py-3 px-4 border-bottom d-flex align-items-center">

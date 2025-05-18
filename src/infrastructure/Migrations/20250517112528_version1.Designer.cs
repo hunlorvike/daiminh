@@ -12,7 +12,7 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250504174507_version1")]
+    [Migration("20250517112528_version1")]
     partial class version1
     {
         /// <inheritdoc />
@@ -35,18 +35,15 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("AuthorAvatar")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("author_avatar");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("AuthorId")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("author_id");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("AuthorName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("author_name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("BreadcrumbJson")
                         .HasColumnType("nvarchar(max)")
@@ -58,13 +55,11 @@ namespace infrastructure.Migrations
                         .HasColumnName("canonical_url");
 
                     b.Property<int?>("CategoryId")
-                        .HasColumnType("int")
-                        .HasColumnName("category_id");
+                        .HasColumnType("int");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("content");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -80,19 +75,16 @@ namespace infrastructure.Migrations
                     b.Property<int>("EstimatedReadingMinutes")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("estimated_reading_minutes");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("FeaturedImage")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("featured_image");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_featured");
+                        .HasDefaultValue(false);
 
                     b.Property<string>("MetaDescription")
                         .HasMaxLength(300)
@@ -144,8 +136,7 @@ namespace infrastructure.Migrations
                         .HasColumnName("og_type");
 
                     b.Property<DateTime?>("PublishedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("published_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SchemaMarkup")
                         .HasColumnType("nvarchar(max)")
@@ -167,30 +158,25 @@ namespace infrastructure.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("status");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Summary")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("summary");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("ThumbnailImage")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("thumbnail_image");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("title");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("TwitterCard")
                         .ValueGeneratedOnAdd()
@@ -226,8 +212,7 @@ namespace infrastructure.Migrations
                     b.Property<int>("ViewCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("view_count");
+                        .HasDefaultValue(0);
 
                     b.HasKey("Id");
 
@@ -238,41 +223,37 @@ namespace infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("articles", (string)null);
+                    b.ToTable("Articles");
                 });
 
             modelBuilder.Entity("domain.Entities.ArticleProduct", b =>
                 {
                     b.Property<int>("ArticleId")
-                        .HasColumnType("int")
-                        .HasColumnName("article_id");
+                        .HasColumnType("int");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_id");
+                        .HasColumnType("int");
 
                     b.HasKey("ArticleId", "ProductId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("article_products", (string)null);
+                    b.ToTable("ArticleProducts");
                 });
 
             modelBuilder.Entity("domain.Entities.ArticleTag", b =>
                 {
                     b.Property<int>("ArticleId")
-                        .HasColumnType("int")
-                        .HasColumnName("article_id");
+                        .HasColumnType("int");
 
                     b.Property<int>("TagId")
-                        .HasColumnType("int")
-                        .HasColumnName("tag_id");
+                        .HasColumnType("int");
 
                     b.HasKey("ArticleId", "TagId");
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("article_tags", (string)null);
+                    b.ToTable("ArticleTags");
                 });
 
             modelBuilder.Entity("domain.Entities.Attribute", b =>
@@ -297,14 +278,12 @@ namespace infrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -320,34 +299,34 @@ namespace infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("attributes", (string)null);
+                    b.ToTable("Attributes");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(7065),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(5256),
                             Name = "Màu sắc",
                             Slug = "mau-sac"
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(7066),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(5258),
                             Name = "Dung tích",
                             Slug = "dung-tich"
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(7068),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(5259),
                             Name = "Độ bóng",
                             Slug = "do-bong"
                         },
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(7069),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(5260),
                             Name = "Bề mặt áp dụng",
                             Slug = "be-mat-ap-dung"
                         });
@@ -362,8 +341,7 @@ namespace infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("AttributeId")
-                        .HasColumnType("int")
-                        .HasColumnName("attribute_id");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -379,8 +357,7 @@ namespace infrastructure.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(120)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -394,22 +371,21 @@ namespace infrastructure.Migrations
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("value");
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("AttributeId", "Slug")
                         .IsUnique();
 
-                    b.ToTable("attribute_values", (string)null);
+                    b.ToTable("AttributeValues");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             AttributeId = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1096),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5489),
                             Slug = "trang",
                             Value = "Trắng"
                         },
@@ -417,7 +393,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 2,
                             AttributeId = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1148),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5491),
                             Slug = "do",
                             Value = "Đỏ"
                         },
@@ -425,7 +401,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 3,
                             AttributeId = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1149),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5492),
                             Slug = "xanh-duong",
                             Value = "Xanh dương"
                         },
@@ -433,7 +409,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 4,
                             AttributeId = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1151),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5494),
                             Slug = "vang",
                             Value = "Vàng"
                         },
@@ -441,7 +417,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 5,
                             AttributeId = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1152),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5495),
                             Slug = "1-lit",
                             Value = "1 Lít"
                         },
@@ -449,7 +425,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 6,
                             AttributeId = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1153),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5496),
                             Slug = "5-lit",
                             Value = "5 Lít"
                         },
@@ -457,7 +433,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 7,
                             AttributeId = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1154),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5497),
                             Slug = "18-lit",
                             Value = "18 Lít"
                         },
@@ -465,7 +441,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 8,
                             AttributeId = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1155),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5499),
                             Slug = "20-kg",
                             Value = "20 Kg"
                         },
@@ -473,7 +449,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 9,
                             AttributeId = 3,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1156),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5500),
                             Slug = "bong",
                             Value = "Bóng"
                         },
@@ -481,7 +457,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 10,
                             AttributeId = 3,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1158),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5501),
                             Slug = "mo",
                             Value = "Mờ"
                         },
@@ -489,7 +465,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 11,
                             AttributeId = 3,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1159),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5502),
                             Slug = "ban-bong",
                             Value = "Bán bóng"
                         },
@@ -497,7 +473,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 12,
                             AttributeId = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1160),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5504),
                             Slug = "tuong-noi-that",
                             Value = "Tường nội thất"
                         },
@@ -505,7 +481,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 13,
                             AttributeId = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1162),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5505),
                             Slug = "tuong-ngoai-that",
                             Value = "Tường ngoại thất"
                         },
@@ -513,7 +489,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 14,
                             AttributeId = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1163),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5506),
                             Slug = "san-be-tong",
                             Value = "Sàn bê tông"
                         },
@@ -521,7 +497,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 15,
                             AttributeId = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 914, DateTimeKind.Utc).AddTicks(1164),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 158, DateTimeKind.Utc).AddTicks(5507),
                             Slug = "san-thuong",
                             Value = "Sân thượng"
                         });
@@ -547,43 +523,36 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("image_url");
+                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("LinkUrl")
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("link_url");
+                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("title");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(1)
-                        .HasColumnName("type");
+                        .HasDefaultValue(1);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -596,7 +565,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("banners", (string)null);
+                    b.ToTable("Banners");
                 });
 
             modelBuilder.Entity("domain.Entities.Brand", b =>
@@ -619,31 +588,26 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("logo_url");
+                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("name");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -656,21 +620,20 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("Website")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("website");
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("brands", (string)null);
+                    b.ToTable("Brands");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(4839),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(2649),
                             IsActive = true,
                             Name = "Dulux",
                             Slug = "dulux"
@@ -678,7 +641,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(4842),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(2652),
                             IsActive = true,
                             Name = "Jotun",
                             Slug = "jotun"
@@ -686,7 +649,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(4843),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(2749),
                             IsActive = true,
                             Name = "Kova",
                             Slug = "kova"
@@ -694,7 +657,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(4844),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(2751),
                             IsActive = true,
                             Name = "Sika",
                             Slug = "sika"
@@ -702,7 +665,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(4845),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(2752),
                             IsActive = true,
                             Name = "Nippon Paint",
                             Slug = "nippon-paint"
@@ -710,7 +673,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 907, DateTimeKind.Utc).AddTicks(4847),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 150, DateTimeKind.Utc).AddTicks(2754),
                             IsActive = true,
                             Name = "My Kolor",
                             Slug = "my-kolor"
@@ -737,47 +700,39 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Icon")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("icon");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
+                        .HasDefaultValue(0);
 
                     b.Property<int?>("ParentId")
-                        .HasColumnType("int")
-                        .HasColumnName("parent_id");
+                        .HasColumnType("int");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("type");
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -795,13 +750,13 @@ namespace infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("categories", (string)null);
+                    b.ToTable("Categories");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3407),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1918),
                             IsActive = true,
                             Name = "Sơn",
                             OrderIndex = 0,
@@ -811,7 +766,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3464),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1919),
                             IsActive = true,
                             Name = "Chống Thấm",
                             OrderIndex = 1,
@@ -821,7 +776,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3465),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1921),
                             IsActive = true,
                             Name = "Vật Liệu Xây Dựng",
                             OrderIndex = 2,
@@ -831,7 +786,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3467),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1923),
                             IsActive = true,
                             Name = "Tin Tức & Sự Kiện",
                             OrderIndex = 3,
@@ -841,7 +796,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3468),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1924),
                             IsActive = true,
                             Name = "Câu Hỏi Thường Gặp",
                             OrderIndex = 4,
@@ -851,7 +806,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3470),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1926),
                             IsActive = true,
                             Name = "Sơn Nội Thất",
                             OrderIndex = 0,
@@ -862,7 +817,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3472),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1928),
                             IsActive = true,
                             Name = "Sơn Ngoại Thất",
                             OrderIndex = 1,
@@ -873,7 +828,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3473),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1929),
                             IsActive = true,
                             Name = "Sơn Lót",
                             OrderIndex = 2,
@@ -884,7 +839,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3475),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1931),
                             IsActive = true,
                             Name = "Sơn Chống Kiềm",
                             OrderIndex = 3,
@@ -895,7 +850,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3476),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1932),
                             IsActive = true,
                             Name = "Chống Thấm Sàn Mái",
                             OrderIndex = 0,
@@ -906,7 +861,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 11,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3478),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1934),
                             IsActive = true,
                             Name = "Chống Thấm Tường",
                             OrderIndex = 1,
@@ -917,7 +872,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 12,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3479),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1935),
                             IsActive = true,
                             Name = "Chống Thấm Nhà Vệ Sinh",
                             OrderIndex = 2,
@@ -928,7 +883,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 13,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3481),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1937),
                             IsActive = true,
                             Name = "Phụ Gia Bê Tông",
                             OrderIndex = 0,
@@ -939,7 +894,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 14,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(3482),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(1939),
                             IsActive = true,
                             Name = "Keo Chít Mạch",
                             OrderIndex = 1,
@@ -958,8 +913,7 @@ namespace infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("AdminNotes")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("admin_notes");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -975,41 +929,34 @@ namespace infrastructure.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("email");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("full_name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("IpAddress")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("ip_address");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("message");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Phone")
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasColumnName("phone");
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("status");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("subject");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1022,14 +969,13 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("user_agent");
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Email");
 
-                    b.ToTable("contacts", (string)null);
+                    b.ToTable("Contacts");
                 });
 
             modelBuilder.Entity("domain.Entities.FAQ", b =>
@@ -1042,8 +988,7 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("Answer")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("answer");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int")
@@ -1063,20 +1008,17 @@ namespace infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("question");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1093,7 +1035,7 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("OrderIndex");
 
-                    b.ToTable("faqs", (string)null);
+                    b.ToTable("FAQs");
 
                     b.HasData(
                         new
@@ -1101,7 +1043,7 @@ namespace infrastructure.Migrations
                             Id = 1,
                             Answer = "Sơn nội thất và ngoại thất khác nhau về thành phần hóa học để phù hợp với điều kiện môi trường. Sơn ngoại thất chứa các chất chống tia UV, chống thấm tốt hơn để chịu được nắng, mưa, ẩm ướt. Sơn nội thất an toàn hơn cho sức khỏe, ít mùi và có độ bền màu trong nhà tốt.",
                             CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 917, DateTimeKind.Utc).AddTicks(1827),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 161, DateTimeKind.Utc).AddTicks(7691),
                             IsActive = true,
                             OrderIndex = 0,
                             Question = "Sơn nội thất và sơn ngoại thất khác nhau như thế nào?"
@@ -1111,7 +1053,7 @@ namespace infrastructure.Migrations
                             Id = 2,
                             Answer = "Lượng sơn cần dùng phụ thuộc vào diện tích cần sơn, loại sơn, và bề mặt. Trung bình 1 lít sơn có thể phủ được 8-10m2 cho 2 lớp. Bạn cần đo diện tích tường, trần nhà và tham khảo hướng dẫn của nhà sản xuất sơn.",
                             CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 917, DateTimeKind.Utc).AddTicks(1830),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 161, DateTimeKind.Utc).AddTicks(7693),
                             IsActive = true,
                             OrderIndex = 1,
                             Question = "Làm thế nào để tính toán lượng sơn cần dùng?"
@@ -1121,7 +1063,7 @@ namespace infrastructure.Migrations
                             Id = 3,
                             Answer = "Sơn lót chống kiềm cần được sử dụng trên các bề mặt mới xây (vữa, bê tông) hoặc các bề mặt cũ có dấu hiệu bị kiềm hóa (ố vàng, phấn trắng) để ngăn chặn kiềm từ xi măng ăn mòn lớp sơn phủ màu.",
                             CategoryId = 5,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 917, DateTimeKind.Utc).AddTicks(1832),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 161, DateTimeKind.Utc).AddTicks(7696),
                             IsActive = true,
                             OrderIndex = 2,
                             Question = "Khi nào cần sử dụng sơn lót chống kiềm?"
@@ -1138,8 +1080,7 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("AltText")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("alt_text");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1154,51 +1095,42 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("Duration")
-                        .HasColumnType("int")
-                        .HasColumnName("duration");
+                        .HasColumnType("int");
 
                     b.Property<string>("FileExtension")
                         .IsRequired()
                         .HasMaxLength(10)
-                        .HasColumnType("nvarchar(10)")
-                        .HasColumnName("file_extension");
+                        .HasColumnType("nvarchar(10)");
 
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("file_name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("FilePath")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("file_path");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<long>("FileSize")
-                        .HasColumnType("bigint")
-                        .HasColumnName("file_size");
+                        .HasColumnType("bigint");
 
                     b.Property<int>("MediaType")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("media_type");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("MimeType")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("mime_type");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("OriginalFileName")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("original_file_name");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1211,7 +1143,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("media_files", (string)null);
+                    b.ToTable("MediaFiles");
                 });
 
             modelBuilder.Entity("domain.Entities.Newsletter", b =>
@@ -1223,8 +1155,7 @@ namespace infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime?>("ConfirmedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("confirmed_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1240,28 +1171,23 @@ namespace infrastructure.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("email");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("IpAddress")
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("ip_address");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Name")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime?>("UnsubscribedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("unsubscribed_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1274,15 +1200,14 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("UserAgent")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("user_agent");
+                        .HasColumnType("nvarchar(255)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("newsletters", (string)null);
+                    b.ToTable("Newsletters");
                 });
 
             modelBuilder.Entity("domain.Entities.Page", b =>
@@ -1300,8 +1225,7 @@ namespace infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("content");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1342,8 +1266,7 @@ namespace infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("PublishedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("published_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("SchemaMarkup")
                         .HasColumnType("nvarchar(max)");
@@ -1357,20 +1280,17 @@ namespace infrastructure.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("status");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("title");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("TwitterCard")
                         .HasColumnType("nvarchar(max)");
@@ -1398,18 +1318,18 @@ namespace infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("pages", (string)null);
+                    b.ToTable("Pages");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             Content = "This is the About Us page content.",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 910, DateTimeKind.Utc).AddTicks(9826),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 155, DateTimeKind.Utc).AddTicks(1760),
                             NoFollow = false,
                             NoIndex = false,
                             OgType = "website",
-                            PublishedAt = new DateTime(2025, 5, 4, 17, 45, 6, 910, DateTimeKind.Utc).AddTicks(9823),
+                            PublishedAt = new DateTime(2025, 5, 17, 11, 25, 27, 155, DateTimeKind.Utc).AddTicks(1757),
                             SitemapChangeFrequency = "monthly",
                             SitemapPriority = 0.5,
                             Slug = "about-us",
@@ -1421,11 +1341,11 @@ namespace infrastructure.Migrations
                         {
                             Id = 2,
                             Content = "This is the Privacy Policy page content.",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 910, DateTimeKind.Utc).AddTicks(9828),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 155, DateTimeKind.Utc).AddTicks(1764),
                             NoFollow = false,
                             NoIndex = false,
                             OgType = "website",
-                            PublishedAt = new DateTime(2025, 5, 4, 17, 45, 6, 910, DateTimeKind.Utc).AddTicks(9827),
+                            PublishedAt = new DateTime(2025, 5, 17, 11, 25, 27, 155, DateTimeKind.Utc).AddTicks(1763),
                             SitemapChangeFrequency = "monthly",
                             SitemapPriority = 0.5,
                             Slug = "privacy-policy",
@@ -1444,8 +1364,7 @@ namespace infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Content")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("content");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1459,34 +1378,28 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<DateTime?>("EndDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("end_date");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("image_url");
+                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("LinkUrl")
                         .HasMaxLength(2048)
-                        .HasColumnType("nvarchar(2048)")
-                        .HasColumnName("link_url");
+                        .HasColumnType("nvarchar(2048)");
 
                     b.Property<DateTime?>("StartDate")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("start_date");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("title");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1499,7 +1412,7 @@ namespace infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("popup_modals", (string)null);
+                    b.ToTable("PopupModals");
                 });
 
             modelBuilder.Entity("domain.Entities.Product", b =>
@@ -1511,8 +1424,7 @@ namespace infrastructure.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int?>("BrandId")
-                        .HasColumnType("int")
-                        .HasColumnName("brand_id");
+                        .HasColumnType("int");
 
                     b.Property<string>("BreadcrumbJson")
                         .HasColumnType("nvarchar(max)")
@@ -1524,8 +1436,7 @@ namespace infrastructure.Migrations
                         .HasColumnName("canonical_url");
 
                     b.Property<int?>("CategoryId")
-                        .HasColumnType("int")
-                        .HasColumnName("category_id");
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1540,25 +1451,21 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsFeatured")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_featured");
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Manufacturer")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("manufacturer");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("MetaDescription")
                         .HasMaxLength(300)
@@ -1578,8 +1485,7 @@ namespace infrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("name");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("NoFollow")
                         .ValueGeneratedOnAdd()
@@ -1617,8 +1523,7 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("Origin")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("origin");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("SchemaMarkup")
                         .HasColumnType("nvarchar(max)")
@@ -1626,8 +1531,7 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("ShortDescription")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("short_description");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("SitemapChangeFrequency")
                         .ValueGeneratedOnAdd()
@@ -1645,18 +1549,15 @@ namespace infrastructure.Migrations
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Specifications")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("specifications");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("status");
+                        .HasDefaultValue(0);
 
                     b.Property<string>("TwitterCard")
                         .ValueGeneratedOnAdd()
@@ -1690,14 +1591,12 @@ namespace infrastructure.Migrations
                         .HasColumnName("updated_by");
 
                     b.Property<string>("Usage")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("usage");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("ViewCount")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("view_count");
+                        .HasDefaultValue(0);
 
                     b.HasKey("Id");
 
@@ -1708,24 +1607,22 @@ namespace infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("products", (string)null);
+                    b.ToTable("Products");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductAttribute", b =>
                 {
                     b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_id");
+                        .HasColumnType("int");
 
                     b.Property<int>("AttributeId")
-                        .HasColumnType("int")
-                        .HasColumnName("attribute_id");
+                        .HasColumnType("int");
 
                     b.HasKey("ProductId", "AttributeId");
 
                     b.HasIndex("AttributeId");
 
-                    b.ToTable("product_attributes", (string)null);
+                    b.ToTable("ProductAttributes");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductImage", b =>
@@ -1738,8 +1635,7 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("AltText")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("alt_text");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1755,34 +1651,28 @@ namespace infrastructure.Migrations
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("image_url");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsMain")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_main");
+                        .HasDefaultValue(false);
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
+                        .HasDefaultValue(0);
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_id");
+                        .HasColumnType("int");
 
                     b.Property<string>("ThumbnailUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("thumbnail_url");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Title")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("title");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1799,7 +1689,7 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("product_images", (string)null);
+                    b.ToTable("ProductImages");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductReview", b =>
@@ -1812,8 +1702,7 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("content");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -1827,18 +1716,15 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_id");
+                        .HasColumnType("int");
 
                     b.Property<int>("Rating")
-                        .HasColumnType("int")
-                        .HasColumnName("rating");
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("status");
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1851,17 +1737,14 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("UserEmail")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("user_email");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<int?>("UserId")
-                        .HasColumnType("int")
-                        .HasColumnName("user_id");
+                        .HasColumnType("int");
 
                     b.Property<string>("UserName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("user_name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
@@ -1871,24 +1754,22 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("product_reviews", (string)null);
+                    b.ToTable("ProductReviews");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductTag", b =>
                 {
                     b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_id");
+                        .HasColumnType("int");
 
                     b.Property<int>("TagId")
-                        .HasColumnType("int")
-                        .HasColumnName("tag_id");
+                        .HasColumnType("int");
 
                     b.HasKey("ProductId", "TagId");
 
                     b.HasIndex("TagId");
 
-                    b.ToTable("product_tags", (string)null);
+                    b.ToTable("ProductTags");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductVariation", b =>
@@ -1912,38 +1793,31 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("ImageUrl")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("image_url");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<bool>("IsDefault")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_default");
+                        .HasDefaultValue(false);
 
                     b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18, 2)")
-                        .HasColumnName("price");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int>("ProductId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_id");
+                        .HasColumnType("int");
 
                     b.Property<decimal?>("SalePrice")
-                        .HasColumnType("decimal(18, 2)")
-                        .HasColumnName("sale_price");
+                        .HasColumnType("decimal(18, 2)");
 
                     b.Property<int>("StockQuantity")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("stock_quantity");
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -1960,24 +1834,22 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("product_variations", (string)null);
+                    b.ToTable("ProductVariations");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductVariationAttributeValue", b =>
                 {
                     b.Property<int>("ProductVariationId")
-                        .HasColumnType("int")
-                        .HasColumnName("product_variation_id");
+                        .HasColumnType("int");
 
                     b.Property<int>("AttributeValueId")
-                        .HasColumnType("int")
-                        .HasColumnName("attribute_value_id");
+                        .HasColumnType("int");
 
                     b.HasKey("ProductVariationId", "AttributeValueId");
 
                     b.HasIndex("AttributeValueId");
 
-                    b.ToTable("product_variation_attribute_values", (string)null);
+                    b.ToTable("ProductVariationAttributeValues");
                 });
 
             modelBuilder.Entity("domain.Entities.Setting", b =>
@@ -1991,8 +1863,7 @@ namespace infrastructure.Migrations
                     b.Property<string>("Category")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("category");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -2006,31 +1877,26 @@ namespace infrastructure.Migrations
                         .HasColumnName("created_by");
 
                     b.Property<string>("DefaultValue")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("default_value");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("Key")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("key");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("type");
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -2042,22 +1908,21 @@ namespace infrastructure.Migrations
                         .HasColumnName("updated_by");
 
                     b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("value");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("Key", "Category")
                         .IsUnique();
 
-                    b.ToTable("settings", (string)null);
+                    b.ToTable("Settings");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(203),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8668),
                             DefaultValue = "Sơn Đại Minh Việt Nam",
                             Description = "Tên website hiển thị trên trang và tiêu đề trình duyệt.",
                             IsActive = true,
@@ -2069,7 +1934,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 2,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(205),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8670),
                             DefaultValue = "https://localhost:7001",
                             Description = "Địa chỉ URL chính của website (ví dụ: https://www.example.com).",
                             IsActive = true,
@@ -2081,7 +1946,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 3,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(207),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8672),
                             DefaultValue = "sondaiminh@gmail.com",
                             Description = "Địa chỉ email quản trị viên để nhận thông báo hệ thống (đơn hàng, liên hệ...).",
                             IsActive = true,
@@ -2093,7 +1958,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 4,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(256),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8750),
                             DefaultValue = "/images/logo.png",
                             Description = "Đường dẫn đến file logo website.",
                             IsActive = true,
@@ -2105,7 +1970,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 5,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(258),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8752),
                             DefaultValue = "/images/favicon.ico",
                             Description = "Đường dẫn đến file favicon.ico hoặc ảnh favicon.",
                             IsActive = true,
@@ -2117,7 +1982,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 6,
                             Category = "General",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(259),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8753),
                             DefaultValue = "12",
                             Description = "Số lượng sản phẩm/bài viết hiển thị trên mỗi trang danh sách mặc định.",
                             IsActive = true,
@@ -2129,7 +1994,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 11,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(261),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8755),
                             DefaultValue = "Sơn Đại Minh",
                             Description = "Tên công ty hoặc tổ chức sở hữu website.",
                             IsActive = true,
@@ -2141,7 +2006,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 12,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(263),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8757),
                             DefaultValue = "Tiên Phương, Chương Mỹ, Hà Nội",
                             Description = "Địa chỉ liên hệ đầy đủ của công ty.",
                             IsActive = true,
@@ -2153,7 +2018,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 13,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(264),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8758),
                             DefaultValue = "0979758340",
                             Description = "Số điện thoại liên hệ chung.",
                             IsActive = true,
@@ -2165,7 +2030,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 14,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(266),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8760),
                             DefaultValue = "sondaiminh@gmail.com",
                             Description = "Địa chỉ email hiển thị công khai để liên hệ.",
                             IsActive = true,
@@ -2177,7 +2042,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 15,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(268),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8761),
                             DefaultValue = "<iframe src=\"https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d5152.719628304902!2d105.68369562421606!3d20.94205043073292!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3134539b465b1be5%3A0x279c032890c390c5!2zxJDhuqFpIE1pbmggVmnhu4d0IE5hbQ!5e1!3m2!1svi!2s!4v1745895737603!5m2!1svi!2s\" width=\"600\" height=\"450\" style=\"border:0;\" allowfullscreen=\"\" loading=\"lazy\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>",
                             Description = "Mã nhúng HTML của bản đồ (ví dụ: Google Maps iframe) hiển thị trên trang Liên hệ.",
                             IsActive = true,
@@ -2189,7 +2054,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 16,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(270),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8763),
                             DefaultValue = "0979758340",
                             Description = "Số điện thoại Hotline hỗ trợ nhanh.",
                             IsActive = true,
@@ -2201,7 +2066,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 17,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(271),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8764),
                             DefaultValue = "Thứ 2 - Thứ 7: 8h00 - 17h00",
                             Description = "Giờ làm việc của công ty.",
                             IsActive = true,
@@ -2213,7 +2078,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 18,
                             Category = "Contact",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(273),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8766),
                             Description = "Mã số thuế của công ty.",
                             IsActive = true,
                             Key = "TaxId",
@@ -2223,7 +2088,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 21,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(274),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8768),
                             DefaultValue = "Sơn Chống Thấm, Vật Liệu Sơn Chính Hãng | Đại Minh Việt Nam",
                             Description = "Tiêu đề meta mặc định cho các trang không có tiêu đề riêng.",
                             IsActive = true,
@@ -2235,7 +2100,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 22,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(276),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8770),
                             DefaultValue = "Đại Minh Việt Nam chuyên cung cấp sơn, vật liệu chống thấm, phụ gia bê tông chính hãng từ các thương hiệu hàng đầu. Tư vấn giải pháp thi công hiệu quả. Liên hệ 0979758340.",
                             Description = "Mô tả meta mặc định (dưới 160 ký tự) cho các trang không có mô tả riêng.",
                             IsActive = true,
@@ -2247,7 +2112,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 23,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(278),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8772),
                             Description = "Mã ID Google Analytics (ví dụ: UA-XXXXXXX-Y hoặc G-XXXXXXXXXX).",
                             IsActive = true,
                             Key = "GoogleAnalyticsId",
@@ -2257,7 +2122,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 24,
                             Category = "SEO",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(279),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8773),
                             Description = "Các meta tag xác minh website (Google, Bing, ...).",
                             IsActive = true,
                             Key = "VerificationMetaTags",
@@ -2267,7 +2132,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 31,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(281),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8775),
                             DefaultValue = "https://www.facebook.com/LienDaiMinh",
                             Description = "URL trang Facebook của công ty.",
                             IsActive = true,
@@ -2279,7 +2144,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 32,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(282),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8776),
                             Description = "URL trang Twitter (X) của công ty.",
                             IsActive = true,
                             Key = "SocialTwitterUrl",
@@ -2289,7 +2154,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 33,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(284),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8778),
                             Description = "URL trang Instagram của công ty.",
                             IsActive = true,
                             Key = "SocialInstagramUrl",
@@ -2299,7 +2164,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 34,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(285),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8779),
                             Description = "URL trang LinkedIn của công ty.",
                             IsActive = true,
                             Key = "SocialLinkedInUrl",
@@ -2309,7 +2174,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 35,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(287),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8781),
                             Description = "URL kênh Youtube của công ty.",
                             IsActive = true,
                             Key = "SocialYoutubeUrl",
@@ -2319,7 +2184,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 36,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(288),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8783),
                             DefaultValue = "https://www.tiktok.com/@hung.daiminh",
                             Description = "URL kênh Tiktok của công ty.",
                             IsActive = true,
@@ -2331,7 +2196,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 37,
                             Category = "Social Media",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(291),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8784),
                             DefaultValue = "0979758340",
                             Description = "Số điện thoại Zalo để liên hệ nhanh (có thể khác Hotline).",
                             IsActive = true,
@@ -2343,7 +2208,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 41,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(292),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8786),
                             DefaultValue = "smtp.example.com",
                             Description = "Địa chỉ máy chủ SMTP để gửi email.",
                             IsActive = true,
@@ -2355,7 +2220,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 42,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(294),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8787),
                             DefaultValue = "587",
                             Description = "Cổng SMTP (ví dụ: 587, 465, 25).",
                             IsActive = true,
@@ -2367,7 +2232,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 43,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(296),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8789),
                             DefaultValue = "user@example.com",
                             Description = "Tên đăng nhập SMTP.",
                             IsActive = true,
@@ -2379,7 +2244,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 44,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(298),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8791),
                             Description = "**QUAN TRỌNG**: Mật khẩu SMTP. Nên cấu hình qua UI, không seed giá trị thật.",
                             IsActive = true,
                             Key = "SmtpPassword",
@@ -2389,7 +2254,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 45,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(299),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8792),
                             DefaultValue = "true",
                             Description = "Sử dụng mã hóa SSL/TLS khi gửi email.",
                             IsActive = true,
@@ -2401,7 +2266,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 46,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(301),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8794),
                             DefaultValue = "Đại Minh Việt Nam",
                             Description = "Tên hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -2413,7 +2278,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 47,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(303),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8795),
                             DefaultValue = "noreply@daiminhvietnam.com",
                             Description = "Địa chỉ email hiển thị trong ô 'From' của email gửi đi.",
                             IsActive = true,
@@ -2425,7 +2290,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 48,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(304),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8798),
                             DefaultValue = "ContactReply",
                             Description = "Mã/tên template email phản hồi tự động khi nhận form liên hệ.",
                             IsActive = true,
@@ -2437,7 +2302,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 49,
                             Category = "Email",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(306),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8800),
                             DefaultValue = "NewsletterSubscribe",
                             Description = "Mã/tên template email xác nhận đăng ký nhận tin.",
                             IsActive = true,
@@ -2449,7 +2314,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 51,
                             Category = "Appearance",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(308),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8801),
                             DefaultValue = "/images/banners/banner1.jpg",
                             Description = "URL ảnh banner chính trang chủ.",
                             IsActive = true,
@@ -2461,7 +2326,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 52,
                             Category = "Appearance",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(309),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8803),
                             DefaultValue = "/",
                             Description = "URL liên kết khi click banner chính trang chủ.",
                             IsActive = true,
@@ -2473,7 +2338,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 53,
                             Category = "Appearance",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(353),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8850),
                             DefaultValue = "© 2025 Sơn Đại Minh Việt Nam. All rights reserved.",
                             Description = "Nội dung text copyright hiển thị ở chân trang.",
                             IsActive = true,
@@ -2485,7 +2350,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 61,
                             Category = "Integration",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(355),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8851),
                             Description = "Mã script nhúng Live Chat (Zalo, Tawk.to, subiz...).",
                             IsActive = true,
                             Key = "LiveChatScript",
@@ -2495,7 +2360,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 71,
                             Category = "E-commerce",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(357),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8853),
                             DefaultValue = "VND",
                             Description = "Mã tiền tệ chính được sử dụng (ví dụ: VND, USD).",
                             IsActive = true,
@@ -2507,7 +2372,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 72,
                             Category = "E-commerce",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(358),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8854),
                             DefaultValue = "đ",
                             Description = "Ký hiệu tiền tệ hiển thị (ví dụ: đ, $).",
                             IsActive = true,
@@ -2519,7 +2384,7 @@ namespace infrastructure.Migrations
                         {
                             Id = 73,
                             Category = "E-commerce",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 909, DateTimeKind.Utc).AddTicks(360),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(8856),
                             DefaultValue = "/images/product-placeholder.png",
                             Description = "URL ảnh mặc định hiển thị khi sản phẩm không có ảnh.",
                             IsActive = true,
@@ -2550,62 +2415,51 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("CtaLink")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("cta_link");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("CtaText")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("cta_text");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Description")
                         .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime?>("EndAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("end_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("ImageUrl")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("image_url");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("StartAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("start_at");
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Subtitle")
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)")
-                        .HasColumnName("subtitle");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<string>("Target")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(10)
                         .HasColumnType("nvarchar(10)")
-                        .HasDefaultValue("_self")
-                        .HasColumnName("target");
+                        .HasDefaultValue("_self");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(150)
-                        .HasColumnType("nvarchar(150)")
-                        .HasColumnName("title");
+                        .HasColumnType("nvarchar(150)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -2622,7 +2476,7 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("OrderIndex");
 
-                    b.ToTable("slides", (string)null);
+                    b.ToTable("Slide");
                 });
 
             modelBuilder.Entity("domain.Entities.Tag", b =>
@@ -2646,26 +2500,22 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("Description")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("description");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("name");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("Slug")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("slug");
+                        .HasColumnType("nvarchar(50)");
 
                     b.Property<int>("Type")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("type");
+                        .HasDefaultValue(0);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -2681,13 +2531,13 @@ namespace infrastructure.Migrations
                     b.HasIndex("Slug")
                         .IsUnique();
 
-                    b.ToTable("tags", (string)null);
+                    b.ToTable("Tags");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6313),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4689),
                             Name = "Chống thấm",
                             Slug = "chong-tham",
                             Type = 0
@@ -2695,7 +2545,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6314),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4691),
                             Name = "Sơn nội thất",
                             Slug = "son-noi-that",
                             Type = 0
@@ -2703,7 +2553,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6316),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4692),
                             Name = "Sơn ngoại thất",
                             Slug = "son-ngoai-that",
                             Type = 0
@@ -2711,7 +2561,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 4,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6317),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4693),
                             Name = "Phụ gia bê tông",
                             Slug = "phu-gia-be-tong",
                             Type = 0
@@ -2719,7 +2569,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 5,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6318),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4695),
                             Name = "Keo chít mạch",
                             Slug = "keo-chit-mach",
                             Type = 0
@@ -2727,7 +2577,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 6,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6319),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4696),
                             Name = "Vật liệu xây dựng",
                             Slug = "vat-lieu-xay-dung",
                             Type = 0
@@ -2735,7 +2585,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 7,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6321),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4697),
                             Name = "Tư vấn chọn sơn",
                             Slug = "tu-van-chon-son",
                             Type = 1
@@ -2743,7 +2593,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 8,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6322),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4698),
                             Name = "Hướng dẫn thi công",
                             Slug = "huong-dan-thi-cong",
                             Type = 1
@@ -2751,7 +2601,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 9,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6323),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4700),
                             Name = "Kinh nghiệm chống thấm",
                             Slug = "kinh-nghiem-chong-tham",
                             Type = 1
@@ -2759,7 +2609,7 @@ namespace infrastructure.Migrations
                         new
                         {
                             Id = 10,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 908, DateTimeKind.Utc).AddTicks(6324),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 151, DateTimeKind.Utc).AddTicks(4701),
                             Name = "Bảo trì nhà cửa",
                             Slug = "bao-tri-nha-cua",
                             Type = 1
@@ -2776,29 +2626,24 @@ namespace infrastructure.Migrations
 
                     b.Property<string>("ClientAvatar")
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("client_avatar");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("ClientCompany")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("client_company");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ClientName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("client_name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("ClientTitle")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("client_title");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("content");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
@@ -2814,20 +2659,17 @@ namespace infrastructure.Migrations
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<int>("OrderIndex")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(0)
-                        .HasColumnName("order_index");
+                        .HasDefaultValue(0);
 
                     b.Property<int>("Rating")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
-                        .HasDefaultValue(5)
-                        .HasColumnName("rating");
+                        .HasDefaultValue(5);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -2844,7 +2686,7 @@ namespace infrastructure.Migrations
 
                     b.HasIndex("Rating");
 
-                    b.ToTable("testimonials", (string)null);
+                    b.ToTable("Testimonials");
 
                     b.HasData(
                         new
@@ -2853,7 +2695,7 @@ namespace infrastructure.Migrations
                             ClientName = "Nguyễn Văn A",
                             ClientTitle = "Chủ nhà",
                             Content = "Sơn của Đại Minh rất bền màu và dễ thi công. Tôi rất hài lòng!",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 910, DateTimeKind.Utc).AddTicks(3717),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 153, DateTimeKind.Utc).AddTicks(1562),
                             IsActive = true,
                             OrderIndex = 0,
                             Rating = 5
@@ -2865,7 +2707,7 @@ namespace infrastructure.Migrations
                             ClientName = "Trần Thị B",
                             ClientTitle = "Nhà thầu",
                             Content = "Vật liệu chống thấm Sika từ Đại Minh luôn đảm bảo chất lượng cho công trình của chúng tôi.",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 910, DateTimeKind.Utc).AddTicks(3719),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 153, DateTimeKind.Utc).AddTicks(1565),
                             IsActive = true,
                             OrderIndex = 1,
                             Rating = 5
@@ -2876,7 +2718,7 @@ namespace infrastructure.Migrations
                             ClientName = "Lê Văn C",
                             ClientTitle = "Khách hàng cá nhân",
                             Content = "Được tư vấn rất nhiệt tình để chọn đúng loại sơn cho ngôi nhà cũ. Dịch vụ tuyệt vời!",
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 910, DateTimeKind.Utc).AddTicks(3721),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 153, DateTimeKind.Utc).AddTicks(1566),
                             IsActive = true,
                             OrderIndex = 2,
                             Rating = 4
@@ -2905,24 +2747,20 @@ namespace infrastructure.Migrations
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("email");
+                        .HasColumnType("nvarchar(255)");
 
                     b.Property<string>("FullName")
                         .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("full_name");
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
-                        .HasDefaultValue(true)
-                        .HasColumnName("is_active");
+                        .HasDefaultValue(true);
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("password_hash");
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2")
@@ -2936,8 +2774,7 @@ namespace infrastructure.Migrations
                     b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("username");
+                        .HasColumnType("nvarchar(50)");
 
                     b.HasKey("Id");
 
@@ -2947,17 +2784,17 @@ namespace infrastructure.Migrations
                     b.HasIndex("Username")
                         .IsUnique();
 
-                    b.ToTable("users", (string)null);
+                    b.ToTable("Users");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2025, 5, 4, 17, 45, 6, 846, DateTimeKind.Utc).AddTicks(9424),
+                            CreatedAt = new DateTime(2025, 5, 17, 11, 25, 27, 87, DateTimeKind.Utc).AddTicks(266),
                             Email = "admin@admin.com",
                             FullName = "Quản trị viên",
                             IsActive = true,
-                            PasswordHash = "AQAAAAIAAYagAAAAEG3pA2H6U75R+y88fVvNbKk4fXzsSLz7Jz537rOFNfCpMqrjUVVKJcgQdiol+lrJSg==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEOrfCmWPBSqoU/V7uVPeQXDquWEX/FkmWzgi/r1VwWDV9S90GF/sqlGjOcFaMtJe4g==",
                             Username = "admin"
                         });
                 });

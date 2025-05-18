@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace web.Areas.Client.ViewModels.FAQ;
 
 public class FAQCategoryViewModel

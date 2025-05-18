@@ -28,20 +28,17 @@ public class CategoryConfiguration : BaseEntityConfiguration<Category, int>
     {
         base.Configure(builder);
 
-        builder.ToTable("categories");
-
-        builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(100);
-        builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(100);
+        builder.Property(e => e.Name).IsRequired().HasMaxLength(100);
+        builder.Property(e => e.Slug).IsRequired().HasMaxLength(100);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Description).HasColumnType("nvarchar(max)");
 
-        builder.Property(e => e.Icon).HasColumnName("icon").HasMaxLength(50);
-        builder.Property(e => e.ParentId).HasColumnName("parent_id");
-        builder.Property(e => e.OrderIndex).HasColumnName("order_index").HasDefaultValue(0);
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+        builder.Property(e => e.Icon).HasMaxLength(50);
+        builder.Property(e => e.ParentId);
+        builder.Property(e => e.OrderIndex).HasDefaultValue(0);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
         builder.Property(e => e.Type)
-            .HasColumnName("type")
             .IsRequired()
             .HasDefaultValue(CategoryType.Product);
 

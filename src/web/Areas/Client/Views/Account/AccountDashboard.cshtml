@@ -1,0 +1,99 @@
+@{
+    ViewData["Title"] = "Tổng quan tài khoản - Sơn Đại Minh";
+    var activeMenuItem = "dashboard"; 
+}
+
+<div class="container mt-3 mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-arrows mb-0">
+            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Tài khoản</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container mb-5">
+    <div class="page-header mb-3">
+        <h1 class="page-title">
+            <i class="ti ti-user-circle me-2"></i>Tổng quan tài khoản
+        </h1>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-3">
+            <div class="card sticky-lg-top" style="top: 80px;">
+                <div class="list-group list-group-flush">
+                    <a href="/tai-khoan" class="list-group-item list-group-item-action @(activeMenuItem == "dashboard" ? "active" : "")">
+                        <i class="ti ti-dashboard me-2"></i>Tổng quan
+                    </a>
+                    <a href="/tai-khoan/thong-tin-ca-nhan" class="list-group-item list-group-item-action @(activeMenuItem == "profile" ? "active" : "")">
+                        <i class="ti ti-user me-2"></i>Thông tin cá nhân
+                    </a>
+                     <a href="/tai-khoan/don-hang" class="list-group-item list-group-item-action @(activeMenuItem == "orders" ? "active" : "")">
+                        <i class="ti ti-list-check me-2"></i>Lịch sử đơn hàng
+                    </a>
+                     <a href="/tai-khoan/so-dia-chi" class="list-group-item list-group-item-action @(activeMenuItem == "addresses" ? "active" : "")">
+                        <i class="ti ti-map-pin me-2"></i>Sổ địa chỉ
+                    </a>
+                     <a href="/tai-khoan/san-pham-yeu-thich" class="list-group-item list-group-item-action @(activeMenuItem == "wishlist" ? "active" : "")">
+                        <i class="ti ti-heart me-2"></i>Sản phẩm yêu thích
+                    </a>
+                     <a href="/tai-khoan/doi-mat-khau" class="list-group-item list-group-item-action @(activeMenuItem == "change-password" ? "active" : "")">
+                        <i class="ti ti-lock me-2"></i>Đổi mật khẩu
+                    </a>
+                     <a href="/tai-khoan/dang-xuat" class="list-group-item list-group-item-action text-danger">
+                        <i class="ti ti-logout me-2"></i>Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-body">
+                    <h3 class="card-title mb-3">Chào mừng, <span class="text-primary">Nguyễn Văn A!</span></h3>
+
+                    <p class="text-muted mb-3">
+                        Từ trang tổng quan tài khoản, bạn có thể xem lịch sử đơn hàng gần đây, quản lý địa chỉ giao hàng
+                        và chỉnh sửa thông tin tài khoản.
+                    </p>
+
+                    <div class="row row-cards">
+                        <div class="col-md-6">
+                            <div class="card card-link card-link-pop">
+                                <a href="/tai-khoan/don-hang" class="text-reset">
+                                    <div class="card-body d-flex align-items-center">
+                                        <div class="avatar avatar-lg bg-blue-lt text-blue me-3">
+                                            <i class="ti ti-list-check fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <div class="h4 mb-0">Đơn hàng của bạn</div>
+                                            <div class="text-muted">Bạn có 3 đơn hàng gần đây</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                             <div class="card card-link card-link-pop">
+                                <a href="/tai-khoan/so-dia-chi" class="text-reset">
+                                    <div class="card-body d-flex align-items-center">
+                                        <div class="avatar avatar-lg bg-green-lt text-green me-3">
+                                            <i class="ti ti-map-pin fs-3"></i>
+                                        </div>
+                                        <div>
+                                            <div class="h4 mb-0">Sổ địa chỉ</div>
+                                            <div class="text-muted">Bạn đã lưu 1 địa chỉ</div>
+                                        </div>
+                                    </div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

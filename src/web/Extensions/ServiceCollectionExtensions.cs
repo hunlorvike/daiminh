@@ -64,6 +64,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
+        services.AddSingleton<ICacheService, DistributedCacheService>();
         services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
         services.AddScoped<IMinioService, MinioService>();
         services.AddScoped<IMediaService, MediaService>();

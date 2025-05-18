@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
-[Route("tai-khoan")]
 public class AccountController : Controller
 {
     public IActionResult Login()
@@ -26,7 +25,32 @@ public class AccountController : Controller
         return View();
     }
 
-    public IActionResult ForgotPasswordConfirmation()
+    public IActionResult AccountDashBoard()
+    {
+        return View();
+    }
+
+    public IActionResult OrderHistory()
+    {
+        return View();
+    }
+
+    public IActionResult OrderDetail()
+    {
+        return View();
+    }
+
+    public IActionResult AddressBook()
+    {
+        return View();
+    }
+
+    public IActionResult Profile()
+    {
+        return View();
+    }
+
+    public IActionResult Wishlist()
     {
         return View();
     }

@@ -1,5 +1,5 @@
-using System.ComponentModel.DataAnnotations;
 using shared.Enums;
+using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.ViewModels.Setting;
 

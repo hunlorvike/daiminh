@@ -20,17 +20,15 @@ public class UserConfiguration : BaseEntityConfiguration<User, int>
     public override void Configure(EntityTypeBuilder<User> builder)
     {
         base.Configure(builder);
-        builder.ToTable("users");
-
-        builder.Property(x => x.Username).HasColumnName("username").IsRequired().HasMaxLength(50);
+        builder.Property(x => x.Username).IsRequired().HasMaxLength(50);
         builder.HasIndex(x => x.Username).IsUnique();
 
-        builder.Property(x => x.Email).HasColumnName("email").IsRequired().HasMaxLength(255);
+        builder.Property(x => x.Email).IsRequired().HasMaxLength(255);
         builder.HasIndex(x => x.Email).IsUnique();
 
-        builder.Property(x => x.PasswordHash).HasColumnName("password_hash").IsRequired();
-        builder.Property(x => x.FullName).HasColumnName("full_name").HasMaxLength(100);
-        builder.Property(x => x.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+        builder.Property(x => x.PasswordHash).IsRequired();
+        builder.Property(x => x.FullName).HasMaxLength(100);
+        builder.Property(x => x.IsActive).HasDefaultValue(true);
 
         var hasher = new PasswordHasher<User>();
 

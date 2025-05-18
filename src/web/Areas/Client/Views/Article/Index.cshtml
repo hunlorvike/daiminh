@@ -1,460 +1,233 @@
 @{
-    ViewData["Title"] = "Tư vấn & Hướng dẫn - Sơn Đại Minh";
-    ViewData["MetaDescription"] = "Tổng hợp các bài viết tư vấn, hướng dẫn kỹ thuật và tin tức mới nhất về sơn, chống thấm và vật liệu xây dựng từ Đại Minh Việt Nam.";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> { new("Tin tức & Tư vấn", "") };
 }
+<section class="row">
+    <div class="col-lg-8">
+        <div class="card mb-3">
+            <div class="row g-0">
+                <div class="col-sm-4">
+                    <a href="/tin-tuc/5-sai-lam-thuong-gap-khi-tu-thi-cong-son-nha">
+                        <img src="/img/placeholder.svg" class="card-img-top card-img-bottom h-100 w-100"
+                             alt="5 sai lầm khi tự sơn nhà" style="object-fit: cover;" />
+                    </a>
+                </div>
+                <div class="col-sm-8 d-flex flex-column">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-yellow-lt me-2">Kinh nghiệm thi công</span>
+                            <span class="text-muted small"><i class="ti ti-calendar me-1"></i>15/07/2024</span>
+                        </div>
+                        <h3 class="h4 card-title mb-2">
+                            <a href="/tin-tuc/5-sai-lam-thuong-gap-khi-tu-thi-cong-son-nha" class="text-reset">
+                                5 Sai lầm
+                                thường gặp khi tự thi công sơn nhà và cách khắc phục
+                            </a>
+                        </h3>
+                        <p class="text-muted small mb-3 d-none d-md-block">
+                            Tự sơn nhà có thể tiết kiệm chi phí, nhưng
+                            nếu không cẩn thận, bạn có thể mắc phải những sai lầm khiến kết quả không như ý...
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 mt-auto pt-0">
+                        <a href="/tin-tuc/5-sai-lam-thuong-gap-khi-tu-thi-cong-son-nha"
+                           class="btn btn-outline-primary btn-sm"> Đọc tiếp <i class="ti ti-arrow-right ms-1"></i> </a>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-<div class="container-xl mb-5">
-    <div class="row g-4">
-        <!-- SECTION: Nội dung chính -->
-        <div class="col-lg-8">
-            <!-- Bộ lọc và tìm kiếm -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <form action="/bai-viet" method="get" class="row g-3 align-items-end">
-                        <div class="col-md-5">
-                            <label class="form-label">Tìm kiếm</label>
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="ti ti-search"></i>
-                                </span>
-                                <input type="text" name="q" class="form-control" placeholder="Nhập từ khóa..." value="@ViewData["SearchTerm"]">
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Danh mục</label>
-                            <select name="category" class="form-select">
-                                <option value="">Tất cả danh mục</option>
-                                <option value="tu-van">Tư vấn</option>
-                                <option value="huong-dan">Hướng dẫn</option>
-                                <option value="ky-thuat">Kỹ thuật</option>
-                                <option value="tin-tuc">Tin tức</option>
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i class="ti ti-filter me-1"></i> Lọc
-                            </button>
-                        </div>
-                    </form>
+        <div class="card mb-3">
+            <div class="row g-0">
+                <div class="col-sm-4">
+                    <a href="/tin-tuc/giai-phap-chong-tham-hieu-qua-cho-tuong-nha-mua-mua">
+                        <img src="/img/placeholder.svg" class="card-img-top card-img-bottom h-100 w-100"
+                             alt="Giải pháp chống thấm" style="object-fit: cover;" />
+                    </a>
                 </div>
-            </div>
-            
-            <!-- Bài viết nổi bật -->
-            <div class="card mb-4">
-                <div class="card-body p-0">
-                    <div class="row g-0">
-                        <div class="col-md-6">
-                            <img src="/img/placeholder.svg" alt="Bài viết nổi bật" class="img-fluid h-100" style="object-fit: cover;">
+                <div class="col-sm-8 d-flex flex-column">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-green-lt me-2">Chống thấm</span>
+                            <span class="text-muted small"><i class="ti ti-calendar me-1"></i>10/07/2024</span>
                         </div>
-                        <div class="col-md-6 d-flex flex-column p-4">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-red-lt me-2">Nổi bật</span>
-                                <span class="text-muted small">
-                                    <i class="ti ti-calendar me-1"></i>25/05/2023
-                                </span>
-                            </div>
-                            <h2 class="h3 mb-3">Xu hướng màu sắc nội thất năm 2023: Gần gũi thiên nhiên</h2>
-                            <p class="text-muted flex-grow-1">Khám phá các xu hướng màu sắc nội thất mới nhất năm 2023 với sự trở lại của các gam màu lấy cảm hứng từ thiên nhiên, mang đến không gian sống xanh và bền vững.</p>
-                            <div>
-                                <a href="/bai-viet/xu-huong-mau-sac-noi-that-2023" class="btn btn-primary">
-                                    <i class="ti ti-arrow-right me-2"></i>Đọc tiếp
-                                </a>
-                            </div>
-                        </div>
+                        <h3 class="h4 card-title mb-2">
+                            <a href="/tin-tuc/giai-phap-chong-tham-hieu-qua-cho-tuong-nha-mua-mua"
+                               class="text-reset">Giải pháp chống thấm hiệu quả cho tường nhà mùa mưa</a>
+                        </h3>
+                        <p class="text-muted small mb-3 d-none d-md-block">
+                            Tường nhà bị thấm dột vào mùa mưa là nỗi ám
+                            ảnh của nhiều gia đình. Bài viết này sẽ giới thiệu các giải pháp chống thấm tường hiệu
+                            quả...
+                        </p>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 mt-auto pt-0">
+                        <a href="/tin-tuc/giai-phap-chong-tham-hieu-qua-cho-tuong-nha-mua-mua"
+                           class="btn btn-outline-primary btn-sm"> Đọc tiếp <i class="ti ti-arrow-right ms-1"></i> </a>
                     </div>
                 </div>
             </div>
-            
-            <!-- Danh sách bài viết -->
-            <div class="row g-4">
-                <!-- Bài viết 1 -->
-                <div class="col-md-6">
-                    <div class="card h-100">
-                        <img src="/img/placeholder.svg" class="card-img-top" alt="Cách chọn sơn nội thất phù hợp" style="height: 200px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-blue-lt me-2">Tư vấn</span>
-                                <span class="text-muted small">
-                                    <i class="ti ti-calendar me-1"></i>15/04/2023
-                                </span>
-                            </div>
-                            <h3 class="h4 card-title">Cách chọn sơn nội thất phù hợp với từng không gian</h3>
-                            <p class="card-text text-muted flex-grow-1">Hướng dẫn chi tiết cách lựa chọn loại sơn và màu sắc phù hợp với từng không gian trong nhà để tạo nên không gian sống hoàn hảo.</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>1.2k lượt xem
-                                </div>
-                                <a href="/bai-viet/cach-chon-son-noi-that-phu-hop" class="btn btn-outline-primary">
-                                    <i class="ti ti-arrow-right me-1"></i>Đọc tiếp
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+
+        <div class="card mb-3 d-lg-none">
+            <a href="/tin-tuc/cach-chon-son-ngoai-that-ben-dep-cho-ngoi-nha-cua-ban">
+                <img src="/img/placeholder.svg" class="card-img-top" alt="Cách chọn sơn ngoại thất"
+                     style="height: 200px; object-fit: cover;" />
+            </a>
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex align-items-center mb-2">
+                    <span class="badge bg-primary-lt me-2">Tư vấn chọn sơn</span>
+                    <span class="text-muted small"><i class="ti ti-calendar me-1"></i>20/07/2024</span>
                 </div>
-                
-                <!-- Bài viết 2 -->
-                <div class="col-md-6">
-                    <div class="card h-100">
-                        <img src="/img/placeholder.svg" class="card-img-top" alt="Giải pháp chống thấm hiệu quả" style="height: 200px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-green-lt me-2">Hướng dẫn</span>
-                                <span class="text-muted small">
-                                    <i class="ti ti-calendar me-1"></i>02/05/2023
-                                </span>
-                            </div>
-                            <h3 class="h4 card-title">Giải pháp chống thấm hiệu quả cho mùa mưa</h3>
-                            <p class="card-text text-muted flex-grow-1">Những giải pháp chống thấm hiệu quả giúp bảo vệ ngôi nhà của bạn trong mùa mưa, từ sân thượng đến tường và sàn nhà.</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>956 lượt xem
-                                </div>
-                                <a href="/bai-viet/giai-phap-chong-tham-hieu-qua" class="btn btn-outline-primary">
-                                    <i class="ti ti-arrow-right me-1"></i>Đọc tiếp
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+                <h3 class="h4 card-title mb-2">
+                    <a href="/tin-tuc/cach-chon-son-ngoai-that-ben-dep-cho-ngoi-nha-cua-ban" class="text-reset">
+                        Cách
+                        chọn sơn ngoại thất bền đẹp, chống phai màu cho ngôi nhà của bạn
+                    </a>
+                </h3>
+                <p class="text-muted small mb-3 flex-grow-1">
+                    Sơn ngoại thất không chỉ làm đẹp mà còn bảo vệ ngôi nhà...
+                </p>
+                <div class="mt-auto">
+                    <a href="/tin-tuc/cach-chon-son-ngoai-that-ben-dep-cho-ngoi-nha-cua-ban"
+                       class="btn btn-outline-primary btn-sm"> Đọc tiếp <i class="ti ti-arrow-right ms-1"></i> </a>
                 </div>
-                
-                <!-- Bài viết 3 -->
-                <div class="col-md-6">
-                    <div class="card h-100">
-                        <img src="/img/placeholder.svg" class="card-img-top" alt="Quy trình sơn nhà đúng kỹ thuật" style="height: 200px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-orange-lt me-2">Kỹ thuật</span>
-                                <span class="text-muted small">
-                                    <i class="ti ti-calendar me-1"></i>20/05/2023
-                                </span>
-                            </div>
-                            <h3 class="h4 card-title">Quy trình sơn nhà đúng kỹ thuật từ A-Z</h3>
-                            <p class="card-text text-muted flex-grow-1">Hướng dẫn chi tiết quy trình sơn nhà đúng kỹ thuật từ khâu chuẩn bị bề mặt đến hoàn thiện để đảm bảo độ bền và thẩm mỹ.</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>845 lượt xem
-                                </div>
-                                <a href="/bai-viet/quy-trinh-son-nha-dung-ky-thuat" class="btn btn-outline-primary">
-                                    <i class="ti ti-arrow-right me-1"></i>Đọc tiếp
-                                </a>
-                            </div>
-                        </div>
-                    </div>
+            </div>
+        </div>
+
+        <div class="card mb-3">
+            <div class="row g-0">
+                <div class="col-sm-4">
+                    <a href="/tin-tuc/bai-viet-mau-3">
+                        <img src="/img/placeholder.svg" class="card-img-top card-img-bottom h-100 w-100"
+                             alt="Bài viết mẫu 3" style="object-fit: cover;" />
+                    </a>
                 </div>
-                
-                <!-- Bài viết 4 -->
-                <div class="col-md-6">
-                    <div class="card h-100">
-                        <img src="/img/placeholder.svg" class="card-img-top" alt="So sánh các loại sơn ngoại thất" style="height: 200px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-blue-lt me-2">Tư vấn</span>
-                                <span class="text-muted small">
-                                    <i class="ti ti-calendar me-1"></i>10/05/2023
-                                </span>
-                            </div>
-                            <h3 class="h4 card-title">So sánh các loại sơn ngoại thất phổ biến trên thị trường</h3>
-                            <p class="card-text text-muted flex-grow-1">Phân tích chi tiết ưu nhược điểm của các loại sơn ngoại thất phổ biến hiện nay, giúp bạn lựa chọn sản phẩm phù hợp nhất.</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>723 lượt xem
-                                </div>
-                                <a href="/bai-viet/so-sanh-cac-loai-son-ngoai-that" class="btn btn-outline-primary">
-                                    <i class="ti ti-arrow-right me-1"></i>Đọc tiếp
-                                </a>
-                            </div>
+                <div class="col-sm-8 d-flex flex-column">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            <span class="badge bg-info-lt me-2">Xu hướng màu sắc</span>
+                            <span class="text-muted small"><i class="ti ti-calendar me-1"></i>05/07/2024</span>
                         </div>
+                        <h3 class="h4 card-title mb-2">
+                            <a href="/tin-tuc/bai-viet-mau-3" class="text-reset">
+                                Xu hướng màu sơn 2025: Những gam màu
+                                lên ngôi
+                            </a>
+                        </h3>
+                        <p class="text-muted small mb-3 d-none d-md-block">
+                            Khám phá những màu sơn được dự đoán sẽ trở
+                            thành xu hướng trong năm tới, mang lại vẻ đẹp hiện đại và cá tính cho không gian sống của
+                            bạn...
+                        </p>
                     </div>
-                </div>
-                
-                <!-- Bài viết 5 -->
-                <div class="col-md-6">
-                    <div class="card h-100">
-                        <img src="/img/placeholder.svg" class="card-img-top" alt="Cách xử lý tường bị thấm" style="height: 200px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-green-lt me-2">Hướng dẫn</span>
-                                <span class="text-muted small">
-                                    <i class="ti ti-calendar me-1"></i>05/06/2023
-                                </span>
-                            </div>
-                            <h3 class="h4 card-title">Cách xử lý tường bị thấm, ẩm mốc hiệu quả</h3>
-                            <p class="card-text text-muted flex-grow-1">Hướng dẫn chi tiết cách xử lý tường bị thấm, ẩm mốc từ nguyên nhân đến giải pháp khắc phục triệt để, lâu dài.</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>689 lượt xem
-                                </div>
-                                <a href="/bai-viet/cach-xu-ly-tuong-bi-tham" class="btn btn-outline-primary">
-                                    <i class="ti ti-arrow-right me-1"></i>Đọc tiếp
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Bài viết 6 -->
-                <div class="col-md-6">
-                    <div class="card h-100">
-                        <img src="/img/placeholder.svg" class="card-img-top" alt="Bảng màu sơn Dulux" style="height: 200px; object-fit: cover;">
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-3">
-                                <span class="badge bg-purple-lt me-2">Tin tức</span>
-                                <span class="text-muted small">
-                                    <i class="ti ti-calendar me-1"></i>15/06/2023
-                                </span>
-                            </div>
-                            <h3 class="h4 card-title">Bảng màu sơn Dulux mới nhất năm 2023</h3>
-                            <p class="card-text text-muted flex-grow-1">Giới thiệu bảng màu sơn Dulux mới nhất năm 2023 với nhiều gam màu độc đáo, phù hợp với xu hướng thiết kế hiện đại.</p>
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>542 lượt xem
-                                </div>
-                                <a href="/bai-viet/bang-mau-son-dulux-2023" class="btn btn-outline-primary">
-                                    <i class="ti ti-arrow-right me-1"></i>Đọc tiếp
-                                </a>
-                            </div>
-                        </div>
+                    <div class="card-footer bg-transparent border-0 mt-auto pt-0">
+                        <a href="/tin-tuc/bai-viet-mau-3" class="btn btn-outline-primary btn-sm">
+                            Đọc tiếp <i class="ti ti-arrow-right ms-1"></i>
+                        </a>
                     </div>
                 </div>
             </div>
-            
-            <!-- Phân trang -->
-            <div class="d-flex justify-content-center mt-4">
-                <ul class="pagination">
+        </div>
+
+
+        <div class="mt-3">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
                     <li class="page-item disabled">
                         <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
                             <i class="ti ti-chevron-left"></i>
-                            <span class="visually-hidden">Previous</span>
                         </a>
                     </li>
                     <li class="page-item active"><a class="page-link" href="#">1</a></li>
                     <li class="page-item"><a class="page-link" href="#">2</a></li>
                     <li class="page-item"><a class="page-link" href="#">3</a></li>
                     <li class="page-item">
-                        <a class="page-link" href="#">
-                            <i class="ti ti-chevron-right"></i>
-                            <span class="visually-hidden">Next</span>
-                        </a>
+                        <a class="page-link" href="#"><i class="ti ti-chevron-right"></i></a>
                     </li>
                 </ul>
+            </nav>
+        </div>
+    </div>
+
+    <div class="col-lg-4 position-sticky align-self-start" style="top: 140px;">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-category me-2"></i>Danh mục bài viết</h3>
+            </div>
+            <div class="list-group list-group-flush">
+                <a href="/tin-tuc/danh-muc/tu-van-chon-son"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    Tư vấn chọn sơn <span class="badge bg-primary text-primary-fg rounded-pill">12</span>
+                </a>
+                <a href="/tin-tuc/danh-muc/kinh-nghiem-thi-cong"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    Kinh nghiệm thi công <span class="badge bg-primary text-primary-fg rounded-pill">8</span>
+                </a>
+                <a href="/tin-tuc/danh-muc/chong-tham"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    Chống thấm <span class="badge bg-primary text-primary-fg rounded-pill">5</span>
+                </a>
+                <a href="/tin-tuc/danh-muc/xu-huong-mau-sac"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    Xu hướng màu sắc <span class="badge bg-primary text-primary-fg rounded-pill">3</span>
+                </a>
+                <a href="/tin-tuc/danh-muc/tin-khuyen-mai"
+                   class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                    Tin khuyến mãi <span class="badge bg-primary text-primary-fg rounded-pill">2</span>
+                </a>
             </div>
         </div>
-        
-        <!-- SECTION: Sidebar -->
-        <div class="col-lg-4">
-            <!-- Danh mục bài viết -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Danh mục bài viết</h3>
-                </div>
-                <div class="list-group list-group-flush">
-                    <a href="/bai-viet?category=tu-van" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="ti ti-message-question me-2 text-primary"></i>
-                            Tư vấn
-                        </div>
-                        <span class="badge bg-primary-lt">12</span>
-                    </a>
-                    <a href="/bai-viet?category=huong-dan" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="ti ti-book me-2 text-green"></i>
-                            Hướng dẫn
-                        </div>
-                        <span class="badge bg-green-lt">8</span>
-                    </a>
-                    <a href="/bai-viet?category=ky-thuat" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="ti ti-tool me-2 text-orange"></i>
-                            Kỹ thuật
-                        </div>
-                        <span class="badge bg-orange-lt">6</span>
-                    </a>
-                    <a href="/bai-viet?category=tin-tuc" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
-                        <div>
-                            <i class="ti ti-news me-2 text-purple"></i>
-                            Tin tức
-                        </div>
-                        <span class="badge bg-purple-lt">4</span>
-                    </a>
-                </div>
+
+        <div class="card mb-3">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-news me-2"></i>Bài viết mới nhất</h3>
             </div>
-            
-            <!-- Bài viết xem nhiều -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Bài viết xem nhiều</h3>
-                </div>
-                <div class="list-group list-group-flush">
-                    <a href="/bai-viet/cach-chon-son-noi-that-phu-hop" class="list-group-item list-group-item-action">
-                        <div class="row align-items-center g-3">
-                            <div class="col-auto">
-                                <span class="avatar rounded" style="background-image: url('/img/placeholder.svg')"></span>
-                            </div>
-                            <div class="col">
-                                <div class="text-truncate">Cách chọn sơn nội thất phù hợp với từng không gian</div>
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>1.2k lượt xem
-                                </div>
-                            </div>
+            <div class="list-group list-group-flush">
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/placeholder.svg" alt="Bài viết 1" class="avatar avatar-md me-3 rounded" />
+                        <!-- avatar-md cho kích thước rõ hơn -->
+                        <div>
+                            <div class="fw-medium">Cách chọn sơn ngoại thất bền đẹp...</div>
+                            <div class="text-muted small">20/07/2024</div>
                         </div>
-                    </a>
-                    <a href="/bai-viet/giai-phap-chong-tham-hieu-qua" class="list-group-item list-group-item-action">
-                        <div class="row align-items-center g-3">
-                            <div class="col-auto">
-                                <span class="avatar rounded" style="background-image: url('/img/placeholder.svg')"></span>
-                            </div>
-                            <div class="col">
-                                <div class="text-truncate">Giải pháp chống thấm hiệu quả cho mùa mưa</div>
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>956 lượt xem
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="/bai-viet/quy-trinh-son-nha-dung-ky-thuat" class="list-group-item list-group-item-action">
-                        <div class="row align-items-center g-3">
-                            <div class="col-auto">
-                                <span class="avatar rounded" style="background-image: url('/img/placeholder.svg')"></span>
-                            </div>
-                            <div class="col">
-                                <div class="text-truncate">Quy trình sơn nhà đúng kỹ thuật từ A-Z</div>
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>845 lượt xem
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="/bai-viet/so-sanh-cac-loai-son-ngoai-that" class="list-group-item list-group-item-action">
-                        <div class="row align-items-center g-3">
-                            <div class="col-auto">
-                                <span class="avatar rounded" style="background-image: url('/img/placeholder.svg')"></span>
-                            </div>
-                            <div class="col">
-                                <div class="text-truncate">So sánh các loại sơn ngoại thất phổ biến trên thị trường</div>
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>723 lượt xem
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                    <a href="/bai-viet/cach-xu-ly-tuong-bi-tham" class="list-group-item list-group-item-action">
-                        <div class="row align-items-center g-3">
-                            <div class="col-auto">
-                                <span class="avatar rounded" style="background-image: url('/img/placeholder.svg')"></span>
-                            </div>
-                            <div class="col">
-                                <div class="text-truncate">Cách xử lý tường bị thấm, ẩm mốc hiệu quả</div>
-                                <div class="text-muted small">
-                                    <i class="ti ti-eye me-1"></i>689 lượt xem
-                                </div>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Tags phổ biến -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3 class="card-title">Tags phổ biến</h3>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex flex-wrap gap-2">
-                        <a href="/bai-viet?tag=son-noi-that" class="badge bg-blue-lt text-decoration-none">
-                            Sơn nội thất
-                        </a>
-                        <a href="/bai-viet?tag=son-ngoai-that" class="badge bg-blue-lt text-decoration-none">
-                            Sơn ngoại thất
-                        </a>
-                        <a href="/bai-viet?tag=chong-tham" class="badge bg-green-lt text-decoration-none">
-                            Chống thấm
-                        </a>
-                        <a href="/bai-viet?tag=xu-huong-mau-sac" class="badge bg-purple-lt text-decoration-none">
-                            Xu hướng màu sắc
-                        </a>
-                        <a href="/bai-viet?tag=ky-thuat-son" class="badge bg-orange-lt text-decoration-none">
-                            Kỹ thuật sơn
-                        </a>
-                        <a href="/bai-viet?tag=dulux" class="badge bg-blue-lt text-decoration-none">
-                            Dulux
-                        </a>
-                        <a href="/bai-viet?tag=jotun" class="badge bg-blue-lt text-decoration-none">
-                            Jotun
-                        </a>
-                        <a href="/bai-viet?tag=kova" class="badge bg-blue-lt text-decoration-none">
-                            Kova
-                        </a>
-                        <a href="/bai-viet?tag=sika" class="badge bg-blue-lt text-decoration-none">
-                            Sika
-                        </a>
-                        <a href="/bai-viet?tag=bot-tret" class="badge bg-yellow-lt text-decoration-none">
-                            Bột trét
-                        </a>
-                        <a href="/bai-viet?tag=chong-tham-san" class="badge bg-green-lt text-decoration-none">
-                            Chống thấm sàn
-                        </a>
-                        <a href="/bai-viet?tag=chong-tham-tuong" class="badge bg-green-lt text-decoration-none">
-                            Chống thấm tường
-                        </a>
-                        <a href="/bai-viet?tag=chong-tham-mai" class="badge bg-green-lt text-decoration-none">
-                            Chống thấm mái
-                        </a>
-                        <a href="/bai-viet?tag=tu-van-mau-sac" class="badge bg-purple-lt text-decoration-none">
-                            Tư vấn màu sắc
-                        </a>
                     </div>
-                </div>
-            </div>
-            
-            <!-- Banner quảng cáo -->
-            <div class="card card-link card-link-pop mb-4">
-                <div class="card-body text-center p-4">
-                    <div class="mb-3">
-                        <span class="avatar avatar-xl bg-primary-lt rounded">
-                            <i class="ti ti-discount-check fs-1"></i>
-                        </span>
-                    </div>
-                    <h3 class="h4 mb-3">Ưu đãi đặc biệt</h3>
-                    <p class="text-muted mb-3">Giảm ngay 10% cho đơn hàng đầu tiên khi đăng ký tư vấn trực tuyến.</p>
-                    <a href="/tu-van" class="btn btn-primary">
-                        <i class="ti ti-message-circle me-2"></i>Đăng ký ngay
-                    </a>
-                </div>
-            </div>
-            
-            <!-- Đăng ký nhận tin -->
-            <div class="card">
-                <div class="card-body">
-                    <h3 class="card-title">Đăng ký nhận tin</h3>
-                    <p class="text-muted mb-3">Nhận thông tin về sản phẩm mới, khuyến mãi và bài viết hữu ích.</p>
-                    <form action="/dang-ky-nhan-tin" method="post">
-                        <div class="mb-3">
-                            <div class="input-group">
-                                <span class="input-group-text">
-                                    <i class="ti ti-mail"></i>
-                                </span>
-                                <input type="email" class="form-control" placeholder="Email của bạn" required>
-                            </div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/placeholder.svg" alt="Bài viết 2" class="avatar avatar-md me-3 rounded" />
+                        <div>
+                            <div class="fw-medium">5 Sai lầm thường gặp khi tự thi công...</div>
+                            <div class="text-muted small">15/07/2024</div>
                         </div>
-                        <button type="submit" class="btn btn-primary w-100">
-                            <i class="ti ti-bell me-2"></i>Đăng ký
-                        </button>
-                    </form>
+                    </div>
+                </a>
+                <a href="#" class="list-group-item list-group-item-action">
+                    <div class="d-flex align-items-center">
+                        <img src="/img/placeholder.svg" alt="Bài viết 3" class="avatar avatar-md me-3 rounded" />
+                        <div>
+                            <div class="fw-medium">Giải pháp chống thấm hiệu quả...</div>
+                            <div class="text-muted small">10/07/2024</div>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-tags me-2"></i>Tags phổ biến</h3>
+            </div>
+            <div class="card-body">
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Sơn Jotun</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Sơn Dulux</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Chống thấm Sika</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Màu sơn đẹp</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Thi công sơn</a>
+                    <a href="#" class="btn btn-sm btn-outline-secondary rounded-pill">Sơn nội thất</a>
                 </div>
             </div>
         </div>
     </div>
-</div>
-
-@section Styles {
-    <style>
-        .card-link-pop {
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        .card-link-pop:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-    </style>
-}
+</section>

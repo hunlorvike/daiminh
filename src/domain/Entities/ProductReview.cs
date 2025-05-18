@@ -22,21 +22,17 @@ public class ProductReviewConfiguration : BaseEntityConfiguration<ProductReview,
     public override void Configure(EntityTypeBuilder<ProductReview> builder)
     {
         base.Configure(builder);
-        builder.ToTable("product_reviews");
-        builder.Property(e => e.ProductId).HasColumnName("product_id").IsRequired();
-        builder.Property(e => e.UserId).HasColumnName("user_id");
-        builder.Property(e => e.UserName).HasColumnName("user_name").HasMaxLength(100);
-        builder.Property(e => e.UserEmail).HasColumnName("user_email").HasMaxLength(255);
+        builder.Property(e => e.ProductId).IsRequired();
+        builder.Property(e => e.UserId);
+        builder.Property(e => e.UserName).HasMaxLength(100);
+        builder.Property(e => e.UserEmail).HasMaxLength(255);
         builder.HasIndex(e => e.ProductId);
         builder.HasIndex(e => e.Rating);
-
-        builder.Property(e => e.Rating).HasColumnName("rating").IsRequired();
-        builder.Property(e => e.Content).HasColumnName("content").HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.Rating).IsRequired();
+        builder.Property(e => e.Content).HasColumnType("nvarchar(max)").IsRequired();
         builder.Property(e => e.Status)
-            .HasColumnName("status")
             .IsRequired()
             .HasDefaultValue(ReviewStatus.Pending);
-
         builder.HasOne(e => e.Product)
             .WithMany(p => p.Reviews)
             .HasForeignKey(e => e.ProductId)

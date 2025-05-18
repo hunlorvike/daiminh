@@ -1,83 +1,57 @@
 @{
-    ViewData["Title"] = "Đăng nhập";
+    ViewData["Title"] = "Đăng nhập tài khoản - Sơn Đại Minh";
     Layout = "Layout/Layout.Blank";
+    // Breadcrumbs are typically not shown on Auth pages, but including for consistency if needed
+    // ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> { new("Đăng nhập", "") };
 }
 
-<div class="container container-tight py-4">
-    <div class="text-center mb-4">
-        <a href="/" class="navbar-brand navbar-brand-autodark">
-            <h1 class="navbar-brand-autodark">DAIMINH</h1>
+<div class="container-tight py-4">
+    <div class="text-center mb-3">
+        <a asp-controller="Home" asp-action="Index"
+            class="navbar-brand navbar-brand-autodark d-flex align-items-center text-decoration-none justify-content-center">
+            <span class="bg-primary rounded-3 p-2 p-sm-3 me-3">
+                <i class="ti ti-paint text-white fs-2"></i>
+            </span>
+            <div class="text-start">
+                <span class="fw-bold h2 text-uppercase text-primary m-0">Daiminh</span>
+                <div class="text-secondary small">Giải pháp sơn & chống thấm</div>
+            </div>
         </a>
     </div>
 
     <div class="card card-md">
+        <div class="card-status-top bg-primary"></div>
         <div class="card-body">
-            <h2 class="h2 text-center mb-4">Đăng nhập vào tài khoản</h2>
-            <form method="post" autocomplete="off" novalidate>
-                @Html.AntiForgeryToken()
-                @if (!ViewData.ModelState.IsValid)
-                {
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        <div class="d-flex">
-                            <div class="alert-icon">
-                                <i class="ti ti-alert-circle"></i>
-                            </div>
-                            <div>
-                                <h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
-                                <div asp-validation-summary="ModelOnly" class="mb-0"></div>
-                            </div>
-                        </div>
-                        <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-                    </div>
-                }
-                <div class="mb-3">
-                    <label class="form-label required">Email hoặc số điện thoại</label>
-                    <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="ti ti-mail"></i>
-                        </span>
-                        <input type="text" name="Email" class="form-control" placeholder="Email hoặc số điện thoại"
-                            autocomplete="off" required>
-                    </div>
-                    <div class="invalid-feedback">Vui lòng nhập email hoặc số điện thoại</div>
-                </div>
+            <h2 class="h2 text-center mb-3">Đăng nhập tài khoản</h2>
 
+            <form action="/tai-khoan/dang-nhap" method="post" autocomplete="off">
                 <div class="mb-3">
+                    <label class="form-label required">Email hoặc Số điện thoại</label>
+                    <input type="text" class="form-control" placeholder="Nhập email hoặc số điện thoại">
+                </div>
+                <div class="mb-2">
                     <label class="form-label required">
                         Mật khẩu
                         <span class="form-label-description">
-                            <a href="/Account/ForgotPassword">Quên mật khẩu?</a>
+                            <a href="/tai-khoan/quen-mat-khau">Quên mật khẩu?</a>
                         </span>
                     </label>
                     <div class="input-group">
-                        <span class="input-group-text">
-                            <i class="ti ti-lock"></i>
-                        </span>
-                        <input type="password" name="Password" class="form-control" placeholder="Mật khẩu"
-                            autocomplete="off" required>
-                        <span class="input-group-text cursor-pointer toggle-password">
-                            <i class="ti ti-eye"></i>
-                        </span>
+                        <input type="password" class="form-control" placeholder="Nhập mật khẩu" autocomplete="off">
                     </div>
-                    <div class="invalid-feedback">Vui lòng nhập mật khẩu</div>
                 </div>
-
                 <div class="mb-3">
                     <label class="form-check">
-                        <input type="checkbox" name="RememberMe" class="form-check-input" />
-                        <span class="form-check-label">Ghi nhớ tôi</span>
+                        <input type="checkbox" class="form-check-input">
+                        <span class="form-check-label">Ghi nhớ đăng nhập</span>
                     </label>
                 </div>
-
                 <div class="form-footer">
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="ti ti-login me-2"></i>Đăng nhập
-                    </button>
+                    <button type="submit" class="btn btn-primary w-100">Đăng nhập</button>
                 </div>
             </form>
         </div>
     </div>
-
     <div class="text-center text-muted mt-3">
         Chưa có tài khoản? <a tabindex="-1">Đăng ký</a>
     </div>
@@ -86,27 +60,3 @@
         <a href="/" class="text-muted">Quay lại trang chủ</a>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const togglePasswordButtons = document.querySelectorAll('.toggle-password');
-            togglePasswordButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const input = this.closest('.input-group').querySelector('input');
-                    const icon = this.querySelector('i');
-
-                    if (input.type === 'password') {
-                        input.type = 'text';
-                        icon.classList.remove('ti-eye');
-                        icon.classList.add('ti-eye-off');
-                    } else {
-                        input.type = 'password';
-                        icon.classList.remove('ti-eye-off');
-                        icon.classList.add('ti-eye');
-                    }
-                });
-            });
-        });
-    </script>
-}

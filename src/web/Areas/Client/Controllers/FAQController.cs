@@ -9,7 +9,6 @@ using web.Areas.Client.ViewModels.FAQ;
 namespace web.Areas.Client.Controllers;
 
 [Area("Client")]
-[Route("cau-hoi-thuong-gap")]
 public class FAQController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -23,7 +22,7 @@ public class FAQController : Controller
         _logger = logger;
     }
 
-    [HttpGet("")]
+    [HttpGet]
     public async Task<IActionResult> Index()
     {
         var faqCategories = await _context.Categories
@@ -56,7 +55,7 @@ public class FAQController : Controller
                 });
             }
         }
-        
+
         return View(viewModel);
     }
 }

@@ -15,15 +15,11 @@ public class ProductVariationAttributeValueConfiguration : IEntityTypeConfigurat
 {
     public void Configure(EntityTypeBuilder<ProductVariationAttributeValue> builder)
     {
-        builder.ToTable("product_variation_attribute_values");
         builder.HasKey(pvav => new { pvav.ProductVariationId, pvav.AttributeValueId });
-        builder.Property(pvav => pvav.ProductVariationId).HasColumnName("product_variation_id");
-        builder.Property(pvav => pvav.AttributeValueId).HasColumnName("attribute_value_id");
         builder.HasOne(pvav => pvav.ProductVariation)
             .WithMany(pv => pv.ProductVariationAttributeValues)
             .HasForeignKey(pvav => pvav.ProductVariationId)
             .OnDelete(DeleteBehavior.Cascade);
-
         builder.HasOne(pvav => pvav.AttributeValue)
             .WithMany(av => av.ProductVariationAttributeValues)
             .HasForeignKey(pvav => pvav.AttributeValueId)

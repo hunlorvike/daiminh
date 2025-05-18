@@ -15,10 +15,9 @@ public class ArticleTagConfiguration : IEntityTypeConfiguration<ArticleTag>
 {
     public void Configure(EntityTypeBuilder<ArticleTag> builder)
     {
-        builder.ToTable("article_tags");
         builder.HasKey(e => new { e.ArticleId, e.TagId });
-        builder.Property(e => e.ArticleId).HasColumnName("article_id");
-        builder.Property(e => e.TagId).HasColumnName("tag_id");
+        builder.Property(e => e.ArticleId);
+        builder.Property(e => e.TagId);
         builder.HasOne(e => e.Article)
             .WithMany(a => a.ArticleTags)
             .HasForeignKey(e => e.ArticleId)

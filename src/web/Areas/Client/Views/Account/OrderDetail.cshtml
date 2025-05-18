@@ -1,0 +1,240 @@
+@{
+    ViewData["Title"] = "Chi tiết đơn hàng #DMVN123456789 - Sơn Đại Minh";
+    // Simulate Active Menu Item
+    var activeMenuItem = "orders";
+     // Simulate Order Data
+    var orderId = "DMVN123456789";
+    var orderDate = "25/07/2024";
+    var orderStatus = "Đang xử lý"; // Other statuses: Đã giao hàng, Đã hủy
+    var shippingMethod = "Giao hàng tiêu chuẩn";
+    var paymentMethod = "Thanh toán khi nhận hàng (COD)";
+    var recipientName = "Nguyễn Văn A";
+    var recipientPhone = "0912 345 678";
+    var shippingAddress = "Số 123, Đường ABC, Phường XYZ, Quận QK, TP. Hà Nội";
+    var orderNotes = "Giao giờ hành chính.";
+    var subtotal = 1720000;
+    var shippingFee = 25000;
+    var discount = 0;
+    var total = subtotal + shippingFee - discount;
+}
+
+<div class="container mt-3 mb-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb breadcrumb-arrows mb-0">
+            <li class="breadcrumb-item"><a href="/" class="text-reset"><i class="ti ti-home"></i> Trang chủ</a></li>
+            <li class="breadcrumb-item"><a href="/tai-khoan" class="text-reset">Tài khoản</a></li>
+            <li class="breadcrumb-item"><a href="/tai-khoan/don-hang" class="text-reset">Lịch sử đơn hàng</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Chi tiết đơn hàng</li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container mb-5">
+    <div class="page-header mb-3">
+        <h1 class="page-title">
+            <i class="ti ti-file-text me-2"></i>Chi tiết đơn hàng <span class="text-primary">#@orderId</span>
+        </h1>
+    </div>
+
+    <div class="row g-4">
+        <!-- Sidebar Navigation (Same as Dashboard) -->
+        <div class="col-lg-3">
+            <div class="card sticky-lg-top" style="top: 80px;">
+                 <div class="list-group list-group-flush">
+                    <a href="/tai-khoan" class="list-group-item list-group-item-action @(activeMenuItem == "dashboard" ? "active" : "")">
+                        <i class="ti ti-dashboard me-2"></i>Tổng quan
+                    </a>
+                    <a href="/tai-khoan/thong-tin-ca-nhan" class="list-group-item list-group-item-action @(activeMenuItem == "profile" ? "active" : "")">
+                        <i class="ti ti-user me-2"></i>Thông tin cá nhân
+                    </a>
+                     <a href="/tai-khoan/don-hang" class="list-group-item list-group-item-action @(activeMenuItem == "orders" ? "active" : "")">
+                        <i class="ti ti-list-check me-2"></i>Lịch sử đơn hàng
+                    </a>
+                     <a href="/tai-khoan/so-dia-chi" class="list-group-item list-group-item-action @(activeMenuItem == "addresses" ? "active" : "")">
+                        <i class="ti ti-map-pin me-2"></i>Sổ địa chỉ
+                    </a>
+                     <a href="/tai-khoan/san-pham-yeu-thich" class="list-group-item list-group-item-action @(activeMenuItem == "wishlist" ? "active" : "")">
+                        <i class="ti ti-heart me-2"></i>Sản phẩm yêu thích
+                    </a>
+                     <a href="/tai-khoan/doi-mat-khau" class="list-group-item list-group-item-action @(activeMenuItem == "change-password" ? "active" : "")">
+                        <i class="ti ti-lock me-2"></i>Đổi mật khẩu
+                    </a>
+                     <a href="/tai-khoan/dang-xuat" class="list-group-item list-group-item-action text-danger">
+                        <i class="ti ti-logout me-2"></i>Đăng xuất
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-9">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h3 class="card-title mb-0">Thông tin chi tiết đơn hàng</h3>
+                        <span class="badge bg-orange-lt fs-5">@orderStatus</span> @* Dynamic badge based on status *@
+                    </div>
+                     <p class="text-muted mb-3">Ngày đặt hàng: @orderDate</p>
+
+
+                    <div class="row g-4 mb-3">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header"><h4 class="card-title mb-0"><i class="ti ti-map-pin me-2 text-primary"></i>Thông tin nhận hàng</h4></div>
+                                <div class="card-body">
+                                    <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Người nhận</div>
+                                            <div class="datagrid-content">@recipientName</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Số điện thoại</div>
+                                            <div class="datagrid-content">@recipientPhone</div>
+                                        </div>
+                                         <div class="datagrid-item">
+                                            <div class="datagrid-title">Địa chỉ</div>
+                                            <div class="datagrid-content">@shippingAddress</div>
+                                        </div>
+                                         <div class="datagrid-item">
+                                            <div class="datagrid-title">Ghi chú</div>
+                                            <div class="datagrid-content text-muted">@orderNotes</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                             <div class="card">
+                                <div class="card-header"><h4 class="card-title mb-0"><i class="ti ti-file-invoice me-2 text-primary"></i>Chi tiết thanh toán & vận chuyển</h4></div>
+                                <div class="card-body">
+                                     <div class="datagrid">
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Phương thức Vận chuyển</div>
+                                            <div class="datagrid-content">@shippingMethod</div>
+                                        </div>
+                                        <div class="datagrid-item">
+                                            <div class="datagrid-title">Phí vận chuyển</div>
+                                            <div class="datagrid-content fw-medium">@shippingFee.ToString("N0")₫</div>
+                                        </div>
+                                         <div class="datagrid-item">
+                                            <div class="datagrid-title">Phương thức Thanh toán</div>
+                                            <div class="datagrid-content">@paymentMethod</div>
+                                        </div>
+                                         @* Optional: Show bank info if paymentMethod is bank transfer *@
+                                         @*
+                                          <div class="datagrid-item">
+                                            <div class="datagrid-title">Lưu ý thanh toán</div>
+                                            <div class="datagrid-content text-info">Vui lòng chuyển khoản với nội dung: <strong>#@orderId @recipientPhone</strong></div>
+                                        </div>
+                                         *@
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <h3 class="h4 mb-3"><i class="ti ti-package me-2 text-primary"></i>Sản phẩm trong đơn hàng</h3>
+                     <div class="table-responsive">
+                        <table class="table table-vcenter card-table">
+                            <thead>
+                                <tr>
+                                    <th>Sản phẩm</th>
+                                    <th>Số lượng</th>
+                                    <th>Đơn giá</th>
+                                    <th class="text-end">Thành tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @* Simulate Product 1 *@
+                                <tr>
+                                    <td>
+                                        <div class="d-flex py-1 align-items-center">
+                                             <img src="/img/placeholder.svg" class="avatar me-2" alt="Sản phẩm 1">
+                                            <div class="flex-fill">
+                                                <div class="font-weight-medium"><a href="/san-pham/son-noi-that-dulux-easyclean-lau-chui-vuot-troi" class="text-reset">Sơn nội thất Dulux EasyClean</a></div>
+                                                <div class="text-muted small">5 Lít / Trắng sứ (001)</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                     <td>2</td>
+                                     <td>650.000₫</td>
+                                    <td class="text-end fw-medium">1.300.000₫</td>
+                                </tr>
+                                 @* Simulate Product 2 *@
+                                <tr>
+                                    <td>
+                                        <div class="d-flex py-1 align-items-center">
+                                             <img src="/img/placeholder.svg" class="avatar me-2" alt="Sản phẩm 2">
+                                            <div class="flex-fill">
+                                                <div class="font-weight-medium"><a href="/san-pham/chong-tham-sika-topseal-107" class="text-reset">Chống thấm Sika Topseal 107</a></div>
+                                                <div class="text-muted small">Bộ 25Kg</div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                     <td>1</td>
+                                     <td>420.000₫</td>
+                                    <td class="text-end fw-medium">420.000₫</td>
+                                </tr>
+                                @* Add more products *@
+                            </tbody>
+                             <tfoot>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-medium">Tạm tính:</td>
+                                    <td class="text-end fw-medium">@subtotal.ToString("N0")₫</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="3" class="text-end fw-medium">Phí vận chuyển:</td>
+                                    <td class="text-end fw-medium text-primary">@shippingFee.ToString("N0")₫</td>
+                                </tr>
+                                @* Optional: Discount Row *@
+                                @*
+                                <tr>
+                                    <td colspan="3" class="text-end fw-medium">Giảm giá:</td>
+                                    <td class="text-end fw-medium text-success">- @discount.ToString("N0")₫</td>
+                                </tr>
+                                *@
+                                <tr class="h4">
+                                    <td colspan="3" class="text-end fw-bold">Tổng cộng:</td>
+                                    <td class="text-end fw-bold text-primary">@total.ToString("N0")₫</td>
+                                </tr>
+                             </tfoot>
+                        </table>
+                    </div>
+
+                    @* Optional: Order Status Timeline *@
+                    @*
+                    <h3 class="h4 mt-3 mb-3"><i class="ti ti-history me-2 text-primary"></i>Lịch sử trạng thái</h3>
+                    <div class="steps steps-vertical">
+                        <div class="step-item active">
+                            <div class="h4 mb-0">Đơn hàng đã được đặt</div>
+                            <div class="text-muted">25/07/2024 10:30</div>
+                        </div>
+                        <div class="step-item">
+                            <div class="h4 mb-0">Đang xử lý</div>
+                            <div class="text-muted">25/07/2024 11:00</div>
+                        </div>
+                         <div class="step-item">
+                            <div class="h4 mb-0">Đang giao hàng</div>
+                            <div class="text-muted">26/07/2024 08:00</div>
+                        </div>
+                         <div class="step-item">
+                            <div class="h4 mb-0">Đã giao hàng</div>
+                            <div class="text-muted">27/07/2024 14:00</div>
+                        </div>
+                    </div>
+                    *@
+
+                    <div class="mt-3 d-flex justify-content-center justify-content-md-start gap-3">
+                         <a href="/yeu-cau-bao-gia" class="btn btn-primary">
+                            <i class="ti ti-reload me-2"></i>Đặt lại đơn hàng này
+                        </a>
+                        <a href="/lien-he" class="btn btn-outline-primary">
+                             <i class="ti ti-help-circle me-2"></i>Yêu cầu hỗ trợ
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

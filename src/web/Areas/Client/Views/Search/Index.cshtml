@@ -1,0 +1,190 @@
+@{
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+        new("Kết quả tìm kiếm", "")
+    };
+    var searchQuery = ViewData["SearchQuery"] as string ?? "sơn chống thấm";
+    var productResultsCount = 9;
+    var articleResultsCount = 3;
+}
+
+<section class="mb-3">
+    <div class="row align-items-center">
+        <div class="col">
+            <h1 class="page-title">Kết quả tìm kiếm cho: "@searchQuery"</h1>
+        </div>
+    </div>
+</section>
+
+<div class="card">
+    <ul class="nav nav-tabs nav-tabs-alt" data-bs-toggle="tabs">
+        <li class="nav-item">
+            <a href="#tabs-products" class="nav-link active" data-bs-toggle="tab">
+                <i class="ti ti-box me-2"></i>Sản phẩm (@productResultsCount)
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#tabs-articles" class="nav-link" data-bs-toggle="tab">
+                <i class="ti ti-file-text me-2"></i>Bài viết (@articleResultsCount)
+            </a>
+        </li>
+    </ul>
+    <div class="card-body">
+        <div class="tab-content">
+            @* TAB SẢN PHẨM *@
+            <div class="tab-pane active show" id="tabs-products">
+                @if (productResultsCount > 0)
+                {
+                    <div class="row align-items-center mb-3">
+                        <div class="col">
+                            <div class="text-muted">Tìm thấy @productResultsCount sản phẩm.</div>
+                        </div>
+                        <div class="col-auto ms-auto d-print-none">
+                            <div class="d-flex align-items-center">
+                                <div class="me-3 d-none d-sm-block">
+                                    <select class="form-select" style="min-width: 180px;">
+                                        <option value="relevance">Liên quan nhất</option>
+                                        <option value="price_asc">Giá: Tăng dần</option>
+                                        <option value="price_desc">Giá: Giảm dần</option>
+                                        <option value="newest">Mới nhất</option>
+                                        <option value="bestselling">Bán chạy</option>
+                                    </select>
+                                </div>
+                                <div class="btn-group">
+                                    <button type="button" class="btn btn-outline-secondary active" title="Xem dạng lưới"> <i class="ti ti-layout-grid"></i> </button>
+                                    <button type="button" class="btn btn-outline-secondary" title="Xem dạng danh sách"> <i class="ti ti-list"></i> </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row row-cards g-3">
+                        @for (int i = 0; i < productResultsCount; i++)
+                        {
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card card-sm h-100">
+                                    @if (i % 3 == 0)
+                                    {
+                                        <div class="ribbon ribbon-top ribbon-start bg-green"> Mới </div>
+                                    }
+                                    <a href="/san-pham/son-nuoc-noi-that-jotun-majestic-@i" class="d-block">
+                                        <img src="/img/placeholder.svg" alt="Sản phẩm @(i+1)" class="card-img-top" style="height: 180px; object-fit: cover;" />
+                                    </a>
+                                    <div class="card-body d-flex flex-column">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-blue-lt me-2">Jotun</span>
+                                            <div class="ms-auto text-warning">
+                                                <i class="ti ti-star-filled"></i>
+                                                <span class="text-muted ms-1">@(4 + (i % 2 == 0 ? 0.5 : 0)).0 (@(20 + i * 3))</span>
+                                            </div>
+                                        </div>
+                                        <h3 class="h5 mb-1">
+                                            <a href="/san-pham/son-nuoc-noi-that-jotun-majestic-@i" class="text-reset">Sản phẩm mẫu @(i + 1) cho "@searchQuery"</a>
+                                        </h3>
+                                        <p class="text-muted small mb-3">Mô tả ngắn cho sản phẩm liên quan đến "@searchQuery".</p>
+                                        <div class="mt-auto">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <div class="h5 mb-0 text-primary">@(750000 + i * 10000)₫</div>
+                                            </div>
+                                            <div class="d-flex gap-2">
+                                                <a href="/san-pham/son-nuoc-noi-that-jotun-majestic-@i" class="btn btn-primary w-100">
+                                                    <i class="ti ti-shopping-cart me-1"></i>Mua ngay
+                                                </a>
+                                                <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích">
+                                                    <i class="ti ti-heart"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="mt-3">
+                        <nav aria-label="Product page navigation">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="ti ti-chevron-left"></i></a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#"><i class="ti ti-chevron-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="ti ti-info-circle me-2"></i>Không tìm thấy sản phẩm nào phù hợp với từ khóa "@searchQuery".
+                    </div>
+                }
+            </div>
+
+            @* TAB BÀI VIẾT *@
+            <div class="tab-pane" id="tabs-articles">
+                @if (articleResultsCount > 0)
+                {
+                    <div class="text-muted mb-3">Tìm thấy @articleResultsCount bài viết.</div>
+                    @for (int i = 0; i < articleResultsCount; i++)
+                    {
+                        <div class="card mb-3">
+                            <div class="row g-0">
+                                <div class="col-sm-3 col-md-2">
+                                    @* Ảnh nhỏ hơn một chút so với trang tin tức chính *@
+                                    <a href="/tin-tuc/bai-viet-tim-kiem-@i">
+                                        <img src="/img/placeholder.svg" class="card-img-top card-img-bottom h-100 w-100"
+                                             alt="Bài viết @(i+1) về @searchQuery" style="object-fit: cover;" />
+                                    </a>
+                                </div>
+                                <div class="col-sm-9 col-md-10 d-flex flex-column">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center mb-2">
+                                            <span class="badge bg-yellow-lt me-2">@((i % 2 == 0) ? "Kinh nghiệm" : "Tư vấn")</span>
+                                            <span class="text-muted small"><i class="ti ti-calendar me-1"></i>@(10 + i)/07/2024</span>
+                                        </div>
+                                        <h3 class="h4 card-title mb-2">
+                                            <a href="/tin-tuc/bai-viet-tim-kiem-@i" class="text-reset">
+                                                Bài viết @(i + 1) liên quan đến "@searchQuery" và cách áp dụng
+                                            </a>
+                                        </h3>
+                                        <p class="text-muted small mb-3 d-none d-md-block">
+                                            Nội dung tóm tắt cho bài viết số @(i + 1) tìm được với từ khóa "@searchQuery". Đoạn này sẽ mô tả sơ lược về chủ đề của bài viết...
+                                        </p>
+                                    </div>
+                                    <div class="card-footer bg-transparent border-0 mt-auto pt-0">
+                                        <a href="/tin-tuc/bai-viet-tim-kiem-@i"
+                                           class="btn btn-outline-primary btn-sm"> Đọc tiếp <i class="ti ti-arrow-right ms-1"></i> </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="mt-3">
+                        <nav aria-label="Article page navigation">
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">
+                                        <i class="ti ti-chevron-left"></i>
+                                    </a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#"><i class="ti ti-chevron-right"></i></a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                }
+                else
+                {
+                    <div class="alert alert-info" role="alert">
+                        <i class="ti ti-info-circle me-2"></i>Không tìm thấy bài viết nào phù hợp với từ khóa "@searchQuery".
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

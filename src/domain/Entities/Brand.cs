@@ -22,16 +22,14 @@ public class BrandConfiguration : BaseEntityConfiguration<Brand, int>
     {
         base.Configure(builder);
 
-        builder.ToTable("brands");
-
-        builder.Property(e => e.Name).HasColumnName("name").IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Slug).HasColumnName("slug").IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Name).IsRequired().HasMaxLength(255);
+        builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Description).HasColumnName("description").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.LogoUrl).HasColumnName("logo_url").HasMaxLength(2048);
-        builder.Property(e => e.Website).HasColumnName("website").HasMaxLength(255);
-        builder.Property(e => e.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+        builder.Property(e => e.Description).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.LogoUrl).HasMaxLength(2048);
+        builder.Property(e => e.Website).HasMaxLength(255);
+        builder.Property(e => e.IsActive).HasDefaultValue(true);
 
         builder.HasData(
             new Brand { Id = 1, Name = "Dulux", Slug = "dulux", IsActive = true, CreatedAt = DateTime.UtcNow },

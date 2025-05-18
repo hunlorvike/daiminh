@@ -15,12 +15,7 @@ public class ProductAttributeConfiguration : IEntityTypeConfiguration<ProductAtt
 {
     public void Configure(EntityTypeBuilder<ProductAttribute> builder)
     {
-        builder.ToTable("product_attributes");
-
         builder.HasKey(pa => new { pa.ProductId, pa.AttributeId });
-
-        builder.Property(pa => pa.ProductId).HasColumnName("product_id");
-        builder.Property(pa => pa.AttributeId).HasColumnName("attribute_id");
 
         builder.HasOne(pa => pa.Product)
             .WithMany(p => p.ProductAttributes)

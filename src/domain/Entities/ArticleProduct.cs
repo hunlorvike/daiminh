@@ -15,10 +15,9 @@ public class ArticleProductConfiguration : IEntityTypeConfiguration<ArticleProdu
 {
     public void Configure(EntityTypeBuilder<ArticleProduct> builder)
     {
-        builder.ToTable("article_products");
         builder.HasKey(e => new { e.ArticleId, e.ProductId });
-        builder.Property(e => e.ArticleId).HasColumnName("article_id");
-        builder.Property(e => e.ProductId).HasColumnName("product_id");
+        builder.Property(e => e.ArticleId);
+        builder.Property(e => e.ProductId);
         builder.HasOne(e => e.Article)
             .WithMany(a => a.ArticleProducts)
             .HasForeignKey(e => e.ArticleId)
