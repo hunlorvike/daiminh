@@ -1,6 +1,6 @@
 using AutoMapper;
 using domain.Entities;
-using web.Areas.Admin.ViewModels.User;
+using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Mappers;
 
@@ -17,14 +17,10 @@ public class UserProfile : Profile
         // CreateViewModel -> Entity
         CreateMap<UserCreateViewModel, User>()
             .ForMember(dest => dest.Id, opt => opt.Ignore())
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
 
         // EditViewModel -> Entity
         CreateMap<UserEditViewModel, User>()
-            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
-            .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
-            .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
+            .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
     }
 }

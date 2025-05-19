@@ -1,39 +1,34 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.ViewModels.Tag;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class TagController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ITagService _tagService;
     private readonly ILogger<TagController> _logger;
+    private readonly IValidator<TagViewModel> _tagViewModelValidator;
 
     public TagController(
-        ApplicationDbContext context,
-        IMapper mapper,
-        ILogger<TagController> logger)
+        ITagService tagService,
+        ILogger<TagController> logger,
+        IValidator<TagViewModel> tagViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _tagService = tagService ?? throw new ArgumentNullException(nameof(tagService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _tagViewModelValidator = tagViewModelValidator ?? throw new ArgumentNullException(nameof(tagViewModelValidator));
     }
 
 
@@ -44,28 +39,7 @@ public partial class TagController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 10;
 
-        IQueryable<Tag> query = _context.Set<Tag>();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(t => t.Name.ToLower().Contains(lowerSearchTerm) ||
-                                    (t.Description != null && t.Description.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.Type.HasValue)
-        {
-            query = query.Where(c => c.Type == filter.Type.Value);
-        }
-
-        query = query.Include(t => t.ProductTags)
-                     .Include(t => t.ArticleTags);
-
-
-        IPagedList<TagListItemViewModel> pagedList = await query
-            .OrderBy(t => t.Name)
-            .ProjectTo<TagListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<TagListItemViewModel> pagedList = await _tagService.GetPagedTagsAsync(filter, pageNumber, currentPageSize);
 
         filter.TagTypes = GetTagTypesSelectList(filter.Type);
 
@@ -94,7 +68,8 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TagViewModel viewModel)
     {
-        var validationResult = await new TagViewModelValidator(_context).ValidateAsync(viewModel);
+        var validationResult = await _tagViewModelValidator.ValidateAsync(viewModel);
+
         if (!validationResult.IsValid)
         {
             foreach (var error in validationResult.Errors)
@@ -104,43 +79,58 @@ public partial class TagController : Controller
             return View(viewModel);
         }
 
-        var tag = _mapper.Map<Tag>(viewModel);
-        _context.Add(tag);
+        var createResult = await _tagService.CreateTagAsync(viewModel);
 
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm thẻ '{tag.Name}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm thẻ thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo thẻ mới '{Name}'", viewModel.Name);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi tạo thẻ.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                if (error.Contains("Tên thẻ", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Name), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm thẻ '{viewModel.Name}'.", ToastType.Error)
-        );
-        viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
-        return View(viewModel);
+
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm thẻ '{viewModel.Name}'.", ToastType.Error)
+            );
+            viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
+            return View(viewModel);
+        }
     }
 
 
     // GET: Admin/Tag/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        Tag? tag = await _context.Set<Tag>().AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+        TagViewModel? viewModel = await _tagService.GetTagByIdAsync(id);
 
-        if (tag == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("Tag not found for editing: ID {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy thẻ để cập nhật.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
 
-        TagViewModel viewModel = _mapper.Map<TagViewModel>(tag);
-        viewModel.TagTypes = GetTagTypesSelectList(tag.Type);
+        viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
         return View(viewModel);
     }
 
@@ -157,7 +147,8 @@ public partial class TagController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var validationResult = await new TagViewModelValidator(_context).ValidateAsync(viewModel);
+        var validationResult = await _tagViewModelValidator.ValidateAsync(viewModel);
+
         if (!validationResult.IsValid)
         {
             foreach (var error in validationResult.Errors)
@@ -167,36 +158,39 @@ public partial class TagController : Controller
             return View(viewModel);
         }
 
-        var tag = await _context.Set<Tag>().FirstOrDefaultAsync(t => t.Id == id);
-        if (tag == null)
+        var updateResult = await _tagService.UpdateTagAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy thẻ để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật thẻ thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, tag);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Tên thẻ", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Name), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật thẻ '{tag.Name}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật thẻ '{viewModel.Name}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
+            return View(viewModel);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật thẻ '{Name}'", viewModel.Name);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật thẻ.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật thẻ '{viewModel.Name}'.", ToastType.Error)
-        );
-        viewModel.TagTypes = GetTagTypesSelectList(viewModel.Type);
-        return View(viewModel);
     }
 
 
@@ -205,54 +199,21 @@ public partial class TagController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var tag = await _context.Set<Tag>()
-            .Where(t => t.Id == id)
-            .Select(t => new
-            {
-                t.Id,
-                t.Name,
-                t.Type,
-                ProductCount = t.ProductTags!.Count(),
-                ArticleCount = t.ArticleTags!.Count(),
-            })
-            .FirstOrDefaultAsync();
+        var deleteResult = await _tagService.DeleteTagAsync(id);
 
-        if (tag == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy thẻ.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa thẻ thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy thẻ." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-
-        int totalItems = tag.ProductCount + tag.ArticleCount;
-        string itemTypeName = tag.Type.GetDisplayName().ToLowerInvariant();
-
-        if (totalItems > 0)
+        else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", $"Không thể xóa thẻ '{tag.Name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa thẻ.", ToastType.Error)
             );
-            return Json(new { success = false, message = $"Không thể xóa thẻ '{tag.Name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}." });
-        }
-
-        Tag tagToDelete = new() { Id = id };
-        _context.Entry(tagToDelete).State = EntityState.Deleted;
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa thẻ '{tag.Name}' thành công.", ToastType.Success)
-            );
-            return Json(new { success = true, message = $"Xóa thẻ '{tag.Name}' thành công." });
-        }
-        catch (Exception)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa thẻ.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa thẻ." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
 }
@@ -272,17 +233,16 @@ public partial class TagController
             .OrderBy(t => t.Text)
             .ToList();
 
-        List<SelectListItem> items = new()
-        {
+        List<SelectListItem> items =
+        [
             new SelectListItem
             {
                 Value = "",
                 Text = "Tất cả loại thẻ",
                 Selected = !selectedType.HasValue
-            }
-        };
-
-        items.AddRange(tagTypes);
+            },
+            .. tagTypes,
+        ];
 
         return items;
     }

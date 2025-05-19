@@ -1,39 +1,37 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Newsletter;
-using web.Areas.Admin.ViewModels.Newsletter;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class NewsletterController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly INewsletterService _newsletterService;
     private readonly IMapper _mapper;
     private readonly ILogger<NewsletterController> _logger;
+    private readonly IValidator<NewsletterViewModel> _newsletterViewModelValidator;
 
     public NewsletterController(
-        ApplicationDbContext context,
+        INewsletterService newsletterService,
         IMapper mapper,
-        ILogger<NewsletterController> logger)
+        ILogger<NewsletterController> logger,
+        IValidator<NewsletterViewModel> newsletterViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _newsletterService = newsletterService ?? throw new ArgumentNullException(nameof(newsletterService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _newsletterViewModelValidator = newsletterViewModelValidator ?? throw new ArgumentNullException(nameof(newsletterViewModelValidator));
     }
 
     // GET: Admin/Newsletter
@@ -43,25 +41,7 @@ public partial class NewsletterController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<Newsletter> query = _context.Set<Newsletter>().AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(n => n.Email.ToLower().Contains(lowerSearchTerm) ||
-                                     (n.Name != null && n.Name.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(n => n.IsActive == filter.IsActive.Value);
-        }
-
-        query = query.OrderByDescending(n => n.CreatedAt);
-
-        IPagedList<NewsletterListItemViewModel> newslettersPaged = await query
-            .ProjectTo<NewsletterListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<NewsletterListItemViewModel> newslettersPaged = await _newsletterService.GetPagedNewslettersAsync(filter, pageNumber, currentPageSize);
 
         filter.StatusOptions = GetStatusSelectList(filter.IsActive);
 
@@ -89,7 +69,7 @@ public partial class NewsletterController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(NewsletterViewModel viewModel)
     {
-        var result = await new NewsletterViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _newsletterViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
@@ -99,45 +79,57 @@ public partial class NewsletterController : Controller
             return View(viewModel);
         }
 
-        var newsletter = _mapper.Map<Newsletter>(viewModel);
-        ApplyStatusTracking(newsletter);
-        SetTrackingInfo(newsletter);
+        var ipAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
+        var userAgent = Request.Headers["User-Agent"].ToString();
 
-        _context.Add(newsletter);
 
-        try
+        var createResult = await _newsletterService.CreateNewsletterAsync(viewModel, ipAddress, userAgent);
+
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm đăng ký email '{newsletter.Email}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm đăng ký email thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo đăng ký mới cho email: {Email}", viewModel.Email);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu đăng ký.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                if (error.Contains("Email", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Email), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm đăng ký email '{viewModel.Email}'.", ToastType.Error)
-        );
-        return View(viewModel);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm đăng ký email '{viewModel.Email}'.", ToastType.Error)
+            );
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Newsletter/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        Newsletter? newsletter = await _context.Set<Newsletter>()
-                                           .AsNoTracking()
-                                           .FirstOrDefaultAsync(n => n.Id == id);
+        NewsletterViewModel? viewModel = await _newsletterService.GetNewsletterByIdAsync(id);
 
-        if (newsletter == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("Newsletter not found for editing: ID {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy đăng ký để cập nhật.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
-
-        NewsletterViewModel viewModel = _mapper.Map<NewsletterViewModel>(newsletter);
         return View(viewModel);
     }
 
@@ -154,7 +146,7 @@ public partial class NewsletterController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new NewsletterViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _newsletterViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
@@ -164,36 +156,38 @@ public partial class NewsletterController : Controller
             return View(viewModel);
         }
 
-        var newsletter = await _context.Set<Newsletter>().FindAsync(id);
-        if (newsletter == null)
+        var updateResult = await _newsletterService.UpdateNewsletterAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy đăng ký để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật đăng ký thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, newsletter);
-        ApplyStatusTracking(newsletter);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Email", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Email), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật đăng ký email '{newsletter.Email}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật đăng ký email '{viewModel.Email}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            return View(viewModel);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật đăng ký email: {Email}", viewModel.Email);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đăng ký.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật đăng ký email '{viewModel.Email}'.", ToastType.Error)
-        );
-        return View(viewModel);
     }
 
     // POST: Admin/Newsletter/Delete/5
@@ -201,32 +195,21 @@ public partial class NewsletterController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var newsletter = await _context.Set<Newsletter>().FindAsync(id);
-        if (newsletter == null)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy đăng ký.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Không tìm thấy đăng ký." });
-        }
+        var deleteResult = await _newsletterService.DeleteNewsletterAsync(id);
 
-        try
+        if (deleteResult.Success)
         {
-            string email = newsletter.Email;
-            _context.Remove(newsletter);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa đăng ký email '{email}' thành công.", ToastType.Success)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa đăng ký thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = $"Xóa đăng ký email '{email}' thành công." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi xóa đăng ký email: {Email}", newsletter.Email);
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa đăng ký.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa đăng ký.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đăng ký." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
 }
@@ -241,25 +224,5 @@ public partial class NewsletterController
             new SelectListItem { Value = "true", Text = "Đang hoạt động", Selected = selectedValue == true },
             new SelectListItem { Value = "false", Text = "Không hoạt động", Selected = selectedValue == false }
         };
-    }
-
-    private void ApplyStatusTracking(Newsletter newsletter)
-    {
-        if (newsletter.IsActive)
-        {
-            newsletter.UnsubscribedAt = null;
-            newsletter.ConfirmedAt = DateTime.UtcNow;
-        }
-        else
-        {
-            newsletter.UnsubscribedAt = DateTime.UtcNow;
-            newsletter.ConfirmedAt = null;
-        }
-    }
-
-    private void SetTrackingInfo(Newsletter newsletter)
-    {
-        newsletter.IpAddress = HttpContext.Connection.RemoteIpAddress?.ToString();
-        newsletter.UserAgent = Request.Headers["User-Agent"].ToString();
     }
 }

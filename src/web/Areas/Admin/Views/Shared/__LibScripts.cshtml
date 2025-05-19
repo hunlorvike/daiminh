@@ -1,14 +1,14 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
-    var tokens = Antiforgery.GetAndStoreTokens(Context);
-    var antiForgeryTokenValue = tokens.RequestToken;
+	var tokens = Antiforgery.GetAndStoreTokens(Context);
+	var antiForgeryTokenValue = tokens.RequestToken;
 }
 
 <!-- Jquery Scripts -->
 <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
 <script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"
-    asp-append-version="true"></script>
+		asp-append-version="true"></script>
 
 <!-- Tabler Scripts -->
 <script src="~/lib/tabler/core/dist/js/tabler.min.js" asp-append-version="true"></script>
@@ -37,118 +37,55 @@
 <script src="~/js/tomselected.js" asp-append-version="true"></script>
 
 <script>
-    $(function () {
-        $('.toast').each(function () {
-            var toast = new tabler.Toast(this, {
-                autohide: true,
-                delay: 5000
-            });
-            toast.show();
-        });
-    });
+	$(function () {
+		$('.toast').each(function () {
+			var toast = new tabler.Toast(this, {
+				autohide: true,
+				delay: 5000
+			});
+			toast.show();
+		});
+	});
 </script>
 
 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        if (window.innerWidth < 992) {
-            var toggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
-            toggles.forEach(function (toggle) {
-                var icon = toggle.querySelector('i');
-                var targetId = toggle.getAttribute('href');
-                var target = document.querySelector(targetId);
+	document.addEventListener('DOMContentLoaded', function () {
+		if (window.innerWidth < 992) {
+			var toggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
+			toggles.forEach(function (toggle) {
+				var icon = toggle.querySelector('i');
+				var targetId = toggle.getAttribute('href');
+				var target = document.querySelector(targetId);
 
-                if (target) {
-                    target.addEventListener('show.bs.collapse', function () {
-                        if (icon) {
-                            icon.classList.remove('ti-chevron-down');
-                            icon.classList.add('ti-chevron-up');
-                        }
-                    });
-                    target.addEventListener('hide.bs.collapse', function () {
-                        if (icon) {
-                            icon.classList.remove('ti-chevron-up');
-                            icon.classList.add('ti-chevron-down');
-                        }
-                    });
-                }
-            });
-        }
-    });
+				if (target) {
+					target.addEventListener('show.bs.collapse', function () {
+						if (icon) {
+							icon.classList.remove('ti-chevron-down');
+							icon.classList.add('ti-chevron-up');
+						}
+					});
+					target.addEventListener('hide.bs.collapse', function () {
+						if (icon) {
+							icon.classList.remove('ti-chevron-up');
+							icon.classList.add('ti-chevron-down');
+						}
+					});
+				}
+			});
+		}
+	});
 </script>
 
 <script>
-    $(document).ready(function () {
-        let deleteUrl = '';
-        let itemIdToDelete = null;
-        let itemNameToDelete = '';
-        let rowToDelete = null;
+		$(document).on('click', '.delete-item-btn', function () {
+		var id = $(this).data('id');
+		var name = $(this).data('name');
+		var url = $(this).data('delete-url');
 
-        const deleteModal = new tabler.Modal(document.getElementById('delete-confirmation-modal'));
-        const confirmDeleteButton = document.getElementById('confirm-delete-button');
-        const deleteModalMessage = document.getElementById('delete-modal-message');
-
-        function addAntiForgeryToken(data) {
-            data = data || {};
-            data.__RequestVerificationToken = '@antiForgeryTokenValue';
-            return data;
-        }
-
-        $('body').on('click', '.delete-item-btn', function () {
-            const button = $(this);
-            deleteUrl = button.data('delete-url');
-            itemIdToDelete = button.data('id');
-            itemNameToDelete = button.data('name');
-
-            if (itemNameToDelete) {
-                $(deleteModalMessage).text(`Bạn có chắc chắn muốn xóa "${itemNameToDelete}" không? Hành động này không thể hoàn tác.`);
-            } else {
-                $(deleteModalMessage).text('Bạn có chắc chắn muốn xóa mục này không? Hành động này không thể hoàn tác.');
-            }
-
-            if (deleteUrl && itemIdToDelete !== null) {
-                deleteModal.show();
-            } else {
-                console.error("Delete button is missing data-delete-url or data-id attribute.");
-            }
-        });
-
-        if (confirmDeleteButton) {
-            confirmDeleteButton.addEventListener('click', function () {
-                const button = $(this);
-                const originalButtonText = button.innerHTML;
-                button.disabled = true;
-                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Đang xóa...'; // Indicate loading
-
-                $.ajax({
-                    url: deleteUrl,
-                    type: 'POST',
-                    data: addAntiForgeryToken({ id: itemIdToDelete }),
-                    dataType: 'json',
-                    success: function (response) {
-                        deleteModal.hide();
-                        if (response.success) {
-                            location.reload();
-                        } else {
-                            console.error("Delete failed:", response.message);
-                        }
-                    },
-                    error: function (xhr, status, error) {
-                        deleteModal.hide();
-                        console.error("AJAX Error:", status, error, xhr.responseText);
-                    },
-                    complete: function () {
-                        button.disabled = false;
-                        button.innerHTML = originalButtonText;
-                        deleteUrl = '';
-                        itemIdToDelete = null;
-                        itemNameToDelete = '';
-                        rowToDelete = null;
-                    }
-                });
-            });
-        } else {
-            console.error("Confirm delete button (#confirm-delete-button) not found.");
-        }
-    });
+		$('#delete-item-id').val(id);
+		$('#delete-form').attr('action', url);
+		$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa "' + name + '"?');
+		$('#delete-confirmation-modal').modal('show');
+	});
 </script>

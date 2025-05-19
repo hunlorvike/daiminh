@@ -1,7 +1,7 @@
 using AutoMapper;
 using domain.Entities;
 using shared.Extensions;
-using web.Areas.Admin.ViewModels.Media;
+using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Mappers;
 

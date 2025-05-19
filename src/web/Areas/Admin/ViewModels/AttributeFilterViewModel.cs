@@ -1,0 +1,9 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace web.Areas.Admin.ViewModels;
+
+public class AttributeFilterViewModel
+{
+    [Display(Name = "Tìm kiếm")]
+    public string? SearchTerm { get; set; }
+}

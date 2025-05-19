@@ -1,39 +1,42 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
-using infrastructure;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.ProductReview;
-using web.Areas.Admin.ViewModels.ProductReview;
-using X.PagedList.EF;
-using X.PagedList.Extensions;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
+using X.PagedList;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class ProductReviewController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IProductReviewService _productReviewService;
+    private readonly IProductService _productService;
     private readonly IMapper _mapper;
     private readonly ILogger<ProductReviewController> _logger;
+    private readonly IValidator<ProductReviewViewModel> _productReviewViewModelValidator;
+
 
     public ProductReviewController(
-        ApplicationDbContext context,
+        IProductReviewService productReviewService,
+        IProductService productService,
         IMapper mapper,
-        ILogger<ProductReviewController> logger)
+        ILogger<ProductReviewController> logger,
+        IValidator<ProductReviewViewModel> productReviewViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _productReviewService = productReviewService ?? throw new ArgumentNullException(nameof(productReviewService));
+        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _productReviewViewModelValidator = productReviewViewModelValidator ?? throw new ArgumentNullException(nameof(productReviewViewModelValidator));
     }
 
     // GET: Admin/ProductReview
@@ -43,46 +46,11 @@ public partial class ProductReviewController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 25;
 
-        IQueryable<ProductReview> query = _context.Set<ProductReview>()
-                                             .Include(r => r.Product) // Include product to display name
-                                             .AsNoTracking();
+        IPagedList<ProductReviewListItemViewModel> reviewsPaged = await _productReviewService.GetPagedProductReviewsAsync(filter, pageNumber, currentPageSize);
 
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(r => (r.UserName != null && r.UserName.ToLower().Contains(lowerSearchTerm)) ||
-                                     (r.UserEmail != null && r.UserEmail.ToLower().Contains(lowerSearchTerm)) ||
-                                     r.Content.ToLower().Contains(lowerSearchTerm));
-        }
-
-        if (filter.ProductId.HasValue)
-        {
-            query = query.Where(r => r.ProductId == filter.ProductId.Value);
-        }
-
-        if (filter.Status.HasValue)
-        {
-            query = query.Where(r => r.Status == filter.Status.Value);
-        }
-
-        if (filter.MinRating.HasValue)
-        {
-            query = query.Where(r => r.Rating >= filter.MinRating.Value);
-        }
-
-        if (filter.MaxRating.HasValue)
-        {
-            query = query.Where(r => r.Rating <= filter.MaxRating.Value);
-        }
-
-        query = query.OrderByDescending(r => r.CreatedAt);
-
-        var reviewsPaged = await query.ProjectTo<ProductReviewListItemViewModel>(_mapper.ConfigurationProvider)
-                                       .ToPagedListAsync(pageNumber, currentPageSize);
-
-        filter.ProductOptions = await LoadProductSelectListAsync(filter.ProductId);
+        filter.ProductOptions = await _productService.GetProductSelectListAsync(filter.ProductId);
         filter.StatusOptions = GetReviewStatusSelectList(filter.Status);
-        filter.RatingOptions = GetRatingSelectList(filter.MinRating, filter.MaxRating);
+        filter.RatingOptions = GetRatingOptions(filter.MinRating, filter.MaxRating);
 
 
         ProductReviewIndexViewModel viewModel = new()
@@ -97,18 +65,19 @@ public partial class ProductReviewController : Controller
     // GET: Admin/ProductReview/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        ProductReview? review = await _context.Set<ProductReview>()
-                                         .Include(r => r.Product) // Include product to display name
-                                         .AsNoTracking() // Use AsNoTracking for GET
-                                         .FirstOrDefaultAsync(r => r.Id == id);
+        ProductReviewViewModel? viewModel = await _productReviewService.GetProductReviewByIdAsync(id);
 
-        if (review == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("ProductReview not found for editing. ID: {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy đánh giá để cập nhật.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
 
-        ProductReviewViewModel viewModel = _mapper.Map<ProductReviewViewModel>(review);
         PopulateViewModelSelectLists(viewModel);
+
         return View(viewModel);
     }
 
@@ -125,44 +94,54 @@ public partial class ProductReviewController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new ProductReviewViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _productReviewViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            await ReloadReviewViewModel(viewModel);
+            await _productReviewService.RefillProductReviewViewModelFromDbAsync(viewModel);
+            PopulateViewModelSelectLists(viewModel);
+
             return View(viewModel);
         }
 
-        var review = await _context.Set<ProductReview>().FirstOrDefaultAsync(r => r.Id == id);
-        if (review == null)
+        var updateResult = await _productReviewService.UpdateProductReviewStatusAsync(viewModel.Id, viewModel.Status);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy đánh giá.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật trạng thái đánh giá thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        review.Status = viewModel.Status;
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("trạng thái", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Status), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật trạng thái đánh giá cho sản phẩm '{review.Product?.Name ?? "[ẩn]"}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? "Đã xảy ra lỗi hệ thống khi cập nhật đánh giá.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật trạng thái đánh giá. ID = {Id}", id);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đánh giá.");
-        }
+            await _productReviewService.RefillProductReviewViewModelFromDbAsync(viewModel);
+            PopulateViewModelSelectLists(viewModel);
 
-        await ReloadReviewViewModel(viewModel);
-        return View(viewModel);
+            return View(viewModel);
+        }
     }
 
     // POST: Admin/ProductReview/Delete/5
@@ -170,68 +149,27 @@ public partial class ProductReviewController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var review = await _context.Set<ProductReview>()
-                                   .Include(r => r.Product)
-                                   .FirstOrDefaultAsync(r => r.Id == id);
+        var deleteResult = await _productReviewService.DeleteProductReviewAsync(id);
 
-        if (review == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy đánh giá.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa đánh giá thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy đánh giá." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-
-        try
+        else
         {
-            string productName = review.Product?.Name ?? "[Không rõ]";
-            _context.Remove(review);
-            await _context.SaveChangesAsync();
-
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa đánh giá cho sản phẩm '{productName}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", deleteResult.Message ?? "Đã xảy ra lỗi hệ thống khi xóa đánh giá.", ToastType.Error)
             );
-            return Json(new { success = true, message = $"Xóa đánh giá cho sản phẩm '{productName}' thành công." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa đánh giá ID {Id}", id);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi hệ thống khi xóa đánh giá.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi hệ thống khi xóa đánh giá." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
-}
 
-public partial class ProductReviewController
-{
     private void PopulateViewModelSelectLists(ProductReviewViewModel viewModel)
     {
         viewModel.StatusOptions = GetReviewStatusSelectList(viewModel.Status);
-    }
-
-    private async Task<List<SelectListItem>> LoadProductSelectListAsync(int? selectedValue = null)
-    {
-        var products = await _context.Set<Product>()
-                          .OrderBy(p => p.Name)
-                          .AsNoTracking()
-                          .Select(p => new { p.Id, p.Name })
-                          .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-             new SelectListItem { Value = "", Text = "-- Tất cả sản phẩm --", Selected = !selectedValue.HasValue }
-        };
-
-        items.AddRange(products.Select(p => new SelectListItem
-        {
-            Value = p.Id.ToString(),
-            Text = p.Name,
-            Selected = selectedValue.HasValue && p.Id == selectedValue.Value
-        }));
-
-        return items;
     }
 
     private List<SelectListItem> GetReviewStatusSelectList(ReviewStatus? selectedStatus)
@@ -244,57 +182,21 @@ public partial class ProductReviewController
                 Text = t.GetDisplayName(),
                 Selected = selectedStatus.HasValue && t == selectedStatus.Value
             })
-             .OrderBy(t => t.Text) // Order alphabetically by display name
+             .OrderBy(t => t.Text)
             .ToList();
-
-        if (!selectedStatus.HasValue)
-        {
-            items.Insert(0, new SelectListItem { Value = "", Text = "Tất cả trạng thái", Selected = true });
-        }
-        else
-        {
-            items.Insert(0, new SelectListItem { Value = "", Text = "Tất cả trạng thái" });
-        }
-
 
         return items;
     }
 
-    private List<SelectListItem> GetRatingSelectList(int? minSelected, int? maxSelected)
+    private List<SelectListItem> GetRatingOptions(int? minSelected, int? maxSelected)
     {
         var items = new List<SelectListItem>();
+        items.Add(new SelectListItem { Value = "", Text = "Tất cả", Selected = !minSelected.HasValue && !maxSelected.HasValue });
+
         for (int i = 1; i <= 5; i++)
         {
-            items.Add(new SelectListItem { Value = i.ToString(), Text = $"{i} sao", Selected = (minSelected == i || maxSelected == i) });
+            items.Add(new SelectListItem { Value = i.ToString(), Text = $"{i} sao", Selected = (minSelected == i) });
         }
-
-        // For filters, you typically select a single value for min/max, not both.
-        // Let's provide options for Min Rating and Max Rating separately in the filter view,
-        // so this helper might not be strictly needed for the filter dropdowns themselves,
-        // but here's how you'd generate options 1-5.
-        items.Insert(0, new SelectListItem { Value = "", Text = "Tất cả", Selected = !minSelected.HasValue && !maxSelected.HasValue }); // Add a default "All"
-
-        return items; // This helper might need refinement based on actual filter UI implementation (two dropdowns or one range slider etc.)
-    }
-
-    private async Task ReloadReviewViewModel(ProductReviewViewModel viewModel)
-    {
-        var reviewFromDb = await _context.Set<ProductReview>()
-            .Include(r => r.Product)
-            .AsNoTracking()
-            .FirstOrDefaultAsync(r => r.Id == viewModel.Id);
-
-        if (reviewFromDb != null)
-        {
-            viewModel.ProductName = reviewFromDb.Product!.Name;
-            viewModel.ProductId = reviewFromDb.ProductId;
-            viewModel.UserEmail = reviewFromDb.UserEmail;
-            viewModel.UserName = reviewFromDb.UserName;
-            viewModel.Rating = reviewFromDb.Rating;
-            viewModel.Content = reviewFromDb.Content;
-            viewModel.CreatedAt = reviewFromDb.CreatedAt;
-        }
-
-        PopulateViewModelSelectLists(viewModel);
+        return items;
     }
 }

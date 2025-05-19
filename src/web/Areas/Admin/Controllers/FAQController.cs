@@ -1,72 +1,49 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
-using infrastructure;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.FAQ;
-using web.Areas.Admin.ViewModels.FAQ;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
-public partial class FAQController : Controller
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+public class FAQController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly IFAQService _faqService;
+    private readonly ICategoryService _categoryService;
     private readonly ILogger<FAQController> _logger;
+    private readonly IValidator<FAQViewModel> _faqViewModelValidator;
+
 
     public FAQController(
-       ApplicationDbContext context,
-       IMapper mapper,
-       ILogger<FAQController> logger)
+       IFAQService faqService,
+       ICategoryService categoryService,
+       ILogger<FAQController> logger,
+       IValidator<FAQViewModel> faqViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _faqService = faqService ?? throw new ArgumentNullException(nameof(faqService));
+        _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _faqViewModelValidator = faqViewModelValidator ?? throw new ArgumentNullException(nameof(faqViewModelValidator));
     }
 
     // GET: Admin/FAQ
     public async Task<IActionResult> Index(FAQFilterViewModel filter, int page = 1, int pageSize = 15)
     {
-
         filter ??= new FAQFilterViewModel();
 
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<FAQ> query = _context.Set<FAQ>()
-                            .Include(fc => fc.Category)
-                            .AsNoTracking();
+        IPagedList<FAQListItemViewModel> faqsPaged = await _faqService.GetPagedFAQsAsync(filter, pageNumber, currentPageSize);
 
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(f => f.Question.ToLower().Contains(lowerSearchTerm)
-                                  || f.Answer.ToLower().Contains(lowerSearchTerm));
-        }
-
-        if (filter.CategoryId.HasValue && filter.CategoryId > 0)
-        {
-            query = query.Where(f => f.CategoryId == filter.CategoryId.Value);
-        }
-
-        IPagedList<FAQListItemViewModel> faqsPaged = await query
-            .OrderBy(f => f.OrderIndex)
-            .ThenBy(f => f.Question)
-            .ProjectTo<FAQListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
-
-        filter.Categories = await LoadCategoriesSelectListAsync(filter.CategoryId);
+        filter.Categories = await _categoryService.GetParentCategorySelectListAsync(CategoryType.FAQ, filter.CategoryId);
 
         FAQIndexViewModel viewModel = new()
         {
@@ -84,8 +61,9 @@ public partial class FAQController : Controller
         {
             IsActive = true,
             OrderIndex = 0,
-            Categories = await LoadCategoriesSelectListAsync()
         };
+
+        viewModel.Categories = await _categoryService.GetParentCategorySelectListAsync(CategoryType.FAQ);
 
         return View(viewModel);
     }
@@ -95,55 +73,69 @@ public partial class FAQController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(FAQViewModel viewModel)
     {
-        var result = await new FAQViewModelValidator().ValidateAsync(viewModel);
+        var result = await _faqViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            viewModel.Categories = await _categoryService.GetParentCategorySelectListAsync(CategoryType.FAQ, viewModel.CategoryId);
             return View(viewModel);
         }
 
-        var faq = _mapper.Map<FAQ>(viewModel);
-        _context.Add(faq);
+        var createResult = await _faqService.CreateFAQAsync(viewModel);
 
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm FAQ '{faq.Question}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm FAQ thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo FAQ: {Question}", viewModel.Question);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi thêm FAQ.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                if (error.Contains("Danh mục cha", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.CategoryId), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm FAQ '{viewModel.Question}'.", ToastType.Error)
-        );
-        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
-        return View(viewModel);
+
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm FAQ '{viewModel.Question}'.", ToastType.Error)
+            );
+
+            viewModel.Categories = await _categoryService.GetParentCategorySelectListAsync(CategoryType.FAQ, viewModel.CategoryId);
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/FAQ/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        FAQ? faq = await _context.Set<FAQ>()
-                              .AsNoTracking()
-                              .FirstOrDefaultAsync(f => f.Id == id);
+        FAQViewModel? viewModel = await _faqService.GetFAQByIdAsync(id);
 
-        if (faq == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("FAQ not found for editing: ID {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy FAQ để cập nhật.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
 
-        FAQViewModel viewModel = _mapper.Map<FAQViewModel>(faq);
-        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+        viewModel.Categories = await _categoryService.GetParentCategorySelectListAsync(CategoryType.FAQ, viewModel.CategoryId);
 
         return View(viewModel);
     }
@@ -161,47 +153,52 @@ public partial class FAQController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new FAQViewModelValidator().ValidateAsync(viewModel);
+        var result = await _faqViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
+            viewModel.Categories = await _categoryService.GetParentCategorySelectListAsync(CategoryType.FAQ, viewModel.CategoryId);
             return View(viewModel);
         }
 
-        var faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == id);
-        if (faq == null)
+        var updateResult = await _faqService.UpdateFAQAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy FAQ để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật FAQ thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, faq);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Danh mục cha", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.CategoryId), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật FAQ '{faq.Question}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật FAQ '{viewModel.Question}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật FAQ: {Question}", viewModel.Question);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật FAQ.");
-        }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật FAQ '{viewModel.Question}'.", ToastType.Error)
-        );
-        viewModel.Categories = await LoadCategoriesSelectListAsync(viewModel.CategoryId);
-        return View(viewModel);
+            viewModel.Categories = await _categoryService.GetParentCategorySelectListAsync(CategoryType.FAQ, viewModel.CategoryId);
+            return View(viewModel);
+        }
     }
 
     // POST: Admin/FAQ/Delete/5
@@ -209,61 +206,21 @@ public partial class FAQController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        FAQ? faq = await _context.Set<FAQ>().FindAsync(id);
-        if (faq == null)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy FAQ.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Không tìm thấy FAQ." });
-        }
+        var deleteResult = await _faqService.DeleteFAQAsync(id);
 
-        try
+        if (deleteResult.Success)
         {
-            string question = faq.Question;
-            _context.Remove(faq);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa FAQ '{question}' thành công.", ToastType.Success)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa FAQ thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = $"Xóa FAQ '{question}' thành công." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi xóa FAQ ID {Id}", id);
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa FAQ.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa FAQ.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa FAQ." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
-}
-
-
-public partial class FAQController
-{
-    private async Task<List<SelectListItem>> LoadCategoriesSelectListAsync(int? selectedValue = null)
-    {
-        var categories = await _context.Set<Category>()
-                                     .Where(c => c.Type == CategoryType.FAQ && c.IsActive)
-                                     .OrderBy(c => c.Name)
-                                     .Select(c => new { c.Id, c.Name })
-                                     .AsNoTracking()
-                                     .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-            new SelectListItem { Value = "", Text = "Tất cả danh mục", Selected = !selectedValue.HasValue }
-        };
-
-        items.AddRange(categories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.Name,
-            Selected = selectedValue.HasValue && c.Id == selectedValue.Value
-        }));
-
-        return items;
-    }
-
 }

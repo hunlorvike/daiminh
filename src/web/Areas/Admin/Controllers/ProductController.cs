@@ -12,16 +12,15 @@ using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Product;
-using web.Areas.Admin.ViewModels.Product;
-using web.Areas.Admin.ViewModels.ProductVariation;
+using web.Areas.Admin.Validators;
+using web.Areas.Admin.ViewModels;
 using X.PagedList.EF;
 using X.PagedList.Extensions;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class ProductController : Controller
 {
     private readonly ApplicationDbContext _context;

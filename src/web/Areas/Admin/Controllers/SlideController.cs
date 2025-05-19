@@ -1,39 +1,37 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Slide;
-using web.Areas.Admin.ViewModels.Slide;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class SlideController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ISlideService _slideService;
     private readonly IMapper _mapper;
     private readonly ILogger<SlideController> _logger;
+    private readonly IValidator<SlideViewModel> _slideViewModelValidator;
 
     public SlideController(
-        ApplicationDbContext context,
+        ISlideService slideService,
         IMapper mapper,
-        ILogger<SlideController> logger)
+        ILogger<SlideController> logger,
+        IValidator<SlideViewModel> slideViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _slideService = slideService ?? throw new ArgumentNullException(nameof(slideService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _slideViewModelValidator = slideViewModelValidator ?? throw new ArgumentNullException(nameof(slideViewModelValidator));
     }
 
     // GET: Admin/Slide
@@ -43,29 +41,7 @@ public partial class SlideController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<Slide> query = _context.Set<Slide>()
-                                          .AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(s => s.Title.ToLower().Contains(lowerSearchTerm) ||
-                                     (s.Subtitle != null && s.Subtitle.ToLower().Contains(lowerSearchTerm)) ||
-                                     (s.Description != null && s.Description.ToLower().Contains(lowerSearchTerm)) ||
-                                     (s.CtaText != null && s.CtaText.ToLower().Contains(lowerSearchTerm)) ||
-                                     (s.CtaLink != null && s.CtaLink.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(s => s.IsActive == filter.IsActive.Value);
-        }
-
-        query = query.OrderBy(s => s.OrderIndex).ThenByDescending(s => s.CreatedAt);
-
-        IPagedList<SlideListItemViewModel> slidesPaged = await query
-            .ProjectTo<SlideListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<SlideListItemViewModel> slidesPaged = await _slideService.GetPagedSlidesAsync(filter, pageNumber, currentPageSize);
 
         filter.ActiveStatusOptions = GetActiveStatusSelectList(filter.IsActive);
 
@@ -95,57 +71,57 @@ public partial class SlideController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(SlideViewModel viewModel)
     {
-        var validator = new SlideViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
+        var validationResult = await _slideViewModelValidator.ValidateAsync(viewModel);
 
-        if (!result.IsValid)
+        if (!validationResult.IsValid)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in validationResult.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
             return View(viewModel);
         }
 
-        var slide = _mapper.Map<Slide>(viewModel);
+        var createResult = await _slideService.CreateSlideAsync(viewModel);
 
-        _context.Add(slide);
-
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm Slide '{slide.Title}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm Slide thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo Slide: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu Slide.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm Slide '{viewModel.Title}'.", ToastType.Error)
-        );
-        return View(viewModel);
+
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm Slide '{viewModel.Title}'.", ToastType.Error)
+            );
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Slide/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        Slide? slide = await _context.Set<Slide>()
-                                     .AsNoTracking()
-                                     .FirstOrDefaultAsync(s => s.Id == id);
+        SlideViewModel? viewModel = await _slideService.GetSlideByIdAsync(id);
 
-        if (slide == null)
+        if (viewModel == null)
         {
             _logger.LogWarning("Slide không tồn tại khi chỉnh sửa. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy Slide để chỉnh sửa.";
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy Slide để chỉnh sửa.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
-
-        SlideViewModel viewModel = _mapper.Map<SlideViewModel>(slide);
-
         return View(viewModel);
     }
 
@@ -162,8 +138,7 @@ public partial class SlideController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var validator = new SlideViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
+        var result = await _slideViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
@@ -173,35 +148,32 @@ public partial class SlideController : Controller
             return View(viewModel);
         }
 
-        var slide = await _context.Set<Slide>().FirstOrDefaultAsync(s => s.Id == id);
-        if (slide == null)
+        var updateResult = await _slideService.UpdateSlideAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy Slide để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật Slide thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, slide);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật Slide '{slide.Title}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật Slide '{viewModel.Title}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            return View(viewModel);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật Slide: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật Slide.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật Slide '{viewModel.Title}'.", ToastType.Error)
-        );
-        return View(viewModel);
     }
 
     // POST: Admin/Slide/Delete/5
@@ -209,33 +181,21 @@ public partial class SlideController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var slide = await _context.Set<Slide>().FirstOrDefaultAsync(s => s.Id == id);
+        var deleteResult = await _slideService.DeleteSlideAsync(id);
 
-        if (slide == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy Slide.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa Slide thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy Slide." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-
-        try
+        else
         {
-            string slideTitle = slide.Title;
-            _context.Remove(slide);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa Slide '{slideTitle}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa Slide.", ToastType.Error)
             );
-            return Json(new { success = true, message = $"Xóa Slide '{slideTitle}' thành công." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa Slide: {Title}", slide.Title);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Slide.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa Slide." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
 }

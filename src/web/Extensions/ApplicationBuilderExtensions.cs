@@ -10,25 +10,34 @@ public static class ApplicationBuilderExtensions
             app.UseExceptionHandler("/Home/Error");
             app.UseHsts();
         }
-
         app.UseStatusCodePagesWithReExecute("/error?statusCode={0}");
         app.UseHttpsRedirection();
         app.UseStaticFiles();
         app.UseRouting();
         app.UseAuthentication();
         app.UseAuthorization();
-
         return app;
     }
 
     public static void MapDefaultRoutes(this IEndpointRouteBuilder endpoints)
     {
-        // 1. Route cho các area (Admin, Client,...)
+        // 1. Route cho các area, hỗ trợ Admin/Client đều có AccountController riêng biệt
         endpoints.MapControllerRoute(
             name: "areas",
             pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}");
 
-        // 2. Các route ưu tiên cố định
+        // 2. Định nghĩa rõ route cho Account từng area (ưu tiên, không nhầm lẫn)
+        endpoints.MapControllerRoute(
+            name: "admin_account",
+            pattern: "admin/tai-khoan/{action=Login}/{id?}",
+            defaults: new { area = "Admin", controller = "Account" });
+
+        endpoints.MapControllerRoute(
+            name: "client_account",
+            pattern: "tai-khoan/{action=Login}/{id?}",
+            defaults: new { area = "Client", controller = "Account" });
+
+        // 3. Các route ưu tiên cố định
         endpoints.MapControllerRoute(
             name: "contact",
             pattern: "lien-he",
@@ -39,38 +48,13 @@ public static class ApplicationBuilderExtensions
             pattern: "cau-hoi-thuong-gap",
             defaults: new { area = "Client", controller = "FAQ", action = "Index" });
 
-        endpoints.MapControllerRoute(
-            name: "account_login",
-            pattern: "tai-khoan/dang-nhap",
-            defaults: new { area = "Client", controller = "Account", action = "Login" });
-
-        endpoints.MapControllerRoute(
-            name: "account_register",
-            pattern: "tai-khoan/dang-ky",
-            defaults: new { area = "Client", controller = "Account", action = "Register" });
-
-        endpoints.MapControllerRoute(
-            name: "account_forgot",
-            pattern: "tai-khoan/quen-mat-khau",
-            defaults: new { area = "Client", controller = "Account", action = "ForgotPassword" });
-
-        endpoints.MapControllerRoute(
-            name: "account_reset",
-            pattern: "tai-khoan/khoi-phuc-mat-khau",
-            defaults: new { area = "Client", controller = "Account", action = "ResetPassword" });
-
-        endpoints.MapControllerRoute(
-            name: "account_forgot_confirm",
-            pattern: "tai-khoan/xac-nhan-quen-mat-khau",
-            defaults: new { area = "Client", controller = "Account", action = "ForgotPasswordConfirmation" });
-
-        // 3. Route mặc định
+        // 4. Route mặc định cho Client
         endpoints.MapControllerRoute(
             name: "default",
             pattern: "{controller=Home}/{action=Index}/{id?}",
             defaults: new { area = "Client" });
 
-        // 4. Route slug động
+        // 5. Route slug động cho Page/Detail
         endpoints.MapControllerRoute(
             name: "slug",
             pattern: "{slug}",

@@ -1,6 +1,6 @@
 using AutoMapper;
 using domain.Entities;
-using web.Areas.Admin.ViewModels.Tag;
+using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Mappers;
 

@@ -1,39 +1,35 @@
-using AutoMapper;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Category;
-using web.Areas.Admin.ViewModels.Category;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
 using X.PagedList.Extensions;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
-public partial class CategoryController : Controller
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+public class CategoryController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly ICategoryService _categoryService;
     private readonly ILogger<CategoryController> _logger;
+    private readonly IValidator<CategoryViewModel> _categoryViewModelValidator;
 
     public CategoryController(
-        ApplicationDbContext context,
-        IMapper mapper,
-        ILogger<CategoryController> logger)
+        ICategoryService categoryService,
+        ILogger<CategoryController> logger,
+        IValidator<CategoryViewModel> categoryViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _categoryViewModelValidator = categoryViewModelValidator ?? throw new ArgumentNullException(nameof(categoryViewModelValidator));
     }
 
     // GET: Admin/Category
@@ -43,57 +39,7 @@ public partial class CategoryController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 25;
 
-        // Optimized query with eager loading only what's needed
-        IQueryable<Category> query = _context.Set<Category>()
-                                             .Include(c => c.Parent)
-                                             .AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(c => c.Name.ToLower().Contains(lowerSearchTerm) ||
-                                     (c.Description != null && c.Description.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.Type.HasValue)
-        {
-            query = query.Where(c => c.Type == filter.Type.Value);
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(c => c.IsActive == filter.IsActive.Value);
-        }
-
-        // Get the categories with their item counts in a single query
-        var categoriesWithCounts = await query
-            .Select(c => new
-            {
-                Category = c,
-                ItemCount = c.Type == CategoryType.Product ? c.Products.Count :
-                            c.Type == CategoryType.Article ? c.Articles.Count :
-                            c.Type == CategoryType.FAQ ? c.FAQs.Count : 0,
-                HasChildren = c.Children.Any()
-            })
-            .OrderBy(c => c.Category.Type)
-            .ThenBy(c => c.Category.ParentId == null ? 0 : 1)
-            .ThenBy(c => c.Category.ParentId)
-            .ThenBy(c => c.Category.OrderIndex)
-            .ThenBy(c => c.Category.Name)
-            .ToListAsync();
-
-        // Map to view models
-        var categoryVMs = categoriesWithCounts.Select(c =>
-        {
-            var vm = _mapper.Map<CategoryListItemViewModel>(c.Category);
-            vm.ItemCount = c.ItemCount;
-            vm.HasChildren = c.HasChildren;
-            return vm;
-        }).ToList();
-
-        CalculateHierarchyLevels(categoryVMs);
-
-        IPagedList<CategoryListItemViewModel> categoriesPaged = categoryVMs.ToPagedList(pageNumber, currentPageSize);
+        IPagedList<CategoryListItemViewModel> categoriesPaged = await _categoryService.GetPagedCategoriesAsync(filter, pageNumber, currentPageSize);
 
         filter.TypeOptions = GetCategoryTypesSelectList(filter.Type);
         filter.StatusOptions = GetStatusSelectList(filter.IsActive);
@@ -117,7 +63,7 @@ public partial class CategoryController : Controller
             OrderIndex = 0,
             ItemCount = 0,
             HasChildren = false,
-            ParentCategories = await LoadParentCategorySelectListAsync(type),
+            ParentCategories = await _categoryService.GetParentCategorySelectListAsync(type),
             CategoryTypes = GetCategoryTypesSelectList(type)
         };
         return View(viewModel);
@@ -128,77 +74,73 @@ public partial class CategoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CategoryViewModel viewModel)
     {
-        var result = await new CategoryViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _categoryViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            await RefillCategorySelectListsAsync(viewModel);
+            viewModel.ParentCategories = await _categoryService.GetParentCategorySelectListAsync(viewModel.Type);
+            viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
             return View(viewModel);
         }
 
-        var category = _mapper.Map<Category>(viewModel);
-        _context.Add(category);
+        var createResult = await _categoryService.CreateCategoryAsync(viewModel);
 
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm danh mục '{category.Name}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm danh mục thành công.", ToastType.Success)
             );
-            return RedirectToAction(nameof(Index), new { type = (int)category.Type });
+            return RedirectToAction(nameof(Index), new { type = (int)viewModel.Type });
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo danh mục: {Name}", viewModel.Name);
-            if (ex.InnerException?.Message?.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
+            foreach (var error in createResult.Errors)
             {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại cho loại danh mục này.");
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
             }
-            else
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
             {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu danh mục.");
+                ModelState.AddModelError(string.Empty, createResult.Message);
             }
-        }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm danh mục '{viewModel.Name}'.", ToastType.Error)
-        );
-        await RefillCategorySelectListsAsync(viewModel);
-        return View(viewModel);
+
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm danh mục '{viewModel.Name}'.", ToastType.Error)
+            );
+
+            viewModel.ParentCategories = await _categoryService.GetParentCategorySelectListAsync(viewModel.Type);
+            viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Category/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        // Optimized query to get category with item count in a single query
-        var categoryData = await _context.Set<Category>()
-            .Where(c => c.Id == id)
-            .Select(c => new
-            {
-                Category = c,
-                ItemCount = c.Type == CategoryType.Product ? c.Products.Count :
-                            c.Type == CategoryType.Article ? c.Articles.Count :
-                            c.Type == CategoryType.FAQ ? c.FAQs.Count : 0,
-                HasChildren = c.Children.Any()
-            })
-            .AsNoTracking()
-            .FirstOrDefaultAsync();
+        CategoryViewModel? viewModel = await _categoryService.GetCategoryByIdAsync(id);
 
-        if (categoryData == null)
+        if (viewModel == null)
         {
             _logger.LogWarning("Category not found for editing: ID {Id}", id);
-            return NotFound();
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy danh mục để chỉnh sửa.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
 
-        CategoryViewModel viewModel = _mapper.Map<CategoryViewModel>(categoryData.Category);
-        viewModel.ItemCount = categoryData.ItemCount;
-        viewModel.HasChildren = categoryData.HasChildren;
+        viewModel.ParentCategories = await _categoryService.GetParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId, viewModel.Id);
+        viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
 
-        viewModel.ParentCategories = await LoadParentCategorySelectListAsync(categoryData.Category.Type, categoryData.Category.ParentId, categoryData.Category.Id);
-        viewModel.CategoryTypes = GetCategoryTypesSelectList(categoryData.Category.Type);
 
         return View(viewModel);
     }
@@ -216,53 +158,53 @@ public partial class CategoryController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new CategoryViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _categoryViewModelValidator.ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            await RefillCategorySelectListsAsync(viewModel);
+            viewModel.ParentCategories = await _categoryService.GetParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId, viewModel.Id);
+            viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
             return View(viewModel);
         }
 
-        var category = await _context.Categories.FirstOrDefaultAsync(c => c.Id == id);
-        if (category == null)
+        var updateResult = await _categoryService.UpdateCategoryAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy danh mục để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật danh mục thành công.", ToastType.Success)
             );
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { type = (int)viewModel.Type });
         }
-
-        _mapper.Map(viewModel, category);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật danh mục '{category.Name}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật danh mục '{viewModel.Name}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index), new { type = (int)category.Type });
-        }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật danh mục: ID = {Id}, Name = {Name}", id, viewModel.Name);
-            if (ex.InnerException?.Message?.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug đã được sử dụng.");
-            }
-            else
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật danh mục.");
-            }
-        }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật danh mục '{viewModel.Name}'.", ToastType.Error)
-        );
-        await RefillCategorySelectListsAsync(viewModel);
-        return View(viewModel);
+            viewModel.ParentCategories = await _categoryService.GetParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId, viewModel.Id);
+            viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
+            return View(viewModel);
+        }
     }
 
     // POST: Admin/Category/Delete/5
@@ -270,161 +212,42 @@ public partial class CategoryController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var categoryData = await _context.Set<Category>()
-            .Where(c => c.Id == id)
-            .Select(c => new
-            {
-                Category = c,
-                HasChildren = c.Children.Any(),
-                ItemCount = c.Type == CategoryType.Product ? c.Products.Count :
-                            c.Type == CategoryType.Article ? c.Articles.Count :
-                            c.Type == CategoryType.FAQ ? c.FAQs.Count : 0,
-            })
-            .FirstOrDefaultAsync();
+        var deleteResult = await _categoryService.DeleteCategoryAsync(id);
 
-        if (categoryData == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy danh mục.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa danh mục thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy danh mục." });
+            return RedirectToAction(nameof(Index));
         }
-
-        if (categoryData.HasChildren)
+        else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", $"Không thể xóa danh mục '{categoryData.Category.Name}' vì nó chứa danh mục con.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa danh mục.", ToastType.Error)
             );
-            return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì nó chứa danh mục con." });
-        }
-
-        if (categoryData.ItemCount > 0)
-        {
-            string itemTypeName = categoryData.Category.Type switch
-            {
-                CategoryType.Product => "sản phẩm",
-                CategoryType.Article => "bài viết",
-                CategoryType.FAQ => "FAQ",
-                _ => "mục"
-            };
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", $"Không thể xóa danh mục '{categoryData.Category.Name}' vì đang được sử dụng bởi {categoryData.ItemCount} {itemTypeName}.", ToastType.Error)
-            );
-            return Json(new { success = false, message = $"Không thể xóa danh mục '{categoryData.Category.Name}' vì đang được sử dụng bởi {categoryData.ItemCount} {itemTypeName}." });
-        }
-
-        try
-        {
-            string categoryName = categoryData.Category.Name;
-            _context.Remove(categoryData.Category);
-            await _context.SaveChangesAsync();
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa danh mục '{categoryName}' thành công.", ToastType.Success)
-            );
-            return Json(new { success = true, message = $"Xóa danh mục '{categoryName}' thành công." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa danh mục: ID {Id}, Name: {Name}", id, categoryData.Category.Name);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa danh mục.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa danh mục." });
+            return RedirectToAction(nameof(Index));
         }
     }
-}
 
-public partial class CategoryController
-{
     // GET: Admin/Category/GetParentCategories
     [HttpGet]
     public async Task<IActionResult> GetParentCategories(CategoryType type)
     {
         try
         {
-            var parentCategories = await LoadParentCategorySelectListAsync(type);
+            var parentCategories = await _categoryService.GetParentCategorySelectListAsync(type);
             var result = parentCategories.Skip(1).Select(c => new { value = c.Value, text = c.Text }).ToList();
             return Json(result);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error loading parent categories for type {Type}", type);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Đã xảy ra lỗi khi tải danh mục cha.", ToastType.Error)
+            );
             return StatusCode(500, "Đã xảy ra lỗi khi tải danh mục cha");
         }
-    }
-}
-
-public partial class CategoryController
-{
-    private void CalculateHierarchyLevels(List<CategoryListItemViewModel> categories)
-    {
-        var categoryDict = categories.ToDictionary(c => c.Id);
-        foreach (var category in categories)
-        {
-            int level = 0;
-            int? currentParentId = category.ParentId;
-            while (currentParentId.HasValue && categoryDict.ContainsKey(currentParentId.Value))
-            {
-                level++;
-                currentParentId = categoryDict[currentParentId.Value].ParentId;
-                if (level > 10) break;
-            }
-            category.Level = level;
-        }
-    }
-
-    private async Task<List<SelectListItem>> LoadParentCategorySelectListAsync(CategoryType categoryType, int? selectedValue = null, int? excludeCategoryId = null)
-    {
-        var query = _context.Set<Category>()
-                          .Where(c => c.Type == categoryType)
-                          .AsNoTracking();
-
-        if (excludeCategoryId.HasValue && excludeCategoryId.Value > 0)
-        {
-            var allCategories = await query.ToListAsync();
-            var idsToExclude = new HashSet<int> { excludeCategoryId.Value };
-
-            var categoryDict = allCategories.ToDictionary(c => c.Id);
-
-            bool foundNew;
-            do
-            {
-                foundNew = false;
-                foreach (var category in allCategories)
-                {
-                    if (category.ParentId.HasValue &&
-                        idsToExclude.Contains(category.ParentId.Value) &&
-                        !idsToExclude.Contains(category.Id))
-                    {
-                        idsToExclude.Add(category.Id);
-                        foundNew = true;
-                    }
-                }
-            } while (foundNew);
-
-            query = query.Where(c => !idsToExclude.Contains(c.Id));
-        }
-
-        var categories = await query
-            .Where(c => c.IsActive)
-            .OrderBy(c => c.OrderIndex)
-            .ThenBy(c => c.Name)
-            .Select(c => new { c.Id, c.Name })
-            .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-            new SelectListItem { Value = "", Text = "-- Chọn danh mục cha (để trống nếu là gốc) --", Selected = !selectedValue.HasValue }
-        };
-
-        items.AddRange(categories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.Name,
-            Selected = selectedValue.HasValue && c.Id == selectedValue.Value
-        }));
-
-        return items;
     }
 
     private List<SelectListItem> GetCategoryTypesSelectList(CategoryType? selectedType)
@@ -456,10 +279,5 @@ public partial class CategoryController
             new SelectListItem { Value = "false", Text = "Đã hủy kích hoạt", Selected = selectedValue == false }
         };
     }
-
-    private async Task RefillCategorySelectListsAsync(CategoryViewModel viewModel)
-    {
-        viewModel.ParentCategories = await LoadParentCategorySelectListAsync(viewModel.Type, viewModel.ParentId, viewModel.Id);
-        viewModel.CategoryTypes = GetCategoryTypesSelectList(viewModel.Type);
-    }
 }
+

@@ -1,7 +1,7 @@
 using AutoMapper;
 using domain.Entities;
 using domain.Entities.Shared;
-using web.Areas.Admin.ViewModels.Article;
+using web.Areas.Admin.ViewModels;
 using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.Mappers;

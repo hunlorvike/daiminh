@@ -1,9 +1,9 @@
 using AutoMapper;
 using domain.Entities;
 using domain.Entities.Shared;
-using web.Areas.Admin.ViewModels.Product;
 using web.Areas.Admin.ViewModels.Shared;
 namespace web.Areas.Admin.Mappers;
+using web.Areas.Admin.ViewModels;
 
 public class ProductProfile : Profile
 {

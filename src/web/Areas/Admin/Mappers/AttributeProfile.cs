@@ -1,5 +1,5 @@
 using AutoMapper;
-using web.Areas.Admin.ViewModels.Attribute;
+using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Mappers;
 

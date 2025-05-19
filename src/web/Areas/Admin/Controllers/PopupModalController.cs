@@ -11,15 +11,15 @@ using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.PopupModal;
-using web.Areas.Admin.ViewModels.PopupModal;
+using web.Areas.Admin.Validators;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
 using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class PopupModalController : Controller
 {
     private readonly ApplicationDbContext _context;

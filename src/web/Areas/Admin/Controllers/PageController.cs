@@ -1,40 +1,34 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Page;
-using web.Areas.Admin.ViewModels.Page;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class PageController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly IPageService _pageService;
     private readonly ILogger<PageController> _logger;
+    private readonly IValidator<PageViewModel> _pageViewModelValidator;
 
     public PageController(
-        ApplicationDbContext context,
-        IMapper mapper,
-        ILogger<PageController> logger)
+        IPageService pageService,
+        ILogger<PageController> logger,
+        IValidator<PageViewModel> pageViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _pageService = pageService ?? throw new ArgumentNullException(nameof(pageService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _pageViewModelValidator = pageViewModelValidator ?? throw new ArgumentNullException(nameof(pageViewModelValidator));
     }
 
     // GET: Admin/Page
@@ -44,27 +38,7 @@ public partial class PageController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<Page> query = _context.Set<Page>()
-                                         .AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(p => p.Title.ToLower().Contains(lowerSearchTerm) ||
-                                     (p.Content != null && p.Content.ToLower().Contains(lowerSearchTerm)) || // Search content too? Might be slow on large text. Title/Slug is safer. Sticking to example - search description for Brand.
-                                     p.Slug.ToLower().Contains(lowerSearchTerm)); // Adding slug search as it's a key identifier.
-        }
-
-        if (filter.Status.HasValue)
-        {
-            query = query.Where(p => p.Status == filter.Status.Value);
-        }
-
-        query = query.OrderByDescending(p => p.UpdatedAt).ThenBy(p => p.Title); // Order by update date then title
-
-        IPagedList<PageListItemViewModel> pagesPaged = await query
-            .ProjectTo<PageListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<PageListItemViewModel> pagesPaged = await _pageService.GetPagedPagesAsync(filter, pageNumber, currentPageSize);
 
         filter.StatusOptions = GetStatusSelectList(filter.Status);
 
@@ -82,9 +56,10 @@ public partial class PageController : Controller
     {
         PageViewModel viewModel = new()
         {
-            Status = PublishStatus.Draft, // Default status
-            PublishedAt = null // No published date initially
+            Status = PublishStatus.Draft,
+            PublishedAt = null
         };
+
         return View(viewModel);
     }
 
@@ -93,8 +68,7 @@ public partial class PageController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(PageViewModel viewModel)
     {
-        var validator = new PageViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
+        var result = await _pageViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
@@ -104,65 +78,53 @@ public partial class PageController : Controller
             return View(viewModel);
         }
 
-        var page = _mapper.Map<Page>(viewModel);
+        var createResult = await _pageService.CreatePageAsync(viewModel);
 
-        if (page.Status == PublishStatus.Published && page.PublishedAt == null)
+        if (createResult.Success)
         {
-            page.PublishedAt = DateTime.UtcNow;
-        }
-
-        _context.Add(page);
-
-        try
-        {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm trang '{page.Title}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm trang thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo trang: {Title}", viewModel.Title);
-            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
+            foreach (var error in createResult.Errors)
             {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã được sử dụng.");
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
             }
-            else
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
             {
-                ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu trang.");
+                ModelState.AddModelError(string.Empty, createResult.Message);
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi tạo trang: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu trang.");
-        }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm trang '{viewModel.Title}'.", ToastType.Error)
-        );
-        return View(viewModel);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm trang '{viewModel.Title}'.", ToastType.Error)
+            );
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Page/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        Page? page = await _context.Set<Page>()
-                                   .AsNoTracking() // Readonly operation
-                                   .FirstOrDefaultAsync(p => p.Id == id);
+        PageViewModel? viewModel = await _pageService.GetPageByIdAsync(id);
 
-        if (page == null)
+        if (viewModel == null)
         {
             _logger.LogWarning("Trang không tồn tại khi chỉnh sửa. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy trang để chỉnh sửa."; // Inform user
-            return RedirectToAction(nameof(Index)); // Redirect instead of NotFound view
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy trang để chỉnh sửa.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
-
-        PageViewModel viewModel = _mapper.Map<PageViewModel>(page);
-
-        // Adjust PublishedAt for DateTimeLocal input if needed
-        // viewModel.PublishedAt = page.PublishedAt?.ToLocalTime(); // If using local time in View
 
         return View(viewModel);
     }
@@ -180,8 +142,7 @@ public partial class PageController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var validator = new PageViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
+        var result = await _pageViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
@@ -191,54 +152,39 @@ public partial class PageController : Controller
             return View(viewModel);
         }
 
-        var page = await _context.Set<Page>().FirstOrDefaultAsync(p => p.Id == id);
-        if (page == null)
+        var updateResult = await _pageService.UpdatePageAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy trang để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật trang thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        var oldStatus = page.Status;
-        _mapper.Map(viewModel, page);
-
-        if (oldStatus != PublishStatus.Published && page.Status == PublishStatus.Published && page.PublishedAt == null)
+        else
         {
-            page.PublishedAt = DateTime.UtcNow;
-        }
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
 
-        try
-        {
-            _context.Update(page);
-            await _context.SaveChangesAsync();
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật trang '{page.Title}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật trang '{viewModel.Title}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            return View(viewModel);
         }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật trang ID {Id}, Title {Title}", id, page.Title);
-            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã được sử dụng.");
-            }
-            else
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi cập nhật trang.");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật trang ID {Id}", id);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật trang.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật trang '{viewModel.Title}'.", ToastType.Error)
-        );
-        return View(viewModel);
     }
 
 
@@ -247,43 +193,29 @@ public partial class PageController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var page = await _context.Set<Page>().FirstOrDefaultAsync(p => p.Id == id);
+        var deleteResult = await _pageService.DeletePageAsync(id);
 
-        if (page == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy trang.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa trang thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy trang." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-
-        try
+        else
         {
-            string pageTitle = page.Title;
-            _context.Remove(page);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa trang '{pageTitle}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa trang.", ToastType.Error)
             );
-            return Json(new { success = true, message = $"Xóa trang '{pageTitle}' thành công." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa trang: {Title}", page.Title);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", $"Không thể xóa trang '{page.Title}'.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa trang." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
 }
 
-// Partial class for helper methods
 public partial class PageController
 {
     private List<SelectListItem> GetStatusSelectList(PublishStatus? selectedValue)
     {
-        // Get all enum values
         var statuses = Enum.GetValues(typeof(PublishStatus)).Cast<PublishStatus>();
 
         var selectList = new List<SelectListItem>

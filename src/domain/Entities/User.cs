@@ -1,50 +1,38 @@
-using domain.Entities.Shared;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace domain.Entities;
 
-public class User : BaseEntity<int>
+public class User : IdentityUser<int>
 {
-    public string Username { get; set; } = string.Empty;
-    public string Email { get; set; } = string.Empty;
-    public string PasswordHash { get; set; } = string.Empty;
     public string? FullName { get; set; }
     public bool IsActive { get; set; } = true;
     public virtual ICollection<ProductReview>? ReviewsWritten { get; set; }
 }
 
-public class UserConfiguration : BaseEntityConfiguration<User, int>
+public class UserConfiguration : IEntityTypeConfiguration<User>
 {
-    public override void Configure(EntityTypeBuilder<User> builder)
+    public void Configure(EntityTypeBuilder<User> builder)
     {
-        base.Configure(builder);
-        builder.Property(x => x.Username).IsRequired().HasMaxLength(50);
-        builder.HasIndex(x => x.Username).IsUnique();
-
-        builder.Property(x => x.Email).IsRequired().HasMaxLength(255);
-        builder.HasIndex(x => x.Email).IsUnique();
-
-        builder.Property(x => x.PasswordHash).IsRequired();
+        builder.ToTable("Users");
         builder.Property(x => x.FullName).HasMaxLength(100);
         builder.Property(x => x.IsActive).HasDefaultValue(true);
 
         var hasher = new PasswordHasher<User>();
-
-        User adminUser = new()
+        var adminUser = new User
         {
             Id = 1,
-            Username = "admin",
+            UserName = "admin",
+            NormalizedUserName = "ADMIN",
             Email = "admin@admin.com",
-            PasswordHash = "",
+            NormalizedEmail = "ADMIN@ADMIN.COM",
+            EmailConfirmed = true,
             FullName = "Quản trị viên",
             IsActive = true,
-            CreatedAt = DateTime.UtcNow
+            SecurityStamp = Guid.NewGuid().ToString()
         };
-
         adminUser.PasswordHash = hasher.HashPassword(adminUser, "123123123");
-
         builder.HasData(adminUser);
     }
 }

@@ -2,7 +2,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Serilog;
-using web.Areas.Admin.Validators.User;
+using web.Areas.Admin.Validators;
 using web.Configs;
 using web.Extensions;
 
@@ -23,7 +23,7 @@ var cacheProvider = builder.Configuration.GetValue<string>("CacheProvider:Type")
 switch (cacheProvider)
 {
     case "redis":
-        var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection"); // Hoặc đọc từ section Redis
+        var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
         if (string.IsNullOrEmpty(redisConnectionString))
         {
             redisConnectionString = builder.Configuration["Redis:DefaultConnection"];
@@ -35,7 +35,7 @@ switch (cacheProvider)
         builder.Services.AddStackExchangeRedisCache(options =>
         {
             options.Configuration = redisConnectionString;
-            options.InstanceName = builder.Configuration["Redis:InstanceName"]; // "DaiMinh_"
+            options.InstanceName = builder.Configuration["Redis:InstanceName"];
         });
         Log.Information("Đã cấu hình Redis Cache.");
         break;
@@ -46,7 +46,9 @@ switch (cacheProvider)
         break;
 }
 
-builder.Services.AddDatabase(builder.Configuration)
+builder.Services
+    .AddDatabase(builder.Configuration)
+    .AddIdentity(builder.Configuration)
     .AddMinioService(builder.Configuration)
     .AddAuthenticationServices()
     .AddCustomServices();

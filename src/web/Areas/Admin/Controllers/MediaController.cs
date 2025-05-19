@@ -4,13 +4,13 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
 using shared.Extensions;
-using web.Areas.Admin.Services;
-using web.Areas.Admin.ViewModels.Media;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class MediaController : Controller
 {
     private readonly IMediaService _mediaService;

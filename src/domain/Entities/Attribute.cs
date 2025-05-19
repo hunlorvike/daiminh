@@ -1,5 +1,4 @@
 using domain.Entities.Shared;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace domain.Entities;

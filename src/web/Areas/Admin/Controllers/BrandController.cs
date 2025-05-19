@@ -1,39 +1,33 @@
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Brand;
-using web.Areas.Admin.ViewModels.Brand;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class BrandController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly IBrandService _brandService;
     private readonly ILogger<BrandController> _logger;
+    private readonly IValidator<BrandViewModel> _brandViewModelValidator;
 
     public BrandController(
-        ApplicationDbContext context,
-        IMapper mapper,
-        ILogger<BrandController> logger)
+        IBrandService brandService,
+        ILogger<BrandController> logger,
+        IValidator<BrandViewModel> brandViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _brandService = brandService ?? throw new ArgumentNullException(nameof(brandService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _brandViewModelValidator = brandViewModelValidator;
     }
 
     // GET: Admin/Brand
@@ -43,27 +37,7 @@ public partial class BrandController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<Brand> query = _context.Set<Brand>()
-                                         .Include(b => b.Products)
-                                         .AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(b => b.Name.ToLower().Contains(lowerSearchTerm) ||
-                                     (b.Description != null && b.Description.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(b => b.IsActive == filter.IsActive.Value);
-        }
-
-        query = query.OrderBy(b => b.Name);
-
-        IPagedList<BrandListItemViewModel> brandsPaged = await query
-            .ProjectTo<BrandListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<BrandListItemViewModel> brandsPaged = await _brandService.GetPagedBrandsAsync(filter, pageNumber, currentPageSize);
 
         filter.StatusOptions = GetStatusSelectList(filter.IsActive);
 
@@ -72,6 +46,8 @@ public partial class BrandController : Controller
             Brands = brandsPaged,
             Filter = filter
         };
+        viewModel.Brands = brandsPaged;
+
 
         return View(viewModel);
     }
@@ -91,63 +67,56 @@ public partial class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(BrandViewModel viewModel)
     {
-        var result = await new BrandViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _brandViewModelValidator.ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-
             return View(viewModel);
         }
 
-        var brand = _mapper.Map<Brand>(viewModel);
-        _context.Add(brand);
+        var createResult = await _brandService.CreateBrandAsync(viewModel);
 
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm thương hiệu '{brand.Name}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm thương hiệu thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo thương hiệu: {Name}", viewModel.Name);
-            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
+            foreach (var error in createResult.Errors)
             {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã được sử dụng.");
+                ModelState.AddModelError(string.Empty, error);
             }
-            else
+            if (!createResult.Errors.Any())
             {
-                ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu thương hiệu.");
+                ModelState.AddModelError(string.Empty, createResult.Message ?? "Không thể thêm thương hiệu.");
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi tạo thương hiệu: {Name}", viewModel.Name);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu thương hiệu.");
-        }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm thương hiệu '{viewModel.Name}'.", ToastType.Error)
-        );
-        return View(viewModel);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm thương hiệu '{viewModel.Name}'.", ToastType.Error)
+            );
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Brand/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        Brand? brand = await _context.Set<Brand>()
-                                           .AsNoTracking()
-                                           .FirstOrDefaultAsync(b => b.Id == id);
+        BrandViewModel? viewModel = await _brandService.GetBrandByIdAsync(id);
 
-        if (brand == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("Brand not found for editing. ID: {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy thương hiệu để chỉnh sửa.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
 
-        BrandViewModel viewModel = _mapper.Map<BrandViewModel>(brand);
         return View(viewModel);
     }
 
@@ -164,7 +133,8 @@ public partial class BrandController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new BrandViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _brandViewModelValidator.ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
@@ -173,47 +143,31 @@ public partial class BrandController : Controller
             return View(viewModel);
         }
 
-        var brand = await _context.Set<Brand>().FirstOrDefaultAsync(b => b.Id == id);
-        if (brand == null)
+        var updateResult = await _brandService.UpdateBrandAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy thương hiệu để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật thương hiệu thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, brand);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!updateResult.Errors.Any())
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message ?? "Không thể cập nhật thương hiệu.");
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật thương hiệu '{brand.Name}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật thương hiệu '{viewModel.Name}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            return View(viewModel);
         }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật thương hiệu ID {Id}, Name {Name}", id, brand.Name);
-            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã được sử dụng.");
-            }
-            else
-            {
-                ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi cập nhật thương hiệu.");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật thương hiệu ID {Id}", id);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật thương hiệu.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật thương hiệu '{viewModel.Name}'.", ToastType.Error)
-        );
-        return View(viewModel);
     }
 
     // POST: Admin/Brand/Delete/5
@@ -221,47 +175,21 @@ public partial class BrandController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var brand = await _context.Set<Brand>()
-                                  .Include(b => b.Products)
-                                  .FirstOrDefaultAsync(b => b.Id == id);
+        var deleteResult = await _brandService.DeleteBrandAsync(id);
 
-        if (brand == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy thương hiệu.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa thương hiệu thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy thương hiệu." });
+            return RedirectToAction(nameof(Index));
         }
-
-        if (brand.Products?.Any() == true)
+        else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", $"Không thể xóa thương hiệu '{brand.Name}' vì đang được sử dụng bởi {brand.Products.Count} sản phẩm.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa thương hiệu.", ToastType.Error)
             );
-            return Json(new
-            {
-                success = false,
-                message = $"Không thể xóa thương hiệu '{brand.Name}' vì đang được sử dụng bởi {brand.Products.Count} sản phẩm."
-            });
-        }
-
-        try
-        {
-            string brandName = brand.Name;
-            _context.Remove(brand);
-            await _context.SaveChangesAsync();
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa thương hiệu '{brandName}' thành công.", ToastType.Success)
-            );
-            return Json(new { success = true, message = $"Xóa thương hiệu '{brandName}' thành công." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa thương hiệu: {Name}", brand.Name);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa thương hiệu.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa thương hiệu." });
+            return RedirectToAction(nameof(Index));
         }
     }
 }

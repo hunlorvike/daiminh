@@ -1,44 +1,42 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Security.Claims;
 using System.Text.Json;
-using web.Areas.Admin.Validators.User;
-using web.Areas.Admin.ViewModels.User;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class UserController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IUserService _userService;
     private readonly IMapper _mapper;
     private readonly ILogger<UserController> _logger;
-    private readonly IPasswordHasher<User> _passwordHasher;
+    private readonly IValidator<UserCreateViewModel> _userCreateViewModelValidator;
+    private readonly IValidator<UserEditViewModel> _userEditViewModelValidator;
+
 
     public UserController(
-        ApplicationDbContext context,
+        IUserService userService,
         IMapper mapper,
         ILogger<UserController> logger,
-        IPasswordHasher<User> passwordHasher)
+        IValidator<UserCreateViewModel> userCreateViewModelValidator,
+        IValidator<UserEditViewModel> userEditViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _passwordHasher = passwordHasher ?? throw new ArgumentNullException(nameof(passwordHasher));
+        _userCreateViewModelValidator = userCreateViewModelValidator ?? throw new ArgumentNullException(nameof(userCreateViewModelValidator));
+        _userEditViewModelValidator = userEditViewModelValidator ?? throw new ArgumentNullException(nameof(userEditViewModelValidator));
     }
 
     // GET: Admin/User
@@ -48,26 +46,7 @@ public partial class UserController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<User> query = _context.Set<User>().AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(u => u.Username.ToLower().Contains(lowerSearchTerm) ||
-                                     u.Email.ToLower().Contains(lowerSearchTerm) ||
-                                     (u.FullName != null && u.FullName.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(u => u.IsActive == filter.IsActive.Value);
-        }
-
-        query = query.OrderBy(u => u.Username);
-
-        IPagedList<UserListItemViewModel> usersPaged = await query
-            .ProjectTo<UserListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<UserListItemViewModel> usersPaged = await _userService.GetPagedUsersAsync(filter, pageNumber, currentPageSize);
 
         filter.StatusOptions = GetStatusSelectList(filter.IsActive);
 
@@ -95,7 +74,8 @@ public partial class UserController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(UserCreateViewModel viewModel)
     {
-        var result = await new UserCreateViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _userCreateViewModelValidator.ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
@@ -104,44 +84,57 @@ public partial class UserController : Controller
             return View(viewModel);
         }
 
-        var user = _mapper.Map<User>(viewModel);
-        user.PasswordHash = _passwordHasher.HashPassword(user, viewModel.Password);
+        var createResult = await _userService.CreateUserAsync(viewModel);
 
-        _context.Add(user);
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm người dùng '{user.Username}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm người dùng thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo người dùng: {Username}", user.Username);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi tạo người dùng.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                if (error.Contains("Tên đăng nhập", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.UserName), error);
+                }
+                else if (error.Contains("Email", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Email), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm người dùng '{viewModel.Username}'.", ToastType.Error)
-        );
-        return View(viewModel);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm người dùng '{viewModel.UserName}'.", ToastType.Error)
+            );
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/User/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        User? user = await _context.Set<User>()
-                                   .AsNoTracking()
-                                   .FirstOrDefaultAsync(u => u.Id == id);
+        UserEditViewModel? viewModel = await _userService.GetUserByIdAsync(id);
 
-        if (user == null)
+        if (viewModel == null)
         {
             _logger.LogWarning("User not found for editing: ID {Id}", id);
-            return NotFound();
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy người dùng.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
-
-        UserEditViewModel viewModel = _mapper.Map<UserEditViewModel>(user);
         return View(viewModel);
     }
 
@@ -158,7 +151,8 @@ public partial class UserController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new UserEditViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _userEditViewModelValidator.ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
@@ -167,43 +161,50 @@ public partial class UserController : Controller
             return View(viewModel);
         }
 
-        var currentUserId = int.TryParse(User.FindFirstValue(ClaimTypes.NameIdentifier), out int uid) ? uid : 0;
+        var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        int currentUserId = int.TryParse(currentUserIdString, out int uid) ? uid : 0;
 
-        var user = await _context.Set<User>().FirstOrDefaultAsync(u => u.Id == id);
-        if (user == null)
+
+        var updateResult = await _userService.UpdateUserAsync(viewModel, currentUserId);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy người dùng để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật người dùng thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        if (!viewModel.IsActive && (user.Id == currentUserId || user.Id == 1))
+        else
         {
-            ModelState.AddModelError(nameof(viewModel.IsActive), "Không thể hủy kích hoạt chính mình hoặc tài khoản quản trị viên chính.");
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Tên đăng nhập", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.UserName), error);
+                }
+                else if (error.Contains("Email", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Email), error);
+                }
+                else if (error.Contains("hủy kích hoạt", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.IsActive), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật người dùng '{viewModel.UserName}'.", ToastType.Error)
+            );
             return View(viewModel);
         }
-
-        _mapper.Map(viewModel, user);
-
-        try
-        {
-            await _context.SaveChangesAsync();
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật người dùng '{user.Username}' thành công.", ToastType.Success)
-            );
-            return RedirectToAction(nameof(Index));
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật người dùng: {Username}", user.Username);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật người dùng.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật người dùng '{viewModel.Username}'.", ToastType.Error)
-        );
-        return View(viewModel);
     }
 
     // POST: Admin/User/Delete/5
@@ -212,7 +213,7 @@ public partial class UserController : Controller
     public async Task<IActionResult> Delete(int id)
     {
         var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        int? currentUserId = int.TryParse(currentUserIdString, out int uid) ? uid : (int?)null;
+        int currentUserId = int.TryParse(currentUserIdString, out int uid) ? uid : 0;
 
         if (id == currentUserId)
         {
@@ -230,32 +231,22 @@ public partial class UserController : Controller
             return Json(new { success = false, message = "Không thể xóa tài khoản quản trị viên chính." });
         }
 
-        User? user = await _context.Set<User>().FindAsync(id);
-        if (user == null)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy người dùng.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Không tìm thấy người dùng." });
-        }
 
-        try
+        var deleteResult = await _userService.DeleteUserAsync(id, currentUserId);
+
+        if (deleteResult.Success)
         {
-            string username = user.Username;
-            _context.Remove(user);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa người dùng '{username}' thành công.", ToastType.Success)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa người dùng thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = $"Xóa người dùng '{username}' thành công." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi xóa người dùng: {Username}", user.Username);
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", $"Không thể xóa người dùng '{user.Username}'.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa người dùng.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa người dùng." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
 }

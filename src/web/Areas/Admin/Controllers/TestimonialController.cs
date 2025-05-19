@@ -1,39 +1,37 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Testimonial;
-using web.Areas.Admin.ViewModels.Testimonial;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class TestimonialController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ITestimonialService _testimonialService;
     private readonly IMapper _mapper;
     private readonly ILogger<TestimonialController> _logger;
+    private readonly IValidator<TestimonialViewModel> _testimonialViewModelValidator;
 
     public TestimonialController(
-        ApplicationDbContext context,
+        ITestimonialService testimonialService,
         IMapper mapper,
-        ILogger<TestimonialController> logger)
+        ILogger<TestimonialController> logger,
+        IValidator<TestimonialViewModel> testimonialViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _testimonialService = testimonialService ?? throw new ArgumentNullException(nameof(testimonialService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _testimonialViewModelValidator = testimonialViewModelValidator ?? throw new ArgumentNullException(nameof(testimonialViewModelValidator));
     }
 
     // GET: Admin/Testimonial
@@ -43,31 +41,7 @@ public partial class TestimonialController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<Testimonial> query = _context.Set<Testimonial>().AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(t => t.ClientName.ToLower().Contains(lowerSearchTerm)
-                                  || (t.ClientCompany != null && t.ClientCompany.ToLower().Contains(lowerSearchTerm))
-                                  || t.Content.ToLower().Contains(lowerSearchTerm));
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(t => t.IsActive == filter.IsActive.Value);
-        }
-
-        if (filter.Rating.HasValue)
-        {
-            query = query.Where(t => t.Rating == filter.Rating.Value);
-        }
-
-        query = query.OrderBy(t => t.OrderIndex).ThenByDescending(t => t.UpdatedAt);
-
-        IPagedList<TestimonialListItemViewModel> testimonialsPaged = await query
-            .ProjectTo<TestimonialListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<TestimonialListItemViewModel> testimonialsPaged = await _testimonialService.GetPagedTestimonialsAsync(filter, pageNumber, currentPageSize);
 
         filter.StatusOptions = GetStatusOptions(filter.IsActive);
         filter.RatingOptions = GetRatingOptions(filter.Rating);
@@ -98,7 +72,7 @@ public partial class TestimonialController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TestimonialViewModel viewModel)
     {
-        var validationResult = await new TestimonialViewModelValidator().ValidateAsync(viewModel);
+        var validationResult = await _testimonialViewModelValidator.ValidateAsync(viewModel);
         if (!validationResult.IsValid)
         {
             foreach (var error in validationResult.Errors)
@@ -107,42 +81,46 @@ public partial class TestimonialController : Controller
             return View(viewModel);
         }
 
-        var testimonial = _mapper.Map<Testimonial>(viewModel);
-        _context.Add(testimonial);
+        var createResult = await _testimonialService.CreateTestimonialAsync(viewModel);
 
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm đánh giá của '{testimonial.ClientName}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm đánh giá thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi thêm đánh giá của {ClientName}", viewModel.ClientName);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi thêm đánh giá.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm đánh giá của '{viewModel.ClientName}'.", ToastType.Error)
-        );
-        return View(viewModel);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm đánh giá của '{viewModel.ClientName}'.", ToastType.Error)
+            );
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Testimonial/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        Testimonial? testimonial = await _context.Set<Testimonial>()
-                                              .AsNoTracking()
-                                              .FirstOrDefaultAsync(t => t.Id == id);
+        TestimonialViewModel? viewModel = await _testimonialService.GetTestimonialByIdAsync(id);
 
-        if (testimonial == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("Testimonial không tồn tại khi chỉnh sửa. ID: {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy đánh giá để cập nhật.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
-
-        TestimonialViewModel viewModel = _mapper.Map<TestimonialViewModel>(testimonial);
         return View(viewModel);
     }
 
@@ -159,7 +137,7 @@ public partial class TestimonialController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var validationResult = await new TestimonialViewModelValidator().ValidateAsync(viewModel);
+        var validationResult = await _testimonialViewModelValidator.ValidateAsync(viewModel);
         if (!validationResult.IsValid)
         {
             foreach (var error in validationResult.Errors)
@@ -168,35 +146,31 @@ public partial class TestimonialController : Controller
             return View(viewModel);
         }
 
-        var testimonial = await _context.Set<Testimonial>().FirstOrDefaultAsync(t => t.Id == id);
-        if (testimonial == null)
+        var updateResult = await _testimonialService.UpdateTestimonialAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy đánh giá để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật đánh giá thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, testimonial);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật đánh giá của '{testimonial.ClientName}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật đánh giá của '{viewModel.ClientName}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            return View(viewModel);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật đánh giá của {ClientName}", viewModel.ClientName);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật đánh giá.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật đánh giá của '{viewModel.ClientName}'.", ToastType.Error)
-        );
-        return View(viewModel);
     }
 
     // POST: Admin/Testimonial/Delete/5
@@ -204,31 +178,21 @@ public partial class TestimonialController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        Testimonial? testimonial = await _context.Set<Testimonial>().FindAsync(id);
-        if (testimonial == null)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy đánh giá.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Không tìm thấy đánh giá." });
-        }
+        var deleteResult = await _testimonialService.DeleteTestimonialAsync(id);
 
-        try
+        if (deleteResult.Success)
         {
-            string clientName = testimonial.ClientName;
-            _context.Remove(testimonial);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa đánh giá của '{clientName}' thành công.", ToastType.Success)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa đánh giá thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = $"Xóa đánh giá của '{clientName}' thành công." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-        catch (Exception)
+        else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa đánh giá.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa đánh giá.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa đánh giá." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
 }
@@ -247,11 +211,18 @@ public partial class TestimonialController
 
     private List<SelectListItem> GetRatingOptions(int? selectedValue)
     {
-        return [.. Enumerable.Range(1, 5).Select(i => new SelectListItem
+        var items = new List<SelectListItem>
+        {
+             new() { Value = "", Text = "Tất cả Rating", Selected = !selectedValue.HasValue }
+        };
+
+        items.AddRange(Enumerable.Range(1, 5).Select(i => new SelectListItem
         {
             Value = i.ToString(),
             Text = $"{i} sao",
-                Selected = selectedValue.HasValue && selectedValue.Value == i
-        })];
+            Selected = selectedValue.HasValue && selectedValue.Value == i
+        }));
+
+        return items;
     }
 }

@@ -1,0 +1,15 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
+
+namespace web.Areas.Admin.ViewModels;
+
+public class BrandFilterViewModel
+{
+    [Display(Name = "Tìm kiếm")]
+    public string? SearchTerm { get; set; }
+
+    [Display(Name = "Trạng thái")]
+    public bool? IsActive { get; set; }
+
+    public List<SelectListItem> StatusOptions { get; set; } = new();
+}

@@ -1,11 +1,10 @@
-@using web.Areas.Admin.ViewModels.User
 @model UserEditViewModel
 @{
     ViewData["Title"] = "Chỉnh sửa Người dùng - Hệ thống quản trị";
-    ViewData["PageTitle"] = $"Chỉnh sửa Người dùng: {Model.Username}";
+	ViewData["PageTitle"] = $"Chỉnh sửa Người dùng: {Model.UserName}";
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
         ("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User"),
-        ($"Chỉnh sửa: {Model.Username}", "")
+		($"Chỉnh sửa: {Model.UserName}", "")
     };
 }
 
@@ -39,14 +38,14 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <div class="form-group mb-3">
-                                <label asp-for="Username" class="form-label required"></label>
+								<label asp-for="UserName" class="form-label required"></label>
                                 <div class="input-group">
                                     <span class="input-group-text">
                                         <i class="ti ti-user"></i>
                                     </span>
-                                    <input asp-for="Username" class="form-control" />
+									<input asp-for="UserName" class="form-control" />
                                 </div>
-                                <span asp-validation-for="Username" class="text-danger"></span>
+								<span asp-validation-for="UserName" class="text-danger"></span>
                             </div>
                         </div>
                         <div class="col-md-6">

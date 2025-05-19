@@ -1,35 +1,33 @@
 using AutoMapper;
-using domain.Entities;
 using FluentValidation;
 using FluentValidation.AspNetCore;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.ViewModels.Setting;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class SettingController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly ISettingService _settingService;
     private readonly IMapper _mapper;
     private readonly ILogger<SettingController> _logger;
     private readonly IValidator<SettingViewModel> _settingValidator;
 
     public SettingController(
-        ApplicationDbContext context,
+        ISettingService settingService,
         IMapper mapper,
         ILogger<SettingController> logger,
         IValidator<SettingViewModel> settingValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _settingService = settingService ?? throw new ArgumentNullException(nameof(settingService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _settingValidator = settingValidator ?? throw new ArgumentNullException(nameof(settingValidator));
@@ -38,8 +36,24 @@ public partial class SettingController : Controller
     // GET: Admin/Setting
     public async Task<IActionResult> Index(string? searchTerm = null)
     {
-        var viewModel = await BuildSettingsIndexViewModelAsync(searchTerm);
-        return View(viewModel);
+        try
+        {
+            var viewModel = await _settingService.GetSettingsIndexViewModelAsync(searchTerm);
+            return View(viewModel);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading settings index.");
+            var emptyViewModel = new SettingsIndexViewModel
+            {
+                SettingGroups = new Dictionary<string, List<SettingViewModel>>(),
+                SearchTerm = searchTerm
+            };
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không thể tải cài đặt hệ thống.", ToastType.Error)
+             );
+            return View(emptyViewModel);
+        }
     }
 
     // POST: Admin/Setting/Update
@@ -47,25 +61,27 @@ public partial class SettingController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Update(SettingsIndexViewModel viewModel)
     {
-        // Validate từng setting
-        bool hasError = false;
+        var allSettingsFromForm = viewModel.SettingGroups.SelectMany(g => g.Value).ToList();
+
+        bool hasValidationError = false;
         foreach (var group in viewModel.SettingGroups)
         {
             for (int i = 0; i < group.Value.Count; i++)
             {
                 var settingVM = group.Value[i];
-                var result = await _settingValidator.ValidateAsync(settingVM);
-                if (!result.IsValid)
+                var validationResult = await _settingValidator.ValidateAsync(settingVM);
+                if (!validationResult.IsValid)
                 {
-                    result.AddToModelState(ModelState, $"SettingGroups[{group.Key}][{i}]");
-                    hasError = true;
+                    validationResult.AddToModelState(ModelState, $"SettingGroups[{group.Key}][{i}]");
+                    hasValidationError = true;
                 }
             }
         }
 
-        if (hasError || !ModelState.IsValid)
+        if (hasValidationError || !ModelState.IsValid)
         {
-            var freshModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
+            _logger.LogWarning("Setting update failed due to ViewModel validation errors.");
+            var freshModel = await _settingService.GetSettingsIndexViewModelAsync(viewModel.SearchTerm);
             MergeInputWithFreshData(viewModel, freshModel);
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Cập nhật thất bại. Vui lòng kiểm tra lại.", ToastType.Error)
@@ -73,41 +89,34 @@ public partial class SettingController : Controller
             return View("Index", freshModel);
         }
 
-        try
+        var updateResult = await _settingService.UpdateSettingsAsync(allSettingsFromForm);
+
+        if (updateResult.Success)
         {
-            var settingIds = viewModel.SettingGroups.SelectMany(g => g.Value.Select(s => s.Id)).ToList();
-            var settingsInDb = await _context.Set<Setting>().Where(s => settingIds.Contains(s.Id)).ToListAsync();
-            var dict = settingsInDb.ToDictionary(s => s.Id);
-
-            bool changed = ApplySettingChanges(viewModel, dict);
-
-            if (changed)
-            {
-                await _context.SaveChangesAsync();
-                TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                    new ToastData("Thành công", "Cập nhật cài đặt thành công.", ToastType.Success)
-                );
-            }
-            else
-            {
-                TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                    new ToastData("Thông báo", "Không có thay đổi nào cần lưu.", ToastType.Info)
-                );
-                _logger.LogInformation("Không có thay đổi nào trong cập nhật cài đặt.");
-            }
-
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật cài đặt thành công.", ToastType.Success)
+            );
             return RedirectToAction(nameof(Index), new { viewModel.SearchTerm });
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật cài đặt.");
-            ModelState.AddModelError("", "Đã xảy ra lỗi khi lưu cài đặt. Vui lòng thử lại.");
+            _logger.LogError("Setting update failed in service. Message: {Message}", updateResult.Message);
+            foreach (var error in updateResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
 
-            var freshModel = await BuildSettingsIndexViewModelAsync(viewModel.SearchTerm);
-            MergeInputWithFreshData(viewModel, freshModel);
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Lỗi hệ thống khi cập nhật.", ToastType.Error)
+                new ToastData("Lỗi", updateResult.Message ?? "Lỗi hệ thống khi cập nhật.", ToastType.Error)
             );
+
+            var freshModel = await _settingService.GetSettingsIndexViewModelAsync(viewModel.SearchTerm);
+            MergeInputWithFreshData(viewModel, freshModel);
             return View("Index", freshModel);
         }
     }
@@ -115,78 +124,17 @@ public partial class SettingController : Controller
 
 public partial class SettingController
 {
-    private async Task<SettingsIndexViewModel> BuildSettingsIndexViewModelAsync(string? searchTerm)
+    private void MergeInputWithFreshData(SettingsIndexViewModel source, SettingsIndexViewModel destination)
     {
-        IQueryable<Setting> query = _context.Set<Setting>()
-                                        .Where(s => s.IsActive)
-                                        .OrderBy(s => s.Category)
-                                        .ThenBy(s => s.Key)
-                                        .AsNoTracking();
+        var sourceSettingsDict = source.SettingGroups.SelectMany(g => g.Value).ToDictionary(s => s.Id);
 
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            string lowerSearchTerm = searchTerm.Trim().ToLower();
-            query = query.Where(s => s.Key.ToLower().Contains(lowerSearchTerm) ||
-                                    (s.Description != null && s.Description.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        var allSettings = await query.ToListAsync();
-
-        var groupedSettings = allSettings
-            .Select(s => _mapper.Map<SettingViewModel>(s))
-            .GroupBy(svm => allSettings.First(s => s.Id == svm.Id).Category)
-            .ToDictionary(g => g.Key, g => g.ToList());
-
-        var viewModel = new SettingsIndexViewModel
-        {
-            SettingGroups = groupedSettings,
-            SearchTerm = searchTerm
-        };
-
-        return viewModel;
-    }
-
-    private bool ApplySettingChanges(SettingsIndexViewModel viewModel, Dictionary<int, Setting> settingsDict)
-    {
-        bool changed = false;
-
-        foreach (var group in viewModel.SettingGroups)
+        foreach (var group in destination.SettingGroups)
         {
             foreach (var settingVM in group.Value)
             {
-                if (settingsDict.TryGetValue(settingVM.Id, out var settingEntity))
+                if (sourceSettingsDict.TryGetValue(settingVM.Id, out var sourceSettingVM))
                 {
-                    if (settingEntity.Value != settingVM.Value)
-                    {
-                        settingEntity.Value = settingVM.Value;
-                        _context.Entry(settingEntity).State = EntityState.Modified;
-                        _logger.LogInformation("Cập nhật Setting: {Key} => {Value}", settingEntity.Key, settingEntity.Value);
-                        changed = true;
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("Không tìm thấy setting ID {Id} trong DB khi cập nhật.", settingVM.Id);
-                }
-            }
-        }
-
-        return changed;
-    }
-
-    private void MergeInputWithFreshData(SettingsIndexViewModel source, SettingsIndexViewModel destination)
-    {
-        foreach (var inputGroup in source.SettingGroups)
-        {
-            if (destination.SettingGroups.TryGetValue(inputGroup.Key, out var freshGroup))
-            {
-                foreach (var input in inputGroup.Value)
-                {
-                    var match = freshGroup.FirstOrDefault(s => s.Id == input.Id);
-                    if (match != null)
-                    {
-                        match.Value = input.Value;
-                    }
+                    settingVM.Value = sourceSettingVM.Value;
                 }
             }
         }

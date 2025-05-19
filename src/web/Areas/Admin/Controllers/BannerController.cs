@@ -1,40 +1,38 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.Banner;
-using web.Areas.Admin.ViewModels.Banner;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
 public partial class BannerController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IBannerService _bannerService;
     private readonly IMapper _mapper;
     private readonly ILogger<BannerController> _logger;
+    private readonly IValidator<BannerViewModel> _bannerViewModelValidator;
 
     public BannerController(
-        ApplicationDbContext context,
+        IBannerService bannerService,
         IMapper mapper,
-        ILogger<BannerController> logger)
+        ILogger<BannerController> logger,
+        IValidator<BannerViewModel> bannerViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _bannerService = bannerService ?? throw new ArgumentNullException(nameof(bannerService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _bannerViewModelValidator = bannerViewModelValidator ?? throw new ArgumentNullException(nameof(bannerViewModelValidator));
     }
 
     // GET: Admin/Banner
@@ -44,33 +42,9 @@ public partial class BannerController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<Banner> query = _context.Set<Banner>()
-                                           .AsNoTracking();
+        IPagedList<BannerListItemViewModel> bannersPaged = await _bannerService.GetPagedBannersAsync(filter, pageNumber, currentPageSize);
 
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(b => b.Title.ToLower().Contains(lowerSearchTerm) ||
-                                     (b.Description != null && b.Description.ToLower().Contains(lowerSearchTerm)) ||
-                                     (b.LinkUrl != null && b.LinkUrl.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.Type.HasValue)
-        {
-            query = query.Where(b => b.Type == filter.Type.Value);
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(b => b.IsActive == filter.IsActive.Value);
-        }
-
-        query = query.OrderBy(b => b.OrderIndex).ThenByDescending(b => b.CreatedAt);
-
-        IPagedList<BannerListItemViewModel> bannersPaged = await query
-            .ProjectTo<BannerListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
-
+        // Call simple helpers for select lists (these don't use DB)
         filter.TypeOptions = GetTypeSelectList(filter.Type);
         filter.ActiveStatusOptions = GetActiveStatusSelectList(filter.IsActive);
 
@@ -101,63 +75,60 @@ public partial class BannerController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(BannerViewModel viewModel)
     {
-        var validator = new BannerViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
+        var validationResult = await _bannerViewModelValidator.ValidateAsync(viewModel);
 
-        if (!result.IsValid)
+        if (!validationResult.IsValid)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in validationResult.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
             viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
             return View(viewModel);
         }
 
-        var banner = _mapper.Map<Banner>(viewModel);
+        var createResult = await _bannerService.CreateBannerAsync(viewModel);
 
-        _context.Add(banner);
-
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm Banner '{banner.Title}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm Banner thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo Banner: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu Banner.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi tạo Banner: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu Banner.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm Banner '{viewModel.Title}'.", ToastType.Error)
-        );
-        viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
-        return View(viewModel);
+
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm Banner '{viewModel.Title}'.", ToastType.Error)
+            );
+            viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Banner/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        Banner? banner = await _context.Set<Banner>()
-                                      .AsNoTracking()
-                                      .FirstOrDefaultAsync(b => b.Id == id);
+        BannerViewModel? viewModel = await _bannerService.GetBannerByIdAsync(id);
 
-        if (banner == null)
+        if (viewModel == null)
         {
             _logger.LogWarning("Banner không tồn tại khi chỉnh sửa. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy Banner để chỉnh sửa.";
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy Banner để chỉnh sửa.", ToastType.Error)
+             );
             return RedirectToAction(nameof(Index));
         }
 
-        BannerViewModel viewModel = _mapper.Map<BannerViewModel>(banner);
         viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
 
         return View(viewModel);
@@ -176,53 +147,44 @@ public partial class BannerController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var validator = new BannerViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
+        var validationResult = await _bannerViewModelValidator.ValidateAsync(viewModel);
 
-        if (!result.IsValid)
+        if (!validationResult.IsValid)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in validationResult.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
             viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
             return View(viewModel);
         }
 
-        var banner = await _context.Set<Banner>().FirstOrDefaultAsync(b => b.Id == id);
-        if (banner == null)
+        var updateResult = await _bannerService.UpdateBannerAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy Banner để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật Banner thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, banner);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error);
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật Banner '{banner.Title}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật Banner '{viewModel.Title}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
+            return View(viewModel);
         }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật Banner ID {Id}, Title {Title}", id, banner.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi cập nhật Banner.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật Banner ID {Id}", id);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi cập nhật Banner.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật Banner '{viewModel.Title}'.", ToastType.Error)
-        );
-        viewModel.TypeOptions = GetTypeSelectList(viewModel.Type);
-        return View(viewModel);
     }
 
     // POST: Admin/Banner/Delete/5
@@ -230,33 +192,21 @@ public partial class BannerController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var banner = await _context.Set<Banner>().FirstOrDefaultAsync(b => b.Id == id);
+        var deleteResult = await _bannerService.DeleteBannerAsync(id);
 
-        if (banner == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy Banner.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa Banner thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy Banner." });
+            return Json(new { success = true, message = deleteResult.Message });
         }
-
-        try
+        else
         {
-            string bannerTitle = banner.Title;
-            _context.Remove(banner);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa Banner '{bannerTitle}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa Banner.", ToastType.Error)
             );
-            return Json(new { success = true, message = $"Xóa Banner '{bannerTitle}' thành công." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa Banner: {Title}", banner.Title);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Banner.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa Banner." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
     }
 }

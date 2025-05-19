@@ -1,38 +1,39 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
-using infrastructure;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Admin.Validators.AttributeValue;
-using web.Areas.Admin.ViewModels.AttributeValue;
-using X.PagedList.EF;
-using X.PagedList.Extensions;
+using web.Areas.Admin.Services.Interfaces;
+using web.Areas.Admin.ViewModels;
+using X.PagedList;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize]
-public partial class AttributeValueController : Controller
+[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+public class AttributeValueController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IAttributeValueService _attributeValueService;
+    private readonly IAttributeService _attributeService;
     private readonly IMapper _mapper;
     private readonly ILogger<AttributeValueController> _logger;
+    private readonly IValidator<AttributeValueViewModel> _attributeValueViewModelValidator;
 
     public AttributeValueController(
-        ApplicationDbContext context,
+        IAttributeValueService attributeValueService,
+        IAttributeService attributeService,
         IMapper mapper,
-        ILogger<AttributeValueController> logger)
+        ILogger<AttributeValueController> logger,
+        IValidator<AttributeValueViewModel> attributeValueViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _attributeValueService = attributeValueService ?? throw new ArgumentNullException(nameof(attributeValueService));
+        _attributeService = attributeService ?? throw new ArgumentNullException(nameof(attributeService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _attributeValueViewModelValidator = attributeValueViewModelValidator ?? throw new ArgumentNullException(nameof(attributeValueViewModelValidator));
     }
 
     // GET: Admin/AttributeValue
@@ -42,29 +43,9 @@ public partial class AttributeValueController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 25;
 
-        IQueryable<AttributeValue> query = _context.Set<AttributeValue>()
-                                                .Include(av => av.Attribute)
-                                                .AsNoTracking();
+        IPagedList<AttributeValueListItemViewModel> valuesPaged = await _attributeValueService.GetPagedAttributeValuesAsync(filter, pageNumber, currentPageSize);
 
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(av => av.Value.ToLower().Contains(lowerSearchTerm) ||
-                                      (av.Slug != null && av.Slug.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.AttributeId.HasValue)
-        {
-            query = query.Where(av => av.AttributeId == filter.AttributeId.Value);
-        }
-
-        query = query.OrderBy(av => av.Attribute!.Name)
-                     .ThenBy(av => av.Value);
-
-        var valuesPaged = await query.ProjectTo<AttributeValueListItemViewModel>(_mapper.ConfigurationProvider)
-                                     .ToPagedListAsync(pageNumber, currentPageSize);
-
-        filter.AttributeOptions = await LoadAttributeSelectListAsync(filter.AttributeId);
+        filter.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(filter.AttributeId);
 
         AttributeValueIndexViewModel viewModel = new()
         {
@@ -76,10 +57,13 @@ public partial class AttributeValueController : Controller
     }
 
     // GET: Admin/AttributeValue/Create
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create(int? attributeId = null)
     {
-        AttributeValueViewModel viewModel = new();
-        await PopulateViewModelSelectListsAsync(viewModel);
+        AttributeValueViewModel viewModel = new()
+        {
+            AttributeId = attributeId ?? 0
+        };
+        viewModel.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(viewModel.AttributeId);
         return View(viewModel);
     }
 
@@ -88,66 +72,73 @@ public partial class AttributeValueController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(AttributeValueViewModel viewModel)
     {
-        var result = await new AttributeValueViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _attributeValueViewModelValidator.ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            await PopulateViewModelSelectListsAsync(viewModel);
+            viewModel.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(viewModel.AttributeId);
             return View(viewModel);
         }
 
-        var attributeValue = _mapper.Map<AttributeValue>(viewModel);
-        _context.Add(attributeValue);
+        var createResult = await _attributeValueService.CreateAttributeValueAsync(viewModel);
 
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm giá trị '{attributeValue.Value}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm giá trị thuộc tính thành công.", ToastType.Success)
             );
-            return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId });
+            return RedirectToAction(nameof(Index), new { AttributeId = viewModel.AttributeId });
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo giá trị thuộc tính.");
-            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
+            foreach (var error in createResult.Errors)
             {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug này đã tồn tại.");
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else if (error.Contains("Thuộc tính cha", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.AttributeId), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
             }
-            else
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
             {
-                ModelState.AddModelError("", "Đã xảy ra lỗi cơ sở dữ liệu khi lưu.");
+                ModelState.AddModelError(string.Empty, createResult.Message);
             }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi tạo giá trị thuộc tính.");
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn khi lưu.");
-        }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm giá trị '{viewModel.Value}'.", ToastType.Error)
-        );
-        await PopulateViewModelSelectListsAsync(viewModel);
-        return View(viewModel);
+
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm giá trị '{viewModel.Value}'.", ToastType.Error)
+            );
+            viewModel.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(viewModel.AttributeId);
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/AttributeValue/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        AttributeValue? attributeValue = await _context.Set<AttributeValue>()
-                                                     .AsNoTracking()
-                                                     .FirstOrDefaultAsync(av => av.Id == id);
+        AttributeValueViewModel? viewModel = await _attributeValueService.GetAttributeValueByIdAsync(id);
 
-        if (attributeValue == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("AttributeValue not found for editing. ID: {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy giá trị thuộc tính để chỉnh sửa.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
 
-        AttributeValueViewModel viewModel = _mapper.Map<AttributeValueViewModel>(attributeValue);
-        await PopulateViewModelSelectListsAsync(viewModel);
+        viewModel.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(viewModel.AttributeId);
+
         return View(viewModel);
     }
 
@@ -164,58 +155,55 @@ public partial class AttributeValueController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new AttributeValueViewModelValidator(_context).ValidateAsync(viewModel);
+        var result = await _attributeValueViewModelValidator.ValidateAsync(viewModel);
+
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            await PopulateViewModelSelectListsAsync(viewModel);
+            viewModel.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(viewModel.AttributeId);
             return View(viewModel);
         }
 
-        var attributeValue = await _context.Set<AttributeValue>().FirstOrDefaultAsync(av => av.Id == id);
-        if (attributeValue == null)
+        var updateResult = await _attributeValueService.UpdateAttributeValueAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy giá trị thuộc tính để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật giá trị thuộc tính thành công.", ToastType.Success)
             );
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(Index), new { AttributeId = viewModel.AttributeId });
         }
-
-        _mapper.Map(viewModel, attributeValue);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else if (error.Contains("Thuộc tính cha", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.AttributeId), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật giá trị '{attributeValue.Value}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật giá trị '{viewModel.Value}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index), new { AttributeId = attributeValue.AttributeId });
+            viewModel.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(viewModel.AttributeId);
+            return View(viewModel);
         }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật giá trị thuộc tính ID {Id}", id);
-            if (ex.InnerException?.Message.Contains("slug", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                ModelState.AddModelError(nameof(viewModel.Slug), "Slug đã tồn tại.");
-            }
-            else
-            {
-                ModelState.AddModelError("", "Lỗi cơ sở dữ liệu khi cập nhật.");
-            }
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật giá trị thuộc tính ID {Id}", id);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật giá trị '{viewModel.Value}'.", ToastType.Error)
-        );
-        await PopulateViewModelSelectListsAsync(viewModel);
-        return View(viewModel);
     }
 
     // POST: Admin/AttributeValue/Delete/5
@@ -223,87 +211,26 @@ public partial class AttributeValueController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var attributeValue = await _context.Set<AttributeValue>().FirstOrDefaultAsync(av => av.Id == id);
+        var deleteResult = await _attributeValueService.DeleteAttributeValueAsync(id);
 
-        if (attributeValue == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy giá trị thuộc tính.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Không tìm thấy giá trị thuộc tính." });
-        }
-
-        try
-        {
-            string value = attributeValue.Value;
-            int parentId = attributeValue.AttributeId;
-
-            _context.Remove(attributeValue);
-            await _context.SaveChangesAsync();
-
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa giá trị '{value}' thành công.", ToastType.Success)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa giá trị thuộc tính thành công.", ToastType.Success)
             );
             return Json(new
             {
                 success = true,
-                message = $"Xóa giá trị '{value}' thành công.",
-                redirectUrl = Url.Action(nameof(Index), new { AttributeId = parentId })
+                message = deleteResult.Message,
+                redirectUrl = Url.Action(nameof(Index), new { AttributeId = deleteResult.Data })
             });
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi FK khi xóa giá trị thuộc tính ID {Id}", id);
-            if (ex.InnerException?.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                    new ToastData("Lỗi", "Không thể xóa giá trị này vì đang được sử dụng trong sản phẩm.", ToastType.Error)
-                );
-                return Json(new { success = false, message = "Không thể xóa giá trị này vì đang được sử dụng trong sản phẩm." });
-            }
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Lỗi cơ sở dữ liệu khi xóa giá trị.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa giá trị thuộc tính.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Lỗi cơ sở dữ liệu khi xóa giá trị." });
+            return Json(new { success = false, message = deleteResult.Message });
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi xóa giá trị thuộc tính ID {Id}", id);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa." });
-        }
-    }
-}
-
-public partial class AttributeValueController
-{
-    private async Task PopulateViewModelSelectListsAsync(AttributeValueViewModel viewModel)
-    {
-        viewModel.AttributeOptions = await LoadAttributeSelectListAsync(viewModel.AttributeId);
-    }
-
-    private async Task<List<SelectListItem>> LoadAttributeSelectListAsync(int? selectedValue = null)
-    {
-        var attributes = await _context.Set<domain.Entities.Attribute>()
-                         .OrderBy(a => a.Name)
-                         .AsNoTracking()
-                         .Select(a => new { a.Id, a.Name })
-                         .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-             new SelectListItem { Value = "", Text = "-- Chọn thuộc tính cha --", Selected = !selectedValue.HasValue }
-        };
-
-        items.AddRange(attributes.Select(a => new SelectListItem
-        {
-            Value = a.Id.ToString(),
-            Text = a.Name,
-            Selected = selectedValue.HasValue && a.Id == selectedValue.Value
-        }));
-
-        return items;
     }
 }

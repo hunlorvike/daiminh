@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using web.Areas.Admin.Services;
-using web.Areas.Client.Services;
+using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Extensions;
 
@@ -17,6 +17,17 @@ public static class ServiceCollectionExtensions
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")
                 ?? throw new InvalidOperationException("Connection string not found."));
         });
+
+        return services;
+    }
+
+    public static IServiceCollection AddIdentity(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddIdentity<User, Role>(options =>
+        {
+        })
+        .AddEntityFrameworkStores<ApplicationDbContext>()
+        .AddDefaultTokenProviders();
 
         return services;
     }
@@ -46,21 +57,24 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
     {
         services.AddAuthentication()
-            .AddCookie("DaiMinhCookies", options =>
+            .AddCookie("AdminScheme", options =>
             {
-                options.Cookie.Name = "DaiMinhCookies";
-                options.Cookie.HttpOnly = true;
-                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-                options.Cookie.SameSite = SameSiteMode.Strict;
-                options.ExpireTimeSpan = TimeSpan.FromHours(24);
-                options.SlidingExpiration = true;
+                options.Cookie.Name = "AdminCookie";
                 options.LoginPath = "/Admin/Account/Login";
-                options.LogoutPath = "/Admin/Account/Logout";
-                options.AccessDeniedPath = "/Error/Forbidden";
+                options.AccessDeniedPath = "/Admin/Account/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromHours(8);
+            })
+            .AddCookie("ClientScheme", options =>
+            {
+                options.Cookie.Name = "ClientCookie";
+                options.LoginPath = "/Account/Login";
+                options.AccessDeniedPath = "/Account/AccessDenied";
+                options.ExpireTimeSpan = TimeSpan.FromDays(1);
             });
 
         return services;
     }
+
 
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
@@ -69,6 +83,20 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMinioService, MinioService>();
         services.AddScoped<IMediaService, MediaService>();
         services.AddScoped<ISettingService, SettingService>();
+        services.AddScoped<IBrandService, BrandService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IAttributeService, AttributeService>();
+        services.AddScoped<ITagService, TagService>();
+        services.AddScoped<IFAQService, FAQService>();
+        services.AddScoped<IBannerService, BannerService>();
+        services.AddScoped<IContactService, ContactService>();
+        services.AddScoped<ITestimonialService, TestimonialService>();
+        services.AddScoped<INewsletterService, NewsletterService>();
+        services.AddScoped<ISlideService, SlideService>();
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IDashboardService, DashboardService>();
+        services.AddScoped<IProductReviewService, ProductReviewService>();
+        services.AddScoped<IArticleService, ArticleService>();
 
         return services;
     }
