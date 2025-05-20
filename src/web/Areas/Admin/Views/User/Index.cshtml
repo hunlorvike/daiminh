@@ -112,7 +112,6 @@
                             <th class="d-none d-md-table-cell">Email</th>
                             <th class="d-none d-lg-table-cell">Họ Tên</th>
                             <th class="text-center">Trạng thái</th>
-                            <th class="d-none d-md-table-cell">Ngày tạo</th>
                             <th class="w-1">Thao tác</th>
                         </tr>
                     </thead>
@@ -145,13 +144,6 @@
                                         </span>
                                     }
                                 </td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
-									<div class="d-flex align-items-center">
-										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh")
-									</div>
-								</td>
                                 <td>
                                     <div class="btn-group">
                                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">

@@ -239,14 +239,14 @@ public partial class ArticleController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", deleteResult.Message ?? "Xóa bài viết thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = deleteResult.Message });
+            return RedirectToAction(nameof(Index));
         }
         else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", deleteResult.Message ?? "Đã xảy ra lỗi không mong muốn khi xóa bài viết.", ToastType.Error)
             );
-            return Json(new { success = false, message = deleteResult.Message });
+            return RedirectToAction(nameof(Index));
         }
     }
 }

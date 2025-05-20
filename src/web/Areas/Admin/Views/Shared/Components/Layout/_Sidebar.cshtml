@@ -51,6 +51,7 @@
 {
 ("Cấu hình chung", "ti-settings", "Setting", "Index"),
 ("Tài khoản người dùng", "ti-users", "User", "Index"),
+("Vai trò người dùng", "ti-users", "Role", "Index"),
 ("Thuộc tính sản phẩm", "ti-adjustments-alt", "Attribute", "Index"),
 ("Giá trị thuộc tính", "ti-list-check", "AttributeValue", "Index")
 }, "menu-system"),
@@ -62,13 +63,13 @@
     <div class="container-fluid">
         <div class="d-flex align-items-center justify-content-between w-100 d-lg-none mb-1">
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#sidebar-menu"
-                aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
+                    aria-controls="sidebar-menu" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <h1 class="navbar-brand navbar-brand-autodark py-2 m-0">
                 <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
-                    class="text-decoration-none fw-bold">DAIMINH</a>
+                   class="text-decoration-none fw-bold">DAIMINH</a>
             </h1>
 
             <div class="dropdown">
@@ -90,11 +91,11 @@
                         <div class="fw-medium mb-2 text-muted small text-uppercase">Giao diện</div>
                         <div class="d-flex gap-2">
                             <a href="?theme=light"
-                                class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "light" ? "active" : "")">
+                               class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "light" ? "active" : "")">
                                 <i class="ti ti-sun me-1"></i> Sáng
                             </a>
                             <a href="?theme=dark"
-                                class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "dark" ? "active" : "")">
+                               class="btn btn-sm btn-outline-secondary flex-grow-1 @(theme == "dark" ? "active" : "")">
                                 <i class="ti ti-moon me-1"></i> Tối
                             </a>
                         </div>
@@ -142,7 +143,7 @@
                     </a>
                     <div class="dropdown-divider"></div>
                     <form class="form-inline px-3" asp-area="Admin" asp-controller="Account" asp-action="Logout"
-                        method="post">
+                          method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="dropdown-item text-danger px-0">
                             <i class="ti ti-logout me-2"></i>Đăng xuất
@@ -155,7 +156,7 @@
         <!-- Desktop brand -->
         <h1 class="navbar-brand navbar-brand-autodark py-3 d-none d-lg-block text-center">
             <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index"
-                class="text-decoration-none fw-bold">DAIMINH</a>
+               class="text-decoration-none fw-bold">DAIMINH</a>
         </h1>
 
         <div class="collapse navbar-collapse" id="sidebar-menu">
@@ -172,8 +173,8 @@
                         {
                             <!-- Menu có mục con -->
                             <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
-                                data-bs-toggle="collapse" href="#@(item.MenuId)" role="button"
-                                aria-expanded="@(isActive ? "true" : "false")" aria-controls="@(item.MenuId)">
+                               data-bs-toggle="collapse" href="#@(item.MenuId)" role="button"
+                               aria-expanded="@(isActive ? "true" : "false")" aria-controls="@(item.MenuId)">
                                 <span>@item.Title</span>
                                 <i class="ti d-lg-none @(isActive ? "ti-chevron-up" : "ti-chevron-down")"></i>
                             </a>
@@ -182,7 +183,7 @@
                                 @foreach (var subItem in item.SubItems)
                                 {
                                     <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == subItem.SubController ? "active" : "")"
-                                        asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
+                                       asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
                                         <span class="nav-link-icon d-flex align-items-center justify-content-center">
                                             <i class="ti @subItem.SubIcon"></i>
                                         </span>
@@ -195,7 +196,7 @@
                                 @foreach (var subItem in item.SubItems)
                                 {
                                     <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == subItem.SubController ? "active" : "")"
-                                        asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
+                                       asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
                                         <span class="nav-link-icon d-flex align-items-center justify-content-center">
                                             <i class="ti @subItem.SubIcon"></i>
                                         </span>

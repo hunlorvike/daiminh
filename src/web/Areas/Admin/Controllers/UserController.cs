@@ -1,8 +1,11 @@
 using AutoMapper;
+using domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
@@ -23,6 +26,8 @@ public partial class UserController : Controller
     private readonly ILogger<UserController> _logger;
     private readonly IValidator<UserCreateViewModel> _userCreateViewModelValidator;
     private readonly IValidator<UserEditViewModel> _userEditViewModelValidator;
+    private readonly RoleManager<Role> _roleManager;
+    private readonly UserManager<User> _userManager;
 
 
     public UserController(
@@ -30,13 +35,18 @@ public partial class UserController : Controller
         IMapper mapper,
         ILogger<UserController> logger,
         IValidator<UserCreateViewModel> userCreateViewModelValidator,
-        IValidator<UserEditViewModel> userEditViewModelValidator)
+        IValidator<UserEditViewModel> userEditViewModelValidator,
+        RoleManager<Role> roleManager,
+        UserManager<User> userManager
+        )
     {
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _userCreateViewModelValidator = userCreateViewModelValidator ?? throw new ArgumentNullException(nameof(userCreateViewModelValidator));
         _userEditViewModelValidator = userEditViewModelValidator ?? throw new ArgumentNullException(nameof(userEditViewModelValidator));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
     // GET: Admin/User
@@ -60,11 +70,12 @@ public partial class UserController : Controller
     }
 
     // GET: Admin/User/Create
-    public IActionResult Create()
+    public async Task<IActionResult> CreateAsync()
     {
         UserCreateViewModel viewModel = new()
         {
-            IsActive = true
+            IsActive = true,
+            AllRoles = await GetAllRolesAsSelectListItemsAsync()
         };
         return View(viewModel);
     }
@@ -81,6 +92,7 @@ public partial class UserController : Controller
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
+            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
             return View(viewModel);
         }
 
@@ -115,6 +127,7 @@ public partial class UserController : Controller
                 ModelState.AddModelError(string.Empty, createResult.Message);
             }
 
+            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm người dùng '{viewModel.UserName}'.", ToastType.Error)
             );
@@ -134,6 +147,13 @@ public partial class UserController : Controller
                  new ToastData("Lỗi", "Không tìm thấy người dùng.", ToastType.Error)
              );
             return RedirectToAction(nameof(Index));
+        }
+
+        viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
+        var user = await _userManager.FindByIdAsync(id.ToString());
+        if (user != null)
+        {
+            viewModel.SelectedRoles = (await _userManager.GetRolesAsync(user)).ToList();
         }
         return View(viewModel);
     }
@@ -158,6 +178,7 @@ public partial class UserController : Controller
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
+            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
             return View(viewModel);
         }
 
@@ -200,6 +221,7 @@ public partial class UserController : Controller
                 ModelState.AddModelError(string.Empty, updateResult.Message);
             }
 
+            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật người dùng '{viewModel.UserName}'.", ToastType.Error)
             );
@@ -261,5 +283,17 @@ public partial class UserController
             new SelectListItem { Value = "true", Text = "Đang kích hoạt", Selected = selectedValue == true },
             new SelectListItem { Value = "false", Text = "Đã hủy kích hoạt", Selected = selectedValue == false }
         };
+    }
+
+    private async Task<List<SelectListItem>> GetAllRolesAsSelectListItemsAsync()
+    {
+        var roles = await _roleManager.Roles
+                                    .AsNoTracking()
+                                    .Select(r => new SelectListItem
+                                    {
+                                        Value = r.Name,
+                                        Text = r.Name
+                                    }).ToListAsync();
+        return roles;
     }
 }

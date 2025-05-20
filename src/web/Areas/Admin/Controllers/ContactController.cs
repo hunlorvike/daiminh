@@ -143,14 +143,14 @@ public class ContactController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", deleteResult.Message ?? "Xóa liên hệ thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = deleteResult.Message });
+            return RedirectToAction(nameof(Index));
         }
         else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa liên hệ.", ToastType.Error)
             );
-            return Json(new { success = false, message = deleteResult.Message });
+            return RedirectToAction(nameof(Index));
         }
     }
 

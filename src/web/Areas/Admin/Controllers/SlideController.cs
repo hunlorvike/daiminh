@@ -188,14 +188,14 @@ public partial class SlideController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", deleteResult.Message ?? "Xóa Slide thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = deleteResult.Message });
+            return RedirectToAction(nameof(Index));
         }
         else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa Slide.", ToastType.Error)
             );
-            return Json(new { success = false, message = deleteResult.Message });
+            return RedirectToAction(nameof(Index));
         }
     }
 }

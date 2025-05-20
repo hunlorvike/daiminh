@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.ViewModels;
@@ -28,5 +29,8 @@ public class UserEditViewModel
     public bool IsActive { get; set; } = true;
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-    // *** Lưu ý: Không có trường mật khẩu ở đây ***
+
+    [Display(Name = "Vai trò")]
+    public List<string> SelectedRoles { get; set; } = new List<string>();
+    public List<SelectListItem> AllRoles { get; set; } = new List<SelectListItem>();
 }

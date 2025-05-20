@@ -1,0 +1,48 @@
+@model RoleViewModel
+@{
+    ViewData["Title"] = "Tạo Vai trò mới - Hệ thống quản trị";
+    ViewData["PageTitle"] = "Tạo Vai trò mới";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+        ("Vai trò", Url.Action(nameof(Index)) ?? "/Admin/Role"),
+        ("Tạo mới", "")
+    };
+}
+<form asp-action="Create" method="post">
+    <div class="card">
+        <div class="card-header">
+            <h3 class="card-title">
+                <i class="ti ti-tag-plus me-2"></i>Thông tin vai trò
+            </h3>
+        </div>
+        <div class="card-body">
+            @Html.AntiForgeryToken()
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <div class="d-flex">
+                        <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
+                        <div>
+                            <h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
+                            <div asp-validation-summary="ModelOnly" class="mb-0"></div>
+                        </div>
+                    </div>
+                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
+                </div>
+            }
+            <div class="form-group mb-3">
+                <label asp-for="Name" class="form-label required"></label>
+                <input asp-for="Name" class="form-control" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+                <small class="form-hint">Tên vai trò không được trùng và nên viết liền, không dấu (ví dụ: Editor, ProductManager).</small>
+            </div>
+        </div>
+        <div class="card-footer d-flex justify-content-end bg-transparent border-top pt-3">
+            <a asp-action="Index" class="btn btn-link">
+                <i class="ti ti-x me-1"></i>Hủy
+            </a>
+            <button type="submit" class="btn btn-primary ms-2">
+                <i class="ti ti-plus me-2"></i>Tạo Vai trò
+            </button>
+        </div>
+    </div>
+</form>

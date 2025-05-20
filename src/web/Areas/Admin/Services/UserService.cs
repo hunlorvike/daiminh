@@ -1,7 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
-using infrastructure;
+using domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -15,29 +15,35 @@ namespace web.Areas.Admin.Services;
 [Register(ServiceLifetime.Scoped)]
 public class UserService : IUserService
 {
-    private readonly ApplicationDbContext _context;
+    private readonly UserManager<User> _userManager;
+    private readonly RoleManager<Role> _roleManager;
     private readonly IMapper _mapper;
     private readonly ILogger<UserService> _logger;
-    private readonly IPasswordHasher<domain.Entities.User> _passwordHasher;
 
-    public UserService(ApplicationDbContext context, IMapper mapper, ILogger<UserService> logger, IPasswordHasher<domain.Entities.User> passwordHasher)
+    public UserService(
+        UserManager<User> userManager,
+        RoleManager<Role> roleManager,
+        IMapper mapper,
+        ILogger<UserService> logger)
     {
-        _context = context;
-        _mapper = mapper;
-        _logger = logger;
-        _passwordHasher = passwordHasher;
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     public async Task<IPagedList<UserListItemViewModel>> GetPagedUsersAsync(UserFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.User> query = _context.Set<domain.Entities.User>().AsNoTracking();
+        // UserManager.Users cung cấp IQueryable<User>
+        IQueryable<User> query = _userManager.Users.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
             string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(u => u.UserName.ToLower().Contains(lowerSearchTerm) ||
-                                     u.Email.ToLower().Contains(lowerSearchTerm) ||
-                                     u.FullName != null && u.FullName.ToLower().Contains(lowerSearchTerm));
+            query = query.Where(u =>
+                (u.UserName != null && u.UserName.ToLower().Contains(lowerSearchTerm)) ||
+                (u.Email != null && u.Email.ToLower().Contains(lowerSearchTerm)) ||
+                (u.FullName != null && u.FullName.ToLower().Contains(lowerSearchTerm)));
         }
 
         if (filter.IsActive.HasValue)
@@ -45,7 +51,7 @@ public class UserService : IUserService
             query = query.Where(u => u.IsActive == filter.IsActive.Value);
         }
 
-        query = query.OrderBy(u => u.UserName);
+        query = query.OrderBy(u => u.UserName); // Sắp xếp theo UserName
 
         IPagedList<UserListItemViewModel> usersPaged = await query
             .ProjectTo<UserListItemViewModel>(_mapper.ConfigurationProvider)
@@ -56,112 +62,203 @@ public class UserService : IUserService
 
     public async Task<UserEditViewModel?> GetUserByIdAsync(int id)
     {
-        domain.Entities.User? user = await _context.Set<domain.Entities.User>()
-                               .AsNoTracking()
-                               .FirstOrDefaultAsync(u => u.Id == id);
+        User? user = await _userManager.FindByIdAsync(id.ToString());
+        if (user == null) return null;
 
-        return _mapper.Map<UserEditViewModel>(user);
+        var viewModel = _mapper.Map<UserEditViewModel>(user);
+
+        // Nếu bạn muốn load roles của user:
+        // var roles = await _userManager.GetRolesAsync(user);
+        // viewModel.SelectedRoles = roles.ToList(); // Cần thêm SelectedRoles vào UserEditViewModel
+
+        return viewModel;
     }
 
     public async Task<OperationResult<int>> CreateUserAsync(UserCreateViewModel viewModel)
     {
-        if (await IsUsernameUniqueAsync(viewModel.UserName))
+        var existingUserByUserName = await _userManager.FindByNameAsync(viewModel.UserName);
+        if (existingUserByUserName != null)
         {
-            return OperationResult<int>.FailureResult(message: "Tên đăng nhập đã tồn tại.", errors: new List<string> { "Tên đăng nhập đã tồn tại." });
-        }
-        if (!string.IsNullOrEmpty(viewModel.Email) && await IsEmailUniqueAsync(viewModel.Email))
-        {
-            return OperationResult<int>.FailureResult(message: "Email đã tồn tại.", errors: new List<string> { "Email đã tồn tại." });
+            return OperationResult<int>.FailureResult("Tên đăng nhập đã tồn tại.");
         }
 
-        var user = _mapper.Map<domain.Entities.User>(viewModel);
-
-        if (!string.IsNullOrEmpty(viewModel.Password))
+        if (!string.IsNullOrEmpty(viewModel.Email))
         {
-            user.PasswordHash = _passwordHasher.HashPassword(user, viewModel.Password);
+            var existingUserByEmail = await _userManager.FindByEmailAsync(viewModel.Email);
+            if (existingUserByEmail != null)
+            {
+                return OperationResult<int>.FailureResult("Email đã tồn tại.");
+            }
         }
 
-        _context.Add(user);
+        var user = _mapper.Map<User>(viewModel);
+        user.EmailConfirmed = true;
 
-        try
+        IdentityResult result = await _userManager.CreateAsync(user, viewModel.Password);
+
+        if (result.Succeeded)
         {
-            await _context.SaveChangesAsync();
             _logger.LogInformation("Created User: ID={Id}, Username={Username}", user.Id, user.UserName);
+
+            if (viewModel.SelectedRoles != null && viewModel.SelectedRoles.Any())
+            {
+                var validRoles = new List<string>();
+                foreach (var roleName in viewModel.SelectedRoles)
+                {
+                    if (await _roleManager.RoleExistsAsync(roleName))
+                    {
+                        validRoles.Add(roleName);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Role '{RoleName}' selected for user '{Username}' does not exist.", roleName, user.UserName);
+                    }
+                }
+
+                if (validRoles.Any())
+                {
+                    var addToRolesResult = await _userManager.AddToRolesAsync(user, validRoles);
+                    if (!addToRolesResult.Succeeded)
+                    {
+                        _logger.LogWarning("Could not add roles to user {UserId}. Errors: {Errors}", user.Id, string.Join(", ", addToRolesResult.Errors.Select(e => e.Description)));
+                    }
+                }
+            }
             return OperationResult<int>.SuccessResult(user.Id, $"Thêm người dùng '{user.UserName}' thành công.");
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi DB khi tạo người dùng: {Username}", viewModel.UserName);
-            if (ex.InnerException?.Message?.Contains("UQ_User_Username", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult<int>.FailureResult(message: "Tên đăng nhập đã tồn tại.", errors: new List<string> { "Tên đăng nhập đã tồn tại." });
-            }
-            if (ex.InnerException?.Message?.Contains("UQ_User_Email", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult<int>.FailureResult(message: "Email đã tồn tại.", errors: new List<string> { "Email đã tồn tại." });
-            }
-            return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi hệ thống khi tạo người dùng.", errors: new List<string> { "Đã xảy ra lỗi hệ thống khi tạo người dùng." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi tạo người dùng: {Username}", viewModel.UserName);
-            return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi hệ thống khi tạo người dùng.", errors: new List<string> { "Đã xảy ra lỗi hệ thống khi tạo người dùng." });
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Lỗi khi tạo người dùng {Username}: {Errors}", viewModel.UserName, string.Join("; ", errors));
+            return OperationResult<int>.FailureResult(errors.FirstOrDefault() ?? "Lỗi khi tạo người dùng.", errors);
         }
     }
 
     public async Task<OperationResult> UpdateUserAsync(UserEditViewModel viewModel, int currentUserId)
     {
-        if (await IsUsernameUniqueAsync(viewModel.UserName, viewModel.Id))
-        {
-            return OperationResult.FailureResult(message: "Tên đăng nhập đã tồn tại.", errors: new List<string> { "Tên đăng nhập đã tồn tại." });
-        }
-        if (!string.IsNullOrEmpty(viewModel.Email) && await IsEmailUniqueAsync(viewModel.Email, viewModel.Id))
-        {
-            return OperationResult.FailureResult(message: "Email đã tồn tại.", errors: new List<string> { "Email đã tồn tại." });
-        }
-
-        var user = await _context.Set<domain.Entities.User>().FirstOrDefaultAsync(u => u.Id == viewModel.Id);
+        var user = await _userManager.FindByIdAsync(viewModel.Id.ToString());
         if (user == null)
         {
             _logger.LogWarning("User not found for update. ID: {Id}", viewModel.Id);
             return OperationResult.FailureResult("Không tìm thấy người dùng để cập nhật.");
         }
 
+        // Kiểm tra nếu UserName thay đổi và đã tồn tại
+        if (!user.UserName.Equals(viewModel.UserName, StringComparison.OrdinalIgnoreCase))
+        {
+            var existingUserByUserName = await _userManager.FindByNameAsync(viewModel.UserName);
+            if (existingUserByUserName != null && existingUserByUserName.Id != user.Id)
+            {
+                return OperationResult.FailureResult("Tên đăng nhập đã tồn tại.");
+            }
+        }
+
+        // Kiểm tra nếu Email thay đổi và đã tồn tại
+        if (user.Email == null || !user.Email.Equals(viewModel.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!string.IsNullOrEmpty(viewModel.Email))
+            {
+                var existingUserByEmail = await _userManager.FindByEmailAsync(viewModel.Email);
+                if (existingUserByEmail != null && existingUserByEmail.Id != user.Id)
+                {
+                    return OperationResult.FailureResult("Email đã tồn tại.");
+                }
+            }
+        }
+
         if (!viewModel.IsActive && (user.Id == currentUserId || user.Id == 1))
         {
             _logger.LogWarning("Attempt to deactivate self ({CurrentUserId}) or primary admin (ID=1)", currentUserId);
-            return OperationResult.FailureResult(message: "Không thể hủy kích hoạt chính mình hoặc tài khoản quản trị viên chính.", errors: new List<string> { "Không thể hủy kích hoạt chính mình hoặc tài khoản quản trị viên chính." });
+            return OperationResult.FailureResult("Không thể hủy kích hoạt chính mình hoặc tài khoản quản trị viên chính.");
         }
 
-        string? originalPasswordHash = user.PasswordHash;
-
-        _mapper.Map(viewModel, user);
-
-        user.PasswordHash = originalPasswordHash;
-
-        try
+        user.FullName = viewModel.FullName;
+        user.IsActive = viewModel.IsActive;
+        if (user.UserName == null || !user.UserName.Equals(viewModel.UserName, StringComparison.OrdinalIgnoreCase))
         {
-            await _context.SaveChangesAsync();
+            var setUserNameResult = await _userManager.SetUserNameAsync(user, viewModel.UserName);
+            if (!setUserNameResult.Succeeded)
+            {
+                var errors = setUserNameResult.Errors.Select(e => e.Description).ToList();
+                return OperationResult.FailureResult(
+                    message: errors.FirstOrDefault() ?? "Lỗi khi cập nhật tên đăng nhập.",
+                    errors: errors
+                );
+            }
+        }
+
+        if (user.Email == null || !user.Email.Equals(viewModel.Email, StringComparison.OrdinalIgnoreCase))
+        {
+            if (!string.IsNullOrEmpty(viewModel.Email))
+            {
+                var setEmailResult = await _userManager.SetEmailAsync(user, viewModel.Email);
+                if (!setEmailResult.Succeeded)
+                {
+                    var errors = setEmailResult.Errors.Select(e => e.Description).ToList();
+                    return OperationResult.FailureResult(
+                        message: errors.FirstOrDefault() ?? "Lỗi khi cập nhật email.",
+                        errors: errors
+                    );
+                }
+            }
+            else
+            {
+                user.Email = null;
+                user.NormalizedEmail = null;
+                user.EmailConfirmed = false;
+            }
+        }
+
+
+        IdentityResult updateResult = await _userManager.UpdateAsync(user);
+
+        if (updateResult.Succeeded)
+        {
             _logger.LogInformation("Updated User: ID={Id}, Username={Username}, IsActive={IsActive}", user.Id, user.UserName, user.IsActive);
+
+            var currentRoles = await _userManager.GetRolesAsync(user);
+            var rolesToRemove = currentRoles.Except(viewModel.SelectedRoles ?? Enumerable.Empty<string>()).ToList();
+            var rolesToAdd = (viewModel.SelectedRoles ?? Enumerable.Empty<string>()).Except(currentRoles).ToList();
+
+            if (rolesToRemove.Any())
+            {
+                var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+                if (!removeResult.Succeeded)
+                {
+                    _logger.LogWarning("Could not remove roles from user {UserId}. Errors: {Errors}", user.Id, string.Join(", ", removeResult.Errors.Select(e => e.Description)));
+                }
+            }
+            if (rolesToAdd.Any())
+            {
+                var validRolesToAdd = new List<string>();
+                foreach (var roleName in rolesToAdd)
+                {
+                    if (await _roleManager.RoleExistsAsync(roleName))
+                    {
+                        validRolesToAdd.Add(roleName);
+                    }
+                    else
+                    {
+                        _logger.LogWarning("Role '{RoleName}' selected for user '{Username}' does not exist and cannot be added.", roleName, user.UserName);
+                    }
+                }
+                if (validRolesToAdd.Any())
+                {
+                    var addResult = await _userManager.AddToRolesAsync(user, validRolesToAdd);
+                    if (!addResult.Succeeded)
+                    {
+                        _logger.LogWarning("Could not add roles to user {UserId}. Errors: {Errors}", user.Id, string.Join(", ", addResult.Errors.Select(e => e.Description)));
+                    }
+                }
+            }
+
             return OperationResult.SuccessResult($"Cập nhật người dùng '{user.UserName}' thành công.");
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật người dùng ID: {Id}, Username {Username}", viewModel.Id, viewModel.UserName);
-            if (ex.InnerException?.Message?.Contains("UQ_User_Username", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult.FailureResult(message: "Tên đăng nhập đã tồn tại.", errors: new List<string> { "Tên đăng nhập đã tồn tại." });
-            }
-            if (ex.InnerException?.Message?.Contains("UQ_User_Email", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult.FailureResult(message: "Email đã tồn tại.", errors: new List<string> { "Email đã tồn tại." });
-            }
-            return OperationResult.FailureResult(message: "Đã xảy ra lỗi hệ thống khi cập nhật người dùng.", errors: new List<string> { "Đã xảy ra lỗi hệ thống khi cập nhật người dùng." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật người dùng ID: {Id}, Username {Username}", viewModel.Id, viewModel.UserName);
-            return OperationResult.FailureResult(message: "Đã xảy ra lỗi hệ thống khi cập nhật người dùng.", errors: new List<string> { "Đã xảy ra lỗi hệ thống khi cập nhật người dùng." });
+            var errors = updateResult.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Lỗi khi cập nhật người dùng ID {Id}, Username {Username}: {Errors}", viewModel.Id, viewModel.UserName, string.Join("; ", errors));
+            return OperationResult.FailureResult(errors.FirstOrDefault() ?? "Lỗi khi cập nhật người dùng.", errors);
         }
     }
 
@@ -179,69 +276,44 @@ public class UserService : IUserService
             return OperationResult.FailureResult("Không thể xóa tài khoản quản trị viên chính.");
         }
 
-        domain.Entities.User? user = await _context.Set<domain.Entities.User>().FindAsync(userId);
-
+        var user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null)
         {
             _logger.LogWarning("User not found for delete. ID: {Id}", userId);
             return OperationResult.FailureResult("Không tìm thấy người dùng.");
         }
 
-        string username = user.UserName;
+        string username = user.UserName ?? "N/A";
+        IdentityResult result = await _userManager.DeleteAsync(user);
 
-        _context.Remove(user);
-
-        try
+        if (result.Succeeded)
         {
-            await _context.SaveChangesAsync();
             _logger.LogInformation("Deleted User: ID={Id}, Username={Username}", userId, username);
             return OperationResult.SuccessResult($"Xóa người dùng '{username}' thành công.");
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi DB khi xóa người dùng ID {Id}", userId);
-            if (ex.InnerException?.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult.FailureResult($"Không thể xóa người dùng '{username}' vì đang được sử dụng.", errors: new List<string> { $"Không thể xóa người dùng '{username}' vì đang được sử dụng." });
-            }
-            return OperationResult.FailureResult("Lỗi cơ sở dữ liệu khi xóa người dùng.", errors: new List<string> { "Lỗi cơ sở dữ liệu khi xóa người dùng." });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi xóa người dùng ID {Id}", userId);
-            return OperationResult.FailureResult($"Không thể xóa người dùng '{username}'.", errors: new List<string> { "Đã xảy ra lỗi không mong muốn khi xóa người dùng." });
+            var errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Lỗi khi xóa người dùng ID {Id}: {Errors}", userId, string.Join("; ", errors));
+            return OperationResult.FailureResult(errors.FirstOrDefault() ?? $"Không thể xóa người dùng '{username}'.", errors);
         }
     }
 
     public async Task<bool> IsUsernameUniqueAsync(string username, int? ignoreId = null)
     {
         if (string.IsNullOrWhiteSpace(username)) return false;
-
-        var lowerUsername = username.Trim().ToLower();
-        var query = _context.Set<domain.Entities.User>()
-                            .Where(u => u.UserName.ToLower() == lowerUsername);
-
-        if (ignoreId.HasValue && ignoreId.Value > 0)
-        {
-            query = query.Where(u => u.Id != ignoreId.Value);
-        }
-
-        return await query.AnyAsync();
+        var user = await _userManager.FindByNameAsync(username);
+        if (user == null) return false;
+        if (ignoreId.HasValue && user.Id == ignoreId.Value) return false;
+        return true;
     }
 
     public async Task<bool> IsEmailUniqueAsync(string email, int? ignoreId = null)
     {
         if (string.IsNullOrWhiteSpace(email)) return false;
-
-        var lowerEmail = email.Trim().ToLower();
-        var query = _context.Set<domain.Entities.User>()
-                            .Where(u => !string.IsNullOrEmpty(u.Email) && u.Email.ToLower() == lowerEmail);
-
-        if (ignoreId.HasValue && ignoreId.Value > 0)
-        {
-            query = query.Where(u => u.Id != ignoreId.Value);
-        }
-
-        return await query.AnyAsync();
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null) return false;
+        if (ignoreId.HasValue && user.Id == ignoreId.Value) return false;
+        return true;
     }
 }

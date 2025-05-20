@@ -1,0 +1,181 @@
+@model RoleIndexViewModel
+@{
+    ViewData["Title"] = "Quản lý Vai trò - Hệ thống quản trị";
+    ViewData["PageTitle"] = "Danh sách Vai trò";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)>
+    {
+        ("Vai trò", "")
+    };
+}
+
+@section PageActions {
+    <div class="btn-list">
+        <a asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
+            <i class="ti ti-plus me-2"></i> Tạo Vai trò mới
+        </a>
+        <a asp-action="Create" class="btn btn-primary d-sm-none btn-icon">
+            <i class="ti ti-plus"></i>
+        </a>
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-filter me-2"></i> Bộ lọc
+                </h3>
+            </div>
+
+            <div class="row g-3 align-items-end">
+                <div class="col-md-8 col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="SearchTerm" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-search"></i>
+                            </span>
+                            <input asp-for="SearchTerm" class="form-control" placeholder="Tìm theo tên hoặc mô tả..." />
+                            <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-2 col-sm-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
+                    </button>
+                </div>
+
+                <div class="col-md-2 col-sm-3">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                        <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">
+            <i class="ti ti-tags me-2"></i> Danh sách quyền
+        </h3>
+        @if (Model.Roles.TotalItemCount > 0)
+        {
+            <small class="text-muted d-none d-md-block">
+                Hiển thị @Model.Roles.FirstItemOnPage-@Model.Roles.LastItemOnPage trên tổng số @Model.Roles.TotalItemCount quyền
+            </small>
+        }
+    </div>
+
+    <div class="card-body p-0">
+        @if (!Model.Roles.Any())
+        {
+            <div class="empty py-5 text-center">
+                <div class="empty-icon mb-3">
+                    <div class="avatar avatar-xl bg-light-subtle rounded">
+                        <i class="ti ti-tags-off fs-1 text-muted"></i>
+                    </div>
+                </div>
+                <p class="empty-title">Không tìm thấy thẻ nào</p>
+                <p class="empty-subtitle text-muted">
+                    @(string.IsNullOrWhiteSpace(Model.SearchTerm)
+                        ? "Hãy thêm quyền đầu tiên."
+                        : "Không có quyền nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.")
+                </p>
+                <div class="empty-action">
+                    @if (string.IsNullOrWhiteSpace(Model.SearchTerm))
+                    {
+                        <a asp-action="Create" class="btn btn-primary">
+                            <i class="ti ti-plus me-2"></i> Thêm quyền mới
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
+                        </a>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table card-table table-vcenter text-nowrap datatable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên Vai trò</th>
+                            <th>Số người dùng</th>
+                            <th class="w-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var role in Model.Roles)
+                        {
+                            <tr>
+                                <td><span class="text-muted">@role.Id</span></td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@role.Id" class="text-reset" data-bs-toggle="tooltip" title="Chỉnh sửa vai trò">
+                                        @role.Name
+                                    </a>
+                                </td>
+                                <td>@role.UserCount</td>
+                                <td>
+                                    <div class="btn-list flex-nowrap">
+                                        <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Sửa">
+                                            <i class="ti ti-edit"></i>
+                                        </a>
+                                        @if (!new[] { "admin", "superadmin" }.Contains(role.Name.ToLower()))
+                                        {
+                                            <button type="button" class="btn btn-sm btn-outline-danger btn-delete-role"
+                                                    data-id="@role.Id" data-name="@role.Name"
+                                                    data-bs-toggle="tooltip" title="Xóa">
+                                                <i class="ti ti-trash"></i>
+                                            </button>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+
+    @if (Model.Roles.PageCount > 1)
+    {
+        <div class="card-footer">
+            <div class="d-flex justify-content-center">
+                @Html.PagedListPager(
+                         Model.Roles,
+                         page => Url.Action("Index", new
+                         {
+                             page,
+                             SearchTerm = Model.SearchTerm
+                         }),
+                         new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination mb-0" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                ActiveLiElementClass = "active",
+                LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+            })
+            </div>
+        </div>
+    }
+</div>
+

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.ViewModels;
@@ -34,4 +35,8 @@ public class UserCreateViewModel
 
     [Display(Name = "Kích hoạt")]
     public bool IsActive { get; set; } = true;
+
+    [Display(Name = "Vai trò")]
+    public List<string> SelectedRoles { get; set; } = new List<string>();
+    public List<SelectListItem> AllRoles { get; set; } = new List<SelectListItem>();
 }

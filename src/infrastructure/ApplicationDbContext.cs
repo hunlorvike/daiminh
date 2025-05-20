@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore;
 namespace infrastructure;
 
 public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
-    IdentityUserClaim<int>, UserRole, IdentityUserLogin<int>,
-    IdentityRoleClaim<int>, IdentityUserToken<int>>
+    UserClaim, UserRole, IdentityUserLogin<int>,
+    RoleClaim, IdentityUserToken<int>>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
@@ -20,6 +20,8 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<User> Users { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<UserRole> UserRoles { get; set; }
+    public DbSet<RoleClaim> RoleClaims { get; set; }
+    public DbSet<UserClaim> UserClaims { get; set; }
 
     public DbSet<Article> Articles { get; set; }
     public DbSet<ArticleProduct> ArticleProducts { get; set; }
@@ -53,6 +55,8 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
         modelBuilder.ApplyConfiguration(new UserConfiguration());
         modelBuilder.ApplyConfiguration(new RoleConfiguration());
         modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
+        modelBuilder.ApplyConfiguration(new RoleClaimConfiguration());
+        modelBuilder.ApplyConfiguration(new UserClaimConfiguration());
 
         modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
         modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
