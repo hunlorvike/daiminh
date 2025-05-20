@@ -1,3 +1,4 @@
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,7 @@ using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class DashboardService : IDashboardService
 {
     private readonly ApplicationDbContext _context;

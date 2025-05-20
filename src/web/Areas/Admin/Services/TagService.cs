@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ using X.PagedList.Extensions;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class TagService : ITagService
 {
     private readonly ApplicationDbContext _context;

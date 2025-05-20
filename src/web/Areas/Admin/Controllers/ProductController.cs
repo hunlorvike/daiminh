@@ -310,7 +310,6 @@ public partial class ProductController
         viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
         viewModel.AttributeOptions = await LoadAttributeSelectListAsync(viewModel.SelectedAttributeIds); // For ProductAttributes
         viewModel.TagOptions = await LoadTagSelectListAsync(TagType.Product, viewModel.SelectedTagIds);
-        viewModel.ArticleOptions = await LoadArticleSelectListAsync(viewModel.SelectedArticleIds); // For ArticleProducts
     }
 
     private async Task<List<SelectListItem>> LoadCategorySelectListAsync(CategoryType categoryType, int? selectedValue = null)
@@ -406,30 +405,6 @@ public partial class ProductController
 
         return items;
     }
-
-    private async Task<List<SelectListItem>> LoadArticleSelectListAsync(List<int>? selectedValues = null)
-    {
-        var articles = await _context.Set<Article>()
-                          .Where(a => a.Status == PublishStatus.Published)
-                          .OrderBy(a => a.Title)
-                          .AsNoTracking()
-                          .Select(a => new { a.Id, a.Title })
-                          .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-        };
-
-        items.AddRange(articles.Select(a => new SelectListItem
-        {
-            Value = a.Id.ToString(),
-            Text = a.Title,
-            Selected = selectedValues != null && selectedValues.Contains(a.Id)
-        }));
-
-        return items;
-    }
-
 
     private List<SelectListItem> GetPublishStatusSelectList(PublishStatus? selectedStatus)
     {

@@ -11,7 +11,9 @@ public interface IProductService
 
     Task<ProductViewModel?> GetProductByIdAsync(int id);
 
-    Task<OperationResult<int>> CreateProductAsync(ProductViewModel viewModel);
+    Task<ProductViewModel> GetProductViewModelForCreateAsync();
+
+    Task<OperationResult<int>> CreateProductAsync(ProductViewModel viewModel, string authorId, string authorName); // Include author info
 
     Task<OperationResult> UpdateProductAsync(ProductViewModel viewModel);
 
@@ -19,8 +21,7 @@ public interface IProductService
 
     Task<bool> IsSlugUniqueAsync(string slug, int? ignoreId = null);
 
-    Task LoadProductViewModelSelectListsAsync(ProductViewModel viewModel);
-
     Task<List<SelectListItem>> GetProductSelectListAsync(int? selectedValue = null);
+
     Task<List<SelectListItem>> GetProductSelectListAsync(List<int>? selectedValues = null);
 }

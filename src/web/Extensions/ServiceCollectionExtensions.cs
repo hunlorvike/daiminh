@@ -1,10 +1,10 @@
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Minio;
-using web.Areas.Admin.Services;
-using web.Areas.Admin.Services.Interfaces;
+using System.Reflection;
 
 namespace web.Extensions;
 
@@ -25,9 +25,22 @@ public static class ServiceCollectionExtensions
     {
         services.AddIdentity<User, Role>(options =>
         {
+            // Cấu hình Lockout
+            options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            options.Lockout.MaxFailedAccessAttempts = 5;
+            options.Lockout.AllowedForNewUsers = true;
+
+            // Cấu hình User
+            options.User.RequireUniqueEmail = true;
+            options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+
+            // Cấu hình SignIn
+            options.SignIn.RequireConfirmedAccount = false;
+            options.SignIn.RequireConfirmedEmail = false;
+            options.SignIn.RequireConfirmedPhoneNumber = false;
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
-        .AddDefaultTokenProviders();
+        .AddDefaultTokenProviders(); // Thêm DefaultTokenProviders để sử dụng các token mặc định như Email Confirmation, Password Reset, etc.
 
         return services;
     }
@@ -78,25 +91,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
-        services.AddSingleton<ICacheService, DistributedCacheService>();
-        services.AddScoped<IPasswordHasher<User>, PasswordHasher<User>>();
-        services.AddScoped<IMinioService, MinioService>();
-        services.AddScoped<IMediaService, MediaService>();
-        services.AddScoped<ISettingService, SettingService>();
-        services.AddScoped<IBrandService, BrandService>();
-        services.AddScoped<ICategoryService, CategoryService>();
-        services.AddScoped<IAttributeService, AttributeService>();
-        services.AddScoped<ITagService, TagService>();
-        services.AddScoped<IFAQService, FAQService>();
-        services.AddScoped<IBannerService, BannerService>();
-        services.AddScoped<IContactService, ContactService>();
-        services.AddScoped<ITestimonialService, TestimonialService>();
-        services.AddScoped<INewsletterService, NewsletterService>();
-        services.AddScoped<ISlideService, SlideService>();
-        services.AddScoped<IAuthService, AuthService>();
-        services.AddScoped<IDashboardService, DashboardService>();
-        services.AddScoped<IProductReviewService, ProductReviewService>();
-        services.AddScoped<IArticleService, ArticleService>();
+        services.AddAutoregister(Assembly.GetExecutingAssembly());
 
         return services;
     }

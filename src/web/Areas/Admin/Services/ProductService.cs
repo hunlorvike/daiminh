@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -14,6 +15,7 @@ using X.PagedList.Extensions;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class ProductService : IProductService
 {
     private readonly ApplicationDbContext _context;
@@ -23,7 +25,6 @@ public class ProductService : IProductService
     private readonly IBrandService _brandService;
     private readonly IAttributeService _attributeService;
     private readonly ITagService _tagService;
-    private readonly IArticleService _articleService;
 
     public ProductService(
         ApplicationDbContext context,
@@ -32,8 +33,7 @@ public class ProductService : IProductService
         ICategoryService categoryService,
         IBrandService brandService,
         IAttributeService attributeService,
-        ITagService tagService,
-        IArticleService articleService)
+        ITagService tagService)
     {
         _context = context;
         _mapper = mapper;
@@ -42,7 +42,6 @@ public class ProductService : IProductService
         _brandService = brandService;
         _attributeService = attributeService;
         _tagService = tagService;
-        _articleService = articleService;
     }
 
     public async Task<IPagedList<ProductListItemViewModel>> GetPagedProductsAsync(ProductFilterViewModel filter, int pageNumber, int pageSize)
@@ -338,7 +337,6 @@ public class ProductService : IProductService
         viewModel.BrandOptions = await _brandService.GetBrandSelectListAsync(viewModel.BrandId);
         viewModel.AttributeOptions = await _attributeService.GetAttributeSelectListAsync(viewModel.SelectedAttributeIds);
         viewModel.TagOptions = await _tagService.GetTagSelectListAsync(TagType.Product, viewModel.SelectedTagIds);
-        viewModel.ArticleOptions = await _articleService.GetArticleSelectListAsync(viewModel.SelectedArticleIds);
     }
 
     private void UpdateProductRelationshipsInternal(
@@ -444,5 +442,28 @@ public class ProductService : IProductService
         }
         product.Images = updatedImageList;
 
+    }
+
+    public async Task<List<SelectListItem>> GetProductSelectListAsync(List<int>? selectedValues = null)
+    {
+        var products = await _context.Set<Product>()
+                     .OrderBy(t => t.Name)
+                     .AsNoTracking()
+                     .Select(t => new { t.Id, t.Name })
+                     .ToListAsync();
+
+        var items = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Chọn sản phẩm --", Selected = selectedValues == null || !selectedValues.Any() }
+        };
+
+        items.AddRange(products.Select(t => new SelectListItem
+        {
+            Value = t.Id.ToString(),
+            Text = t.Name,
+            Selected = selectedValues != null && selectedValues.Contains(t.Id)
+        }));
+
+        return items;
     }
 }

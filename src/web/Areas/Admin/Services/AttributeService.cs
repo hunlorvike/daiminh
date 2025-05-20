@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,6 +13,7 @@ using X.PagedList.EF;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class AttributeService : IAttributeService
 {
     private readonly ApplicationDbContext _context;
@@ -200,6 +202,29 @@ public class AttributeService : IAttributeService
             Value = a.Id.ToString(),
             Text = a.Name,
             Selected = selectedValue.HasValue && a.Id == selectedValue.Value
+        }));
+
+        return items;
+    }
+
+    public async Task<List<SelectListItem>> GetAttributeSelectListAsync(List<int>? selectedValues = null)
+    {
+        var attributes = await _context.Set<domain.Entities.Attribute>()
+                     .OrderBy(t => t.Name)
+                     .AsNoTracking()
+                     .Select(t => new { t.Id, t.Name })
+                     .ToListAsync();
+
+        var items = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Chọn thuộc tính --", Selected = selectedValues == null || selectedValues.Count == 0 }
+        };
+
+        items.AddRange(attributes.Select(t => new SelectListItem
+        {
+            Value = t.Id.ToString(),
+            Text = t.Name,
+            Selected = selectedValues != null && selectedValues.Contains(t.Id)
         }));
 
         return items;

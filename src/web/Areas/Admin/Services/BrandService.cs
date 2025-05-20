@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,6 +13,7 @@ using X.PagedList.EF;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class BrandService : IBrandService
 {
     private readonly ApplicationDbContext _context;

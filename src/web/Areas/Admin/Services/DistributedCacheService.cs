@@ -1,9 +1,11 @@
+using AutoRegister;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Singleton)]
 public partial class DistributedCacheService : ICacheService
 {
     private readonly IDistributedCache _distributedCache;

@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
@@ -11,6 +12,7 @@ using X.PagedList.EF;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class PageService : IPageService
 {
     private readonly ApplicationDbContext _context;

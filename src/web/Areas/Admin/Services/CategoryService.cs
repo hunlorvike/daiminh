@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoRegister;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using X.PagedList.Extensions;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class CategoryService : ICategoryService
 {
     private readonly ApplicationDbContext _context;

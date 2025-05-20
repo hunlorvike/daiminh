@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -10,6 +11,7 @@ using X.PagedList.EF;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class SlideService : ISlideService
 {
     private readonly ApplicationDbContext _context;

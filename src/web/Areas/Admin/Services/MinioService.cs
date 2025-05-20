@@ -1,4 +1,5 @@
 
+using AutoRegister;
 using Minio;
 using Minio.DataModel.Args;
 using Minio.Exceptions;
@@ -6,6 +7,7 @@ using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class MinioService : IMinioService
 {
     private readonly IMinioClient _minioClient;

@@ -8,8 +8,8 @@ public class LoginResult : OperationResult
     public bool RequiresPasswordRehash { get; set; }
 
     public static LoginResult Succeed(List<Claim> claims, bool requiresRehash = false, string? message = null)
-        => new LoginResult { Claims = claims, RequiresPasswordRehash = requiresRehash, Message = message };
+        => new LoginResult { Success = true, Claims = claims, RequiresPasswordRehash = requiresRehash, Message = message };
 
     public static LoginResult Failure(string? message = null, List<string>? errors = null)
-        => new LoginResult { Message = message, Errors = errors ?? new List<string>() };
+        => new LoginResult { Success = false, Message = message, Errors = errors ?? new List<string>() };
 }

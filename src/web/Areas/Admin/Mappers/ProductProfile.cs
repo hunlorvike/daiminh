@@ -25,7 +25,6 @@ public class ProductProfile : Profile
              .ForMember(dest => dest.StatusOptions, opt => opt.Ignore())
              .ForMember(dest => dest.AttributeOptions, opt => opt.Ignore())
              .ForMember(dest => dest.TagOptions, opt => opt.Ignore())
-             .ForMember(dest => dest.ArticleOptions, opt => opt.Ignore())
              .ForMember(dest => dest.SelectedAttributeIds, opt => opt.MapFrom(src => src.ProductAttributes!.Select(pa => pa.AttributeId).ToList()))
              .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags!.Select(pt => pt.TagId).ToList()))
              .ForMember(dest => dest.SelectedArticleIds, opt => opt.MapFrom(src => src.ArticleProducts!.Select(ap => ap.ArticleId).ToList()))

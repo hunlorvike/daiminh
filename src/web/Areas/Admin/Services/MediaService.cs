@@ -1,3 +1,4 @@
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public partial class MediaService : IMediaService
 {
     private readonly ApplicationDbContext _context;

@@ -84,5 +84,4 @@ public class ProductViewModel : SeoViewModel
     public List<SelectListItem>? StatusOptions { get; set; }
     public List<SelectListItem>? AttributeOptions { get; set; }
     public List<SelectListItem>? TagOptions { get; set; }
-    public List<SelectListItem>? ArticleOptions { get; set; }
 }

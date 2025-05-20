@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using X.PagedList.EF;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class ProductReviewService : IProductReviewService
 {
     private readonly ApplicationDbContext _context;

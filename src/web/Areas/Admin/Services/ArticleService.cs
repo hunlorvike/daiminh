@@ -1,7 +1,9 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Models;
@@ -13,6 +15,7 @@ using X.PagedList.Extensions;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class ArticleService : IArticleService
 {
     private readonly ApplicationDbContext _context;
@@ -21,7 +24,6 @@ public class ArticleService : IArticleService
     private readonly ICategoryService _categoryService;
     private readonly ITagService _tagService;
     private readonly IProductService _productService;
-
 
     public ArticleService(
         ApplicationDbContext context,
@@ -272,5 +274,29 @@ public class ArticleService : IArticleService
             article.ArticleProducts ??= new List<ArticleProduct>();
             article.ArticleProducts.Add(new ArticleProduct { ArticleId = article.Id, ProductId = productId });
         }
+    }
+
+    public async Task<List<SelectListItem>> GetArticleSelectListAsync(List<int>? selectedValues = null)
+    {
+        var articles = await _context.Set<Article>()
+            .Where(a => a.Status == PublishStatus.Published)
+            .OrderBy(a => a.Id)
+            .AsNoTracking()
+            .Select(a => new { a.Id, a.Title })
+            .ToListAsync();
+
+        var items = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Chọn bài viết --", Selected = selectedValues == null || !selectedValues.Any() }
+        };
+
+        items.AddRange(articles.Select(t => new SelectListItem
+        {
+            Value = t.Id.ToString(),
+            Text = t.Title,
+            Selected = selectedValues != null && selectedValues.Contains(t.Id)
+        }));
+
+        return items;
     }
 }

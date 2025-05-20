@@ -1,4 +1,5 @@
 using AutoMapper;
+using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -8,6 +9,7 @@ using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Services;
 
+[Register(ServiceLifetime.Scoped)]
 public class SettingService : ISettingService
 {
     private readonly ApplicationDbContext _context;
