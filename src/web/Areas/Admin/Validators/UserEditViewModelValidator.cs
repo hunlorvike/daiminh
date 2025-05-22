@@ -1,3 +1,4 @@
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using web.Areas.Admin.ViewModels;
@@ -30,13 +31,13 @@ public class UserEditViewModelValidator : AbstractValidator<UserEditViewModel>
 
     private bool BeUniqueUsername(UserEditViewModel viewModel, string username)
     {
-        return !_context.Set<domain.Entities.User>()
+        return !_context.Set<User>()
                               .Any(u => u.UserName == username && u.Id != viewModel.Id);
     }
 
     private bool BeUniqueEmail(UserEditViewModel viewModel, string email)
     {
-        return !_context.Set<domain.Entities.User>()
+        return !_context.Set<User>()
                               .Any(u => u.Email == email && u.Id != viewModel.Id);
     }
 }

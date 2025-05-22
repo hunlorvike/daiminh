@@ -69,4 +69,9 @@ app.UseSerilogRequestLogging();
 app.UseCustomMiddlewares();
 app.MapDefaultRoutes();
 
+// Seed Data on startup
+using (var scope = app.Services.CreateScope())
+{
+}
+
 await app.RunAsync();

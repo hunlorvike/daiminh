@@ -27,7 +27,6 @@ public class ProductProfile : Profile
              .ForMember(dest => dest.TagOptions, opt => opt.Ignore())
              .ForMember(dest => dest.SelectedAttributeIds, opt => opt.MapFrom(src => src.ProductAttributes!.Select(pa => pa.AttributeId).ToList()))
              .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags!.Select(pt => pt.TagId).ToList()))
-             .ForMember(dest => dest.SelectedArticleIds, opt => opt.MapFrom(src => src.ArticleProducts!.Select(ap => ap.ArticleId).ToList()))
              .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images!.OrderBy(img => img.OrderIndex).ToList()));
 
 
@@ -37,7 +36,6 @@ public class ProductProfile : Profile
             .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.ProductAttributes, opt => opt.Ignore())
             .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
-            .ForMember(dest => dest.ArticleProducts, opt => opt.Ignore())
             .ForMember(dest => dest.Images, opt => opt.Ignore())
             .ForMember(dest => dest.Variations, opt => opt.Ignore())
             .ForMember(dest => dest.Reviews, opt => opt.Ignore())

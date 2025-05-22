@@ -145,13 +145,13 @@
 					<div class="datagrid-item">
 						<div class="datagrid-title">Ngày tạo</div>
 						<div class="datagrid-content">
-							@Html.ToLocalTime(Model.CreatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")
+							@Model.CreatedAt
 						</div>
 					</div>
 					<div class="datagrid-item">
 						<div class="datagrid-title">Cập nhật lần cuối</div>
 						<div class="datagrid-content">
-							@Html.ToLocalTime(Model.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")
+							@Model.UpdatedAt
 						</div>
 					</div>
                     <div class="datagrid-item">

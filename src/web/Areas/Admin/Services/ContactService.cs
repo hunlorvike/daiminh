@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -27,7 +28,7 @@ public class ContactService : IContactService
 
     public async Task<IPagedList<ContactListItemViewModel>> GetPagedContactsAsync(ContactFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Contact> query = _context.Set<domain.Entities.Contact>().AsNoTracking();
+        IQueryable<Contact> query = _context.Set<Contact>().AsNoTracking();
 
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -55,7 +56,7 @@ public class ContactService : IContactService
 
     public async Task<ContactViewModel?> GetContactByIdAsync(int id)
     {
-        domain.Entities.Contact? contact = await _context.Set<domain.Entities.Contact>()
+        Contact? contact = await _context.Set<Contact>()
                                    .AsNoTracking()
                                    .FirstOrDefaultAsync(c => c.Id == id);
 
@@ -64,7 +65,7 @@ public class ContactService : IContactService
 
     public async Task<OperationResult> UpdateContactDetailsAsync(ContactViewModel viewModel)
     {
-        var contact = await _context.Set<domain.Entities.Contact>().FirstOrDefaultAsync(c => c.Id == viewModel.Id);
+        var contact = await _context.Set<Contact>().FirstOrDefaultAsync(c => c.Id == viewModel.Id);
         if (contact == null)
         {
             _logger.LogWarning("Contact not found for update. ID: {Id}", viewModel.Id);
@@ -111,7 +112,7 @@ public class ContactService : IContactService
 
     public async Task<OperationResult> DeleteContactAsync(int id)
     {
-        var contact = await _context.Set<domain.Entities.Contact>().FindAsync(id);
+        var contact = await _context.Set<Contact>().FindAsync(id);
 
         if (contact == null)
         {
@@ -147,7 +148,7 @@ public class ContactService : IContactService
 
     public async Task RefillContactViewModelFromDbAsync(ContactViewModel viewModel)
     {
-        var contact = await _context.Set<domain.Entities.Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == viewModel.Id);
+        var contact = await _context.Set<Contact>().AsNoTracking().FirstOrDefaultAsync(c => c.Id == viewModel.Id);
         if (contact != null)
         {
             viewModel.FullName = contact.FullName;

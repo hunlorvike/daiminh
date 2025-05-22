@@ -14,7 +14,8 @@
 	<div class="card card-md">
 		<div class="card-body">
 			<h2 class="h2 text-center mb-3">Đăng nhập vào tài khoản Quản trị</h2>
-            <form asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-returnurl="@returnUrl" method="post" novalidate>
+			<form asp-area="Admin" asp-controller="Account" asp-action="Login" asp-route-returnurl="@returnUrl"
+				method="post" novalidate>
 				@Html.AntiForgeryToken()
 				@if (!ViewData.ModelState.IsValid)
 				{

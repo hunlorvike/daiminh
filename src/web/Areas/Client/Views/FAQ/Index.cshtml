@@ -1,4 +1,4 @@
-@using web.Areas.Client.ViewModels.FAQ;
+@using web.Areas.Client.ViewModels
 @model FAQIndexViewModel
 
 @{
@@ -30,7 +30,7 @@ else
         <div class="card-body">
             @foreach (var category in Model.Categories)
             {
-                @if (Model.Categories.Count > 1 || !string.IsNullOrEmpty(category.CategoryName) && category.CategoryName != "Câu hỏi chung") 
+                @if (Model.Categories.Count > 1 || !string.IsNullOrEmpty(category.CategoryName) && category.CategoryName != "Câu hỏi chung")
                 {
                     <div class="d-flex align-items-center mb-3">
                         <span class="avatar bg-primary-subtle text-primary me-3">
@@ -74,7 +74,7 @@ else
                                 </button>
                             </h2>
                             <div id="@collapseId" class="accordion-collapse collapse" aria-labelledby="@headingId"
-                                data-bs-parent="#faqAccordion_@category.GetHashCode()">
+                                 data-bs-parent="#faqAccordion_@category.GetHashCode()">
                                 <div class="accordion-body pt-0">
                                     <div class="text-muted border-start ps-3 border-3 border-primary">
                                         @Html.Raw(faqItem.Answer)

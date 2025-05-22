@@ -101,7 +101,6 @@ public class ProductService : IProductService
                                      .Include(p => p.Images!.OrderBy(img => img.OrderIndex))
                                      .Include(p => p.ProductAttributes)
                                      .Include(p => p.ProductTags)
-                                     .Include(p => p.ArticleProducts)
                                      .Include(p => p.Variations)
                                      .Include(p => p.Reviews)
                                      .AsNoTracking()
@@ -164,7 +163,7 @@ public class ProductService : IProductService
 
         var product = _mapper.Map<Product>(viewModel);
 
-        UpdateProductRelationshipsInternal(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
+        UpdateProductRelationshipsInternal(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds);
         UpdateProductImagesInternal(product, viewModel.Images);
 
         _context.Add(product);
@@ -219,7 +218,6 @@ public class ProductService : IProductService
             .Include(p => p.Images)
             .Include(p => p.ProductAttributes)
             .Include(p => p.ProductTags)
-            .Include(p => p.ArticleProducts)
             .FirstOrDefaultAsync(p => p.Id == viewModel.Id);
 
 
@@ -231,7 +229,7 @@ public class ProductService : IProductService
 
         _mapper.Map(viewModel, product);
 
-        UpdateProductRelationshipsInternal(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds, viewModel.SelectedArticleIds);
+        UpdateProductRelationshipsInternal(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds);
         UpdateProductImagesInternal(product, viewModel.Images);
 
 
@@ -342,8 +340,7 @@ public class ProductService : IProductService
     private void UpdateProductRelationshipsInternal(
        Product product,
        List<int>? selectedAttributeIds,
-       List<int>? selectedTagIds,
-       List<int>? selectedArticleIds)
+       List<int>? selectedTagIds)
     {
         var existingAttributeIds = product.ProductAttributes?.Select(pa => pa.AttributeId).ToList() ?? new List<int>();
         var attributeIdsToAdd = selectedAttributeIds?.Except(existingAttributeIds).ToList() ?? new List<int>();
@@ -375,22 +372,6 @@ public class ProductService : IProductService
         {
             product.ProductTags ??= new List<ProductTag>();
             product.ProductTags.Add(new ProductTag { ProductId = product.Id, TagId = tagId });
-        }
-
-        var existingArticleIds = product.ArticleProducts?.Select(ap => ap.ArticleId).ToList() ?? new List<int>();
-        var articleIdsToAdd = selectedArticleIds?.Except(existingArticleIds).ToList() ?? new List<int>();
-        var articleIdsToRemove = existingArticleIds.Except(selectedArticleIds ?? new List<int>()).ToList();
-
-        foreach (var articleId in articleIdsToRemove)
-        {
-            var articleProduct = product.ArticleProducts?.FirstOrDefault(ap => ap.ArticleId == articleId);
-            if (articleProduct != null) _context.Remove(articleProduct);
-        }
-
-        foreach (var articleId in articleIdsToAdd)
-        {
-            product.ArticleProducts ??= new List<ArticleProduct>();
-            product.ArticleProducts.Add(new ArticleProduct { ProductId = product.Id, ArticleId = articleId });
         }
     }
 

@@ -1,3 +1,4 @@
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using web.Areas.Admin.ViewModels;
@@ -53,7 +54,7 @@ public class PageViewModelValidator : AbstractValidator<PageViewModel>
 
     private bool BeUniqueSlug(PageViewModel viewModel, string slug)
     {
-        return !_context.Set<domain.Entities.Page>()
+        return !_context.Set<Page>()
                               .Any(p => p.Slug == slug && p.Id != viewModel.Id);
     }
 }

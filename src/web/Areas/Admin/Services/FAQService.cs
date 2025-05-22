@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -29,7 +30,7 @@ public class FAQService : IFAQService
 
     public async Task<IPagedList<FAQListItemViewModel>> GetPagedFAQsAsync(FAQFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.FAQ> query = _context.Set<domain.Entities.FAQ>()
+        IQueryable<FAQ> query = _context.Set<FAQ>()
                                     .Include(f => f.Category)
                                     .AsNoTracking();
 
@@ -58,7 +59,7 @@ public class FAQService : IFAQService
 
     public async Task<FAQViewModel?> GetFAQByIdAsync(int id)
     {
-        domain.Entities.FAQ? faq = await _context.Set<domain.Entities.FAQ>()
+        FAQ? faq = await _context.Set<FAQ>()
                                  .Include(f => f.Category)
                                  .AsNoTracking()
                                  .FirstOrDefaultAsync(f => f.Id == id);
@@ -76,7 +77,7 @@ public class FAQService : IFAQService
             return OperationResult<int>.FailureResult(message: "Danh mục cha không tồn tại.", errors: new List<string> { "Danh mục cha không tồn tại." });
         }
 
-        var faq = _mapper.Map<domain.Entities.FAQ>(viewModel);
+        var faq = _mapper.Map<FAQ>(viewModel);
         _context.Add(faq);
 
         try
@@ -105,7 +106,7 @@ public class FAQService : IFAQService
             return OperationResult.FailureResult(message: "Danh mục cha không tồn tại.", errors: new List<string> { "Danh mục cha không tồn tại." });
         }
 
-        var faq = await _context.Set<domain.Entities.FAQ>().FirstOrDefaultAsync(f => f.Id == viewModel.Id);
+        var faq = await _context.Set<FAQ>().FirstOrDefaultAsync(f => f.Id == viewModel.Id);
         if (faq == null)
         {
             _logger.LogWarning("FAQ not found for update. ID: {Id}", viewModel.Id);
@@ -134,7 +135,7 @@ public class FAQService : IFAQService
 
     public async Task<OperationResult> DeleteFAQAsync(int id)
     {
-        var faq = await _context.Set<domain.Entities.FAQ>().FindAsync(id);
+        var faq = await _context.Set<FAQ>().FindAsync(id);
         if (faq == null)
         {
             _logger.LogWarning("FAQ not found for delete. ID: {Id}", id);

@@ -1,7 +1,7 @@
 using FluentValidation;
-using web.Areas.Client.ViewModels.Contact;
+using web.Areas.Client.ViewModels;
 
-namespace web.Areas.Client.Validators.Contact;
+namespace web.Areas.Client.Validators;
 
 public class ContactViewModelValidator : AbstractValidator<ContactViewModel>
 {

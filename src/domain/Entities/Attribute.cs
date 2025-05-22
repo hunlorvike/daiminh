@@ -4,8 +4,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 namespace domain.Entities;
 public class Attribute : BaseEntity<int>
 {
-    public string Name { get; set; } = string.Empty; // VD: Màu sắc, Dung tích
-    public string Slug { get; set; } = string.Empty; // VD: color, volume
+    public string Name { get; set; } = string.Empty;
+    public string Slug { get; set; } = string.Empty;
     public virtual ICollection<AttributeValue>? Values { get; set; }
     public virtual ICollection<ProductAttribute>? ProductAttributes { get; set; }
 }
@@ -18,12 +18,5 @@ public class AttributeConfiguration : BaseEntityConfiguration<Attribute, int>
         builder.Property(a => a.Name).HasMaxLength(100).IsRequired();
         builder.Property(a => a.Slug).HasMaxLength(120).IsRequired();
         builder.HasIndex(a => a.Slug).IsUnique();
-
-        builder.HasData(
-            new Attribute { Id = 1, Name = "Màu sắc", Slug = "mau-sac", CreatedAt = DateTime.UtcNow },
-            new Attribute { Id = 2, Name = "Dung tích", Slug = "dung-tich", CreatedAt = DateTime.UtcNow },
-            new Attribute { Id = 3, Name = "Độ bóng", Slug = "do-bong", CreatedAt = DateTime.UtcNow },
-            new Attribute { Id = 4, Name = "Bề mặt áp dụng", Slug = "be-mat-ap-dung", CreatedAt = DateTime.UtcNow }
-        );
     }
 }

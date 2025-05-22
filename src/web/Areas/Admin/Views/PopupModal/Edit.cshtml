@@ -3,9 +3,9 @@
     ViewData["Title"] = "Chỉnh sửa Popup - Hệ thống quản trị";
     ViewData["PageTitle"] = $"Chỉnh sửa Popup: {Model.Title}";
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-        ("Popup", Url.Action(nameof(Index)) ?? "/Admin/PopupModal"),
-        ($"Chỉnh sửa: {Model.Title}", "")
-    };
+("Popup", Url.Action(nameof(Index)) ?? "/Admin/PopupModal"),
+($"Chỉnh sửa: {Model.Title}", "")
+};
 }
 
 <form asp-area="Admin" asp-controller="PopupModal" asp-action="Edit" method="post">

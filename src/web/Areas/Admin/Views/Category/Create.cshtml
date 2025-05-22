@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Thêm Danh mục mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm Danh mục mới";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category"),
-			("Thêm mới", "")
-		};
+("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category"),
+("Thêm mới", "")
+};
 }
 
 <form asp-action="Create" method="post">
@@ -41,7 +41,7 @@
 @section Scripts {
 	<script src="~/js/slug.js" asp-append-version="true"></script>
 	<script>
-		$(document).ready(function() {
+		$(document).ready(function () {
 			// Slug generation
 			const slugManager = SlugManager.init({
 				nameInput: '#Name',
@@ -54,27 +54,27 @@
 			}
 
 			// Icon preview
-			$('#Icon').on('input', function() {
+			$('#Icon').on('input', function () {
 				const iconClass = $(this).val() || 'ti ti-folder';
 				$('#iconPreview i').attr('class', iconClass);
 			});
 
-			$('#Type').on('change', function() {
+			$('#Type').on('change', function () {
 				const selectedType = $(this).val();
 				if (selectedType) {
 					$.ajax({
 						url: '@Url.Action("GetParentCategories", "Category")',
 						type: 'GET',
 						data: { type: selectedType },
-						success: function(data) {
+						success: function (data) {
 							const parentSelect = $('#ParentId');
 							parentSelect.empty();
 							parentSelect.append('<option value="">-- Chọn danh mục cha (để trống nếu là gốc) --</option>');
-							$.each(data, function(index, item) {
+							$.each(data, function (index, item) {
 								parentSelect.append($('<option></option>').val(item.value).text(item.text));
 							});
 						},
-						error: function() {
+						error: function () {
 							console.error('Không thể tải danh mục cha');
 						}
 					});

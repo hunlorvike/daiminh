@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Chỉnh sửa Trang - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Trang: {Model.Title}";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Trang tĩnh", Url.Action(nameof(Index)) ?? "/Admin/Page"),
-		($"Chỉnh sửa: {Model.Title}", "")
-	};
+("Trang tĩnh", Url.Action(nameof(Index)) ?? "/Admin/Page"),
+($"Chỉnh sửa: {Model.Title}", "")
+};
 }
 
 <form asp-area="Admin" asp-controller="Page" asp-action="Edit" method="post">
@@ -70,33 +70,33 @@
 			}
 
 			// Handle media selection for image inputs (FeaturedImage, ThumbnailImage, OgImage, TwitterImage)
-             $('.select-media-button').on('click', function () {
-                const $button = $(this);
-                const $targetInput = $button.closest('.input-group').find('.media-url-input');
-                const $previewArea = $button.closest('.form-group').find('.media-preview-area'); // Find the associated preview area
+			$('.select-media-button').on('click', function () {
+				const $button = $(this);
+				const $targetInput = $button.closest('.input-group').find('.media-url-input');
+				const $previewArea = $button.closest('.form-group').find('.media-preview-area'); // Find the associated preview area
 
-                const callback = function (selectedFile) {
-                    // Update the input value
-                    $targetInput.val(selectedFile.url);
-                     // Optional: Update preview image
-                    $previewArea.html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
-                };
+				const callback = function (selectedFile) {
+					// Update the input value
+					$targetInput.val(selectedFile.url);
+					// Optional: Update preview image
+					$previewArea.html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
+				};
 
-                // Assuming openMediaModal function exists globally or is included
-                if (typeof openMediaModal === 'function') {
-                    openMediaModal($targetInput, callback);
-                } else {
-                    console.error('openMediaModal function not found.');
-                }
-            });
+				// Assuming openMediaModal function exists globally or is included
+				if (typeof openMediaModal === 'function') {
+					openMediaModal($targetInput, callback);
+				} else {
+					console.error('openMediaModal function not found.');
+				}
+			});
 
-            // Optional: Clear preview if input is manually cleared
-            $('.media-url-input').on('input', function() {
-                const $input = $(this);
-                if ($input.val() === '') {
-                    $input.closest('.form-group').find('.media-preview-area').empty();
-                }
-            });
+			// Optional: Clear preview if input is manually cleared
+			$('.media-url-input').on('input', function () {
+				const $input = $(this);
+				if ($input.val() === '') {
+					$input.closest('.form-group').find('.media-preview-area').empty();
+				}
+			});
 		});
 	</script>
 }

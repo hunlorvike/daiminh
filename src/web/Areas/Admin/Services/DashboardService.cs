@@ -33,17 +33,17 @@ public class DashboardService : IDashboardService
             viewModel.TotalDraftArticles = await _context.Set<Article>().CountAsync(a => a.Status == PublishStatus.Draft);
             viewModel.TotalActiveProducts = await _context.Set<Product>().CountAsync(p => p.IsActive && p.Status == PublishStatus.Published);
             viewModel.TotalInactiveProducts = await _context.Set<Product>().CountAsync(p => !p.IsActive || p.Status != PublishStatus.Published);
-            viewModel.TotalProductCategories = await _context.Set<domain.Entities.Category>().CountAsync(c => c.Type == CategoryType.Product && c.IsActive);
-            viewModel.TotalArticleCategories = await _context.Set<domain.Entities.Category>().CountAsync(c => c.Type == CategoryType.Article && c.IsActive);
-            viewModel.TotalFaqCategories = await _context.Set<domain.Entities.Category>().CountAsync(c => c.Type == CategoryType.FAQ && c.IsActive);
+            viewModel.TotalProductCategories = await _context.Set<Category>().CountAsync(c => c.Type == CategoryType.Product && c.IsActive);
+            viewModel.TotalArticleCategories = await _context.Set<Category>().CountAsync(c => c.Type == CategoryType.Article && c.IsActive);
+            viewModel.TotalFaqCategories = await _context.Set<Category>().CountAsync(c => c.Type == CategoryType.FAQ && c.IsActive);
             viewModel.TotalProductTags = await _context.Set<Tag>().CountAsync(t => t.Type == TagType.Product);
             viewModel.TotalArticleTags = await _context.Set<Tag>().CountAsync(t => t.Type == TagType.Article);
-            viewModel.TotalNewContacts = await _context.Set<domain.Entities.Contact>().CountAsync(c => c.Status == ContactStatus.New);
-            viewModel.TotalActiveNewsletters = await _context.Set<domain.Entities.Newsletter>().CountAsync(n => n.IsActive && n.ConfirmedAt != null);
+            viewModel.TotalNewContacts = await _context.Set<Contact>().CountAsync(c => c.Status == ContactStatus.New);
+            viewModel.TotalActiveNewsletters = await _context.Set<Newsletter>().CountAsync(n => n.IsActive && n.ConfirmedAt != null);
             viewModel.TotalActiveTestimonials = await _context.Set<Testimonial>().CountAsync(t => t.IsActive);
-            viewModel.TotalActiveBrands = await _context.Set<domain.Entities.Brand>().CountAsync(b => b.IsActive);
+            viewModel.TotalActiveBrands = await _context.Set<Brand>().CountAsync(b => b.IsActive);
             viewModel.TotalActiveUsers = await _context.Set<User>().CountAsync(u => u.IsActive);
-            viewModel.TotalActiveFAQs = await _context.Set<domain.Entities.FAQ>().CountAsync(f => f.IsActive);
+            viewModel.TotalActiveFAQs = await _context.Set<FAQ>().CountAsync(f => f.IsActive);
 
 
             // 2. Article Status Chart (Pie/Donut Chart)
@@ -58,8 +58,8 @@ public class DashboardService : IDashboardService
                 SingleSeriesData = articleStatusCounts.Select(a => (decimal)a.Count).ToList()
             };
 
-            var sevenDaysAgo = DateTime.UtcNow.Date.AddDays(-6);
-            var recentContactsData = await _context.Set<domain.Entities.Contact>()
+            var sevenDaysAgo = DateTime.Now.Date.AddDays(-6);
+            var recentContactsData = await _context.Set<Contact>()
                 .Where(c => c.CreatedAt >= sevenDaysAgo)
                 .GroupBy(c => new { c.CreatedAt.Date, c.Status })
                 .Select(g => new { g.Key.Date, g.Key.Status, Count = g.Count() })

@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Hỏi Đáp (FAQ) - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách FAQ";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("FAQ", Url.Action(nameof(Index)) ?? "Admin/FAQ")
-		};
+("FAQ", Url.Action(nameof(Index)) ?? "Admin/FAQ")
+};
 }
 
 @section PageActions {
@@ -34,7 +34,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-search"></i>
 							</span>
-							<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm câu hỏi hoặc câu trả lời...">
+							<input asp-for="Filter.SearchTerm" class="form-control"
+								placeholder="Tìm câu hỏi hoặc câu trả lời...">
 							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 								<i class="ti ti-x"></i>
 							</button>
@@ -48,7 +49,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-category"></i>
 							</span>
-							<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.Categories" class="form-select tom-selected"></select>
+							<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.Categories"
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -74,7 +76,8 @@
 		</h3>
 		@if (Model.FAQs.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.FAQs.FirstItemOnPage-@Model.FAQs.LastItemOnPage trên tổng số @Model.FAQs.TotalItemCount câu hỏi</small>
+			<small class="text-muted d-none d-md-block">Hiển thị @Model.FAQs.FirstItemOnPage-@Model.FAQs.LastItemOnPage trên
+				tổng số @Model.FAQs.TotalItemCount câu hỏi</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -141,7 +144,8 @@
 											<i class="ti ti-help"></i>
 										</span>
 										<div>
-											<div class="fw-medium text-truncate" style="max-width: 250px;" title="@item.Question">@item.Question</div>
+											<div class="fw-medium text-truncate" style="max-width: 250px;"
+												title="@item.Question">@item.Question</div>
 											<div class="text-muted small d-md-none">
 												<span class="badge bg-azure-lt">@item.CategoryName</span>
 											</div>
@@ -173,23 +177,21 @@
 										</span>
 									}
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
+											title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Question"
-												data-delete-url="@Url.Action("Delete", "FAQ")">
+										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+											data-id="@item.Id" data-name="@item.Question"
+											data-delete-url="@Url.Action("Delete", "FAQ")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -206,35 +208,35 @@
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model.FAQs,
-								page => Url.Action("Index", new
-								{
-									page,
-									searchTerm = Model.Filter.SearchTerm,
-									categoryId = Model.Filter.CategoryId
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.FAQs,
+						page => Url.Action("Index", new
+						{
+							page,
+							searchTerm = Model.Filter.SearchTerm,
+							categoryId = Model.Filter.CategoryId
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('#Filter_SearchTerm').val('');
 				$('#filterForm').submit();
 			});

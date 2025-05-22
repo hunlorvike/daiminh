@@ -1,5 +1,6 @@
 using AutoMapper;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +30,7 @@ public class CategoryService : ICategoryService
 
     public async Task<IPagedList<CategoryListItemViewModel>> GetPagedCategoriesAsync(CategoryFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Category> query = _context.Set<domain.Entities.Category>()
+        IQueryable<Category> query = _context.Set<Category>()
                                          .Include(c => c.Parent)
                                          .AsNoTracking();
 
@@ -54,9 +55,9 @@ public class CategoryService : ICategoryService
            .Select(c => new
            {
                Category = c,
-               ItemCount = c.Type == CategoryType.Product ? c.Products.Count :
-                            c.Type == CategoryType.Article ? c.Articles.Count :
-                            c.Type == CategoryType.FAQ ? c.FAQs.Count : 0,
+               ItemCount = c.Type == CategoryType.Product ? c.Products!.Count :
+                            c.Type == CategoryType.Article ? c.Articles!.Count :
+                            c.Type == CategoryType.FAQ ? c.FAQs!.Count : 0,
                HasChildren = c.Children!.Any()
            })
             .OrderBy(c => c.Category.Type)
@@ -84,14 +85,14 @@ public class CategoryService : ICategoryService
 
     public async Task<CategoryViewModel?> GetCategoryByIdAsync(int id)
     {
-        var categoryData = await _context.Set<domain.Entities.Category>()
+        var categoryData = await _context.Set<Category>()
             .Where(c => c.Id == id)
             .Select(c => new
             {
                 Category = c,
-                ItemCount = c.Type == CategoryType.Product ? c.Products.Count :
-                            c.Type == CategoryType.Article ? c.Articles.Count :
-                            c.Type == CategoryType.FAQ ? c.FAQs.Count : 0,
+                ItemCount = c.Type == CategoryType.Product ? c.Products!.Count :
+                            c.Type == CategoryType.Article ? c.Articles!.Count :
+                            c.Type == CategoryType.FAQ ? c.FAQs!.Count : 0,
                 HasChildren = c.Children!.Any()
             })
             .AsNoTracking()
@@ -113,7 +114,7 @@ public class CategoryService : ICategoryService
             return OperationResult<int>.FailureResult(message: "Slug này đã tồn tại cho loại danh mục này.", errors: new List<string> { "Slug này đã tồn tại cho loại danh mục này." });
         }
 
-        var category = _mapper.Map<domain.Entities.Category>(viewModel);
+        var category = _mapper.Map<Category>(viewModel);
         _context.Add(category);
 
         try
@@ -194,7 +195,7 @@ public class CategoryService : ICategoryService
             return OperationResult.FailureResult($"Không thể xóa danh mục '{checkResult.name}' vì đang được sử dụng bởi {checkResult.itemCount} {itemTypeName}.");
         }
 
-        var categoryToDelete = new domain.Entities.Category { Id = id };
+        var categoryToDelete = new Category { Id = id };
         _context.Entry(categoryToDelete).State = EntityState.Deleted;
 
         try
@@ -212,7 +213,7 @@ public class CategoryService : ICategoryService
 
     public async Task<List<SelectListItem>> GetParentCategorySelectListAsync(CategoryType categoryType, int? selectedValue = null, int? excludeCategoryId = null)
     {
-        var query = _context.Set<domain.Entities.Category>()
+        var query = _context.Set<Category>()
                      .Where(c => c.Type == categoryType)
                      .AsNoTracking();
 
@@ -276,7 +277,7 @@ public class CategoryService : ICategoryService
         if (string.IsNullOrWhiteSpace(slug)) return false;
 
         var lowerSlug = slug.Trim().ToLower();
-        var query = _context.Set<domain.Entities.Category>()
+        var query = _context.Set<Category>()
                             .Where(c => c.Slug.ToLower() == lowerSlug && c.Type == type);
 
         if (ignoreId.HasValue && ignoreId.Value > 0)
@@ -289,15 +290,15 @@ public class CategoryService : ICategoryService
 
     public async Task<(bool hasChildren, int itemCount, CategoryType type, string name)> CheckCategoryRelationsAsync(int categoryId)
     {
-        var categoryData = await _context.Set<domain.Entities.Category>()
+        var categoryData = await _context.Set<Category>()
           .Where(c => c.Id == categoryId)
           .Select(c => new
           {
               Category = c,
               HasChildren = c.Children!.Any(),
-              ItemCount = c.Type == CategoryType.Product ? c.Products.Count :
-                          c.Type == CategoryType.Article ? c.Articles.Count :
-                          c.Type == CategoryType.FAQ ? c.FAQs.Count : 0,
+              ItemCount = c.Type == CategoryType.Product ? c.Products!.Count :
+                          c.Type == CategoryType.Article ? c.Articles!.Count :
+                          c.Type == CategoryType.FAQ ? c.FAQs!.Count : 0,
           })
           .AsNoTracking()
           .FirstOrDefaultAsync();

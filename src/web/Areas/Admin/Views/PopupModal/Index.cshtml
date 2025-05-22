@@ -185,31 +185,26 @@
 									<div class="d-flex flex-column align-items-start">
 										@if (item.StartDate.HasValue)
 										{
-											<small class="d-flex align-items-center mb-1"
-												title="@Html.ToLocalTime(item.StartDate, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
-												<i class="ti ti-calendar-plus me-1"></i> Bắt đầu: @Html.ToLocalTime(item.StartDate,
-																					"Asia/Ho_Chi_Minh", "dd/MM/yyyy")
-								</small>
-																}
+											<small class="d-flex align-items-center mb-1" title="@item.StartDate">
+												<i class="ti ti-calendar-plus me-1"></i> Bắt đầu: @item.StartDate
+											</small>
+										}
 										@if (item.EndDate.HasValue)
 										{
-											<small class="d-flex align-items-center"
-												title="@Html.ToLocalTime(item.EndDate.Value.AddDays(1).AddSeconds(-1), "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
-												<i class="ti ti-calendar-minus me-1"></i> Kết thúc: @Html.ToLocalTime(item.EndDate,
-																					"Asia/Ho_Chi_Minh", "dd/MM/yyyy")
-								</small>
-																}
+											<small class="d-flex align-items-center" title="@item.EndDate">
+												<i class="ti ti-calendar-minus me-1"></i> Kết thúc: @item.EndDate
+											</small>
+										}
 										@if (!item.StartDate.HasValue && !item.EndDate.HasValue)
 										{
 											<span>Vô thời hạn</span>
 										}
 									</div>
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">

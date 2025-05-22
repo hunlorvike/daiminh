@@ -1,3 +1,4 @@
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using web.Areas.Admin.ViewModels;
@@ -35,7 +36,7 @@ public class BrandViewModelValidator : AbstractValidator<BrandViewModel>
 
     private bool BeUniqueSlug(BrandViewModel viewModel, string slug)
     {
-        return !_context.Set<domain.Entities.Brand>()
+        return !_context.Set<Brand>()
                               .Any(b => b.Slug == slug && b.Id != viewModel.Id);
     }
 }

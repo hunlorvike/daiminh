@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Liên hệ";
 	ViewData["PageTitle"] = "Danh sách Liên hệ";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Liên hệ", "")
-	};
+("Liên hệ", "")
+};
 }
 
 <div class="card mb-3">
@@ -24,7 +24,7 @@
 								<i class="ti ti-search"></i>
 							</span>
 							<input asp-for="Filter.SearchTerm" class="form-control"
-								   placeholder="Tìm tên, email, chủ đề, nội dung...">
+								placeholder="Tìm tên, email, chủ đề, nội dung...">
 							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 								<i class="ti ti-x"></i>
 							</button>
@@ -40,11 +40,11 @@
 							</span>
 							@{
 								var filterStatusOptions = new List<SelectListItem> { new SelectListItem { Value = "", Text =
-							"Tất cả trạng thái" } };
+														"Tất cả trạng thái" } };
 								filterStatusOptions.AddRange(Model.Filter.StatusOptions ?? new List<SelectListItem>());
 							}
 							<select asp-for="Filter.Status" asp-items="filterStatusOptions"
-									class="form-select tom-selected"></select>
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -134,7 +134,7 @@
 								</td>
 								<td>
 									<a asp-action="Details" asp-route-id="@item.Id" class="text-reset d-block text-truncate"
-									   style="max-width: 250px;" title="@item.Subject">
+										style="max-width: 250px;" title="@item.Subject">
 										@if (item.Status == ContactStatus.New)
 										{
 											<span class="badge bg-primary-lt me-1">Mới</span>
@@ -169,26 +169,26 @@
 										};
 									}
 									<span class="status status-@statusClass">
-										<span class="status-dot @(item.Status == ContactStatus.New || item.Status == ContactStatus.InProgress ? "status-dot-animated" : "")"></span>
+										<span
+											class="status-dot @(item.Status == ContactStatus.New || item.Status == ContactStatus.InProgress ? "status-dot-animated" : "")"></span>
 										<span class="d-none d-md-inline">@item.Status.GetDisplayName()</span>
 									</span>
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.CreatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh")
+										@item.CreatedAt
 									</div>
 								</td>
 								<td>
 									<div class="btn-group">
 										<a asp-action="Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
-										   title="Xem chi tiết">
+											title="Xem chi tiết">
 											<i class="ti ti-eye"></i>
 										</a>
 										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-												data-id="@item.Id" data-name="@($"liên hệ từ {item.FullName} về '{item.Subject}'")"
-												data-delete-url="@Url.Action("Delete", "Contact")">
+											data-id="@item.Id" data-name="@($"liên hệ từ {item.FullName} về '{item.Subject}'")"
+											data-delete-url="@Url.Action("Delete", "Contact")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -206,30 +206,30 @@
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model.Contacts,
-								page => Url.Action("Index", new
-								{
-									page,
-									searchTerm = Model.Filter.SearchTerm,
-									status = Model.Filter.Status,
-									pageSize = Model.Contacts.PageSize
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Contacts,
+						page => Url.Action("Index", new
+						{
+							page,
+							searchTerm = Model.Filter.SearchTerm,
+							status = Model.Filter.Status,
+							pageSize = Model.Contacts.PageSize
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {

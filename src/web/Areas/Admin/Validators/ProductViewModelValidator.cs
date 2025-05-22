@@ -1,3 +1,4 @@
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using web.Areas.Admin.Validators.Shared;
@@ -73,7 +74,7 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
 
     private bool BeUniqueSlug(ProductViewModel viewModel, string slug)
     {
-        return !_context.Set<domain.Entities.Product>()
+        return !_context.Set<Product>()
                               .Any(p => p.Slug == slug && p.Id != viewModel.Id);
     }
 
@@ -81,7 +82,7 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
     {
         if (categoryId == null) return false;
 
-        return _context.Set<domain.Entities.Category>()
+        return _context.Set<Category>()
                        .Any(c => c.Id == categoryId && c.Type == shared.Enums.CategoryType.Product);
     }
 
@@ -89,7 +90,7 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
     {
         if (brandId == null) return true;
 
-        return _context.Set<domain.Entities.Brand>()
+        return _context.Set<Brand>()
                        .Any(b => b.Id == brandId);
     }
 }

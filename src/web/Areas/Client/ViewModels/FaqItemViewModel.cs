@@ -1,4 +1,4 @@
-namespace web.Areas.Client.ViewModels.FAQ;
+namespace web.Areas.Client.ViewModels;
 
 public class FAQItemViewModel
 {

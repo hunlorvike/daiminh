@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Banner - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Banner";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Banner", Url.Action(nameof(Index)) ?? "/Admin/Banner")
-		};
+("Banner", Url.Action(nameof(Index)) ?? "/Admin/Banner")
+};
 }
 
 @section PageActions {
@@ -34,7 +34,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-search"></i>
 							</span>
-							<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tiêu đề, mô tả hoặc URL...">
+							<input asp-for="Filter.SearchTerm" class="form-control"
+								placeholder="Tìm tiêu đề, mô tả hoặc URL...">
 							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 								<i class="ti ti-x"></i>
 							</button>
@@ -46,9 +47,10 @@
 						<label asp-for="Filter.Type" class="form-label"></label>
 						<div class="input-group">
 							<span class="input-group-text">
-								<i class="ti ti-category-2"></i> 
+								<i class="ti ti-category-2"></i>
 							</span>
-							<select asp-for="Filter.Type" asp-items="@Model.Filter.TypeOptions" class="form-select tom-selected"></select>
+							<select asp-for="Filter.Type" asp-items="@Model.Filter.TypeOptions"
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -59,7 +61,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-eye"></i>
 							</span>
-							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.ActiveStatusOptions" class="form-select tom-selected"></select>
+							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.ActiveStatusOptions"
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -69,7 +72,8 @@
 					</button>
 				</div>
 				<div class="col-md-1 col-6">
-					<a asp-area="Admin" asp-controller="Banner" asp-action="Index" class="btn btn-outline-secondary w-100">
+					<a asp-area="Admin" asp-controller="Banner" asp-action="Index"
+						class="btn btn-outline-secondary w-100">
 						<i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
 					</a>
 				</div>
@@ -85,7 +89,9 @@
 		</h3>
 		@if (Model.Banners.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.Banners.FirstItemOnPage-@Model.Banners.LastItemOnPage trên tổng số @Model.Banners.TotalItemCount banner</small>
+			<small class="text-muted d-none d-md-block">Hiển thị
+				@Model.Banners.FirstItemOnPage-@Model.Banners.LastItemOnPage trên tổng số @Model.Banners.TotalItemCount
+				banner</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -99,7 +105,8 @@
 				</div>
 				<p class="empty-title mt-3">Không tìm thấy banner nào</p>
 				<p class="empty-subtitle text-muted">
-					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Type.HasValue && !Model.Filter.IsActive.HasValue)
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Type.HasValue &&
+									!Model.Filter.IsActive.HasValue)
 					{
 						@:Hãy thêm banner đầu tiên của bạn.
 					}
@@ -109,13 +116,15 @@
 					}
 				</p>
 				<div class="empty-action">
-					@if (!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.Type.HasValue || Model.Filter.IsActive.HasValue)
+					@if (!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.Type.HasValue ||
+									Model.Filter.IsActive.HasValue)
 					{
 						<a asp-area="Admin" asp-controller="Banner" asp-action="Index" class="btn btn-outline-secondary">
 							<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
 						</a>
 					}
-					<a asp-area="Admin" asp-controller="Banner" asp-action="Create" class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.Type.HasValue || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
+					<a asp-area="Admin" asp-controller="Banner" asp-action="Create"
+						class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.Type.HasValue || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
 						<i class="ti ti-plus me-2"></i> Thêm banner
 					</a>
 				</div>
@@ -157,12 +166,13 @@
 									<div class="fw-medium">@item.Title</div>
 								</td>
 								<td class="text-muted d-none d-md-table-cell">
-                                     @item.Type.GetDisplayName()
+									@item.Type.GetDisplayName()
 								</td>
-                                <td class="text-muted d-none d-lg-table-cell">
-                                    @if (!string.IsNullOrEmpty(item.LinkUrl))
+								<td class="text-muted d-none d-lg-table-cell">
+									@if (!string.IsNullOrEmpty(item.LinkUrl))
 									{
-										<a href="@item.LinkUrl" target="_blank" class="text-reset text-truncate" style="max-width: 200px;">
+										<a href="@item.LinkUrl" target="_blank" class="text-reset text-truncate"
+											style="max-width: 200px;">
 											<i class="ti ti-link me-1"></i>@item.LinkUrl
 										</a>
 									}
@@ -170,7 +180,7 @@
 									{
 										<span>--</span>
 									}
-                                </td>
+								</td>
 								<td class="text-center">
 									@item.OrderIndex
 								</td>
@@ -190,23 +200,21 @@
 										</span>
 									}
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
-										<a asp-area="Admin" asp-controller="Banner" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+										<a asp-area="Admin" asp-controller="Banner" asp-action="Edit" asp-route-id="@item.Id"
+											class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Title"
-												data-delete-url="@Url.Action("Delete", "Banner", new { area = "Admin" })">
+										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+											data-id="@item.Id" data-name="@item.Title"
+											data-delete-url="@Url.Action("Delete", "Banner", new { area = "Admin" })">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -223,37 +231,37 @@
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model.Banners,
-								page => Url.Action("Index", new
-								{
-									area = "Admin", 
-									page,
-									searchTerm = Model.Filter.SearchTerm,
-									type = Model.Filter.Type, 
-									isActive = Model.Filter.IsActive
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Banners,
+						page => Url.Action("Index", new
+						{
+							area = "Admin",
+							page,
+							searchTerm = Model.Filter.SearchTerm,
+							type = Model.Filter.Type,
+							isActive = Model.Filter.IsActive
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('#Filter_SearchTerm').val('');
 				$('#filterForm').submit();
 			});

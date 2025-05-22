@@ -1,3 +1,4 @@
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using web.Areas.Admin.ViewModels;
@@ -26,7 +27,7 @@ public class NewsletterViewModelValidator : AbstractValidator<NewsletterViewMode
     {
         if (string.IsNullOrWhiteSpace(email)) return true;
 
-        return !_context.Set<domain.Entities.Newsletter>()
+        return !_context.Set<Newsletter>()
                                .Any(n => n.Email.ToLower() == email.ToLower() && n.Id != viewModel.Id);
     }
 }

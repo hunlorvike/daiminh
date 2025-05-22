@@ -46,7 +46,6 @@ public class ArticleService : IArticleService
         IQueryable<Article> query = _context.Set<Article>()
                                          .Include(a => a.Category)
                                          .Include(a => a.ArticleTags)
-                                         .Include(a => a.ArticleProducts)
                                          .AsNoTracking();
 
 
@@ -88,7 +87,6 @@ public class ArticleService : IArticleService
         Article? article = await _context.Set<Article>()
                                      .Include(a => a.Category)
                                      .Include(a => a.ArticleTags)
-                                     .Include(a => a.ArticleProducts)
                                      .AsNoTracking()
                                      .FirstOrDefaultAsync(a => a.Id == id);
 
@@ -111,10 +109,10 @@ public class ArticleService : IArticleService
 
         if (article.Status == PublishStatus.Published && article.PublishedAt == null)
         {
-            article.PublishedAt = DateTime.UtcNow;
+            article.PublishedAt = DateTime.Now;
         }
 
-        UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
+        UpdateArticleRelationships(article, viewModel.SelectedTagIds);
 
         _context.Add(article);
 
@@ -149,7 +147,6 @@ public class ArticleService : IArticleService
 
         var article = await _context.Set<Article>()
             .Include(a => a.ArticleTags)
-            .Include(a => a.ArticleProducts)
             .FirstOrDefaultAsync(a => a.Id == viewModel.Id);
 
         if (article == null)
@@ -164,9 +161,9 @@ public class ArticleService : IArticleService
 
         if (oldStatus != PublishStatus.Published && article.Status == PublishStatus.Published && article.PublishedAt == null)
         {
-            article.PublishedAt = DateTime.UtcNow;
+            article.PublishedAt = DateTime.Now;
         }
-        UpdateArticleRelationships(article, viewModel.SelectedTagIds, viewModel.SelectedProductIds);
+        UpdateArticleRelationships(article, viewModel.SelectedTagIds);
 
         try
         {
@@ -241,7 +238,7 @@ public class ArticleService : IArticleService
 
         return await query.AnyAsync();
     }
-    private void UpdateArticleRelationships(Article article, List<int>? selectedTagIds, List<int>? selectedProductIds)
+    private void UpdateArticleRelationships(Article article, List<int>? selectedTagIds)
     {
         var existingTagIds = article.ArticleTags?.Select(at => at.TagId).ToList() ?? new List<int>();
         var tagIdsToAdd = selectedTagIds?.Except(existingTagIds).ToList() ?? new List<int>();
@@ -257,22 +254,6 @@ public class ArticleService : IArticleService
         {
             article.ArticleTags ??= new List<ArticleTag>();
             article.ArticleTags.Add(new ArticleTag { ArticleId = article.Id, TagId = tagId });
-        }
-
-        var existingProductIds = article.ArticleProducts?.Select(ap => ap.ProductId).ToList() ?? new List<int>();
-        var productIdsToAdd = selectedProductIds?.Except(existingProductIds).ToList() ?? new List<int>();
-        var productIdsToRemove = existingProductIds.Except(selectedProductIds ?? new List<int>()).ToList();
-
-        foreach (var productId in productIdsToRemove)
-        {
-            var articleProduct = article.ArticleProducts!.First(ap => ap.ProductId == productId);
-            _context.Remove(articleProduct);
-        }
-
-        foreach (var productId in productIdsToAdd)
-        {
-            article.ArticleProducts ??= new List<ArticleProduct>();
-            article.ArticleProducts.Add(new ArticleProduct { ArticleId = article.Id, ProductId = productId });
         }
     }
 

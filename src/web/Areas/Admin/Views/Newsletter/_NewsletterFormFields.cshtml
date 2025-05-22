@@ -64,7 +64,7 @@
 							<span class="input-group-text">
 								<i class="ti ti-circle-check"></i>
 							</span>
-							<input class="form-control" type="text" value="@Html.ToLocalTime(Model.ConfirmedAt, "Asia/Ho_Chi_Minh","dd/MM/yyyy HH:mm")" readonly disabled />
+							<input class="form-control" type="text" asp-for="ConfirmedAt" readonly disabled />
 						</div>
 					</div>
 				</div>
@@ -75,7 +75,7 @@
 							<span class="input-group-text">
 								<i class="ti ti-circle-x"></i>
 							</span>
-							<input class="form-control" type="text" value="@Html.ToLocalTime(Model.UnsubscribedAt, "Asia/Ho_Chi_Minh","dd/MM/yyyy HH:mm")" readonly disabled />
+							<input class="form-control" type="text" asp-for="UnsubscribedAt" readonly disabled />
 						</div>
 					</div>
 				</div>
@@ -86,7 +86,7 @@
 							<span class="input-group-text">
 								<i class="ti ti-calendar-event"></i>
 							</span>
-							<input class="form-control" type="text" value="@Html.ToLocalTime(Model.CreatedAt, "Asia/Ho_Chi_Minh","dd/MM/yyyy HH:mm")" readonly disabled />
+							<input class="form-control" type="text" asp-for="CreatedAt" readonly disabled />
 						</div>
 					</div>
 				</div>

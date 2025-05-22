@@ -19,12 +19,14 @@
 							<i class="ti ti-link"></i>
 						</span>
 						<input asp-for="Slug" class="form-control" />
-						<button class="btn btn-outline-secondary" type="button" id="generateSlugButton" title="Tạo slug tự động">
+						<button class="btn btn-outline-secondary" type="button" id="generateSlugButton"
+							title="Tạo slug tự động">
 							<i class="ti ti-refresh"></i>
 						</button>
 					</div>
 					<span asp-validation-for="Slug" class="text-danger"></span>
-					<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang). Phải là duy nhất.</small>
+					<small class="form-hint">Dùng cho URL (chỉ chứa chữ cái thường, số và dấu gạch ngang). Phải là duy
+						nhất.</small>
 				</div>
 
 				<div class="form-group mb-3">
@@ -49,8 +51,8 @@
 								</span>
 								<input asp-for="FeaturedImage" class="form-control media-url-input" readonly />
 								<button class="btn btn-outline-secondary select-media-button" type="button"
-										data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-										data-media-type-filter="0">
+									data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+									data-media-type-filter="0">
 									<i class="ti ti-folder"></i>
 								</button>
 							</div>
@@ -58,7 +60,8 @@
 							<div class="media-preview-area mt-2">
 								@if (!string.IsNullOrEmpty(Model.FeaturedImage))
 								{
-									<img src="@Model.FeaturedImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+									<img src="@Model.FeaturedImage" style="max-width: 100px; height: auto;"
+										class="img-thumbnail" />
 								}
 							</div>
 						</div>
@@ -72,8 +75,8 @@
 								</span>
 								<input asp-for="ThumbnailImage" class="form-control media-url-input" readonly />
 								<button class="btn btn-outline-secondary select-media-button" type="button"
-										data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-										data-media-type-filter="0">
+									data-bs-toggle="modal" data-bs-target="#selectMediaModal"
+									data-media-type-filter="0">
 									<i class="ti ti-folder"></i>
 								</button>
 							</div>
@@ -81,7 +84,8 @@
 							<div class="media-preview-area mt-2">
 								@if (!string.IsNullOrEmpty(Model.ThumbnailImage))
 								{
-									<img src="@Model.ThumbnailImage" style="max-width: 100px; height: auto;" class="img-thumbnail" />
+									<img src="@Model.ThumbnailImage" style="max-width: 100px; height: auto;"
+										class="img-thumbnail" />
 								}
 							</div>
 						</div>
@@ -92,16 +96,9 @@
 					<div class="col-md-6">
 						<div class="form-group mb-3">
 							<label asp-for="SelectedTagIds" class="form-label"></label>
-							<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" multiple></select>
+							<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions"
+								class="form-select tom-selected" multiple></select>
 							<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
-						</div>
-					</div>
-
-					<div class="col-md-6">
-						<div class="form-group mb-3">
-							<label asp-for="SelectedProductIds" class="form-label"></label>
-							<select asp-for="SelectedProductIds" asp-items="@Model.ProductOptions" class="form-select tom-selected" multiple></select>
-							<span asp-validation-for="SelectedProductIds" class="text-danger"></span>
 						</div>
 					</div>
 				</div>
@@ -121,7 +118,8 @@
 						<span class="input-group-text">
 							<i class="ti ti-category"></i>
 						</span>
-						<select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select tom-selected">
+						<select asp-for="CategoryId" asp-items="@Model.CategoryOptions"
+							class="form-select tom-selected">
 							<option value="">-- Chọn danh mục --</option>
 						</select>
 					</div>
@@ -134,7 +132,8 @@
 						<span class="input-group-text">
 							<i class="ti ti-status-change"></i>
 						</span>
-						<select asp-for="Status" asp-items="@Model.StatusOptions" class="form-select tom-selected"></select>
+						<select asp-for="Status" asp-items="@Model.StatusOptions"
+							class="form-select tom-selected"></select>
 					</div>
 					<span asp-validation-for="Status" class="text-danger"></span>
 				</div>
@@ -148,7 +147,8 @@
 						<input asp-for="PublishedAt" class="form-control datepicker" />
 					</div>
 					<span asp-validation-for="PublishedAt" class="text-danger"></span>
-					<small class="form-hint">Để trống nếu trạng thái là Nháp. Bắt buộc nếu trạng thái là Đã xuất bản.</small>
+					<small class="form-hint">Để trống nếu trạng thái là Nháp. Bắt buộc nếu trạng thái là Đã xuất
+						bản.</small>
 				</div>
 
 				<div class="form-check form-switch mb-3 mt-3">
@@ -183,8 +183,7 @@
 						</span>
 						<input asp-for="AuthorAvatar" class="form-control media-url-input" readonly />
 						<button class="btn btn-outline-secondary select-media-button" type="button"
-								data-bs-toggle="modal" data-bs-target="#selectMediaModal"
-								data-media-type-filter="0">
+							data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-media-type-filter="0">
 							<i class="ti ti-folder"></i>
 						</button>
 					</div>

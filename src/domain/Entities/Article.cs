@@ -24,7 +24,6 @@ public class Article : SeoEntity<int>
     public int? CategoryId { get; set; }
     public virtual Category? Category { get; set; }
     public virtual ICollection<ArticleTag>? ArticleTags { get; set; }
-    public virtual ICollection<ArticleProduct>? ArticleProducts { get; set; }
 }
 
 public class ArticleConfiguration : SeoEntityConfiguration<Article, int>

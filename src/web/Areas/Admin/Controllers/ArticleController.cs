@@ -74,7 +74,7 @@ public partial class ArticleController : Controller
         {
             IsFeatured = false,
             Status = PublishStatus.Draft,
-            PublishedAt = DateTime.UtcNow,
+            PublishedAt = DateTime.Now,
             SitemapPriority = 0.5,
             SitemapChangeFrequency = "monthly",
             AuthorName = User.Identity?.Name
@@ -258,7 +258,6 @@ public partial class ArticleController
         viewModel.CategoryOptions = await _categoryService.GetParentCategorySelectListAsync(CategoryType.Article, viewModel.CategoryId);
         viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
         viewModel.TagOptions = await _tagService.GetTagSelectListAsync(TagType.Article, viewModel.SelectedTagIds);
-        viewModel.ProductOptions = await _productService.GetProductSelectListAsync(viewModel.SelectedProductIds);
     }
 
     private List<SelectListItem> GetPublishStatusSelectList(PublishStatus? selectedStatus)

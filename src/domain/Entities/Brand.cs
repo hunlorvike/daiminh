@@ -30,14 +30,5 @@ public class BrandConfiguration : BaseEntityConfiguration<Brand, int>
         builder.Property(e => e.LogoUrl).HasMaxLength(2048);
         builder.Property(e => e.Website).HasMaxLength(255);
         builder.Property(e => e.IsActive).HasDefaultValue(true);
-
-        builder.HasData(
-            new Brand { Id = 1, Name = "Dulux", Slug = "dulux", IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Brand { Id = 2, Name = "Jotun", Slug = "jotun", IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Brand { Id = 3, Name = "Kova", Slug = "kova", IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Brand { Id = 4, Name = "Sika", Slug = "sika", IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Brand { Id = 5, Name = "Nippon Paint", Slug = "nippon-paint", IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Brand { Id = 6, Name = "My Kolor", Slug = "my-kolor", IsActive = true, CreatedAt = DateTime.UtcNow }
-        );
     }
 }

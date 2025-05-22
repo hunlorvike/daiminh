@@ -3,8 +3,8 @@
     ViewData["Title"] = "Quản lý Thẻ - Hệ thống quản trị";
     ViewData["PageTitle"] = "Danh sách Thẻ";
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-        ("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag")
-    };
+("Thẻ", Url.Action(nameof(Index)) ?? "/Admin/Tag")
+};
 }
 
 @section PageActions {
@@ -35,7 +35,7 @@
                                 <i class="ti ti-search"></i>
                             </span>
                             <input asp-for="Filter.SearchTerm" class="form-control"
-                                   placeholder="Tìm theo tên hoặc mô tả...">
+                                placeholder="Tìm theo tên hoặc mô tả...">
                             <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
                                 <i class="ti ti-x"></i>
                             </button>
@@ -50,7 +50,7 @@
                                 <i class="ti ti-tags"></i>
                             </span>
                             <select asp-for="Filter.Type" asp-items="Model.Filter.TagTypes"
-                                    class="form-select tom-selected"></select>
+                                class="form-select tom-selected"></select>
                         </div>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                     @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Type.HasValue)
                     {
                         <a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.TagType.Product))"
-                           class="btn btn-primary">
+                            class="btn btn-primary">
                             <i class="ti ti-plus me-2"></i> Thêm thẻ mới
                         </a>
                     }
@@ -151,7 +151,7 @@
                                         @if (!string.IsNullOrEmpty(item.Description))
                                         {
                                             <small class="text-muted text-truncate d-inline-block" style="max-width: 300px;"
-                                                   title="@item.Description">@item.Description</small>
+                                                title="@item.Description">@item.Description</small>
                                         }
                                     </div>
                                 </td>
@@ -170,22 +170,21 @@
                                 <td class="text-center">
                                     <span class="badge bg-blue-lt">@item.ItemCount</span>
                                 </td>
-                                <td class="text-muted d-none d-lg-table-cell"
-                                    title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+                                <td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
                                     <div class="d-flex align-items-center">
                                         <i class="ti ti-calendar-time me-1"></i>
-                                        @Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+                                        @item.UpdatedAt
                                     </div>
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group">
                                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
-                                           title="Chỉnh sửa @itemTypeNameLower">
+                                            title="Chỉnh sửa @itemTypeNameLower">
                                             <i class="ti ti-pencil"></i>
                                         </a>
                                         <button class="btn btn-sm btn-outline-danger delete-item-btn" data-id="@item.Id"
-                                                data-name="@item.Name" data-type-name="@itemTypeNameLower"
-                                                data-delete-url="@Url.Action("Delete", "Tag")" title="Xóa @itemTypeNameLower">
+                                            data-name="@item.Name" data-type-name="@itemTypeNameLower"
+                                            data-delete-url="@Url.Action("Delete", "Tag")" title="Xóa @itemTypeNameLower">
                                             <i class="ti ti-trash"></i>
                                         </button>
                                     </div>
@@ -202,29 +201,29 @@
         <div class="card-footer">
             <div class="d-flex justify-content-center">
                 @Html.PagedListPager(
-                         Model.Tags,
-                         page => Url.Action("Index", new
-                         {
-                             page,
-                             Type = Model.Filter.Type,
-                             SearchTerm = Model.Filter.SearchTerm
-                         }),
-                         new PagedListRenderOptions
-            {
-                UlElementClasses = new[] { "pagination mb-0" },
-                LiElementClasses = new[] { "page-item" },
-                PageClasses = new[] { "page-link" },
-                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                ActiveLiElementClass = "active",
-                LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-                LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-            })
-            </div>
+                Model.Tags,
+                        page => Url.Action("Index", new
+                        {
+                            page,
+                            Type = Model.Filter.Type,
+                            SearchTerm = Model.Filter.SearchTerm
+                        }),
+                        new PagedListRenderOptions
+                        {
+                            UlElementClasses = new[] { "pagination mb-0" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" },
+                            DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            ActiveLiElementClass = "active",
+                            LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                            LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+                        })
         </div>
-    }
+    </div>
+        }
 </div>
 
 @section Scripts {

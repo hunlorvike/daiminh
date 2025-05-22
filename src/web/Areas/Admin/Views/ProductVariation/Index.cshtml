@@ -3,10 +3,11 @@
     ViewData["Title"] = $"Biến thể - {Model.ProductName} - Hệ thống quản trị";
     ViewData["PageTitle"] = $"Biến thể sản phẩm: {Model.ProductName}";
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-        ("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
-        ($"{Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ?? $"/Admin/Product/Edit/{Model.ProductId}"),
-        ("Biến thể", "")
-    };
+("Sản phẩm", Url.Action("Index", "Product") ?? "/Admin/Product"),
+($"{Model.ProductName}", Url.Action("Edit", "Product", new { id = Model.ProductId }) ??
+$"/Admin/Product/Edit/{Model.ProductId}"),
+("Biến thể", "")
+};
 }
 
 @section PageActions {
@@ -28,8 +29,8 @@
     </div>
     <div class="card-body">
         <form method="get" asp-action="Index" id="filterForm">
-             <input type="hidden" asp-for="Filter.ProductId" />
-            <div class="row g-3 align-items-end">                 
+            <input type="hidden" asp-for="Filter.ProductId" />
+            <div class="row g-3 align-items-end">
                 <div class="col-md-3 col-sm-6">
                     <div class="form-group">
                         <label asp-for="Filter.IsActive" class="form-label"></label>
@@ -38,7 +39,7 @@
                                 <i class="ti ti-eye"></i>
                             </span>
                             <select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions"
-                                    class="form-select tom-selected"></select>
+                                class="form-select tom-selected"></select>
                         </div>
                     </div>
                 </div>
@@ -50,7 +51,7 @@
                                 <i class="ti ti-star"></i>
                             </span>
                             <select asp-for="Filter.IsDefault" asp-items="@Model.Filter.IsDefaultOptions"
-                                    class="form-select tom-selected"></select>
+                                class="form-select tom-selected"></select>
                         </div>
                     </div>
                 </div>
@@ -60,7 +61,8 @@
                     </button>
                 </div>
                 <div class="col-md-auto col-6">
-                    <a asp-action="Index" asp-route-productId="@Model.ProductId" class="btn btn-outline-secondary w-100">
+                    <a asp-action="Index" asp-route-productId="@Model.ProductId"
+                        class="btn btn-outline-secondary w-100">
                         <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
                     </a>
                 </div>
@@ -78,7 +80,8 @@
         {
             <small class="text-muted d-none d-md-block">
                 Hiển thị
-                @Model.Variations.FirstItemOnPage-@Model.Variations.LastItemOnPage trên tổng số @Model.Variations.TotalItemCount
+                @Model.Variations.FirstItemOnPage-@Model.Variations.LastItemOnPage trên tổng số
+                @Model.Variations.TotalItemCount
                 biến thể
             </small>
         }
@@ -94,28 +97,28 @@
                 </div>
                 <p class="empty-title mt-3">Không tìm thấy biến thể nào</p>
                 <p class="empty-subtitle text-muted">
-                     @if (!Model.Filter.IsActive.HasValue && !Model.Filter.IsDefault.HasValue)
-                     {
-                         @:Hãy thêm biến thể đầu tiên cho sản phẩm này.
-                     }
-                     else
-                     {
-                         @:Không có biến thể nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
-                     }
+                    @if (!Model.Filter.IsActive.HasValue && !Model.Filter.IsDefault.HasValue)
+                    {
+                        @:Hãy thêm biến thể đầu tiên cho sản phẩm này.
+                    }
+                    else
+                    {
+                        @:Không có biến thể nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+                    }
                 </p>
                 <div class="empty-action">
-                     @if (!Model.Filter.IsActive.HasValue && !Model.Filter.IsDefault.HasValue)
-                     {
+                    @if (!Model.Filter.IsActive.HasValue && !Model.Filter.IsDefault.HasValue)
+                    {
                         <a asp-action="Create" asp-route-productId="@Model.ProductId" class="btn btn-primary">
-                           <i class="ti ti-plus me-2"></i> Thêm biến thể
-                       </a>
-                     }
-                     else
-                     {
-                         <a asp-action="Index" asp-route-productId="@Model.ProductId" class="btn btn-outline-secondary">
+                            <i class="ti ti-plus me-2"></i> Thêm biến thể
+                        </a>
+                    }
+                    else
+                    {
+                        <a asp-action="Index" asp-route-productId="@Model.ProductId" class="btn btn-outline-secondary">
                             <i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
                         </a>
-                     }
+                    }
                 </div>
             </div>
         }
@@ -130,7 +133,7 @@
                             <th class="d-none d-sm-table-cell">Tồn kho</th>
                             <th class="text-center">Mặc định</th>
                             <th class="text-center">Hoạt động</th>
-                             <th class="text-center d-none d-md-table-cell">Ảnh</th>
+                            <th class="text-center d-none d-md-table-cell">Ảnh</th>
                             <th class="d-none d-lg-table-cell">Cập nhật</th>
                             <th class="text-end">Thao tác</th>
                         </tr>
@@ -140,19 +143,21 @@
                         {
                             <tr>
                                 <td>
-                                     <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center">
                                         @if (!string.IsNullOrEmpty(item.ImageUrl))
                                         {
-                                             <span class="avatar avatar-sm me-2" style="background-image: url(@item.ImageUrl)"></span>
+                                            <span class="avatar avatar-sm me-2"
+                                                style="background-image: url(@item.ImageUrl)"></span>
                                         }
                                         else
                                         {
                                             <span class="avatar avatar-sm bg-blue-lt me-2"><i class="ti ti-adjustments"></i></span>
                                         }
-                                         <div class="text-truncate" style="max-width: 250px;" title="@item.AttributeValueCombination">
-                                             @item.AttributeValueCombination
-                                         </div>
-                                     </div>
+                                        <div class="text-truncate" style="max-width: 250px;"
+                                            title="@item.AttributeValueCombination">
+                                            @item.AttributeValueCombination
+                                        </div>
+                                    </div>
                                 </td>
                                 <td>
                                     <div class="fw-medium">@item.Price.ToString("N0") VNĐ</div>
@@ -161,13 +166,15 @@
                                         <small class="text-danger">KM: @item.SalePrice.Value.ToString("N0") VNĐ</small>
                                     }
                                 </td>
-                                 <td class="d-none d-sm-table-cell">
-                                    <span class="badge bg-@(@item.StockQuantity > 0 ? "green" : "red")-lt">@item.StockQuantity</span>
+                                <td class="d-none d-sm-table-cell">
+                                    <span
+                                        class="badge bg-@(@item.StockQuantity > 0 ? "green" : "red")-lt">@item.StockQuantity</span>
                                 </td>
                                 <td class="text-center">
                                     @if (item.IsDefault)
                                     {
-                                        <i class="ti ti-star-filled text-yellow" data-bs-toggle="tooltip" title="Biến thể mặc định"></i>
+                                        <i class="ti ti-star-filled text-yellow" data-bs-toggle="tooltip"
+                                            title="Biến thể mặc định"></i>
                                     }
                                     else
                                     {
@@ -189,36 +196,37 @@
                                     }
                                 </td>
                                 <td class="text-center d-none d-md-table-cell">
-                                     @if (!string.IsNullOrEmpty(item.ImageUrl))
-                                     {
-                                          <i class="ti ti-photo"></i>
-                                     }
-                                     else
-                                     {
-                                          <span class="text-muted">—</span>
-                                     }
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <i class="ti ti-photo"></i>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
                                 </td>
-                                <td class="text-muted d-none d-lg-table-cell"
-                                    title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
-                                     @if(item.UpdatedAt.HasValue){
-                                          <div class="d-flex align-items-center">
-                                               <i class="ti ti-calendar-time me-1"></i>
-                                               @Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
-                                          </div>
-                                     } else {
-                                         <span class="text-muted">—</span>
-                                     }
+                                <td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
+                                    @if (item.UpdatedAt.HasValue)
+                                    {
+                                        <div class="d-flex align-items-center">
+                                            <i class="ti ti-calendar-time me-1"></i>
+                                            @item.UpdatedAt
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
                                 </td>
                                 <td class="text-end">
                                     <div class="btn-group">
                                         <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
-                                           title="Chỉnh sửa">
+                                            title="Chỉnh sửa">
                                             <i class="ti ti-pencil"></i>
                                         </a>
                                         <button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-                                                data-id="@item.Id"
-                                                data-name="biến thể @item.AttributeValueCombination" 
-                                                data-delete-url="@Url.Action("Delete", "ProductVariation")">
+                                            data-id="@item.Id" data-name="biến thể @item.AttributeValueCombination"
+                                            data-delete-url="@Url.Action("Delete", "ProductVariation")">
                                             <i class="ti ti-trash"></i>
                                         </button>
                                     </div>
@@ -235,29 +243,28 @@
         <div class="card-footer">
             <div class="d-flex justify-content-center">
                 @Html.PagedListPager(
-                                Model.Variations,
-                                page => Url.Action("Index", new
-                                {
-                                    page,
-                                    Model.ProductId,
-                                    Model.Filter.IsActive,
-                                    Model.Filter.IsDefault
-                                }),
-                                new PagedListRenderOptions
-            {
-                UlElementClasses = new[] { "pagination mb-0" },
-                LiElementClasses = new[] { "page-item" },
-                PageClasses = new[] { "page-link" },
-                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                ActiveLiElementClass = "active",
-                LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-                LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-            })
-            </div>
+                Model.Variations,
+                        page => Url.Action("Index", new
+                        {
+                            page,
+                            Model.ProductId,
+                            Model.Filter.IsActive,
+                            Model.Filter.IsDefault
+                        }),
+                        new PagedListRenderOptions
+                        {
+                            UlElementClasses = new[] { "pagination mb-0" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" },
+                            DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            ActiveLiElementClass = "active",
+                            LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                            LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+                        })
         </div>
-    }
+    </div>
+        }
 </div>
-

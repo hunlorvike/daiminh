@@ -3,9 +3,9 @@
     ViewData["Title"] = "Quản lý Vai trò - Hệ thống quản trị";
     ViewData["PageTitle"] = "Danh sách Vai trò";
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)>
-    {
-        ("Vai trò", "")
-    };
+{
+("Vai trò", "")
+};
 }
 
 @section PageActions {
@@ -68,7 +68,8 @@
         @if (Model.Roles.TotalItemCount > 0)
         {
             <small class="text-muted d-none d-md-block">
-                Hiển thị @Model.Roles.FirstItemOnPage-@Model.Roles.LastItemOnPage trên tổng số @Model.Roles.TotalItemCount quyền
+                Hiển thị @Model.Roles.FirstItemOnPage-@Model.Roles.LastItemOnPage trên tổng số @Model.Roles.TotalItemCount
+                quyền
             </small>
         }
     </div>
@@ -85,11 +86,11 @@
                 <p class="empty-title">Không tìm thấy thẻ nào</p>
                 <p class="empty-subtitle text-muted">
                     @(string.IsNullOrWhiteSpace(Model.SearchTerm)
-                        ? "Hãy thêm quyền đầu tiên."
-                        : "Không có quyền nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.")
-                </p>
-                <div class="empty-action">
-                    @if (string.IsNullOrWhiteSpace(Model.SearchTerm))
+                                    ? "Hãy thêm quyền đầu tiên."
+                                    : "Không có quyền nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.")
+            </p>
+            <div class="empty-action">
+                @if (string.IsNullOrWhiteSpace(Model.SearchTerm))
                     {
                         <a asp-action="Create" class="btn btn-primary">
                             <i class="ti ti-plus me-2"></i> Thêm quyền mới
@@ -122,21 +123,22 @@
                             <tr>
                                 <td><span class="text-muted">@role.Id</span></td>
                                 <td>
-                                    <a asp-action="Edit" asp-route-id="@role.Id" class="text-reset" data-bs-toggle="tooltip" title="Chỉnh sửa vai trò">
+                                    <a asp-action="Edit" asp-route-id="@role.Id" class="text-reset" data-bs-toggle="tooltip"
+                                        title="Chỉnh sửa vai trò">
                                         @role.Name
                                     </a>
                                 </td>
                                 <td>@role.UserCount</td>
                                 <td>
                                     <div class="btn-list flex-nowrap">
-                                        <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="Sửa">
+                                        <a asp-action="Edit" asp-route-id="@role.Id" class="btn btn-sm btn-outline-primary"
+                                            data-bs-toggle="tooltip" title="Sửa">
                                             <i class="ti ti-edit"></i>
                                         </a>
                                         @if (!new[] { "admin", "superadmin" }.Contains(role.Name.ToLower()))
                                         {
                                             <button type="button" class="btn btn-sm btn-outline-danger btn-delete-role"
-                                                    data-id="@role.Id" data-name="@role.Name"
-                                                    data-bs-toggle="tooltip" title="Xóa">
+                                                data-id="@role.Id" data-name="@role.Name" data-bs-toggle="tooltip" title="Xóa">
                                                 <i class="ti ti-trash"></i>
                                             </button>
                                         }
@@ -155,27 +157,26 @@
         <div class="card-footer">
             <div class="d-flex justify-content-center">
                 @Html.PagedListPager(
-                         Model.Roles,
-                         page => Url.Action("Index", new
-                         {
-                             page,
-                             SearchTerm = Model.SearchTerm
-                         }),
-                         new PagedListRenderOptions
-            {
-                UlElementClasses = new[] { "pagination mb-0" },
-                LiElementClasses = new[] { "page-item" },
-                PageClasses = new[] { "page-link" },
-                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-                DisplayLinkToNextPage = PagedListDisplayMode.Always,
-                ActiveLiElementClass = "active",
-                LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-                LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-            })
-            </div>
+                Model.Roles,
+                        page => Url.Action("Index", new
+                        {
+                            page,
+                            SearchTerm = Model.SearchTerm
+                        }),
+                        new PagedListRenderOptions
+                        {
+                            UlElementClasses = new[] { "pagination mb-0" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" },
+                            DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                            DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                            DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                            ActiveLiElementClass = "active",
+                            LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                            LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+                        })
         </div>
-    }
+    </div>
+        }
 </div>
-

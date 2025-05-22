@@ -27,26 +27,5 @@ public class PageConfiguration : BaseEntityConfiguration<Page, int>
             .IsRequired()
             .HasDefaultValue(PublishStatus.Draft);
         builder.Property(e => e.PublishedAt);
-
-        builder.HasData(
-            new Page
-            {
-                Id = 1,
-                Title = "About Us",
-                Slug = "about-us",
-                Content = "This is the About Us page content.",
-                PublishedAt = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow
-            },
-            new Page
-            {
-                Id = 2,
-                Title = "Privacy Policy",
-                Slug = "privacy-policy",
-                Content = "This is the Privacy Policy page content.",
-                PublishedAt = DateTime.UtcNow,
-                CreatedAt = DateTime.UtcNow
-            }
-        );
     }
 }

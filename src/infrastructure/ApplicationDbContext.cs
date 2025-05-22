@@ -1,30 +1,36 @@
 using domain.Entities;
 using domain.Entities.Shared;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace infrastructure;
 
 public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
-    UserClaim, UserRole, IdentityUserLogin<int>,
-    RoleClaim, IdentityUserToken<int>>
+    UserClaim, UserRole, UserLogin,
+    RoleClaim, UserToken>
 {
     private readonly IHttpContextAccessor _httpContextAccessor;
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options, IHttpContextAccessor httpContextAccessor) : base(options)
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        IHttpContextAccessor httpContextAccessor
+    ) : base(options)
     {
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public DbSet<User> Users { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<UserRole> UserRoles { get; set; }
-    public DbSet<RoleClaim> RoleClaims { get; set; }
-    public DbSet<UserClaim> UserClaims { get; set; }
+    // Identity tables (explicitly hiding base class members)
+    public new DbSet<User> Users { get; set; }
+    public new DbSet<Role> Roles { get; set; }
+    public new DbSet<UserRole> UserRoles { get; set; }
+    public new DbSet<RoleClaim> RoleClaims { get; set; }
+    public new DbSet<UserClaim> UserClaims { get; set; }
+    public new DbSet<UserLogin> UserLogins { get; set; }
+    public new DbSet<UserToken> UserTokens { get; set; }
 
+    // Domain tables
     public DbSet<Article> Articles { get; set; }
-    public DbSet<ArticleProduct> ArticleProducts { get; set; }
     public DbSet<ArticleTag> ArticleTags { get; set; }
     public DbSet<domain.Entities.Attribute> Attributes { get; set; }
     public DbSet<AttributeValue> AttributeValues { get; set; }
@@ -48,49 +54,10 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<Page> Pages { get; set; }
     public DbSet<PopupModal> PopupModals { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    protected override void OnModelCreating(ModelBuilder builder)
     {
-        base.OnModelCreating(modelBuilder);
-
-        modelBuilder.ApplyConfiguration(new UserConfiguration());
-        modelBuilder.ApplyConfiguration(new RoleConfiguration());
-        modelBuilder.ApplyConfiguration(new UserRoleConfiguration());
-        modelBuilder.ApplyConfiguration(new RoleClaimConfiguration());
-        modelBuilder.ApplyConfiguration(new UserClaimConfiguration());
-
-        modelBuilder.Entity<IdentityUserClaim<int>>().ToTable("UserClaims");
-        modelBuilder.Entity<IdentityUserLogin<int>>().ToTable("UserLogins");
-        modelBuilder.Entity<IdentityRoleClaim<int>>().ToTable("RoleClaims");
-        modelBuilder.Entity<IdentityUserToken<int>>().ToTable("UserTokens");
-
-        modelBuilder.ApplyConfiguration(new BrandConfiguration());
-        modelBuilder.ApplyConfiguration(new AttributeConfiguration());
-        modelBuilder.ApplyConfiguration(new CategoryConfiguration());
-        modelBuilder.ApplyConfiguration(new TagConfiguration());
-        modelBuilder.ApplyConfiguration(new SettingConfiguration());
-        modelBuilder.ApplyConfiguration(new ContactConfiguration());
-        modelBuilder.ApplyConfiguration(new MediaFileConfiguration());
-        modelBuilder.ApplyConfiguration(new NewsletterConfiguration());
-        modelBuilder.ApplyConfiguration(new TestimonialConfiguration());
-        modelBuilder.ApplyConfiguration(new BannerConfiguration());
-        modelBuilder.ApplyConfiguration(new PageConfiguration());
-        modelBuilder.ApplyConfiguration(new PopupModalConfiguration());
-        modelBuilder.ApplyConfiguration(new SlideConfiguration());
-
-        modelBuilder.ApplyConfiguration(new AttributeValueConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductConfiguration());
-        modelBuilder.ApplyConfiguration(new ArticleConfiguration());
-        modelBuilder.ApplyConfiguration(new FAQConfiguration());
-
-        modelBuilder.ApplyConfiguration(new ProductVariationConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductImageConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductReviewConfiguration());
-
-        modelBuilder.ApplyConfiguration(new ArticleProductConfiguration());
-        modelBuilder.ApplyConfiguration(new ArticleTagConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductAttributeConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductTagConfiguration());
-        modelBuilder.ApplyConfiguration(new ProductVariationAttributeValueConfiguration());
+        base.OnModelCreating(builder);
+        builder.ApplyConfigurationsFromAssembly(typeof(User).Assembly);
     }
 }
 
@@ -121,20 +88,20 @@ public partial class ApplicationDbContext
 
             if (entry.State == EntityState.Added)
             {
-                entity.CreatedAt = DateTime.UtcNow;
+                entity.CreatedAt = DateTime.Now;
                 entity.CreatedBy = currentUser;
-                entity.UpdatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = currentUser;
             }
             else
             {
-                entry.Property("CreatedAt").IsModified = false;
-                entry.Property("CreatedBy").IsModified = false;
+                entry.Property(nameof(BaseEntity<int>.CreatedAt)).IsModified = false;
+                entry.Property(nameof(BaseEntity<int>.CreatedBy)).IsModified = false;
             }
 
             if (entry.State == EntityState.Modified)
             {
-                entity.UpdatedAt = DateTime.UtcNow;
+                entity.UpdatedAt = DateTime.Now;
                 entity.UpdatedBy = currentUser;
             }
         }

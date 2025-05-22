@@ -7,8 +7,8 @@ using shared.Constants;
 using shared.Enums;
 using shared.Models;
 using System.Text.Json;
-using web.Areas.Client.Validators.Contact;
-using web.Areas.Client.ViewModels.Contact;
+using web.Areas.Client.Validators;
+using web.Areas.Client.ViewModels;
 
 namespace web.Areas.Client.Controllers;
 

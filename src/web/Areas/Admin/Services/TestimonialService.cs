@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -27,7 +28,7 @@ public class TestimonialService : ITestimonialService
 
     public async Task<IPagedList<TestimonialListItemViewModel>> GetPagedTestimonialsAsync(TestimonialFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Testimonial> query = _context.Set<domain.Entities.Testimonial>().AsNoTracking();
+        IQueryable<Testimonial> query = _context.Set<Testimonial>().AsNoTracking();
 
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -59,7 +60,7 @@ public class TestimonialService : ITestimonialService
 
     public async Task<TestimonialViewModel?> GetTestimonialByIdAsync(int id)
     {
-        domain.Entities.Testimonial? testimonial = await _context.Set<domain.Entities.Testimonial>()
+        Testimonial? testimonial = await _context.Set<Testimonial>()
                                           .AsNoTracking()
                                           .FirstOrDefaultAsync(t => t.Id == id);
 
@@ -68,7 +69,7 @@ public class TestimonialService : ITestimonialService
 
     public async Task<OperationResult<int>> CreateTestimonialAsync(TestimonialViewModel viewModel)
     {
-        var testimonial = _mapper.Map<domain.Entities.Testimonial>(viewModel);
+        var testimonial = _mapper.Map<Testimonial>(viewModel);
 
         _context.Add(testimonial);
 
@@ -92,7 +93,7 @@ public class TestimonialService : ITestimonialService
 
     public async Task<OperationResult> UpdateTestimonialAsync(TestimonialViewModel viewModel)
     {
-        var testimonial = await _context.Set<domain.Entities.Testimonial>().FirstOrDefaultAsync(t => t.Id == viewModel.Id);
+        var testimonial = await _context.Set<Testimonial>().FirstOrDefaultAsync(t => t.Id == viewModel.Id);
         if (testimonial == null)
         {
             _logger.LogWarning("Testimonial not found for update. ID: {Id}", viewModel.Id);
@@ -121,7 +122,7 @@ public class TestimonialService : ITestimonialService
 
     public async Task<OperationResult> DeleteTestimonialAsync(int id)
     {
-        domain.Entities.Testimonial? testimonial = await _context.Set<domain.Entities.Testimonial>().FindAsync(id);
+        Testimonial? testimonial = await _context.Set<Testimonial>().FindAsync(id);
 
         if (testimonial == null)
         {

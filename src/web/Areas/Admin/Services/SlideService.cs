@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -27,7 +28,7 @@ public class SlideService : ISlideService
 
     public async Task<IPagedList<SlideListItemViewModel>> GetPagedSlidesAsync(SlideFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Slide> query = _context.Set<domain.Entities.Slide>()
+        IQueryable<Slide> query = _context.Set<Slide>()
                                       .AsNoTracking();
 
 
@@ -58,7 +59,7 @@ public class SlideService : ISlideService
 
     public async Task<SlideViewModel?> GetSlideByIdAsync(int id)
     {
-        domain.Entities.Slide? slide = await _context.Set<domain.Entities.Slide>()
+        Slide? slide = await _context.Set<Slide>()
                                  .AsNoTracking() // Readonly operation
                                  .FirstOrDefaultAsync(s => s.Id == id);
 
@@ -69,7 +70,7 @@ public class SlideService : ISlideService
     {
         // No DB-specific validation logic needed for Slide (no unique slug/name typically)
 
-        var slide = _mapper.Map<domain.Entities.Slide>(viewModel);
+        var slide = _mapper.Map<Slide>(viewModel);
         // CreatedAt is set automatically by BaseEntity
 
         _context.Add(slide);
@@ -97,7 +98,7 @@ public class SlideService : ISlideService
     {
         // No DB-specific validation logic needed for Slide update
 
-        var slide = await _context.Set<domain.Entities.Slide>().FirstOrDefaultAsync(s => s.Id == viewModel.Id);
+        var slide = await _context.Set<Slide>().FirstOrDefaultAsync(s => s.Id == viewModel.Id);
         if (slide == null)
         {
             _logger.LogWarning("Slide not found for update. ID: {Id}", viewModel.Id);
@@ -128,7 +129,7 @@ public class SlideService : ISlideService
 
     public async Task<OperationResult> DeleteSlideAsync(int id)
     {
-        var slide = await _context.Set<domain.Entities.Slide>().FirstOrDefaultAsync(s => s.Id == id);
+        var slide = await _context.Set<Slide>().FirstOrDefaultAsync(s => s.Id == id);
 
         if (slide == null)
         {

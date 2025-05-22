@@ -1,4 +1,5 @@
 using AutoRegister;
+using domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using shared.Models;
 using System.Security.Claims;
@@ -9,13 +10,13 @@ namespace web.Areas.Admin.Services;
 [Register(ServiceLifetime.Scoped)]
 public class AuthService : IAuthService
 {
-    private readonly UserManager<domain.Entities.User> _userManager;
-    private readonly SignInManager<domain.Entities.User> _signInManager;
+    private readonly UserManager<User> _userManager;
+    private readonly SignInManager<User> _signInManager;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
-        UserManager<domain.Entities.User> userManager,
-        SignInManager<domain.Entities.User> signInManager,
+        UserManager<User> userManager,
+        SignInManager<User> signInManager,
         ILogger<AuthService> logger)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
@@ -49,7 +50,7 @@ public class AuthService : IAuthService
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Name, user.UserName ?? ""),
             };
 
             if (!string.IsNullOrEmpty(user.Email))

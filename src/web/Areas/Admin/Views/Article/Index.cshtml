@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Bài viết - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Bài viết";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article")
-		};
+("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article")
+};
 }
 
 @section PageActions {
@@ -26,7 +26,8 @@
 					<div class="form-group">
 						<label asp-for="Filter.SearchTerm" class="form-label"></label>
 						<div class="input-group">
-							<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tiêu đề, tóm tắt, tác giả...">
+							<input asp-for="Filter.SearchTerm" class="form-control"
+								placeholder="Tìm tiêu đề, tóm tắt, tác giả...">
 							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 								<i class="ti ti-x"></i>
 							</button>
@@ -36,19 +37,22 @@
 				<div class="col-md-2 col-sm-6">
 					<div class="form-group">
 						<label asp-for="Filter.CategoryId" class="form-label"></label>
-						<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions" class="form-select tom-selected"></select>
+						<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions"
+							class="form-select tom-selected"></select>
 					</div>
 				</div>
 				<div class="col-md-2 col-sm-6">
 					<div class="form-group">
 						<label asp-for="Filter.Status" class="form-label"></label>
-						<select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions" class="form-select tom-selected"></select>
+						<select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions"
+							class="form-select tom-selected"></select>
 					</div>
 				</div>
 				<div class="col-md-2 col-sm-6">
 					<div class="form-group">
 						<label asp-for="Filter.IsFeatured" class="form-label"></label>
-						<select asp-for="Filter.IsFeatured" asp-items="@Model.Filter.IsFeaturedOptions" class="form-select tom-selected"></select>
+						<select asp-for="Filter.IsFeatured" asp-items="@Model.Filter.IsFeaturedOptions"
+							class="form-select tom-selected"></select>
 					</div>
 				</div>
 
@@ -72,7 +76,9 @@
 		<h3 class="card-title mb-0">Danh sách Bài viết</h3>
 		@if (Model.Articles.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.Articles.FirstItemOnPage-@Model.Articles.LastItemOnPage trên tổng số @Model.Articles.TotalItemCount bài viết</small>
+			<small class="text-muted d-none d-md-block">Hiển thị
+				@Model.Articles.FirstItemOnPage-@Model.Articles.LastItemOnPage trên tổng số @Model.Articles.TotalItemCount
+				bài viết</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -84,7 +90,8 @@
 				</div>
 				<p class="empty-title">Không tìm thấy bài viết nào</p>
 				<p class="empty-subtitle text-muted">
-					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue && !Model.Filter.CategoryId.HasValue && !Model.Filter.IsFeatured.HasValue)
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue &&
+									!Model.Filter.CategoryId.HasValue && !Model.Filter.IsFeatured.HasValue)
 					{
 						@:Hãy thêm bài viết đầu tiên.
 					}
@@ -130,7 +137,8 @@
 								<td class="text-muted d-none d-lg-table-cell"><code>@item.Slug</code></td>
 								<td class="text-muted d-none d-md-table-cell">@item.AuthorName</td>
 								<td class="text-center">
-									<span class="badge bg-@((item.Status == PublishStatus.Published) ? "success" : (item.Status == PublishStatus.Draft ? "secondary" : "warning"))-lt">
+									<span
+										class="badge bg-@((item.Status == PublishStatus.Published) ? "success" : (item.Status == PublishStatus.Draft ? "secondary" : "warning"))-lt">
 										@item.Status.GetDisplayName()
 									</span>
 								</td>
@@ -154,7 +162,7 @@
 								<td class="d-none d-md-table-cell">
 									@if (item.PublishedAt.HasValue)
 									{
-										<span>@Html.ToLocalTime(item.PublishedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy")</span>
+										<span>@item.PublishedAt</span>
 									}
 									else
 									{
@@ -163,14 +171,13 @@
 								</td>
 								<td>
 									<div class="btn-group">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
+											title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Title"
-												data-delete-url="@Url.Action("Delete", "Article")">
+										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+											data-id="@item.Id" data-name="@item.Title"
+											data-delete-url="@Url.Action("Delete", "Article")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -187,37 +194,37 @@
 		<div class="card-footer">
 			<div class="d-flex justify-content-center">
 				@Html.PagedListPager(
-								Model.Articles,
-								page => Url.Action("Index", new
-								{
-									page,
-									Model.Filter.SearchTerm,
-									Model.Filter.CategoryId,
-									Model.Filter.Status,
-									Model.Filter.IsFeatured
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Articles,
+						page => Url.Action("Index", new
+						{
+							page,
+							Model.Filter.SearchTerm,
+							Model.Filter.CategoryId,
+							Model.Filter.Status,
+							Model.Filter.IsFeatured
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('#Filter_SearchTerm').val('');
 			});
 		});

@@ -3,8 +3,8 @@
     ViewData["Title"] = "Quản lý Người dùng - Hệ thống quản trị";
     ViewData["PageTitle"] = "Danh sách Người dùng";
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-        ("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User")
-    };
+("Người dùng", Url.Action(nameof(Index)) ?? "/Admin/User")
+};
 }
 
 @section PageActions {
@@ -29,7 +29,8 @@
                             <span class="input-group-text">
                                 <i class="ti ti-search"></i>
                             </span>
-                            <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên đăng nhập, email, họ tên...">
+                            <input asp-for="Filter.SearchTerm" class="form-control"
+                                placeholder="Tìm tên đăng nhập, email, họ tên...">
                             <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
                                 <i class="ti ti-x"></i>
                             </button>
@@ -43,7 +44,8 @@
                             <span class="input-group-text">
                                 <i class="ti ti-toggle-right"></i>
                             </span>
-                            <select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select tom-selected"></select>
+                            <select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions"
+                                class="form-select tom-selected"></select>
                         </div>
                     </div>
                 </div>
@@ -67,7 +69,8 @@
         <h3 class="card-title mb-0">Danh sách Người dùng</h3>
         @if (Model.Users.TotalItemCount > 0)
         {
-            <small class="text-muted d-none d-md-block">Hiển thị @Model.Users.FirstItemOnPage-@Model.Users.LastItemOnPage trên tổng số @Model.Users.TotalItemCount người dùng</small>
+            <small class="text-muted d-none d-md-block">Hiển thị @Model.Users.FirstItemOnPage-@Model.Users.LastItemOnPage
+                trên tổng số @Model.Users.TotalItemCount người dùng</small>
         }
     </div>
     <div class="card-body p-0">
@@ -123,15 +126,16 @@
                                 <td>
                                     <div class="d-flex align-items-center">
                                         <span class="avatar avatar-xs me-2 bg-blue-lt">
-                                            @(item.FullName?.Length > 0 ? item.FullName[0].ToString().ToUpper() : item.Username[0].ToString().ToUpper())
-                                        </span>
-                                        <span class="fw-medium">@item.Username</span>
-                                    </div>
-                                </td>
-                                <td class="text-muted d-none d-md-table-cell">@item.Email</td>
-                                <td class="text-muted d-none d-lg-table-cell">@item.FullName</td>
-                                <td class="text-center">
-                                    @if (item.IsActive)
+                                            @(item.FullName?.Length > 0 ? item.FullName[0].ToString().ToUpper() :
+                                                                                item.Username[0].ToString().ToUpper())
+                                </span>
+                                <span class="fw-medium">@item.Username</span>
+                            </div>
+                        </td>
+                        <td class="text-muted d-none d-md-table-cell">@item.Email</td>
+                        <td class="text-muted d-none d-lg-table-cell">@item.FullName</td>
+                        <td class="text-center">
+                            @if (item.IsActive)
                                     {
                                         <span class="badge bg-success-lt">
                                             <i class="ti ti-check me-1"></i>Kích hoạt
@@ -146,16 +150,15 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                        <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
+                                            title="Chỉnh sửa">
                                             <i class="ti ti-pencil"></i>
                                         </a>
                                         @if (item.Id != 1)
                                         {
-                                            <button class="btn btn-sm btn-outline-danger delete-item-btn"
-                                                    title="Xóa"
-                                                    data-id="@item.Id"
-                                                    data-name="@item.Username"
-                                                    data-delete-url="@Url.Action("Delete", "User")">
+                                            <button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+                                                data-id="@item.Id" data-name="@item.Username"
+                                                data-delete-url="@Url.Action("Delete", "User")">
                                                 <i class="ti ti-trash"></i>
                                             </button>
                                         }
@@ -173,31 +176,31 @@
         <div class="card-footer">
             <div class="d-flex align-items-center justify-content-center">
                 @Html.PagedListPager(
-                    Model.Users,
-                    page => Url.Action("Index", new
-                    {
-                        page,
-                        searchTerm = Model.Filter.SearchTerm,
-                        isActive = Model.Filter.IsActive
-                    }),
-                    new PagedListRenderOptions
-                    {
-                        UlElementClasses = new[] { "pagination mb-0" },
-                        LiElementClasses = new[] { "page-item" },
-                        PageClasses = new[] { "page-link" },
-                        ActiveLiElementClass = "active",
-                        LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-                        LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-                    })
-            </div>
+                Model.Users,
+                        page => Url.Action("Index", new
+                        {
+                            page,
+                            searchTerm = Model.Filter.SearchTerm,
+                            isActive = Model.Filter.IsActive
+                        }),
+                        new PagedListRenderOptions
+                        {
+                            UlElementClasses = new[] { "pagination mb-0" },
+                            LiElementClasses = new[] { "page-item" },
+                            PageClasses = new[] { "page-link" },
+                            ActiveLiElementClass = "active",
+                            LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                            LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+                        })
         </div>
-    }
+    </div>
+        }
 </div>
 
 @section Scripts {
     <script>
         $(document).ready(function () {
-            $('#clearSearch').on('click', function() {
+            $('#clearSearch').on('click', function () {
                 $('#Filter_SearchTerm').val('');
                 $('#filterForm').submit();
             });

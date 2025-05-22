@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -27,7 +28,7 @@ public class NewsletterService : INewsletterService
 
     public async Task<IPagedList<NewsletterListItemViewModel>> GetPagedNewslettersAsync(NewsletterFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Newsletter> query = _context.Set<domain.Entities.Newsletter>().AsNoTracking(); // Readonly for list
+        IQueryable<Newsletter> query = _context.Set<Newsletter>().AsNoTracking(); // Readonly for list
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
@@ -53,7 +54,7 @@ public class NewsletterService : INewsletterService
 
     public async Task<NewsletterViewModel?> GetNewsletterByIdAsync(int id)
     {
-        domain.Entities.Newsletter? newsletter = await _context.Set<domain.Entities.Newsletter>()
+        Newsletter? newsletter = await _context.Set<Newsletter>()
                                        .AsNoTracking() // Readonly operation
                                        .FirstOrDefaultAsync(n => n.Id == id);
 
@@ -68,7 +69,7 @@ public class NewsletterService : INewsletterService
             return OperationResult<int>.FailureResult(message: "Email này đã tồn tại.", errors: new List<string> { "Email này đã tồn tại." });
         }
 
-        var newsletter = _mapper.Map<domain.Entities.Newsletter>(viewModel);
+        var newsletter = _mapper.Map<Newsletter>(viewModel);
 
         // **Service handles business logic: Set tracking info**
         newsletter.IpAddress = ipAddress;
@@ -111,7 +112,7 @@ public class NewsletterService : INewsletterService
             return OperationResult.FailureResult(message: "Email này đã tồn tại.", errors: new List<string> { "Email này đã tồn tại." });
         }
 
-        var newsletter = await _context.Set<domain.Entities.Newsletter>().FirstOrDefaultAsync(n => n.Id == viewModel.Id);
+        var newsletter = await _context.Set<Newsletter>().FirstOrDefaultAsync(n => n.Id == viewModel.Id);
         if (newsletter == null)
         {
             _logger.LogWarning("Newsletter not found for update. ID: {Id}", viewModel.Id);
@@ -159,7 +160,7 @@ public class NewsletterService : INewsletterService
 
     public async Task<OperationResult> DeleteNewsletterAsync(int id)
     {
-        var newsletter = await _context.Set<domain.Entities.Newsletter>().FindAsync(id);
+        var newsletter = await _context.Set<Newsletter>().FindAsync(id);
 
         if (newsletter == null)
         {
@@ -202,7 +203,7 @@ public class NewsletterService : INewsletterService
         if (string.IsNullOrWhiteSpace(email)) return false; // Email cannot be empty for uniqueness check
 
         var lowerEmail = email.Trim().ToLower();
-        var query = _context.Set<domain.Entities.Newsletter>()
+        var query = _context.Set<Newsletter>()
                             .Where(n => n.Email.ToLower() == lowerEmail);
 
         if (ignoreId.HasValue && ignoreId.Value > 0)
@@ -213,26 +214,17 @@ public class NewsletterService : INewsletterService
         return await query.AnyAsync();
     }
 
-    // **Service handles business logic: Apply status tracking timestamps**
-    private void ApplyStatusTracking(domain.Entities.Newsletter newsletter)
+    private static void ApplyStatusTracking(Newsletter newsletter)
     {
         if (newsletter.IsActive)
         {
             newsletter.UnsubscribedAt = null;
-            // Only set ConfirmedAt if it hasn't been set before (i.e., it's a new confirmation)
-            // Or always set if IsActive means "currently confirmed"
-            // Original code just set ConfirmedAt = DateTime.UtcNow if IsActive. Let's follow that.
-            newsletter.ConfirmedAt = DateTime.UtcNow;
+            newsletter.ConfirmedAt = DateTime.Now;
         }
         else
         {
-            newsletter.UnsubscribedAt = DateTime.UtcNow;
-            // Only set ConfirmedAt to null if it's becoming inactive
-            // Original code set ConfirmedAt = null if not IsActive. Let's follow that.
+            newsletter.UnsubscribedAt = DateTime.Now;
             newsletter.ConfirmedAt = null;
         }
     }
-
-    // Removed SetTrackingInfo as IP/UA are passed as parameters
-    // private void SetTrackingInfo(Newsletter newsletter) { ... }
 }

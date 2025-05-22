@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Thương hiệu - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Thương hiệu";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Thương hiệu", Url.Action(nameof(Index)) ?? "/Admin/Brand")
-		};
+("Thương hiệu", Url.Action(nameof(Index)) ?? "/Admin/Brand")
+};
 }
 
 @section PageActions {
@@ -48,7 +48,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-eye"></i>
 							</span>
-							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select tom-selected"></select>
+							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions"
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -74,7 +75,8 @@
 		</h3>
 		@if (Model.Brands.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.Brands.FirstItemOnPage-@Model.Brands.LastItemOnPage trên tổng số @Model.Brands.TotalItemCount thương hiệu</small>
+			<small class="text-muted d-none d-md-block">Hiển thị @Model.Brands.FirstItemOnPage-@Model.Brands.LastItemOnPage
+				trên tổng số @Model.Brands.TotalItemCount thương hiệu</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -104,7 +106,8 @@
 							<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
 						</a>
 					}
-					<a asp-action="Create" class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
+					<a asp-action="Create"
+						class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
 						<i class="ti ti-plus me-2"></i> Thêm thương hiệu
 					</a>
 				</div>
@@ -148,7 +151,8 @@
 										{
 											<div class="text-muted small d-flex align-items-center">
 												<i class="ti ti-world me-1"></i>
-												<a href="@item.Website" target="_blank" class="text-reset text-truncate" style="max-width: 200px;">
+												<a href="@item.Website" target="_blank" class="text-reset text-truncate"
+													style="max-width: 200px;">
 													@item.Website
 												</a>
 											</div>
@@ -180,23 +184,21 @@
 										</span>
 									}
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
+											title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Brand")">
+										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+											data-id="@item.Id" data-name="@item.Name"
+											data-delete-url="@Url.Action("Delete", "Brand")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -213,35 +215,35 @@
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model.Brands,
-								page => Url.Action("Index", new
-								{
-									page,
-									searchTerm = Model.Filter.SearchTerm,
-									isActive = Model.Filter.IsActive
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Brands,
+						page => Url.Action("Index", new
+						{
+							page,
+							searchTerm = Model.Filter.SearchTerm,
+							isActive = Model.Filter.IsActive
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('#Filter_SearchTerm').val('');
 				$('#filterForm').submit();
 			});

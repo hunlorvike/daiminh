@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
@@ -28,7 +29,7 @@ public class PageService : IPageService
 
     public async Task<IPagedList<PageListItemViewModel>> GetPagedPagesAsync(PageFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Page> query = _context.Set<domain.Entities.Page>()
+        IQueryable<Page> query = _context.Set<Page>()
                                     .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -54,7 +55,7 @@ public class PageService : IPageService
 
     public async Task<PageViewModel?> GetPageByIdAsync(int id)
     {
-        domain.Entities.Page? page = await _context.Set<domain.Entities.Page>()
+        Page? page = await _context.Set<Page>()
                                .AsNoTracking()
                                .FirstOrDefaultAsync(p => p.Id == id);
 
@@ -70,11 +71,11 @@ public class PageService : IPageService
             return OperationResult<int>.FailureResult(message: "Slug này đã được sử dụng.", errors: new List<string> { "Slug này đã được sử dụng." });
         }
 
-        var page = _mapper.Map<domain.Entities.Page>(viewModel);
+        var page = _mapper.Map<Page>(viewModel);
 
         if (page.Status == PublishStatus.Published && page.PublishedAt == null)
         {
-            page.PublishedAt = DateTime.UtcNow;
+            page.PublishedAt = DateTime.Now;
         }
 
         _context.Add(page);
@@ -108,7 +109,7 @@ public class PageService : IPageService
             return OperationResult.FailureResult(message: "Slug này đã được sử dụng.", errors: new List<string> { "Slug này đã được sử dụng." });
         }
 
-        var page = await _context.Set<domain.Entities.Page>().FirstOrDefaultAsync(p => p.Id == viewModel.Id);
+        var page = await _context.Set<Page>().FirstOrDefaultAsync(p => p.Id == viewModel.Id);
         if (page == null)
         {
             _logger.LogWarning("Page not found for update. ID: {Id}", viewModel.Id);
@@ -121,7 +122,7 @@ public class PageService : IPageService
 
         if (oldStatus != PublishStatus.Published && page.Status == PublishStatus.Published && page.PublishedAt == null)
         {
-            page.PublishedAt = DateTime.UtcNow;
+            page.PublishedAt = DateTime.Now;
         }
 
         try
@@ -150,7 +151,7 @@ public class PageService : IPageService
 
     public async Task<OperationResult> DeletePageAsync(int id)
     {
-        var page = await _context.Set<domain.Entities.Page>().FirstOrDefaultAsync(p => p.Id == id);
+        var page = await _context.Set<Page>().FirstOrDefaultAsync(p => p.Id == id);
 
         if (page == null)
         {
@@ -189,7 +190,7 @@ public class PageService : IPageService
         if (string.IsNullOrWhiteSpace(slug)) return false;
 
         var lowerSlug = slug.Trim().ToLower();
-        var query = _context.Set<domain.Entities.Page>()
+        var query = _context.Set<Page>()
                             .Where(p => p.Slug.ToLower() == lowerSlug);
 
         if (ignoreId.HasValue && ignoreId.Value > 0)

@@ -15,7 +15,7 @@
 		<div class="form-group mb-3">
 			<label asp-for="Answer" class="form-label required"></label>
 			<textarea asp-for="Answer" class="form-control wysiwyg" rows="10"
-					  placeholder="Nhập câu trả lời chi tiết..."></textarea>
+				placeholder="Nhập câu trả lời chi tiết..."></textarea>
 			<span asp-validation-for="Answer" class="text-danger"></span>
 		</div>
 	</div>
@@ -33,7 +33,8 @@
 						<span class="input-group-text">
 							<i class="ti ti-category"></i>
 						</span>
-						<select asp-for="CategoryId" asp-items="@Model.Categories" class="form-select tom-selected"></select>
+						<select asp-for="CategoryId" asp-items="@Model.Categories"
+							class="form-select tom-selected"></select>
 					</div>
 					<span asp-validation-for="CategoryId" class="text-danger"></span>
 					<small class="form-hint">

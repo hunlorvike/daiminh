@@ -1,24 +1,24 @@
-@using web.Areas.Client.ViewModels.Page
+@using web.Areas.Client.ViewModels
 @model PageDetailViewModel
 @{
     ViewData["Title"] = Model.Title;
     ViewData["Description"] = Model.MetaDescription;
     ViewData["Keywords"] = Model.MetaKeywords;
     ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-        new(Model.Title, "")
-    };
+new(Model.Title, "")
+};
 
     if (!string.IsNullOrEmpty(Model.SchemaMarkup))
     {
         <script type="application/ld+json">
-                    @Html.Raw(Model.SchemaMarkup)
-                </script>
+                            @Html.Raw(Model.SchemaMarkup)
+                        </script>
     }
     if (!string.IsNullOrEmpty(Model.BreadcrumbJson))
     {
         <script type="application/ld+json">
-                    @Html.Raw(Model.BreadcrumbJson)
-                </script>
+                            @Html.Raw(Model.BreadcrumbJson)
+                        </script>
     }
 }
 
@@ -31,10 +31,9 @@
             <!-- Ngày xuất bản -->
             @if (Model.PublishedAt.HasValue)
             {
-            <div class="text-muted">
-                <i class="ti ti-calendar me-1"></i>Xuất bản ngày: @Html.ToLocalTime(Model.PublishedAt.Value,
-                                    "Asia/Ho_Chi_Minh", "dd/MM/yyyy")
-            </div>
+                <div class="text-muted">
+                    <i class="ti ti-calendar me-1"></i>Xuất bản ngày: @Model.PublishedAt
+                </div>
             }
 
             <!-- Đường phân cách -->

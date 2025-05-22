@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Chỉnh sửa Danh mục - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Danh mục: {Model.Name}";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category"),
-			($"Chỉnh sửa: {Model.Name}", "")
-		};
+("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category"),
+($"Chỉnh sửa: {Model.Name}", "")
+};
 }
 
 <form asp-action="Edit" method="post">
@@ -42,7 +42,7 @@
 @section Scripts {
 	<script src="~/js/slug.js" asp-append-version="true"></script>
 	<script>
-		$(document).ready(function() {
+		$(document).ready(function () {
 			// Slug generation
 			const slugManager = SlugManager.init({
 				nameInput: '#Name',
@@ -55,7 +55,7 @@
 			}
 
 			// Icon preview
-			$('#Icon').on('input', function() {
+			$('#Icon').on('input', function () {
 				const iconClass = $(this).val() || 'ti ti-folder';
 				$('#iconPreview i').attr('class', iconClass);
 			});
@@ -64,7 +64,7 @@
 			const hasChildren = @Json.Serialize(Model.ItemCount > 0);
 			if (hasChildren) {
 				const originalParent = $('#ParentId').val();
-				$('#ParentId').on('change', function() {
+				$('#ParentId').on('change', function () {
 					const newParent = $(this).val();
 					if (newParent !== originalParent) {
 						if (!confirm('Thay đổi danh mục cha có thể ảnh hưởng đến các danh mục con. Bạn có chắc chắn muốn thay đổi?')) {

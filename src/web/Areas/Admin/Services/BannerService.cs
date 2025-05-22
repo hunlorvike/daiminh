@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
@@ -27,7 +28,7 @@ public class BannerService : IBannerService
 
     public async Task<IPagedList<BannerListItemViewModel>> GetPagedBannersAsync(BannerFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Banner> query = _context.Set<domain.Entities.Banner>()
+        IQueryable<Banner> query = _context.Set<Banner>()
                                        .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
@@ -59,7 +60,7 @@ public class BannerService : IBannerService
 
     public async Task<BannerViewModel?> GetBannerByIdAsync(int id)
     {
-        domain.Entities.Banner? banner = await _context.Set<domain.Entities.Banner>()
+        Banner? banner = await _context.Set<Banner>()
                                   .AsNoTracking()
                                   .FirstOrDefaultAsync(b => b.Id == id);
 
@@ -68,7 +69,7 @@ public class BannerService : IBannerService
 
     public async Task<OperationResult<int>> CreateBannerAsync(BannerViewModel viewModel)
     {
-        var banner = _mapper.Map<domain.Entities.Banner>(viewModel);
+        var banner = _mapper.Map<Banner>(viewModel);
 
         _context.Add(banner);
 
@@ -92,7 +93,7 @@ public class BannerService : IBannerService
 
     public async Task<OperationResult> UpdateBannerAsync(BannerViewModel viewModel)
     {
-        var banner = await _context.Set<domain.Entities.Banner>().FirstOrDefaultAsync(b => b.Id == viewModel.Id);
+        var banner = await _context.Set<Banner>().FirstOrDefaultAsync(b => b.Id == viewModel.Id);
         if (banner == null)
         {
             _logger.LogWarning("Banner not found for update. ID: {Id}", viewModel.Id);
@@ -121,7 +122,7 @@ public class BannerService : IBannerService
 
     public async Task<OperationResult> DeleteBannerAsync(int id)
     {
-        var banner = await _context.Set<domain.Entities.Banner>().FirstOrDefaultAsync(b => b.Id == id);
+        var banner = await _context.Set<Banner>().FirstOrDefaultAsync(b => b.Id == id);
 
         if (banner == null)
         {

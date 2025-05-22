@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Chỉnh sửa Bài viết - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Bài viết: {Model.Title}";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article"),
-		($"Chỉnh sửa: {Model.Title}", "")
-	};
+("Bài viết", Url.Action(nameof(Index)) ?? "/Admin/Article"),
+($"Chỉnh sửa: {Model.Title}", "")
+};
 }
 <form asp-action="Edit" method="post">
 	@Html.AntiForgeryToken()
@@ -32,7 +32,7 @@
 					<ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
 						<li class="nav-item" role="presentation">
 							<a href="#tabs-content" class="nav-link active" data-bs-toggle="tab" role="tab"
-							   aria-selected="true">
+								aria-selected="true">
 								<i class="ti ti-file-text me-2"></i>Nội dung
 							</a>
 						</li>

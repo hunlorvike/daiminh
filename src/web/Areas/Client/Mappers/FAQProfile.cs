@@ -1,6 +1,6 @@
 using AutoMapper;
 using domain.Entities;
-using web.Areas.Client.ViewModels.FAQ;
+using web.Areas.Client.ViewModels;
 
 namespace web.Areas.Client.Mappers;
 

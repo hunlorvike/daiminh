@@ -239,7 +239,8 @@
 		<div class="card h-100">
 			<div class="card-body">
 				<h3 class="card-title">Liên hệ (7 ngày qua)</h3>
-                <div id="chart-recent-contacts" class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 300px;"></div>
+				<div id="chart-recent-contacts" class="d-flex justify-content-center align-items-center flex-grow-1"
+					style="min-height: 300px;"></div>
 			</div>
 		</div>
 	</div>
@@ -248,7 +249,8 @@
 		<div class="card h-100">
 			<div class="card-body d-flex flex-column">
 				<h3 class="card-title">Trạng thái bài viết</h3>
-				<div id="chart-article-status" class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 250px;"></div>
+				<div id="chart-article-status" class="d-flex justify-content-center align-items-center flex-grow-1"
+					style="min-height: 250px;"></div>
 			</div>
 		</div>
 	</div>
@@ -257,7 +259,8 @@
 		<div class="card">
 			<div class="card-body">
 				<h3 class="card-title">Top 5 Danh mục sản phẩm</h3>
-				<div id="chart-product-categories" class="d-flex justify-content-center align-items-center flex-grow-1" style="min-height: 300px;"></div>
+				<div id="chart-product-categories" class="d-flex justify-content-center align-items-center flex-grow-1"
+					style="min-height: 300px;"></div>
 			</div>
 		</div>
 	</div>
@@ -267,8 +270,8 @@
 @section Scripts {
 	<script src="~/lib/apexcharts/dist/apexcharts.min.js" asp-append-version="true"></script>
 
-    <script>
-        $(document).ready(function () {
+	<script>
+		$(document).ready(function () {
 			function renderChart(selector, options, noDataMessage) {
 				const $container = $(selector);
 				if ($container.length === 0) {
@@ -302,139 +305,139 @@
 				}
 			}
 
-            // --- Biểu đồ Trạng thái Bài viết (Donut Chart) ---
-            const articleStatusData = JSON.parse('@Html.Raw(Model.ArticleStatusChartJson)');
-            if (articleStatusData) {
-                const articleStatusOptions = {
-                    chart: {
-                        type: 'donut',
-                        height: '100%',
-                        sparkline: { enabled: false }
-                    },
-                    series: articleStatusData.SingleSeriesData || [],
-                    labels: articleStatusData.Labels || [],
-                    legend: {
-                        position: 'bottom'
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) { return val + " bài"; }
-                        }
-                    },
-                    dataLabels: {
-                        enabled: true,
-                        formatter: function (val, opts) {
-                            return opts.w.config.series[opts.seriesIndex];
-                        }
-                    },
-                    plotOptions: {
-                        pie: {
-                            donut: {
-                                labels: {
-                                    show: true,
-                                    total: {
-                                        showAlways: true,
-                                        show: true,
-                                        label: 'Tổng',
-                                        formatter: function (w) {
-                                            return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    responsive: [{
-                        breakpoint: 480,
-                        options: {
-                            chart: { width: 250 },
-                            legend: { position: 'bottom' }
-                        }
-                    }]
-                };
-                renderChart("#chart-article-status", articleStatusOptions, "Chưa có dữ liệu trạng thái bài viết.");
-            }
+			// --- Biểu đồ Trạng thái Bài viết (Donut Chart) ---
+			const articleStatusData = JSON.parse('@Html.Raw(Model.ArticleStatusChartJson)');
+			if (articleStatusData) {
+				const articleStatusOptions = {
+					chart: {
+						type: 'donut',
+						height: '100%',
+						sparkline: { enabled: false }
+					},
+					series: articleStatusData.SingleSeriesData || [],
+					labels: articleStatusData.Labels || [],
+					legend: {
+						position: 'bottom'
+					},
+					tooltip: {
+						y: {
+							formatter: function (val) { return val + " bài"; }
+						}
+					},
+					dataLabels: {
+						enabled: true,
+						formatter: function (val, opts) {
+							return opts.w.config.series[opts.seriesIndex];
+						}
+					},
+					plotOptions: {
+						pie: {
+							donut: {
+								labels: {
+									show: true,
+									total: {
+										showAlways: true,
+										show: true,
+										label: 'Tổng',
+										formatter: function (w) {
+											return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
+										}
+									}
+								}
+							}
+						}
+					},
+					responsive: [{
+						breakpoint: 480,
+						options: {
+							chart: { width: 250 },
+							legend: { position: 'bottom' }
+						}
+					}]
+				};
+				renderChart("#chart-article-status", articleStatusOptions, "Chưa có dữ liệu trạng thái bài viết.");
+			}
 
-            // --- Biểu đồ Liên hệ mới (Line Chart) ---
-            const recentContactsData = JSON.parse('@Html.Raw(Model.RecentContactsChartJson)');
-            if (recentContactsData) {
-                const recentContactsOptions = {
-                    chart: {
-                        type: 'line',
-                        height: 300,
-                        zoom: { enabled: false },
-                        toolbar: { show: false }
-                    },
-                    series: recentContactsData.Series || [],
-                    xaxis: {
-                        categories: recentContactsData.Labels || [],
-                        type: 'category',
-                        tooltip: { enabled: false }
-                    },
-                    yaxis: {
-                        title: { text: 'Số lượng' },
-                        labels: { formatter: function (val) { return val.toFixed(0); } },
-                        min: 0
-                    },
-                    stroke: { curve: 'smooth', width: 2 },
-                    grid: {
-                        row: { colors: ['#f3f4f5', 'transparent'], opacity: 0.5 }
-                    },
-                    tooltip: {
-                        shared: true,
-                        intersect: false,
-                        y: { formatter: function (val) { return val.toFixed(0) + " liên hệ"; } }
-                    },
-                    legend: {
-                        position: 'top',
-                        horizontalAlign: 'right',
-                        floating: true,
-                        offsetY: -5
-                    }
-                };
-                renderChart("#chart-recent-contacts", recentContactsOptions, "Chưa có dữ liệu liên hệ trong 7 ngày qua.");
-            }
+			// --- Biểu đồ Liên hệ mới (Line Chart) ---
+			const recentContactsData = JSON.parse('@Html.Raw(Model.RecentContactsChartJson)');
+			if (recentContactsData) {
+				const recentContactsOptions = {
+					chart: {
+						type: 'line',
+						height: 300,
+						zoom: { enabled: false },
+						toolbar: { show: false }
+					},
+					series: recentContactsData.Series || [],
+					xaxis: {
+						categories: recentContactsData.Labels || [],
+						type: 'category',
+						tooltip: { enabled: false }
+					},
+					yaxis: {
+						title: { text: 'Số lượng' },
+						labels: { formatter: function (val) { return val.toFixed(0); } },
+						min: 0
+					},
+					stroke: { curve: 'smooth', width: 2 },
+					grid: {
+						row: { colors: ['#f3f4f5', 'transparent'], opacity: 0.5 }
+					},
+					tooltip: {
+						shared: true,
+						intersect: false,
+						y: { formatter: function (val) { return val.toFixed(0) + " liên hệ"; } }
+					},
+					legend: {
+						position: 'top',
+						horizontalAlign: 'right',
+						floating: true,
+						offsetY: -5
+					}
+				};
+				renderChart("#chart-recent-contacts", recentContactsOptions, "Chưa có dữ liệu liên hệ trong 7 ngày qua.");
+			}
 
-            // --- Biểu đồ Danh mục Sản phẩm (Bar Chart) ---
-            const productCategoryData = JSON.parse('@Html.Raw(Model.ProductCategoryChartJson)');
-            if (productCategoryData) {
-                const productCategoryOptions = {
-                    chart: {
-                        type: 'bar',
-                        height: 300,
-                        toolbar: { show: false }
-                    },
-                    series: productCategoryData.Series || [],
-                    xaxis: {
-                        categories: productCategoryData.Labels || [],
-                        labels: {
-                            trim: true
-                        }
-                    },
-                    yaxis: {
-                        title: { text: 'Số lượng SP' },
-                        labels: { formatter: function (val) { return val.toFixed(0); } },
-                        min: 0
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '60%',
-                            dataLabels: {
-                                position: 'top'
-                            }
-                        }
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    tooltip: {
-                        y: { formatter: function (val) { return val.toFixed(0) + " sản phẩm"; } }
-                    },
-                    legend: { show: false }
-                };
-                renderChart("#chart-product-categories", productCategoryOptions, "Chưa có dữ liệu sản phẩm theo danh mục.");
-            }
-        });
-    </script>
+			// --- Biểu đồ Danh mục Sản phẩm (Bar Chart) ---
+			const productCategoryData = JSON.parse('@Html.Raw(Model.ProductCategoryChartJson)');
+			if (productCategoryData) {
+				const productCategoryOptions = {
+					chart: {
+						type: 'bar',
+						height: 300,
+						toolbar: { show: false }
+					},
+					series: productCategoryData.Series || [],
+					xaxis: {
+						categories: productCategoryData.Labels || [],
+						labels: {
+							trim: true
+						}
+					},
+					yaxis: {
+						title: { text: 'Số lượng SP' },
+						labels: { formatter: function (val) { return val.toFixed(0); } },
+						min: 0
+					},
+					plotOptions: {
+						bar: {
+							horizontal: false,
+							columnWidth: '60%',
+							dataLabels: {
+								position: 'top'
+							}
+						}
+					},
+					dataLabels: {
+						enabled: false
+					},
+					tooltip: {
+						y: { formatter: function (val) { return val.toFixed(0) + " sản phẩm"; } }
+					},
+					legend: { show: false }
+				};
+				renderChart("#chart-product-categories", productCategoryOptions, "Chưa có dữ liệu sản phẩm theo danh mục.");
+			}
+		});
+	</script>
 }

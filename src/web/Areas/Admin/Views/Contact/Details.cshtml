@@ -3,9 +3,9 @@
 	ViewData["Title"] = $"Chi tiết Liên hệ: {Model.Subject}";
 	ViewData["PageTitle"] = "Chi tiết Liên hệ";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Liên hệ", Url.Action(nameof(Index)) ?? "/Admin/Contact"),
-		(Model.Subject, "")
-	};
+("Liên hệ", Url.Action(nameof(Index)) ?? "/Admin/Contact"),
+(Model.Subject, "")
+};
 }
 
 <div class="row g-3">
@@ -16,7 +16,8 @@
 					<i class="ti ti-message-circle me-2"></i>Nội dung Liên hệ
 				</h3>
 				<div class="card-actions">
-					<span class="badge @(Model.Status == ContactStatus.New ? "bg-blue-lt" : Model.Status == ContactStatus.Resolved ? "bg-green-lt" : "bg-dark-lt")">
+					<span
+						class="badge @(Model.Status == ContactStatus.New ? "bg-blue-lt" : Model.Status == ContactStatus.Resolved ? "bg-green-lt" : "bg-dark-lt")">
 						@Model.Status.GetDisplayName()
 					</span>
 				</div>
@@ -64,8 +65,8 @@
 						<div class="datagrid-title">
 							<i class="ti ti-calendar me-1"></i>Ngày gửi
 						</div>
-						<div class="datagrid-content" title="@Html.ToLocalTime(Model.CreatedAt, "Asia/Ho_Chi_Minh", "F"))">
-							@Html.ToLocalTime(Model.CreatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")
+						<div class="datagrid-content" title="@Model.CreatedAt">
+							@Model.CreatedAt
 						</div>
 					</div>
 
@@ -147,7 +148,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-status-change"></i>
 							</span>
-							<select asp-for="Status" asp-items="Model.StatusOptions" class="form-select tom-selected"></select>
+							<select asp-for="Status" asp-items="Model.StatusOptions"
+								class="form-select tom-selected"></select>
 						</div>
 						<span asp-validation-for="Status" class="text-danger"></span>
 					</div>
@@ -159,7 +161,7 @@
 								<i class="ti ti-notes"></i>
 							</span>
 							<textarea asp-for="AdminNotes" class="form-control" rows="5"
-									  placeholder="Nhập ghi chú nội bộ về liên hệ này..."></textarea>
+								placeholder="Nhập ghi chú nội bộ về liên hệ này..."></textarea>
 						</div>
 						<span asp-validation-for="AdminNotes" class="text-danger"></span>
 						<small class="form-hint">Ghi chú này chỉ hiển thị trong hệ thống quản trị.</small>
@@ -200,8 +202,8 @@
 				<i class="ti ti-arrow-left me-2"></i> Quay lại Danh sách
 			</a>
 			<button class="btn btn-outline-danger delete-item-btn" title="Xóa liên hệ này" data-id="@Model.Id"
-					data-name="@($"liên hệ từ {Model.FullName} về '{Model.Subject}'")"
-					data-delete-url="@Url.Action("Delete", "Contact")" data-redirect-url="@Url.Action("Index", "Contact")">
+				data-name="@($"liên hệ từ {Model.FullName} về '{Model.Subject}'")"
+				data-delete-url="@Url.Action("Delete", "Contact")" data-redirect-url="@Url.Action("Index", "Contact")">
 				<i class="ti ti-trash me-2"></i> Xóa Liên hệ
 			</button>
 		</div>

@@ -144,7 +144,7 @@ public class UserService : IUserService
         }
 
         // Kiểm tra nếu UserName thay đổi và đã tồn tại
-        if (!user.UserName.Equals(viewModel.UserName, StringComparison.OrdinalIgnoreCase))
+        if (!user.UserName!.Equals(viewModel.UserName, StringComparison.OrdinalIgnoreCase))
         {
             var existingUserByUserName = await _userManager.FindByNameAsync(viewModel.UserName);
             if (existingUserByUserName != null && existingUserByUserName.Id != user.Id)

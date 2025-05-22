@@ -46,25 +46,5 @@ public class CategoryConfiguration : BaseEntityConfiguration<Category, int>
             .WithMany(c => c.Children)
             .HasForeignKey(e => e.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasData(
-            new Category { Id = 1, Name = "Sơn", Slug = "son", Type = CategoryType.Product, OrderIndex = 0, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 2, Name = "Chống Thấm", Slug = "chong-tham", Type = CategoryType.Product, OrderIndex = 1, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 3, Name = "Vật Liệu Xây Dựng", Slug = "vat-lieu-xay-dung", Type = CategoryType.Product, OrderIndex = 2, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 4, Name = "Tin Tức & Sự Kiện", Slug = "tin-tuc-su-kien", Type = CategoryType.Article, OrderIndex = 3, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 5, Name = "Câu Hỏi Thường Gặp", Slug = "cau-hoi-thuong-gap", Type = CategoryType.FAQ, OrderIndex = 4, IsActive = true, CreatedAt = DateTime.UtcNow },
-
-            new Category { Id = 6, ParentId = 1, Name = "Sơn Nội Thất", Slug = "son-noi-that", Type = CategoryType.Product, OrderIndex = 0, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 7, ParentId = 1, Name = "Sơn Ngoại Thất", Slug = "son-ngoai-that", Type = CategoryType.Product, OrderIndex = 1, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 8, ParentId = 1, Name = "Sơn Lót", Slug = "son-lot", Type = CategoryType.Product, OrderIndex = 2, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 9, ParentId = 1, Name = "Sơn Chống Kiềm", Slug = "son-chong-kiem", Type = CategoryType.Product, OrderIndex = 3, IsActive = true, CreatedAt = DateTime.UtcNow },
-
-            new Category { Id = 10, ParentId = 2, Name = "Chống Thấm Sàn Mái", Slug = "chong-tham-san-mai", Type = CategoryType.Product, OrderIndex = 0, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 11, ParentId = 2, Name = "Chống Thấm Tường", Slug = "chong-tham-tuong", Type = CategoryType.Product, OrderIndex = 1, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 12, ParentId = 2, Name = "Chống Thấm Nhà Vệ Sinh", Slug = "chong-tham-nha-ve-sinh", Type = CategoryType.Product, OrderIndex = 2, IsActive = true, CreatedAt = DateTime.UtcNow },
-
-            new Category { Id = 13, ParentId = 3, Name = "Phụ Gia Bê Tông", Slug = "phu-gia-be-tong", Type = CategoryType.Product, OrderIndex = 0, IsActive = true, CreatedAt = DateTime.UtcNow },
-            new Category { Id = 14, ParentId = 3, Name = "Keo Chít Mạch", Slug = "keo-chit-mach", Type = CategoryType.Product, OrderIndex = 1, IsActive = true, CreatedAt = DateTime.UtcNow }
-        );
     }
 }

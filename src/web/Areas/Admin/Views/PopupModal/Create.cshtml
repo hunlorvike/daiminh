@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Thêm Popup mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm Popup mới";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Popup", Url.Action(nameof(Index)) ?? "/Admin/PopupModal"),
-		("Thêm mới", "")
-	};
+("Popup", Url.Action(nameof(Index)) ?? "/Admin/PopupModal"),
+("Thêm mới", "")
+};
 }
 
 <form asp-area="Admin" asp-controller="PopupModal" asp-action="Create" method="post">
@@ -48,33 +48,33 @@
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-            $('.select-media-button').on('click', function () {
-                const $button = $(this);
-                const $targetInput = $button.closest('.input-group').find('.media-url-input');
-                const $previewArea = $button.closest('.form-group').find('.media-preview-area');
+			$('.select-media-button').on('click', function () {
+				const $button = $(this);
+				const $targetInput = $button.closest('.input-group').find('.media-url-input');
+				const $previewArea = $button.closest('.form-group').find('.media-preview-area');
 
-                const callback = function (selectedFile) {
-                    $targetInput.val(selectedFile.url);
-                    $previewArea.html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
+				const callback = function (selectedFile) {
+					$targetInput.val(selectedFile.url);
+					$previewArea.html(`<img src="${selectedFile.url}" style="max-width: 100px; height: auto;" class="img-thumbnail" />`);
 					$('#image-preview').html(`<img src="${selectedFile.url}" class="avatar-img rounded" />`);
-                };
+				};
 
-                if (typeof openMediaModal === 'function') {
-                    openMediaModal($targetInput, callback);
-                } else {
-                    console.error('openMediaModal function not found.');
-                }
-            });
+				if (typeof openMediaModal === 'function') {
+					openMediaModal($targetInput, callback);
+				} else {
+					console.error('openMediaModal function not found.');
+				}
+			});
 
-            $('.media-url-input').on('input', function() {
-                const $input = $(this);
-                if ($input.val() === '') {
-                    $input.closest('.form-group').find('.media-preview-area').empty();
+			$('.media-url-input').on('input', function () {
+				const $input = $(this);
+				if ($input.val() === '') {
+					$input.closest('.form-group').find('.media-preview-area').empty();
 					$('#image-preview').html(`<span class="avatar-img"><i class="ti ti-photo fs-1"></i></span>`);
-                } else {
-                     $('#image-preview').html(`<img src="${$input.val()}" class="avatar-img rounded" />`);
-                }
-            });
+				} else {
+					$('#image-preview').html(`<img src="${$input.val()}" class="avatar-img rounded" />`);
+				}
+			});
 		});
 	</script>
 }

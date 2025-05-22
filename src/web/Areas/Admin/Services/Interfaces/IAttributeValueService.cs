@@ -1,3 +1,4 @@
+using domain.Entities;
 using shared.Models;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -20,5 +21,5 @@ public interface IAttributeValueService
 
     Task<bool> IsUsedInProductVariationsAsync(int attributeValueId);
 
-    Task<domain.Entities.AttributeValue?> GetAttributeValueEntityWithParentAsync(int id);
+    Task<AttributeValue?> GetAttributeValueEntityWithParentAsync(int id);
 }

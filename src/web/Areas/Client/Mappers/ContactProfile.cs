@@ -1,6 +1,6 @@
 using AutoMapper;
 using domain.Entities;
-using web.Areas.Client.ViewModels.Contact;
+using web.Areas.Client.ViewModels;
 
 namespace web.Areas.Client.Mappers;
 

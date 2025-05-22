@@ -3,16 +3,18 @@
 	ViewData["Title"] = "Quản lý Danh mục - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Danh mục";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category")
-		};
+("Danh mục", Url.Action(nameof(Index)) ?? "/Admin/Category")
+};
 }
 
 @section PageActions {
 	<div class="btn-list">
-		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary d-none d-sm-inline-block">
+		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))"
+			class="btn btn-primary d-none d-sm-inline-block">
 			<i class="ti ti-plus me-2"></i> Thêm Danh mục
 		</a>
-		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary d-sm-none btn-icon">
+		<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))"
+			class="btn btn-primary d-sm-none btn-icon">
 			<i class="ti ti-plus"></i>
 		</a>
 	</div>
@@ -48,7 +50,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-category"></i>
 							</span>
-							<select asp-for="Filter.Type" asp-items="@Model.Filter.TypeOptions" class="form-select tom-selected"></select>
+							<select asp-for="Filter.Type" asp-items="@Model.Filter.TypeOptions"
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -59,7 +62,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-eye"></i>
 							</span>
-							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select tom-selected"></select>
+							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions"
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -85,7 +89,9 @@
 		</h3>
 		@if (Model.Categories.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.Categories.FirstItemOnPage-@Model.Categories.LastItemOnPage trên tổng số @Model.Categories.TotalItemCount danh mục</small>
+			<small class="text-muted d-none d-md-block">Hiển thị
+				@Model.Categories.FirstItemOnPage-@Model.Categories.LastItemOnPage trên tổng số
+				@Model.Categories.TotalItemCount danh mục</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -99,7 +105,8 @@
 				</div>
 				<p class="empty-title mt-3">Không tìm thấy danh mục nào</p>
 				<p class="empty-subtitle text-muted">
-					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue && !Model.Filter.Type.HasValue)
+					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue &&
+									!Model.Filter.Type.HasValue)
 					{
 						@:Hãy thêm danh mục đầu tiên.
 					}
@@ -109,7 +116,8 @@
 					}
 				</p>
 				<div class="empty-action">
-					<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))" class="btn btn-primary">
+					<a asp-action="Create" asp-route-type="@((int)(Model.Filter.Type ?? shared.Enums.CategoryType.Product))"
+						class="btn btn-primary">
 						<i class="ti ti-plus me-2"></i> Thêm danh mục
 					</a>
 				</div>
@@ -204,21 +212,22 @@
 								</td>
 								<td>
 									<div class="btn-group">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
+											title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn @(item.HasChildren || item.ItemCount > 0 ? "disabled" : "")"
-												title="@(item.HasChildren || item.ItemCount > 0 ? "Không thể xóa danh mục có mục con hoặc đang được sử dụng" : "Xóa")"
-												data-id="@item.Id"
-												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Category")"
-										@(item.HasChildren || item.ItemCount > 0 ? "disabled" : "")>
-											<i class="ti ti-trash"></i>
-										</button>
-									</div>
-								</td>
-							</tr>
-						}
+										<button
+											class="btn btn-sm btn-outline-danger delete-item-btn @(item.HasChildren || item.ItemCount > 0 ? "disabled" : "")"
+											title="@(item.HasChildren || item.ItemCount > 0 ? "Không thể xóa danh mục có mục con hoặc đang được sử dụng" : "Xóa")"
+											data-id="@item.Id" data-name="@item.Name"
+											data-delete-url="@Url.Action("Delete", "Category")" @(item.HasChildren ||
+																										 item.ItemCount > 0 ? "disabled" : "")>
+									<i class="ti ti-trash"></i>
+								</button>
+							</div>
+						</td>
+					</tr>
+										}
 					</tbody>
 				</table>
 			</div>
@@ -229,36 +238,36 @@
 		<div class="card-footer">
 			<div class="d-flex justify-content-center">
 				@Html.PagedListPager(
-								Model.Categories,
-								page => Url.Action("Index", new
-								{
-									page,
-									Model.Filter.SearchTerm,
-									Model.Filter.Type,
-									Model.Filter.IsActive
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Categories,
+						page => Url.Action("Index", new
+						{
+							page,
+							Model.Filter.SearchTerm,
+							Model.Filter.Type,
+							Model.Filter.IsActive
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('#Filter_SearchTerm').val('');
 				$('#filterForm').submit();
 			});

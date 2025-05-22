@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Đăng ký Newsletter - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Đăng ký Newsletter";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter")
-	};
+("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter")
+};
 }
 
 @section PageActions {
@@ -49,7 +49,7 @@
 								<i class="ti ti-activity"></i>
 							</span>
 							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions"
-									class="form-select tom-selected"></select>
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -146,12 +146,12 @@
 											<div class="text-muted small d-md-none">
 												@(string.IsNullOrEmpty(item.Name) ? "-" :
 																						item.Name)
-											</div>
-										</div>
 									</div>
-								</td>
-								<td class="d-none d-md-table-cell">
-									@if (!string.IsNullOrEmpty(item.Name))
+								</div>
+							</div>
+						</td>
+						<td class="d-none d-md-table-cell">
+							@if (!string.IsNullOrEmpty(item.Name))
 									{
 										<span>@item.Name</span>
 									}
@@ -176,19 +176,18 @@
 										</span>
 									}
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.CreatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.CreatedAt, "Asia/Ho_Chi_Minh")
+										@item.CreatedAt
 									</div>
 								</td>
-								<td class="d-none d-xl-table-cell" title="@Html.ToLocalTime(item.ConfirmedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="d-none d-xl-table-cell" title="@item.ConfirmedAt">
 									@if (item.ConfirmedAt.HasValue)
 									{
 										<div class="d-flex align-items-center">
 											<i class="ti ti-check-circle me-1 text-success"></i>
-											<span>@Html.ToLocalTime(item.ConfirmedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm")</span>
+											<span>@item.ConfirmedAt</span>
 										</div>
 									}
 									else
@@ -196,13 +195,12 @@
 										<span class="text-muted">—</span>
 									}
 								</td>
-								<td class="d-none d-xl-table-cell"
-									title="@Html.ToLocalTime(item.UnsubscribedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="d-none d-xl-table-cell" title="@item.UnsubscribedAt">
 									@if (item.UnsubscribedAt.HasValue)
 									{
 										<div class="d-flex align-items-center">
 											<i class="ti ti-circle-x me-1 text-danger"></i>
-											<span>@Html.ToLocalTime(item.UnsubscribedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")</span>
+											<span>@item.UnsubscribedAt</span>
 										</div>
 									}
 									else
@@ -213,12 +211,12 @@
 								<td class="text-end">
 									<div class="btn-group">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
-										   title="Chỉnh sửa">
+											title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
 										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-												data-id="@item.Id" data-name="@item.Email"
-												data-delete-url="@Url.Action("Delete", "Newsletter")">
+											data-id="@item.Id" data-name="@item.Email"
+											data-delete-url="@Url.Action("Delete", "Newsletter")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -235,29 +233,29 @@
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model.Newsletters,
-								page => Url.Action("Index", new
-								{
-									page,
-									searchTerm = Model.Filter.SearchTerm,
-									isActive = Model.Filter.IsActive
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Newsletters,
+						page => Url.Action("Index", new
+						{
+							page,
+							searchTerm = Model.Filter.SearchTerm,
+							isActive = Model.Filter.IsActive
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {

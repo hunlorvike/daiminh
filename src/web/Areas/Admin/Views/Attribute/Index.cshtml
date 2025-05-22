@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Thuộc tính - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Thuộc tính";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute")
-		};
+("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute")
+};
 }
 
 @section PageActions {
@@ -63,7 +63,9 @@
 		</h3>
 		@if (Model.Attributes.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.Attributes.FirstItemOnPage-@Model.Attributes.LastItemOnPage trên tổng số @Model.Attributes.TotalItemCount thuộc tính</small>
+			<small class="text-muted d-none d-md-block">Hiển thị
+				@Model.Attributes.FirstItemOnPage-@Model.Attributes.LastItemOnPage trên tổng số
+				@Model.Attributes.TotalItemCount thuộc tính</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -93,7 +95,8 @@
 							<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
 						</a>
 					}
-					<a asp-action="Create" class="btn btn-primary @(!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) ? "ms-2" : "")">
+					<a asp-action="Create"
+						class="btn btn-primary @(!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) ? "ms-2" : "")">
 						<i class="ti ti-plus me-2"></i> Thêm thuộc tính
 					</a>
 				</div>
@@ -133,42 +136,42 @@
 								<td class="text-center">
 									@if (item.ValueCount > 0)
 									{
-										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@item.Id"
-										   class="badge bg-azure-lt hover-shadow" title="Xem các giá trị">
+										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index"
+											asp-route-AttributeId="@item.Id" class="badge bg-azure-lt hover-shadow"
+											title="Xem các giá trị">
 											<i class="ti ti-list me-1"></i>
 											@item.ValueCount giá trị
 										</a>
 									}
 									else
 									{
-										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create" asp-route-AttributeId="@item.Id"
-										   class="badge bg-muted-lt" title="Thêm giá trị">
+										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create"
+											asp-route-AttributeId="@item.Id" class="badge bg-muted-lt" title="Thêm giá trị">
 											<i class="ti ti-plus me-1"></i>
 											Thêm giá trị
 										</a>
 									}
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
-										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
+											title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index" asp-route-AttributeId="@item.Id"
-										   class="btn btn-sm btn-outline-info" title="Quản lý giá trị">
+										<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index"
+											asp-route-AttributeId="@item.Id" class="btn btn-sm btn-outline-info"
+											title="Quản lý giá trị">
 											<i class="ti ti-list"></i>
 										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Attribute")">
+										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+											data-id="@item.Id" data-name="@item.Name"
+											data-delete-url="@Url.Action("Delete", "Attribute")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -185,42 +188,42 @@
 		<div class="card-footer">
 			<div class="d-flex justify-content-center">
 				@Html.PagedListPager(
-								Model.Attributes,
-								page => Url.Action("Index", new
-								{
-									page,
-									Model.Filter.SearchTerm
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Attributes,
+						page => Url.Action("Index", new
+						{
+							page,
+							Model.Filter.SearchTerm
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('#Filter_SearchTerm').val('');
 				$('#filterForm').submit();
 			});
 
 			// Add hover effect to value badges
 			$('.badge.bg-azure-lt').hover(
-				function() { $(this).removeClass('bg-azure-lt').addClass('bg-azure'); },
-				function() { $(this).removeClass('bg-azure').addClass('bg-azure-lt'); }
+				function () { $(this).removeClass('bg-azure-lt').addClass('bg-azure'); },
+				function () { $(this).removeClass('bg-azure').addClass('bg-azure-lt'); }
 			);
 		});
 	</script>

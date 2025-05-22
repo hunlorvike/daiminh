@@ -1,3 +1,4 @@
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using web.Areas.Admin.ViewModels;
@@ -38,7 +39,7 @@ public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
 
     private bool BeUniqueSlugAndType(CategoryViewModel viewModel, string slug)
     {
-        return !_context.Set<domain.Entities.Category>()
+        return !_context.Set<Category>()
                               .Any(c => c.Slug == slug && c.Type == viewModel.Type && c.Id != viewModel.Id);
     }
 
@@ -56,7 +57,7 @@ public class CategoryViewModelValidator : AbstractValidator<CategoryViewModel>
 
     private List<int> GetDescendantIdsAsync(int categoryId)
     {
-        var childrenIds = _context.Set<domain.Entities.Category>()
+        var childrenIds = _context.Set<Category>()
                                        .Where(c => c.ParentId == categoryId)
                                        .Select(c => c.Id)
                                        .ToList();

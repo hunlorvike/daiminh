@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Chỉnh sửa Thuộc tính - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Thuộc tính: {Model.Name}";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
-		($"Chỉnh sửa: {Model.Name}", "")
-	};
+("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
+($"Chỉnh sửa: {Model.Name}", "")
+};
 }
 
 <form asp-action="Edit" method="post">
@@ -41,7 +41,7 @@
 						</h3>
 						<div class="card-actions">
 							<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Index"
-							   asp-route-AttributeId="@Model.Id" class="btn btn-primary btn-sm">
+								asp-route-AttributeId="@Model.Id" class="btn btn-primary btn-sm">
 								<i class="ti ti-list me-1"></i>Quản lý giá trị
 							</a>
 						</div>
@@ -59,7 +59,7 @@
 								<span class="text-muted">Quản lý các giá trị cho thuộc tính này</span>
 							</span>
 							<a asp-area="Admin" asp-controller="AttributeValue" asp-action="Create"
-							   asp-route-AttributeId="@Model.Id" class="btn btn-outline-primary btn-sm">
+								asp-route-AttributeId="@Model.Id" class="btn btn-outline-primary btn-sm">
 								<i class="ti ti-plus me-1"></i>Thêm giá trị mới
 							</a>
 						</div>

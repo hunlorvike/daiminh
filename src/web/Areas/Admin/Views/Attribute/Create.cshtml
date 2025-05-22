@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Thêm Thuộc tính mới - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Thêm Thuộc tính mới";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
-		("Thêm mới", "")
-	};
+("Thuộc tính", Url.Action(nameof(Index)) ?? "/Admin/Attribute"),
+("Thêm mới", "")
+};
 }
 
 <form asp-action="Create" method="post">

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
-namespace web.Areas.Client.ViewModels.Contact;
+namespace web.Areas.Client.ViewModels;
 
 public class ContactViewModel
 {

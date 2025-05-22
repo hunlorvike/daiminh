@@ -3,9 +3,9 @@
 	ViewData["Title"] = "Chỉnh sửa Đăng ký Newsletter - Hệ thống quản trị";
 	ViewData["PageTitle"] = $"Chỉnh sửa Đăng ký Newsletter: {Model.Email}";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
-		($"Chỉnh sửa: {Model.Email}", "")
-	};
+("Newsletter", Url.Action(nameof(Index)) ?? "Admin/Newsletter"),
+($"Chỉnh sửa: {Model.Email}", "")
+};
 }
 
 @section PageActions {
@@ -57,7 +57,7 @@
 									<span class="badge @(Model.IsActive ? "bg-green-lt" : "bg-red-lt") me-2">
 										@(Model.IsActive ? "Đang hoạt động" : "Đã hủy đăng ký")
 									</span>
-									<span>Đăng ký lúc:	@Html.ToLocalTime(Model.CreatedAt, "Asia/Ho_Chi_Minh")</span>
+									<span>Đăng ký lúc: @Model.CreatedAt</span>
 								</p>
 							</div>
 						</div>

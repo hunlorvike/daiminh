@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Trang tĩnh - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Trang tĩnh";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Trang tĩnh", Url.Action(nameof(Index)) ?? "/Admin/Page")
-	};
+("Trang tĩnh", Url.Action(nameof(Index)) ?? "/Admin/Page")
+};
 }
 
 @section PageActions {
@@ -165,13 +165,12 @@
 										<span class="d-none d-md-inline">@statusText</span>
 									</span>
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.PublishedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.PublishedAt">
 									@if (item.PublishedAt.HasValue)
 									{
 										<div class="d-flex align-items-center">
 											<i class="ti ti-calendar me-1"></i>
-											@Html.ToLocalTime(item.PublishedAt, "Asia/Ho_Chi_Minh")
+											@item.PublishedAt
 										</div>
 									}
 									else
@@ -179,11 +178,10 @@
 										<span>--</span>
 									}
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">

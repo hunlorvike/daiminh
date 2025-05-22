@@ -1,6 +1,7 @@
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
+using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ public class TagService : ITagService
 
     public async Task<IPagedList<TagListItemViewModel>> GetPagedTagsAsync(TagFilterViewModel filter, int pageNumber, int pageSize)
     {
-        IQueryable<domain.Entities.Tag> query = _context.Set<domain.Entities.Tag>()
+        IQueryable<Tag> query = _context.Set<Tag>()
                                         .Include(t => t.ProductTags)
                                         .Include(t => t.ArticleTags);
 
@@ -59,7 +60,7 @@ public class TagService : ITagService
 
     public async Task<TagViewModel?> GetTagByIdAsync(int id)
     {
-        domain.Entities.Tag? tag = await _context.Set<domain.Entities.Tag>().AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
+        Tag? tag = await _context.Set<Tag>().AsNoTracking().FirstOrDefaultAsync(t => t.Id == id);
 
         return _mapper.Map<TagViewModel>(tag);
     }
@@ -71,7 +72,7 @@ public class TagService : ITagService
             return OperationResult<int>.FailureResult(message: $"Tên thẻ '{viewModel.Name}' đã tồn tại cho loại này.", errors: new List<string> { $"Tên thẻ '{viewModel.Name}' đã tồn tại cho loại này." });
         }
 
-        var tag = _mapper.Map<domain.Entities.Tag>(viewModel);
+        var tag = _mapper.Map<Tag>(viewModel);
         _context.Add(tag);
 
         try
@@ -103,7 +104,7 @@ public class TagService : ITagService
             return OperationResult.FailureResult(message: $"Tên thẻ '{viewModel.Name}' đã tồn tại cho loại này.", errors: new List<string> { $"Tên thẻ '{viewModel.Name}' đã tồn tại cho loại này." });
         }
 
-        var tag = await _context.Set<domain.Entities.Tag>().FirstOrDefaultAsync(t => t.Id == viewModel.Id);
+        var tag = await _context.Set<Tag>().FirstOrDefaultAsync(t => t.Id == viewModel.Id);
         if (tag == null)
         {
             _logger.LogWarning("Tag not found for update. ID: {Id}", viewModel.Id);
@@ -152,7 +153,7 @@ public class TagService : ITagService
             return OperationResult.FailureResult($"Không thể xóa thẻ '{checkResult.name}' vì đang được sử dụng bởi {totalItems} {itemTypeName}.");
         }
 
-        var tagToDelete = new domain.Entities.Tag { Id = id };
+        var tagToDelete = new Tag { Id = id };
         _context.Entry(tagToDelete).State = EntityState.Deleted;
 
 
@@ -184,7 +185,7 @@ public class TagService : ITagService
         if (string.IsNullOrWhiteSpace(name)) return false;
 
         var lowerName = name.Trim().ToLower();
-        var query = _context.Set<domain.Entities.Tag>()
+        var query = _context.Set<Tag>()
                             .Where(t => t.Name.ToLower() == lowerName && t.Type == type);
 
         if (ignoreId.HasValue && ignoreId.Value > 0)
@@ -197,7 +198,7 @@ public class TagService : ITagService
 
     public async Task<(int productCount, int articleCount, TagType type, string name)> CheckTagRelationsAsync(int tagId)
     {
-        var tagData = await _context.Set<domain.Entities.Tag>()
+        var tagData = await _context.Set<Tag>()
           .Where(t => t.Id == tagId)
           .Select(t => new
           {
@@ -215,7 +216,7 @@ public class TagService : ITagService
 
     public async Task<List<SelectListItem>> GetTagSelectListAsync(TagType type, List<int>? selectedValues = null)
     {
-        var tags = await _context.Set<domain.Entities.Tag>()
+        var tags = await _context.Set<Tag>()
                      .Where(t => t.Type == type)
                      .OrderBy(t => t.Name)
                      .AsNoTracking()

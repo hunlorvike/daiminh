@@ -1,3 +1,4 @@
+using domain.Entities;
 using FluentValidation;
 using infrastructure;
 using shared.Enums;
@@ -60,7 +61,7 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
 
     private bool BeUniqueSlug(ArticleViewModel viewModel, string slug)
     {
-        return !_context.Set<domain.Entities.Article>()
+        return !_context.Set<Article>()
                               .Any(a => a.Slug == slug && a.Id != viewModel.Id);
     }
 
@@ -68,7 +69,7 @@ public class ArticleViewModelValidator : AbstractValidator<ArticleViewModel>
     {
         if (categoryId == null) return false;
 
-        return _context.Set<domain.Entities.Category>()
+        return _context.Set<Category>()
                        .Any(c => c.Id == categoryId && c.Type == CategoryType.Article);
     }
 }

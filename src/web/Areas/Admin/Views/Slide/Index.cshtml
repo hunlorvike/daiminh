@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Slide - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Slide";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-			("Slide", Url.Action(nameof(Index)) ?? "/Admin/Slide")
-		};
+("Slide", Url.Action(nameof(Index)) ?? "/Admin/Slide")
+};
 }
 
 @section PageActions {
@@ -34,7 +34,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-search"></i>
 							</span>
-							<input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tiêu đề, mô tả, text CTA...">
+							<input asp-for="Filter.SearchTerm" class="form-control"
+								placeholder="Tìm tiêu đề, mô tả, text CTA...">
 							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 								<i class="ti ti-x"></i>
 							</button>
@@ -48,7 +49,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-eye"></i>
 							</span>
-							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.ActiveStatusOptions" class="form-select tom-selected"></select>
+							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.ActiveStatusOptions"
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -58,7 +60,8 @@
 					</button>
 				</div>
 				<div class="col-md-2 col-6">
-					<a asp-area="Admin" asp-controller="Slide" asp-action="Index" class="btn btn-outline-secondary w-100">
+					<a asp-area="Admin" asp-controller="Slide" asp-action="Index"
+						class="btn btn-outline-secondary w-100">
 						<i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
 					</a>
 				</div>
@@ -74,7 +77,8 @@
 		</h3>
 		@if (Model.Slides.TotalItemCount > 0)
 		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.Slides.FirstItemOnPage-@Model.Slides.LastItemOnPage trên tổng số @Model.Slides.TotalItemCount slide</small>
+			<small class="text-muted d-none d-md-block">Hiển thị @Model.Slides.FirstItemOnPage-@Model.Slides.LastItemOnPage
+				trên tổng số @Model.Slides.TotalItemCount slide</small>
 		}
 	</div>
 	<div class="card-body p-0">
@@ -104,7 +108,8 @@
 							<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
 						</a>
 					}
-					<a asp-area="Admin" asp-controller="Slide" asp-action="Create" class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
+					<a asp-area="Admin" asp-controller="Slide" asp-action="Create"
+						class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
 						<i class="ti ti-plus me-2"></i> Thêm slide
 					</a>
 				</div>
@@ -152,7 +157,8 @@
 								<td class="text-muted d-none d-md-table-cell">
 									@if (!string.IsNullOrEmpty(item.CtaLink))
 									{
-										<a href="@item.CtaLink" target="_blank" class="text-reset text-truncate" style="max-width: 200px;">
+										<a href="@item.CtaLink" target="_blank" class="text-reset text-truncate"
+											style="max-width: 200px;">
 											<i class="ti ti-link me-1"></i>@item.CtaLink
 										</a>
 									}
@@ -184,14 +190,15 @@
 									<div class="d-flex flex-column align-items-start">
 										@if (item.StartAt.HasValue)
 										{
-											<small class="d-flex align-items-center mb-1" title="@Html.ToLocalTime(item.StartAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
-												<i class="ti ti-calendar-plus me-1"></i> BĐ: @Html.ToLocalTime(item.StartAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy")
+											<small class="d-flex align-items-center mb-1" title="@item.StartAt">
+												<i class="ti ti-calendar-plus me-1"></i> BĐ: @item.StartAt,
+												"Asia/Ho_Chi_Minh", "dd/MM/yyyy")
 											</small>
 										}
 										@if (item.EndAt.HasValue)
 										{
-											<small class="d-flex align-items-center" title="@Html.ToLocalTime(item.EndAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
-												<i class="ti ti-calendar-minus me-1"></i> KT: @Html.ToLocalTime(item.EndAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy")
+											<small class="d-flex align-items-center" title="@item.EndAt">
+												<i class="ti ti-calendar-minus me-1"></i> KT: @item.EndAt
 											</small>
 										}
 										@if (!item.StartAt.HasValue && !item.EndAt.HasValue)
@@ -200,23 +207,21 @@
 										}
 									</div>
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
-										<a asp-area="Admin" asp-controller="Slide" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+										<a asp-area="Admin" asp-controller="Slide" asp-action="Edit" asp-route-id="@item.Id"
+											class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn"
-												title="Xóa"
-												data-id="@item.Id"
-												data-name="@item.Title"
-												data-delete-url="@Url.Action("Delete", "Slide", new { area = "Admin" })">
+										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+											data-id="@item.Id" data-name="@item.Title"
+											data-delete-url="@Url.Action("Delete", "Slide", new { area = "Admin" })">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -233,36 +238,36 @@
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model.Slides,
-								page => Url.Action("Index", new
-								{
-									area = "Admin", // Ensure area is included in pagination links
-									page,
-									searchTerm = Model.Filter.SearchTerm,
-									isActive = Model.Filter.IsActive // Pass boolean value
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Slides,
+						page => Url.Action("Index", new
+						{
+							area = "Admin", // Ensure area is included in pagination links
+							page,
+							searchTerm = Model.Filter.SearchTerm,
+							isActive = Model.Filter.IsActive // Pass boolean value
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {
 	<script>
 		$(document).ready(function () {
-			$('#clearSearch').on('click', function() {
+			$('#clearSearch').on('click', function () {
 				$('#Filter_SearchTerm').val('');
 				$('#filterForm').submit();
 			});

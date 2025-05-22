@@ -1,4 +1,4 @@
-namespace web.Areas.Client.ViewModels.Page;
+namespace web.Areas.Client.ViewModels;
 
 public class PageDetailViewModel
 {

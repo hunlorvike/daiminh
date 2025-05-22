@@ -3,8 +3,8 @@
 	ViewData["Title"] = "Quản lý Sản phẩm - Hệ thống quản trị";
 	ViewData["PageTitle"] = "Danh sách Sản phẩm";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product")
-	};
+("Sản phẩm", Url.Action(nameof(Index)) ?? "/Admin/Product")
+};
 }
 
 @section PageActions {
@@ -35,7 +35,7 @@
 								<i class="ti ti-search"></i>
 							</span>
 							<input asp-for="Filter.SearchTerm" class="form-control"
-								   placeholder="Tìm tên, mô tả, nhà sản xuất...">
+								placeholder="Tìm tên, mô tả, nhà sản xuất...">
 							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 								<i class="ti ti-x"></i>
 							</button>
@@ -50,7 +50,7 @@
 								<i class="ti ti-category"></i>
 							</span>
 							<select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions"
-									class="form-select tom-selected">
+								class="form-select tom-selected">
 							</select>
 						</div>
 					</div>
@@ -62,7 +62,8 @@
 							<span class="input-group-text">
 								<i class="ti ti-building-store"></i>
 							</span>
-							<select asp-for="Filter.BrandId" asp-items="@Model.Filter.BrandOptions" class="form-select tom-selected">
+							<select asp-for="Filter.BrandId" asp-items="@Model.Filter.BrandOptions"
+								class="form-select tom-selected">
 							</select>
 						</div>
 					</div>
@@ -75,7 +76,7 @@
 								<i class="ti ti-eye"></i>
 							</span>
 							<select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions"
-									class="form-select tom-selected"></select>
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -87,7 +88,7 @@
 								<i class="ti ti-star"></i>
 							</span>
 							<select asp-for="Filter.IsFeatured" asp-items="@Model.Filter.IsFeaturedOptions"
-									class="form-select tom-selected"></select>
+								class="form-select tom-selected"></select>
 						</div>
 					</div>
 				</div>
@@ -132,8 +133,8 @@
 				<p class="empty-title mt-3">Không tìm thấy sản phẩm nào</p>
 				<p class="empty-subtitle text-muted">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue &&
-										!Model.Filter.CategoryId.HasValue && !Model.Filter.BrandId.HasValue &&
-										!Model.Filter.IsFeatured.HasValue)
+									!Model.Filter.CategoryId.HasValue && !Model.Filter.BrandId.HasValue &&
+									!Model.Filter.IsFeatured.HasValue)
 					{
 						@:Hãy thêm sản phẩm đầu tiên.
 					}
@@ -144,8 +145,8 @@
 				</p>
 				<div class="empty-action">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.Status.HasValue &&
-										!Model.Filter.CategoryId.HasValue && !Model.Filter.BrandId.HasValue &&
-										!Model.Filter.IsFeatured.HasValue)
+									!Model.Filter.CategoryId.HasValue && !Model.Filter.BrandId.HasValue &&
+									!Model.Filter.IsFeatured.HasValue)
 					{
 						<a asp-action="Create" class="btn btn-primary">
 							<i class="ti ti-plus me-2"></i> Thêm sản phẩm
@@ -299,22 +300,21 @@
 								<td class="text-center d-none d-lg-table-cell">
 									<span class="badge bg-yellow-lt">@item.ReviewCount</span>
 								</td>
-								<td class="text-muted d-none d-lg-table-cell"
-									title="@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh", "dd/MM/yyyy HH:mm:ss")">
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
 									<div class="d-flex align-items-center">
 										<i class="ti ti-calendar-time me-1"></i>
-										@Html.ToLocalTime(item.UpdatedAt, "Asia/Ho_Chi_Minh")
+										@item.UpdatedAt
 									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
 										<a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-primary"
-										   title="Chỉnh sửa">
+											title="Chỉnh sửa">
 											<i class="ti ti-pencil"></i>
 										</a>
 										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-												data-id="@item.Id" data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Product")">
+											data-id="@item.Id" data-name="@item.Name"
+											data-delete-url="@Url.Action("Delete", "Product")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -331,32 +331,32 @@
 		<div class="card-footer">
 			<div class="d-flex justify-content-center">
 				@Html.PagedListPager(
-								Model.Products,
-								page => Url.Action("Index", new
-								{
-									page,
-									Model.Filter.SearchTerm,
-									Model.Filter.CategoryId,
-									Model.Filter.BrandId,
-									Model.Filter.Status,
-									Model.Filter.IsFeatured
-								}),
-								new PagedListRenderOptions
-			{
-				UlElementClasses = new[] { "pagination mb-0" },
-				LiElementClasses = new[] { "page-item" },
-				PageClasses = new[] { "page-link" },
-				DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-				DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-				DisplayLinkToNextPage = PagedListDisplayMode.Always,
-				ActiveLiElementClass = "active",
-				LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-				LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-			})
-			</div>
+				Model.Products,
+						page => Url.Action("Index", new
+						{
+							page,
+							Model.Filter.SearchTerm,
+							Model.Filter.CategoryId,
+							Model.Filter.BrandId,
+							Model.Filter.Status,
+							Model.Filter.IsFeatured
+						}),
+						new PagedListRenderOptions
+						{
+							UlElementClasses = new[] { "pagination mb-0" },
+							LiElementClasses = new[] { "page-item" },
+							PageClasses = new[] { "page-link" },
+							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+							DisplayLinkToNextPage = PagedListDisplayMode.Always,
+							ActiveLiElementClass = "active",
+							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+						})
 		</div>
-	}
+	</div>
+		}
 </div>
 
 @section Scripts {

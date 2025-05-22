@@ -8,7 +8,7 @@ public abstract class BaseEntity<TKey> where TKey : IEquatable<TKey>
 {
     [Key]
     public TKey Id { get; set; } = default!;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAt { get; set; } = DateTime.Now;
     public DateTime? UpdatedAt { get; set; }
     public string? CreatedBy { get; set; }
     public string? UpdatedBy { get; set; }
@@ -24,7 +24,7 @@ public abstract class BaseEntityConfiguration<TEntity, TKey> : IEntityTypeConfig
 
         builder.Property(e => e.CreatedAt)
             .HasColumnName("created_at")
-            .HasDefaultValueSql("GETUTCDATE()");
+            .HasDefaultValueSql("GETDATE()");
 
         builder.Property(e => e.UpdatedAt)
             .HasColumnName("updated_at");

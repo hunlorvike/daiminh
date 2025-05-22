@@ -3,7 +3,7 @@ using infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using web.Areas.Client.ViewModels.Page;
+using web.Areas.Client.ViewModels;
 
 namespace web.Areas.Client.Controllers;
 
