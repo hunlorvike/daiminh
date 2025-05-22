@@ -55,9 +55,9 @@ builder.Services
     .AddCustomServices();
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddFluentValidationAutoValidation(config =>
+builder.Services.AddFluentValidation(config =>
 {
-    config.DisableDataAnnotationsValidation = true;
+    config.AutomaticValidationEnabled = false;
 });
 builder.Services.AddValidatorsFromAssemblyContaining<UserCreateViewModelValidator>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);

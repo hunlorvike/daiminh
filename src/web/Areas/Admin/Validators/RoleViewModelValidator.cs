@@ -1,25 +1,30 @@
+using domain.Entities;
 using FluentValidation;
-using web.Areas.Admin.Services.Interfaces;
+using Microsoft.AspNetCore.Identity;
 using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Validators;
 
 public class RoleViewModelValidator : AbstractValidator<RoleViewModel>
 {
-    private readonly IRoleService _roleService;
+    private readonly RoleManager<Role> _roleManager;
 
-    public RoleViewModelValidator(IRoleService roleService)
+    public RoleViewModelValidator(RoleManager<Role> roleManager)
     {
-        _roleService = roleService;
+        _roleManager = roleManager;
 
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Tên vai trò không được để trống.")
-            .MaximumLength(100).WithMessage("Tên vai trò không được vượt quá 100 ký tự.");
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(256).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
+            .MustAsync(BeUniqueName).WithMessage("Tên Vai trò đã tồn tại. Vui lòng chọn tên khác.");
+    }
 
-        RuleFor(x => x)
-            .MustAsync(async (role, cancellationToken) =>
-                !await _roleService.RoleNameExistsAsync(role.Name, role.Id))
-            .WithMessage("Tên vai trò đã tồn tại.")
-            .WithName(nameof(RoleViewModel.Name));
+    private async Task<bool> BeUniqueName(RoleViewModel viewModel, string name, ValidationContext<RoleViewModel> context, CancellationToken cancellationToken)
+    {
+        string normalizedName = _roleManager.NormalizeKey(name);
+
+        var existingRole = await _roleManager.FindByNameAsync(normalizedName);
+
+        return existingRole == null || existingRole.Id == viewModel.Id;
     }
 }

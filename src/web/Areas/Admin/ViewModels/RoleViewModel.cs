@@ -1,16 +1,19 @@
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace web.Areas.Admin.ViewModels;
 
 public class RoleViewModel
 {
-    [HiddenInput(DisplayValue = false)]
     public int Id { get; set; }
 
-    [Display(Name = "Tên Vai trò", Prompt = "Nhập tên vai trò")]
+    [Display(Name = "Tên Vai trò", Prompt = "Nhập tên vai trò (ví dụ: Administrator)")]
     [Required(ErrorMessage = "{0} không được để trống.")]
-    [StringLength(100, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
-    [RegularExpression("^[a-zA-Z0-9_.-]*$", ErrorMessage = "Tên vai trò chỉ chấp nhận chữ cái, số và một số ký tự đặc biệt cơ bản.")]
+    [MaxLength(256, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
     public string Name { get; set; } = string.Empty;
+
+    [Display(Name = "Quyền hạn được gán")]
+    public List<int> SelectedClaimDefinitionIds { get; set; } = new List<int>();
+
+    public List<SelectListItem>? AvailableClaimDefinitions { get; set; }
 }

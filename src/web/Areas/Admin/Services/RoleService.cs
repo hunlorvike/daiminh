@@ -2,7 +2,9 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
 using domain.Entities;
+using infrastructure;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
 using web.Areas.Admin.Services.Interfaces;
@@ -15,133 +17,157 @@ namespace web.Areas.Admin.Services;
 [Register(ServiceLifetime.Scoped)]
 public class RoleService : IRoleService
 {
-    private readonly RoleManager<Role> _roleManager;
-    private readonly UserManager<User> _userManager;
+    private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<RoleService> _logger;
+    private readonly RoleManager<Role> _roleManager;
+    private readonly UserManager<User> _userManager;
 
     public RoleService(
-        RoleManager<Role> roleManager,
-        UserManager<User> userManager,
+        ApplicationDbContext context,
         IMapper mapper,
-        ILogger<RoleService> logger)
+        ILogger<RoleService> logger,
+        RoleManager<Role> roleManager,
+        UserManager<User> userManager)
     {
-        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
     }
 
-    public async Task<IPagedList<RoleListItemViewModel>> GetPagedRolesAsync(string? searchTerm, int pageNumber, int pageSize)
+    public async Task<IPagedList<RoleListItemViewModel>> GetPagedRolesAsync(
+        RoleFilterViewModel filter,
+        int pageNumber,
+        int pageSize)
     {
         IQueryable<Role> query = _roleManager.Roles.AsNoTracking();
 
-        if (!string.IsNullOrWhiteSpace(searchTerm))
+        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
-            string lowerSearchTerm = searchTerm.Trim().ToLower();
+            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
             query = query.Where(r => r.Name != null && r.Name.ToLower().Contains(lowerSearchTerm));
         }
 
         query = query.OrderBy(r => r.Name);
 
-        return await query
+        var pagedRoles = await query
             .ProjectTo<RoleListItemViewModel>(_mapper.ConfigurationProvider)
             .ToPagedListAsync(pageNumber, pageSize);
-    }
-    public async Task<List<RoleListItemViewModel>> GetAllRolesAsync()
-    {
-        return await _roleManager.Roles
-            .AsNoTracking()
-            .OrderBy(r => r.Name)
-            .ProjectTo<RoleListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToListAsync();
-    }
 
+        foreach (var roleItem in pagedRoles)
+        {
+            roleItem.NumberOfClaims = await _context.Set<RoleClaim>()
+                                                   .Where(rc => rc.RoleId == roleItem.Id)
+                                                   .CountAsync();
+
+            roleItem.NumberOfUsers = await _context.Set<UserRole>()
+                                                  .Where(ur => ur.RoleId == roleItem.Id)
+                                                  .CountAsync();
+        }
+
+        return pagedRoles;
+    }
 
     public async Task<RoleViewModel?> GetRoleByIdAsync(int id)
     {
-        var role = await _roleManager.FindByIdAsync(id.ToString());
-        return _mapper.Map<RoleViewModel>(role);
+        Role? role = await _roleManager.Roles
+                                      .AsNoTracking()
+                                      .FirstOrDefaultAsync(r => r.Id == id);
+        if (role == null) return null;
+
+        var viewModel = _mapper.Map<RoleViewModel>(role);
+
+        viewModel.SelectedClaimDefinitionIds = await GetSelectedClaimDefinitionIdsForRoleAsync(id);
+
+        return viewModel;
+    }
+
+    public async Task<List<int>> GetSelectedClaimDefinitionIdsForRoleAsync(int roleId)
+    {
+        return await _context.Set<RoleClaim>()
+                             .AsNoTracking()
+                             .Where(rc => rc.RoleId == roleId)
+                             .Select(rc => rc.ClaimDefinitionId)
+                             .ToListAsync();
     }
 
     public async Task<OperationResult<int>> CreateRoleAsync(RoleViewModel viewModel)
     {
-        if (await RoleNameExistsAsync(viewModel.Name))
-        {
-            return OperationResult<int>.FailureResult($"Tên vai trò '{viewModel.Name}' đã tồn tại.");
-        }
-
-        var role = new Role { Name = viewModel.Name };
+        Role role = _mapper.Map<Role>(viewModel);
 
         var result = await _roleManager.CreateAsync(role);
 
         if (result.Succeeded)
         {
+            // Gán claims cho vai trò mới tạo
+            await SyncRoleClaimsAsync(role.Id, viewModel.SelectedClaimDefinitionIds);
+
             _logger.LogInformation("Created Role: ID={Id}, Name={Name}", role.Id, role.Name);
-            return OperationResult<int>.SuccessResult(role.Id, $"Tạo vai trò '{role.Name}' thành công.");
+            return OperationResult<int>.SuccessResult(role.Id, $"Thêm vai trò '{role.Name}' thành công.");
         }
         else
         {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Lỗi khi tạo vai trò {Name}: {Errors}", viewModel.Name, string.Join("; ", errors));
-            return OperationResult<int>.FailureResult(errors.FirstOrDefault() ?? "Lỗi khi tạo vai trò.", errors);
+            List<string> errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to create role '{Name}': {Errors}", viewModel.Name, string.Join(", ", errors));
+            return OperationResult<int>.FailureResult(message: "Không thể thêm vai trò.", errors: errors);
         }
     }
 
     public async Task<OperationResult> UpdateRoleAsync(RoleViewModel viewModel)
     {
-        var role = await _roleManager.FindByIdAsync(viewModel.Id.ToString());
+        Role? role = await _roleManager.FindByIdAsync(viewModel.Id.ToString());
         if (role == null)
         {
-            return OperationResult.FailureResult("Không tìm thấy vai trò.");
+            _logger.LogWarning("Role not found for update. ID: {Id}", viewModel.Id);
+            return OperationResult.FailureResult("Không tìm thấy vai trò để cập nhật.");
         }
 
-        if (!role.Name!.Equals(viewModel.Name, StringComparison.OrdinalIgnoreCase) &&
-            await RoleNameExistsAsync(viewModel.Name, viewModel.Id))
-        {
-            return OperationResult.FailureResult($"Tên vai trò '{viewModel.Name}' đã tồn tại.");
-        }
-
-        role.Name = viewModel.Name;
+        string oldName = role.Name ?? string.Empty;
+        _mapper.Map(viewModel, role); // Cập nhật tên vai trò
 
         var result = await _roleManager.UpdateAsync(role);
 
         if (result.Succeeded)
         {
-            _logger.LogInformation("Updated Role: ID={Id}, Name={Name}", role.Id, role.Name);
+            // Đồng bộ claims cho vai trò
+            await SyncRoleClaimsAsync(role.Id, viewModel.SelectedClaimDefinitionIds);
+
+            _logger.LogInformation("Updated Role: ID={Id}, OldName={OldName}, NewName={NewName}", role.Id, oldName, role.Name);
             return OperationResult.SuccessResult($"Cập nhật vai trò '{role.Name}' thành công.");
         }
         else
         {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Lỗi khi cập nhật vai trò ID {Id}: {Errors}", viewModel.Id, string.Join("; ", errors));
-            return OperationResult.FailureResult(errors.FirstOrDefault() ?? "Lỗi khi cập nhật vai trò.", errors);
+            List<string> errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to update role '{Name}': {Errors}", viewModel.Name, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: "Không thể cập nhật vai trò.", errors: errors);
         }
     }
 
     public async Task<OperationResult> DeleteRoleAsync(int id)
     {
-        var role = await _roleManager.FindByIdAsync(id.ToString());
+        Role? role = await _roleManager.FindByIdAsync(id.ToString());
         if (role == null)
         {
+            _logger.LogWarning("Role not found for delete. ID: {Id}", id);
             return OperationResult.FailureResult("Không tìm thấy vai trò.");
         }
 
-        var usersInRole = await _userManager.GetUsersInRoleAsync(role.Name!);
-        if (usersInRole.Any())
+        string roleName = role.Name ?? string.Empty;
+
+        // Kiểm tra xem vai trò có đang được gán cho bất kỳ người dùng nào không
+        // _userManager.GetUsersInRoleAsync(roleName) sẽ trả về danh sách người dùng.
+        // Có thể dùng CountAsync trên UserRoles nếu bạn đã thêm navigation property.
+        bool hasUsers = await _context.Set<UserRole>().AnyAsync(ur => ur.RoleId == id);
+        if (hasUsers)
         {
-            _logger.LogWarning("Attempt to delete role '{RoleName}' (ID: {RoleId}) which is in use by {UserCount} user(s).", role.Name, role.Id, usersInRole.Count);
-            return OperationResult.FailureResult($"Không thể xóa vai trò '{role.Name}' vì đang có người dùng thuộc vai trò này.");
+            return OperationResult.FailureResult($"Không thể xóa vai trò '{roleName}' vì có người dùng đang thuộc vai trò này. Vui lòng gỡ bỏ người dùng khỏi vai trò trước khi xóa.",
+                errors: new List<string> { $"Không thể xóa vai trò '{roleName}' vì có người dùng đang thuộc vai trò này. Vui lòng gỡ bỏ người dùng khỏi vai trò trước khi xóa." });
         }
 
-        if (role.Name?.Equals("Admin", StringComparison.OrdinalIgnoreCase) == true && role.Id == 1)
-        {
-            _logger.LogWarning("Attempt to delete primary Admin role (ID: {RoleId}).", role.Id);
-            return OperationResult.FailureResult("Không thể xóa vai trò Quản trị viên gốc.");
-        }
-
-
-        var roleName = role.Name;
+        // Xóa tất cả RoleClaims liên quan trước (OnDelete: Cascade đã được cấu hình trên RoleClaim)
+        // Tuy nhiên, RoleManager.DeleteAsync sẽ xử lý điều này cho chúng ta nếu các bảng được cấu hình đúng.
         var result = await _roleManager.DeleteAsync(role);
 
         if (result.Succeeded)
@@ -151,25 +177,69 @@ public class RoleService : IRoleService
         }
         else
         {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Lỗi khi xóa vai trò ID {Id}: {Errors}", id, string.Join("; ", errors));
-            return OperationResult.FailureResult(errors.FirstOrDefault() ?? $"Không thể xóa vai trò '{roleName}'.", errors);
+            List<string> errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to delete role '{Name}': {Errors}", roleName, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: "Không thể xóa vai trò.", errors: errors);
         }
     }
 
-    public async Task<bool> RoleNameExistsAsync(string name, int? ignoreId = null)
+    public async Task<List<SelectListItem>> GetAllRolesAsSelectListAsync(int? selectedId = null)
     {
-        if (string.IsNullOrWhiteSpace(name)) return false;
-        var role = await _roleManager.FindByNameAsync(name);
-        if (role == null) return false;
-        if (ignoreId.HasValue && role.Id == ignoreId.Value) return false;
-        return true;
+        var roles = await _roleManager.Roles
+                                      .AsNoTracking()
+                                      .OrderBy(r => r.Name)
+                                      .Select(r => new SelectListItem
+                                      {
+                                          Value = r.Id.ToString(),
+                                          Text = r.Name,
+                                          Selected = (selectedId.HasValue && r.Id == selectedId.Value)
+                                      })
+                                      .ToListAsync();
+        // Thêm option "Tất cả" hoặc "Chọn vai trò"
+        roles.Insert(0, new SelectListItem { Value = "", Text = "— Tất cả vai trò —", Selected = !selectedId.HasValue || selectedId.Value == 0 });
+        return roles;
     }
 
-    public async Task<List<string>> GetUserRolesAsync(int userId)
+    // Helper method để đồng bộ RoleClaims
+    private async Task SyncRoleClaimsAsync(int roleId, List<int> selectedClaimDefinitionIds)
     {
-        var user = await _userManager.FindByIdAsync(userId.ToString());
-        if (user == null) return new List<string>();
-        return (await _userManager.GetRolesAsync(user)).ToList();
+        // Lấy tất cả ClaimDefinition từ database để tham chiếu
+        var allClaimDefinitions = await _context.Set<ClaimDefinition>()
+                                                .AsNoTracking()
+                                                .ToDictionaryAsync(cd => cd.Id);
+
+        // Lấy claims hiện tại của vai trò
+        var currentRoleClaims = await _context.Set<RoleClaim>()
+                                              .Where(rc => rc.RoleId == roleId)
+                                              .ToListAsync();
+
+        var claimsToRemove = currentRoleClaims
+            .Where(rc => !selectedClaimDefinitionIds.Contains(rc.ClaimDefinitionId))
+            .ToList();
+
+        var claimsToAddIds = selectedClaimDefinitionIds
+            .Where(selectedId => !currentRoleClaims.Any(rc => rc.ClaimDefinitionId == selectedId))
+            .ToList();
+
+        _context.Set<RoleClaim>().RemoveRange(claimsToRemove);
+
+        foreach (var claimIdToAdd in claimsToAddIds)
+        {
+            if (allClaimDefinitions.TryGetValue(claimIdToAdd, out var claimDef))
+            {
+                await _context.Set<RoleClaim>().AddAsync(new RoleClaim
+                {
+                    RoleId = roleId,
+                    ClaimDefinitionId = claimDef.Id,
+                    ClaimType = claimDef.Type,
+                    ClaimValue = claimDef.Value
+                });
+            }
+            else
+            {
+                _logger.LogWarning("ClaimDefinition ID {ClaimId} not found when trying to add to Role {RoleId}.", claimIdToAdd, roleId);
+            }
+        }
+        await _context.SaveChangesAsync();
     }
 }

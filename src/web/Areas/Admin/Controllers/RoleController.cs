@@ -1,11 +1,11 @@
-using AutoMapper;
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -17,43 +17,53 @@ namespace web.Areas.Admin.Controllers;
 public class RoleController : Controller
 {
     private readonly IRoleService _roleService;
-    private readonly IMapper _mapper;
+    private readonly IClaimDefinitionService _claimDefinitionService;
     private readonly ILogger<RoleController> _logger;
-    private readonly IValidator<RoleViewModel> _roleValidator;
+    private readonly IValidator<RoleViewModel> _roleViewModelValidator;
 
     public RoleController(
         IRoleService roleService,
-        IMapper mapper,
+        IClaimDefinitionService claimDefinitionService,
         ILogger<RoleController> logger,
-        IValidator<RoleViewModel> roleValidator)
+        IValidator<RoleViewModel> roleViewModelValidator)
     {
         _roleService = roleService ?? throw new ArgumentNullException(nameof(roleService));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _claimDefinitionService = claimDefinitionService ?? throw new ArgumentNullException(nameof(claimDefinitionService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _roleValidator = roleValidator ?? throw new ArgumentNullException(nameof(roleValidator));
+        _roleViewModelValidator = roleViewModelValidator ?? throw new ArgumentNullException(nameof(roleViewModelValidator));
     }
 
     // GET: Admin/Role
-    public async Task<IActionResult> Index(string? searchTerm, int page = 1, int pageSize = 15)
+    public async Task<IActionResult> Index(RoleFilterViewModel filter, int page = 1, int pageSize = 15)
     {
+        filter ??= new RoleFilterViewModel();
+
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IPagedList<RoleListItemViewModel> rolesPaged = await _roleService.GetPagedRolesAsync(searchTerm, pageNumber, currentPageSize);
+        IPagedList<RoleListItemViewModel> rolesPaged =
+            await _roleService.GetPagedRolesAsync(filter, pageNumber, currentPageSize);
 
         RoleIndexViewModel viewModel = new()
         {
             Roles = rolesPaged,
-            SearchTerm = searchTerm
+            Filter = filter
         };
 
         return View(viewModel);
     }
 
     // GET: Admin/Role/Create
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        var viewModel = new RoleViewModel();
+        RoleViewModel viewModel = new();
+        viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                         .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                         {
+                                                                             Value = cd.Id.ToString(),
+                                                                             Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                             Selected = false
+                                                                         }).ToList());
         return View(viewModel);
     }
 
@@ -62,35 +72,51 @@ public class RoleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(RoleViewModel viewModel)
     {
-        var validationResult = await _roleValidator.ValidateAsync(viewModel);
-        if (!validationResult.IsValid)
+        var result = await _roleViewModelValidator.ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            foreach (var error in validationResult.Errors) ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id) // Giữ lại các lựa chọn của người dùng
+                                                                             }).ToList());
             return View(viewModel);
         }
 
-        if (await _roleService.RoleNameExistsAsync(viewModel.Name))
-        {
-            ModelState.AddModelError(nameof(viewModel.Name), "Tên vai trò đã tồn tại.");
-            return View(viewModel);
-        }
+        var createResult = await _roleService.CreateRoleAsync(viewModel);
 
-        var result = await _roleService.CreateRoleAsync(viewModel);
-
-        if (result.Success)
+        if (createResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", result.Message ?? "Tạo vai trò thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm vai trò thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
         else
         {
-            ModelState.AddModelError(string.Empty, result.Message ?? "Không thể tạo vai trò.");
-            foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error);
+            foreach (var error in createResult.Errors)
+                ModelState.AddModelError(string.Empty, error);
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", result.Message ?? "Không thể tạo vai trò.", ToastType.Error)
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm vai trò '{viewModel.Name}'.", ToastType.Error)
             );
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                             }).ToList());
             return View(viewModel);
         }
     }
@@ -98,15 +124,25 @@ public class RoleController : Controller
     // GET: Admin/Role/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        var viewModel = await _roleService.GetRoleByIdAsync(id);
+        RoleViewModel? viewModel = await _roleService.GetRoleByIdAsync(id);
 
         if (viewModel == null)
         {
+            _logger.LogWarning("Role not found for editing: ID {Id}", id);
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy vai trò.", ToastType.Error)
+                new ToastData("Lỗi", "Không tìm thấy vai trò để cập nhật.", ToastType.Error)
             );
             return RedirectToAction(nameof(Index));
         }
+
+        // Lấy tất cả Claim Definitions và đánh dấu các claim đã chọn
+        viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                         .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                         {
+                                                                             Value = cd.Id.ToString(),
+                                                                             Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                             Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                         }).ToList());
         return View(viewModel);
     }
 
@@ -118,40 +154,58 @@ public class RoleController : Controller
         if (id != viewModel.Id)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-               new ToastData("Lỗi", "Yêu cầu không hợp lệ.", ToastType.Error)
-           );
+                new ToastData("Lỗi", "Yêu cầu chỉnh sửa không hợp lệ.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
-        var validationResult = await _roleValidator.ValidateAsync(viewModel);
-        if (!validationResult.IsValid)
+        var result = await _roleViewModelValidator.ValidateAsync(viewModel);
+
+        if (!result.IsValid)
         {
-            foreach (var error in validationResult.Errors) ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+            foreach (var error in result.Errors)
+                ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
+
+            // Populate lại AvailableClaimDefinitions nếu validation thất bại
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                             }).ToList());
             return View(viewModel);
         }
 
-        if (await _roleService.RoleNameExistsAsync(viewModel.Name, viewModel.Id))
-        {
-            ModelState.AddModelError(nameof(viewModel.Name), "Tên vai trò đã tồn tại.");
-            return View(viewModel);
-        }
+        var updateResult = await _roleService.UpdateRoleAsync(viewModel);
 
-        var result = await _roleService.UpdateRoleAsync(viewModel);
-
-        if (result.Success)
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", result.Message ?? "Cập nhật vai trò thành công.", ToastType.Success)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật vai trò thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
         else
         {
-            ModelState.AddModelError(string.Empty, result.Message ?? "Không thể cập nhật vai trò.");
-            foreach (var error in result.Errors) ModelState.AddModelError(string.Empty, error);
+            foreach (var error in updateResult.Errors)
+                ModelState.AddModelError(string.Empty, error);
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", result.Message ?? "Không thể cập nhật vai trò.", ToastType.Error)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật vai trò '{viewModel.Name}'.", ToastType.Error)
             );
+            // Populate lại AvailableClaimDefinitions và SelectedClaimDefinitionIds nếu thất bại
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                             }).ToList());
             return View(viewModel);
         }
     }
@@ -161,30 +215,20 @@ public class RoleController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var role = await _roleService.GetRoleByIdAsync(id);
-        if (role != null && role.Name.Equals("Admin", StringComparison.OrdinalIgnoreCase) && id == 1)
+        var deleteResult = await _roleService.DeleteRoleAsync(id);
+
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-               new ToastData("Lỗi", "Không thể xóa vai trò Quản trị viên gốc.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa vai trò thành công.", ToastType.Success)
             );
-            return RedirectToAction(nameof(Index));
-        }
-
-        var result = await _roleService.DeleteRoleAsync(id);
-
-        if (result.Success)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", result.Message ?? "Xóa vai trò thành công.", ToastType.Success)
-            );
-            return RedirectToAction(nameof(Index));
         }
         else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", result.Message ?? "Không thể xóa vai trò.", ToastType.Error)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa vai trò.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
         }
+        return RedirectToAction(nameof(Index));
     }
 }

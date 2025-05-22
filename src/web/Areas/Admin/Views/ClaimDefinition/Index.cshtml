@@ -1,19 +1,19 @@
-@model web.Areas.Admin.ViewModels.RoleIndexViewModel
+@model web.Areas.Admin.ViewModels.ClaimDefinitionIndexViewModel
 @using shared.Constants
 @using X.PagedList.Mvc.Core
 
 @{
-	ViewData["Title"] = "Quản lý Vai trò (Role) - Hệ thống quản trị";
-	ViewData["PageTitle"] = "Danh sách Vai trò";
+	ViewData["Title"] = "Quản lý Định nghĩa Quyền hạn (Claim Definition) - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Danh sách Claim Definition";
 	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
-		("Vai trò", Url.Action(nameof(Index)) ?? "/Admin/Role")
+		("Claim Definition", Url.Action(nameof(Index)) ?? "/Admin/ClaimDefinition")
 	};
 }
 
 @section PageActions {
 	<div class="btn-list">
 		<a asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm Vai trò
+			<i class="ti ti-plus me-2"></i> Thêm Claim Definition
 		</a>
 		<a asp-action="Create" class="btn btn-primary d-sm-none btn-icon">
 			<i class="ti ti-plus"></i>
@@ -24,7 +24,7 @@
 <div class="card mb-3">
 	<div class="card-header">
 		<h3 class="card-title">
-			<i class="ti ti-filter me-2"></i>Bộ lọc Vai trò
+			<i class="ti ti-filter me-2"></i>Bộ lọc Claim Definition
 		</h3>
 	</div>
 	<div class="card-body">
@@ -38,7 +38,7 @@
 								<i class="ti ti-search"></i>
 							</span>
 							<input asp-for="Filter.SearchTerm" class="form-control"
-								   placeholder="Tìm theo tên vai trò...">
+								   placeholder="Tìm theo loại, giá trị hoặc mô tả...">
 							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
 								<i class="ti ti-x"></i>
 							</button>
@@ -63,41 +63,41 @@
 <div class="card">
 	<div class="card-header d-flex justify-content-between align-items-center">
 		<h3 class="card-title">
-			<i class="ti ti-users-group me-2"></i>Danh sách Vai trò
+			<i class="ti ti-list-check me-2"></i>Danh sách Claim Definition
 		</h3>
-		@if (Model.Roles.TotalItemCount > 0)
+		@if (Model.ClaimDefinitions.TotalItemCount > 0)
 		{
 			<small class="text-muted d-none d-md-block">
-				Hiển thị @Model.Roles.FirstItemOnPage-@Model.Roles.LastItemOnPage trên
-				tổng số @Model.Roles.TotalItemCount vai trò
+				Hiển thị @Model.ClaimDefinitions.FirstItemOnPage-@Model.ClaimDefinitions.LastItemOnPage trên
+				tổng số @Model.ClaimDefinitions.TotalItemCount định nghĩa quyền hạn
 			</small>
 		}
 	</div>
 	<div class="card-body p-0">
-		@if (!Model.Roles.Any())
+		@if (!Model.ClaimDefinitions.Any())
 		{
 			<div class="empty py-5">
 				<div class="empty-icon">
 					<div class="avatar avatar-xl bg-light-subtle rounded">
-						<i class="ti ti-users-group fs-1 text-muted"></i>
+						<i class="ti ti-list-check fs-1 text-muted"></i>
 					</div>
 				</div>
-				<p class="empty-title mt-3">Không tìm thấy vai trò nào</p>
+				<p class="empty-title mt-3">Không tìm thấy định nghĩa quyền hạn nào</p>
 				<p class="empty-subtitle text-muted">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm))
 					{
-						@:Hãy thêm vai trò đầu tiên.
+						@:Hãy thêm định nghĩa quyền hạn đầu tiên.
 					}
 					else
 					{
-						@:Không có vai trò nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+						@:Không có định nghĩa quyền hạn nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
 					}
 				</p>
 				<div class="empty-action">
 					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm))
 					{
 						<a asp-action="Create" class="btn btn-primary">
-							<i class="ti ti-plus me-2"></i> Thêm Vai trò
+							<i class="ti ti-plus me-2"></i> Thêm Claim Definition
 						</a>
 					}
 					else
@@ -116,14 +116,15 @@
 					<thead>
 						<tr>
 							<th class="w-1 d-none d-lg-table-cell">ID</th>
-							<th>Tên Vai trò</th>
-							<th class="text-center d-none d-md-table-cell">Quyền hạn</th>
-							<th class="text-center d-none d-md-table-cell">Người dùng</th>
+							<th>Loại</th>
+							<th>Giá trị</th>
+							<th class="d-none d-md-table-cell">Mô tả</th>
+							<th class="d-none d-lg-table-cell">Cập nhật lúc</th>
 							<th class="text-end">Thao tác</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var item in Model.Roles)
+						@foreach (var item in Model.ClaimDefinitions)
 						{
 							<tr>
 								<td class="text-muted d-none d-lg-table-cell">
@@ -132,21 +133,46 @@
 								<td>
 									<div class="d-flex align-items-center">
 										<span class="avatar avatar-xs bg-blue-lt me-2">
-											<i class="ti ti-user-shield"></i>
+											<i class="ti ti-tag"></i>
 										</span>
 										<div>
-											<div class="fw-medium text-truncate" style="max-width: 250px;"
-												 title="@item.Name">
-												@item.Name
+											<div class="fw-medium text-truncate" style="max-width: 150px;"
+												 title="@item.Type">
+												@item.Type
 											</div>
 										</div>
 									</div>
 								</td>
-								<td class="text-center d-none d-md-table-cell">
-									<span class="badge bg-purple-lt">@item.NumberOfClaims</span>
+								<td>
+									<div class="d-flex align-items-center">
+										<span class="avatar avatar-xs bg-purple-lt me-2">
+											<i class="ti ti-key"></i>
+										</span>
+										<div>
+											<div class="fw-medium text-truncate" style="max-width: 250px;"
+												 title="@item.Value">
+												@item.Value
+											</div>
+										</div>
+									</div>
 								</td>
-								<td class="text-center d-none d-md-table-cell">
-									<span class="badge bg-green-lt">@item.NumberOfUsers</span>
+								<td class="text-muted d-none d-md-table-cell" title="@item.Description">
+									<div class="text-truncate" style="max-width: 300px;">
+										@if (!string.IsNullOrEmpty(item.Description))
+										{
+											@item.Description
+										}
+										else
+										{
+											<span class="text-muted">Không có mô tả</span>
+										}
+									</div>
+								</td>
+								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
+									<div class="d-flex align-items-center">
+										<i class="ti ti-calendar-time me-1"></i>
+										@item.UpdatedAt?.ToString("dd/MM/yyyy HH:mm:ss")
+									</div>
 								</td>
 								<td class="text-end">
 									<div class="btn-group">
@@ -155,8 +181,8 @@
 											<i class="ti ti-pencil"></i>
 										</a>
 										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-												data-id="@item.Id" data-name="@item.Name"
-												data-delete-url="@Url.Action("Delete", "Role")">
+												data-id="@item.Id" data-name="@item.Value"
+												data-delete-url="@Url.Action("Delete", "ClaimDefinition")">
 											<i class="ti ti-trash"></i>
 										</button>
 									</div>
@@ -168,12 +194,12 @@
 			</div>
 		}
 	</div>
-	@if (Model.Roles.PageCount > 1)
+	@if (Model.ClaimDefinitions.PageCount > 1)
 	{
 		<div class="card-footer">
 			<div class="d-flex align-items-center justify-content-center">
 				@Html.PagedListPager(
-								Model.Roles,
+								Model.ClaimDefinitions,
 								page => Url.Action("Index", new
 								{
 									page,
@@ -204,7 +230,6 @@
 				$('#Filter_SearchTerm').val('');
 				$('#filterForm').submit();
 			});
-
 		});
 	</script>
 }

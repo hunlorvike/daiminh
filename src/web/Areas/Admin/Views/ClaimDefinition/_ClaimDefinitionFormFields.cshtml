@@ -1,0 +1,66 @@
+@model web.Areas.Admin.ViewModels.ClaimDefinitionViewModel
+
+<div class="row g-3">
+	<div class="col-md-8">
+		<div class="form-group mb-3">
+			<label asp-for="Type" class="form-label required"></label>
+			<div class="input-group">
+				<span class="input-group-text">
+					<i class="ti ti-tag"></i>
+				</span>
+				<input asp-for="Type" class="form-control" placeholder="Ví dụ: permission, role, claim_type..." />
+			</div>
+			<span asp-validation-for="Type" class="text-danger"></span>
+			<small class="form-hint">
+				<i class="ti ti-info-circle me-1"></i>Loại của claim (ví dụ: permission).
+			</small>
+		</div>
+		<div class="form-group mb-3">
+			<label asp-for="Value" class="form-label required"></label>
+			<div class="input-group">
+				<span class="input-group-text">
+					<i class="ti ti-key"></i>
+				</span>
+				<input asp-for="Value" class="form-control" placeholder="Ví dụ: Product.View, User.Create..." />
+			</div>
+			<span asp-validation-for="Value" class="text-danger"></span>
+			<small class="form-hint">
+				<i class="ti ti-info-circle me-1"></i>Giá trị duy nhất của claim.
+			</small>
+		</div>
+		<div class="form-group mb-3">
+			<label asp-for="Description" class="form-label"></label>
+			<textarea asp-for="Description" class="form-control" rows="3"
+					  placeholder="Mô tả ngắn gọn về quyền hạn này..."></textarea>
+			<span asp-validation-for="Description" class="text-danger"></span>
+			<small class="form-hint">
+				<i class="ti ti-info-circle me-1"></i>Mô tả chi tiết hơn về ý nghĩa của claim.
+			</small>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">
+					<i class="ti ti-settings me-2"></i>Hướng dẫn tạo Claim Definition
+				</h3>
+			</div>
+			<div class="card-body">
+				<ul class="list-unstyled mb-0">
+					<li class="d-flex align-items-center mb-2">
+						<i class="ti ti-check text-success me-2"></i>
+						<span>**Loại (Type):** Xác định danh mục của claim (ví dụ: "permission", "role").</span>
+					</li>
+					<li class="d-flex align-items-center mb-2">
+						<i class="ti ti-check text-success me-2"></i>
+						<span>**Giá trị (Value):** Là mã định danh duy nhất của claim. Sử dụng định dạng `Module.Action` (ví dụ: `Product.View`, `User.Edit`).</span>
+					</li>
+					<li class="d-flex align-items-center">
+						<i class="ti ti-check text-success me-2"></i>
+						<span>**Mô tả:** Giải thích rõ ràng ý nghĩa của claim để dễ hiểu cho người quản trị.</span>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
