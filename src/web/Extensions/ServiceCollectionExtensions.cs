@@ -40,7 +40,7 @@ public static class ServiceCollectionExtensions
             options.SignIn.RequireConfirmedPhoneNumber = false;
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
-        .AddDefaultTokenProviders(); // Thêm DefaultTokenProviders để sử dụng các token mặc định như Email Confirmation, Password Reset, etc.
+        .AddDefaultTokenProviders();
 
         return services;
     }
@@ -91,7 +91,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
-        services.AddAutoregister(Assembly.GetExecutingAssembly());
+        services.AddAutoregister([Assembly.GetExecutingAssembly(), typeof(ApplicationDbContext).Assembly]);
 
         return services;
     }

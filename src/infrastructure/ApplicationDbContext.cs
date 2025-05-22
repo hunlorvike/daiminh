@@ -34,12 +34,16 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<ArticleTag> ArticleTags { get; set; }
     public DbSet<domain.Entities.Attribute> Attributes { get; set; }
     public DbSet<AttributeValue> AttributeValues { get; set; }
+    public DbSet<Banner> Banners { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<ClaimDefinition> ClaimDefinitions { get; set; }
     public DbSet<Contact> Contacts { get; set; }
     public DbSet<FAQ> FAQs { get; set; }
     public DbSet<MediaFile> MediaFiles { get; set; }
     public DbSet<Newsletter> Newsletters { get; set; }
+    public DbSet<Page> Pages { get; set; }
+    public DbSet<PopupModal> PopupModals { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductAttribute> ProductAttributes { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
@@ -48,11 +52,9 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<ProductVariation> ProductVariations { get; set; }
     public DbSet<ProductVariationAttributeValue> ProductVariationAttributeValues { get; set; }
     public DbSet<Setting> Settings { get; set; }
+    public DbSet<Slide> Slides { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Testimonial> Testimonials { get; set; }
-    public DbSet<Banner> Banners { get; set; }
-    public DbSet<Page> Pages { get; set; }
-    public DbSet<PopupModal> PopupModals { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

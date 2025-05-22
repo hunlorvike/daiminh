@@ -9,4 +9,7 @@ public enum TagType : ushort
 
     [Display(Name = "Bài viết")]
     Article,
+
+    [Display(Name = "Tổng quát")]
+    General
 }

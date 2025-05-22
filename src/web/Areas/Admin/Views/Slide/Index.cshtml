@@ -1,276 +1,277 @@
 @model SlideIndexViewModel
 @{
-	ViewData["Title"] = "Quản lý Slide - Hệ thống quản trị";
-	ViewData["PageTitle"] = "Danh sách Slide";
-	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+    ViewData["Title"] = "Quản lý Slide - Hệ thống quản trị";
+    ViewData["PageTitle"] = "Danh sách Slide";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
 ("Slide", Url.Action(nameof(Index)) ?? "/Admin/Slide")
 };
 }
 
 @section PageActions {
-	<div class="btn-list">
-		<a asp-area="Admin" asp-controller="Slide" asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
-			<i class="ti ti-plus me-2"></i> Thêm Slide
-		</a>
-		<a asp-area="Admin" asp-controller="Slide" asp-action="Create" class="btn btn-primary d-sm-none btn-icon">
-			<i class="ti ti-plus"></i>
-		</a>
-	</div>
+    <div class="btn-list">
+        <a asp-area="Admin" asp-controller="Slide" asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
+            <i class="ti ti-plus me-2"></i> Thêm Slide
+        </a>
+        <a asp-area="Admin" asp-controller="Slide" asp-action="Create" class="btn btn-primary d-sm-none btn-icon">
+            <i class="ti ti-plus"></i>
+        </a>
+    </div>
 }
 
 <div class="card mb-3">
-	<div class="card-header">
-		<h3 class="card-title">
-			<i class="ti ti-filter me-2"></i>Bộ lọc
-		</h3>
-	</div>
-	<div class="card-body">
-		<form method="get" asp-area="Admin" asp-controller="Slide" asp-action="Index" id="filterForm">
-			<div class="row g-3 align-items-end">
-				<div class="col-md-6 col-sm-12">
-					<div class="form-group">
-						<label asp-for="Filter.SearchTerm" class="form-label"></label>
-						<div class="input-group">
-							<span class="input-group-text">
-								<i class="ti ti-search"></i>
-							</span>
-							<input asp-for="Filter.SearchTerm" class="form-control"
-								placeholder="Tìm tiêu đề, mô tả, text CTA...">
-							<button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
-								<i class="ti ti-x"></i>
-							</button>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-3 col-sm-6">
-					<div class="form-group">
-						<label asp-for="Filter.IsActive" class="form-label"></label>
-						<div class="input-group">
-							<span class="input-group-text">
-								<i class="ti ti-eye"></i>
-							</span>
-							<select asp-for="Filter.IsActive" asp-items="@Model.Filter.ActiveStatusOptions"
-								class="form-select tom-selected"></select>
-						</div>
-					</div>
-				</div>
-				<div class="col-md-1 col-6">
-					<button type="submit" class="btn btn-primary w-100">
-						<i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
-					</button>
-				</div>
-				<div class="col-md-2 col-6">
-					<a asp-area="Admin" asp-controller="Slide" asp-action="Index"
-						class="btn btn-outline-secondary w-100">
-						<i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
-					</a>
-				</div>
-			</div>
-		</form>
-	</div>
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="ti ti-filter me-2"></i>Bộ lọc
+        </h3>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-area="Admin" asp-controller="Slide" asp-action="Index" id="filterForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-6 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Filter.SearchTerm" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-search"></i>
+                            </span>
+                            <input asp-for="Filter.SearchTerm" class="form-control"
+                                   placeholder="Tìm tiêu đề, mô tả, text CTA...">
+                            <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="Filter.IsActive" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-eye"></i>
+                            </span>
+                            <select asp-for="Filter.IsActive" asp-items="@Model.Filter.ActiveStatusOptions"
+                                    class="form-select tom-selected"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1 col-6">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
+                    </button>
+                </div>
+                <div class="col-md-2 col-6">
+                    <a asp-area="Admin" asp-controller="Slide" asp-action="Index"
+                       class="btn btn-outline-secondary w-100">
+                        <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div class="card">
-	<div class="card-header d-flex justify-content-between align-items-center">
-		<h3 class="card-title">
-			<i class="ti ti-slides me-2"></i>Danh sách Slide
-		</h3>
-		@if (Model.Slides.TotalItemCount > 0)
-		{
-			<small class="text-muted d-none d-md-block">Hiển thị @Model.Slides.FirstItemOnPage-@Model.Slides.LastItemOnPage
-				trên tổng số @Model.Slides.TotalItemCount slide</small>
-		}
-	</div>
-	<div class="card-body p-0">
-		@if (!Model.Slides.Any())
-		{
-			<div class="empty py-5">
-				<div class="empty-icon">
-					<div class="avatar avatar-xl bg-light-subtle rounded">
-						<i class="ti ti-slides-off fs-1 text-muted"></i>
-					</div>
-				</div>
-				<p class="empty-title mt-3">Không tìm thấy slide nào</p>
-				<p class="empty-subtitle text-muted">
-					@if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue)
-					{
-						@:Hãy thêm slide đầu tiên của bạn.
-					}
-					else
-					{
-						@:Không có slide nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
-					}
-				</p>
-				<div class="empty-action">
-					@if (!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue)
-					{
-						<a asp-area="Admin" asp-controller="Slide" asp-action="Index" class="btn btn-outline-secondary">
-							<i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
-						</a>
-					}
-					<a asp-area="Admin" asp-controller="Slide" asp-action="Create"
-						class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
-						<i class="ti ti-plus me-2"></i> Thêm slide
-					</a>
-				</div>
-			</div>
-		}
-		else
-		{
-			<div class="table-responsive">
-				<table class="table table-vcenter card-table table-striped table-hover">
-					<thead>
-						<tr>
-							<th style="width: 5%;">Ảnh</th>
-							<th style="width: 20%;">Tiêu đề</th>
-							<th class="d-none d-md-table-cell" style="width: 15%;">URL CTA</th>
-							<th class="text-center" style="width: 8%;">Thứ tự</th>
-							<th class="text-center" style="width: 10%;">Trạng thái</th>
-							<th class="d-none d-lg-table-cell" style="width: 15%;">Thời gian hiệu lực</th>
-							<th class="d-none d-lg-table-cell" style="width: 12%;">Cập nhật lúc</th>
-							<th class="text-end" style="width: 10%;">Thao tác</th>
-						</tr>
-					</thead>
-					<tbody>
-						@foreach (var item in Model.Slides)
-						{
-							<tr>
-								<td>
-									@if (!string.IsNullOrEmpty(item.ImageUrl))
-									{
-										<span class="avatar avatar-md" style="background-image: url('@item.ImageUrl')"></span>
-									}
-									else
-									{
-										<span class="avatar avatar-md bg-blue-lt">
-											<i class="ti ti-photo fs-3"></i>
-										</span>
-									}
-								</td>
-								<td>
-									<div class="fw-medium">@item.Title</div>
-									@if (!string.IsNullOrEmpty(item.Subtitle))
-									{
-										<div class="text-muted small">@item.Subtitle</div>
-									}
-								</td>
-								<td class="text-muted d-none d-md-table-cell">
-									@if (!string.IsNullOrEmpty(item.CtaLink))
-									{
-										<a href="@item.CtaLink" target="_blank" class="text-reset text-truncate"
-											style="max-width: 200px;">
-											<i class="ti ti-link me-1"></i>@item.CtaLink
-										</a>
-									}
-									else
-									{
-										<span>--</span>
-									}
-								</td>
-								<td class="text-center">
-									@item.OrderIndex
-								</td>
-								<td class="text-center">
-									@if (item.IsActive)
-									{
-										<span class="status status-green">
-											<span class="status-dot status-dot-animated"></span>
-											<span class="d-none d-md-inline">Kích hoạt</span>
-										</span>
-									}
-									else
-									{
-										<span class="status status-red">
-											<span class="status-dot"></span>
-											<span class="d-none d-md-inline">Ẩn</span>
-										</span>
-									}
-								</td>
-								<td class="text-muted d-none d-lg-table-cell">
-									<div class="d-flex flex-column align-items-start">
-										@if (item.StartAt.HasValue)
-										{
-											<small class="d-flex align-items-center mb-1" title="@item.StartAt">
-												<i class="ti ti-calendar-plus me-1"></i> BĐ: @item.StartAt,
-												"Asia/Ho_Chi_Minh", "dd/MM/yyyy")
-											</small>
-										}
-										@if (item.EndAt.HasValue)
-										{
-											<small class="d-flex align-items-center" title="@item.EndAt">
-												<i class="ti ti-calendar-minus me-1"></i> KT: @item.EndAt
-											</small>
-										}
-										@if (!item.StartAt.HasValue && !item.EndAt.HasValue)
-										{
-											<span>Vô thời hạn</span>
-										}
-									</div>
-								</td>
-								<td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
-									<div class="d-flex align-items-center">
-										<i class="ti ti-calendar-time me-1"></i>
-										@item.UpdatedAt
-									</div>
-								</td>
-								<td class="text-end">
-									<div class="btn-group">
-										<a asp-area="Admin" asp-controller="Slide" asp-action="Edit" asp-route-id="@item.Id"
-											class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
-											<i class="ti ti-pencil"></i>
-										</a>
-										<button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
-											data-id="@item.Id" data-name="@item.Title"
-											data-delete-url="@Url.Action("Delete", "Slide", new { area = "Admin" })">
-											<i class="ti ti-trash"></i>
-										</button>
-									</div>
-								</td>
-							</tr>
-						}
-					</tbody>
-				</table>
-			</div>
-		}
-	</div>
-	@if (Model.Slides.PageCount > 1)
-	{
-		<div class="card-footer">
-			<div class="d-flex align-items-center justify-content-center">
-				@Html.PagedListPager(
-				Model.Slides,
-						page => Url.Action("Index", new
-						{
-							area = "Admin", // Ensure area is included in pagination links
-							page,
-							searchTerm = Model.Filter.SearchTerm,
-							isActive = Model.Filter.IsActive // Pass boolean value
-						}),
-						new PagedListRenderOptions
-						{
-							UlElementClasses = new[] { "pagination mb-0" },
-							LiElementClasses = new[] { "page-item" },
-							PageClasses = new[] { "page-link" },
-							DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
-							DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
-							DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
-							DisplayLinkToNextPage = PagedListDisplayMode.Always,
-							ActiveLiElementClass = "active",
-							LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
-							LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
-						})
-		</div>
-	</div>
-		}
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">
+            <i class="ti ti-slides me-2"></i>Danh sách Slide
+        </h3>
+        @if (Model.Slides.TotalItemCount > 0)
+        {
+            <small class="text-muted d-none d-md-block">
+                Hiển thị @Model.Slides.FirstItemOnPage-@Model.Slides.LastItemOnPage
+                trên tổng số @Model.Slides.TotalItemCount slide
+            </small>
+        }
+    </div>
+    <div class="card-body p-0">
+        @if (!Model.Slides.Any())
+        {
+            <div class="empty py-5">
+                <div class="empty-icon">
+                    <div class="avatar avatar-xl bg-light-subtle rounded">
+                        <i class="ti ti-slides-off fs-1 text-muted"></i>
+                    </div>
+                </div>
+                <p class="empty-title mt-3">Không tìm thấy slide nào</p>
+                <p class="empty-subtitle text-muted">
+                    @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.IsActive.HasValue)
+                    {
+                        @:Hãy thêm slide đầu tiên của bạn.
+                    }
+                    else
+                    {
+                        @:Không có slide nào khớp với tiêu chí lọc của bạn. Hãy thử lại hoặc đặt lại bộ lọc.
+                    }
+                </p>
+                <div class="empty-action">
+                    @if (!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue)
+                    {
+                        <a asp-area="Admin" asp-controller="Slide" asp-action="Index" class="btn btn-outline-secondary">
+                            <i class="ti ti-reload me-2"></i> Đặt lại bộ lọc
+                        </a>
+                    }
+                    <a asp-area="Admin" asp-controller="Slide" asp-action="Create"
+                       class="btn btn-primary @((!string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) || Model.Filter.IsActive.HasValue) ? "ms-2" : "")">
+                        <i class="ti ti-plus me-2"></i> Thêm slide
+                    </a>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-vcenter card-table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">Ảnh</th>
+                            <th style="width: 20%;">Tiêu đề</th>
+                            <th class="d-none d-md-table-cell" style="width: 15%;">URL CTA</th>
+                            <th class="text-center" style="width: 8%;">Thứ tự</th>
+                            <th class="text-center" style="width: 10%;">Trạng thái</th>
+                            <th class="d-none d-lg-table-cell" style="width: 15%;">Thời gian hiệu lực</th>
+                            <th class="d-none d-lg-table-cell" style="width: 12%;">Cập nhật lúc</th>
+                            <th class="text-end" style="width: 10%;">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Slides)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImageUrl))
+                                    {
+                                        <span class="avatar avatar-md" style="background-image: url('@item.ImageUrl')"></span>
+                                    }
+                                    else
+                                    {
+                                        <span class="avatar avatar-md bg-blue-lt">
+                                            <i class="ti ti-photo fs-3"></i>
+                                        </span>
+                                    }
+                                </td>
+                                <td>
+                                    <div class="fw-medium">@item.Title</div>
+                                    @if (!string.IsNullOrEmpty(item.Subtitle))
+                                    {
+                                        <div class="text-muted small">@item.Subtitle</div>
+                                    }
+                                </td>
+                                <td class="text-muted d-none d-md-table-cell">
+                                    @if (!string.IsNullOrEmpty(item.CtaLink))
+                                    {
+                                        <a href="@item.CtaLink" target="_blank" class="text-reset text-truncate"
+                                           style="max-width: 200px;">
+                                            <i class="ti ti-link me-1"></i>@item.CtaLink
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span>--</span>
+                                    }
+                                </td>
+                                <td class="text-center">
+                                    @item.OrderIndex
+                                </td>
+                                <td class="text-center">
+                                    @if (item.IsActive)
+                                    {
+                                        <span class="status status-green">
+                                            <span class="status-dot status-dot-animated"></span>
+                                            <span class="d-none d-md-inline">Kích hoạt</span>
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="status status-red">
+                                            <span class="status-dot"></span>
+                                            <span class="d-none d-md-inline">Ẩn</span>
+                                        </span>
+                                    }
+                                </td>
+                                <td class="text-muted d-none d-lg-table-cell">
+                                    <div class="d-flex flex-column align-items-start">
+                                        @if (item.StartAt.HasValue)
+                                        {
+                                            <small class="d-flex align-items-center mb-1" title="@item.StartAt">
+                                                <i class="ti ti-calendar-plus me-1"></i> BĐ: @item.StartAt
+                                            </small>
+                                        }
+                                        @if (item.EndAt.HasValue)
+                                        {
+                                            <small class="d-flex align-items-center" title="@item.EndAt">
+                                                <i class="ti ti-calendar-minus me-1"></i> KT: @item.EndAt
+                                            </small>
+                                        }
+                                        @if (!item.StartAt.HasValue && !item.EndAt.HasValue)
+                                        {
+                                            <span>Vô thời hạn</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td class="text-muted d-none d-lg-table-cell" title="@item.UpdatedAt">
+                                    <div class="d-flex align-items-center">
+                                        <i class="ti ti-calendar-time me-1"></i>
+                                        @item.UpdatedAt
+                                    </div>
+                                </td>
+                                <td class="text-end">
+                                    <div class="btn-group">
+                                        <a asp-area="Admin" asp-controller="Slide" asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                            <i class="ti ti-pencil"></i>
+                                        </a>
+                                        <button class="btn btn-sm btn-outline-danger delete-item-btn" title="Xóa"
+                                                data-id="@item.Id" data-name="@item.Title"
+                                                data-delete-url="@Url.Action("Delete", "Slide", new { area = "Admin" })">
+                                            <i class="ti ti-trash"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+    @if (Model.Slides.PageCount > 1)
+    {
+        <div class="card-footer">
+            <div class="d-flex align-items-center justify-content-center">
+                @Html.PagedListPager(
+                         Model.Slides,
+                         page => Url.Action("Index", new
+                         {
+                             area = "Admin", // Ensure area is included in pagination links
+                             page,
+                             searchTerm = Model.Filter.SearchTerm,
+                             isActive = Model.Filter.IsActive // Pass boolean value
+                         }),
+                         new PagedListRenderOptions
+            {
+                UlElementClasses = new[] { "pagination mb-0" },
+                LiElementClasses = new[] { "page-item" },
+                PageClasses = new[] { "page-link" },
+                DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                ActiveLiElementClass = "active",
+                LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>",
+            })
+            </div>
+        </div>
+    }
 </div>
 
 @section Scripts {
-	<script>
-		$(document).ready(function () {
-			$('#clearSearch').on('click', function () {
-				$('#Filter_SearchTerm').val('');
-				$('#filterForm').submit();
-			});
-		});
-	</script>
+    <script>
+        $(document).ready(function () {
+            $('#clearSearch').on('click', function () {
+                $('#Filter_SearchTerm').val('');
+                $('#filterForm').submit();
+            });
+        });
+    </script>
 }

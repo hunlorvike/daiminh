@@ -15,11 +15,5 @@ public class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
     {
         builder.ToTable("UserRoles");
         builder.HasKey(x => new { x.UserId, x.RoleId });
-
-        builder.HasData(new UserRole
-        {
-            UserId = 1,
-            RoleId = 1
-        });
     }
 }

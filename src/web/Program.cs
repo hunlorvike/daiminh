@@ -1,5 +1,6 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using infrastructure;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Serilog;
 using web.Areas.Admin.Validators;
@@ -72,6 +73,8 @@ app.MapDefaultRoutes();
 // Seed Data on startup
 using (var scope = app.Services.CreateScope())
 {
+    var seeder = scope.ServiceProvider.GetRequiredService<ApplicationDataSeeder>();
+    await seeder.SeedAllAsync();
 }
 
 await app.RunAsync();

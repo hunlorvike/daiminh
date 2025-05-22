@@ -14,13 +14,5 @@ public class RoleConfiguration : IEntityTypeConfiguration<Role>
     public void Configure(EntityTypeBuilder<Role> builder)
     {
         builder.ToTable("Roles");
-
-        builder.HasData(new Role
-        {
-            Id = 1,
-            Name = "Admin",
-            NormalizedName = "ADMIN",
-            ConcurrencyStamp = Guid.NewGuid().ToString()
-        });
     }
 }

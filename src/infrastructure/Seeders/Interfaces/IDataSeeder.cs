@@ -1,4 +1,4 @@
-namespace shared.Seeders;
+namespace infrastructure.Seeders.Interfaces;
 
 public interface IDataSeeder
 {
