@@ -9,7 +9,10 @@ public class UserFilterViewModel
     public string? SearchTerm { get; set; }
 
     [Display(Name = "Trạng thái")]
-    public bool? IsActive { get; set; } // Nullable for "All" option
+    public bool? IsActiveFilter { get; set; }
 
-    public List<SelectListItem> StatusOptions { get; set; } = new();
+    [Display(Name = "Vai trò")]
+    public int? RoleIdFilter { get; set; }
+
+    public List<SelectListItem>? AvailableRoles { get; set; }
 }

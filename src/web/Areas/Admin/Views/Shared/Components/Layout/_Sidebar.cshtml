@@ -13,49 +13,52 @@
     string? themeCookie = Context.Request.Cookies["daiminhTheme"];
     string? theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
 
-    // Định nghĩa danh sách các mục điều hướng
     var navItems = new List<(string Title, string Icon, string Controller, string Action, string Area, List<(string
     SubTitle, string SubIcon, string SubController, string SubAction)> SubItems, string MenuId)>
 {
-("Trang chủ", "ti-home", "Dashboard", "Index", "Admin", new List<(string, string, string, string)>(), ""),
-("Trang chủ & Marketing", "", "", "", "", new List<(string, string, string, string)>
-{
-("Trang tĩnh", "ti-files", "Page", "Index"),
-("Slide", "ti-slideshow", "Slide", "Index"),
-("Banner", "ti-photo", "Banner", "Index"),
-("Popup", "ti-ad", "PopupModal", "Index")
-}, "menu-homepage-marketing"),
-("Quản lý nội dung", "", "", "", "", new List<(string, string, string, string)>
-{
-("Bài viết", "ti-file-text", "Article", "Index"),
-("Danh mục", "ti-folders", "Category", "Index"),
-("Thẻ", "ti-tags", "Tag", "Index")
-}, "menu-content"),
-("Quản lý sản phẩm", "", "", "", "", new List<(string, string, string, string)>
-{
-("Danh sách sản phẩm", "ti-package", "Product", "Index"),
-("Thương hiệu", "ti-building-store", "Brand", "Index"),
-("Đánh giá sản phẩm", "ti-message-star", "ProductReview", "Index")
-}, "menu-product"),
-("FAQ", "", "", "", "", new List<(string, string, string, string)>
-{
-("Câu hỏi thường gặp", "ti-help-circle", "FAQ", "Index")
-}, "menu-faq"),
-("Người dùng & Tương tác", "", "", "", "", new List<(string, string, string, string)>
-{
-("Đánh giá khách hàng", "ti-message-circle-2", "Testimonial", "Index"),
-("Liên hệ", "ti-mail", "Contact", "Index"),
-("Đăng ký nhận tin", "ti-news", "Newsletter", "Index")
-}, "menu-userinteraction"),
-("Hệ thống & Cấu hình", "", "", "", "", new List<(string, string, string, string)>
-{
-("Cấu hình chung", "ti-settings", "Setting", "Index"),
-("Tài khoản người dùng", "ti-users", "User", "Index"),
-("Vai trò người dùng", "ti-users", "Role", "Index"),
-("Thuộc tính sản phẩm", "ti-adjustments-alt", "Attribute", "Index"),
-("Giá trị thuộc tính", "ti-list-check", "AttributeValue", "Index")
-}, "menu-system"),
-("Xem trang web", "ti-external-link", "Home", "Index", "Client", new List<(string, string, string, string)>(), "")
+    ("Trang chủ", "ti-home", "Dashboard", "Index", "Admin", new List<(string, string, string, string)>(), ""),
+    ("Trang chủ & Marketing", "", "", "", "", new List<(string, string, string, string)>
+    {
+        ("Trang tĩnh", "ti-files", "Page", "Index"),
+        ("Slide", "ti-slideshow", "Slide", "Index"),
+        ("Banner", "ti-photo", "Banner", "Index"),
+        ("Popup", "ti-ad", "PopupModal", "Index")
+    }, "menu-homepage-marketing"),
+    ("Quản lý nội dung", "", "", "", "", new List<(string, string, string, string)>
+    {
+        ("Bài viết", "ti-file-text", "Article", "Index"),
+        ("Danh mục", "ti-folders", "Category", "Index"),
+        ("Thẻ", "ti-tags", "Tag", "Index")
+    }, "menu-content"),
+    ("Quản lý sản phẩm", "", "", "", "", new List<(string, string, string, string)>
+    {
+        ("Danh sách sản phẩm", "ti-package", "Product", "Index"),
+        ("Thương hiệu", "ti-building-store", "Brand", "Index"),
+        ("Đánh giá sản phẩm", "ti-message-star", "ProductReview", "Index")
+    }, "menu-product"),
+    ("FAQ", "", "", "", "", new List<(string, string, string, string)>
+    {
+        ("Câu hỏi thường gặp", "ti-help-circle", "FAQ", "Index")
+    }, "menu-faq"),
+    ("Quản trị Người dùng", "", "", "", "", new List<(string, string, string, string)>
+    {
+        ("Người dùng", "ti-users", "User", "Index"),
+        ("Vai trò", "ti-user-shield", "Role", "Index"),
+        ("Định nghĩa quyền hạn", "ti-key", "ClaimDefinition", "Index")
+    }, "menu-user-management"),
+    ("Người dùng & Tương tác", "", "", "", "", new List<(string, string, string, string)>
+    {
+        ("Đánh giá khách hàng", "ti-message-circle-2", "Testimonial", "Index"),
+        ("Liên hệ", "ti-mail", "Contact", "Index"),
+        ("Đăng ký nhận tin", "ti-news", "Newsletter", "Index")
+    }, "menu-userinteraction"),
+    ("Hệ thống & Cấu hình", "", "", "", "", new List<(string, string, string, string)>
+    {
+        ("Cấu hình chung", "ti-settings", "Setting", "Index"),
+        ("Thuộc tính sản phẩm", "ti-adjustments-alt", "Attribute", "Index"),
+        ("Giá trị thuộc tính", "ti-list-check", "AttributeValue", "Index")
+    }, "menu-system"),
+    ("Xem trang web", "ti-external-link", "Home", "Index", "Client", new List<(string, string, string, string)>(), "")
 };
 }
 

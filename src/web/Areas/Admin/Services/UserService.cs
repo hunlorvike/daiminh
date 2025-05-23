@@ -2,9 +2,11 @@ using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
 using domain.Entities;
+using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
+using System.Security.Claims;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -15,305 +17,367 @@ namespace web.Areas.Admin.Services;
 [Register(ServiceLifetime.Scoped)]
 public class UserService : IUserService
 {
-    private readonly UserManager<User> _userManager;
-    private readonly RoleManager<Role> _roleManager;
+    private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<UserService> _logger;
+    private readonly UserManager<User> _userManager;
+    private readonly RoleManager<Role> _roleManager;
 
     public UserService(
-        UserManager<User> userManager,
-        RoleManager<Role> roleManager,
+        ApplicationDbContext context,
         IMapper mapper,
-        ILogger<UserService> logger)
+        ILogger<UserService> logger,
+        UserManager<User> userManager,
+        RoleManager<Role> roleManager)
     {
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
-        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
+        _context = context ?? throw new ArgumentNullException(nameof(context));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
     }
 
-    public async Task<IPagedList<UserListItemViewModel>> GetPagedUsersAsync(UserFilterViewModel filter, int pageNumber, int pageSize)
+    public async Task<IPagedList<UserListItemViewModel>> GetPagedUsersAsync(
+        UserFilterViewModel filter,
+        int pageNumber,
+        int pageSize)
     {
-        // UserManager.Users cung cấp IQueryable<User>
         IQueryable<User> query = _userManager.Users.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
             string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(u =>
-                (u.UserName != null && u.UserName.ToLower().Contains(lowerSearchTerm)) ||
-                (u.Email != null && u.Email.ToLower().Contains(lowerSearchTerm)) ||
-                (u.FullName != null && u.FullName.ToLower().Contains(lowerSearchTerm)));
+            query = query.Where(u => (u.FullName != null && u.FullName.ToLower().Contains(lowerSearchTerm))
+                                  || (u.Email != null && u.Email.ToLower().Contains(lowerSearchTerm)));
         }
 
-        if (filter.IsActive.HasValue)
+        if (filter.IsActiveFilter.HasValue)
         {
-            query = query.Where(u => u.IsActive == filter.IsActive.Value);
+            query = query.Where(u => u.IsActive == filter.IsActiveFilter.Value);
         }
 
-        query = query.OrderBy(u => u.UserName); // Sắp xếp theo UserName
+        if (filter.RoleIdFilter.HasValue && filter.RoleIdFilter.Value > 0)
+        {
+            query = query.Where(u => _context.UserRoles.Any(ur => ur.UserId == u.Id && ur.RoleId == filter.RoleIdFilter.Value));
+        }
 
-        IPagedList<UserListItemViewModel> usersPaged = await query
+        query = query.OrderBy(u => u.Email);
+
+        var pagedUsers = await query
             .ProjectTo<UserListItemViewModel>(_mapper.ConfigurationProvider)
             .ToPagedListAsync(pageNumber, pageSize);
 
-        return usersPaged;
+        foreach (var userItem in pagedUsers)
+        {
+            var user = await _userManager.FindByIdAsync(userItem.Id.ToString());
+            if (user != null)
+            {
+                var roleNames = await _userManager.GetRolesAsync(user);
+                userItem.RoleNames.AddRange(roleNames);
+            }
+        }
+
+        return pagedUsers;
     }
 
-    public async Task<UserEditViewModel?> GetUserByIdAsync(int id)
+    public async Task<UserViewModel?> GetUserByIdAsync(int id)
     {
-        User? user = await _userManager.FindByIdAsync(id.ToString());
+        User? user = await _userManager.Users
+                                      .AsNoTracking()
+                                      .FirstOrDefaultAsync(u => u.Id == id);
         if (user == null) return null;
 
-        var viewModel = _mapper.Map<UserEditViewModel>(user);
+        var viewModel = _mapper.Map<UserViewModel>(user);
 
-        // Nếu bạn muốn load roles của user:
-        // var roles = await _userManager.GetRolesAsync(user);
-        // viewModel.SelectedRoles = roles.ToList(); // Cần thêm SelectedRoles vào UserEditViewModel
+        viewModel.SelectedRoleIds = await GetSelectedRoleIdsForUserAsync(id);
+
+        viewModel.SelectedClaimDefinitionIds = await GetSelectedClaimDefinitionIdsForUserAsync(id);
 
         return viewModel;
     }
 
-    public async Task<OperationResult<int>> CreateUserAsync(UserCreateViewModel viewModel)
+    public async Task<List<int>> GetSelectedRoleIdsForUserAsync(int userId)
     {
-        var existingUserByUserName = await _userManager.FindByNameAsync(viewModel.UserName);
-        if (existingUserByUserName != null)
-        {
-            return OperationResult<int>.FailureResult("Tên đăng nhập đã tồn tại.");
-        }
+        return await _context.Set<UserRole>()
+                             .AsNoTracking()
+                             .Where(ur => ur.UserId == userId)
+                             .Select(ur => ur.RoleId)
+                             .ToListAsync();
+    }
 
-        if (!string.IsNullOrEmpty(viewModel.Email))
-        {
-            var existingUserByEmail = await _userManager.FindByEmailAsync(viewModel.Email);
-            if (existingUserByEmail != null)
-            {
-                return OperationResult<int>.FailureResult("Email đã tồn tại.");
-            }
-        }
+    public async Task<List<int>> GetSelectedClaimDefinitionIdsForUserAsync(int userId)
+    {
+        return await _context.Set<UserClaim>()
+                             .AsNoTracking()
+                             .Where(uc => uc.UserId == userId)
+                             .Select(uc => uc.ClaimDefinitionId)
+                             .ToListAsync();
+    }
 
-        var user = _mapper.Map<User>(viewModel);
+    public async Task<OperationResult<int>> CreateUserAsync(UserViewModel viewModel)
+    {
+        User user = _mapper.Map<User>(viewModel);
         user.EmailConfirmed = true;
 
-        IdentityResult result = await _userManager.CreateAsync(user, viewModel.Password);
+        var result = await _userManager.CreateAsync(user, viewModel.Password ?? "");
 
         if (result.Succeeded)
         {
-            _logger.LogInformation("Created User: ID={Id}, Username={Username}", user.Id, user.UserName);
+            await SyncUserRolesAsync(user.Id, viewModel.SelectedRoleIds);
 
-            if (viewModel.SelectedRoles != null && viewModel.SelectedRoles.Any())
-            {
-                var validRoles = new List<string>();
-                foreach (var roleName in viewModel.SelectedRoles)
-                {
-                    if (await _roleManager.RoleExistsAsync(roleName))
-                    {
-                        validRoles.Add(roleName);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Role '{RoleName}' selected for user '{Username}' does not exist.", roleName, user.UserName);
-                    }
-                }
+            await SyncUserClaimsAsync(user.Id, viewModel.SelectedClaimDefinitionIds);
 
-                if (validRoles.Any())
-                {
-                    var addToRolesResult = await _userManager.AddToRolesAsync(user, validRoles);
-                    if (!addToRolesResult.Succeeded)
-                    {
-                        _logger.LogWarning("Could not add roles to user {UserId}. Errors: {Errors}", user.Id, string.Join(", ", addToRolesResult.Errors.Select(e => e.Description)));
-                    }
-                }
-            }
-            return OperationResult<int>.SuccessResult(user.Id, $"Thêm người dùng '{user.UserName}' thành công.");
+            _logger.LogInformation("Created User: ID={Id}, Email={Email}, FullName={FullName}", user.Id, user.Email, user.FullName);
+            return OperationResult<int>.SuccessResult(user.Id, $"Thêm người dùng '{user.Email}' thành công.");
         }
         else
         {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Lỗi khi tạo người dùng {Username}: {Errors}", viewModel.UserName, string.Join("; ", errors));
-            return OperationResult<int>.FailureResult(errors.FirstOrDefault() ?? "Lỗi khi tạo người dùng.", errors);
+            List<string> errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to create user '{Email}': {Errors}", viewModel.Email, string.Join(", ", errors));
+            return OperationResult<int>.FailureResult(message: "Không thể thêm người dùng.", errors: errors);
         }
     }
 
-    public async Task<OperationResult> UpdateUserAsync(UserEditViewModel viewModel, int currentUserId)
+    public async Task<OperationResult> UpdateUserAsync(UserViewModel viewModel)
     {
-        var user = await _userManager.FindByIdAsync(viewModel.Id.ToString());
+        User? user = await _userManager.FindByIdAsync(viewModel.Id.ToString());
         if (user == null)
         {
             _logger.LogWarning("User not found for update. ID: {Id}", viewModel.Id);
             return OperationResult.FailureResult("Không tìm thấy người dùng để cập nhật.");
         }
 
-        // Kiểm tra nếu UserName thay đổi và đã tồn tại
-        if (!user.UserName!.Equals(viewModel.UserName, StringComparison.OrdinalIgnoreCase))
+        string oldEmail = user.Email ?? string.Empty;
+        _mapper.Map(viewModel, user);
+
+        if (!string.Equals(oldEmail, viewModel.Email, StringComparison.OrdinalIgnoreCase))
         {
-            var existingUserByUserName = await _userManager.FindByNameAsync(viewModel.UserName);
-            if (existingUserByUserName != null && existingUserByUserName.Id != user.Id)
+            var setEmailResult = await _userManager.SetEmailAsync(user, viewModel.Email);
+            if (!setEmailResult.Succeeded)
             {
-                return OperationResult.FailureResult("Tên đăng nhập đã tồn tại.");
+                List<string> emailErrors = setEmailResult.Errors.Select(e => e.Description).ToList();
+                _logger.LogError("Failed to update user email '{Email}': {Errors}", viewModel.Email, string.Join(", ", emailErrors));
+                return OperationResult.FailureResult(message: "Không thể cập nhật email người dùng.", errors: emailErrors);
             }
-        }
-
-        // Kiểm tra nếu Email thay đổi và đã tồn tại
-        if (user.Email == null || !user.Email.Equals(viewModel.Email, StringComparison.OrdinalIgnoreCase))
-        {
-            if (!string.IsNullOrEmpty(viewModel.Email))
-            {
-                var existingUserByEmail = await _userManager.FindByEmailAsync(viewModel.Email);
-                if (existingUserByEmail != null && existingUserByEmail.Id != user.Id)
-                {
-                    return OperationResult.FailureResult("Email đã tồn tại.");
-                }
-            }
-        }
-
-        if (!viewModel.IsActive && (user.Id == currentUserId || user.Id == 1))
-        {
-            _logger.LogWarning("Attempt to deactivate self ({CurrentUserId}) or primary admin (ID=1)", currentUserId);
-            return OperationResult.FailureResult("Không thể hủy kích hoạt chính mình hoặc tài khoản quản trị viên chính.");
-        }
-
-        user.FullName = viewModel.FullName;
-        user.IsActive = viewModel.IsActive;
-        if (user.UserName == null || !user.UserName.Equals(viewModel.UserName, StringComparison.OrdinalIgnoreCase))
-        {
-            var setUserNameResult = await _userManager.SetUserNameAsync(user, viewModel.UserName);
+            var setUserNameResult = await _userManager.SetUserNameAsync(user, viewModel.Email);
             if (!setUserNameResult.Succeeded)
             {
-                var errors = setUserNameResult.Errors.Select(e => e.Description).ToList();
-                return OperationResult.FailureResult(
-                    message: errors.FirstOrDefault() ?? "Lỗi khi cập nhật tên đăng nhập.",
-                    errors: errors
-                );
+                List<string> userNameErrors = setUserNameResult.Errors.Select(e => e.Description).ToList();
+                _logger.LogError("Failed to update user username '{Email}': {Errors}", viewModel.Email, string.Join(", ", userNameErrors));
+                return OperationResult.FailureResult(message: "Không thể cập nhật username người dùng.", errors: userNameErrors);
             }
         }
-
-        if (user.Email == null || !user.Email.Equals(viewModel.Email, StringComparison.OrdinalIgnoreCase))
-        {
-            if (!string.IsNullOrEmpty(viewModel.Email))
-            {
-                var setEmailResult = await _userManager.SetEmailAsync(user, viewModel.Email);
-                if (!setEmailResult.Succeeded)
-                {
-                    var errors = setEmailResult.Errors.Select(e => e.Description).ToList();
-                    return OperationResult.FailureResult(
-                        message: errors.FirstOrDefault() ?? "Lỗi khi cập nhật email.",
-                        errors: errors
-                    );
-                }
-            }
-            else
-            {
-                user.Email = null;
-                user.NormalizedEmail = null;
-                user.EmailConfirmed = false;
-            }
-        }
+        user.IsActive = viewModel.IsActive;
 
 
-        IdentityResult updateResult = await _userManager.UpdateAsync(user);
+        var updateResult = await _userManager.UpdateAsync(user);
 
         if (updateResult.Succeeded)
         {
-            _logger.LogInformation("Updated User: ID={Id}, Username={Username}, IsActive={IsActive}", user.Id, user.UserName, user.IsActive);
+            await SyncUserRolesAsync(user.Id, viewModel.SelectedRoleIds);
 
-            var currentRoles = await _userManager.GetRolesAsync(user);
-            var rolesToRemove = currentRoles.Except(viewModel.SelectedRoles ?? Enumerable.Empty<string>()).ToList();
-            var rolesToAdd = (viewModel.SelectedRoles ?? Enumerable.Empty<string>()).Except(currentRoles).ToList();
+            await SyncUserClaimsAsync(user.Id, viewModel.SelectedClaimDefinitionIds);
 
-            if (rolesToRemove.Any())
-            {
-                var removeResult = await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
-                if (!removeResult.Succeeded)
-                {
-                    _logger.LogWarning("Could not remove roles from user {UserId}. Errors: {Errors}", user.Id, string.Join(", ", removeResult.Errors.Select(e => e.Description)));
-                }
-            }
-            if (rolesToAdd.Any())
-            {
-                var validRolesToAdd = new List<string>();
-                foreach (var roleName in rolesToAdd)
-                {
-                    if (await _roleManager.RoleExistsAsync(roleName))
-                    {
-                        validRolesToAdd.Add(roleName);
-                    }
-                    else
-                    {
-                        _logger.LogWarning("Role '{RoleName}' selected for user '{Username}' does not exist and cannot be added.", roleName, user.UserName);
-                    }
-                }
-                if (validRolesToAdd.Any())
-                {
-                    var addResult = await _userManager.AddToRolesAsync(user, validRolesToAdd);
-                    if (!addResult.Succeeded)
-                    {
-                        _logger.LogWarning("Could not add roles to user {UserId}. Errors: {Errors}", user.Id, string.Join(", ", addResult.Errors.Select(e => e.Description)));
-                    }
-                }
-            }
-
-            return OperationResult.SuccessResult($"Cập nhật người dùng '{user.UserName}' thành công.");
+            _logger.LogInformation("Updated User: ID={Id}, OldEmail={OldEmail}, NewEmail={NewEmail}", user.Id, oldEmail, user.Email);
+            return OperationResult.SuccessResult($"Cập nhật người dùng '{user.Email}' thành công.");
         }
         else
         {
-            var errors = updateResult.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Lỗi khi cập nhật người dùng ID {Id}, Username {Username}: {Errors}", viewModel.Id, viewModel.UserName, string.Join("; ", errors));
-            return OperationResult.FailureResult(errors.FirstOrDefault() ?? "Lỗi khi cập nhật người dùng.", errors);
+            List<string> errors = updateResult.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to update user '{Email}': {Errors}", viewModel.Email, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: "Không thể cập nhật người dùng.", errors: errors);
         }
     }
 
-    public async Task<OperationResult> DeleteUserAsync(int userId, int currentUserId)
+    public async Task<OperationResult> DeleteUserAsync(int id)
     {
-        if (userId == currentUserId)
-        {
-            _logger.LogWarning("Attempt to delete self ({CurrentUserId})", currentUserId);
-            return OperationResult.FailureResult("Bạn không thể xóa tài khoản của chính mình.");
-        }
-
-        if (userId == 1)
-        {
-            _logger.LogWarning("Attempt to delete primary admin (ID=1) by user ({CurrentUserId})", currentUserId);
-            return OperationResult.FailureResult("Không thể xóa tài khoản quản trị viên chính.");
-        }
-
-        var user = await _userManager.FindByIdAsync(userId.ToString());
+        User? user = await _userManager.FindByIdAsync(id.ToString());
         if (user == null)
         {
-            _logger.LogWarning("User not found for delete. ID: {Id}", userId);
+            _logger.LogWarning("User not found for delete. ID: {Id}", id);
             return OperationResult.FailureResult("Không tìm thấy người dùng.");
         }
 
-        string username = user.UserName ?? "N/A";
-        IdentityResult result = await _userManager.DeleteAsync(user);
+        string userEmail = user.Email ?? string.Empty;
+
+        var result = await _userManager.DeleteAsync(user);
 
         if (result.Succeeded)
         {
-            _logger.LogInformation("Deleted User: ID={Id}, Username={Username}", userId, username);
-            return OperationResult.SuccessResult($"Xóa người dùng '{username}' thành công.");
+            _logger.LogInformation("Deleted User: ID={Id}, Email={Email}", id, userEmail);
+            return OperationResult.SuccessResult($"Xóa người dùng '{userEmail}' thành công.");
         }
         else
         {
-            var errors = result.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Lỗi khi xóa người dùng ID {Id}: {Errors}", userId, string.Join("; ", errors));
-            return OperationResult.FailureResult(errors.FirstOrDefault() ?? $"Không thể xóa người dùng '{username}'.", errors);
+            List<string> errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to delete user '{Email}': {Errors}", userEmail, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: "Không thể xóa người dùng.", errors: errors);
         }
     }
 
-    public async Task<bool> IsUsernameUniqueAsync(string username, int? ignoreId = null)
+    public async Task<OperationResult> ResetUserPasswordAsync(UserChangePasswordViewModel viewModel)
     {
-        if (string.IsNullOrWhiteSpace(username)) return false;
-        var user = await _userManager.FindByNameAsync(username);
-        if (user == null) return false;
-        if (ignoreId.HasValue && user.Id == ignoreId.Value) return false;
-        return true;
+        User? user = await _userManager.FindByIdAsync(viewModel.UserId.ToString());
+        if (user == null)
+        {
+            _logger.LogWarning("User not found for password reset. ID: {Id}", viewModel.UserId);
+            return OperationResult.FailureResult("Không tìm thấy người dùng để đặt lại mật khẩu.");
+        }
+
+        var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+        if (!removePasswordResult.Succeeded && removePasswordResult.Errors.Any(e => e.Code != "PasswordRequiresNonAlphanumeric" && e.Code != "PasswordRequiresDigit" && e.Code != "PasswordRequiresLower" && e.Code != "PasswordRequiresUpper" && e.Code != "PasswordTooShort"))
+        {
+            List<string> errors = removePasswordResult.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to remove current password for user {UserId}: {Errors}", viewModel.UserId, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: "Lỗi khi xóa mật khẩu cũ.", errors: errors);
+        }
+
+        var addPasswordResult = await _userManager.AddPasswordAsync(user, viewModel.NewPassword);
+
+        if (addPasswordResult.Succeeded)
+        {
+            _logger.LogInformation("Reset password for User: ID={Id}, Email={Email}", user.Id, user.Email);
+            return OperationResult.SuccessResult($"Đặt lại mật khẩu cho người dùng '{user.Email}' thành công.");
+        }
+        else
+        {
+            List<string> errors = addPasswordResult.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to reset password for user '{Email}': {Errors}", user.Email, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: "Không thể đặt lại mật khẩu.", errors: errors);
+        }
     }
 
-    public async Task<bool> IsEmailUniqueAsync(string email, int? ignoreId = null)
+    public async Task<OperationResult> ToggleUserActiveStatusAsync(int id, bool isActive)
     {
-        if (string.IsNullOrWhiteSpace(email)) return false;
-        var user = await _userManager.FindByEmailAsync(email);
-        if (user == null) return false;
-        if (ignoreId.HasValue && user.Id == ignoreId.Value) return false;
-        return true;
+        User? user = await _userManager.FindByIdAsync(id.ToString());
+        if (user == null)
+        {
+            _logger.LogWarning("User not found for toggling active status. ID: {Id}", id);
+            return OperationResult.FailureResult("Không tìm thấy người dùng.");
+        }
+
+        user.IsActive = isActive;
+        var result = await _userManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            string status = isActive ? "kích hoạt" : "vô hiệu hóa";
+            _logger.LogInformation("Toggled active status for User: ID={Id}, Email={Email}, IsActive={IsActive}", user.Id, user.Email, isActive);
+            return OperationResult.SuccessResult($"Đã {status} người dùng '{user.Email}' thành công.");
+        }
+        else
+        {
+            List<string> errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to toggle active status for user '{Email}': {Errors}", user.Email, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: $"Không thể {(isActive ? "kích hoạt" : "vô hiệu hóa")} người dùng.", errors: errors);
+        }
+    }
+
+    public async Task<OperationResult> ToggleUserLockoutAsync(int id, bool lockAccount)
+    {
+        User? user = await _userManager.FindByIdAsync(id.ToString());
+        if (user == null)
+        {
+            _logger.LogWarning("User not found for toggling lockout. ID: {Id}", id);
+            return OperationResult.FailureResult("Không tìm thấy người dùng.");
+        }
+
+        IdentityResult result;
+        if (lockAccount)
+        {
+            result = await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
+        }
+        else
+        {
+            result = await _userManager.SetLockoutEndDateAsync(user, null);
+        }
+
+        if (result.Succeeded)
+        {
+            string status = lockAccount ? "khóa" : "mở khóa";
+            _logger.LogInformation("Toggled lockout status for User: ID={Id}, Email={Email}, Locked={Locked}", user.Id, user.Email, lockAccount);
+            return OperationResult.SuccessResult($"Đã {status} tài khoản người dùng '{user.Email}' thành công.");
+        }
+        else
+        {
+            List<string> errors = result.Errors.Select(e => e.Description).ToList();
+            _logger.LogError("Failed to toggle lockout for user '{Email}': {Errors}", user.Email, string.Join(", ", errors));
+            return OperationResult.FailureResult(message: $"Không thể {(lockAccount ? "khóa" : "mở khóa")} tài khoản người dùng.", errors: errors);
+        }
+    }
+
+    private async Task SyncUserRolesAsync(int userId, List<int> selectedRoleIds)
+    {
+        User? user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return;
+
+        var currentRoles = await _userManager.GetRolesAsync(user);
+        var currentRoleIds = await _context.Set<Role>()
+                                            .Where(r => currentRoles.Contains(r.Name ?? ""))
+                                            .Select(r => r.Id)
+                                            .ToListAsync();
+
+        var rolesToRemove = currentRoles
+            .Where(roleName => !_context.Set<Role>().Any(r => r.Name == roleName && selectedRoleIds.Contains(r.Id)))
+            .ToList();
+
+        var rolesToAddIds = selectedRoleIds
+            .Where(selectedId => !currentRoleIds.Contains(selectedId))
+            .ToList();
+
+        if (rolesToRemove.Any())
+        {
+            await _userManager.RemoveFromRolesAsync(user, rolesToRemove);
+        }
+
+        if (rolesToAddIds.Any())
+        {
+            var roleNamesToAdd = await _context.Set<Role>()
+                                               .Where(r => rolesToAddIds.Contains(r.Id))
+                                               .Select(r => r.Name!)
+                                               .ToListAsync();
+            await _userManager.AddToRolesAsync(user, roleNamesToAdd);
+        }
+    }
+
+    private async Task SyncUserClaimsAsync(int userId, List<int> selectedClaimDefinitionIds)
+    {
+        User? user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return;
+
+        var allClaimDefinitions = await _context.Set<ClaimDefinition>()
+                                                .AsNoTracking()
+                                                .ToDictionaryAsync(cd => cd.Id);
+
+        var currentUserClaims = await _userManager.GetClaimsAsync(user);
+
+        var claimsToRemove = currentUserClaims
+            .Where(uc => allClaimDefinitions.Values.Any(cd => cd.Value == uc.Value
+                                                              && cd.Type == uc.Type
+                                                              && !selectedClaimDefinitionIds.Contains(cd.Id)))
+            .ToList();
+
+        var claimsToAddIds = selectedClaimDefinitionIds
+            .Where(selectedId => !currentUserClaims.Any(uc => allClaimDefinitions.TryGetValue(selectedId, out var cd)
+                                                              && cd.Value == uc.Value
+                                                              && cd.Type == uc.Type))
+            .ToList();
+
+        foreach (var claim in claimsToRemove)
+        {
+            await _userManager.RemoveClaimAsync(user, claim);
+        }
+
+        foreach (var claimIdToAdd in claimsToAddIds)
+        {
+            if (allClaimDefinitions.TryGetValue(claimIdToAdd, out var claimDef))
+            {
+                await _userManager.AddClaimAsync(user, new Claim(claimDef.Type, claimDef.Value));
+            }
+            else
+            {
+                _logger.LogWarning("ClaimDefinition ID {ClaimId} not found when trying to add to User {UserId}.", claimIdToAdd, userId);
+            }
+        }
     }
 }

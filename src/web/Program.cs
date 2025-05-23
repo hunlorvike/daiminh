@@ -59,7 +59,7 @@ builder.Services.AddFluentValidation(config =>
 {
     config.AutomaticValidationEnabled = false;
 });
-builder.Services.AddValidatorsFromAssemblyContaining<UserCreateViewModelValidator>();
+builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();

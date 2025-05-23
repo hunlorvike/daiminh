@@ -25,19 +25,17 @@ public static class ServiceCollectionExtensions
     {
         services.AddIdentity<User, Role>(options =>
         {
-            // Cấu hình Lockout
+            options.SignIn.RequireConfirmedAccount = false;
+            options.Password.RequireDigit = true;
+            options.Password.RequireLowercase = true;
+            options.Password.RequireNonAlphanumeric = true;
+            options.Password.RequireUppercase = true;
+            options.Password.RequiredLength = 6;
+            options.Password.RequiredUniqueChars = 1;
             options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
             options.Lockout.MaxFailedAccessAttempts = 5;
             options.Lockout.AllowedForNewUsers = true;
-
-            // Cấu hình User
             options.User.RequireUniqueEmail = true;
-            options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
-
-            // Cấu hình SignIn
-            options.SignIn.RequireConfirmedAccount = false;
-            options.SignIn.RequireConfirmedEmail = false;
-            options.SignIn.RequireConfirmedPhoneNumber = false;
         })
         .AddEntityFrameworkStores<ApplicationDbContext>()
         .AddDefaultTokenProviders();
@@ -69,7 +67,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddAuthenticationServices(this IServiceCollection services)
     {
-        services.AddAuthentication()
+        services
+            .AddAuthentication()
             .AddCookie("AdminScheme", options =>
             {
                 options.Cookie.Name = "AdminCookie";

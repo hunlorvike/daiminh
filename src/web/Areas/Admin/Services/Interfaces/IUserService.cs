@@ -6,17 +6,26 @@ namespace web.Areas.Admin.Services.Interfaces;
 
 public interface IUserService
 {
-    Task<IPagedList<UserListItemViewModel>> GetPagedUsersAsync(UserFilterViewModel filter, int pageNumber, int pageSize);
+    Task<IPagedList<UserListItemViewModel>> GetPagedUsersAsync(
+        UserFilterViewModel filter,
+        int pageNumber,
+        int pageSize);
 
-    Task<UserEditViewModel?> GetUserByIdAsync(int id);
+    Task<UserViewModel?> GetUserByIdAsync(int id);
 
-    Task<OperationResult<int>> CreateUserAsync(UserCreateViewModel viewModel);
+    Task<List<int>> GetSelectedRoleIdsForUserAsync(int userId);
 
-    Task<OperationResult> UpdateUserAsync(UserEditViewModel viewModel, int currentUserId);
+    Task<List<int>> GetSelectedClaimDefinitionIdsForUserAsync(int userId);
 
-    Task<OperationResult> DeleteUserAsync(int userId, int currentUserId);
+    Task<OperationResult<int>> CreateUserAsync(UserViewModel viewModel);
 
-    Task<bool> IsUsernameUniqueAsync(string username, int? ignoreId = null);
+    Task<OperationResult> UpdateUserAsync(UserViewModel viewModel);
 
-    Task<bool> IsEmailUniqueAsync(string email, int? ignoreId = null);
+    Task<OperationResult> DeleteUserAsync(int id);
+
+    Task<OperationResult> ResetUserPasswordAsync(UserChangePasswordViewModel viewModel);
+
+    Task<OperationResult> ToggleUserActiveStatusAsync(int id, bool isActive);
+
+    Task<OperationResult> ToggleUserLockoutAsync(int id, bool lockAccount);
 }

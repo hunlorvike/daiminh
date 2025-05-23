@@ -1,15 +1,10 @@
-using AutoMapper;
-using domain.Entities;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Security.Claims;
 using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
@@ -19,46 +14,44 @@ namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
 [Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
-public partial class UserController : Controller
+public class UserController : Controller
 {
     private readonly IUserService _userService;
-    private readonly IMapper _mapper;
+    private readonly IRoleService _roleService;
+    private readonly IClaimDefinitionService _claimDefinitionService;
     private readonly ILogger<UserController> _logger;
-    private readonly IValidator<UserCreateViewModel> _userCreateViewModelValidator;
-    private readonly IValidator<UserEditViewModel> _userEditViewModelValidator;
-    private readonly RoleManager<Role> _roleManager;
-    private readonly UserManager<User> _userManager;
-
+    private readonly IValidator<UserViewModel> _userViewModelValidator;
+    private readonly IValidator<UserChangePasswordViewModel> _userChangePasswordViewModelValidator;
 
     public UserController(
         IUserService userService,
-        IMapper mapper,
+        IRoleService roleService,
+        IClaimDefinitionService claimDefinitionService,
         ILogger<UserController> logger,
-        IValidator<UserCreateViewModel> userCreateViewModelValidator,
-        IValidator<UserEditViewModel> userEditViewModelValidator,
-        RoleManager<Role> roleManager,
-        UserManager<User> userManager
-        )
+        IValidator<UserViewModel> userViewModelValidator,
+        IValidator<UserChangePasswordViewModel> userChangePasswordViewModelValidator)
     {
         _userService = userService ?? throw new ArgumentNullException(nameof(userService));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _roleService = roleService ?? throw new ArgumentNullException(nameof(roleService));
+        _claimDefinitionService = claimDefinitionService ?? throw new ArgumentNullException(nameof(claimDefinitionService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _userCreateViewModelValidator = userCreateViewModelValidator ?? throw new ArgumentNullException(nameof(userCreateViewModelValidator));
-        _userEditViewModelValidator = userEditViewModelValidator ?? throw new ArgumentNullException(nameof(userEditViewModelValidator));
-        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
-        _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _userViewModelValidator = userViewModelValidator ?? throw new ArgumentNullException(nameof(userViewModelValidator));
+        _userChangePasswordViewModelValidator = userChangePasswordViewModelValidator ?? throw new ArgumentNullException(nameof(userChangePasswordViewModelValidator));
     }
 
     // GET: Admin/User
     public async Task<IActionResult> Index(UserFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new UserFilterViewModel();
+
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IPagedList<UserListItemViewModel> usersPaged = await _userService.GetPagedUsersAsync(filter, pageNumber, currentPageSize);
+        IPagedList<UserListItemViewModel> usersPaged =
+            await _userService.GetPagedUsersAsync(filter, pageNumber, currentPageSize);
 
-        filter.StatusOptions = GetStatusSelectList(filter.IsActive);
+        filter.AvailableRoles = await _roleService.GetAllRolesAsSelectListAsync(filter.RoleIdFilter);
+        filter.AvailableRoles.Insert(0, new SelectListItem { Value = "", Text = "— Tất cả vai trò —" });
 
         UserIndexViewModel viewModel = new()
         {
@@ -70,29 +63,47 @@ public partial class UserController : Controller
     }
 
     // GET: Admin/User/Create
-    public async Task<IActionResult> CreateAsync()
+    public async Task<IActionResult> Create()
     {
-        UserCreateViewModel viewModel = new()
+        UserViewModel viewModel = new()
         {
             IsActive = true,
-            AllRoles = await GetAllRolesAsSelectListItemsAsync()
         };
+
+        viewModel.AvailableRoles = await _roleService.GetAllRolesAsSelectListAsync();
+        viewModel.AvailableRoles.Insert(0, new SelectListItem { Value = "", Text = "— Chọn vai trò —" });
+
+        viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                         .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                         {
+                                                                             Value = cd.Id.ToString(),
+                                                                             Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                             Selected = false
+                                                                         }).ToList());
         return View(viewModel);
     }
 
     // POST: Admin/User/Create
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create(UserCreateViewModel viewModel)
+    public async Task<IActionResult> Create(UserViewModel viewModel)
     {
-        var result = await _userCreateViewModelValidator.ValidateAsync(viewModel);
+        var result = await _userViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
+            viewModel.AvailableRoles = await _roleService.GetAllRolesAsSelectListAsync();
+            viewModel.AvailableRoles.Insert(0, new SelectListItem { Value = "", Text = "— Chọn vai trò —" });
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                             }).ToList());
             return View(viewModel);
         }
 
@@ -108,29 +119,24 @@ public partial class UserController : Controller
         else
         {
             foreach (var error in createResult.Errors)
-            {
-                if (error.Contains("Tên đăng nhập", StringComparison.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(nameof(viewModel.UserName), error);
-                }
-                else if (error.Contains("Email", StringComparison.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(nameof(viewModel.Email), error);
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, error);
-                }
-            }
+                ModelState.AddModelError(string.Empty, error);
             if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
             {
                 ModelState.AddModelError(string.Empty, createResult.Message);
             }
 
-            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm người dùng '{viewModel.UserName}'.", ToastType.Error)
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm người dùng '{viewModel.Email}'.", ToastType.Error)
             );
+            viewModel.AvailableRoles = await _roleService.GetAllRolesAsSelectListAsync();
+            viewModel.AvailableRoles.Insert(0, new SelectListItem { Value = "", Text = "— Chọn vai trò —" });
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                             }).ToList());
             return View(viewModel);
         }
     }
@@ -138,30 +144,40 @@ public partial class UserController : Controller
     // GET: Admin/User/Edit/5
     public async Task<IActionResult> Edit(int id)
     {
-        UserEditViewModel? viewModel = await _userService.GetUserByIdAsync(id);
+        UserViewModel? viewModel = await _userService.GetUserByIdAsync(id);
 
         if (viewModel == null)
         {
             _logger.LogWarning("User not found for editing: ID {Id}", id);
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                 new ToastData("Lỗi", "Không tìm thấy người dùng.", ToastType.Error)
-             );
+                new ToastData("Lỗi", "Không tìm thấy người dùng để cập nhật.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
 
-        viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
-        var user = await _userManager.FindByIdAsync(id.ToString());
-        if (user != null)
+        viewModel.AvailableRoles = await _roleService.GetAllRolesAsSelectListAsync();
+        foreach (var item in viewModel.AvailableRoles)
         {
-            viewModel.SelectedRoles = (await _userManager.GetRolesAsync(user)).ToList();
+            if (int.TryParse(item.Value, out int roleIdValue))
+            {
+                item.Selected = viewModel.SelectedRoleIds.Contains(roleIdValue);
+            }
         }
+
+        viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                         .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                         {
+                                                                             Value = cd.Id.ToString(),
+                                                                             Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                             Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                         }).ToList());
         return View(viewModel);
     }
 
     // POST: Admin/User/Edit/5
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, UserEditViewModel viewModel)
+    public async Task<IActionResult> Edit(int id, UserViewModel viewModel)
     {
         if (id != viewModel.Id)
         {
@@ -171,22 +187,32 @@ public partial class UserController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await _userEditViewModelValidator.ValidateAsync(viewModel);
+        var result = await _userViewModelValidator.ValidateAsync(viewModel);
 
         if (!result.IsValid)
         {
             foreach (var error in result.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
+            viewModel.AvailableRoles = await _roleService.GetAllRolesAsSelectListAsync();
+            foreach (var item in viewModel.AvailableRoles)
+            {
+                if (int.TryParse(item.Value, out int roleIdValue))
+                {
+                    item.Selected = viewModel.SelectedRoleIds.Contains(roleIdValue);
+                }
+            }
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                             }).ToList());
             return View(viewModel);
         }
 
-        var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        int currentUserId = int.TryParse(currentUserIdString, out int uid) ? uid : 0;
-
-
-        var updateResult = await _userService.UpdateUserAsync(viewModel, currentUserId);
+        var updateResult = await _userService.UpdateUserAsync(viewModel);
 
         if (updateResult.Success)
         {
@@ -198,33 +224,30 @@ public partial class UserController : Controller
         else
         {
             foreach (var error in updateResult.Errors)
-            {
-                if (error.Contains("Tên đăng nhập", StringComparison.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(nameof(viewModel.UserName), error);
-                }
-                else if (error.Contains("Email", StringComparison.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(nameof(viewModel.Email), error);
-                }
-                else if (error.Contains("hủy kích hoạt", StringComparison.OrdinalIgnoreCase))
-                {
-                    ModelState.AddModelError(nameof(viewModel.IsActive), error);
-                }
-                else
-                {
-                    ModelState.AddModelError(string.Empty, error);
-                }
-            }
+                ModelState.AddModelError(string.Empty, error);
             if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
             {
                 ModelState.AddModelError(string.Empty, updateResult.Message);
             }
 
-            viewModel.AllRoles = await GetAllRolesAsSelectListItemsAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật người dùng '{viewModel.UserName}'.", ToastType.Error)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật người dùng '{viewModel.Email}'.", ToastType.Error)
             );
+            viewModel.AvailableRoles = await _roleService.GetAllRolesAsSelectListAsync();
+            foreach (var item in viewModel.AvailableRoles)
+            {
+                if (int.TryParse(item.Value, out int roleIdValue))
+                {
+                    item.Selected = viewModel.SelectedRoleIds.Contains(roleIdValue);
+                }
+            }
+            viewModel.AvailableClaimDefinitions = await _claimDefinitionService.GetAllClaimDefinitionsAsync()
+                                                                             .ContinueWith(t => t.Result.Select(cd => new SelectListItem
+                                                                             {
+                                                                                 Value = cd.Id.ToString(),
+                                                                                 Text = $"{cd.Type}: {cd.Value} - {cd.Description}",
+                                                                                 Selected = viewModel.SelectedClaimDefinitionIds.Contains(cd.Id)
+                                                                             }).ToList());
             return View(viewModel);
         }
     }
@@ -234,66 +257,101 @@ public partial class UserController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var currentUserIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-        int currentUserId = int.TryParse(currentUserIdString, out int uid) ? uid : 0;
-
-        if (id == currentUserId)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Bạn không thể xóa tài khoản của chính mình.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Bạn không thể xóa tài khoản của chính mình." });
-        }
-
-        if (id == 1)
-        {
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không thể xóa tài khoản quản trị viên chính.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Không thể xóa tài khoản quản trị viên chính." });
-        }
-
-
-        var deleteResult = await _userService.DeleteUserAsync(id, currentUserId);
+        var deleteResult = await _userService.DeleteUserAsync(id);
 
         if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", deleteResult.Message ?? "Xóa người dùng thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = deleteResult.Message });
         }
         else
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa người dùng.", ToastType.Error)
             );
-            return Json(new { success = false, message = deleteResult.Message });
         }
+        return RedirectToAction(nameof(Index));
     }
-}
 
-public partial class UserController
-{
-    private List<SelectListItem> GetStatusSelectList(bool? selectedValue)
+    // POST: Admin/User/ToggleActive/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleActive(int id, bool isActive)
     {
-        return new List<SelectListItem>
+        var result = await _userService.ToggleUserActiveStatusAsync(id, isActive);
+        if (result.Success)
         {
-            new SelectListItem { Value = "", Text = "Tất cả trạng thái", Selected = !selectedValue.HasValue },
-            new SelectListItem { Value = "true", Text = "Đang kích hoạt", Selected = selectedValue == true },
-            new SelectListItem { Value = "false", Text = "Đã hủy kích hoạt", Selected = selectedValue == false }
-        };
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Thành công", result.Message ?? "Cập nhật trạng thái người dùng thành công.", ToastType.Success)
+            );
+        }
+        else
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", result.Message ?? "Không thể cập nhật trạng thái người dùng.", ToastType.Error)
+            );
+        }
+        return RedirectToAction(nameof(Index));
     }
 
-    private async Task<List<SelectListItem>> GetAllRolesAsSelectListItemsAsync()
+    // POST: Admin/User/ToggleLockout/5
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ToggleLockout(int id, bool lockAccount)
     {
-        var roles = await _roleManager.Roles
-                                    .AsNoTracking()
-                                    .Select(r => new SelectListItem
-                                    {
-                                        Value = r.Name,
-                                        Text = r.Name
-                                    }).ToListAsync();
-        return roles;
+        var result = await _userService.ToggleUserLockoutAsync(id, lockAccount);
+        if (result.Success)
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Thành công", result.Message ?? "Cập nhật trạng thái khóa tài khoản thành công.", ToastType.Success)
+            );
+        }
+        else
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", result.Message ?? "Không thể cập nhật trạng thái khóa tài khoản.", ToastType.Error)
+            );
+        }
+        return RedirectToAction(nameof(Index));
+    }
+
+    // POST: Admin/User/ResetPassword
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> ResetPassword(UserChangePasswordViewModel viewModel)
+    {
+        if (viewModel.UserId == 0)
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+               new ToastData("Lỗi", "ID người dùng không hợp lệ.", ToastType.Error)
+           );
+            return RedirectToAction(nameof(Index));
+        }
+
+        var result = await _userChangePasswordViewModelValidator.ValidateAsync(viewModel);
+        if (!result.IsValid)
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Mật khẩu không hợp lệ. Vui lòng kiểm tra lại.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Edit), new { id = viewModel.UserId });
+        }
+
+        var resetResult = await _userService.ResetUserPasswordAsync(viewModel);
+
+        if (resetResult.Success)
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Thành công", resetResult.Message ?? "Đặt lại mật khẩu thành công.", ToastType.Success)
+            );
+        }
+        else
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", resetResult.Message ?? "Không thể đặt lại mật khẩu.", ToastType.Error)
+            );
+        }
+        return RedirectToAction(nameof(Edit), new { id = viewModel.UserId });
     }
 }

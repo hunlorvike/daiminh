@@ -195,7 +195,6 @@ public class RoleService : IRoleService
                                           Selected = (selectedId.HasValue && r.Id == selectedId.Value)
                                       })
                                       .ToListAsync();
-        // Thêm option "Tất cả" hoặc "Chọn vai trò"
         roles.Insert(0, new SelectListItem { Value = "", Text = "— Tất cả vai trò —", Selected = !selectedId.HasValue || selectedId.Value == 0 });
         return roles;
     }

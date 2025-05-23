@@ -1,0 +1,12 @@
+@model web.Areas.Admin.ViewModels.UserViewModel
+
+<div class="form-group mb-3">
+    <label asp-for="SelectedRoleIds" class="form-label"></label>
+    <select asp-for="SelectedRoleIds" asp-items="@Model.AvailableRoles"
+            class="form-select tom-selected" multiple data-placeholder="Chọn các vai trò cho người dùng này">
+    </select>
+    <span asp-validation-for="SelectedRoleIds" class="text-danger"></span>
+    <small class="form-hint">
+        <i class="ti ti-info-circle me-1"></i>Gán người dùng vào một hoặc nhiều vai trò.
+    </small>
+</div>
