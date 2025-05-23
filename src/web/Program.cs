@@ -1,6 +1,7 @@
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Serilog;
 using web.Areas.Admin.Validators;
@@ -63,6 +64,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+builder.Services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();
 
 var app = builder.Build();
 

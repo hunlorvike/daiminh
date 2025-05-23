@@ -58,7 +58,7 @@ public class ClaimDefinitionSeeder : IDataSeeder
             new ClaimDefinition { Type = "Permission", Value = "Setting.Edit", Description = "Chỉnh sửa cài đặt hệ thống" },
 
             new ClaimDefinition { Type = "Permission", Value = "Dashboard.View", Description = "Xem bảng điều khiển" },
-            new ClaimDefinition { Type = "Permission", Value = "All.Manage", Description = "Quyền quản lý toàn bộ hệ thống" }
+            new ClaimDefinition { Type = "Permission", Value = "Admin.Access", Description = "Quyền truy cập hệ thống quản trị" }
         };
 
         await _dbContext.ClaimDefinitions.AddRangeAsync(claims);

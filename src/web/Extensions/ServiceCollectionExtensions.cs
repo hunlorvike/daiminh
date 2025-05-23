@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using System.Reflection;
+using web.Configs;
 
 namespace web.Extensions;
 
@@ -87,6 +88,22 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    public static IServiceCollection AddAuthorizationServices(this IServiceCollection services)
+    {
+        services.AddAuthorization(options =>
+        {
+            options.AddPolicy("CanViewFAQ", policy => policy.Requirements.Add(new PermissionRequirement("FAQ.View")));
+            options.AddPolicy("CanCreateFAQ", policy => policy.Requirements.Add(new PermissionRequirement("FAQ.Create")));
+            options.AddPolicy("CanEditFAQ", policy => policy.Requirements.Add(new PermissionRequirement("FAQ.Edit")));
+            options.AddPolicy("CanDeleteFAQ", policy => policy.Requirements.Add(new PermissionRequirement("FAQ.Delete")));
+
+            options.AddPolicy("AdminAccess", policy =>
+            {
+                policy.Requirements.Add(new PermissionRequirement("Admin.Access"));
+            });
+        });
+        return services;
+    }
 
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
