@@ -23,27 +23,26 @@ public class UserAndRoleSeeder : IDataSeeder
         _logger = logger;
     }
 
-    public int Order => 1;
+    public int Order => 2;
 
     public async Task SeedAsync()
     {
         _logger.LogInformation("Seeding Users and Roles...");
 
-        // 1. Seed Roles
         await CreateRoleIfNotExists("Admin", "ADMIN");
+        await CreateRoleIfNotExists("SuperAdmin", "SUPERADMIN");
         await CreateRoleIfNotExists("User", "USER");
 
-        // 2. Seed Admin User
+        await CreateUserAndAssignRole("superadmin", "superadmin@admin.com", "Super Quản trị viên", "SuperAdmin123!", "SuperAdmin");
         await CreateUserAndAssignRole("admin", "admin@admin.com", "Quản trị viên", "Password123!", "Admin");
 
-        // 3. Seed Regular Users
         await CreateUserAndAssignRole("user1", "user1@example.com", "Nguyễn Văn A", "Password123!", "User");
         await CreateUserAndAssignRole("user2", "user2@example.com", "Trần Thị B", "Password123!", "User");
 
         _logger.LogInformation("Finished seeding Users and Roles.");
     }
 
-    private async Task CreateRoleIfNotExists(string roleName, string normalizedRoleName)
+    private async Task<Role?> CreateRoleIfNotExists(string roleName, string normalizedRoleName)
     {
         var role = await _roleManager.FindByNameAsync(roleName);
         if (role == null)
@@ -53,15 +52,18 @@ public class UserAndRoleSeeder : IDataSeeder
             if (result.Succeeded)
             {
                 _logger.LogInformation("Created role: {RoleName}", roleName);
+                return role;
             }
             else
             {
                 _logger.LogError("Failed to create role {RoleName}: {Errors}", roleName, string.Join(", ", result.Errors.Select(e => e.Description)));
+                return null;
             }
         }
         else
         {
             _logger.LogInformation("Role {RoleName} already exists.", roleName);
+            return role;
         }
     }
 

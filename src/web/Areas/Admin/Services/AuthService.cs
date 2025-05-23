@@ -1,8 +1,8 @@
+using System.Security.Claims;
 using AutoRegister;
 using domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using shared.Models;
-using System.Security.Claims;
 using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;
@@ -11,15 +11,18 @@ namespace web.Areas.Admin.Services;
 public class AuthService : IAuthService
 {
     private readonly UserManager<User> _userManager;
+    private readonly RoleManager<Role> _roleManager;
     private readonly SignInManager<User> _signInManager;
     private readonly ILogger<AuthService> _logger;
 
     public AuthService(
         UserManager<User> userManager,
+        RoleManager<Role> roleManager,
         SignInManager<User> signInManager,
         ILogger<AuthService> logger)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
+        _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
@@ -62,6 +65,13 @@ public class AuthService : IAuthService
             foreach (var roleName in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, roleName));
+
+                var role = await _roleManager.FindByNameAsync(roleName);
+                if (role != null)
+                {
+                    var roleClaims = await _roleManager.GetClaimsAsync(role);
+                    claims.AddRange(roleClaims.Where(rc => rc.Type == "Permission"));
+                }
             }
 
             var userClaims = await _userManager.GetClaimsAsync(user);

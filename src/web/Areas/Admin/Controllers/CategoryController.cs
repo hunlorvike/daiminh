@@ -15,7 +15,7 @@ using X.PagedList.Extensions;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
 public class CategoryController : Controller
 {
     private readonly ICategoryService _categoryService;

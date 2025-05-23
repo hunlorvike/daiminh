@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -13,7 +13,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
 public class UserController : Controller
 {
     private readonly IUserService _userService;
@@ -39,6 +39,7 @@ public class UserController : Controller
         _userChangePasswordViewModelValidator = userChangePasswordViewModelValidator ?? throw new ArgumentNullException(nameof(userChangePasswordViewModelValidator));
     }
 
+    [Authorize(Policy = "User.Manage")]
     // GET: Admin/User
     public async Task<IActionResult> Index(UserFilterViewModel filter, int page = 1, int pageSize = 15)
     {

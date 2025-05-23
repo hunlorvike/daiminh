@@ -13,7 +13,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
 public class RoleController : Controller
 {
     private readonly IRoleService _roleService;

@@ -569,7 +569,6 @@ namespace infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ClaimDefinitionId = table.Column<int>(type: "int", nullable: false),
                     RoleId = table.Column<int>(type: "int", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -577,12 +576,6 @@ namespace infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RoleClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_RoleClaims_ClaimDefinitions_ClaimDefinitionId",
-                        column: x => x.ClaimDefinitionId,
-                        principalTable: "ClaimDefinitions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_RoleClaims_Roles_RoleId",
                         column: x => x.RoleId,
@@ -597,7 +590,6 @@ namespace infrastructure.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ClaimDefinitionId = table.Column<int>(type: "int", nullable: false),
                     UserId = table.Column<int>(type: "int", nullable: false),
                     ClaimType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClaimValue = table.Column<string>(type: "nvarchar(max)", nullable: true)
@@ -605,12 +597,6 @@ namespace infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_UserClaims", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_UserClaims_ClaimDefinitions_ClaimDefinitionId",
-                        column: x => x.ClaimDefinitionId,
-                        principalTable: "ClaimDefinitions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserClaims_Users_UserId",
                         column: x => x.UserId,
@@ -1022,11 +1008,6 @@ namespace infrastructure.Migrations
                 column: "ProductId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_RoleClaims_ClaimDefinitionId",
-                table: "RoleClaims",
-                column: "ClaimDefinitionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",
                 table: "RoleClaims",
                 column: "RoleId");
@@ -1071,11 +1052,6 @@ namespace infrastructure.Migrations
                 column: "Rating");
 
             migrationBuilder.CreateIndex(
-                name: "IX_UserClaims_ClaimDefinitionId",
-                table: "UserClaims",
-                column: "ClaimDefinitionId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserClaims_UserId",
                 table: "UserClaims",
                 column: "UserId");
@@ -1111,6 +1087,9 @@ namespace infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Banners");
+
+            migrationBuilder.DropTable(
+                name: "ClaimDefinitions");
 
             migrationBuilder.DropTable(
                 name: "Contacts");
@@ -1180,9 +1159,6 @@ namespace infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductVariations");
-
-            migrationBuilder.DropTable(
-                name: "ClaimDefinitions");
 
             migrationBuilder.DropTable(
                 name: "Roles");

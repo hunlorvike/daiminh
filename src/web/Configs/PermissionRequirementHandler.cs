@@ -4,33 +4,45 @@ namespace web.Configs;
 
 public class PermissionRequirementHandler : AuthorizationHandler<PermissionRequirement>
 {
+    private readonly ILogger<PermissionRequirementHandler> _logger;
+
+    public PermissionRequirementHandler(ILogger<PermissionRequirementHandler> logger)
+    {
+        _logger = logger;
+    }
+
     protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
     {
-        if (!context.User.Identity?.IsAuthenticated ?? true)
+        if (context.User == null || !context.User.Identity?.IsAuthenticated == true)
         {
+            _logger.LogWarning("Authorization failed for permission '{Permission}': User is not authenticated.", requirement.Permission);
             context.Fail();
             return Task.CompletedTask;
         }
 
-        // Kiểm tra xem người dùng có Claim nào có Type là "permission" (hoặc bất kỳ loại claim nào bạn dùng cho permission)
-        // và Value khớp với requirement.Permission không.
-        // Bạn cần đảm bảo ClaimDefinition của bạn có Type và Value phù hợp.
-        // Giả sử Type của Claim Definition là "permission"
-        // Hoặc bạn có thể định nghĩa Type là hằng số hoặc lấy từ cấu hình.
-        // Ví dụ: Claim Type "Permission" và Claim Value "FAQ.View"
-        // Identity RoleClaim và UserClaim sẽ lưu ClaimType và ClaimValue
+        if (context.User.HasClaim(claim => claim.Type == "Permission" && claim.Value == "SuperAdmin.Access"))
+        {
+            _logger.LogInformation("Authorization succeeded for permission '{Permission}': User '{UserName}' is SuperAdmin.",
+                                   requirement.Permission, context.User.Identity.Name);
+            context.Succeed(requirement);
+            return Task.CompletedTask;
+        }
 
-        var hasPermission = context.User.HasClaim(claim =>
+        var hasSpecificPermission = context.User.HasClaim(claim =>
             claim.Type == "Permission" &&
             claim.Value == requirement.Permission);
 
-        if (hasPermission)
+        if (hasSpecificPermission)
         {
+            _logger.LogInformation("Authorization succeeded for permission '{Permission}': User '{UserName}' has the required claim.",
+                                   requirement.Permission, context.User.Identity.Name);
             context.Succeed(requirement);
         }
         else
         {
-            context.Fail(new AuthorizationFailureReason(this, $"User does not have '{requirement.Permission}' permission."));
+            _logger.LogWarning("Authorization failed for permission '{Permission}': User '{UserName}' does not have the required claim.",
+                               requirement.Permission, context.User.Identity.Name);
+            context.Fail(new AuthorizationFailureReason(this, $"Người dùng không có quyền '{requirement.Permission}' để truy cập tài nguyên này."));
         }
 
         return Task.CompletedTask;

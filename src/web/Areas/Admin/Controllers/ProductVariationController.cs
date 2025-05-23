@@ -19,7 +19,7 @@ using X.PagedList.Extensions;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
 public partial class ProductVariationController : Controller
 {
     private readonly ApplicationDbContext _context;

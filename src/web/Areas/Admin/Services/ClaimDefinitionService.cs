@@ -133,14 +133,18 @@ public class ClaimDefinitionService : IClaimDefinitionService
         }
 
         string claimValue = claimDefinition.Value;
+        string claimType = claimDefinition.Type;
 
-        bool isInUse = await _context.Set<RoleClaim>().AnyAsync(rc => rc.ClaimDefinitionId == id) ||
-                        await _context.Set<UserClaim>().AnyAsync(uc => uc.ClaimDefinitionId == id);
+        bool isInUseByRoles = await _context.RoleClaims
+                                            .AnyAsync(rc => rc.ClaimType == claimType && rc.ClaimValue == claimValue);
 
-        if (isInUse)
+        bool isInUseByUsers = await _context.UserClaims
+                                            .AnyAsync(uc => uc.ClaimType == claimType && uc.ClaimValue == claimValue);
+
+        if (isInUseByRoles || isInUseByUsers)
         {
             return OperationResult.FailureResult("Không thể xóa định nghĩa quyền hạn vì đang được sử dụng bởi Vai trò hoặc Người dùng.",
-                errors: new List<string> { "Định nghĩa quyền hạn này đang được gán cho một hoặc nhiều vai trò/người dùng. Vui lòng gỡ bỏ các gán này trước khi xóa." });
+                errors: new List<string> { $"Định nghĩa quyền hạn '{claimValue}' đang được gán cho một hoặc nhiều vai trò/người dùng. Vui lòng gỡ bỏ các gán này trước khi xóa." });
         }
 
         _context.Remove(claimDefinition);
@@ -154,10 +158,6 @@ public class ClaimDefinitionService : IClaimDefinitionService
         catch (DbUpdateException ex)
         {
             _logger.LogError(ex, "Database error when deleting ClaimDefinition ID {Id}", id);
-            if (ex.InnerException?.Message.Contains("FOREIGN KEY", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult.FailureResult("Không thể xóa định nghĩa quyền hạn vì đang được sử dụng.", errors: new List<string> { "Không thể xóa định nghĩa quyền hạn vì đang được sử dụng." });
-            }
             return OperationResult.FailureResult("Lỗi cơ sở dữ liệu khi xóa định nghĩa quyền hạn.", errors: new List<string> { "Lỗi cơ sở dữ liệu khi xóa định nghĩa quyền hạn." });
         }
         catch (Exception ex)

@@ -10,7 +10,7 @@ using web.Areas.Admin.ViewModels;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
 public partial class MediaController : Controller
 {
     private readonly IMediaService _mediaService;

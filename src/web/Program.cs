@@ -53,6 +53,7 @@ builder.Services
     .AddIdentity(builder.Configuration)
     .AddMinioService(builder.Configuration)
     .AddAuthenticationServices()
+    .AddAuthorizationServices()
     .AddCustomServices();
 
 builder.Services.AddControllersWithViews();

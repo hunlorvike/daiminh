@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace web.Areas.Admin.ViewModels;
 
@@ -34,7 +34,7 @@ public class UserViewModel
     public List<SelectListItem>? AvailableRoles { get; set; }
 
     [Display(Name = "Quyền hạn trực tiếp")]
-    public List<int>? SelectedClaimDefinitionIds { get; set; } = new List<int>();
+    public List<int> SelectedClaimDefinitionIds { get; set; } = new List<int>();
     public List<SelectListItem>? AvailableClaimDefinitions { get; set; }
 
     public DateTimeOffset? LockoutEnd { get; set; }

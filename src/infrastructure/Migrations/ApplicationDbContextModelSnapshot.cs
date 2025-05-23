@@ -1501,9 +1501,6 @@ namespace infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClaimDefinitionId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
 
@@ -1514,8 +1511,6 @@ namespace infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ClaimDefinitionId");
 
                     b.HasIndex("RoleId");
 
@@ -1886,9 +1881,6 @@ namespace infrastructure.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClaimDefinitionId")
-                        .HasColumnType("int");
-
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
 
@@ -1899,8 +1891,6 @@ namespace infrastructure.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("ClaimDefinitionId");
 
                     b.HasIndex("UserId");
 
@@ -2138,36 +2128,20 @@ namespace infrastructure.Migrations
 
             modelBuilder.Entity("domain.Entities.RoleClaim", b =>
                 {
-                    b.HasOne("domain.Entities.ClaimDefinition", "ClaimDefinition")
-                        .WithMany()
-                        .HasForeignKey("ClaimDefinitionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("domain.Entities.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ClaimDefinition");
                 });
 
             modelBuilder.Entity("domain.Entities.UserClaim", b =>
                 {
-                    b.HasOne("domain.Entities.ClaimDefinition", "ClaimDefinition")
-                        .WithMany()
-                        .HasForeignKey("ClaimDefinitionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("domain.Entities.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("ClaimDefinition");
                 });
 
             modelBuilder.Entity("domain.Entities.UserLogin", b =>

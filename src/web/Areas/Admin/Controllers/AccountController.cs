@@ -12,7 +12,7 @@ using web.Areas.Admin.ViewModels;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
 public class AccountController : Controller
 {
     private readonly IAuthService _authService;

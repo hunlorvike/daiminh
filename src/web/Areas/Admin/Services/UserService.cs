@@ -6,7 +6,6 @@ using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
-using System.Security.Claims;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -107,11 +106,21 @@ public class UserService : IUserService
 
     public async Task<List<int>> GetSelectedClaimDefinitionIdsForUserAsync(int userId)
     {
-        return await _context.Set<UserClaim>()
-                             .AsNoTracking()
-                             .Where(uc => uc.UserId == userId)
-                             .Select(uc => uc.ClaimDefinitionId)
-                             .ToListAsync();
+        var currentUserClaims = await _userManager.GetClaimsAsync(await _userManager.FindByIdAsync(userId.ToString()));
+        if (currentUserClaims == null) return new List<int>();
+
+        var allClaimDefinitions = await _context.ClaimDefinitions.AsNoTracking().ToListAsync();
+        var claimDefDict = allClaimDefinitions.ToDictionary(cd => (cd.Type, cd.Value), cd => cd.Id);
+
+        var selectedIds = new List<int>();
+        foreach (var claim in currentUserClaims)
+        {
+            if (claim.Type == "Permission" && claimDefDict.TryGetValue((claim.Type, claim.Value), out int claimDefId))
+            {
+                selectedIds.Add(claimDefId);
+            }
+        }
+        return selectedIds;
     }
 
     public async Task<OperationResult<int>> CreateUserAsync(UserViewModel viewModel)
@@ -345,38 +354,58 @@ public class UserService : IUserService
         User? user = await _userManager.FindByIdAsync(userId.ToString());
         if (user == null) return;
 
-        var allClaimDefinitions = await _context.Set<ClaimDefinition>()
+        var allClaimDefinitions = await _context.ClaimDefinitions
                                                 .AsNoTracking()
                                                 .ToDictionaryAsync(cd => cd.Id);
 
         var currentUserClaims = await _userManager.GetClaimsAsync(user);
 
-        var claimsToRemove = currentUserClaims
-            .Where(uc => allClaimDefinitions.Values.Any(cd => cd.Value == uc.Value
-                                                              && cd.Type == uc.Type
-                                                              && !selectedClaimDefinitionIds.Contains(cd.Id)))
-            .ToList();
-
-        var claimsToAddIds = selectedClaimDefinitionIds
-            .Where(selectedId => !currentUserClaims.Any(uc => allClaimDefinitions.TryGetValue(selectedId, out var cd)
-                                                              && cd.Value == uc.Value
-                                                              && cd.Type == uc.Type))
-            .ToList();
-
-        foreach (var claim in claimsToRemove)
+        var claimsToRemove = new List<System.Security.Claims.Claim>();
+        foreach (var currentClaim in currentUserClaims)
         {
-            await _userManager.RemoveClaimAsync(user, claim);
+            if (currentClaim.Type == "Permission")
+            {
+                var matchingClaimDef = allClaimDefinitions.Values
+                    .FirstOrDefault(cd => cd.Type == currentClaim.Type && cd.Value == currentClaim.Value);
+
+                if (matchingClaimDef == null || !selectedClaimDefinitionIds.Contains(matchingClaimDef.Id))
+                {
+                    claimsToRemove.Add(currentClaim);
+                }
+            }
         }
 
-        foreach (var claimIdToAdd in claimsToAddIds)
+        var claimsToAdd = new List<System.Security.Claims.Claim>();
+        foreach (var selectedId in selectedClaimDefinitionIds)
         {
-            if (allClaimDefinitions.TryGetValue(claimIdToAdd, out var claimDef))
+            if (allClaimDefinitions.TryGetValue(selectedId, out var claimDef))
             {
-                await _userManager.AddClaimAsync(user, new Claim(claimDef.Type, claimDef.Value));
+                if (!currentUserClaims.Any(c => c.Type == claimDef.Type && c.Value == claimDef.Value))
+                {
+                    claimsToAdd.Add(new System.Security.Claims.Claim(claimDef.Type, claimDef.Value));
+                }
             }
             else
             {
-                _logger.LogWarning("ClaimDefinition ID {ClaimId} not found when trying to add to User {UserId}.", claimIdToAdd, userId);
+                _logger.LogWarning("ClaimDefinition ID {ClaimId} not found when trying to add to User {UserId}.", selectedId, userId);
+            }
+        }
+
+        foreach (var claim in claimsToRemove)
+        {
+            var removeResult = await _userManager.RemoveClaimAsync(user, claim);
+            if (!removeResult.Succeeded)
+            {
+                _logger.LogError("Failed to remove claim '{ClaimType}:{ClaimValue}' from user '{UserName}': {Errors}", claim.Type, claim.Value, user.UserName, string.Join(", ", removeResult.Errors.Select(e => e.Description)));
+            }
+        }
+
+        foreach (var claim in claimsToAdd)
+        {
+            var addResult = await _userManager.AddClaimAsync(user, claim);
+            if (!addResult.Succeeded)
+            {
+                _logger.LogError("Failed to add claim '{ClaimType}:{ClaimValue}' to user '{UserName}': {Errors}", claim.Type, claim.Value, user.UserName, string.Join(", ", addResult.Errors.Select(e => e.Description)));
             }
         }
     }

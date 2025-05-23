@@ -86,11 +86,23 @@ public class RoleService : IRoleService
 
     public async Task<List<int>> GetSelectedClaimDefinitionIdsForRoleAsync(int roleId)
     {
-        return await _context.Set<RoleClaim>()
-                             .AsNoTracking()
-                             .Where(rc => rc.RoleId == roleId)
-                             .Select(rc => rc.ClaimDefinitionId)
-                             .ToListAsync();
+        var role = await _roleManager.FindByIdAsync(roleId.ToString());
+        if (role == null) return new List<int>();
+
+        var currentRoleClaims = await _roleManager.GetClaimsAsync(role);
+
+        var allClaimDefinitions = await _context.ClaimDefinitions.AsNoTracking().ToListAsync();
+        var claimDefDict = allClaimDefinitions.ToDictionary(cd => (cd.Type, cd.Value), cd => cd.Id);
+
+        var selectedIds = new List<int>();
+        foreach (var claim in currentRoleClaims)
+        {
+            if (claim.Type == "Permission" && claimDefDict.TryGetValue((claim.Type, claim.Value), out int claimDefId))
+            {
+                selectedIds.Add(claimDefId);
+            }
+        }
+        return selectedIds;
     }
 
     public async Task<OperationResult<int>> CreateRoleAsync(RoleViewModel viewModel)
@@ -199,46 +211,64 @@ public class RoleService : IRoleService
         return roles;
     }
 
-    // Helper method để đồng bộ RoleClaims
     private async Task SyncRoleClaimsAsync(int roleId, List<int> selectedClaimDefinitionIds)
     {
-        // Lấy tất cả ClaimDefinition từ database để tham chiếu
-        var allClaimDefinitions = await _context.Set<ClaimDefinition>()
+        var role = await _roleManager.FindByIdAsync(roleId.ToString());
+        if (role == null) return;
+
+        var allClaimDefinitions = await _context.ClaimDefinitions
                                                 .AsNoTracking()
                                                 .ToDictionaryAsync(cd => cd.Id);
 
-        // Lấy claims hiện tại của vai trò
-        var currentRoleClaims = await _context.Set<RoleClaim>()
-                                              .Where(rc => rc.RoleId == roleId)
-                                              .ToListAsync();
+        var currentRoleClaims = await _roleManager.GetClaimsAsync(role);
 
-        var claimsToRemove = currentRoleClaims
-            .Where(rc => !selectedClaimDefinitionIds.Contains(rc.ClaimDefinitionId))
-            .ToList();
-
-        var claimsToAddIds = selectedClaimDefinitionIds
-            .Where(selectedId => !currentRoleClaims.Any(rc => rc.ClaimDefinitionId == selectedId))
-            .ToList();
-
-        _context.Set<RoleClaim>().RemoveRange(claimsToRemove);
-
-        foreach (var claimIdToAdd in claimsToAddIds)
+        var claimsToRemove = new List<System.Security.Claims.Claim>();
+        foreach (var currentClaim in currentRoleClaims)
         {
-            if (allClaimDefinitions.TryGetValue(claimIdToAdd, out var claimDef))
+            if (currentClaim.Type == "Permission")
             {
-                await _context.Set<RoleClaim>().AddAsync(new RoleClaim
+                var matchingClaimDef = allClaimDefinitions.Values
+                    .FirstOrDefault(cd => cd.Type == currentClaim.Type && cd.Value == currentClaim.Value);
+
+                if (matchingClaimDef == null || !selectedClaimDefinitionIds.Contains(matchingClaimDef.Id))
                 {
-                    RoleId = roleId,
-                    ClaimDefinitionId = claimDef.Id,
-                    ClaimType = claimDef.Type,
-                    ClaimValue = claimDef.Value
-                });
+                    claimsToRemove.Add(currentClaim);
+                }
+            }
+        }
+
+        var claimsToAdd = new List<System.Security.Claims.Claim>();
+        foreach (var selectedId in selectedClaimDefinitionIds)
+        {
+            if (allClaimDefinitions.TryGetValue(selectedId, out var claimDef))
+            {
+                if (!currentRoleClaims.Any(c => c.Type == claimDef.Type && c.Value == claimDef.Value))
+                {
+                    claimsToAdd.Add(new System.Security.Claims.Claim(claimDef.Type, claimDef.Value));
+                }
             }
             else
             {
-                _logger.LogWarning("ClaimDefinition ID {ClaimId} not found when trying to add to Role {RoleId}.", claimIdToAdd, roleId);
+                _logger.LogWarning("ClaimDefinition ID {ClaimId} not found when trying to add to Role {RoleId}.", selectedId, roleId);
             }
         }
-        await _context.SaveChangesAsync();
+
+        foreach (var claim in claimsToRemove)
+        {
+            var removeResult = await _roleManager.RemoveClaimAsync(role, claim);
+            if (!removeResult.Succeeded)
+            {
+                _logger.LogError("Failed to remove claim '{ClaimType}:{ClaimValue}' from role '{RoleName}': {Errors}", claim.Type, claim.Value, role.Name, string.Join(", ", removeResult.Errors.Select(e => e.Description)));
+            }
+        }
+
+        foreach (var claim in claimsToAdd)
+        {
+            var addResult = await _roleManager.AddClaimAsync(role, claim);
+            if (!addResult.Succeeded)
+            {
+                _logger.LogError("Failed to add claim '{ClaimType}:{ClaimValue}' to role '{RoleName}': {Errors}", claim.Type, claim.Value, role.Name, string.Join(", ", addResult.Errors.Select(e => e.Description)));
+            }
+        }
     }
 }
