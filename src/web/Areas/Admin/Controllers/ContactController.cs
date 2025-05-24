@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -15,7 +15,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class ContactController : Controller
 {
     private readonly IContactService _contactService;
@@ -37,6 +37,7 @@ public class ContactController : Controller
     }
 
     // GET: Admin/Contact
+    [Authorize(Policy = PermissionConstants.ContactView)]
     public async Task<IActionResult> Index(ContactFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new ContactFilterViewModel();
@@ -57,6 +58,7 @@ public class ContactController : Controller
     }
 
     // GET: Admin/Contact/Details/5
+    [Authorize(Policy = PermissionConstants.ContactView)]
     public async Task<IActionResult> Details(int id)
     {
         ContactViewModel? viewModel = await _contactService.GetContactByIdAsync(id);
@@ -76,6 +78,7 @@ public class ContactController : Controller
     }
 
     // POST: Admin/Contact/UpdateDetails/5
+    [Authorize(Policy = PermissionConstants.ContactEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateDetails(int id, ContactViewModel viewModel)
@@ -132,6 +135,7 @@ public class ContactController : Controller
     }
 
     // POST: Admin/Contact/Delete/5
+    [Authorize(Policy = PermissionConstants.ContactDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

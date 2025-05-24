@@ -1,18 +1,18 @@
+using System.Security.Claims;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Security.Claims;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class AccountController : Controller
 {
     private readonly IAuthService _authService;

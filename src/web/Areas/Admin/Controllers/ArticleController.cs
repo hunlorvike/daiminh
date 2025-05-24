@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -7,8 +9,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Security.Claims;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -16,7 +16,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class ArticleController : Controller
 {
     private readonly IArticleService _articleService;
@@ -46,6 +46,7 @@ public partial class ArticleController : Controller
     }
 
     // GET: Admin/Article
+    [Authorize(Policy = PermissionConstants.ArticleView)]
     public async Task<IActionResult> Index(ArticleFilterViewModel filter, int page = 1, int pageSize = 25)
     {
         filter ??= new ArticleFilterViewModel();
@@ -68,6 +69,7 @@ public partial class ArticleController : Controller
     }
 
     // GET: Admin/Article/Create
+    [Authorize(Policy = PermissionConstants.ArticleCreate)]
     public async Task<IActionResult> Create()
     {
         ArticleViewModel viewModel = new()
@@ -86,6 +88,7 @@ public partial class ArticleController : Controller
     }
 
     // POST: Admin/Article/Create
+    [Authorize(Policy = PermissionConstants.ArticleCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ArticleViewModel viewModel)
@@ -146,6 +149,7 @@ public partial class ArticleController : Controller
     }
 
     // GET: Admin/Article/Edit/5
+    [Authorize(Policy = PermissionConstants.ArticleEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         ArticleViewModel? viewModel = await _articleService.GetArticleByIdAsync(id);
@@ -165,6 +169,7 @@ public partial class ArticleController : Controller
     }
 
     // POST: Admin/Article/Edit/5
+    [Authorize(Policy = PermissionConstants.ArticleEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ArticleViewModel viewModel)
@@ -228,6 +233,7 @@ public partial class ArticleController : Controller
     }
 
     // POST: Admin/Article/Delete/5
+    [Authorize(Policy = PermissionConstants.ArticleDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

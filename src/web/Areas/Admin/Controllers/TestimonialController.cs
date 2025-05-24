@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -14,7 +14,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class TestimonialController : Controller
 {
     private readonly ITestimonialService _testimonialService;
@@ -35,6 +35,7 @@ public partial class TestimonialController : Controller
     }
 
     // GET: Admin/Testimonial
+    [Authorize(Policy = PermissionConstants.TestimonialView)]
     public async Task<IActionResult> Index(TestimonialFilterViewModel filter, int page = 1, int pageSize = 10)
     {
         filter ??= new TestimonialFilterViewModel();
@@ -56,6 +57,7 @@ public partial class TestimonialController : Controller
     }
 
     // GET: Admin/Testimonial/Create
+    [Authorize(Policy = PermissionConstants.TestimonialCreate)]
     public IActionResult Create()
     {
         TestimonialViewModel viewModel = new()
@@ -68,6 +70,7 @@ public partial class TestimonialController : Controller
     }
 
     // POST: Admin/Testimonial/Create
+    [Authorize(Policy = PermissionConstants.TestimonialCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TestimonialViewModel viewModel)
@@ -109,6 +112,7 @@ public partial class TestimonialController : Controller
     }
 
     // GET: Admin/Testimonial/Edit/5
+    [Authorize(Policy = PermissionConstants.TestimonialEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         TestimonialViewModel? viewModel = await _testimonialService.GetTestimonialByIdAsync(id);
@@ -125,6 +129,7 @@ public partial class TestimonialController : Controller
     }
 
     // POST: Admin/Testimonial/Edit/5
+    [Authorize(Policy = PermissionConstants.TestimonialEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TestimonialViewModel viewModel)
@@ -174,6 +179,7 @@ public partial class TestimonialController : Controller
     }
 
     // POST: Admin/Testimonial/Delete/5
+    [Authorize(Policy = PermissionConstants.TestimonialDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -10,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Validators;
 using web.Areas.Admin.ViewModels;
 using X.PagedList.EF;
@@ -19,7 +19,7 @@ using X.PagedList.Extensions;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class ProductVariationController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -37,6 +37,7 @@ public partial class ProductVariationController : Controller
     }
 
     // GET: Admin/ProductVariation
+    [Authorize(Policy = PermissionConstants.ProductVariationView)]
     public async Task<IActionResult> Index(int productId, ProductVariationFilterViewModel filter, int page = 1, int pageSize = 25)
     {
         var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId);
@@ -91,6 +92,7 @@ public partial class ProductVariationController : Controller
     }
 
     // GET: Admin/ProductVariation/Create
+    [Authorize(Policy = PermissionConstants.ProductVariationCreate)]
     public async Task<IActionResult> Create(int productId)
     {
         var product = await _context.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == productId);
@@ -116,6 +118,7 @@ public partial class ProductVariationController : Controller
     }
 
     // POST: Admin/ProductVariation/Create
+    [Authorize(Policy = PermissionConstants.ProductVariationCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductVariationViewModel viewModel)
@@ -176,6 +179,7 @@ public partial class ProductVariationController : Controller
     }
 
     // GET: Admin/ProductVariation/Edit/5
+    [Authorize(Policy = PermissionConstants.ProductVariationEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         var variation = await _context.Set<ProductVariation>()
@@ -201,6 +205,7 @@ public partial class ProductVariationController : Controller
     }
 
     // POST: Admin/ProductVariation/Edit/5
+    [Authorize(Policy = PermissionConstants.ProductVariationEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProductVariationViewModel viewModel)
@@ -274,6 +279,7 @@ public partial class ProductVariationController : Controller
     }
 
     // POST: Admin/ProductVariation/Delete/5
+    [Authorize(Policy = PermissionConstants.ProductVariationDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

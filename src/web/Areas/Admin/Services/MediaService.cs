@@ -1,10 +1,10 @@
+using System.Net.Mime;
+using System.Text.RegularExpressions;
 using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
-using System.Net.Mime;
-using System.Text.RegularExpressions;
 using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;

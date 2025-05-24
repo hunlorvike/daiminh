@@ -1,6 +1,6 @@
+using System.ComponentModel.DataAnnotations;
 using shared.Enums;
 using shared.Extensions;
-using System.ComponentModel.DataAnnotations;
 
 namespace web.Areas.Admin.ViewModels;
 

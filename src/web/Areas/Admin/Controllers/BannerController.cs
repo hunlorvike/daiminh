@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -15,7 +15,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class BannerController : Controller
 {
     private readonly IBannerService _bannerService;
@@ -36,6 +36,7 @@ public partial class BannerController : Controller
     }
 
     // GET: Admin/Banner
+    [Authorize(Policy = PermissionConstants.BannerView)]
     public async Task<IActionResult> Index(BannerFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new BannerFilterViewModel();
@@ -59,6 +60,7 @@ public partial class BannerController : Controller
     }
 
     // GET: Admin/Banner/Create
+    [Authorize(Policy = PermissionConstants.BannerCreate)]
     public IActionResult Create()
     {
         BannerViewModel viewModel = new()
@@ -71,6 +73,7 @@ public partial class BannerController : Controller
     }
 
     // POST: Admin/Banner/Create
+    [Authorize(Policy = PermissionConstants.BannerCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(BannerViewModel viewModel)
@@ -116,6 +119,7 @@ public partial class BannerController : Controller
     }
 
     // GET: Admin/Banner/Edit/5
+    [Authorize(Policy = PermissionConstants.BannerEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         BannerViewModel? viewModel = await _bannerService.GetBannerByIdAsync(id);
@@ -135,6 +139,7 @@ public partial class BannerController : Controller
     }
 
     // POST: Admin/Banner/Edit/5
+    [Authorize(Policy = PermissionConstants.BannerEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, BannerViewModel viewModel)
@@ -188,6 +193,7 @@ public partial class BannerController : Controller
     }
 
     // POST: Admin/Banner/Delete/5
+    [Authorize(Policy = PermissionConstants.BannerDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

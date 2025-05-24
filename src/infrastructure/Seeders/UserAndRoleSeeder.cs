@@ -29,8 +29,8 @@ public class UserAndRoleSeeder : IDataSeeder
     {
         _logger.LogInformation("Seeding Users and Roles...");
 
-        await CreateRoleIfNotExists("Admin", "ADMIN");
         await CreateRoleIfNotExists("SuperAdmin", "SUPERADMIN");
+        await CreateRoleIfNotExists("Admin", "ADMIN");
         await CreateRoleIfNotExists("User", "USER");
 
         await CreateUserAndAssignRole("superadmin", "superadmin@admin.com", "Super Quản trị viên", "SuperAdmin123!", "SuperAdmin");

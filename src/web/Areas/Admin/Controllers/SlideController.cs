@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -14,7 +14,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class SlideController : Controller
 {
     private readonly ISlideService _slideService;
@@ -35,6 +35,7 @@ public partial class SlideController : Controller
     }
 
     // GET: Admin/Slide
+    [Authorize(Policy = PermissionConstants.SlideView)]
     public async Task<IActionResult> Index(SlideFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new SlideFilterViewModel();
@@ -55,6 +56,7 @@ public partial class SlideController : Controller
     }
 
     // GET: Admin/Slide/Create
+    [Authorize(Policy = PermissionConstants.SlideCreate)]
     public IActionResult Create()
     {
         SlideViewModel viewModel = new()
@@ -67,6 +69,7 @@ public partial class SlideController : Controller
     }
 
     // POST: Admin/Slide/Create
+    [Authorize(Policy = PermissionConstants.SlideCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(SlideViewModel viewModel)
@@ -110,6 +113,7 @@ public partial class SlideController : Controller
     }
 
     // GET: Admin/Slide/Edit/5
+    [Authorize(Policy = PermissionConstants.SlideEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         SlideViewModel? viewModel = await _slideService.GetSlideByIdAsync(id);
@@ -126,6 +130,7 @@ public partial class SlideController : Controller
     }
 
     // POST: Admin/Slide/Edit/5
+    [Authorize(Policy = PermissionConstants.SlideEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, SlideViewModel viewModel)
@@ -177,6 +182,7 @@ public partial class SlideController : Controller
     }
 
     // POST: Admin/Slide/Delete/5
+    [Authorize(Policy = PermissionConstants.SlideDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

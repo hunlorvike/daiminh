@@ -13,7 +13,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class UserController : Controller
 {
     private readonly IUserService _userService;
@@ -39,8 +39,8 @@ public class UserController : Controller
         _userChangePasswordViewModelValidator = userChangePasswordViewModelValidator ?? throw new ArgumentNullException(nameof(userChangePasswordViewModelValidator));
     }
 
-    [Authorize(Policy = "User.Manage")]
     // GET: Admin/User
+    [Authorize(Policy = PermissionConstants.UserManage)]
     public async Task<IActionResult> Index(UserFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new UserFilterViewModel();
@@ -64,6 +64,7 @@ public class UserController : Controller
     }
 
     // GET: Admin/User/Create
+    [Authorize(Policy = PermissionConstants.UserManage)]
     public async Task<IActionResult> Create()
     {
         UserViewModel viewModel = new()
@@ -85,6 +86,7 @@ public class UserController : Controller
     }
 
     // POST: Admin/User/Create
+    [Authorize(Policy = PermissionConstants.UserManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(UserViewModel viewModel)
@@ -143,6 +145,7 @@ public class UserController : Controller
     }
 
     // GET: Admin/User/Edit/5
+    [Authorize(Policy = PermissionConstants.UserManage)]
     public async Task<IActionResult> Edit(int id)
     {
         UserViewModel? viewModel = await _userService.GetUserByIdAsync(id);
@@ -176,6 +179,7 @@ public class UserController : Controller
     }
 
     // POST: Admin/User/Edit/5
+    [Authorize(Policy = PermissionConstants.UserManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, UserViewModel viewModel)
@@ -254,6 +258,7 @@ public class UserController : Controller
     }
 
     // POST: Admin/User/Delete/5
+    [Authorize(Policy = PermissionConstants.UserManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -276,6 +281,7 @@ public class UserController : Controller
     }
 
     // POST: Admin/User/ToggleActive/5
+    [Authorize(Policy = PermissionConstants.UserManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleActive(int id, bool isActive)
@@ -297,6 +303,7 @@ public class UserController : Controller
     }
 
     // POST: Admin/User/ToggleLockout/5
+    [Authorize(Policy = PermissionConstants.UserManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ToggleLockout(int id, bool lockAccount)

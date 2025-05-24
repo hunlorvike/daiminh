@@ -11,7 +11,7 @@ using web.Areas.Admin.ViewModels;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class DashboardController : Controller
 {
     private readonly IDashboardService _dashboardService;
@@ -25,6 +25,7 @@ public class DashboardController : Controller
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    [Authorize(Policy = "Dashboard.View")]
     public async Task<IActionResult> Index()
     {
         DashboardViewModel viewModel;

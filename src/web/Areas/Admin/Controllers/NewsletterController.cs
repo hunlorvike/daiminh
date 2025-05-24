@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -14,7 +14,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class NewsletterController : Controller
 {
     private readonly INewsletterService _newsletterService;
@@ -35,6 +35,7 @@ public partial class NewsletterController : Controller
     }
 
     // GET: Admin/Newsletter
+    [Authorize(Policy = PermissionConstants.NewsletterView)]
     public async Task<IActionResult> Index(NewsletterFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new NewsletterFilterViewModel();
@@ -55,6 +56,7 @@ public partial class NewsletterController : Controller
     }
 
     // GET: Admin/Newsletter/Create
+    [Authorize(Policy = PermissionConstants.NewsletterCreate)]
     public IActionResult Create()
     {
         NewsletterViewModel viewModel = new()
@@ -65,6 +67,7 @@ public partial class NewsletterController : Controller
     }
 
     // POST: Admin/Newsletter/Create
+    [Authorize(Policy = PermissionConstants.NewsletterCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(NewsletterViewModel viewModel)
@@ -118,6 +121,7 @@ public partial class NewsletterController : Controller
     }
 
     // GET: Admin/Newsletter/Edit/5
+    [Authorize(Policy = PermissionConstants.NewsletterEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         NewsletterViewModel? viewModel = await _newsletterService.GetNewsletterByIdAsync(id);
@@ -134,6 +138,7 @@ public partial class NewsletterController : Controller
     }
 
     // POST: Admin/Newsletter/Edit/5
+    [Authorize(Policy = PermissionConstants.NewsletterEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, NewsletterViewModel viewModel)
@@ -191,6 +196,7 @@ public partial class NewsletterController : Controller
     }
 
     // POST: Admin/Newsletter/Delete/5
+    [Authorize(Policy = PermissionConstants.NewsletterDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

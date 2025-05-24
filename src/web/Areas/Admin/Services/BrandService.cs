@@ -184,10 +184,9 @@ public class BrandService : IBrandService
         return items;
     }
 
-    // **Service handles DB-related validation logic**
     public async Task<bool> IsSlugUniqueAsync(string slug, int? ignoreId = null)
     {
-        if (string.IsNullOrWhiteSpace(slug)) return false; // Slug cannot be empty for uniqueness check
+        if (string.IsNullOrWhiteSpace(slug)) return false;
 
         var query = _context.Set<Brand>()
                             .Where(b => b.Slug.ToLower() == slug.Trim().ToLower());
@@ -200,7 +199,6 @@ public class BrandService : IBrandService
         return await query.AnyAsync();
     }
 
-    // **Service handles business logic check**
     public async Task<bool> HasRelatedProductsAsync(int brandId)
     {
         return await _context.Set<Product>().AnyAsync(p => p.BrandId == brandId);

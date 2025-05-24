@@ -1,6 +1,6 @@
+using System.Text.Json;
 using AutoRegister;
 using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;
@@ -14,7 +14,6 @@ public partial class DistributedCacheService : ICacheService
     {
         PropertyNameCaseInsensitive = true,
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        // Thêm các tùy chọn khác nếu cần
     };
 
     public DistributedCacheService(IDistributedCache distributedCache, ILogger<DistributedCacheService> logger)

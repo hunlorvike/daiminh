@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -5,7 +6,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -13,7 +13,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class BrandController : Controller
 {
     private readonly IBrandService _brandService;
@@ -31,6 +31,7 @@ public partial class BrandController : Controller
     }
 
     // GET: Admin/Brand
+    [Authorize(Policy = PermissionConstants.BrandView)]
     public async Task<IActionResult> Index(BrandFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new BrandFilterViewModel();
@@ -53,6 +54,7 @@ public partial class BrandController : Controller
     }
 
     // GET: Admin/Brand/Create
+    [Authorize(Policy = PermissionConstants.BrandCreate)]
     public IActionResult Create()
     {
         BrandViewModel viewModel = new()
@@ -63,6 +65,7 @@ public partial class BrandController : Controller
     }
 
     // POST: Admin/Brand/Create
+    [Authorize(Policy = PermissionConstants.BrandCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(BrandViewModel viewModel)
@@ -104,6 +107,7 @@ public partial class BrandController : Controller
     }
 
     // GET: Admin/Brand/Edit/5
+    [Authorize(Policy = PermissionConstants.BrandEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         BrandViewModel? viewModel = await _brandService.GetBrandByIdAsync(id);
@@ -121,6 +125,7 @@ public partial class BrandController : Controller
     }
 
     // POST: Admin/Brand/Edit/5
+    [Authorize(Policy = PermissionConstants.BrandEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, BrandViewModel viewModel)
@@ -171,6 +176,7 @@ public partial class BrandController : Controller
     }
 
     // POST: Admin/Brand/Delete/5
+    [Authorize(Policy = PermissionConstants.BrandDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

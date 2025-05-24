@@ -1,10 +1,10 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -12,7 +12,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class FAQController : Controller
 {
     private readonly IFAQService _faqService;
@@ -34,6 +34,7 @@ public class FAQController : Controller
     }
 
     // GET: Admin/FAQ
+    [Authorize(Policy = PermissionConstants.FAQView)]
     public async Task<IActionResult> Index(FAQFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new FAQFilterViewModel();
@@ -55,6 +56,7 @@ public class FAQController : Controller
     }
 
     // GET: Admin/FAQ/Create
+    [Authorize(Policy = PermissionConstants.FAQCreate)]
     public async Task<IActionResult> Create()
     {
         FAQViewModel viewModel = new()
@@ -69,6 +71,7 @@ public class FAQController : Controller
     }
 
     // POST: Admin/FAQ/Create
+    [Authorize(Policy = PermissionConstants.FAQCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(FAQViewModel viewModel)
@@ -122,6 +125,7 @@ public class FAQController : Controller
     }
 
     // GET: Admin/FAQ/Edit/5
+    [Authorize(Policy = PermissionConstants.FAQEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         FAQViewModel? viewModel = await _faqService.GetFAQByIdAsync(id);
@@ -141,6 +145,7 @@ public class FAQController : Controller
     }
 
     // POST: Admin/FAQ/Edit/5
+    [Authorize(Policy = PermissionConstants.FAQEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, FAQViewModel viewModel)
@@ -202,6 +207,7 @@ public class FAQController : Controller
     }
 
     // POST: Admin/FAQ/Delete/5
+    [Authorize(Policy = PermissionConstants.FAQDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -10,7 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Validators;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -19,7 +19,7 @@ using X.PagedList.EF;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class PopupModalController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -37,6 +37,7 @@ public partial class PopupModalController : Controller
     }
 
     // GET: Admin/PopupModal
+    [Authorize(Policy = PermissionConstants.PopupModalView)]
     public async Task<IActionResult> Index(PopupModalFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new PopupModalFilterViewModel();
@@ -76,6 +77,7 @@ public partial class PopupModalController : Controller
     }
 
     // GET: Admin/PopupModal/Create
+    [Authorize(Policy = PermissionConstants.PopupModalCreate)]
     public IActionResult Create()
     {
         PopupModalViewModel viewModel = new()
@@ -86,6 +88,7 @@ public partial class PopupModalController : Controller
     }
 
     // POST: Admin/PopupModal/Create
+    [Authorize(Policy = PermissionConstants.PopupModalCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(PopupModalViewModel viewModel)
@@ -126,6 +129,7 @@ public partial class PopupModalController : Controller
     }
 
     // GET: Admin/PopupModal/Edit/5
+    [Authorize(Policy = PermissionConstants.PopupModalEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         PopupModal? popupModal = await _context.Set<PopupModal>()
@@ -145,6 +149,7 @@ public partial class PopupModalController : Controller
     }
 
     // POST: Admin/PopupModal/Edit/5
+    [Authorize(Policy = PermissionConstants.PopupModalEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, PopupModalViewModel viewModel)
@@ -200,6 +205,7 @@ public partial class PopupModalController : Controller
     }
 
     // POST: Admin/PopupModal/Delete/5
+    [Authorize(Policy = PermissionConstants.PopupModalDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

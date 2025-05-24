@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
@@ -113,7 +114,6 @@ public class RoleService : IRoleService
 
         if (result.Succeeded)
         {
-            // Gán claims cho vai trò mới tạo
             await SyncRoleClaimsAsync(role.Id, viewModel.SelectedClaimDefinitionIds);
 
             _logger.LogInformation("Created Role: ID={Id}, Name={Name}", role.Id, role.Name);
@@ -222,7 +222,7 @@ public class RoleService : IRoleService
 
         var currentRoleClaims = await _roleManager.GetClaimsAsync(role);
 
-        var claimsToRemove = new List<System.Security.Claims.Claim>();
+        var claimsToRemove = new List<Claim>();
         foreach (var currentClaim in currentRoleClaims)
         {
             if (currentClaim.Type == "Permission")
@@ -237,14 +237,14 @@ public class RoleService : IRoleService
             }
         }
 
-        var claimsToAdd = new List<System.Security.Claims.Claim>();
+        var claimsToAdd = new List<Claim>();
         foreach (var selectedId in selectedClaimDefinitionIds)
         {
             if (allClaimDefinitions.TryGetValue(selectedId, out var claimDef))
             {
                 if (!currentRoleClaims.Any(c => c.Type == claimDef.Type && c.Value == claimDef.Value))
                 {
-                    claimsToAdd.Add(new System.Security.Claims.Claim(claimDef.Type, claimDef.Value));
+                    claimsToAdd.Add(new Claim(claimDef.Type, claimDef.Value));
                 }
             }
             else

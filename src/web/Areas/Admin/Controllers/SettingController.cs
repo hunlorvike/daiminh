@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -6,14 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class SettingController : Controller
 {
     private readonly ISettingService _settingService;
@@ -34,6 +34,7 @@ public partial class SettingController : Controller
     }
 
     // GET: Admin/Setting
+    [Authorize(Policy = PermissionConstants.SettingManage)]
     public async Task<IActionResult> Index(string? searchTerm = null)
     {
         try
@@ -57,6 +58,7 @@ public partial class SettingController : Controller
     }
 
     // POST: Admin/Setting/Update
+    [Authorize(Policy = PermissionConstants.SettingManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Update(SettingsIndexViewModel viewModel)

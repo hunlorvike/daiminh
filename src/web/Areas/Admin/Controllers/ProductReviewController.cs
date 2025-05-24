@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -7,7 +8,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -15,7 +15,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class ProductReviewController : Controller
 {
     private readonly IProductReviewService _productReviewService;
@@ -40,6 +40,7 @@ public partial class ProductReviewController : Controller
     }
 
     // GET: Admin/ProductReview
+    [Authorize(Policy = PermissionConstants.ProductReviewView)]
     public async Task<IActionResult> Index(ProductReviewFilterViewModel filter, int page = 1, int pageSize = 25)
     {
         filter ??= new ProductReviewFilterViewModel();
@@ -63,6 +64,7 @@ public partial class ProductReviewController : Controller
     }
 
     // GET: Admin/ProductReview/Edit/5
+    [Authorize(Policy = PermissionConstants.ProductReviewEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         ProductReviewViewModel? viewModel = await _productReviewService.GetProductReviewByIdAsync(id);
@@ -81,7 +83,8 @@ public partial class ProductReviewController : Controller
         return View(viewModel);
     }
 
-    // POST: Admin/ProductReview/Edit/5 (Only update status)
+    // POST: Admin/ProductReview/Edit/5 
+    [Authorize(Policy = PermissionConstants.ProductReviewEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProductReviewViewModel viewModel)
@@ -145,6 +148,7 @@ public partial class ProductReviewController : Controller
     }
 
     // POST: Admin/ProductReview/Delete/5
+    [Authorize(Policy = PermissionConstants.ProductReviewDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

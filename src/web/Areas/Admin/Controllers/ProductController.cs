@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using domain.Entities;
@@ -11,7 +12,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Validators;
 using web.Areas.Admin.ViewModels;
 using X.PagedList.EF;
@@ -20,7 +20,7 @@ using X.PagedList.Extensions;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class ProductController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -38,6 +38,7 @@ public partial class ProductController : Controller
     }
 
     // GET: Admin/Product
+    [Authorize(Policy = PermissionConstants.ProductView)]
     public async Task<IActionResult> Index(ProductFilterViewModel filter, int page = 1, int pageSize = 25)
     {
         filter ??= new ProductFilterViewModel();
@@ -104,6 +105,7 @@ public partial class ProductController : Controller
     }
 
     // GET: Admin/Product/Create
+    [Authorize(Policy = PermissionConstants.ProductCreate)]
     public async Task<IActionResult> Create()
     {
         ProductViewModel viewModel = new()
@@ -122,6 +124,7 @@ public partial class ProductController : Controller
     }
 
     // POST: Admin/Product/Create
+    [Authorize(Policy = PermissionConstants.ProductCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductViewModel viewModel)
@@ -171,6 +174,7 @@ public partial class ProductController : Controller
     }
 
     // GET: Admin/Product/Edit/5
+    [Authorize(Policy = PermissionConstants.ProductEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         Product? product = await _context.Set<Product>()
@@ -198,6 +202,7 @@ public partial class ProductController : Controller
     }
 
     // POST: Admin/Product/Edit/5
+    [Authorize(Policy = PermissionConstants.ProductEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ProductViewModel viewModel)
@@ -265,6 +270,7 @@ public partial class ProductController : Controller
     }
 
     // POST: Admin/Product/Delete/5
+    [Authorize(Policy = PermissionConstants.ProductDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
@@ -125,102 +126,152 @@ public class UserService : IUserService
 
     public async Task<OperationResult<int>> CreateUserAsync(UserViewModel viewModel)
     {
-        User user = _mapper.Map<User>(viewModel);
-        user.EmailConfirmed = true;
-
-        var result = await _userManager.CreateAsync(user, viewModel.Password ?? "");
-
-        if (result.Succeeded)
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            await SyncUserRolesAsync(user.Id, viewModel.SelectedRoleIds);
+            User user = _mapper.Map<User>(viewModel);
+            user.EmailConfirmed = true;
 
-            await SyncUserClaimsAsync(user.Id, viewModel.SelectedClaimDefinitionIds);
+            var result = await _userManager.CreateAsync(user, viewModel.Password ?? "");
 
-            _logger.LogInformation("Created User: ID={Id}, Email={Email}, FullName={FullName}", user.Id, user.Email, user.FullName);
-            return OperationResult<int>.SuccessResult(user.Id, $"Thêm người dùng '{user.Email}' thành công.");
+            if (result.Succeeded)
+            {
+                await SyncUserRolesAsync(user.Id, viewModel.SelectedRoleIds);
+                await SyncUserClaimsAsync(user.Id, viewModel.SelectedClaimDefinitionIds);
+
+                await transaction.CommitAsync();
+
+                _logger.LogInformation("Created User: ID={Id}, Email={Email}, FullName={FullName}", user.Id, user.Email, user.FullName);
+                return OperationResult<int>.SuccessResult(user.Id, $"Thêm người dùng '{user.Email}' thành công.");
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+                List<string> errors = result.Errors.Select(e => e.Description).ToList();
+                _logger.LogError("Failed to create user '{Email}': {Errors}", viewModel.Email, string.Join(", ", errors));
+                return OperationResult<int>.FailureResult(message: "Không thể thêm người dùng.", errors: errors);
+            }
         }
-        else
+        catch (Exception ex)
         {
-            List<string> errors = result.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Failed to create user '{Email}': {Errors}", viewModel.Email, string.Join(", ", errors));
-            return OperationResult<int>.FailureResult(message: "Không thể thêm người dùng.", errors: errors);
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Exception occurred while creating user '{Email}'", viewModel.Email);
+            return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi khi thêm người dùng.");
         }
     }
 
     public async Task<OperationResult> UpdateUserAsync(UserViewModel viewModel)
     {
-        User? user = await _userManager.FindByIdAsync(viewModel.Id.ToString());
-        if (user == null)
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            _logger.LogWarning("User not found for update. ID: {Id}", viewModel.Id);
-            return OperationResult.FailureResult("Không tìm thấy người dùng để cập nhật.");
-        }
-
-        string oldEmail = user.Email ?? string.Empty;
-        _mapper.Map(viewModel, user);
-
-        if (!string.Equals(oldEmail, viewModel.Email, StringComparison.OrdinalIgnoreCase))
-        {
-            var setEmailResult = await _userManager.SetEmailAsync(user, viewModel.Email);
-            if (!setEmailResult.Succeeded)
+            User? user = await _userManager.FindByIdAsync(viewModel.Id.ToString());
+            if (user == null)
             {
-                List<string> emailErrors = setEmailResult.Errors.Select(e => e.Description).ToList();
-                _logger.LogError("Failed to update user email '{Email}': {Errors}", viewModel.Email, string.Join(", ", emailErrors));
-                return OperationResult.FailureResult(message: "Không thể cập nhật email người dùng.", errors: emailErrors);
+                _logger.LogWarning("User not found for update. ID: {Id}", viewModel.Id);
+                return OperationResult.FailureResult("Không tìm thấy người dùng để cập nhật.");
             }
-            var setUserNameResult = await _userManager.SetUserNameAsync(user, viewModel.Email);
-            if (!setUserNameResult.Succeeded)
+
+            string oldEmail = user.Email ?? string.Empty;
+            _mapper.Map(viewModel, user);
+
+            if (!string.Equals(oldEmail, viewModel.Email, StringComparison.OrdinalIgnoreCase))
             {
-                List<string> userNameErrors = setUserNameResult.Errors.Select(e => e.Description).ToList();
-                _logger.LogError("Failed to update user username '{Email}': {Errors}", viewModel.Email, string.Join(", ", userNameErrors));
-                return OperationResult.FailureResult(message: "Không thể cập nhật username người dùng.", errors: userNameErrors);
+                var setEmailResult = await _userManager.SetEmailAsync(user, viewModel.Email);
+                if (!setEmailResult.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    List<string> emailErrors = setEmailResult.Errors.Select(e => e.Description).ToList();
+                    _logger.LogError("Failed to update user email '{Email}': {Errors}", viewModel.Email, string.Join(", ", emailErrors));
+                    return OperationResult.FailureResult(message: "Không thể cập nhật email người dùng.", errors: emailErrors);
+                }
+                var setUserNameResult = await _userManager.SetUserNameAsync(user, viewModel.Email);
+                if (!setUserNameResult.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    List<string> userNameErrors = setUserNameResult.Errors.Select(e => e.Description).ToList();
+                    _logger.LogError("Failed to update user username '{Email}': {Errors}", viewModel.Email, string.Join(", ", userNameErrors));
+                    return OperationResult.FailureResult(message: "Không thể cập nhật username người dùng.", errors: userNameErrors);
+                }
+            }
+            user.IsActive = viewModel.IsActive;
+
+            var updateResult = await _userManager.UpdateAsync(user);
+
+            if (updateResult.Succeeded)
+            {
+                await SyncUserRolesAsync(user.Id, viewModel.SelectedRoleIds);
+                await SyncUserClaimsAsync(user.Id, viewModel.SelectedClaimDefinitionIds);
+
+                await transaction.CommitAsync();
+
+                _logger.LogInformation("Updated User: ID={Id}, OldEmail={OldEmail}, NewEmail={NewEmail}", user.Id, oldEmail, user.Email);
+                return OperationResult.SuccessResult($"Cập nhật người dùng '{user.Email}' thành công.");
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+                List<string> errors = updateResult.Errors.Select(e => e.Description).ToList();
+                _logger.LogError("Failed to update user '{Email}': {Errors}", viewModel.Email, string.Join(", ", errors));
+                return OperationResult.FailureResult(message: "Không thể cập nhật người dùng.", errors: errors);
             }
         }
-        user.IsActive = viewModel.IsActive;
-
-
-        var updateResult = await _userManager.UpdateAsync(user);
-
-        if (updateResult.Succeeded)
+        catch (Exception ex)
         {
-            await SyncUserRolesAsync(user.Id, viewModel.SelectedRoleIds);
-
-            await SyncUserClaimsAsync(user.Id, viewModel.SelectedClaimDefinitionIds);
-
-            _logger.LogInformation("Updated User: ID={Id}, OldEmail={OldEmail}, NewEmail={NewEmail}", user.Id, oldEmail, user.Email);
-            return OperationResult.SuccessResult($"Cập nhật người dùng '{user.Email}' thành công.");
-        }
-        else
-        {
-            List<string> errors = updateResult.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Failed to update user '{Email}': {Errors}", viewModel.Email, string.Join(", ", errors));
-            return OperationResult.FailureResult(message: "Không thể cập nhật người dùng.", errors: errors);
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Exception occurred while updating user '{Email}'", viewModel.Email);
+            return OperationResult.FailureResult(message: "Đã xảy ra lỗi khi cập nhật người dùng.");
         }
     }
 
     public async Task<OperationResult> DeleteUserAsync(int id)
     {
-        User? user = await _userManager.FindByIdAsync(id.ToString());
-        if (user == null)
+        using var transaction = await _context.Database.BeginTransactionAsync();
+        try
         {
-            _logger.LogWarning("User not found for delete. ID: {Id}", id);
-            return OperationResult.FailureResult("Không tìm thấy người dùng.");
+            User? user = await _userManager.FindByIdAsync(id.ToString());
+            if (user == null)
+            {
+                return OperationResult.FailureResult("Không tìm thấy người dùng.");
+            }
+
+            string userEmail = user.Email ?? string.Empty;
+
+            var userRoles = await _context.UserRoles.Where(ur => ur.UserId == id).ToListAsync();
+            if (userRoles.Count != 0)
+            {
+                _context.UserRoles.RemoveRange(userRoles);
+                await _context.SaveChangesAsync();
+            }
+
+            var userClaims = await _context.UserClaims.Where(uc => uc.UserId == id).ToListAsync();
+            if (userClaims.Count != 0)
+            {
+                _context.UserClaims.RemoveRange(userClaims);
+                await _context.SaveChangesAsync();
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (result.Succeeded)
+            {
+                await transaction.CommitAsync();
+                _logger.LogInformation("Deleted User: ID={Id}, Email={Email}", id, userEmail);
+                return OperationResult.SuccessResult($"Xóa người dùng '{userEmail}' thành công.");
+            }
+            else
+            {
+                await transaction.RollbackAsync();
+                List<string> errors = result.Errors.Select(e => e.Description).ToList();
+                _logger.LogError("Failed to delete user '{Email}': {Errors}", userEmail, string.Join(", ", errors));
+                return OperationResult.FailureResult(message: "Không thể xóa người dùng.", errors: errors);
+            }
         }
-
-        string userEmail = user.Email ?? string.Empty;
-
-        var result = await _userManager.DeleteAsync(user);
-
-        if (result.Succeeded)
+        catch (Exception ex)
         {
-            _logger.LogInformation("Deleted User: ID={Id}, Email={Email}", id, userEmail);
-            return OperationResult.SuccessResult($"Xóa người dùng '{userEmail}' thành công.");
-        }
-        else
-        {
-            List<string> errors = result.Errors.Select(e => e.Description).ToList();
-            _logger.LogError("Failed to delete user '{Email}': {Errors}", userEmail, string.Join(", ", errors));
-            return OperationResult.FailureResult(message: "Không thể xóa người dùng.", errors: errors);
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Exception occurred while deleting user '{Id}'", id);
+            return OperationResult.FailureResult(message: "Đã xảy ra lỗi khi xóa người dùng.");
         }
     }
 
@@ -360,7 +411,7 @@ public class UserService : IUserService
 
         var currentUserClaims = await _userManager.GetClaimsAsync(user);
 
-        var claimsToRemove = new List<System.Security.Claims.Claim>();
+        var claimsToRemove = new List<Claim>();
         foreach (var currentClaim in currentUserClaims)
         {
             if (currentClaim.Type == "Permission")
@@ -375,14 +426,14 @@ public class UserService : IUserService
             }
         }
 
-        var claimsToAdd = new List<System.Security.Claims.Claim>();
+        var claimsToAdd = new List<Claim>();
         foreach (var selectedId in selectedClaimDefinitionIds)
         {
             if (allClaimDefinitions.TryGetValue(selectedId, out var claimDef))
             {
                 if (!currentUserClaims.Any(c => c.Type == claimDef.Type && c.Value == claimDef.Value))
                 {
-                    claimsToAdd.Add(new System.Security.Claims.Claim(claimDef.Type, claimDef.Value));
+                    claimsToAdd.Add(new Claim(claimDef.Type, claimDef.Value));
                 }
             }
             else

@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -14,7 +14,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class TagController : Controller
 {
     private readonly ITagService _tagService;
@@ -33,6 +33,7 @@ public partial class TagController : Controller
 
 
     // GET: Admin/Tag
+    [Authorize(Policy = PermissionConstants.TagView)]
     public async Task<IActionResult> Index(TagFilterViewModel filter, int page = 1, int pageSize = 10)
     {
         filter ??= new TagFilterViewModel();
@@ -53,6 +54,7 @@ public partial class TagController : Controller
     }
 
     // GET: Admin/Tag/Create
+    [Authorize(Policy = PermissionConstants.TagCreate)]
     public IActionResult Create()
     {
         TagViewModel viewModel = new()
@@ -64,6 +66,7 @@ public partial class TagController : Controller
     }
 
     // POST: Admin/Tag/Create
+    [Authorize(Policy = PermissionConstants.TagCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(TagViewModel viewModel)
@@ -117,6 +120,7 @@ public partial class TagController : Controller
 
 
     // GET: Admin/Tag/Edit/5
+    [Authorize(Policy = PermissionConstants.TagEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         TagViewModel? viewModel = await _tagService.GetTagByIdAsync(id);
@@ -135,6 +139,7 @@ public partial class TagController : Controller
     }
 
     // POST: Admin/Tag/Edit/5
+    [Authorize(Policy = PermissionConstants.TagEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, TagViewModel viewModel)
@@ -195,6 +200,7 @@ public partial class TagController : Controller
 
 
     // POST: Admin/Tag/Delete/5
+    [Authorize(Policy = PermissionConstants.TagDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

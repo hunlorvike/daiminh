@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using AutoRegister;
 using domain.Entities;
+using infrastructure;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using shared.Models;
 using web.Areas.Admin.Services.Interfaces;
 
@@ -14,17 +16,20 @@ public class AuthService : IAuthService
     private readonly RoleManager<Role> _roleManager;
     private readonly SignInManager<User> _signInManager;
     private readonly ILogger<AuthService> _logger;
+    private readonly ApplicationDbContext _dbContext;
 
     public AuthService(
         UserManager<User> userManager,
         RoleManager<Role> roleManager,
         SignInManager<User> signInManager,
-        ILogger<AuthService> logger)
+        ILogger<AuthService> logger,
+        ApplicationDbContext dbContext)
     {
         _userManager = userManager ?? throw new ArgumentNullException(nameof(userManager));
         _roleManager = roleManager ?? throw new ArgumentNullException(nameof(roleManager));
         _signInManager = signInManager ?? throw new ArgumentNullException(nameof(signInManager));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
     public async Task<LoginResult> AuthenticateAdminUserAsync(string username, string password)
@@ -49,17 +54,20 @@ public class AuthService : IAuthService
         {
             _logger.LogInformation("Authentication successful for user: {Username}", user.UserName);
 
-            // Xây dựng claims
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName ?? ""),
+                new Claim(ClaimTypes.Name, user.UserName ?? user.Email!),
             };
 
             if (!string.IsNullOrEmpty(user.Email))
             {
                 claims.Add(new Claim(ClaimTypes.Email, user.Email));
             }
+
+            var allClaimDefinitions = await _dbContext.ClaimDefinitions
+                                                      .AsNoTracking()
+                                                      .ToDictionaryAsync(cd => cd.Value);
 
             var roles = await _userManager.GetRolesAsync(user);
             foreach (var roleName in roles)
@@ -70,12 +78,26 @@ public class AuthService : IAuthService
                 if (role != null)
                 {
                     var roleClaims = await _roleManager.GetClaimsAsync(role);
-                    claims.AddRange(roleClaims.Where(rc => rc.Type == "Permission"));
+                    foreach (var roleClaim in roleClaims)
+                    {
+                        if (roleClaim.Type == "Permission" && allClaimDefinitions.ContainsKey(roleClaim.Value))
+                        {
+                            claims.Add(roleClaim);
+                        }
+                    }
                 }
             }
 
             var userClaims = await _userManager.GetClaimsAsync(user);
-            claims.AddRange(userClaims);
+            foreach (var userClaim in userClaims)
+            {
+                if (userClaim.Type == "Permission" && allClaimDefinitions.ContainsKey(userClaim.Value))
+                {
+                    claims.Add(userClaim);
+                }
+            }
+
+            claims = claims.GroupBy(c => new { c.Type, c.Value }).Select(g => g.First()).ToList();
 
             bool requiresRehash = false;
             if (user.PasswordHash != null)
@@ -87,7 +109,6 @@ public class AuthService : IAuthService
                     _logger.LogInformation("Password requires rehash for user: {Username}", user.UserName);
                 }
             }
-
 
             return LoginResult.Succeed(claims, requiresRehash, "Đăng nhập thành công!");
         }

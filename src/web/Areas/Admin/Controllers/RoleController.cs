@@ -13,7 +13,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class RoleController : Controller
 {
     private readonly IRoleService _roleService;
@@ -34,6 +34,7 @@ public class RoleController : Controller
     }
 
     // GET: Admin/Role
+    [Authorize(Policy = PermissionConstants.RoleManage)]
     public async Task<IActionResult> Index(RoleFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new RoleFilterViewModel();
@@ -54,6 +55,7 @@ public class RoleController : Controller
     }
 
     // GET: Admin/Role/Create
+    [Authorize(Policy = PermissionConstants.RoleManage)]
     public async Task<IActionResult> Create()
     {
         RoleViewModel viewModel = new();
@@ -68,6 +70,7 @@ public class RoleController : Controller
     }
 
     // POST: Admin/Role/Create
+    [Authorize(Policy = PermissionConstants.RoleManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(RoleViewModel viewModel)
@@ -122,6 +125,7 @@ public class RoleController : Controller
     }
 
     // GET: Admin/Role/Edit/5
+    [Authorize(Policy = PermissionConstants.RoleManage)]
     public async Task<IActionResult> Edit(int id)
     {
         RoleViewModel? viewModel = await _roleService.GetRoleByIdAsync(id);
@@ -147,6 +151,7 @@ public class RoleController : Controller
     }
 
     // POST: Admin/Role/Edit/5
+    [Authorize(Policy = PermissionConstants.RoleManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, RoleViewModel viewModel)
@@ -211,6 +216,7 @@ public class RoleController : Controller
     }
 
     // POST: Admin/Role/Delete/5
+    [Authorize(Policy = PermissionConstants.RoleManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

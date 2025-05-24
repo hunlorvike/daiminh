@@ -1,10 +1,10 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -12,7 +12,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class AttributeController : Controller
 {
     private readonly IAttributeService _attributeService;
@@ -30,6 +30,7 @@ public class AttributeController : Controller
     }
 
     // GET: Admin/Attribute
+    [Authorize(Policy = PermissionConstants.AttributeView)]
     public async Task<IActionResult> Index(AttributeFilterViewModel filter, int page = 1, int pageSize = 25)
     {
         filter ??= new AttributeFilterViewModel();
@@ -48,6 +49,7 @@ public class AttributeController : Controller
     }
 
     // GET: Admin/Attribute/Create
+    [Authorize(Policy = PermissionConstants.AttributeCreate)]
     public IActionResult Create()
     {
         AttributeViewModel viewModel = new();
@@ -55,6 +57,7 @@ public class AttributeController : Controller
     }
 
     // POST: Admin/Attribute/Create
+    [Authorize(Policy = PermissionConstants.AttributeCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(AttributeViewModel viewModel)
@@ -103,6 +106,7 @@ public class AttributeController : Controller
     }
 
     // GET: Admin/Attribute/Edit/5
+    [Authorize(Policy = PermissionConstants.AttributeEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         AttributeViewModel? viewModel = await _attributeService.GetAttributeByIdAsync(id);
@@ -120,6 +124,7 @@ public class AttributeController : Controller
     }
 
     // POST: Admin/Attribute/Edit/5
+    [Authorize(Policy = PermissionConstants.AttributeEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, AttributeViewModel viewModel)
@@ -177,6 +182,7 @@ public class AttributeController : Controller
     }
 
     // POST: Admin/Attribute/Delete/5
+    [Authorize(Policy = PermissionConstants.AttributeDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

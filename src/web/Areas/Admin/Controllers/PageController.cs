@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -14,7 +14,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class PageController : Controller
 {
     private readonly IPageService _pageService;
@@ -32,6 +32,7 @@ public partial class PageController : Controller
     }
 
     // GET: Admin/Page
+    [Authorize(Policy = PermissionConstants.PageView)]
     public async Task<IActionResult> Index(PageFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new PageFilterViewModel();
@@ -52,6 +53,7 @@ public partial class PageController : Controller
     }
 
     // GET: Admin/Page/Create
+    [Authorize(Policy = PermissionConstants.PageCreate)]
     public IActionResult Create()
     {
         PageViewModel viewModel = new()
@@ -64,6 +66,7 @@ public partial class PageController : Controller
     }
 
     // POST: Admin/Page/Create
+    [Authorize(Policy = PermissionConstants.PageCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(PageViewModel viewModel)
@@ -113,6 +116,7 @@ public partial class PageController : Controller
     }
 
     // GET: Admin/Page/Edit/5
+    [Authorize(Policy = PermissionConstants.PageEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         PageViewModel? viewModel = await _pageService.GetPageByIdAsync(id);
@@ -130,6 +134,7 @@ public partial class PageController : Controller
     }
 
     // POST: Admin/Page/Edit/5
+    [Authorize(Policy = PermissionConstants.PageEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, PageViewModel viewModel)
@@ -189,6 +194,7 @@ public partial class PageController : Controller
 
 
     // POST: Admin/Page/Delete/5
+    [Authorize(Policy = PermissionConstants.PageDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

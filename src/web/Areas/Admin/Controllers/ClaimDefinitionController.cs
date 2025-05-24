@@ -1,6 +1,4 @@
-// web.Areas.Admin.Controllers/ClaimDefinitionController.cs
-
-using System.Text.Json; // Để serialize ToastData
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +12,7 @@ using X.PagedList;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class ClaimDefinitionController : Controller
 {
     private readonly IClaimDefinitionService _claimDefinitionService;
@@ -32,6 +30,7 @@ public class ClaimDefinitionController : Controller
     }
 
     // GET: Admin/ClaimDefinition
+    [Authorize(Policy = PermissionConstants.ClaimDefinitionManage)]
     public async Task<IActionResult> Index(ClaimDefinitionFilterViewModel filter, int page = 1, int pageSize = 15)
     {
         filter ??= new ClaimDefinitionFilterViewModel();
@@ -52,6 +51,7 @@ public class ClaimDefinitionController : Controller
     }
 
     // GET: Admin/ClaimDefinition/Create
+    [Authorize(Policy = PermissionConstants.ClaimDefinitionManage)]
     public IActionResult Create()
     {
         ClaimDefinitionViewModel viewModel = new();
@@ -59,6 +59,7 @@ public class ClaimDefinitionController : Controller
     }
 
     // POST: Admin/ClaimDefinition/Create
+    [Authorize(Policy = PermissionConstants.ClaimDefinitionManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ClaimDefinitionViewModel viewModel)
@@ -97,6 +98,7 @@ public class ClaimDefinitionController : Controller
     }
 
     // GET: Admin/ClaimDefinition/Edit/5
+    [Authorize(Policy = PermissionConstants.ClaimDefinitionManage)]
     public async Task<IActionResult> Edit(int id)
     {
         ClaimDefinitionViewModel? viewModel = await _claimDefinitionService.GetClaimDefinitionByIdAsync(id);
@@ -114,6 +116,7 @@ public class ClaimDefinitionController : Controller
     }
 
     // POST: Admin/ClaimDefinition/Edit/5
+    [Authorize(Policy = PermissionConstants.ClaimDefinitionManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, ClaimDefinitionViewModel viewModel)
@@ -160,6 +163,7 @@ public class ClaimDefinitionController : Controller
     }
 
     // POST: Admin/ClaimDefinition/Delete/5
+    [Authorize(Policy = PermissionConstants.ClaimDefinitionManage)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)

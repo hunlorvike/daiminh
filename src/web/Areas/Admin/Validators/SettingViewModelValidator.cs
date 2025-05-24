@@ -1,6 +1,6 @@
+using System.Globalization;
 using FluentValidation;
 using shared.Enums;
-using System.Globalization;
 using web.Areas.Admin.ViewModels;
 
 namespace web.Areas.Admin.Validators;

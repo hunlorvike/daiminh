@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,7 +7,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -15,7 +15,7 @@ using X.PagedList.Extensions;
 namespace web.Areas.Admin.Controllers;
 
 [Area("Admin")]
-[Authorize(AuthenticationSchemes = "AdminScheme", Policy = "AdminAccess")]
+[Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public class CategoryController : Controller
 {
     private readonly ICategoryService _categoryService;
@@ -33,6 +33,7 @@ public class CategoryController : Controller
     }
 
     // GET: Admin/Category
+    [Authorize(Policy = PermissionConstants.CategoryView)]
     public async Task<IActionResult> Index(CategoryFilterViewModel filter, int page = 1, int pageSize = 25)
     {
         filter ??= new CategoryFilterViewModel();
@@ -54,6 +55,7 @@ public class CategoryController : Controller
     }
 
     // GET: Admin/Category/Create
+    [Authorize(Policy = PermissionConstants.CategoryCreate)]
     public async Task<IActionResult> Create(CategoryType type = CategoryType.Product)
     {
         CategoryViewModel viewModel = new()
@@ -70,6 +72,7 @@ public class CategoryController : Controller
     }
 
     // POST: Admin/Category/Create
+    [Authorize(Policy = PermissionConstants.CategoryCreate)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(CategoryViewModel viewModel)
@@ -125,6 +128,7 @@ public class CategoryController : Controller
     }
 
     // GET: Admin/Category/Edit/5
+    [Authorize(Policy = PermissionConstants.CategoryEdit)]
     public async Task<IActionResult> Edit(int id)
     {
         CategoryViewModel? viewModel = await _categoryService.GetCategoryByIdAsync(id);
@@ -146,6 +150,7 @@ public class CategoryController : Controller
     }
 
     // POST: Admin/Category/Edit/5
+    [Authorize(Policy = PermissionConstants.CategoryEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, CategoryViewModel viewModel)
@@ -208,6 +213,7 @@ public class CategoryController : Controller
     }
 
     // POST: Admin/Category/Delete/5
+    [Authorize(Policy = PermissionConstants.CategoryDelete)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
@@ -232,6 +238,7 @@ public class CategoryController : Controller
 
     // GET: Admin/Category/GetParentCategories
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetParentCategories(CategoryType type)
     {
         try
