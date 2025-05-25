@@ -16,7 +16,7 @@
 		<div class="form-group mb-3">
 			<label asp-for="SelectedClaimDefinitionIds" class="form-label"></label>
 			<select asp-for="SelectedClaimDefinitionIds" asp-items="@Model.AvailableClaimDefinitions"
-					class="form-select tom-selected" multiple data-placeholder="Chọn các quyền hạn cho vai trò này">
+					class="form-select tom-selected" autocomplete="off"  multiple data-placeholder="Chọn các quyền hạn cho vai trò này">
 			</select>
 			<span asp-validation-for="SelectedClaimDefinitionIds" class="text-danger"></span>
 			<small class="form-hint">

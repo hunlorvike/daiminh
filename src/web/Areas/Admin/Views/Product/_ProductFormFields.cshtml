@@ -129,7 +129,7 @@
 							<i class="ti ti-adjustments"></i>
 						</span>
 						<select asp-for="SelectedAttributeIds" asp-items="@Model.AttributeOptions"
-								class="form-select tom-selected" multiple
+								class="form-select tom-selected" autocomplete="off"  multiple
 								data-placeholder="Chọn thuộc tính áp dụng..."></select>
 					</div>
 					<span asp-validation-for="SelectedAttributeIds" class="text-danger"></span>
@@ -145,7 +145,7 @@
 						<span class="input-group-text">
 							<i class="ti ti-tags"></i>
 						</span>
-						<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected"
+						<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions" class="form-select tom-selected" autocomplete="off" 
 								multiple data-placeholder="Chọn thẻ..."></select>
 					</div>
 					<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
@@ -209,7 +209,7 @@
 						<span class="input-group-text">
 							<i class="ti ti-category"></i>
 						</span>
-						<select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select tom-selected"
+						<select asp-for="CategoryId" asp-items="@Model.CategoryOptions" class="form-select tom-selected" autocomplete="off" 
 								data-placeholder="Chọn danh mục..."></select>
 					</div>
 					<span asp-validation-for="CategoryId" class="text-danger"></span>
@@ -221,7 +221,7 @@
 						<span class="input-group-text">
 							<i class="ti ti-building-store"></i>
 						</span>
-						<select asp-for="BrandId" asp-items="@Model.BrandOptions" class="form-select tom-selected"
+						<select asp-for="BrandId" asp-items="@Model.BrandOptions" class="form-select tom-selected" autocomplete="off" 
 								data-placeholder="Chọn thương hiệu..."></select>
 					</div>
 					<span asp-validation-for="BrandId" class="text-danger"></span>
@@ -233,7 +233,7 @@
 						<span class="input-group-text">
 							<i class="ti ti-eye"></i>
 						</span>
-						<select asp-for="Status" asp-items="@Model.StatusOptions" class="form-select tom-selected"></select>
+						<select asp-for="Status" asp-items="@Model.StatusOptions" class="form-select tom-selected" autocomplete="off" ></select>
 					</div>
 					<span asp-validation-for="Status" class="text-danger"></span>
 				</div>

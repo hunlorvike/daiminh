@@ -16,7 +16,7 @@
 							<i class="ti ti-adjustments-alt"></i>
 						</span>
 						<select asp-for="AttributeId" asp-items="@Model.AttributeOptions"
-							class="form-select tom-selected"></select>
+							class="form-select tom-selected" autocomplete="off" ></select>
 					</div>
 					<span asp-validation-for="AttributeId" class="text-danger"></span>
 					<small class="form-hint">Thuộc tính mà giá trị này thuộc về</small>

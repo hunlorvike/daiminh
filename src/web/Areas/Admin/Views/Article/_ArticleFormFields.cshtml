@@ -97,7 +97,7 @@
 						<div class="form-group mb-3">
 							<label asp-for="SelectedTagIds" class="form-label"></label>
 							<select asp-for="SelectedTagIds" asp-items="@Model.TagOptions"
-								class="form-select tom-selected" multiple></select>
+								class="form-select tom-selected" autocomplete="off"  multiple></select>
 							<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
 						</div>
 					</div>
@@ -119,7 +119,7 @@
 							<i class="ti ti-category"></i>
 						</span>
 						<select asp-for="CategoryId" asp-items="@Model.CategoryOptions"
-							class="form-select tom-selected">
+							class="form-select tom-selected" autocomplete="off" >
 							<option value="">-- Chọn danh mục --</option>
 						</select>
 					</div>
@@ -133,7 +133,7 @@
 							<i class="ti ti-status-change"></i>
 						</span>
 						<select asp-for="Status" asp-items="@Model.StatusOptions"
-							class="form-select tom-selected"></select>
+							class="form-select tom-selected" autocomplete="off" ></select>
 					</div>
 					<span asp-validation-for="Status" class="text-danger"></span>
 				</div>

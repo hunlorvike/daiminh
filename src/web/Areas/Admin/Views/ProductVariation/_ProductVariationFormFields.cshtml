@@ -98,7 +98,7 @@
                                 <i class="ti ti-adjustments"></i>
                             </span>
                             <select asp-for="SelectedAttributeValueIds" asp-items="@Model.AttributeValueOptions"
-                                class="form-select tom-selected" multiple
+                                class="form-select tom-selected" autocomplete="off"  multiple
                                 data-placeholder="Chọn các giá trị thuộc tính..."></select>
                         </div>
                         <span asp-validation-for="SelectedAttributeValueIds" class="text-danger"></span>

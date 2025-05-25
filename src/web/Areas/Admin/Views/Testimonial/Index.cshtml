@@ -49,7 +49,7 @@
                             <span class="input-group-text">
                                 <i class="ti ti-eye"></i>
                             </span>
-                            <select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select tom-selected"></select>
+                            <select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions" class="form-select tom-selected" autocomplete="off" ></select>
                         </div>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                             <span class="input-group-text">
                                 <i class="ti ti-star"></i>
                             </span>
-                            <select asp-for="Filter.Rating" asp-items="@Model.Filter.RatingOptions" class="form-select tom-selected"></select>
+                            <select asp-for="Filter.Rating" asp-items="@Model.Filter.RatingOptions" class="form-select tom-selected" autocomplete="off" ></select>
                         </div>
                     </div>
                 </div>

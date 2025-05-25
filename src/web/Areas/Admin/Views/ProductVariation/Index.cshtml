@@ -39,7 +39,7 @@ $"/Admin/Product/Edit/{Model.ProductId}"),
                                 <i class="ti ti-eye"></i>
                             </span>
                             <select asp-for="Filter.IsActive" asp-items="@Model.Filter.StatusOptions"
-                                class="form-select tom-selected"></select>
+                                class="form-select tom-selected" autocomplete="off" ></select>
                         </div>
                     </div>
                 </div>
@@ -51,7 +51,7 @@ $"/Admin/Product/Edit/{Model.ProductId}"),
                                 <i class="ti ti-star"></i>
                             </span>
                             <select asp-for="Filter.IsDefault" asp-items="@Model.Filter.IsDefaultOptions"
-                                class="form-select tom-selected"></select>
+                                class="form-select tom-selected" autocomplete="off" ></select>
                         </div>
                     </div>
                 </div>

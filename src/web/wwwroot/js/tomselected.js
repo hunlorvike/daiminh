@@ -22,7 +22,26 @@ const TomSelectManager = {
                     },
                 },
             });
+
+            el.addEventListener('change', function () {
+                if (el.tomselect) {
+                    el.tomselect.setValue(this.value, true);
+                }
+            });
+            el.addEventListener('input', function () {
+                if (el.tomselect) {
+                    el.tomselect.setValue(this.value, true);
+                }
+            });
         });
+
+        setTimeout(() => {
+            $tomSelectElements.each((index, el) => {
+                if (el.tomselect) {
+                    el.tomselect.setValue(el.value, true);
+                }
+            });
+        }, 300);
     },
 };
 
