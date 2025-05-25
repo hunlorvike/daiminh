@@ -290,7 +290,7 @@ public partial class ProductVariationController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy biến thể.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Không tìm thấy biến thể." });
+            return RedirectToAction(nameof(Index));
         }
 
         var productName = await _context.Products.AsNoTracking()
@@ -305,7 +305,7 @@ public partial class ProductVariationController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Đã xóa biến thể thành công cho sản phẩm '{productName}'.", ToastType.Success)
             );
-            return Json(new { success = true, message = $"Đã xóa biến thể thành công cho sản phẩm '{productName}'." });
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
@@ -313,7 +313,7 @@ public partial class ProductVariationController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa biến thể.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa biến thể." });
+            return RedirectToAction(nameof(Index));
         }
     }
 }

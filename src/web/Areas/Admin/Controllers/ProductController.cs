@@ -1,21 +1,16 @@
 using System.Text.Json;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using web.Areas.Admin.Validators;
+using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
-using X.PagedList.EF;
-using X.PagedList.Extensions;
+using X.PagedList;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -23,18 +18,21 @@ namespace web.Areas.Admin.Controllers;
 [Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class ProductController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly IProductService _productService;
     private readonly IMapper _mapper;
     private readonly ILogger<ProductController> _logger;
+    private readonly IValidator<ProductViewModel> _productViewModelValidator;
 
     public ProductController(
-        ApplicationDbContext context,
+        IProductService productService,
         IMapper mapper,
-        ILogger<ProductController> logger)
+        ILogger<ProductController> logger,
+        IValidator<ProductViewModel> productViewModelValidator)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _productViewModelValidator = productViewModelValidator ?? throw new ArgumentNullException(nameof(productViewModelValidator));
     }
 
     // GET: Admin/Product
@@ -45,53 +43,10 @@ public partial class ProductController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 25;
 
-        IQueryable<Product> query = _context.Set<Product>()
-                                             .Include(p => p.Category)
-                                             .Include(p => p.Brand)
-                                             .Include(p => p.Images)
-                                             .Include(p => p.ProductTags)
-                                             .Include(p => p.Variations)
-                                             .Include(p => p.Reviews)
-                                             .AsNoTracking();
+        IPagedList<ProductListItemViewModel> productsPaged = await _productService.GetPagedProductsAsync(filter, pageNumber, currentPageSize);
 
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(p => p.Name.ToLower().Contains(lowerSearchTerm) ||
-                                     (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(lowerSearchTerm)) ||
-                                     (p.Description != null && p.Description.ToLower().Contains(lowerSearchTerm)) ||
-                                     (p.Manufacturer != null && p.Manufacturer.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.CategoryId.HasValue)
-        {
-            query = query.Where(p => p.CategoryId == filter.CategoryId.Value);
-        }
-
-        if (filter.BrandId.HasValue)
-        {
-            query = query.Where(p => p.BrandId == filter.BrandId.Value);
-        }
-
-        if (filter.Status.HasValue)
-        {
-            query = query.Where(p => p.Status == filter.Status.Value);
-        }
-
-        if (filter.IsFeatured.HasValue)
-        {
-            query = query.Where(p => p.IsFeatured == filter.IsFeatured.Value);
-        }
-
-        query = query
-            .OrderByDescending(p => p.ViewCount)
-            .ThenByDescending(p => p.CreatedAt);
-
-        var productsPaged = await query.ProjectTo<ProductListItemViewModel>(_mapper.ConfigurationProvider)
-                                       .ToPagedListAsync(pageNumber, currentPageSize);
-
-        filter.CategoryOptions = await LoadCategorySelectListAsync(CategoryType.Product, filter.CategoryId);
-        filter.BrandOptions = await LoadBrandSelectListAsync(filter.BrandId);
+        filter.CategoryOptions = await _productService.GetProductCategorySelectListAsync(filter.CategoryId);
+        filter.BrandOptions = await _productService.GetBrandSelectListAsync(filter.BrandId);
         filter.StatusOptions = GetPublishStatusSelectList(filter.Status);
         filter.IsFeaturedOptions = GetYesNoSelectList(filter.IsFeatured, "Tất cả");
 
@@ -115,11 +70,10 @@ public partial class ProductController : Controller
             Status = PublishStatus.Draft,
             SitemapPriority = 0.5,
             SitemapChangeFrequency = "monthly",
-            Images = new List<ProductImageViewModel>()
+            Images = new List<ProductImageViewModel>(),
+            StatusOptions = GetPublishStatusSelectList(PublishStatus.Draft)
         };
-
-        await PopulateViewModelSelectListsAsync(viewModel);
-
+        await _productService.PopulateProductViewModelSelectListsAsync(viewModel);
         return View(viewModel);
     }
 
@@ -129,75 +83,78 @@ public partial class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(ProductViewModel viewModel)
     {
-        var result = await new ProductViewModelValidator(_context).ValidateAsync(viewModel);
+        var validationResult = await _productViewModelValidator.ValidateAsync(viewModel);
 
-        if (!result.IsValid)
+        if (!validationResult.IsValid)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in validationResult.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            await PopulateViewModelSelectListsAsync(viewModel);
+            await _productService.PopulateProductViewModelSelectListsAsync(viewModel);
+            viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
+
             return View(viewModel);
         }
 
-        var product = _mapper.Map<Product>(viewModel);
+        var createResult = await _productService.CreateProductAsync(viewModel);
 
-        UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds);
-        UpdateProductImages(product, viewModel.Images);
-
-        _context.Add(product);
-
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Đã thêm sản phẩm '{product.Name}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Đã thêm sản phẩm thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (DbUpdateException ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi DB khi thêm sản phẩm: {Name}", viewModel.Name);
-            ModelState.AddModelError("", "Slug có thể đã tồn tại hoặc dữ liệu không hợp lệ.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi không xác định khi thêm sản phẩm.");
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu sản phẩm.");
-        }
+            foreach (var error in createResult.Errors)
+            {
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else if (error.Contains("Danh mục", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.CategoryId), error);
+                }
+                else if (error.Contains("Thương hiệu", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.BrandId), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, createResult.Message);
+            }
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm sản phẩm '{viewModel.Name}'.", ToastType.Error)
-        );
-        await PopulateViewModelSelectListsAsync(viewModel);
-        return View(viewModel);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm sản phẩm '{viewModel.Name}'.", ToastType.Error)
+            );
+            await _productService.PopulateProductViewModelSelectListsAsync(viewModel);
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/Product/Edit/5
     [Authorize(Policy = PermissionConstants.ProductEdit)]
     public async Task<IActionResult> Edit(int id)
     {
-        Product? product = await _context.Set<Product>()
-                                         .Include(p => p.Category)
-                                         .Include(p => p.Brand)
-                                         .Include(p => p.Images)
-                                         .Include(p => p.ProductAttributes)
-                                         .Include(p => p.ProductTags)
-                                         .Include(p => p.Variations)
-                                         .AsNoTracking()
-                                         .FirstOrDefaultAsync(p => p.Id == id);
+        ProductViewModel? viewModel = await _productService.GetProductByIdAsync(id);
 
-        if (product == null)
+        if (viewModel == null)
         {
-            return NotFound();
+            _logger.LogWarning("Sản phẩm không tồn tại khi chỉnh sửa. ID: {Id}", id);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                 new ToastData("Lỗi", "Không tìm thấy sản phẩm để chỉnh sửa.", ToastType.Error)
+             );
+            return RedirectToAction(nameof(Index));
         }
-
-        ProductViewModel viewModel = _mapper.Map<ProductViewModel>(product);
-
-        viewModel.VariationFilter = new ProductVariationFilterViewModel();
-
-        await PopulateViewModelSelectListsAsync(viewModel);
-
+        viewModel.VariationFilter ??= new ProductVariationFilterViewModel();
+        viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
         return View(viewModel);
     }
 
@@ -215,58 +172,60 @@ public partial class ProductController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var result = await new ProductViewModelValidator(_context).ValidateAsync(viewModel);
-        if (!result.IsValid)
+        var validationResult = await _productViewModelValidator.ValidateAsync(viewModel);
+        if (!validationResult.IsValid)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in validationResult.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
-            await PopulateViewModelSelectListsAsync(viewModel);
+            await _productService.PopulateProductViewModelSelectListsAsync(viewModel);
+            viewModel.VariationFilter ??= new ProductVariationFilterViewModel();
+            viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
             return View(viewModel);
         }
 
-        var product = await _context.Set<Product>()
-            .Include(p => p.Images)
-            .Include(p => p.ProductAttributes)
-            .Include(p => p.ProductTags)
-            .FirstOrDefaultAsync(p => p.Id == id);
+        var updateResult = await _productService.UpdateProductAsync(viewModel);
 
-        if (product == null)
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy sản phẩm.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? $"Đã cập nhật sản phẩm '{viewModel.Name}' thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, product);
-        UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds);
-        UpdateProductImages(product, viewModel.Images);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+            {
+                if (error.Contains("Slug", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.Slug), error);
+                }
+                else if (error.Contains("Danh mục", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.CategoryId), error);
+                }
+                else if (error.Contains("Thương hiệu", StringComparison.OrdinalIgnoreCase))
+                {
+                    ModelState.AddModelError(nameof(viewModel.BrandId), error);
+                }
+                else
+                {
+                    ModelState.AddModelError(string.Empty, error);
+                }
+            }
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+            {
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+            }
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Đã cập nhật sản phẩm '{product.Name}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật sản phẩm '{viewModel.Name}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            await _productService.PopulateProductViewModelSelectListsAsync(viewModel);
+            viewModel.VariationFilter ??= new ProductVariationFilterViewModel();
+            return View(viewModel);
         }
-        catch (DbUpdateException ex)
-        {
-            _logger.LogError(ex, "Lỗi DB khi cập nhật sản phẩm ID: {Id}", id);
-            ModelState.AddModelError("", "Slug có thể đã tồn tại hoặc dữ liệu không hợp lệ.");
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi hệ thống khi cập nhật sản phẩm ID: {Id}", id);
-            ModelState.AddModelError("", "Đã xảy ra lỗi không mong muốn.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật sản phẩm '{viewModel.Name}'.", ToastType.Error)
-        );
-        await PopulateViewModelSelectListsAsync(viewModel);
-        return View(viewModel);
     }
 
     // POST: Admin/Product/Delete/5
@@ -275,139 +234,22 @@ public partial class ProductController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var product = await _context.Set<Product>().FirstOrDefaultAsync(p => p.Id == id);
-        if (product == null)
+        var deleteResult = await _productService.DeleteProductAsync(id);
+
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy sản phẩm.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa sản phẩm thành công.", ToastType.Success)
             );
-            return Json(new { success = false, message = "Không tìm thấy sản phẩm." });
+            return RedirectToAction(nameof(Index));
         }
-
-        try
+        else
         {
-            string name = product.Name;
-            _context.Remove(product);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa sản phẩm '{name}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa sản phẩm.", ToastType.Error)
             );
-            return Json(new { success = true, message = $"Xóa sản phẩm '{name}' thành công." });
+            return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa sản phẩm ID: {Id}", id);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa sản phẩm.", ToastType.Error)
-            );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa sản phẩm." });
-        }
-    }
-}
-
-public partial class ProductController
-{
-    private async Task PopulateViewModelSelectListsAsync(ProductViewModel viewModel)
-    {
-        viewModel.CategoryOptions = await LoadCategorySelectListAsync(CategoryType.Product, viewModel.CategoryId);
-        viewModel.BrandOptions = await LoadBrandSelectListAsync(viewModel.BrandId);
-        viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
-        viewModel.AttributeOptions = await LoadAttributeSelectListAsync(viewModel.SelectedAttributeIds); // For ProductAttributes
-        viewModel.TagOptions = await LoadTagSelectListAsync(TagType.Product, viewModel.SelectedTagIds);
-    }
-
-    private async Task<List<SelectListItem>> LoadCategorySelectListAsync(CategoryType categoryType, int? selectedValue = null)
-    {
-        var categories = await _context.Set<Category>()
-                          .Where(c => c.Type == categoryType && c.IsActive)
-                          .OrderBy(c => c.OrderIndex)
-                          .ThenBy(c => c.Name)
-                          .AsNoTracking()
-                          .Select(c => new { c.Id, c.Name })
-                          .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-            new SelectListItem { Value = "", Text = "-- Chọn danh mục --", Selected = !selectedValue.HasValue }
-        };
-
-        items.AddRange(categories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.Name,
-            Selected = selectedValue.HasValue && c.Id == selectedValue.Value
-        }));
-
-        return items;
-    }
-
-    private async Task<List<SelectListItem>> LoadBrandSelectListAsync(int? selectedValue = null)
-    {
-        var brands = await _context.Set<Brand>()
-                          .Where(b => b.IsActive)
-                          .OrderBy(b => b.Name)
-                          .AsNoTracking()
-                          .Select(b => new { b.Id, b.Name })
-                          .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-             new SelectListItem { Value = "", Text = "-- Chọn thương hiệu --", Selected = !selectedValue.HasValue }
-        };
-
-        items.AddRange(brands.Select(b => new SelectListItem
-        {
-            Value = b.Id.ToString(),
-            Text = b.Name,
-            Selected = selectedValue.HasValue && b.Id == selectedValue.Value
-        }));
-
-        return items;
-    }
-
-    private async Task<List<SelectListItem>> LoadAttributeSelectListAsync(List<int>? selectedValues = null)
-    {
-        var attributes = await _context.Set<domain.Entities.Attribute>()
-                         .OrderBy(a => a.Name)
-                         .AsNoTracking()
-                         .Select(a => new { a.Id, a.Name })
-                         .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-        };
-
-        items.AddRange(attributes.Select(a => new SelectListItem
-        {
-            Value = a.Id.ToString(),
-            Text = a.Name,
-            Selected = selectedValues != null && selectedValues.Contains(a.Id)
-        }));
-
-        return items;
-    }
-
-    private async Task<List<SelectListItem>> LoadTagSelectListAsync(TagType tagType, List<int>? selectedValues = null)
-    {
-        var tags = await _context.Set<Tag>()
-                          .Where(t => t.Type == tagType)
-                          .OrderBy(t => t.Name)
-                          .AsNoTracking()
-                          .Select(t => new { t.Id, t.Name })
-                          .ToListAsync();
-
-        var items = new List<SelectListItem>
-        {
-        };
-
-        items.AddRange(tags.Select(t => new SelectListItem
-        {
-            Value = t.Id.ToString(),
-            Text = t.Name,
-            Selected = selectedValues != null && selectedValues.Contains(t.Id)
-        }));
-
-        return items;
     }
 
     private List<SelectListItem> GetPublishStatusSelectList(PublishStatus? selectedStatus)
@@ -431,7 +273,6 @@ public partial class ProductController
         {
             items.Insert(0, new SelectListItem { Value = "", Text = "Tất cả trạng thái" });
         }
-
         return items;
     }
 
@@ -443,89 +284,5 @@ public partial class ProductController
             new SelectListItem { Value = "true", Text = "Có", Selected = selectedValue == true },
             new SelectListItem { Value = "false", Text = "Không", Selected = selectedValue == false }
         };
-    }
-
-    private void UpdateProductRelationships(
-        Product product,
-        List<int>? selectedAttributeIds,
-        List<int>? selectedTagIds)
-    {
-        var existingAttributeIds = product.ProductAttributes?.Select(pa => pa.AttributeId).ToList() ?? new List<int>();
-        var attributeIdsToAdd = selectedAttributeIds?.Except(existingAttributeIds).ToList() ?? new List<int>();
-        var attributeIdsToRemove = existingAttributeIds.Except(selectedAttributeIds ?? new List<int>()).ToList();
-
-        foreach (var attributeId in attributeIdsToRemove)
-        {
-            var productAttribute = product.ProductAttributes!.First(pa => pa.AttributeId == attributeId);
-            _context.Remove(productAttribute);
-        }
-
-        foreach (var attributeId in attributeIdsToAdd)
-        {
-            product.ProductAttributes ??= new List<ProductAttribute>();
-            product.ProductAttributes.Add(new ProductAttribute { ProductId = product.Id, AttributeId = attributeId });
-        }
-
-        var existingTagIds = product.ProductTags?.Select(pt => pt.TagId).ToList() ?? new List<int>();
-        var tagIdsToAdd = selectedTagIds?.Except(existingTagIds).ToList() ?? new List<int>();
-        var tagIdsToRemove = existingTagIds.Except(selectedTagIds ?? new List<int>()).ToList();
-
-        foreach (var tagId in tagIdsToRemove)
-        {
-            var productTag = product.ProductTags!.First(pt => pt.TagId == tagId);
-            _context.Remove(productTag);
-        }
-
-        foreach (var tagId in tagIdsToAdd)
-        {
-            product.ProductTags ??= new List<ProductTag>();
-            product.ProductTags.Add(new ProductTag { ProductId = product.Id, TagId = tagId });
-        }
-    }
-
-    private void UpdateProductImages(Product product, List<ProductImageViewModel> imageViewModels)
-    {
-        var existingImages = product.Images ?? new List<ProductImage>();
-        var updatedImageViewModels = imageViewModels?.Where(img => !img.IsDeleted).ToList() ?? new List<ProductImageViewModel>();
-
-        var imageIdsToKeep = updatedImageViewModels.Where(img => img.Id > 0).Select(img => img.Id).ToHashSet();
-
-        foreach (var existingImage in existingImages.ToList())
-        {
-            if (!imageIdsToKeep.Contains(existingImage.Id))
-            {
-                _context.Remove(existingImage);
-                existingImages.Remove(existingImage);
-            }
-        }
-
-        var updatedImageList = new List<ProductImage>();
-        for (int i = 0; i < updatedImageViewModels.Count; i++)
-        {
-            var imgVm = updatedImageViewModels[i];
-            ProductImage? image;
-
-            if (imgVm.Id > 0)
-            {
-                image = existingImages.FirstOrDefault(img => img.Id == imgVm.Id);
-                if (image != null)
-                {
-                    _mapper.Map(imgVm, image);
-                    image.OrderIndex = i;
-                    _context.Entry(image).State = EntityState.Modified;
-                    updatedImageList.Add(image);
-                }
-            }
-            else
-            {
-                image = _mapper.Map<ProductImage>(imgVm);
-                image.ProductId = product.Id;
-                image.OrderIndex = i;
-                _context.Add(image);
-                updatedImageList.Add(image);
-            }
-        }
-
-        product.Images = updatedImageList;
     }
 }

@@ -217,7 +217,7 @@ public partial class PopupModalController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Không tìm thấy Popup.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Không tìm thấy Popup." });
+            return RedirectToAction(nameof(Index));
         }
 
         try
@@ -228,7 +228,7 @@ public partial class PopupModalController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Thành công", $"Xóa Popup '{popupTitle}' thành công.", ToastType.Success)
             );
-            return Json(new { success = true, message = $"Xóa Popup '{popupTitle}' thành công." });
+            return RedirectToAction(nameof(Index));
         }
         catch (Exception ex)
         {
@@ -236,7 +236,7 @@ public partial class PopupModalController : Controller
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
                 new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Popup.", ToastType.Error)
             );
-            return Json(new { success = false, message = "Đã xảy ra lỗi không mong muốn khi xóa Popup." });
+            return RedirectToAction(nameof(Index));
         }
     }
 }
