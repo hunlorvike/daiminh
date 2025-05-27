@@ -83,7 +83,6 @@ public class ProductService : IProductService
                                      .Include(p => p.Category)
                                      .Include(p => p.Brand)
                                      .Include(p => p.Images!.OrderBy(img => img.OrderIndex))
-                                     .Include(p => p.ProductAttributes)
                                      .Include(p => p.ProductTags)
                                      .AsNoTracking()
                                      .FirstOrDefaultAsync(p => p.Id == id);
@@ -103,7 +102,7 @@ public class ProductService : IProductService
         }
 
         var product = _mapper.Map<Product>(viewModel);
-        UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds);
+        UpdateProductRelationships(product, viewModel.SelectedTagIds);
         UpdateProductImages(product, viewModel.Images);
 
         _context.Add(product);
@@ -138,7 +137,6 @@ public class ProductService : IProductService
 
         var product = await _context.Set<Product>()
             .Include(p => p.Images)
-            .Include(p => p.ProductAttributes)
             .Include(p => p.ProductTags)
             .FirstOrDefaultAsync(p => p.Id == viewModel.Id);
 
@@ -148,7 +146,7 @@ public class ProductService : IProductService
         }
 
         _mapper.Map(viewModel, product);
-        UpdateProductRelationships(product, viewModel.SelectedAttributeIds, viewModel.SelectedTagIds);
+        UpdateProductRelationships(product, viewModel.SelectedTagIds);
         UpdateProductImages(product, viewModel.Images);
 
         try
@@ -250,23 +248,6 @@ public class ProductService : IProductService
         return items;
     }
 
-    public async Task<List<SelectListItem>> GetAttributeSelectListAsync(List<int>? selectedValues = null)
-    {
-        var attributes = await _context.Set<domain.Entities.Attribute>()
-                         .OrderBy(a => a.Name)
-                         .AsNoTracking()
-                         .Select(a => new { a.Id, a.Name })
-                         .ToListAsync();
-        var items = new List<SelectListItem>();
-        items.AddRange(attributes.Select(a => new SelectListItem
-        {
-            Value = a.Id.ToString(),
-            Text = a.Name,
-            Selected = selectedValues != null && selectedValues.Contains(a.Id)
-        }));
-        return items;
-    }
-
     public async Task<List<SelectListItem>> GetTagSelectListAsync(List<int>? selectedValues = null)
     {
         var tags = await _context.Set<Tag>()
@@ -289,7 +270,6 @@ public class ProductService : IProductService
     {
         viewModel.CategoryOptions = await GetProductCategorySelectListAsync(viewModel.CategoryId);
         viewModel.BrandOptions = await GetBrandSelectListAsync(viewModel.BrandId);
-        viewModel.AttributeOptions = await GetAttributeSelectListAsync(viewModel.SelectedAttributeIds);
         viewModel.TagOptions = await GetTagSelectListAsync(viewModel.SelectedTagIds);
     }
 
@@ -318,23 +298,8 @@ public class ProductService : IProductService
     }
 
 
-    private void UpdateProductRelationships(Product product, List<int>? selectedAttributeIds, List<int>? selectedTagIds)
+    private void UpdateProductRelationships(Product product, List<int>? selectedTagIds)
     {
-        var existingAttributeIds = product.ProductAttributes?.Select(pa => pa.AttributeId).ToList() ?? new List<int>();
-        var attributeIdsToAdd = selectedAttributeIds?.Except(existingAttributeIds).ToList() ?? new List<int>();
-        var attributeIdsToRemove = existingAttributeIds.Except(selectedAttributeIds ?? new List<int>()).ToList();
-
-        foreach (var attributeId in attributeIdsToRemove)
-        {
-            var productAttribute = product.ProductAttributes?.FirstOrDefault(pa => pa.AttributeId == attributeId);
-            if (productAttribute != null) _context.Remove(productAttribute);
-        }
-        foreach (var attributeId in attributeIdsToAdd)
-        {
-            product.ProductAttributes ??= new List<ProductAttribute>();
-            product.ProductAttributes.Add(new ProductAttribute { ProductId = product.Id, AttributeId = attributeId });
-        }
-
         var existingTagIds = product.ProductTags?.Select(pt => pt.TagId).ToList() ?? new List<int>();
         var tagIdsToAdd = selectedTagIds?.Except(existingTagIds).ToList() ?? new List<int>();
         var tagIdsToRemove = existingTagIds.Except(selectedTagIds ?? new List<int>()).ToList();

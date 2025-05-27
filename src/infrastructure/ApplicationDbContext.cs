@@ -32,8 +32,6 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     // Domain tables
     public DbSet<Article> Articles { get; set; }
     public DbSet<ArticleTag> ArticleTags { get; set; }
-    public DbSet<domain.Entities.Attribute> Attributes { get; set; }
-    public DbSet<AttributeValue> AttributeValues { get; set; }
     public DbSet<Banner> Banners { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Category> Categories { get; set; }
@@ -45,12 +43,9 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<Page> Pages { get; set; }
     public DbSet<PopupModal> PopupModals { get; set; }
     public DbSet<Product> Products { get; set; }
-    public DbSet<ProductAttribute> ProductAttributes { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<ProductReview> ProductReviews { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }
-    public DbSet<ProductVariation> ProductVariations { get; set; }
-    public DbSet<ProductVariationAttributeValue> ProductVariationAttributeValues { get; set; }
     public DbSet<Setting> Settings { get; set; }
     public DbSet<Slide> Slides { get; set; }
     public DbSet<Tag> Tags { get; set; }

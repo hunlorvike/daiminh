@@ -123,23 +123,6 @@
 			</div>
 			<div class="card-body">
 				<div class="form-group mb-3">
-					<label asp-for="SelectedAttributeIds" class="form-label"></label>
-					<div class="input-group">
-						<span class="input-group-text">
-							<i class="ti ti-adjustments"></i>
-						</span>
-						<select asp-for="SelectedAttributeIds" asp-items="@Model.AttributeOptions"
-								class="form-select tom-selected" autocomplete="off"  multiple
-								data-placeholder="Chọn thuộc tính áp dụng..."></select>
-					</div>
-					<span asp-validation-for="SelectedAttributeIds" class="text-danger"></span>
-					<small class="form-hint">
-						<i class="ti ti-info-circle me-1"></i>Chọn các thuộc tính áp dụng cho loại sản phẩm này (vd: Màu
-						sắc, Dung tích). Dùng để tạo biến thể.
-					</small>
-				</div>
-
-				<div class="form-group mb-3">
 					<label asp-for="SelectedTagIds" class="form-label"></label>
 					<div class="input-group">
 						<span class="input-group-text">

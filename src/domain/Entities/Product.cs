@@ -25,8 +25,6 @@ public class Product : SeoEntity<int>
     public virtual Category? Category { get; set; }
     public virtual ICollection<ProductImage>? Images { get; set; }
     public virtual ICollection<ProductTag>? ProductTags { get; set; }
-    public virtual ICollection<ProductVariation>? Variations { get; set; }
-    public virtual ICollection<ProductAttribute>? ProductAttributes { get; set; }
     public virtual ICollection<ProductReview>? Reviews { get; set; }
 }
 

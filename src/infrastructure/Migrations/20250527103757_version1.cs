@@ -1,3 +1,4 @@
+﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
@@ -10,24 +11,6 @@ namespace infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "Attributes",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    created_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    updated_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Attributes", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "Banners",
                 columns: table => new
@@ -396,31 +379,6 @@ namespace infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "AttributeValues",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    AttributeId = table.Column<int>(type: "int", nullable: false),
-                    Value = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Slug = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
-                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    created_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    updated_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AttributeValues", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_AttributeValues_Attributes_AttributeId",
-                        column: x => x.AttributeId,
-                        principalTable: "Attributes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Articles",
                 columns: table => new
                 {
@@ -693,30 +651,6 @@ namespace infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ProductAttributes",
-                columns: table => new
-                {
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    AttributeId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductAttributes", x => new { x.ProductId, x.AttributeId });
-                    table.ForeignKey(
-                        name: "FK_ProductAttributes_Attributes_AttributeId",
-                        column: x => x.AttributeId,
-                        principalTable: "Attributes",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductAttributes_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "ProductImages",
                 columns: table => new
                 {
@@ -804,59 +738,6 @@ namespace infrastructure.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "ProductVariations",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    SalePrice = table.Column<decimal>(type: "decimal(18,2)", nullable: true),
-                    StockQuantity = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    ImageUrl = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                    IsDefault = table.Column<bool>(type: "bit", nullable: false, defaultValue: false),
-                    IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                    created_at = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                    updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    created_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    updated_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductVariations", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProductVariations_Products_ProductId",
-                        column: x => x.ProductId,
-                        principalTable: "Products",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "ProductVariationAttributeValues",
-                columns: table => new
-                {
-                    ProductVariationId = table.Column<int>(type: "int", nullable: false),
-                    AttributeValueId = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_ProductVariationAttributeValues", x => new { x.ProductVariationId, x.AttributeValueId });
-                    table.ForeignKey(
-                        name: "FK_ProductVariationAttributeValues_AttributeValues_AttributeValueId",
-                        column: x => x.AttributeValueId,
-                        principalTable: "AttributeValues",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProductVariationAttributeValues_ProductVariations_ProductVariationId",
-                        column: x => x.ProductVariationId,
-                        principalTable: "ProductVariations",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_Articles_CategoryId",
                 table: "Articles",
@@ -877,18 +758,6 @@ namespace infrastructure.Migrations
                 name: "IX_ArticleTags_TagId",
                 table: "ArticleTags",
                 column: "TagId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Attributes_Slug",
-                table: "Attributes",
-                column: "Slug",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_AttributeValues_AttributeId_Slug",
-                table: "AttributeValues",
-                columns: new[] { "AttributeId", "Slug" },
-                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Brands_Slug",
@@ -941,11 +810,6 @@ namespace infrastructure.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "IX_ProductAttributes_AttributeId",
-                table: "ProductAttributes",
-                column: "AttributeId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_ProductImages_OrderIndex",
                 table: "ProductImages",
                 column: "OrderIndex");
@@ -990,21 +854,6 @@ namespace infrastructure.Migrations
                 name: "IX_ProductTags_TagId",
                 table: "ProductTags",
                 column: "TagId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductVariationAttributeValues_AttributeValueId",
-                table: "ProductVariationAttributeValues",
-                column: "AttributeValueId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductVariations_IsDefault",
-                table: "ProductVariations",
-                column: "IsDefault");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProductVariations_ProductId",
-                table: "ProductVariations",
-                column: "ProductId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_RoleClaims_RoleId",
@@ -1109,9 +958,6 @@ namespace infrastructure.Migrations
                 name: "PopupModals");
 
             migrationBuilder.DropTable(
-                name: "ProductAttributes");
-
-            migrationBuilder.DropTable(
                 name: "ProductImages");
 
             migrationBuilder.DropTable(
@@ -1119,9 +965,6 @@ namespace infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "ProductTags");
-
-            migrationBuilder.DropTable(
-                name: "ProductVariationAttributeValues");
 
             migrationBuilder.DropTable(
                 name: "RoleClaims");
@@ -1151,25 +994,16 @@ namespace infrastructure.Migrations
                 name: "Articles");
 
             migrationBuilder.DropTable(
+                name: "Products");
+
+            migrationBuilder.DropTable(
                 name: "Tags");
-
-            migrationBuilder.DropTable(
-                name: "AttributeValues");
-
-            migrationBuilder.DropTable(
-                name: "ProductVariations");
 
             migrationBuilder.DropTable(
                 name: "Roles");
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "Attributes");
-
-            migrationBuilder.DropTable(
-                name: "Products");
 
             migrationBuilder.DropTable(
                 name: "Brands");

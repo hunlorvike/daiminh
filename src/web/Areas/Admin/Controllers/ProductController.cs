@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -8,6 +7,7 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
+using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
@@ -153,7 +153,6 @@ public partial class ProductController : Controller
              );
             return RedirectToAction(nameof(Index));
         }
-        viewModel.VariationFilter ??= new ProductVariationFilterViewModel();
         viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
         return View(viewModel);
     }
@@ -179,7 +178,6 @@ public partial class ProductController : Controller
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
 
             await _productService.PopulateProductViewModelSelectListsAsync(viewModel);
-            viewModel.VariationFilter ??= new ProductVariationFilterViewModel();
             viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
             return View(viewModel);
         }
@@ -223,7 +221,6 @@ public partial class ProductController : Controller
                 new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật sản phẩm '{viewModel.Name}'.", ToastType.Error)
             );
             await _productService.PopulateProductViewModelSelectListsAsync(viewModel);
-            viewModel.VariationFilter ??= new ProductVariationFilterViewModel();
             return View(viewModel);
         }
     }

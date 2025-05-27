@@ -1,7 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
+using System.ComponentModel.DataAnnotations;
 using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels;
@@ -65,9 +65,6 @@ public class ProductViewModel : SeoViewModel
     [Required(ErrorMessage = "Vui lòng chọn {0}.")]
     public int? CategoryId { get; set; }
 
-    [Display(Name = "Thuộc tính áp dụng")]
-    public List<int>? SelectedAttributeIds { get; set; }
-
     [Display(Name = "Thẻ (Tags)")]
     public List<int>? SelectedTagIds { get; set; }
 
@@ -78,10 +75,8 @@ public class ProductViewModel : SeoViewModel
     public List<ProductImageViewModel> Images { get; set; } = new();
 
     // Select lists for dropdowns
-    public ProductVariationFilterViewModel VariationFilter { get; set; } = new();
     public List<SelectListItem>? CategoryOptions { get; set; }
     public List<SelectListItem>? BrandOptions { get; set; }
     public List<SelectListItem>? StatusOptions { get; set; }
-    public List<SelectListItem>? AttributeOptions { get; set; }
     public List<SelectListItem>? TagOptions { get; set; }
 }

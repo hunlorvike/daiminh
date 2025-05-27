@@ -15,7 +15,6 @@ public class ProductListItemViewModel
     public int ViewCount { get; set; }
     public int ImageCount { get; set; }
     public int TagCount { get; set; }
-    public int VariationCount { get; set; }
     public int ReviewCount { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

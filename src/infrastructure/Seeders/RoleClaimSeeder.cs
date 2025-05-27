@@ -63,8 +63,6 @@ public class RoleClaimSeeder : IDataSeeder
 
                 PermissionConstants.FAQView, PermissionConstants.FAQCreate, PermissionConstants.FAQEdit, PermissionConstants.FAQDelete,
                 PermissionConstants.ArticleView, PermissionConstants.ArticleCreate, PermissionConstants.ArticleEdit, PermissionConstants.ArticleDelete,
-                PermissionConstants.AttributeView, PermissionConstants.AttributeCreate, PermissionConstants.AttributeEdit, PermissionConstants.AttributeDelete,
-                PermissionConstants.AttributeValueView, PermissionConstants.AttributeValueCreate, PermissionConstants.AttributeValueEdit, PermissionConstants.AttributeValueDelete,
                 PermissionConstants.BannerView, PermissionConstants.BannerCreate, PermissionConstants.BannerEdit, PermissionConstants.BannerDelete,
                 PermissionConstants.BrandView, PermissionConstants.BrandCreate, PermissionConstants.BrandEdit, PermissionConstants.BrandDelete,
                 PermissionConstants.CategoryView, PermissionConstants.CategoryCreate, PermissionConstants.CategoryEdit, PermissionConstants.CategoryDelete,

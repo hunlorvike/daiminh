@@ -12,7 +12,7 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250523172420_version1")]
+    [Migration("20250527103757_version1")]
     partial class version1
     {
         /// <inheritdoc />
@@ -239,101 +239,6 @@ namespace infrastructure.Migrations
                     b.HasIndex("TagId");
 
                     b.ToTable("ArticleTags");
-                });
-
-            modelBuilder.Entity("domain.Entities.Attribute", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("Attributes");
-                });
-
-            modelBuilder.Entity("domain.Entities.AttributeValue", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AttributeId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(120)
-                        .HasColumnType("nvarchar(120)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("updated_by");
-
-                    b.Property<string>("Value")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AttributeId", "Slug")
-                        .IsUnique();
-
-                    b.ToTable("AttributeValues");
                 });
 
             modelBuilder.Entity("domain.Entities.Banner", b =>
@@ -1224,21 +1129,6 @@ namespace infrastructure.Migrations
                     b.ToTable("Products");
                 });
 
-            modelBuilder.Entity("domain.Entities.ProductAttribute", b =>
-                {
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AttributeId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductId", "AttributeId");
-
-                    b.HasIndex("AttributeId");
-
-                    b.ToTable("ProductAttributes");
-                });
-
             modelBuilder.Entity("domain.Entities.ProductImage", b =>
                 {
                     b.Property<int>("Id")
@@ -1384,86 +1274,6 @@ namespace infrastructure.Migrations
                     b.HasIndex("TagId");
 
                     b.ToTable("ProductTags");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductVariation", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("created_at")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("created_by");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(true);
-
-                    b.Property<bool>("IsDefault")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false);
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
-
-                    b.Property<decimal?>("SalePrice")
-                        .HasColumnType("decimal(18, 2)");
-
-                    b.Property<int>("StockQuantity")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2")
-                        .HasColumnName("updated_at");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("updated_by");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("IsDefault");
-
-                    b.HasIndex("ProductId");
-
-                    b.ToTable("ProductVariations");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductVariationAttributeValue", b =>
-                {
-                    b.Property<int>("ProductVariationId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("AttributeValueId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ProductVariationId", "AttributeValueId");
-
-                    b.HasIndex("AttributeValueId");
-
-                    b.ToTable("ProductVariationAttributeValues");
                 });
 
             modelBuilder.Entity("domain.Entities.Role", b =>
@@ -1984,17 +1794,6 @@ namespace infrastructure.Migrations
                     b.Navigation("Tag");
                 });
 
-            modelBuilder.Entity("domain.Entities.AttributeValue", b =>
-                {
-                    b.HasOne("domain.Entities.Attribute", "Attribute")
-                        .WithMany("Values")
-                        .HasForeignKey("AttributeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Attribute");
-                });
-
             modelBuilder.Entity("domain.Entities.Category", b =>
                 {
                     b.HasOne("domain.Entities.Category", "Parent")
@@ -2030,25 +1829,6 @@ namespace infrastructure.Migrations
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductAttribute", b =>
-                {
-                    b.HasOne("domain.Entities.Attribute", "Attribute")
-                        .WithMany("ProductAttributes")
-                        .HasForeignKey("AttributeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.Product", "Product")
-                        .WithMany("ProductAttributes")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Attribute");
-
-                    b.Navigation("Product");
                 });
 
             modelBuilder.Entity("domain.Entities.ProductImage", b =>
@@ -2097,36 +1877,6 @@ namespace infrastructure.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductVariation", b =>
-                {
-                    b.HasOne("domain.Entities.Product", "Product")
-                        .WithMany("Variations")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductVariationAttributeValue", b =>
-                {
-                    b.HasOne("domain.Entities.AttributeValue", "AttributeValue")
-                        .WithMany("ProductVariationAttributeValues")
-                        .HasForeignKey("AttributeValueId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.ProductVariation", "ProductVariation")
-                        .WithMany("ProductVariationAttributeValues")
-                        .HasForeignKey("ProductVariationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("AttributeValue");
-
-                    b.Navigation("ProductVariation");
                 });
 
             modelBuilder.Entity("domain.Entities.RoleClaim", b =>
@@ -2185,18 +1935,6 @@ namespace infrastructure.Migrations
                     b.Navigation("ArticleTags");
                 });
 
-            modelBuilder.Entity("domain.Entities.Attribute", b =>
-                {
-                    b.Navigation("ProductAttributes");
-
-                    b.Navigation("Values");
-                });
-
-            modelBuilder.Entity("domain.Entities.AttributeValue", b =>
-                {
-                    b.Navigation("ProductVariationAttributeValues");
-                });
-
             modelBuilder.Entity("domain.Entities.Brand", b =>
                 {
                     b.Navigation("Products");
@@ -2217,18 +1955,9 @@ namespace infrastructure.Migrations
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("ProductAttributes");
-
                     b.Navigation("ProductTags");
 
                     b.Navigation("Reviews");
-
-                    b.Navigation("Variations");
-                });
-
-            modelBuilder.Entity("domain.Entities.ProductVariation", b =>
-                {
-                    b.Navigation("ProductVariationAttributeValues");
                 });
 
             modelBuilder.Entity("domain.Entities.Tag", b =>

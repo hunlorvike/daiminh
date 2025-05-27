@@ -14,18 +14,6 @@ public class PermissionConstants
     public const string ArticleEdit = "Article.Edit";
     public const string ArticleDelete = "Article.Delete";
 
-    // ATTRIBUTE MANAGEMENT
-    public const string AttributeView = "Attribute.View";
-    public const string AttributeCreate = "Attribute.Create";
-    public const string AttributeEdit = "Attribute.Edit";
-    public const string AttributeDelete = "Attribute.Delete";
-
-    // ATTRIBUTE VALUE MANAGEMENT
-    public const string AttributeValueView = "AttributeValue.View";
-    public const string AttributeValueCreate = "AttributeValue.Create";
-    public const string AttributeValueEdit = "AttributeValue.Edit";
-    public const string AttributeValueDelete = "AttributeValue.Delete";
-
     // BANNER MANAGEMENT
     public const string BannerView = "Banner.View";
     public const string BannerCreate = "Banner.Create";
