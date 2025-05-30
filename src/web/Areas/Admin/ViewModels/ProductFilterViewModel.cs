@@ -15,14 +15,18 @@ public class ProductFilterViewModel
     [Display(Name = "Thương hiệu")]
     public int? BrandId { get; set; }
 
-    [Display(Name = "Trạng thái")]
+    [Display(Name = "Trạng thái xuất bản")]
     public PublishStatus? Status { get; set; }
 
-    [Display(Name = "Sản phẩm nổi bật")]
+    [Display(Name = "Trạng thái kích hoạt")]
+    public bool? IsActive { get; set; }
+
+    [Display(Name = "Nổi bật")]
     public bool? IsFeatured { get; set; }
 
     public List<SelectListItem> CategoryOptions { get; set; } = new();
     public List<SelectListItem> BrandOptions { get; set; } = new();
     public List<SelectListItem> StatusOptions { get; set; } = new();
-    public List<SelectListItem> IsFeaturedOptions { get; set; } = new();
+    public List<SelectListItem> ActiveOptions { get; set; } = new();
+    public List<SelectListItem> FeaturedOptions { get; set; } = new();
 }

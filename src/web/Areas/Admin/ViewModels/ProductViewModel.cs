@@ -1,7 +1,7 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Enums;
-using System.ComponentModel.DataAnnotations;
 using web.Areas.Admin.ViewModels.Shared;
 
 namespace web.Areas.Admin.ViewModels;
@@ -16,45 +16,45 @@ public class ProductViewModel : SeoViewModel
     [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
     public string Name { get; set; } = string.Empty;
 
-    [Display(Name = "Slug (URL)", Prompt = "phan-url-than-thien-san-pham")]
+    [Display(Name = "Slug (URL)", Prompt = "ten-san-pham-than-thien")]
     [Required(ErrorMessage = "{0} không được để trống.")]
     [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
     [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "{0} chỉ được chứa chữ cái thường, số và dấu gạch ngang.")]
     public string Slug { get; set; } = string.Empty;
 
-    [Display(Name = "Mô tả chi tiết", Prompt = "Nhập mô tả chi tiết sản phẩm")]
+    [Display(Name = "Mô tả chi tiết", Prompt = "Nhập mô tả đầy đủ cho sản phẩm")]
     [Required(ErrorMessage = "{0} không được để trống.")]
     [DataType(DataType.Html)]
     public string Description { get; set; } = string.Empty;
 
-    [Display(Name = "Mô tả ngắn", Prompt = "Nhập mô tả ngắn gọn")]
+    [Display(Name = "Mô tả ngắn", Prompt = "Mô tả ngắn gọn (hiển thị ở danh sách,...)")]
     [MaxLength(500, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
     [DataType(DataType.MultilineText)]
     public string? ShortDescription { get; set; }
 
-    [Display(Name = "Nhà sản xuất", Prompt = "Tên nhà sản xuất")]
-    [MaxLength(255, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
+    [Display(Name = "Nhà sản xuất", Prompt = "Tên nhà sản xuất (nếu có)")]
+    [MaxLength(255)]
     public string? Manufacturer { get; set; }
 
-    [Display(Name = "Xuất xứ", Prompt = "Quốc gia sản xuất")]
-    [MaxLength(100, ErrorMessage = "{0} không được vượt quá {1} ký tự.")]
+    [Display(Name = "Xuất xứ", Prompt = "Quốc gia hoặc nơi sản xuất")]
+    [MaxLength(100)]
     public string? Origin { get; set; }
 
-    [Display(Name = "Thông số kỹ thuật", Prompt = "Nhập thông số kỹ thuật chi tiết")]
+    [Display(Name = "Thông số kỹ thuật", Prompt = "Thông số kỹ thuật chi tiết (HTML)")]
     [DataType(DataType.Html)]
     public string? Specifications { get; set; }
 
-    [Display(Name = "Hướng dẫn sử dụng", Prompt = "Nhập cách sử dụng, thi công")]
+    [Display(Name = "Hướng dẫn sử dụng", Prompt = "Hướng dẫn sử dụng sản phẩm (HTML)")]
     [DataType(DataType.Html)]
     public string? Usage { get; set; }
 
     [Display(Name = "Nổi bật")]
     public bool IsFeatured { get; set; } = false;
 
-    [Display(Name = "Hoạt động")]
+    [Display(Name = "Kích hoạt (Hiển thị)")]
     public bool IsActive { get; set; } = true;
 
-    [Display(Name = "Trạng thái")]
+    [Display(Name = "Trạng thái xuất bản")]
     [Required(ErrorMessage = "Vui lòng chọn {0}.")]
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
@@ -65,18 +65,16 @@ public class ProductViewModel : SeoViewModel
     [Required(ErrorMessage = "Vui lòng chọn {0}.")]
     public int? CategoryId { get; set; }
 
-    [Display(Name = "Thẻ (Tags)")]
-    public List<int>? SelectedTagIds { get; set; }
-
-    [Display(Name = "Bài viết liên quan")]
-    public List<int>? SelectedArticleIds { get; set; }
-
     [Display(Name = "Hình ảnh sản phẩm")]
     public List<ProductImageViewModel> Images { get; set; } = new();
 
-    // Select lists for dropdowns
-    public List<SelectListItem>? CategoryOptions { get; set; }
-    public List<SelectListItem>? BrandOptions { get; set; }
-    public List<SelectListItem>? StatusOptions { get; set; }
-    public List<SelectListItem>? TagOptions { get; set; }
+    [Display(Name = "Thẻ (Tags)")]
+    public List<int>? SelectedTagIds { get; set; }
+
+
+    // Options for Dropdowns
+    public List<SelectListItem> BrandOptions { get; set; } = new();
+    public List<SelectListItem> CategoryOptions { get; set; } = new();
+    public List<SelectListItem> StatusOptions { get; set; } = new();
+    public List<SelectListItem> TagOptions { get; set; } = new();
 }

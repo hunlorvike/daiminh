@@ -1,6 +1,9 @@
+// src/web/Areas/Admin/Validators/ProductViewModelValidator.cs
 using domain.Entities;
 using FluentValidation;
 using infrastructure;
+using Microsoft.EntityFrameworkCore;
+using shared.Enums;
 using web.Areas.Admin.Validators.Shared;
 using web.Areas.Admin.ViewModels;
 
@@ -15,82 +18,74 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
         _context = context ?? throw new ArgumentNullException(nameof(context));
 
         RuleFor(x => x.Name)
-            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
-            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
+            .NotEmpty().WithMessage("Tên sản phẩm không được để trống.")
+            .MaximumLength(255).WithMessage("Tên sản phẩm không được vượt quá 255 ký tự.");
 
         RuleFor(x => x.Slug)
-            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
-            .MaximumLength(255).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
-            .Matches("^[a-z0-9-]+$").WithMessage("{PropertyName} chỉ được chứa chữ cái thường, số và dấu gạch ngang.")
-            .Must(BeUniqueSlug).WithMessage("Slug này đã tồn tại, vui lòng chọn slug khác.");
+            .NotEmpty().WithMessage("Slug không được để trống.")
+            .MaximumLength(255).WithMessage("Slug không được vượt quá 255 ký tự.")
+            .Matches("^[a-z0-9-]+$").WithMessage("Slug chỉ được chứa chữ cái thường, số và dấu gạch ngang.")
+            .MustAsync(BeUniqueSlug).WithMessage("Slug này đã tồn tại. Vui lòng chọn slug khác.");
 
         RuleFor(x => x.Description)
-            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.");
+            .NotEmpty().WithMessage("Mô tả chi tiết không được để trống.");
 
         RuleFor(x => x.ShortDescription)
-            .MaximumLength(500).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
+            .MaximumLength(500).WithMessage("Mô tả ngắn không được vượt quá 500 ký tự.");
 
         RuleFor(x => x.Manufacturer)
-             .MaximumLength(255).When(x => !string.IsNullOrEmpty(x.Manufacturer));
+            .MaximumLength(255).WithMessage("Nhà sản xuất không được vượt quá 255 ký tự.");
 
         RuleFor(x => x.Origin)
-             .MaximumLength(100).When(x => !string.IsNullOrEmpty(x.Origin));
+            .MaximumLength(100).WithMessage("Xuất xứ không được vượt quá 100 ký tự.");
 
         RuleFor(x => x.Status)
-             .IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
+            .IsInEnum().WithMessage("Trạng thái xuất bản không hợp lệ.");
 
         RuleFor(x => x.BrandId)
-            .Must((model, brandId) => brandId == null || BrandExists(brandId)).WithMessage("Thương hiệu được chọn không tồn tại.");
+            .MustAsync(BrandExists).When(x => x.BrandId.HasValue).WithMessage("Thương hiệu không hợp lệ.");
 
         RuleFor(x => x.CategoryId)
-            .NotEmpty().WithMessage("Vui lòng chọn {PropertyName}.")
-            .Must((model, categoryId) => CategoryExists(categoryId)).WithMessage("Danh mục được chọn không tồn tại.");
+            .NotEmpty().WithMessage("Vui lòng chọn danh mục sản phẩm.")
+            .MustAsync(CategoryExists).WithMessage("Danh mục sản phẩm không hợp lệ.");
 
-        RuleForEach(x => x.Images)
-            .ChildRules(image =>
-            {
-                image.RuleFor(img => img.ImageUrl)
-                    .NotEmpty().WithMessage("URL Ảnh không được để trống.")
-                    .MaximumLength(255).WithMessage("URL Ảnh không được vượt quá {MaxLength} ký tự.");
-                image.RuleFor(img => img.ThumbnailUrl)
-                     .MaximumLength(255).When(img => !string.IsNullOrEmpty(img.ThumbnailUrl)).WithMessage("URL Thumbnail không được vượt quá {MaxLength} ký tự.");
-                image.RuleFor(img => img.AltText)
-                     .MaximumLength(255).When(img => !string.IsNullOrEmpty(img.AltText)).WithMessage("Alt Text không được vượt quá {MaxLength} ký tự.");
-                image.RuleFor(img => img.Title)
-                     .MaximumLength(255).When(img => !string.IsNullOrEmpty(img.Title)).WithMessage("Tiêu đề ảnh không được vượt quá {MaxLength} ký tự.");
-                image.RuleFor(img => img.OrderIndex)
-                     .GreaterThanOrEqualTo(0).WithMessage("Thứ tự ảnh phải là số không âm.");
-            });
+        RuleForEach(x => x.Images).SetValidator(new ProductImageViewModelValidator());
 
-        When(x => x.Images != null && x.Images.Any(img => !img.IsDeleted), () =>
-        {
-            RuleFor(x => x.Images)
-               .Must(images => images.Count(img => !img.IsDeleted && img.IsMain) == 1)
-               .WithMessage("Phải có chính xác một ảnh được đánh dấu là ảnh chính.");
-        });
+        RuleFor(x => x.Images)
+            .Must(images => images != null && images.Any(img => img.IsMain))
+            .WithMessage("Phải có ít nhất một ảnh được chọn làm ảnh chính.")
+            .When(x => x.Images != null && x.Images.Any());
 
         Include(new SeoViewModelValidator());
     }
 
-    private bool BeUniqueSlug(ProductViewModel viewModel, string slug)
+    private async Task<bool> BeUniqueSlug(ProductViewModel viewModel, string slug, CancellationToken cancellationToken)
     {
-        return !_context.Set<Product>()
-                              .Any(p => p.Slug == slug && p.Id != viewModel.Id);
+        if (string.IsNullOrWhiteSpace(slug)) return true;
+        return !await _context.Set<Product>()
+                              .AnyAsync(p => p.Slug == slug && p.Id != viewModel.Id, cancellationToken);
     }
 
-    private bool CategoryExists(int? categoryId)
+    private async Task<bool> BrandExists(int? brandId, CancellationToken cancellationToken)
     {
-        if (categoryId == null) return false;
-
-        return _context.Set<Category>()
-                       .Any(c => c.Id == categoryId && c.Type == shared.Enums.CategoryType.Product);
+        if (!brandId.HasValue) return true;
+        return await _context.Set<Brand>().AnyAsync(b => b.Id == brandId.Value, cancellationToken);
     }
 
-    private bool BrandExists(int? brandId)
+    private async Task<bool> CategoryExists(int? categoryId, CancellationToken cancellationToken)
     {
-        if (brandId == null) return true;
+        if (!categoryId.HasValue) return false;
+        return await _context.Set<Category>()
+                             .AnyAsync(c => c.Id == categoryId.Value && c.Type == CategoryType.Product, cancellationToken);
+    }
+}
 
-        return _context.Set<Brand>()
-                       .Any(b => b.Id == brandId);
+public class ProductImageViewModelValidator : AbstractValidator<ProductImageViewModel>
+{
+    public ProductImageViewModelValidator()
+    {
+        RuleFor(x => x.ImageUrl)
+            .NotEmpty().WithMessage("URL hình ảnh không được để trống.")
+            .MaximumLength(255).WithMessage("URL hình ảnh không được vượt quá 255 ký tự.");
     }
 }
