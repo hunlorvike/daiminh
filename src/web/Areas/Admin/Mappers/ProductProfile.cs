@@ -1,42 +1,51 @@
 using AutoMapper;
 using domain.Entities;
 using domain.Entities.Shared;
-using web.Areas.Admin.ViewModels.Shared;
-namespace web.Areas.Admin.Mappers;
 using web.Areas.Admin.ViewModels;
+using web.Areas.Admin.ViewModels.Shared;
+
+namespace web.Areas.Admin.Mappers;
 
 public class ProductProfile : Profile
 {
     public ProductProfile()
     {
-        // Entity -> ListItemViewModel
+        // ProductImage to ProductImageViewModel and vice-versa
+        CreateMap<ProductImage, ProductImageViewModel>().ReverseMap();
+
+        // Product to ProductListItemViewModel
         CreateMap<Product, ProductListItemViewModel>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
             .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
             .ForMember(dest => dest.ImageCount, opt => opt.MapFrom(src => src.Images != null ? src.Images.Count : 0))
-            .ForMember(dest => dest.TagCount, opt => opt.MapFrom(src => src.ProductTags != null ? src.ProductTags.Count : 0))
-            .ForMember(dest => dest.ReviewCount, opt => opt.MapFrom(src => src.Reviews != null ? src.Reviews.Count : 0));
+            .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src =>
+                src.Images != null && src.Images.Any(i => i.IsMain)
+                ? src.Images.First(i => i.IsMain).ImageUrl
+                : (src.Images != null && src.Images.Any() ? src.Images.First().ImageUrl : null)
+            ));
 
-        // Entity -> ViewModel (GET Edit)
+        // Product to ProductViewModel (for Edit/Create form)
         CreateMap<Product, ProductViewModel>()
-             .ForMember(dest => dest.CategoryOptions, opt => opt.Ignore())
-             .ForMember(dest => dest.BrandOptions, opt => opt.Ignore())
-             .ForMember(dest => dest.StatusOptions, opt => opt.Ignore())
-             .ForMember(dest => dest.TagOptions, opt => opt.Ignore())
-             .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags!.Select(pt => pt.TagId).ToList()))
-             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images!.OrderBy(img => img.OrderIndex).ToList()));
+            .IncludeBase<SeoEntity<int>, SeoViewModel>() // Include SEO properties
+            .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
+            .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags != null ? src.ProductTags.Select(pt => pt.TagId).ToList() : new List<int>()))
+            .ForMember(dest => dest.BrandOptions, opt => opt.Ignore())
+            .ForMember(dest => dest.CategoryOptions, opt => opt.Ignore())
+            .ForMember(dest => dest.StatusOptions, opt => opt.Ignore())
+            .ForMember(dest => dest.TagOptions, opt => opt.Ignore());
 
-
-        // ViewModel -> Entity (POST Create / PUT Edit)
+        // ProductViewModel to Product
         CreateMap<ProductViewModel, Product>()
+            .IncludeBase<SeoViewModel, SeoEntity<int>>() // Include SEO properties
             .ForMember(dest => dest.Brand, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
-            .ForMember(dest => dest.Images, opt => opt.Ignore())
+            .ForMember(dest => dest.Images, opt => opt.Ignore()) // Will be handled manually
+            .ForMember(dest => dest.ProductTags, opt => opt.Ignore()) // Will be handled manually
             .ForMember(dest => dest.Reviews, opt => opt.Ignore())
-            .ForMember(dest => dest.ViewCount, opt => opt.Ignore())
+            .ForMember(dest => dest.ViewCount, opt => opt.Ignore()) // Usually not set from form
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
-            .IncludeBase<SeoViewModel, SeoEntity<int>>();
+            .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())
+            .ForMember(dest => dest.UpdatedBy, opt => opt.Ignore());
     }
 }

@@ -1,0 +1,55 @@
+@model List<ProductImageViewModel>
+
+<div id="product-images-container" class="row g-3">
+    @if (Model != null && Model.Any())
+    {
+        for (int i = 0; i < Model.Count; i++)
+        {
+            <div class="col-12">
+                <div class="card border shadow-sm product-image-item" data-index="@i">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center">
+                            <img src="@Model[i].ImageUrl" class="avatar avatar-xl rounded object-cover me-3 border"
+                                alt="Preview" />
+                            <div class="col-8 flex-grow-">
+                                <div class="d-flex align-items-center justify-content-between mb-2">
+                                    <span class="badge bg-blue-lt text-blue border-blue">Ảnh #@(i + 1)</span>
+                                    <button type="button" class="btn btn-sm btn-outline-danger remove-product-image-btn">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </div>
+                                <div class="input-group mb-2">
+                                    <span class="input-group-text"><i class="ti ti-link"></i></span>
+                                    <input asp-for="@Model[i].ImageUrl" name="Images[@i].ImageUrl"
+                                        class="form-control media-url-input" readonly />
+                                    <button type="button" class="btn btn-outline-secondary select-media-button"
+                                        data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-media-type-filter="0">
+                                        <i class="ti ti-folder"></i>
+                                    </button>
+                                </div>
+                                <span asp-validation-for="@Model[i].ImageUrl" class="text-danger small"></span>
+                                <input type="hidden" asp-for="@Model[i].Id" name="Images[@i].Id" />
+                                <input type="hidden" asp-for="@Model[i].OrderIndex" name="Images[@i].OrderIndex"
+                                    class="image-order-index" />
+                            </div>
+                            <div class="ms-3 form-check form-switch">
+                                <input asp-for="@Model[i].IsMain" name="Images[@i].IsMain"
+                                    class="form-check-input main-image-checkbox" type="checkbox"
+                                    value="@(Model[i].IsMain ? "true" : "false")">
+                                <label asp-for="@Model[i].IsMain" class="form-check-label small">Ảnh chính</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="text-center text-muted py-3" id="no-images-placeholder">Chưa có hình ảnh nào.</div>
+    }
+</div>
+
+<button type="button" id="add-product-image-btn" class="btn btn-outline-primary d-block w-100 mt-3">
+    <i class="ti ti-plus me-1"></i>Thêm hình ảnh
+</button>

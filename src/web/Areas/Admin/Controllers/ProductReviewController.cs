@@ -19,7 +19,6 @@ namespace web.Areas.Admin.Controllers;
 public partial class ProductReviewController : Controller
 {
     private readonly IProductReviewService _productReviewService;
-    private readonly IProductService _productService;
     private readonly IMapper _mapper;
     private readonly ILogger<ProductReviewController> _logger;
     private readonly IValidator<ProductReviewViewModel> _productReviewViewModelValidator;
@@ -27,13 +26,11 @@ public partial class ProductReviewController : Controller
 
     public ProductReviewController(
         IProductReviewService productReviewService,
-        IProductService productService,
         IMapper mapper,
         ILogger<ProductReviewController> logger,
         IValidator<ProductReviewViewModel> productReviewViewModelValidator)
     {
         _productReviewService = productReviewService ?? throw new ArgumentNullException(nameof(productReviewService));
-        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _productReviewViewModelValidator = productReviewViewModelValidator ?? throw new ArgumentNullException(nameof(productReviewViewModelValidator));
@@ -49,7 +46,7 @@ public partial class ProductReviewController : Controller
 
         IPagedList<ProductReviewListItemViewModel> reviewsPaged = await _productReviewService.GetPagedProductReviewsAsync(filter, pageNumber, currentPageSize);
 
-        filter.ProductOptions = await _productService.GetProductSelectListAsync(filter.ProductId);
+        // filter.ProductOptions = await _productService.GetProductSelectListAsync(filter.ProductId);
         filter.StatusOptions = GetReviewStatusSelectList(filter.Status);
         filter.RatingOptions = GetRatingOptions(filter.MinRating, filter.MaxRating);
 

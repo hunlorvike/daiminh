@@ -26,55 +26,53 @@ public class ProductService : IProductService
         IMapper mapper,
         ILogger<ProductService> logger)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _context = context;
+        _mapper = mapper;
+        _logger = logger;
     }
 
     public async Task<IPagedList<ProductListItemViewModel>> GetPagedProductsAsync(ProductFilterViewModel filter, int pageNumber, int pageSize)
     {
         IQueryable<Product> query = _context.Set<Product>()
-                                        .Include(p => p.Category)
-                                        .Include(p => p.Brand)
-                                        .Include(p => p.Images!.Where(img => img.OrderIndex == 0))
-                                        .AsNoTracking();
+                                         .Include(p => p.Category)
+                                         .Include(p => p.Brand)
+                                         .Include(p => p.Images)
+                                         .AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
             string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
             query = query.Where(p => p.Name.ToLower().Contains(lowerSearchTerm) ||
                                      (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(lowerSearchTerm)) ||
-                                     (p.Manufacturer != null && p.Manufacturer.ToLower().Contains(lowerSearchTerm)));
+                                     (p.Brand != null && p.Brand.Name.ToLower().Contains(lowerSearchTerm)) ||
+                                     (p.Category != null && p.Category.Name.ToLower().Contains(lowerSearchTerm)));
         }
-
         if (filter.CategoryId.HasValue && filter.CategoryId.Value > 0)
         {
             query = query.Where(p => p.CategoryId == filter.CategoryId.Value);
         }
-
         if (filter.BrandId.HasValue && filter.BrandId.Value > 0)
         {
             query = query.Where(p => p.BrandId == filter.BrandId.Value);
         }
-
         if (filter.Status.HasValue)
         {
             query = query.Where(p => p.Status == filter.Status.Value);
         }
-
+        if (filter.IsActive.HasValue)
+        {
+            query = query.Where(p => p.IsActive == filter.IsActive.Value);
+        }
         if (filter.IsFeatured.HasValue)
         {
             query = query.Where(p => p.IsFeatured == filter.IsFeatured.Value);
         }
 
-        query = query
-            .OrderByDescending(p => p.ViewCount)
-            .ThenByDescending(p => p.CreatedAt);
+        query = query.OrderByDescending(p => p.UpdatedAt).ThenBy(p => p.Name);
 
-        var productsPaged = await query.ProjectTo<ProductListItemViewModel>(_mapper.ConfigurationProvider)
-                                   .ToPagedListAsync(pageNumber, pageSize);
-
-        return productsPaged;
+        return await query
+            .ProjectTo<ProductListItemViewModel>(_mapper.ConfigurationProvider)
+            .ToPagedListAsync(pageNumber, pageSize);
     }
 
     public async Task<ProductViewModel?> GetProductByIdAsync(int id)
@@ -82,49 +80,55 @@ public class ProductService : IProductService
         Product? product = await _context.Set<Product>()
                                      .Include(p => p.Category)
                                      .Include(p => p.Brand)
-                                     .Include(p => p.Images!.OrderBy(img => img.OrderIndex))
-                                     .Include(p => p.ProductTags)
+                                     .Include(p => p.Images!.OrderBy(i => i.OrderIndex))
+                                     .Include(p => p.ProductTags!)
+                                        .ThenInclude(pt => pt.Tag)
                                      .AsNoTracking()
                                      .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null) return null;
-
-        ProductViewModel viewModel = _mapper.Map<ProductViewModel>(product);
-        await PopulateProductViewModelSelectListsAsync(viewModel);
-        return viewModel;
+        return _mapper.Map<ProductViewModel>(product);
     }
 
     public async Task<OperationResult<int>> CreateProductAsync(ProductViewModel viewModel)
     {
         if (await IsSlugUniqueAsync(viewModel.Slug!))
         {
-            return OperationResult<int>.FailureResult("Slug này đã tồn tại.");
+            return OperationResult<int>.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
         }
 
-        var product = _mapper.Map<Product>(viewModel);
-        UpdateProductRelationships(product, viewModel.SelectedTagIds);
-        UpdateProductImages(product, viewModel.Images);
-
-        _context.Add(product);
-
+        using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            await _context.Database.BeginTransactionAsync();
-            await _context.SaveChangesAsync();
-            await _context.Database.CommitTransactionAsync();
+            var product = _mapper.Map<Product>(viewModel);
 
-            _logger.LogInformation("Đã tạo Sản phẩm: ID={Id}, Name={Name}", product.Id, product.Name);
-            return OperationResult<int>.SuccessResult(product.Id, $"Đã thêm sản phẩm '{product.Name}' thành công.");
+            product.Images = _mapper.Map<List<ProductImage>>(viewModel.Images);
+            EnsureOneMainImage(product.Images);
+
+            UpdateProductTags(product, viewModel.SelectedTagIds);
+
+            _context.Add(product);
+            await _context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+            _logger.LogInformation("Created Product: ID={Id}, Name={Name}, Slug={Slug}", product.Id, product.Name, product.Slug);
+            return OperationResult<int>.SuccessResult(product.Id, $"Thêm sản phẩm '{product.Name}' thành công.");
+        }
+        catch (DbUpdateException ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Lỗi DB khi tạo sản phẩm: {Name}", viewModel.Name);
+            if (ex.InnerException?.Message?.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return OperationResult<int>.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
+            }
+            return OperationResult<int>.FailureResult(message: "Lỗi cơ sở dữ liệu khi lưu sản phẩm.", errors: new List<string> { ex.Message });
         }
         catch (Exception ex)
         {
-            await _context.Database.RollbackTransactionAsync();
-            _logger.LogError(ex, "Lỗi khi tạo Sản phẩm: {Name}", viewModel.Name);
-            if (ex.InnerException?.Message.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult<int>.FailureResult("Slug này đã tồn tại.");
-            }
-            return OperationResult<int>.FailureResult($"Không thể thêm sản phẩm '{viewModel.Name}'. Lỗi: {ex.Message}");
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Lỗi không xác định khi tạo sản phẩm.");
+            return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi hệ thống khi lưu sản phẩm.", errors: new List<string> { ex.Message });
         }
     }
 
@@ -132,230 +136,188 @@ public class ProductService : IProductService
     {
         if (await IsSlugUniqueAsync(viewModel.Slug!, viewModel.Id))
         {
-            return OperationResult.FailureResult("Slug này đã tồn tại.");
+            return OperationResult.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
         }
 
-        var product = await _context.Set<Product>()
-            .Include(p => p.Images)
-            .Include(p => p.ProductTags)
-            .FirstOrDefaultAsync(p => p.Id == viewModel.Id);
-
-        if (product == null)
-        {
-            return OperationResult.FailureResult("Không tìm thấy sản phẩm.");
-        }
-
-        _mapper.Map(viewModel, product);
-        UpdateProductRelationships(product, viewModel.SelectedTagIds);
-        UpdateProductImages(product, viewModel.Images);
-
+        using var transaction = await _context.Database.BeginTransactionAsync();
         try
         {
-            await _context.Database.BeginTransactionAsync();
-            await _context.SaveChangesAsync();
-            await _context.Database.CommitTransactionAsync();
+            var product = await _context.Set<Product>()
+                .Include(p => p.Images)
+                .Include(p => p.ProductTags)
+                .FirstOrDefaultAsync(p => p.Id == viewModel.Id);
 
-            _logger.LogInformation("Đã cập nhật Sản phẩm: ID={Id}, Name={Name}", product.Id, product.Name);
-            return OperationResult.SuccessResult($"Đã cập nhật sản phẩm '{product.Name}' thành công.");
+            if (product == null)
+            {
+                _logger.LogWarning("Product not found for update. ID: {Id}", viewModel.Id);
+                return OperationResult.FailureResult("Không tìm thấy sản phẩm để cập nhật.");
+            }
+
+            _mapper.Map(viewModel, product);
+
+            UpdateProductImages(product, viewModel.Images);
+            EnsureOneMainImage(product.Images);
+            UpdateProductTags(product, viewModel.SelectedTagIds);
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            _logger.LogInformation("Updated Product: ID={Id}, Name={Name}, Slug={Slug}", product.Id, product.Name, product.Slug);
+            return OperationResult.SuccessResult($"Cập nhật sản phẩm '{product.Name}' thành công.");
+        }
+        catch (DbUpdateException ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Lỗi DB khi cập nhật sản phẩm ID: {Id}", viewModel.Id);
+            if (ex.InnerException?.Message?.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return OperationResult.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
+            }
+            return OperationResult.FailureResult(message: "Lỗi cơ sở dữ liệu khi cập nhật sản phẩm.", errors: new List<string> { ex.Message });
         }
         catch (Exception ex)
         {
-            await _context.Database.RollbackTransactionAsync();
-            _logger.LogError(ex, "Lỗi khi cập nhật Sản phẩm ID: {Id}", viewModel.Id);
-            if (ex.InnerException?.Message.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
-            {
-                return OperationResult.FailureResult("Slug này đã tồn tại.");
-            }
-            return OperationResult.FailureResult($"Không thể cập nhật sản phẩm '{viewModel.Name}'. Lỗi: {ex.Message}");
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Lỗi không xác định khi cập nhật sản phẩm ID: {Id}", viewModel.Id);
+            return OperationResult.FailureResult(message: "Lỗi hệ thống khi cập nhật sản phẩm.", errors: new List<string> { ex.Message });
         }
     }
 
     public async Task<OperationResult> DeleteProductAsync(int id)
     {
-        var product = await _context.Set<Product>().FirstOrDefaultAsync(p => p.Id == id);
+        var product = await _context.Set<Product>()
+                                .Include(p => p.Images)
+                                .Include(p => p.ProductTags)
+                                .Include(p => p.Reviews)
+                                .FirstOrDefaultAsync(p => p.Id == id);
+
         if (product == null)
         {
+            _logger.LogWarning("Product not found for delete. ID: {Id}", id);
             return OperationResult.FailureResult("Không tìm thấy sản phẩm.");
         }
+        if (product.Images != null) _context.RemoveRange(product.Images);
+        if (product.ProductTags != null) _context.RemoveRange(product.ProductTags);
+        if (product.Reviews != null) _context.RemoveRange(product.Reviews);
 
-        string name = product.Name;
         _context.Remove(product);
-
+        string productName = product.Name;
         try
         {
             await _context.SaveChangesAsync();
-            _logger.LogInformation("Đã xóa Sản phẩm: ID={Id}, Name={Name}", id, name);
-            return OperationResult.SuccessResult($"Xóa sản phẩm '{name}' thành công.");
+            _logger.LogInformation("Deleted Product: ID={Id}, Name={Name}", id, productName);
+            return OperationResult.SuccessResult($"Xóa sản phẩm '{productName}' thành công.");
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, "Lỗi DB khi xóa sản phẩm ID {Id}", id);
+            return OperationResult.FailureResult("Lỗi cơ sở dữ liệu khi xóa sản phẩm.", errors: new List<string> { ex.Message });
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Lỗi khi xóa Sản phẩm ID: {Id}", id);
-            return OperationResult.FailureResult($"Không thể xóa sản phẩm '{name}'. Lỗi: {ex.Message}");
+            _logger.LogError(ex, "Lỗi không xác định khi xóa sản phẩm ID {Id}", id);
+            return OperationResult.FailureResult("Đã xảy ra lỗi không mong muốn khi xóa sản phẩm.", errors: new List<string> { ex.Message });
         }
     }
 
     public async Task<bool> IsSlugUniqueAsync(string slug, int? ignoreId = null)
     {
         if (string.IsNullOrWhiteSpace(slug)) return false;
-        var query = _context.Set<Product>().Where(p => p.Slug == slug);
-        if (ignoreId.HasValue)
+        var lowerSlug = slug.Trim().ToLower();
+        var query = _context.Set<Product>()
+                            .Where(p => p.Slug.ToLower() == lowerSlug);
+        if (ignoreId.HasValue && ignoreId.Value > 0)
         {
             query = query.Where(p => p.Id != ignoreId.Value);
         }
         return await query.AnyAsync();
     }
 
-    public async Task<List<SelectListItem>> GetProductCategorySelectListAsync(int? selectedValue = null)
+    public async Task<List<SelectListItem>> GetProductSelectListAsync(List<int>? selectedValue = null)
     {
-        var categories = await _context.Set<Category>()
-                          .Where(c => c.Type == CategoryType.Product && c.IsActive)
-                          .OrderBy(c => c.OrderIndex).ThenBy(c => c.Name)
-                          .AsNoTracking()
-                          .Select(c => new { c.Id, c.Name })
-                          .ToListAsync();
+        var products = await _context.Set<Product>()
+            .Where(a => a.Status == PublishStatus.Published && a.IsActive)
+            .OrderBy(a => a.Name)
+            .AsNoTracking()
+            .Select(a => new { a.Id, a.Name })
+            .ToListAsync();
 
         var items = new List<SelectListItem>
         {
-            new SelectListItem { Value = "", Text = "-- Chọn danh mục --", Selected = !selectedValue.HasValue }
+            new SelectListItem { Value = "", Text = "-- Chọn sản phẩm --", Selected = selectedValue == null || !selectedValue.Any() }
         };
-        items.AddRange(categories.Select(c => new SelectListItem
-        {
-            Value = c.Id.ToString(),
-            Text = c.Name,
-            Selected = selectedValue.HasValue && c.Id == selectedValue.Value
-        }));
-        return items;
-    }
-
-    public async Task<List<SelectListItem>> GetBrandSelectListAsync(int? selectedValue = null)
-    {
-        var brands = await _context.Set<Brand>()
-                          .Where(b => b.IsActive)
-                          .OrderBy(b => b.Name)
-                          .AsNoTracking()
-                          .Select(b => new { b.Id, b.Name })
-                          .ToListAsync();
-        var items = new List<SelectListItem>
-        {
-             new SelectListItem { Value = "", Text = "-- Chọn thương hiệu --", Selected = !selectedValue.HasValue }
-        };
-        items.AddRange(brands.Select(b => new SelectListItem
-        {
-            Value = b.Id.ToString(),
-            Text = b.Name,
-            Selected = selectedValue.HasValue && b.Id == selectedValue.Value
-        }));
-        return items;
-    }
-
-    public async Task<List<SelectListItem>> GetTagSelectListAsync(List<int>? selectedValues = null)
-    {
-        var tags = await _context.Set<Tag>()
-                          .Where(t => t.Type == TagType.Product)
-                          .OrderBy(t => t.Name)
-                          .AsNoTracking()
-                          .Select(t => new { t.Id, t.Name })
-                          .ToListAsync();
-        var items = new List<SelectListItem>();
-        items.AddRange(tags.Select(t => new SelectListItem
+        items.AddRange(products.Select(t => new SelectListItem
         {
             Value = t.Id.ToString(),
             Text = t.Name,
-            Selected = selectedValues != null && selectedValues.Contains(t.Id)
+            Selected = selectedValue != null && selectedValue.Contains(t.Id)
         }));
         return items;
     }
 
-    public async Task PopulateProductViewModelSelectListsAsync(ProductViewModel viewModel)
+    private void UpdateProductTags(Product product, List<int>? selectedTagIds)
     {
-        viewModel.CategoryOptions = await GetProductCategorySelectListAsync(viewModel.CategoryId);
-        viewModel.BrandOptions = await GetBrandSelectListAsync(viewModel.BrandId);
-        viewModel.TagOptions = await GetTagSelectListAsync(viewModel.SelectedTagIds);
-    }
+        product.ProductTags ??= new List<ProductTag>();
+        var currentTagIds = product.ProductTags.Select(pt => pt.TagId).ToList();
 
-
-    public async Task<List<SelectListItem>> GetProductSelectListAsync(int? selectedValue = null)
-    {
-        var products = await _context.Set<Product>()
-                            .OrderBy(p => p.Name)
-                            .AsNoTracking()
-                            .Select(p => new { p.Id, p.Name })
-                            .ToListAsync();
-
-        var items = new List<SelectListItem>
+        var tagsToRemove = product.ProductTags.Where(pt => !(selectedTagIds?.Contains(pt.TagId) ?? false)).ToList();
+        foreach (var tagToRemove in tagsToRemove)
         {
-             new SelectListItem { Value = "", Text = "-- Tất cả sản phẩm --", Selected = !selectedValue.HasValue }
-        };
-
-        items.AddRange(products.Select(p => new SelectListItem
-        {
-            Value = p.Id.ToString(),
-            Text = p.Name,
-            Selected = selectedValue.HasValue && p.Id == selectedValue.Value
-        }));
-
-        return items;
-    }
-
-
-    private void UpdateProductRelationships(Product product, List<int>? selectedTagIds)
-    {
-        var existingTagIds = product.ProductTags?.Select(pt => pt.TagId).ToList() ?? new List<int>();
-        var tagIdsToAdd = selectedTagIds?.Except(existingTagIds).ToList() ?? new List<int>();
-        var tagIdsToRemove = existingTagIds.Except(selectedTagIds ?? new List<int>()).ToList();
-
-        foreach (var tagId in tagIdsToRemove)
-        {
-            var productTag = product.ProductTags?.FirstOrDefault(pt => pt.TagId == tagId);
-            if (productTag != null) _context.Remove(productTag);
+            product.ProductTags.Remove(tagToRemove);
         }
-        foreach (var tagId in tagIdsToAdd)
-        {
-            product.ProductTags ??= new List<ProductTag>();
-            product.ProductTags.Add(new ProductTag { ProductId = product.Id, TagId = tagId });
-        }
-    }
 
-    private void UpdateProductImages(Product product, List<ProductImageViewModel>? imageViewModels)
-    {
-        var existingImages = product.Images?.ToList() ?? new List<ProductImage>();
-        var updatedImageViewModels = imageViewModels?.Where(img => !img.IsDeleted).ToList() ?? new List<ProductImageViewModel>();
-
-        var imageIdsToKeepOrAdd = updatedImageViewModels.Where(img => img.Id > 0).Select(img => img.Id).ToHashSet();
-        foreach (var existingImage in existingImages)
+        if (selectedTagIds != null)
         {
-            if (existingImage.Id > 0 && !imageIdsToKeepOrAdd.Contains(existingImage.Id))
+            var tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToList();
+            foreach (var tagIdToAdd in tagIdsToAdd)
             {
-                _context.Remove(existingImage);
+                product.ProductTags.Add(new ProductTag { TagId = tagIdToAdd });
             }
         }
+    }
 
-        var newOrUpdatedImages = new List<ProductImage>();
-        for (int i = 0; i < updatedImageViewModels.Count; i++)
+    private void UpdateProductImages(Product product, List<ProductImageViewModel> imageVMs)
+    {
+        var imagesToRemove = product.Images!.Where(img => !imageVMs.Any(vm => vm.Id == img.Id && vm.Id != 0)).ToList();
+        foreach (var imgToRemove in imagesToRemove)
         {
-            var imgVm = updatedImageViewModels[i];
-            ProductImage? image;
+            _context.Remove(imgToRemove);
+            product.Images!.Remove(imgToRemove);
+        }
 
-            if (imgVm.Id > 0)
+        foreach (var imgVM in imageVMs)
+        {
+            if (imgVM.Id > 0)
             {
-                image = existingImages.FirstOrDefault(img => img.Id == imgVm.Id);
-                if (image != null)
+                var existingImage = product.Images!.FirstOrDefault(img => img.Id == imgVM.Id);
+                if (existingImage != null)
                 {
-                    _mapper.Map(imgVm, image);
-                    image.OrderIndex = i;
-                    _context.Entry(image).State = EntityState.Modified;
-                    newOrUpdatedImages.Add(image);
+                    _mapper.Map(imgVM, existingImage);
                 }
             }
             else
             {
-                image = _mapper.Map<ProductImage>(imgVm);
-                image.ProductId = product.Id;
-                image.OrderIndex = i;
-                _context.Add(image);
-                newOrUpdatedImages.Add(image);
+                var newImage = _mapper.Map<ProductImage>(imgVM);
+                product.Images!.Add(newImage);
             }
         }
-        product.Images = newOrUpdatedImages;
+        EnsureOneMainImage(product.Images);
+    }
+
+    private void EnsureOneMainImage(ICollection<ProductImage>? images)
+    {
+        if (images == null || images.Count == 0) return;
+
+        var mainImages = images.Where(i => i.IsMain).ToList();
+        if (mainImages.Count > 1)
+        {
+            for (int i = 1; i < mainImages.Count; i++)
+            {
+                mainImages[i].IsMain = false;
+            }
+        }
+        else if (mainImages.Count == 0)
+        {
+            images.First().IsMain = true;
+        }
     }
 }

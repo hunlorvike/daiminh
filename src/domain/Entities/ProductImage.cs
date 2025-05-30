@@ -8,9 +8,6 @@ public class ProductImage : BaseEntity<int>
 {
     public int ProductId { get; set; }
     public string ImageUrl { get; set; } = string.Empty;
-    public string? ThumbnailUrl { get; set; }
-    public string? AltText { get; set; }
-    public string? Title { get; set; }
     public int OrderIndex { get; set; } = 0;
     public bool IsMain { get; set; } = false;
     public virtual Product? Product { get; set; }
@@ -23,9 +20,6 @@ public class ProductImageConfiguration : BaseEntityConfiguration<ProductImage, i
         base.Configure(builder);
         builder.Property(e => e.ProductId);
         builder.Property(e => e.ImageUrl).IsRequired().HasMaxLength(255);
-        builder.Property(e => e.ThumbnailUrl).HasMaxLength(255);
-        builder.Property(e => e.AltText).HasMaxLength(255);
-        builder.Property(e => e.Title).HasMaxLength(255);
         builder.Property(e => e.OrderIndex).HasDefaultValue(0);
         builder.HasIndex(e => e.ProductId);
         builder.HasIndex(e => e.OrderIndex);

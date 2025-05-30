@@ -22,7 +22,6 @@ public partial class ArticleController : Controller
     private readonly IArticleService _articleService;
     private readonly ICategoryService _categoryService;
     private readonly ITagService _tagService;
-    private readonly IProductService _productService;
     private readonly IMapper _mapper;
     private readonly ILogger<ArticleController> _logger;
     private readonly IValidator<ArticleViewModel> _articleViewModelValidator;
@@ -31,7 +30,6 @@ public partial class ArticleController : Controller
         IArticleService articleService,
         ICategoryService categoryService,
         ITagService tagService,
-        IProductService productService,
         IMapper mapper,
         ILogger<ArticleController> logger,
         IValidator<ArticleViewModel> articleViewModelValidator)
@@ -39,7 +37,6 @@ public partial class ArticleController : Controller
         _articleService = articleService ?? throw new ArgumentNullException(nameof(articleService));
         _categoryService = categoryService ?? throw new ArgumentNullException(nameof(categoryService));
         _tagService = tagService ?? throw new ArgumentNullException(nameof(tagService));
-        _productService = productService ?? throw new ArgumentNullException(nameof(productService));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _articleViewModelValidator = articleViewModelValidator ?? throw new ArgumentNullException(nameof(articleViewModelValidator));
