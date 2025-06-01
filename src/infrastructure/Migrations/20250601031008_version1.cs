@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace infrastructure.Migrations;
 
 /// <inheritdoc />
-public partial class verion1 : Migration
+public partial class version1 : Migration
 {
     /// <inheritdoc />
     protected override void Up(MigrationBuilder migrationBuilder)
@@ -277,33 +277,6 @@ public partial class verion1 : Migration
             constraints: table =>
             {
                 table.PrimaryKey("PK_Settings", x => x.Id);
-            });
-
-        migrationBuilder.CreateTable(
-            name: "Slides",
-            columns: table => new
-            {
-                Id = table.Column<int>(type: "int", nullable: false)
-                    .Annotation("SqlServer:Identity", "1, 1"),
-                Title = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: false),
-                Subtitle = table.Column<string>(type: "nvarchar(150)", maxLength: 150, nullable: true),
-                Description = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: true),
-                ImageUrl = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
-                CtaText = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
-                CtaLink = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: true),
-                Target = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true, defaultValue: "_self"),
-                OrderIndex = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                IsActive = table.Column<bool>(type: "bit", nullable: false, defaultValue: true),
-                StartAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                EndAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                created_at = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()"),
-                updated_at = table.Column<DateTime>(type: "datetime2", nullable: true),
-                created_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                updated_by = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true)
-            },
-            constraints: table =>
-            {
-                table.PrimaryKey("PK_Slides", x => x.Id);
             });
 
         migrationBuilder.CreateTable(
@@ -871,16 +844,6 @@ public partial class verion1 : Migration
             unique: true);
 
         migrationBuilder.CreateIndex(
-            name: "IX_Slides_IsActive",
-            table: "Slides",
-            column: "IsActive");
-
-        migrationBuilder.CreateIndex(
-            name: "IX_Slides_OrderIndex",
-            table: "Slides",
-            column: "OrderIndex");
-
-        migrationBuilder.CreateIndex(
             name: "IX_Tags_Slug",
             table: "Tags",
             column: "Slug",
@@ -968,9 +931,6 @@ public partial class verion1 : Migration
 
         migrationBuilder.DropTable(
             name: "Settings");
-
-        migrationBuilder.DropTable(
-            name: "Slides");
 
         migrationBuilder.DropTable(
             name: "Testimonials");

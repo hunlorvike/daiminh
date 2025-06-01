@@ -88,12 +88,6 @@ public class PermissionConstants
     // SETTING MANAGEMENT
     public const string SettingManage = "Setting.Manage";
 
-    // SLIDE MANAGEMENT
-    public const string SlideView = "Slide.View";
-    public const string SlideCreate = "Slide.Create";
-    public const string SlideEdit = "Slide.Edit";
-    public const string SlideDelete = "Slide.Delete";
-
     // TAG MANAGEMENT
     public const string TagView = "Tag.View";
     public const string TagCreate = "Tag.Create";

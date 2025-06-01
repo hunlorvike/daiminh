@@ -73,7 +73,6 @@ public class RoleClaimSeeder : IDataSeeder
                 PermissionConstants.ProductView, PermissionConstants.ProductCreate, PermissionConstants.ProductEdit, PermissionConstants.ProductDelete,
                 PermissionConstants.ProductReviewView, PermissionConstants.ProductReviewEdit, PermissionConstants.ProductReviewDelete,
                 PermissionConstants.ProductVariationView, PermissionConstants.ProductVariationCreate, PermissionConstants.ProductVariationEdit, PermissionConstants.ProductVariationDelete,
-                PermissionConstants.SlideView, PermissionConstants.SlideCreate, PermissionConstants.SlideEdit, PermissionConstants.SlideDelete,
                 PermissionConstants.TestimonialView, PermissionConstants.TestimonialCreate, PermissionConstants.TestimonialEdit, PermissionConstants.TestimonialDelete,
             });
         }

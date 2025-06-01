@@ -47,7 +47,6 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<ProductReview> ProductReviews { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }
     public DbSet<Setting> Settings { get; set; }
-    public DbSet<Slide> Slides { get; set; }
     public DbSet<Tag> Tags { get; set; }
     public DbSet<Testimonial> Testimonials { get; set; }
 
