@@ -12,7 +12,8 @@ public class PopupModalProfile : Profile
         CreateMap<PopupModal, PopupModalListItemViewModel>();
 
         // Entity -> ViewModel (GET Edit)
-        CreateMap<PopupModal, PopupModalViewModel>();
+        CreateMap<PopupModal, PopupModalViewModel>()
+            .ForMember(dest => dest.DisplayFrequencyOptions, opt => opt.Ignore());
 
         // ViewModel -> Entity (POST Create / PUT Edit)
         CreateMap<PopupModalViewModel, PopupModal>()

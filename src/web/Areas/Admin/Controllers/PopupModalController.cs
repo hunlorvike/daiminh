@@ -1,20 +1,15 @@
 using System.Text.Json;
-using AutoMapper;
-using AutoMapper.QueryableExtensions;
-using domain.Entities;
 using FluentValidation;
-using infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using shared.Constants;
 using shared.Enums;
+using shared.Extensions;
 using shared.Models;
-using web.Areas.Admin.Validators;
+using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
-using X.PagedList.EF;
 
 namespace web.Areas.Admin.Controllers;
 
@@ -22,17 +17,17 @@ namespace web.Areas.Admin.Controllers;
 [Authorize(AuthenticationSchemes = "AdminScheme", Policy = PermissionConstants.AdminAccess)]
 public partial class PopupModalController : Controller
 {
-    private readonly ApplicationDbContext _context;
-    private readonly IMapper _mapper;
+    private readonly IPopupModalService _popupModalService;
+    private readonly IValidator<PopupModalViewModel> _popupModalViewModelValidator;
     private readonly ILogger<PopupModalController> _logger;
 
     public PopupModalController(
-        ApplicationDbContext context,
-        IMapper mapper,
+        IPopupModalService popupModalService,
+        IValidator<PopupModalViewModel> popupModalViewModelValidator,
         ILogger<PopupModalController> logger)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
-        _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
+        _popupModalService = popupModalService ?? throw new ArgumentNullException(nameof(popupModalService));
+        _popupModalViewModelValidator = popupModalViewModelValidator ?? throw new ArgumentNullException(nameof(popupModalViewModelValidator));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -44,26 +39,7 @@ public partial class PopupModalController : Controller
         int pageNumber = page > 0 ? page : 1;
         int currentPageSize = pageSize > 0 ? pageSize : 15;
 
-        IQueryable<PopupModal> query = _context.Set<PopupModal>()
-                                               .AsNoTracking();
-
-        if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
-        {
-            string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
-            query = query.Where(p => p.Title.ToLower().Contains(lowerSearchTerm) ||
-                                     (p.Content != null && p.Content.ToLower().Contains(lowerSearchTerm)));
-        }
-
-        if (filter.IsActive.HasValue)
-        {
-            query = query.Where(p => p.IsActive == filter.IsActive.Value);
-        }
-
-        query = query.OrderByDescending(p => p.CreatedAt);
-
-        IPagedList<PopupModalListItemViewModel> popupModalsPaged = await query
-            .ProjectTo<PopupModalListItemViewModel>(_mapper.ConfigurationProvider)
-            .ToPagedListAsync(pageNumber, currentPageSize);
+        IPagedList<PopupModalListItemViewModel> popupModalsPaged = await _popupModalService.GetPagedPopupModalsAsync(filter, pageNumber, currentPageSize);
 
         filter.ActiveStatusOptions = GetActiveStatusSelectList(filter.IsActive);
 
@@ -83,7 +59,12 @@ public partial class PopupModalController : Controller
         PopupModalViewModel viewModel = new()
         {
             IsActive = true,
+            TargetPages = "AllPages",
+            DisplayFrequency = DisplayFrequency.Always,
+            DelaySeconds = 0,
+            OrderIndex = 0
         };
+        PopulateSelectLists(viewModel);
         return View(viewModel);
     }
 
@@ -93,58 +74,55 @@ public partial class PopupModalController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(PopupModalViewModel viewModel)
     {
-        var validator = new PopupModalViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
+        var validationResult = await _popupModalViewModelValidator.ValidateAsync(viewModel);
 
-        if (!result.IsValid)
+        if (!validationResult.IsValid)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in validationResult.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-
+            PopulateSelectLists(viewModel);
             return View(viewModel);
         }
 
-        var popupModal = _mapper.Map<PopupModal>(viewModel);
+        var createResult = await _popupModalService.CreatePopupModalAsync(viewModel);
 
-        _context.Add(popupModal);
-
-        try
+        if (createResult.Success)
         {
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Thêm Popup '{popupModal.Title}' thành công.", ToastType.Success)
+                new ToastData("Thành công", createResult.Message ?? "Thêm Popup thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
+        else
         {
-            _logger.LogError(ex, "Lỗi khi tạo Popup: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi lưu Popup.");
-        }
+            foreach (var error in createResult.Errors)
+                ModelState.AddModelError(string.Empty, error);
+            if (!createResult.Errors.Any() && !string.IsNullOrEmpty(createResult.Message))
+                ModelState.AddModelError(string.Empty, createResult.Message);
 
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể thêm Popup '{viewModel.Title}'.", ToastType.Error)
-        );
-        return View(viewModel);
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", createResult.Message ?? $"Không thể thêm Popup '{viewModel.Title}'.", ToastType.Error)
+            );
+            PopulateSelectLists(viewModel);
+            return View(viewModel);
+        }
     }
 
     // GET: Admin/PopupModal/Edit/5
     [Authorize(Policy = PermissionConstants.PopupModalEdit)]
     public async Task<IActionResult> Edit(int id)
     {
-        PopupModal? popupModal = await _context.Set<PopupModal>()
-                                               .AsNoTracking()
-                                               .FirstOrDefaultAsync(p => p.Id == id);
+        PopupModalViewModel? viewModel = await _popupModalService.GetPopupModalByIdAsync(id);
 
-        if (popupModal == null)
+        if (viewModel == null)
         {
             _logger.LogWarning("Popup không tồn tại khi chỉnh sửa. ID: {Id}", id);
-            TempData["ErrorMessage"] = "Không tìm thấy Popup để chỉnh sửa.";
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không tìm thấy Popup để chỉnh sửa.", ToastType.Error)
+            );
             return RedirectToAction(nameof(Index));
         }
-
-        PopupModalViewModel viewModel = _mapper.Map<PopupModalViewModel>(popupModal);
-
+        PopulateSelectLists(viewModel);
         return View(viewModel);
     }
 
@@ -162,46 +140,37 @@ public partial class PopupModalController : Controller
             return RedirectToAction(nameof(Index));
         }
 
-        var validator = new PopupModalViewModelValidator(_context);
-        var result = await validator.ValidateAsync(viewModel);
-
-        if (!result.IsValid)
+        var validationResult = await _popupModalViewModelValidator.ValidateAsync(viewModel);
+        if (!validationResult.IsValid)
         {
-            foreach (var error in result.Errors)
+            foreach (var error in validationResult.Errors)
                 ModelState.AddModelError(error.PropertyName, error.ErrorMessage);
-
+            PopulateSelectLists(viewModel);
             return View(viewModel);
         }
 
-        var popupModal = await _context.Set<PopupModal>().FirstOrDefaultAsync(p => p.Id == id);
-        if (popupModal == null)
+        var updateResult = await _popupModalService.UpdatePopupModalAsync(viewModel);
+
+        if (updateResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy Popup để cập nhật.", ToastType.Error)
+                new ToastData("Thành công", updateResult.Message ?? "Cập nhật Popup thành công.", ToastType.Success)
             );
             return RedirectToAction(nameof(Index));
         }
-
-        _mapper.Map(viewModel, popupModal);
-
-        try
+        else
         {
-            await _context.SaveChangesAsync();
+            foreach (var error in updateResult.Errors)
+                ModelState.AddModelError(string.Empty, error);
+            if (!updateResult.Errors.Any() && !string.IsNullOrEmpty(updateResult.Message))
+                ModelState.AddModelError(string.Empty, updateResult.Message);
+
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Cập nhật Popup '{popupModal.Title}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", updateResult.Message ?? $"Không thể cập nhật Popup '{viewModel.Title}'.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
+            PopulateSelectLists(viewModel);
+            return View(viewModel);
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi cập nhật Popup: {Title}", viewModel.Title);
-            ModelState.AddModelError("", "Đã xảy ra lỗi hệ thống khi cập nhật Popup.");
-        }
-
-        TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-            new ToastData("Lỗi", $"Không thể cập nhật Popup '{viewModel.Title}'.", ToastType.Error)
-        );
-        return View(viewModel);
     }
 
     // POST: Admin/PopupModal/Delete/5
@@ -210,34 +179,21 @@ public partial class PopupModalController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Delete(int id)
     {
-        var popupModal = await _context.Set<PopupModal>().FirstOrDefaultAsync(p => p.Id == id);
+        var deleteResult = await _popupModalService.DeletePopupModalAsync(id);
 
-        if (popupModal == null)
+        if (deleteResult.Success)
         {
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Không tìm thấy Popup.", ToastType.Error)
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa Popup thành công.", ToastType.Success)
             );
-            return RedirectToAction(nameof(Index));
         }
-
-        try
+        else
         {
-            string popupTitle = popupModal.Title;
-            _context.Remove(popupModal);
-            await _context.SaveChangesAsync();
             TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Thành công", $"Xóa Popup '{popupTitle}' thành công.", ToastType.Success)
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa Popup.", ToastType.Error)
             );
-            return RedirectToAction(nameof(Index));
         }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Lỗi khi xóa Popup: {Title}", popupModal.Title);
-            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
-                new ToastData("Lỗi", "Đã xảy ra lỗi không mong muốn khi xóa Popup.", ToastType.Error)
-            );
-            return RedirectToAction(nameof(Index));
-        }
+        return RedirectToAction(nameof(Index));
     }
 }
 
@@ -251,5 +207,13 @@ public partial class PopupModalController
             new SelectListItem { Value = "true", Text = "Đang kích hoạt", Selected = selectedValue == true },
             new SelectListItem { Value = "false", Text = "Đã hủy kích hoạt", Selected = selectedValue == false }
         };
+    }
+
+    private void PopulateSelectLists(PopupModalViewModel viewModel)
+    {
+        viewModel.DisplayFrequencyOptions = Enum.GetValues(typeof(DisplayFrequency))
+            .Cast<DisplayFrequency>()
+            .Select(e => new SelectListItem { Value = ((int)e).ToString(), Text = e.GetDisplayName(), Selected = e == viewModel.DisplayFrequency })
+            .ToList();
     }
 }

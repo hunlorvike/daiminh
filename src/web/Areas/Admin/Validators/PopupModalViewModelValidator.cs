@@ -22,7 +22,20 @@ public class PopupModalViewModelValidator : AbstractValidator<PopupModalViewMode
 
         RuleFor(x => x.LinkUrl)
             .MaximumLength(2048).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.")
-            .Matches(@"^(https?://|/|mailto:|tel:|#).*$").When(x => !string.IsNullOrWhiteSpace(x.LinkUrl)).WithMessage("{PropertyName} phải là một URL, đường dẫn tương đối, mailto, tel hoặc neo (#) hợp lệ."); // Broader URL validation
+            .Matches(@"^(https?://|/|mailto:|tel:|#).*$").When(x => !string.IsNullOrWhiteSpace(x.LinkUrl)).WithMessage("{PropertyName} phải là một URL, đường dẫn tương đối, mailto, tel hoặc neo (#) hợp lệ.");
+
+        RuleFor(x => x.TargetPages)
+            .NotEmpty().WithMessage("Vui lòng nhập {PropertyName}.")
+            .MaximumLength(1000).WithMessage("{PropertyName} không được vượt quá {MaxLength} ký tự.");
+
+        RuleFor(x => x.DisplayFrequency)
+            .IsInEnum().WithMessage("{PropertyName} không hợp lệ.");
+
+        RuleFor(x => x.OrderIndex)
+            .GreaterThanOrEqualTo(0).WithMessage("{PropertyName} phải là số không âm.");
+
+        RuleFor(x => x.DelaySeconds)
+            .InclusiveBetween(0, 300).WithMessage("{PropertyName} phải từ {FromInclusive} đến {ToInclusive} giây.");
 
         RuleFor(x => x.EndDate)
             .GreaterThanOrEqualTo(x => x.StartDate)
