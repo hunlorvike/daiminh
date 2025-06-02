@@ -15,7 +15,7 @@ public class ContactSeeder : IDataSeeder
 
     public ContactSeeder(ApplicationDbContext dbContext)
     {
-        _dbContext = dbContext;
+        _dbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
     }
 
     public int Order => 15;

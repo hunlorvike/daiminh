@@ -2,17 +2,10 @@ using System.ComponentModel.DataAnnotations;
 
 namespace shared.Enums;
 
-public enum PublishStatus : ushort
+public enum PublishStatus
 {
-    [Display(Name = "Bản nháp")]
-    Draft,
-
-    [Display(Name = "Đã xuất bản")]
-    Published,
-
-    [Display(Name = "Đã lên lịch")]
-    Scheduled,
-
-    [Display(Name = "Đã lưu trữ")]
-    Archived
+    [Display(Name = "Bản nháp")] Draft = 0,
+    [Display(Name = "Đã xuất bản")] Published = 1,
+    [Display(Name = "Đã lên lịch")] Scheduled = 2,
+    [Display(Name = "Đã lưu trữ")] Archived = 3
 }

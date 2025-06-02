@@ -7,55 +7,59 @@
     }
 }
 
-<div id="media-browser-content"
-     data-anti-forgery-token="@GetAntiXsrfRequestToken()">
-
-    @* No folder list or folder creation *@
-
-    <div class="d-flex align-items-center mb-3 gap-2">
-        @* Filter by media type *@
-        <select id="modal-media-type-filter" class="form-select form-select-sm" asp-items="@Model.Filter.MediaTypeOptions"></select>
-
-        @* Upload Button / Dropzone Area Toggle *@
-        <button class="btn btn-sm btn-primary ms-auto" id="toggle-upload-area">
-            @* Adjusted btn size *@
-            <i class="ti ti-upload me-1"></i> Tải lên
-        </button>
+<div id="media-browser-content" data-anti-forgery-token="@GetAntiXsrfRequestToken()">
+    <div class="row g-3 mb-3 align-items-center">
+        <div class="col">
+            <select id="modal-media-type-filter" class="form-select" asp-items="@Model.Filter.MediaTypeOptions"
+                autocomplete="off" data-placeholder="Lọc theo loại..."></select>
+        </div>
+        <div class="col">
+            <input type="text" id="modal-media-search-term" class="form-control" placeholder="Tìm kiếm tên file..."
+                value="@Model.Filter.SearchTerm">
+        </div>
+        <div class="col-auto">
+            <button class="btn btn-primary" id="toggle-upload-area">
+                <i class="ti ti-upload me-1"></i> Tải lên
+            </button>
+        </div>
     </div>
 
-    @* Upload Area (initially hidden) *@
-    <div id="modal-upload-area" class="mb-3 border p-3 rounded bg-light" style="display: none;">
-        @* Dropzone will attach here *@
-        <div id="modal-dropzone" class="dropzone text-muted text-center p-4">
-            <div class="dz-message" data-dz-message><span>Kéo thả tập tin vào đây hoặc bấm để chọn</span></div>
-            <div class="dropzone-previews"></div> @* For Dropzone previews *@
+    <div id="modal-upload-area" class="mb-3 border rounded bg-light-subtle p-3" style="display: none;">
+        <div id="modal-dropzone" class="dropzone dz-clickable border border-dashed rounded bg-white">
+            <div class="dz-message text-muted text-center py-4">
+                <i class="ti ti-cloud-upload fs-1 d-block mb-2"></i>
+                <span>Kéo thả tập tin vào đây hoặc bấm để chọn</span>
+            </div>
         </div>
         <small class="form-hint mt-2">Hỗ trợ kéo thả hoặc bấm để chọn tập tin. Dung lượng tối đa 100MB.</small>
     </div>
 
-
-    @* File Grid Container *@
-    <div id="media-browser-grid-container">
-        @* Loading Indicator *@
+    <div id="media-browser-grid-container" class="overflow-y-auto">
         <div class="text-center p-4" id="media-browser-loading-indicator" style="display: none;">
             <div class="spinner-border text-primary" role="status"></div>
         </div>
 
-        @* File Grid *@
-        <div id="media-browser-files" class="media-grid" style="grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 1rem;">
-            @if (Model.Files != null)
+        <div id="media-browser-files"
+            class="row g-3 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6">
+            @if (Model.Files != null && Model.Files.Any())
             {
                 @foreach (var file in Model.Files)
                 {
-                    @* Corrected partial name *@
-                    <partial name="Components/Media/_Media.FileItem" model="file" view-data='new ViewDataDictionary(ViewData) { { "IsInModal", true } }' />
+                    <partial name="Components/Media/_Media.FileItem" model="file"
+                        view-data='new ViewDataDictionary(ViewData) { { "IsInModal", true } }' />
                 }
             }
         </div>
 
-        @* Empty State Indicator *@
-        <div class="text-center text-muted p-5" id="media-browser-empty-indicator" style="display: none;">
-            <p>Không có tập tin nào hoặc khớp với tiêu chí lọc.</p> @* Adjusted message *@
+        <div class="empty text-center text-muted p-5" id="media-browser-empty-indicator"
+            style="@((Model.Files == null || !Model.Files.Any()) ? "" : "display: none;")">
+            <div class="empty-icon mb-3">
+                <i class="ti ti-photo-off fs-1"></i>
+            </div>
+            <p class="empty-title">Không có tập tin nào</p>
+            <p class="empty-subtitle text-muted">
+                Hãy thử tải lên hoặc thay đổi bộ lọc.
+            </p>
         </div>
     </div>
 </div>

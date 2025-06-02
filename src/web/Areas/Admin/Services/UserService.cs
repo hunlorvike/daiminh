@@ -107,8 +107,11 @@ public class UserService : IUserService
 
     public async Task<List<int>> GetSelectedClaimDefinitionIdsForUserAsync(int userId)
     {
-        var currentUserClaims = await _userManager.GetClaimsAsync(await _userManager.FindByIdAsync(userId.ToString()));
-        if (currentUserClaims == null) return new List<int>();
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null) return [];
+
+        var currentUserClaims = await _userManager.GetClaimsAsync(user);
+        if (currentUserClaims == null) return [];
 
         var allClaimDefinitions = await _context.ClaimDefinitions.AsNoTracking().ToListAsync();
         var claimDefDict = allClaimDefinitions.ToDictionary(cd => (cd.Type, cd.Value), cd => cd.Id);

@@ -1,4 +1,3 @@
-
 using AutoRegister;
 using Minio;
 using Minio.DataModel.Args;
@@ -11,16 +10,12 @@ namespace web.Areas.Admin.Services;
 public class MinioService : IMinioService
 {
     private readonly IMinioClient _minioClient;
-    private readonly IConfiguration _configuration;
-    private readonly string _defaultBucketName;
-    private readonly string _publicBaseUrl;
+    private readonly ILogger<MinioService> _logger;
 
-    public MinioService(IMinioClient minioClient, IConfiguration configuration)
+    public MinioService(IMinioClient minioClient, ILogger<MinioService> logger)
     {
         _minioClient = minioClient;
-        _configuration = configuration;
-        _defaultBucketName = _configuration["Minio:BucketName"] ?? throw new ArgumentNullException("Minio:BucketName configuration is missing");
-        _publicBaseUrl = _configuration["Minio:PublicBaseUrl"] ?? "";
+        _logger = logger;
     }
 
     public async Task CreateBucketIfNotExistsAsync(string bucketName)
@@ -33,23 +28,16 @@ public class MinioService : IMinioService
             {
                 var mbArgs = new MakeBucketArgs().WithBucket(bucketName);
                 await _minioClient.MakeBucketAsync(mbArgs).ConfigureAwait(false);
-
-                var policy = string.Format(
-                    "{{\"Version\":\"2012-10-17\",\"Statement\":[" +
-                    "{{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:GetObject\"],\"Resource\":[\"arn:aws:s3:::{0}/*\"]}}," +
-                    "{{\"Effect\":\"Allow\",\"Principal\":\"*\",\"Action\":[\"s3:ListBucket\"],\"Resource\":[\"arn:aws:s3:::{0}\"]}}" +
-                    "]}}",
-                    bucketName);
-                var spArgs = new SetPolicyArgs().WithBucket(bucketName).WithPolicy(policy);
-                await _minioClient.SetPolicyAsync(spArgs).ConfigureAwait(false);
+                _logger.LogInformation("Bucket {BucketName} created successfully.", bucketName);
             }
             else
             {
-                Console.WriteLine($"Bucket {bucketName} already exists.");
+                _logger.LogInformation("Bucket {BucketName} already exists.", bucketName);
             }
         }
-        catch (MinioException)
+        catch (MinioException ex)
         {
+            _logger.LogError(ex, "Error with MinIO bucket operations: {Message}", ex.Message);
             throw;
         }
     }
@@ -69,8 +57,9 @@ public class MinioService : IMinioService
             var response = await _minioClient.PutObjectAsync(putObjectArgs).ConfigureAwait(false);
             return response.Etag;
         }
-        catch (MinioException)
+        catch (MinioException ex)
         {
+            _logger.LogError(ex, "Error uploading file to MinIO: {Message}", ex.Message);
             throw;
         }
     }
@@ -89,8 +78,9 @@ public class MinioService : IMinioService
         {
             return false;
         }
-        catch (MinioException)
+        catch (MinioException ex)
         {
+            _logger.LogError(ex, "Error checking file existence in MinIO: {Message}", ex);
             return false;
         }
     }
@@ -111,10 +101,10 @@ public class MinioService : IMinioService
             await _minioClient.GetObjectAsync(getObjectArgs).ConfigureAwait(false);
             memoryStream.Seek(0, SeekOrigin.Begin);
             return memoryStream;
-
         }
-        catch (MinioException)
+        catch (MinioException ex)
         {
+            _logger.LogError(ex, "Error getting file from MinIO: {Message}", ex);
             throw;
         }
     }
@@ -129,37 +119,28 @@ public class MinioService : IMinioService
             await _minioClient.RemoveObjectAsync(removeObjectArgs).ConfigureAwait(false);
             return true;
         }
-        catch (MinioException)
+        catch (MinioException ex)
         {
+            _logger.LogError(ex, "Error deleting file from MinIO: {Message}", ex);
             return false;
         }
     }
 
-    public string GetFilePublicUrl(string bucketName, string objectName)
-    {
-        if (string.IsNullOrEmpty(_publicBaseUrl))
-        {
-            throw new InvalidOperationException("Minio:PublicBaseUrl configuration is missing.");
-        }
-        var baseUrl = _publicBaseUrl.EndsWith("/") ? _publicBaseUrl : _publicBaseUrl + "/";
-        var cleanedObjectName = objectName.StartsWith("/") ? objectName.Substring(1) : objectName;
-        return $"{baseUrl}{cleanedObjectName}";
-    }
-
-    public async Task<string> GetFilePresignedUrlAsync(string bucketName, string objectName, int expiresInt = 300)
+    public async Task<string> GetFilePresignedUrlAsync(string bucketName, string objectName, int expiresInt = 3600) // Default 1 hour
     {
         try
         {
-            var presignedPutArgs = new PresignedGetObjectArgs()
+            var presignedGetObjectArgs = new PresignedGetObjectArgs()
                                         .WithBucket(bucketName)
                                         .WithObject(objectName)
                                         .WithExpiry(expiresInt);
 
-            return await _minioClient.PresignedGetObjectAsync(presignedPutArgs).ConfigureAwait(false);
+            return await _minioClient.PresignedGetObjectAsync(presignedGetObjectArgs).ConfigureAwait(false);
         }
-        catch (MinioException)
+        catch (MinioException ex)
         {
-            throw;
+            _logger.LogError(ex, "Error generating presigned URL for {ObjectName}: {Message}", objectName, ex);
+            return string.Empty;
         }
     }
 }

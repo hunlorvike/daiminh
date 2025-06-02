@@ -9,7 +9,7 @@ public class MediaFilterViewModel
     [Display(Name = "Loại Media")]
     public MediaType? MediaType { get; set; }
 
-    [Display(Name = "Tìm kiếm")]
+    [Display(Name = "Tìm kiếm", Prompt = "Tên file, mô tả, alt text...")]
     public string? SearchTerm { get; set; }
 
     public List<SelectListItem> MediaTypeOptions { get; set; } = new();

@@ -57,10 +57,7 @@ builder.Services
     .AddCustomServices();
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddFluentValidation(config =>
-{
-    config.AutomaticValidationEnabled = false;
-});
+builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();

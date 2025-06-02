@@ -1,0 +1,198 @@
+@model MediaIndexViewModel
+@{
+    ViewData["Title"] = "Quản lý Media - Hệ thống quản trị";
+    ViewData["PageTitle"] = "Thư viện Media";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+        ("Media", "")
+    };
+}
+
+@section PageActions {
+    <div class="btn-list">
+        <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-initial-action="upload">
+            <i class="ti ti-upload me-2"></i> Tải lên Media
+        </button>
+         <button type="button" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-initial-action="upload" aria-label="Tải lên Media">
+            <i class="ti ti-upload"></i>
+        </button>
+    </div>
+}
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h3 class="card-title">
+            <i class="ti ti-filter me-2"></i>Bộ lọc Media
+        </h3>
+    </div>
+    <div class="card-body">
+        <form method="get" asp-action="Index" id="filterForm">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-5 col-sm-12">
+                    <div class="form-group">
+                        <label asp-for="Filter.SearchTerm" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-search"></i>
+                            </span>
+                            <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tên file, mô tả, alt text...">
+                            <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+                                <i class="ti ti-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-6">
+                    <div class="form-group">
+                        <label asp-for="Filter.MediaType" class="form-label"></label>
+                        <div class="input-group">
+                            <span class="input-group-text">
+                                <i class="ti ti-photo-cog"></i>
+                            </span>
+                            <select asp-for="Filter.MediaType" asp-items="@Model.Filter.MediaTypeOptions"
+                                class="form-select tom-selected" autocomplete="off"></select>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="ti ti-filter me-1 d-none d-sm-inline-block"></i> Lọc
+                    </button>
+                </div>
+                <div class="col-md-2 col-6">
+                    <a asp-action="Index" class="btn btn-outline-secondary w-100">
+                        <i class="ti ti-reload me-1 d-none d-sm-inline-block"></i> Đặt lại
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">
+            <i class="ti ti-photo-circle me-2"></i>Thư viện Media
+        </h3>
+        @if (Model.MediaFiles.TotalItemCount > 0)
+        {
+            <small class="text-muted d-none d-md-block">Hiển thị @Model.MediaFiles.FirstItemOnPage-@Model.MediaFiles.LastItemOnPage trên tổng số @Model.MediaFiles.TotalItemCount files</small>
+        }
+    </div>
+    <div class="card-body">
+        @if (!Model.MediaFiles.Any())
+        {
+            <div class="empty py-5">
+                <div class="empty-icon">
+                     <div class="avatar avatar-xl bg-light-subtle rounded">
+                        <i class="ti ti-photo-off fs-1 text-muted"></i>
+                    </div>
+                </div>
+                <p class="empty-title mt-3">Thư viện trống</p>
+                <p class="empty-subtitle text-muted">
+                    @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.MediaType.HasValue)
+                    {
+                        @:Chưa có tập tin nào được tải lên.
+                    }
+                    else
+                    {
+                        @:Không có tập tin nào khớp với tiêu chí lọc của bạn.
+                    }
+                </p>
+                <div class="empty-action">
+                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-initial-action="upload">
+                        <i class="ti ti-upload me-2"></i> Tải lên ngay
+                    </button>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row g-3" id="media-file-grid">
+                @foreach (var file in Model.MediaFiles)
+                {
+                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
+                        <div class="card card-sm h-100">
+                            <a href="@file.PresignedUrl" target="_blank" class="card-img-top img-responsive img-responsive-1x1 d-flex align-items-center justify-content-center @(file.MediaType != MediaType.Image ? "bg-light-subtle" : "")"
+                               style="@(file.MediaType == MediaType.Image ? $"background-image: url({file.PresignedUrl})" : "")"
+                               title="Xem file gốc">
+                                @if (file.MediaType != MediaType.Image)
+                                {
+                                    <i class="ti @(file.MediaType == MediaType.Video ? "ti-video" : (file.MediaType == MediaType.Document ? "ti-file-text" : "ti-file")) fs-1 text-muted"></i>
+                                }
+                            </a>
+                            <div class="card-body">
+                                <div class="text-truncate small fw-medium" title="@file.OriginalFileName">@file.OriginalFileName</div>
+                                <div class="text-muted small">@file.FormattedFileSize - @file.MediaTypeDisplayName</div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="btn-list justify-content-center flex-nowrap">
+                                    <a asp-action="Edit" asp-route-id="@file.Id" class="btn btn-sm btn-outline-secondary" title="Sửa thông tin">
+                                        <i class="ti ti-pencil"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-outline-danger delete-file-btn" title="Xóa"
+                                            data-id="@file.Id" data-name="@file.OriginalFileName"
+                                            data-delete-url="@Url.Action("DeleteFile", "Media")">
+                                        <i class="ti ti-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+    @if (Model.MediaFiles.PageCount > 1)
+    {
+        <div class="card-footer">
+            <div class="d-flex justify-content-center">
+                @Html.PagedListPager(
+                    Model.MediaFiles,
+                    page => Url.Action("Index", new {
+                        page,
+                        Model.Filter.SearchTerm,
+                        Model.Filter.MediaType
+                    }),
+                    new PagedListRenderOptions
+                    {
+                        UlElementClasses = new[] { "pagination", "mb-0" },
+                        LiElementClasses = new[] { "page-item" },
+                        PageClasses = new[] { "page-link" },
+                        DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                        DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                        ActiveLiElementClass = "active",
+                        LinkToPreviousPageFormat = "<span aria-hidden=\"true\">«</span>",
+                        LinkToNextPageFormat = "<span aria-hidden=\"true\">»</span>"
+                    })
+            </div>
+        </div>
+    }
+</div>
+
+
+@section Scripts {
+    <script>
+        $(document).ready(function () {
+            $('#clearSearch').on('click', function () {
+                $('#Filter_SearchTerm').val('');
+                $('#filterForm').submit();
+            });
+
+            $('[data-bs-toggle="modal"][data-bs-target="#selectMediaModal"]').on('click', function() {
+                const initialAction = $(this).data('initial-action');
+                if (initialAction === 'upload' && window.MediaManager) {
+                    setTimeout(function() {
+                        const $modalContent = $('#select-media-modal-body-content');
+                        const $uploadArea = $modalContent.find('#modal-upload-area');
+                        const $toggleButton = $modalContent.find('#toggle-upload-area');
+                        if ($uploadArea.is(':hidden') && $toggleButton.length) {
+                            $toggleButton.trigger('click');
+                        }
+                    }, 500); 
+                }
+            });
+        });
+    </script>
+}

@@ -1,7 +1,8 @@
 using System.Reflection;
 
 namespace shared.Constants;
-public class PermissionConstants
+
+public static class PermissionConstants
 {
     // GENERAL ACCESS
     public const string AdminAccess = "Admin.Access";
@@ -102,6 +103,13 @@ public class PermissionConstants
 
     // USER MANAGEMENT
     public const string UserManage = "User.Manage";
+
+    // MEDIA MANAGEMENT
+    public const string MediaView = "Media.View";
+    public const string MediaUpload = "Media.Upload";
+    public const string MediaDelete = "Media.Delete";
+    public const string MediaEdit = "Media.Edit";
+
 
     public static IEnumerable<string> GetAllPermissions()
     {
