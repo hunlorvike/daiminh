@@ -1,5 +1,5 @@
 $(function () {
-    const theme = getCookie("daiminhTheme");
+    const theme = getCookie("daiminh-theme");
 
     const contentCssFiles = [
         '/lib/tabler/core/dist/css/tabler.min.css',

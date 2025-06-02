@@ -35,54 +35,45 @@
 
 <script>
 	$(function () {
+		// Hiển thị toast
 		$('.toast').each(function () {
-			var toast = new tabler.Toast(this, {
+			new tabler.Toast(this, {
 				autohide: true,
 				delay: 5000
-			});
-			toast.show();
+			}).show();
 		});
-	});
-</script>
 
+		// Đổi icon collapse nếu màn hình nhỏ
+		if ($(window).width() < 992) {
+			$('[data-bs-toggle="collapse"]').each(function () {
+				var $toggle = $(this);
+				var $icon = $toggle.find('i');
+				var targetId = $toggle.attr('href');
+				var $target = $(targetId);
 
-<script>
-	document.addEventListener('DOMContentLoaded', function () {
-		if (window.innerWidth < 992) {
-			var toggles = document.querySelectorAll('[data-bs-toggle="collapse"]');
-			toggles.forEach(function (toggle) {
-				var icon = toggle.querySelector('i');
-				var targetId = toggle.getAttribute('href');
-				var target = document.querySelector(targetId);
-
-				if (target) {
-					target.addEventListener('show.bs.collapse', function () {
-						if (icon) {
-							icon.classList.remove('ti-chevron-down');
-							icon.classList.add('ti-chevron-up');
-						}
+				if ($target.length) {
+					$target.on('show.bs.collapse', function () {
+						$icon.removeClass('ti-chevron-down').addClass('ti-chevron-up');
 					});
-					target.addEventListener('hide.bs.collapse', function () {
-						if (icon) {
-							icon.classList.remove('ti-chevron-up');
-							icon.classList.add('ti-chevron-down');
-						}
+					$target.on('hide.bs.collapse', function () {
+						$icon.removeClass('ti-chevron-up').addClass('ti-chevron-down');
 					});
 				}
 			});
 		}
-	});
-</script>
 
-<script>
+		// Xử lý nút xóa
 		$(document).on('click', '.delete-item-btn', function () {
-		var id = $(this).data('id');
-		var name = $(this).data('name');
-		var url = $(this).data('delete-url');
+			console.log('Xóa mục');
+			var $btn = $(this);
+			var id = $btn.data('id');
+			var name = $btn.data('name');
+			var url = $btn.data('delete-url');
 
-		$('#delete-item-id').val(id);
-		$('#delete-form').attr('action', url);
-		$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa "' + name + '"?');
-		$('#delete-confirmation-modal').modal('show');
+			$('#delete-item-id').val(id);
+			$('#delete-form').attr('action', url);
+			$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa "' + name + '"?');
+			$('#delete-confirmation-modal').modal('show');
+		});
 	});
 </script>

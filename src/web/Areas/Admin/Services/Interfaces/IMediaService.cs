@@ -9,7 +9,7 @@ namespace web.Areas.Admin.Services.Interfaces;
 public interface IMediaService
 {
     Task<IPagedList<MediaFileViewModel>> GetPagedMediaFilesAsync(MediaFilterViewModel filter, int pageNumber, int pageSize);
-    Task<List<MediaFileViewModel>> GetFilesForModalAsync(MediaType? mediaTypeFilter = null, string? searchTerm = null, int limit = 50);
+    Task<List<MediaFileViewModel>> GetAllFilesForModalAsync();
     Task<MediaFile?> GetFileEntityByIdAsync(int id);
     Task<MediaFileViewModel?> GetFileViewModelByIdAsync(int id);
     Task<OperationResult<MediaFileViewModel>> UploadFileAsync(IFormFile file, string? altText = null, string? description = null);

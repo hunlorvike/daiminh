@@ -31,7 +31,8 @@
     {
         ("Bài viết", "ti-file-text", "Article", "Index", PermissionConstants.ArticleView),
         ("Danh mục", "ti-folders", "Category", "Index", PermissionConstants.CategoryView),
-        ("Thẻ", "ti-tags", "Tag", "Index", PermissionConstants.TagView)
+        ("Thẻ", "ti-tags", "Tag", "Index", PermissionConstants.TagView),
+        ("Media", "ti-photo-circle", "Media", "Index", PermissionConstants.MediaView)
     }, "menu-content", ""),
     ("Quản lý sản phẩm", "", "", "", "", new List<(string, string, string, string, string)>
     {
@@ -87,7 +88,7 @@
                         </span>
                         <div>
                             <div class="fw-medium">Tài khoản</div>
-                            <div class="text-muted small">Admin</div>
+                            <div class="text-muted small">@(User.Identity?.Name ?? "Admin")</div>
                         </div>
                     </div>
 
@@ -177,63 +178,60 @@
                     }
 
                     bool showTopLevelMenu = false;
+                    // Nếu menu chính có policy riêng, kiểm tra policy đó
                     if (!string.IsNullOrEmpty(item.TopLevelPolicy))
                     {
                         showTopLevelMenu = (await AuthorizationService.AuthorizeAsync(User, item.TopLevelPolicy)).Succeeded;
                     }
+                    // Hoặc nếu không có policy riêng cho menu chính, nhưng có ít nhất một submenu được phép
                     else if (authorizedSubItems.Any())
                     {
                         showTopLevelMenu = true;
                     }
+                    // Hoặc nếu là menu đơn (không có submenu và không có TopLevelPolicy)
+                    else if (string.IsNullOrEmpty(item.TopLevelPolicy) && !item.SubItems.Any())
+                    {
+                        showTopLevelMenu = true; // Mặc định hiển thị nếu không có policy ràng buộc và không có subitem
+                    }
+
 
                     if (showTopLevelMenu)
                     {
                         var subControllers = authorizedSubItems.Select(sub => sub.SubController).ToArray();
                         var isActive = item.Controller != "" ? IsMenuActive(item.Controller) : IsMenuActive(subControllers);
 
-                        <!-- Menu cấp 1 -->
                         <li class="nav-item mb-1 @(isActive ? "active" : "") @(item.Title == "Xem trang web" ? "mt-auto" : "")">
                             @if (authorizedSubItems.Any())
                             {
-                                <!-- Menu có mục con -->
-                                <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center"
+                                <a class="nav-link text-muted small fw-medium text-uppercase px-3 py-2 d-flex justify-content-between align-items-center @(isActive ? "" : "collapsed")"
                                    data-bs-toggle="collapse" href="#@(item.MenuId)" role="button"
                                    aria-expanded="@(isActive ? "true" : "false")" aria-controls="@(item.MenuId)">
                                     <span>@item.Title</span>
                                     <i class="ti d-lg-none @(isActive ? "ti-chevron-up" : "ti-chevron-down")"></i>
                                 </a>
-                                <!-- Menu con cho mobile -->
-                                <div class="collapse d-lg-none @(isActive ? "show" : "")" id="@(item.MenuId)">
-                                    @foreach (var subItem in authorizedSubItems)
-                                    {
-                                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == subItem.SubController ? "active" : "")"
-                                           asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
-                                            <span class="nav-link-icon d-flex align-items-center justify-content-center">
-                                                <i class="ti @subItem.SubIcon"></i>
-                                            </span>
-                                            <span class="nav-link-title">@subItem.SubTitle</span>
-                                        </a>
-                                    }
-                                </div>
-                                <!-- Menu con cho desktop -->
-                                <div class="d-none d-lg-block">
-                                    @foreach (var subItem in authorizedSubItems)
-                                    {
-                                        <a class="nav-link rounded d-flex align-items-center gap-2 py-2 ps-4 @(currentController == subItem.SubController ? "active" : "")"
-                                           asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
-                                            <span class="nav-link-icon d-flex align-items-center justify-content-center">
-                                                <i class="ti @subItem.SubIcon"></i>
-                                            </span>
-                                            <span class="nav-link-title">@subItem.SubTitle</span>
-                                        </a>
-                                    }
+                                <div class="collapse @(isActive ? "show" : "") @(isActive && !IsMenuActive(item.Controller) ? "d-lg-block" : "d-lg-block")" id="@(item.MenuId)">
+                                    <ul class="nav nav-pills flex-column ps-3">
+                                        @foreach (var subItem in authorizedSubItems)
+                                        {
+                                            var isSubItemActive = currentController == subItem.SubController;
+                                            <li class="nav-item">
+                                                <a class="nav-link rounded d-flex align-items-center gap-2 py-2 @(isSubItemActive ? "active" : "")"
+                                                   asp-area="Admin" asp-controller="@subItem.SubController" asp-action="@subItem.SubAction">
+                                                    <span class="nav-link-icon d-flex align-items-center justify-content-center">
+                                                        <i class="ti @subItem.SubIcon"></i>
+                                                    </span>
+                                                    <span class="nav-link-title">@subItem.SubTitle</span>
+                                                </a>
+                                            </li>
+                                        }
+                                    </ul>
                                 </div>
                             }
                             else
                             {
-                                <!-- Menu không có mục con (hoặc không có mục con nào được ủy quyền) -->
-                                <a class="nav-link rounded d-flex align-items-center gap-2 py-2"
-                                   asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action">
+                                <a class="nav-link rounded d-flex align-items-center gap-2 py-2 @(isActive ? "active" : "")"
+                                   asp-area="@item.Area" asp-controller="@item.Controller" asp-action="@item.Action"
+                                   target="@(item.Title == "Xem trang web" ? "_blank" : null)"> @* Mở tab mới cho "Xem trang web" *@
                                     <span class="nav-link-icon d-flex align-items-center justify-content-center">
                                         <i class="ti @item.Icon"></i>
                                     </span>

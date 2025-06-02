@@ -1,6 +1,7 @@
 using System.Net.Mime;
 using System.Text.RegularExpressions;
 using AutoMapper;
+using AutoMapper.QueryableExtensions;
 using AutoRegister;
 using domain.Entities;
 using infrastructure;
@@ -70,34 +71,33 @@ public partial class MediaService : IMediaService
         return new StaticPagedList<MediaFileViewModel>(viewModels, pagedEntities.GetMetaData());
     }
 
-    public async Task<List<MediaFileViewModel>> GetFilesForModalAsync(MediaType? mediaTypeFilter = null, string? searchTerm = null, int limit = 50)
+    public async Task<List<MediaFileViewModel>> GetAllFilesForModalAsync()
     {
-        var query = _context.MediaFiles.AsNoTracking();
+        IQueryable<MediaFile> query = _context.MediaFiles.AsNoTracking();
 
-        if (mediaTypeFilter.HasValue)
-        {
-            query = query.Where(f => f.MediaType == mediaTypeFilter.Value);
-        }
-        if (!string.IsNullOrWhiteSpace(searchTerm))
-        {
-            string lowerSearchTerm = searchTerm.Trim().ToLower();
-            query = query.Where(f => f.OriginalFileName.ToLower().Contains(lowerSearchTerm) ||
-                                     (f.Description != null && f.Description.ToLower().Contains(lowerSearchTerm)) ||
-                                     (f.AltText != null && f.AltText.ToLower().Contains(lowerSearchTerm)));
-        }
+        query = query.OrderByDescending(f => f.CreatedAt);
 
-        var entities = await query.OrderByDescending(f => f.CreatedAt).Take(limit).ToListAsync();
+        var viewModels = await query
+            .ProjectTo<MediaFileViewModel>(_mapper.ConfigurationProvider)
+            .ToListAsync();
 
-        var viewModels = new List<MediaFileViewModel>();
-        foreach (var entity in entities)
+        foreach (var vm in viewModels)
         {
-            var vm = _mapper.Map<MediaFileViewModel>(entity);
-            vm.PresignedUrl = await GetFilePresignedUrlAsync(entity);
-            viewModels.Add(vm);
+            if (!string.IsNullOrEmpty(vm.FilePath))
+            {
+                vm.PresignedUrl = await _minioService.GetFilePresignedUrlAsync(_bucketName, vm.FilePath);
+            }
+            else
+            {
+                var entity = await _context.MediaFiles.AsNoTracking().Select(mf => new { mf.Id, mf.FilePath }).FirstOrDefaultAsync(mf => mf.Id == vm.Id);
+                if (entity != null && !string.IsNullOrEmpty(entity.FilePath))
+                {
+                    vm.PresignedUrl = await _minioService.GetFilePresignedUrlAsync(_bucketName, entity.FilePath);
+                }
+            }
         }
         return viewModels;
     }
-
 
     public async Task<MediaFile?> GetFileEntityByIdAsync(int id)
     {
