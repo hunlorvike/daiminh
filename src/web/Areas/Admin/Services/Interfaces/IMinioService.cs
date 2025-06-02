@@ -7,6 +7,5 @@ public interface IMinioService
     Task<bool> FileExistsAsync(string bucketName, string objectName);
     Task<Stream> GetFileAsync(string bucketName, string objectName);
     Task<bool> DeleteFileAsync(string bucketName, string objectName);
-    string GetFilePublicUrl(string bucketName, string objectName);
-    Task<string> GetFilePresignedUrlAsync(string bucketName, string objectName, int expiresInt = 60 * 5); // Default 5 mins
+    Task<string> GetFilePresignedUrlAsync(string bucketName, string objectName, int expiresInt = 60 * 60 * 1); // 1 hour default
 }

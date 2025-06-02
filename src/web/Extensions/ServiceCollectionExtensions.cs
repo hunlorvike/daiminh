@@ -105,9 +105,8 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddCustomServices(this IServiceCollection services)
     {
-        services.AddAutoregister([Assembly.GetExecutingAssembly(), typeof(ApplicationDbContext).Assembly]);
+        services.AddAutoregister(Assembly.GetExecutingAssembly(), typeof(ApplicationDbContext).Assembly);
 
         return services;
     }
 }
-

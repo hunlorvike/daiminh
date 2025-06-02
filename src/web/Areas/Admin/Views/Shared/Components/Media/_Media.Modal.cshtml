@@ -2,31 +2,28 @@
     <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                @* Added Modal Header *@
-                <h5 class="modal-title" id="selectMediaModalLabel">Chọn Media</h5>
+                <h5 class="modal-title" id="selectMediaModalLabel">
+                    <i class="ti ti-photo-circle me-2"></i>Chọn Media
+                </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
-                @* This is where the dynamic content from _SelectMediaModalContent will be loaded by JS *@
+            <div class="modal-body p-3"> @* Reduced padding for modal body *@
                 <div id="select-media-modal-body-content">
-                    @* Initial loading spinner (will be replaced by AJAX content) *@
                     <div class="text-center p-5">
                         <div class="spinner-border text-primary" role="status"></div>
-                        <p class="mt-2 text-muted">Đang tải...</p>
+                        <p class="mt-2 text-muted">Đang tải thư viện...</p>
                     </div>
                 </div>
             </div>
             <div class="modal-footer">
                 <div class="w-100 d-flex justify-content-between align-items-center">
-                    @* This area is for specific actions when a file is selected *@
-                    <div id="modal-selected-file-info" style="display: none;">
-                        Đã chọn: <strong id="selected-file-name"></strong>
+                    <div id="modal-selected-file-info" class="text-muted small d-flex gap-1" style="display: none;">
+                        Đã chọn: <strong id="selected-file-name" class="text-truncate" style="max-width: 200px; display: inline-block;"></strong>
                     </div>
                     <div>
                         <button type="button" class="btn" data-bs-dismiss="modal">Đóng</button>
-                        @* Add a "Select" button, hidden until a file is chosen *@
                         <button type="button" class="btn btn-primary ms-2" id="modal-select-file-btn" disabled>
-                            Chọn
+                            <i class="ti ti-check me-1"></i>Chọn
                         </button>
                     </div>
                 </div>
@@ -34,4 +31,3 @@
         </div>
     </div>
 </div>
-

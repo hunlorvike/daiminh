@@ -1,266 +1,348 @@
-@model DashboardViewModel
 @{
-	ViewData["Title"] = "Bảng điều khiển";
-	ViewData["PageTitle"] = "Bảng điều khiển";
-	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)>();
+	ViewData["Title"] = "Dashboard Tổng Quan - Hệ thống quản trị";
+	ViewData["PageTitle"] = "Dashboard Tổng Quan";
+	ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+		("Dashboard", "") // Không có URL vì đây là trang hiện tại
+    };
 }
 
 @section Styles {
-	<link rel="stylesheet" href="~/lib/apexcharts/dist/apexcharts.min.css" asp-append-version="true" />
+	<!-- Có thể thêm CSS tùy chỉnh cho dashboard nếu cần -->
+	<style>
+		.kpi-card .apexcharts-sparkline {
+			min-height: 50px !important; /* Đảm bảo sparkline có chiều cao tối thiểu */
+		}
+
+		.kpi-value {
+			font-size: 2rem;
+			font-weight: bold;
+		}
+
+		.kpi-trend {
+			font-size: 0.9rem;
+		}
+
+			.kpi-trend.positive {
+				color: var(--tblr-green);
+			}
+
+			.kpi-trend.negative {
+				color: var(--tblr-red);
+			}
+	</style>
 }
 
-<div class="row row-deck row-cards mb-3">
-	@* --- Thẻ Bài viết --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Article" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-primary text-white avatar"> <i class="ti ti-file-text fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalPublishedArticles Bài viết
-							<span class="text-muted">(@Model.TotalDraftArticles nháp)</span>
-						</div>
-						<div class="text-muted">
-							Quản lý bài viết, tin tức
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Sản phẩm --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Product" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-success text-white avatar"> <i class="ti ti-building-store fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalActiveProducts Sản phẩm
-						</div>
-						<div class="text-muted">
-							Quản lý sản phẩm
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Danh mục --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Category" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-info text-white avatar"> <i class="ti ti-category-2 fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalProductCategories DM. Sản phẩm
-						</div>
-						<div class="text-muted">
-							@Model.TotalArticleCategories DM. Bài viết, @Model.TotalFaqCategories DM. FAQ
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Tags --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Tag" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-warning text-white avatar"> <i class="ti ti-tags fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalProductTags Thẻ SP
-						</div>
-						<div class="text-muted">
-							@Model.TotalArticleTags Thẻ Bài viết
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Liên hệ --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Contact" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-danger text-white avatar"> <i class="ti ti-mail-forward fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalNewContacts Liên hệ mới
-						</div>
-						<div class="text-muted">
-							Quản lý thư liên hệ
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Newsletter --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Newsletter" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-purple text-white avatar"> <i class="ti ti-mail-opened fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalActiveNewsletters Đăng ký nhận tin
-						</div>
-						<div class="text-muted">
-							Quản lý danh sách email
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Đánh giá --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Testimonial" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-teal text-white avatar"> <i class="ti ti-quote fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalActiveTestimonials Đánh giá
-						</div>
-						<div class="text-muted">
-							Quản lý phản hồi khách hàng
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Thương hiệu --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Brand" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-lime text-white avatar"> <i class="ti ti-building-factory-2 fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalActiveBrands Thương hiệu
-						</div>
-						<div class="text-muted">
-							Quản lý thương hiệu sản phẩm
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ FAQ --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="FAQ" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-indigo text-white avatar"> <i class="ti ti-help-circle fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalActiveFAQs Câu hỏi FAQ
-						</div>
-						<div class="text-muted">
-							Quản lý câu hỏi thường gặp
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Cấu hình --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="Setting" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-secondary text-white avatar"> <i class="ti ti-settings fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							Cấu hình
-						</div>
-						<div class="text-muted">
-							Quản lý cài đặt hệ thống
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
-	</div>
-	@* --- Thẻ Người dùng --- *@
-	<div class="col-sm-6 col-lg-3">
-		<a class="card card-link card-link-pop" asp-action="Index" asp-controller="User" asp-area="Admin">
-			<div class="card-body">
-				<div class="row align-items-center">
-					<div class="col-auto">
-						<span class="bg-dark text-white avatar"> <i class="ti ti-users fs-1"></i> </span>
-					</div>
-					<div class="col">
-						<div class="fw-medium">
-							@Model.TotalActiveUsers Người dùng
-						</div>
-						<div class="text-muted">
-							Quản lý tài khoản quản trị
-						</div>
-					</div>
-				</div>
-			</div>
-		</a>
+<!-- I. TỔNG QUAN & KPI CHÍNH -->
+<div class="row mb-3 align-items-center">
+	<div class="col-md-auto ms-auto">
+		<div class="form-group">
+			<label class="form-label">Chọn khoảng thời gian:</label>
+			<input type="text" class="form-control" id="dashboardDateRangePicker" placeholder="Chọn ngày..." />
+		</div>
 	</div>
 </div>
 
-@* --- Hàng chứa các biểu đồ --- *@
-<div class="row row-deck row-cards">
-	<div class="col-lg-7 mb-3">
-		<div class="card h-100">
+<div class="row row-cards mb-3">
+	<!-- 2. Các Thẻ KPI Chính -->
+	<div class="col-sm-6 col-lg-3">
+		<div class="card kpi-card">
 			<div class="card-body">
-				<h3 class="card-title">Liên hệ (7 ngày qua)</h3>
-				<div id="chart-recent-contacts" class="d-flex justify-content-center align-items-center flex-grow-1"
-					style="min-height: 300px;"></div>
+				<div class="d-flex align-items-center">
+					<div class="subheader">Số Bài Viết Mới</div>
+				</div>
+				<div class="d-flex align-items-baseline">
+					<div class="h1 mb-0 me-2 kpi-value" id="kpiNewArticlesCount">--</div>
+					<div class="ms-auto">
+						<span class="text-muted kpi-trend" id="kpiNewArticlesTrend">
+							<!-- (+10% vs kỳ trước) -->
+						</span>
+					</div>
+				</div>
 			</div>
+			<div id="chart-kpi-new-articles" class="chart-sm"></div>
 		</div>
 	</div>
-	@* --- Biểu đồ Trạng thái Bài viết --- *@
-	<div class="col-lg-5 mb-3">
-		<div class="card h-100">
-			<div class="card-body d-flex flex-column">
-				<h3 class="card-title">Trạng thái bài viết</h3>
-				<div id="chart-article-status" class="d-flex justify-content-center align-items-center flex-grow-1"
-					style="min-height: 250px;"></div>
+	<div class="col-sm-6 col-lg-3">
+		<div class="card kpi-card">
+			<div class="card-body">
+				<div class="d-flex align-items-center">
+					<div class="subheader">Số Sản Phẩm Mới</div>
+				</div>
+				<div class="d-flex align-items-baseline">
+					<div class="h1 mb-0 me-2 kpi-value" id="kpiNewProductsCount">--</div>
+					<div class="ms-auto">
+						<span class="text-muted kpi-trend" id="kpiNewProductsTrend">
+							<!-- (-5% vs kỳ trước) -->
+						</span>
+					</div>
+				</div>
 			</div>
+			<div id="chart-kpi-new-products" class="chart-sm"></div>
 		</div>
 	</div>
-	@* --- Biểu đồ Danh mục Sản phẩm --- *@
-	<div class="col-12 mb-3">
+	<div class="col-sm-6 col-lg-3">
+		<div class="card kpi-card">
+			<div class="card-body">
+				<div class="d-flex align-items-center">
+					<div class="subheader">Số Liên Hệ Mới</div>
+				</div>
+				<div class="d-flex align-items-baseline">
+					<div class="h1 mb-0 me-2 kpi-value" id="kpiNewContactsCount">--</div>
+					<div class="ms-auto">
+						<span class="text-muted kpi-trend" id="kpiNewContactsTrend">
+							<!-- (+20% vs kỳ trước) -->
+						</span>
+					</div>
+				</div>
+			</div>
+			<div id="chart-kpi-new-contacts" class="chart-sm"></div>
+		</div>
+	</div>
+	<div class="col-sm-6 col-lg-3">
+		<div class="card kpi-card">
+			<div class="card-body">
+				<div class="d-flex align-items-center">
+					<div class="subheader">Người Dùng Mới</div>
+				</div>
+				<div class="d-flex align-items-baseline">
+					<div class="h1 mb-0 me-2 kpi-value" id="kpiNewUsersCount">--</div>
+					<div class="ms-auto">
+						<span class="text-muted kpi-trend" id="kpiNewUsersTrend">
+							<!-- (+15% vs kỳ trước) -->
+						</span>
+					</div>
+				</div>
+			</div>
+			<div id="chart-kpi-new-users" class="chart-sm"></div>
+		</div>
+	</div>
+	<!-- Thêm các thẻ KPI khác nếu có (Doanh thu, Đơn hàng...) -->
+</div>
+
+<div class="row mb-3">
+	<div class="col-12">
 		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Hoạt Động Theo Thời Gian</h3>
+			</div>
 			<div class="card-body">
-				<h3 class="card-title">Top 5 Danh mục sản phẩm</h3>
-				<div id="chart-product-categories" class="d-flex justify-content-center align-items-center flex-grow-1"
-					style="min-height: 300px;"></div>
+				<div id="chart-activity-overview" style="height: 300px;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- II. PHÂN TÍCH NỘI DUNG -->
+<div class="page-header mt-4 mb-3">
+	<h2 class="page-title">Phân Tích Nội Dung</h2>
+</div>
+<div class="row row-cards mb-3">
+	<!-- A. Bài Viết -->
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Số Bài Viết Xuất Bản</h3>
+				<!-- Optional: Filter cho biểu đồ bài viết -->
+			</div>
+			<div class="card-body">
+				<div id="chart-articles-published-time" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Phân Bổ Bài Viết Theo Danh Mục</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-articles-by-category" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Top Tác Giả Nhiều Bài Viết</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-top-authors" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Bài Viết Được Xem Nhiều Nhất</h3>
+			</div>
+			<div class="table-responsive">
+				<table class="table card-table table-vcenter text-nowrap datatable" id="table-top-articles">
+					<thead>
+						<tr>
+							<th>Tiêu đề</th>
+							<th>Lượt xem</th>
+							<th>Ngày xuất bản</th>
+							<th>Danh mục</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- Dữ liệu sẽ được load bằng JS hoặc Razor -->
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- B. Sản Phẩm -->
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Số Sản Phẩm Thêm/Cập Nhật</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-products-activity-time" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Phân Bổ Sản Phẩm Theo Danh Mục</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-products-by-category" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Số Lượng Sản Phẩm Theo Thương Hiệu</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-products-by-brand" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Sản Phẩm Được Xem Nhiều Nhất</h3>
+			</div>
+			<div class="table-responsive">
+				<table class="table card-table table-vcenter text-nowrap datatable" id="table-top-products">
+					<thead>
+						<tr>
+							<th>Tên sản phẩm</th>
+							<th>Lượt xem</th>
+							<th>Danh mục</th>
+							<th>Thương hiệu</th>
+						</tr>
+					</thead>
+					<tbody>
+						<!-- Dữ liệu sẽ được load bằng JS hoặc Razor -->
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- III. PHÂN TÍCH TƯƠNG TÁC -->
+<div class="page-header mt-4 mb-3">
+	<h2 class="page-title">Phân Tích Tương Tác</h2>
+</div>
+<div class="row row-cards mb-3">
+	<!-- A. Liên Hệ -->
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Số Lượng Liên Hệ Mới</h3>
+				<!-- Optional: Filter cho trạng thái liên hệ -->
+			</div>
+			<div class="card-body">
+				<div id="chart-new-contacts-time" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Phân Bổ Trạng Thái Liên Hệ</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-contact-status-distribution" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- B. Đăng Ký Newsletter -->
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Lượt Đăng Ký Newsletter Mới</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-newsletter-subscriptions-time" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+
+	<!-- C. Đánh Giá Sản Phẩm / Testimonials -->
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Số Lượng Đánh Giá Mới</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-new-reviews-time" style="height: 250px;"></div> <!-- Kết hợp cả ProductReview và Testimonial hoặc tách ra -->
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Phân Bổ Rating Trung Bình</h3>
+				<!-- Optional: Filter Top 5 sản phẩm / Danh mục -->
+			</div>
+			<div class="card-body">
+				<div id="chart-average-rating-distribution" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6 mt-3">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Trạng Thái Duyệt Đánh Giá Sản Phẩm</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-product-review-status" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- IV. PHÂN TÍCH NGƯỜI DÙNG -->
+<div class="page-header mt-4 mb-3">
+	<h2 class="page-title">Phân Tích Người Dùng</h2>
+</div>
+<div class="row row-cards">
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Người Dùng Đăng Ký Mới</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-new-registered-users-time" style="height: 250px;"></div>
+			</div>
+		</div>
+	</div>
+	<div class="col-lg-6">
+		<div class="card">
+			<div class="card-header">
+				<h3 class="card-title">Phân Bổ Người Dùng Theo Vai Trò</h3>
+			</div>
+			<div class="card-body">
+				<div id="chart-user-role-distribution" style="height: 250px;"></div>
 			</div>
 		</div>
 	</div>
@@ -268,176 +350,286 @@
 
 
 @section Scripts {
-	<script src="~/lib/apexcharts/dist/apexcharts.min.js" asp-append-version="true"></script>
-
+	<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+	<script src="https://cdn.jsdelivr.net/npm/litepicker/dist/litepicker.js"></script> @* Hoặc từ lib của bạn *@
 	<script>
-		$(document).ready(function () {
-			function renderChart(selector, options, noDataMessage) {
-				const $container = $(selector);
-				if ($container.length === 0) {
-					console.error(`Chart container not found: ${selector}`);
-					return;
+		document.addEventListener("DOMContentLoaded", function () {
+			// --- I. TỔNG QUAN & KPI CHÍNH ---
+
+			// 1. Bộ lọc thời gian chung
+			const dateRangePicker = new Litepicker({
+				element: document.getElementById('dashboardDateRangePicker'),
+				singleMode: false,
+				allowRepick: true,
+				autoApply: true, // Tự động áp dụng khi chọn xong
+				format: 'DD/MM/YYYY',
+				separator: ' - ',
+				showTooltip: true,
+				numberOfMonths: 2,
+				numberOfColumns: 2,
+				tooltipText: {
+					one: 'ngày',
+					other: 'ngày'
+				},
+				ranges: {
+					'Hôm nay': [new Date(), new Date()],
+					'7 ngày qua': [new Date(new Date().setDate(new Date().getDate() - 6)), new Date()],
+					'30 ngày qua': [new Date(new Date().setDate(new Date().getDate() - 29)), new Date()],
+					'Tháng này': [new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)],
+					'Tháng trước': [new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1), new Date(new Date().getFullYear(), new Date().getMonth(), 0)],
+					// Thêm 'Năm nay', 'Năm ngoái' nếu cần
+				},
+				dropdowns: {
+					minYear: 2020,
+					maxYear: null,
+					months: true,
+					years: true
+				},
+				buttonText: {
+					previousMonth: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>`,
+					nextMonth: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>`,
+					apply: 'Áp dụng',
+					cancel: 'Hủy',
+					reset: 'Đặt lại'
+				},
+				onSelect: function(date1, date2) {
+					// Gọi hàm load lại dữ liệu dashboard với date1 và date2
+					console.log("Date range selected:", date1.toDateString(), date2.toDateString());
+					loadDashboardData(date1, date2);
 				}
+			});
 
-				if (options.series && options.series.length > 0 && options.series[0].Name && options.series[0].Data) {
-					options.series = options.series.map(s => ({
-						name: s.Name,
-						data: s.Data
-					}));
-				}
+			// Hàm giả định để load dữ liệu
+			function loadDashboardData(startDate, endDate) {
+				const startDateString = startDate ? startDate.toISOString().split('T')[0] : null;
+				const endDateString = endDate ? endDate.toISOString().split('T')[0] : null;
 
-				console.log('Series sau khi map:', options.series);
-
-				const hasData = options.series.some(s =>
-					Array.isArray(s.data) &&
-					s.data.length > 0 &&
-					s.data.some(val => val > 0)
-				);
-
-				console.log('hasData:', hasData);
-
-				if (hasData) {
-					$container.empty();
-					const chart = new ApexCharts($container[0], options);
-					chart.render();
-				} else {
-					$container.html(`<p class='text-muted text-center p-4'>${noDataMessage}</p>`);
-				}
+				console.log(`Fetching data for: ${startDateString} to ${endDateString}`);
+				// TODO: Gọi API để lấy dữ liệu mới và cập nhật tất cả các biểu đồ, KPI
+				// Ví dụ: fetchKpiData(startDateString, endDateString);
+				// Ví dụ: fetchChartActivityOverviewData(startDateString, endDateString);
+				// ... và các hàm khác cho từng biểu đồ
 			}
 
-			// --- Biểu đồ Trạng thái Bài viết (Donut Chart) ---
-			const articleStatusData = JSON.parse('@Html.Raw(Model.ArticleStatusChartJson)');
-			if (articleStatusData) {
-				const articleStatusOptions = {
-					chart: {
-						type: 'donut',
-						height: '100%',
-						sparkline: { enabled: false }
-					},
-					series: articleStatusData.SingleSeriesData || [],
-					labels: articleStatusData.Labels || [],
-					legend: {
-						position: 'bottom'
-					},
-					tooltip: {
-						y: {
-							formatter: function (val) { return val + " bài"; }
-						}
-					},
-					dataLabels: {
-						enabled: true,
-						formatter: function (val, opts) {
-							return opts.w.config.series[opts.seriesIndex];
-						}
-					},
-					plotOptions: {
-						pie: {
-							donut: {
-								labels: {
-									show: true,
-									total: {
-										showAlways: true,
-										show: true,
-										label: 'Tổng',
-										formatter: function (w) {
-											return w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-										}
-									}
-								}
-							}
-						}
-					},
-					responsive: [{
-						breakpoint: 480,
-						options: {
-							chart: { width: 250 },
-							legend: { position: 'bottom' }
-						}
-					}]
-				};
-				renderChart("#chart-article-status", articleStatusOptions, "Chưa có dữ liệu trạng thái bài viết.");
-			}
+			// Load dữ liệu lần đầu (ví dụ: 7 ngày qua)
+			const initialEndDate = new Date();
+			const initialStartDate = new Date();
+			initialStartDate.setDate(initialEndDate.getDate() - 6);
+			dateRangePicker.setDateRange(initialStartDate, initialEndDate); // Kích hoạt onSelect
+			// loadDashboardData(initialStartDate, initialEndDate); // Hoặc gọi trực tiếp nếu onSelect không tự trigger khi set ban đầu
 
-			// --- Biểu đồ Liên hệ mới (Line Chart) ---
-			const recentContactsData = JSON.parse('@Html.Raw(Model.RecentContactsChartJson)');
-			if (recentContactsData) {
-				const recentContactsOptions = {
-					chart: {
-						type: 'line',
-						height: 300,
-						zoom: { enabled: false },
-						toolbar: { show: false }
-					},
-					series: recentContactsData.Series || [],
-					xaxis: {
-						categories: recentContactsData.Labels || [],
-						type: 'category',
-						tooltip: { enabled: false }
-					},
-					yaxis: {
-						title: { text: 'Số lượng' },
-						labels: { formatter: function (val) { return val.toFixed(0); } },
-						min: 0
-					},
+
+			// 2. Các Thẻ KPI Chính (Sparkline examples)
+			function renderSparkline(elementId, data, color = '#206bc4') {
+				new ApexCharts(document.getElementById(elementId), {
+					chart: { type: 'line', sparkline: { enabled: true }, height: 50, animations: { enabled: false } },
+					series: [{ data: data }],
 					stroke: { curve: 'smooth', width: 2 },
-					grid: {
-						row: { colors: ['#f3f4f5', 'transparent'], opacity: 0.5 }
-					},
-					tooltip: {
-						shared: true,
-						intersect: false,
-						y: { formatter: function (val) { return val.toFixed(0) + " liên hệ"; } }
-					},
-					legend: {
-						position: 'top',
-						horizontalAlign: 'right',
-						floating: true,
-						offsetY: -5
-					}
-				};
-				renderChart("#chart-recent-contacts", recentContactsOptions, "Chưa có dữ liệu liên hệ trong 7 ngày qua.");
+					colors: [color],
+					tooltip: { enabled: false }
+				}).render();
 			}
 
-			// --- Biểu đồ Danh mục Sản phẩm (Bar Chart) ---
-			const productCategoryData = JSON.parse('@Html.Raw(Model.ProductCategoryChartJson)');
-			if (productCategoryData) {
-				const productCategoryOptions = {
-					chart: {
-						type: 'bar',
-						height: 300,
-						toolbar: { show: false }
-					},
-					series: productCategoryData.Series || [],
-					xaxis: {
-						categories: productCategoryData.Labels || [],
-						labels: {
-							trim: true
-						}
-					},
-					yaxis: {
-						title: { text: 'Số lượng SP' },
-						labels: { formatter: function (val) { return val.toFixed(0); } },
-						min: 0
-					},
-					plotOptions: {
-						bar: {
-							horizontal: false,
-							columnWidth: '60%',
-							dataLabels: {
-								position: 'top'
-							}
-						}
-					},
-					dataLabels: {
-						enabled: false
-					},
-					tooltip: {
-						y: { formatter: function (val) { return val.toFixed(0) + " sản phẩm"; } }
-					},
-					legend: { show: false }
-				};
-				renderChart("#chart-product-categories", productCategoryOptions, "Chưa có dữ liệu sản phẩm theo danh mục.");
-			}
+			// Dữ liệu giả cho Sparklines - SẼ ĐƯỢC THAY THẾ BẰNG DỮ LIỆU THẬT TỪ API
+			$('#kpiNewArticlesCount').text('150');
+			$('#kpiNewArticlesTrend').html('<i class="ti ti-arrow-up"></i> +10% <span class="text-muted">vs kỳ trước</span>').addClass('positive');
+			renderSparkline('chart-kpi-new-articles', [10, 15, 12, 18, 10, 20, 16]);
+
+			$('#kpiNewProductsCount').text('50');
+			$('#kpiNewProductsTrend').html('<i class="ti ti-arrow-down"></i> -5% <span class="text-muted">vs kỳ trước</span>').addClass('negative');
+			renderSparkline('chart-kpi-new-products', [8, 6, 7, 5, 9, 4, 6], '#d63939');
+
+			$('#kpiNewContactsCount').text('75');
+			$('#kpiNewContactsTrend').html('<i class="ti ti-arrow-up"></i> +20% <span class="text-muted">vs kỳ trước</span>').addClass('positive');
+			renderSparkline('chart-kpi-new-contacts', [5, 8, 6, 10, 7, 12, 9]);
+
+			$('#kpiNewUsersCount').text('30');
+			$('#kpiNewUsersTrend').html('<i class="ti ti-arrow-up"></i> +15% <span class="text-muted">vs kỳ trước</span>').addClass('positive');
+			renderSparkline('chart-kpi-new-users', [2, 4, 3, 5, 3, 6, 4]);
+
+			// 3. Biểu Đồ Đường Tổng Quan "Hoạt Động Theo Thời Gian"
+			// Dữ liệu mẫu - CẦN LẤY TỪ API THEO BỘ LỌC THỜI GIAN
+			const activityOverviewData = {
+				labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], // Sẽ thay đổi theo bộ lọc
+				series: [
+					{ name: 'Bài viết mới', data: [10, 15, 12, 18, 10, 20, 16] },
+					{ name: 'Sản phẩm mới', data: [8, 6, 7, 5, 9, 4, 6] },
+					{ name: 'Liên hệ mới', data: [5, 8, 6, 10, 7, 12, 9] },
+					{ name: 'ĐK Newsletter', data: [3, 5, 4, 6, 2, 7, 5] }
+				]
+			};
+			new ApexCharts(document.getElementById('chart-activity-overview'), {
+				chart: { type: 'line', height: 300, toolbar: { show: false } },
+				series: activityOverviewData.series,
+				xaxis: { categories: activityOverviewData.labels },
+				stroke: { curve: 'smooth', width: 2 },
+				markers: { size: 4 },
+				legend: { position: 'top' },
+				grid: { borderColor: '#e9ecef' }
+			}).render();
+
+
+			// --- II. PHÂN TÍCH NỘI DUNG ---
+			// A. Bài Viết
+			// 1. Số Bài Viết Xuất Bản Theo Thời Gian
+			new ApexCharts(document.getElementById('chart-articles-published-time'), {
+				chart: { type: 'line', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Bài viết', data: [5, 8, 12, 10, 15, 13, 18] }], // Dữ liệu mẫu
+				xaxis: { categories: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] },
+				stroke: { curve: 'smooth', width: 2 },
+			}).render();
+
+			// 2. Phân Bổ Bài Viết Theo Danh Mục (Pie Chart)
+			new ApexCharts(document.getElementById('chart-articles-by-category'), {
+				chart: { type: 'pie', height: 250 },
+				series: [44, 55, 13, 33], // Số lượng bài viết cho mỗi danh mục
+				labels: ['Tư vấn', 'Kinh nghiệm', 'Tin tức', 'Khuyến mãi'], // Tên danh mục
+				legend: { position: 'bottom' },
+				responsive: [{
+					breakpoint: 480,
+					options: { chart: { width: 200 }, legend: { position: 'bottom' } }
+				}]
+			}).render();
+
+			// 3. Top Tác Giả (Bar Chart)
+			new ApexCharts(document.getElementById('chart-top-authors'), {
+				chart: { type: 'bar', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Số bài viết', data: [25, 20, 18, 15, 12] }], // Số bài viết
+				xaxis: { categories: ['Tác giả A', 'Tác giả B', 'Tác giả C', 'Tác giả D', 'Tác giả E'] }, // Tên tác giả
+				plotOptions: { bar: { horizontal: false, columnWidth: '50%' } },
+				dataLabels: { enabled: false }
+			}).render();
+
+			// 4. Bảng Bài Viết Xem Nhiều (Dữ liệu từ Razor hoặc JS AJAX)
+			// Ví dụ: $('#table-top-articles tbody').html('<tr><td>...</td>...</tr>');
+
+
+			// B. Sản Phẩm
+			// 1. Số Sản Phẩm Thêm/Cập Nhật Theo Thời Gian
+			new ApexCharts(document.getElementById('chart-products-activity-time'), {
+				 chart: { type: 'line', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Sản phẩm', data: [10, 12, 8, 15, 7, 11, 9] }],
+				xaxis: { categories: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] },
+			}).render();
+
+			// 2. Phân Bổ Sản Phẩm Theo Danh Mục (Donut Chart)
+			new ApexCharts(document.getElementById('chart-products-by-category'), {
+				chart: { type: 'donut', height: 250 },
+				series: [30, 40, 25, 15],
+				labels: ['Sơn nội thất', 'Sơn ngoại thất', 'Chống thấm', 'Dụng cụ'],
+				legend: { position: 'bottom' }
+			}).render();
+
+			// 3. Số Lượng Sản Phẩm Theo Thương Hiệu (Horizontal Bar Chart)
+			new ApexCharts(document.getElementById('chart-products-by-brand'), {
+				 chart: { type: 'bar', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Số sản phẩm', data: [50, 45, 30, 25, 20] }],
+				xaxis: { categories: ['Dulux', 'Jotun', 'Kova', 'Sika', 'Nippon'] },
+				plotOptions: { bar: { horizontal: true } },
+			}).render();
+
+			// 4. Bảng Sản Phẩm Xem Nhiều (Dữ liệu từ Razor hoặc JS AJAX)
+
+			// --- III. PHÂN TÍCH TƯƠNG TÁC ---
+			// A. Liên Hệ
+			// 1. Số Lượng Liên Hệ Mới Theo Thời Gian
+			 new ApexCharts(document.getElementById('chart-new-contacts-time'), {
+				chart: { type: 'area', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Liên hệ', data: [7, 10, 6, 12, 9, 15, 11] }],
+				xaxis: { categories: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] },
+				dataLabels: { enabled: false },
+				stroke: { curve: 'smooth' }
+			}).render();
+
+			// 2. Phân Bổ Trạng Thái Liên Hệ
+			new ApexCharts(document.getElementById('chart-contact-status-distribution'), {
+				chart: { type: 'pie', height: 250 },
+				series: [60, 20, 15, 5], // Mới, Đang xử lý, Đã giải quyết, Spam
+				labels: ['Mới', 'Đang xử lý', 'Đã giải quyết', 'Spam'],
+				legend: { position: 'bottom' }
+			}).render();
+
+			// B. Đăng Ký Newsletter
+			 new ApexCharts(document.getElementById('chart-newsletter-subscriptions-time'), {
+				chart: { type: 'line', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Đăng ký', data: [4, 6, 3, 8, 5, 9, 7] }],
+				xaxis: { categories: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] },
+			}).render();
+
+			// C. Đánh Giá Sản Phẩm / Testimonials
+			// 1. Số Lượng Đánh Giá Mới Theo Thời Gian
+			new ApexCharts(document.getElementById('chart-new-reviews-time'), {
+				chart: { type: 'line', height: 250, toolbar: { show: false } },
+				series: [
+					{ name: 'Đánh giá SP', data: [3, 5, 2, 6, 4, 7, 5] },
+					{ name: 'Testimonials', data: [1, 2, 1, 3, 2, 2, 1] }
+				],
+				xaxis: { categories: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] },
+			}).render();
+
+			// 2. Phân Bổ Rating Trung Bình (Cần logic phức tạp hơn ở backend để lấy dữ liệu này)
+			// Ví dụ cho top 5 sản phẩm
+			 new ApexCharts(document.getElementById('chart-average-rating-distribution'), {
+				chart: { type: 'bar', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Rating TB', data: [4.8, 4.5, 4.2, 3.9, 3.5] }],
+				xaxis: { categories: ['Sản phẩm A', 'Sản phẩm B', 'Sản phẩm C', 'Sản phẩm D', 'Sản phẩm E'] },
+				plotOptions: { bar: { borderRadius: 4, horizontal: true, } },
+				dataLabels: { enabled: true, formatter: function (val) { return val.toFixed(1) + " ★" } }
+			}).render();
+
+			// 3. Trạng Thái Duyệt Đánh Giá Sản Phẩm
+			new ApexCharts(document.getElementById('chart-product-review-status'), {
+				chart: { type: 'donut', height: 250 },
+				series: [70, 20, 10], // Approved, Pending, Rejected
+				labels: ['Đã duyệt', 'Chờ duyệt', 'Từ chối'],
+				legend: { position: 'bottom' }
+			}).render();
+
+
+			// --- IV. PHÂN TÍCH NGƯỜI DÙNG ---
+			// 1. Số Lượng Người Dùng Đăng Ký Mới Theo Thời Gian
+			new ApexCharts(document.getElementById('chart-new-registered-users-time'), {
+				chart: { type: 'line', height: 250, toolbar: { show: false } },
+				series: [{ name: 'Người dùng mới', data: [15, 20, 18, 25, 22, 30, 28] }],
+				xaxis: { categories: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'] },
+			}).render();
+
+			// 2. Phân Bổ Người Dùng Theo Vai Trò
+			new ApexCharts(document.getElementById('chart-user-role-distribution'), {
+				chart: { type: 'pie', height: 250 },
+				series: [5, 20, 75], // SuperAdmin, Admin, User (Ví dụ)
+				labels: ['Super Admin', 'Admin', 'User'],
+				legend: { position: 'bottom' }
+			}).render();
+
+			// Hàm để fetch dữ liệu KPI (ví dụ)
+			// async function fetchKpiData(startDate, endDate) {
+			//     try {
+			//         const response = await fetch(`/Admin/Dashboard/GetKpiData?startDate=${startDate}&endDate=${endDate}`);
+			//         if (!response.ok) throw new Error('Network response was not ok');
+			//         const data = await response.json();
+
+			//         $('#kpiNewArticlesCount').text(data.newArticles.count);
+			//         $('#kpiNewArticlesTrend').html(formatTrend(data.newArticles.trendPercentage, data.newArticles.trendDirection));
+			//         renderSparkline('chart-kpi-new-articles', data.newArticles.sparklineData);
+			//         // ... cập nhật các KPI khác
+			//     } catch (error) {
+			//         console.error('Error fetching KPI data:', error);
+			//         // Hiển thị lỗi trên UI nếu cần
+			//     }
+			// }
+
+			// function formatTrend(percentage, direction) {
+			//     const icon = direction === 'up' ? '<i class="ti ti-arrow-up"></i>' : direction === 'down' ? '<i class="ti ti-arrow-down"></i>' : '';
+			//     const
+			//     const trendClass = direction === 'up' ? 'positive' : direction === 'down' ? 'negative' : '';
+			//     const trendElement = $(`#kpiNewArticlesTrend`); // Thay bằng ID tương ứng
+			//     trendElement.html(`${icon} ${percentage >= 0 ? '+' : ''}${percentage.toFixed(1)}% <span class="text-muted">vs kỳ trước</span>`);
+			//     trendElement.removeClass('positive negative').addClass(trendClass);
+
+			// }
+
+			// Gọi hàm fetch dữ liệu cho các biểu đồ khác tương tự...
 		});
 	</script>
 }

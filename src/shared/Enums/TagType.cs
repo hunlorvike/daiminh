@@ -2,14 +2,9 @@ using System.ComponentModel.DataAnnotations;
 
 namespace shared.Enums;
 
-public enum TagType : ushort
+public enum TagType
 {
-    [Display(Name = "Sản phẩm")]
-    Product,
-
-    [Display(Name = "Bài viết")]
-    Article,
-
-    [Display(Name = "Tổng quát")]
-    General
+    [Display(Name = "Sản phẩm")] Product = 0,
+    [Display(Name = "Bài viết")] Article = 1,
+    [Display(Name = "Tổng quát")] General = 2
 }
