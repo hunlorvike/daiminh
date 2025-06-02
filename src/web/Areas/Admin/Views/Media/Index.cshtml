@@ -9,12 +9,12 @@
 
 @section PageActions {
     <div class="btn-list">
-        <button type="button" class="btn btn-primary d-none d-sm-inline-block" data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-initial-action="upload">
+        <a asp-action="Create" class="btn btn-primary d-none d-sm-inline-block">
             <i class="ti ti-upload me-2"></i> Tải lên Media
-        </button>
-         <button type="button" class="btn btn-primary d-sm-none btn-icon" data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-initial-action="upload" aria-label="Tải lên Media">
+        </a>
+         <a asp-action="Create" class="btn btn-primary d-sm-none btn-icon" aria-label="Tải lên Media">
             <i class="ti ti-upload"></i>
-        </button>
+        </a>
     </div>
 }
 
@@ -34,10 +34,13 @@
                             <span class="input-group-text">
                                 <i class="ti ti-search"></i>
                             </span>
-                            <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tên file, mô tả, alt text...">
-                            <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
-                                <i class="ti ti-x"></i>
-                            </button>
+                            <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tìm tên file, mô tả, alt text...">
+                            @if (!string.IsNullOrEmpty(Model.Filter.SearchTerm))
+                            {
+                                <button class="btn btn-icon" type="button" id="clearSearch" title="Xóa tìm kiếm">
+                                    <i class="ti ti-x"></i>
+                                </button>
+                            }
                         </div>
                     </div>
                 </div>
@@ -49,7 +52,7 @@
                                 <i class="ti ti-photo-cog"></i>
                             </span>
                             <select asp-for="Filter.MediaType" asp-items="@Model.Filter.MediaTypeOptions"
-                                class="form-select tom-selected" autocomplete="off"></select>
+                                class="form-select tom-selected" autocomplete="off" data-placeholder="-- Tất cả loại Media --"></select>
                         </div>
                     </div>
                 </div>
@@ -89,55 +92,28 @@
                 </div>
                 <p class="empty-title mt-3">Thư viện trống</p>
                 <p class="empty-subtitle text-muted">
-                    @if (string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.MediaType.HasValue)
+                    @if(string.IsNullOrWhiteSpace(Model.Filter.SearchTerm) && !Model.Filter.MediaType.HasValue)
                     {
-                        @:Chưa có tập tin nào được tải lên.
+                        @:Hãy tải lên các tập tin media đầu tiên.
                     }
                     else
                     {
-                        @:Không có tập tin nào khớp với tiêu chí lọc của bạn.
+                        @:Không có tập tin media nào khớp với bộ lọc của bạn.
                     }
                 </p>
                 <div class="empty-action">
-                     <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#selectMediaModal" data-initial-action="upload">
-                        <i class="ti ti-upload me-2"></i> Tải lên ngay
-                    </button>
+                     <a asp-action="Create" class="btn btn-primary">
+                        <i class="ti ti-upload me-2"></i> Tải lên
+                    </a>
                 </div>
             </div>
         }
         else
         {
-            <div class="row g-3" id="media-file-grid">
+            <div class="row g-3 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6" id="media-file-grid">
                 @foreach (var file in Model.MediaFiles)
                 {
-                    <div class="col-6 col-sm-4 col-md-3 col-lg-2">
-                        <div class="card card-sm h-100">
-                            <a href="@file.PresignedUrl" target="_blank" class="card-img-top img-responsive img-responsive-1x1 d-flex align-items-center justify-content-center @(file.MediaType != MediaType.Image ? "bg-light-subtle" : "")"
-                               style="@(file.MediaType == MediaType.Image ? $"background-image: url({file.PresignedUrl})" : "")"
-                               title="Xem file gốc">
-                                @if (file.MediaType != MediaType.Image)
-                                {
-                                    <i class="ti @(file.MediaType == MediaType.Video ? "ti-video" : (file.MediaType == MediaType.Document ? "ti-file-text" : "ti-file")) fs-1 text-muted"></i>
-                                }
-                            </a>
-                            <div class="card-body">
-                                <div class="text-truncate small fw-medium" title="@file.OriginalFileName">@file.OriginalFileName</div>
-                                <div class="text-muted small">@file.FormattedFileSize - @file.MediaTypeDisplayName</div>
-                            </div>
-                            <div class="card-footer">
-                                <div class="btn-list justify-content-center flex-nowrap">
-                                    <a asp-action="Edit" asp-route-id="@file.Id" class="btn btn-sm btn-outline-secondary" title="Sửa thông tin">
-                                        <i class="ti ti-pencil"></i>
-                                    </a>
-                                    <button class="btn btn-sm btn-outline-danger delete-file-btn" title="Xóa"
-                                            data-id="@file.Id" data-name="@file.OriginalFileName"
-                                            data-delete-url="@Url.Action("DeleteFile", "Media")">
-                                        <i class="ti ti-trash"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <partial name="Components/Media/_Media.FileItem" model="file" />
                 }
             </div>
         }
@@ -150,12 +126,11 @@
                     Model.MediaFiles,
                     page => Url.Action("Index", new {
                         page,
-                        Model.Filter.SearchTerm,
-                        Model.Filter.MediaType
+                        Filter = Model.Filter
                     }),
                     new PagedListRenderOptions
                     {
-                        UlElementClasses = new[] { "pagination", "mb-0" },
+                        UlElementClasses = new[] { "pagination mb-0" },
                         LiElementClasses = new[] { "page-item" },
                         PageClasses = new[] { "page-link" },
                         DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
@@ -171,27 +146,12 @@
     }
 </div>
 
-
 @section Scripts {
     <script>
         $(document).ready(function () {
             $('#clearSearch').on('click', function () {
                 $('#Filter_SearchTerm').val('');
-                $('#filterForm').submit();
-            });
-
-            $('[data-bs-toggle="modal"][data-bs-target="#selectMediaModal"]').on('click', function() {
-                const initialAction = $(this).data('initial-action');
-                if (initialAction === 'upload' && window.MediaManager) {
-                    setTimeout(function() {
-                        const $modalContent = $('#select-media-modal-body-content');
-                        const $uploadArea = $modalContent.find('#modal-upload-area');
-                        const $toggleButton = $modalContent.find('#toggle-upload-area');
-                        if ($uploadArea.is(':hidden') && $toggleButton.length) {
-                            $toggleButton.trigger('click');
-                        }
-                    }, 500); 
-                }
+                $('#filterForm').submit(); 
             });
         });
     </script>

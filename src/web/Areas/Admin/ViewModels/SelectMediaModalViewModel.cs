@@ -1,7 +1,9 @@
+using X.PagedList;
+
 namespace web.Areas.Admin.ViewModels;
 
 public class SelectMediaModalViewModel
 {
-    public List<MediaFileViewModel> Files { get; set; } = new();
-    public MediaFilterViewModel Filter { get; set; } = new();
+    public List<MediaFileViewModel> Files { get; set; } = default!;
+    public int TotalItems => Files?.Count ?? 0;
 }

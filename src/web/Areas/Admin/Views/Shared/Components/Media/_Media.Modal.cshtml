@@ -7,7 +7,7 @@
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body p-3"> @* Reduced padding for modal body *@
+            <div class="modal-body p-3"> 
                 <div id="select-media-modal-body-content">
                     <div class="text-center p-5">
                         <div class="spinner-border text-primary" role="status"></div>
@@ -17,8 +17,9 @@
             </div>
             <div class="modal-footer">
                 <div class="w-100 d-flex justify-content-between align-items-center">
-                    <div id="modal-selected-file-info" class="text-muted small d-flex gap-1" style="display: none;">
-                        Đã chọn: <strong id="selected-file-name" class="text-truncate" style="max-width: 200px; display: inline-block;"></strong>
+                    <div id="modal-selected-file-info" class="text-muted small d-flex align-items-center gap-1" style="display: none;">
+                       <i class="ti ti-file-check text-primary"></i> 
+                       Đã chọn: <strong id="selected-file-name" class="text-truncate" style="max-width: 200px; display: inline-block;"></strong>
                     </div>
                     <div>
                         <button type="button" class="btn" data-bs-dismiss="modal">Đóng</button>

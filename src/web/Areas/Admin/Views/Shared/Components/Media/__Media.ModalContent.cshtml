@@ -1,65 +1,34 @@
+@using web.Areas.Admin.ViewModels;
 @model SelectMediaModalViewModel
-@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
-@functions {
-    public string GetAntiXsrfRequestToken()
-    {
-        return Xsrf.GetAndStoreTokens(Context).RequestToken!;
-    }
-}
 
-<div id="media-browser-content" data-anti-forgery-token="@GetAntiXsrfRequestToken()">
-    <div class="row g-3 mb-3 align-items-center">
-        <div class="col">
-            <select id="modal-media-type-filter" class="form-select tom-selected-modal" asp-items="@Model.Filter.MediaTypeOptions" autocomplete="off" data-placeholder="Lọc theo loại..."></select>
-        </div>
-        <div class="col">
-            <input type="text" id="modal-media-search-term" class="form-control" placeholder="Tìm kiếm tên file..." value="@Model.Filter.SearchTerm">
-        </div>
-        <div class="col-auto">
-            <button class="btn btn-primary" id="toggle-upload-area">
-                <i class="ti ti-upload me-1"></i> Tải lên
-            </button>
-        </div>
-    </div>
+<div id="media-browser-content">
 
-    @* Updated Upload Area for Pure AJAX *@
-    <div id="modal-upload-area" class="mb-3 border p-3 rounded bg-light-subtle" style="display: none;">
-        <div class="mb-3">
-            <label for="modal-file-input" class="form-label">Chọn tập tin để tải lên:</label>
-            <input class="form-control" type="file" id="modal-file-input" multiple>
-            <small class="form-hint mt-1">Chọn một hoặc nhiều file. Dung lượng tối đa 100MB mỗi file.</small>
-        </div>
-        <div id="modal-upload-previews" class="mb-2">
-            @* Preview items will be added here by JS *@
-        </div>
-        <button type="button" class="btn btn-success" id="modal-start-upload-btn" disabled>
-            <i class="ti ti-cloud-upload me-1"></i> Bắt đầu tải lên
-        </button>
-    </div>
-    @* End of Updated Upload Area *@
-
-    <div id="media-browser-grid-container" style="min-height: 300px; max-height: 60vh; overflow-y: auto;">
+    <div id="media-browser-grid-container" style="min-height: 300px; max-height: 60vh; overflow-y: auto;"
+        class="border rounded p-2 bg-light-subtle">
         <div class="text-center p-4" id="media-browser-loading-indicator" style="display: none;">
             <div class="spinner-border text-primary" role="status"></div>
+            <p class="mt-2 text-muted">Đang tải...</p>
         </div>
 
-        <div id="media-browser-files" class="row g-3 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6">
+        <div id="media-browser-files"
+            class="row g-3 row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 row-cols-xl-6">
             @if (Model.Files != null && Model.Files.Any())
             {
                 @foreach (var file in Model.Files)
                 {
-                    <partial name="Components/Media/_Media.FileItem" model="file" view-data='new ViewDataDictionary(ViewData) { { "IsInModal", true } }' />
+                    <partial name="Components/Media/_Media.FileItem" model="file"
+                        view-data='new ViewDataDictionary(ViewData) { { "IsInModal", true } }' />
                 }
             }
         </div>
 
-        <div class="empty text-center text-muted p-5" id="media-browser-empty-indicator" style="@((Model.Files == null || !Model.Files.Any()) ? "" : "display: none;")">
+        <div class="text-center text-muted p-5" id="media-browser-empty-indicator" style="display: none;">
             <div class="empty-icon mb-3">
                 <i class="ti ti-photo-off fs-1"></i>
             </div>
             <p class="empty-title">Không có tập tin nào</p>
             <p class="empty-subtitle text-muted">
-                Hãy thử tải lên hoặc thay đổi bộ lọc.
+                Thư viện của bạn hiện đang trống hoặc không có kết quả tìm kiếm phù hợp.
             </p>
         </div>
     </div>

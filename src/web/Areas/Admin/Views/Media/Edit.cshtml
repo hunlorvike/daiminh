@@ -11,6 +11,7 @@
 <form asp-action="Edit" method="post">
     @Html.AntiForgeryToken()
     <input type="hidden" asp-for="Id" />
+    @* Các trường ẩn khác đã có trong file gốc, giữ nguyên *@
     <input type="hidden" asp-for="FileName" />
     <input type="hidden" asp-for="OriginalFileName" />
     <input type="hidden" asp-for="MimeType" />
@@ -24,29 +25,17 @@
 
     <div class="card">
         <div class="card-header">
-            <h3 class="card-title">Chỉnh sửa thông tin Media: @Model.OriginalFileName</h3>
+            <h3 class="card-title">
+                <i class="ti ti-edit me-2"></i>Chỉnh sửa thông tin Media: @Model.OriginalFileName
+            </h3>
         </div>
         <div class="card-body">
-            @if (!ViewData.ModelState.IsValid)
-            {
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <div class="d-flex">
-                        <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
-                        <div>
-                            <h4 class="alert-title mb-0">Có lỗi xảy ra!</h4>
-                            <div asp-validation-summary="ModelOnly" class="mb-0"></div>
-                        </div>
-                    </div>
-                    <a class="btn-close" data-bs-dismiss="alert" aria-label="close"></a>
-                </div>
-            }
-
             <div class="row g-3">
                 <div class="col-md-4 text-center">
                     @if (Model.MediaType == MediaType.Image && !string.IsNullOrEmpty(Model.PresignedUrl))
                     {
                         <img src="@Model.PresignedUrl" alt="Preview of @Model.OriginalFileName"
-                            class="img-fluid rounded border mb-3" style="max-height: 250px;">
+                            class="img-fluid rounded border mb-3" style="max-height: 250px; object-fit: contain;">
                     }
                     else if (Model.MediaType == MediaType.Video && !string.IsNullOrEmpty(Model.PresignedUrl))
                     {
@@ -57,9 +46,13 @@
                     }
                     else
                     {
-                        <div class="avatar avatar-xxl bg-light-subtle rounded border mb-3">
-                            <i
-                                class="ti @(Model.MediaType == MediaType.Video ? "ti-video" : (Model.MediaType == MediaType.Document ? "ti-file-text" : "ti-file")) fs-1 text-muted"></i>
+                        var iconClass = Model.MediaType switch {
+                            MediaType.Video => "ti-video",
+                            MediaType.Document => "ti-file-text",
+                            _ => "ti-file"
+                        };
+                        <div class="avatar avatar-xxl bg-gray-200 rounded border mb-3 d-flex align-items-center justify-content-center">
+                            <i class="ti @iconClass fs-1 text-muted"></i>
                         </div>
                     }
                     <a href="@Model.PresignedUrl" target="_blank" class="btn btn-sm btn-outline-secondary">
@@ -75,8 +68,7 @@
                         </div>
                         <div class="datagrid-item">
                             <div class="datagrid-title">Loại Media</div>
-                            <div class="datagrid-content"><span
-                                    class="badge bg-blue-lt">@Model.MediaTypeDisplayName</span></div>
+                            <div class="datagrid-content"><span class="badge bg-blue-lt">@Model.MediaTypeDisplayName</span></div>
                         </div>
                         <div class="datagrid-item">
                             <div class="datagrid-title">Kích thước</div>
@@ -94,10 +86,12 @@
 
                     <div class="mb-3">
                         <label asp-for="AltText" class="form-label"></label>
-                        <input asp-for="AltText" class="form-control" />
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="ti ti-accessible"></i></span>
+                            <input asp-for="AltText" class="form-control" />
+                        </div>
                         <span asp-validation-for="AltText" class="text-danger"></span>
-                        <small class="form-hint">Mô tả ngắn cho hình ảnh, hữu ích cho SEO và người dùng khiếm
-                            thị.</small>
+                        <small class="form-hint">Mô tả ngắn cho hình ảnh, hữu ích cho SEO và người dùng khiếm thị.</small>
                     </div>
                     <div class="mb-3">
                         <label asp-for="Description" class="form-label"></label>

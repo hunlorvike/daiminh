@@ -7,9 +7,8 @@ namespace web.Areas.Admin.ViewModels;
 public class MediaFileViewModel
 {
     public int Id { get; set; }
-
     [Display(Name = "Tên file trên hệ thống")]
-    public string FileName { get; set; } = string.Empty; 
+    public string FileName { get; set; } = string.Empty;
 
     [Display(Name = "Tên file gốc")]
     public string OriginalFileName { get; set; } = string.Empty;

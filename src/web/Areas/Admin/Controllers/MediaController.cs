@@ -1,4 +1,4 @@
-using AutoMapper;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -33,7 +33,6 @@ public partial class MediaController : Controller
         int currentPageSize = pageSize > 0 ? pageSize : 20;
 
         IPagedList<MediaFileViewModel> mediaFilesPaged = await _mediaService.GetPagedMediaFilesAsync(filter, pageNumber, currentPageSize);
-
         filter.MediaTypeOptions = GetMediaTypeSelectList(filter.MediaType, "-- Tất cả loại Media --");
 
         MediaIndexViewModel viewModel = new()
@@ -44,72 +43,60 @@ public partial class MediaController : Controller
         return View(viewModel);
     }
 
-
-    [HttpGet]
-    public async Task<IActionResult> SelectMediaModalContent(MediaFilterViewModel filter)
-    {
-        filter ??= new MediaFilterViewModel();
-        var files = await _mediaService.GetFilesForModalAsync(filter.MediaType, filter.SearchTerm, limit: 100);
-
-        var viewModel = new SelectMediaModalViewModel
-        {
-            Files = files,
-            Filter = new MediaFilterViewModel
-            {
-                MediaType = filter.MediaType,
-                SearchTerm = filter.SearchTerm,
-                MediaTypeOptions = GetMediaTypeSelectList(filter.MediaType)
-            }
-        };
-        return PartialView("Components/Media/__Media.ModalContent", viewModel);
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> GetFiles(MediaType? mediaType, string? searchTerm)
-    {
-        var files = await _mediaService.GetFilesForModalAsync(mediaType, searchTerm, limit: 100);
-        return Json(files);
-    }
-
-    [HttpPost]
-    [RequestSizeLimit(100 * 1024 * 1024)] // 100 MB
+    // GET: Admin/Media/Create
     [Authorize(Policy = PermissionConstants.MediaUpload)]
-    public async Task<IActionResult> UploadFile(IFormFile file, string? altText, string? description)
+    [HttpGet]
+    public IActionResult Create()
+    {
+        return View();
+    }
+
+    // POST: Admin/Media/Create 
+    [HttpPost]
+    [RequestSizeLimit(100 * 1024 * 1024)]
+    [Authorize(Policy = PermissionConstants.MediaUpload)]
+    public async Task<IActionResult> Create(IFormFile file, string? altText, string? description)
     {
         if (file == null || file.Length == 0)
         {
-            return Json(new UploadResponseViewModel { Success = false, Message = "Không có tập tin được tải lên." });
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", "Không có tập tin nào được tải lên.", ToastType.Error));
+            return View();
         }
 
         var result = await _mediaService.UploadFileAsync(file, altText, description);
 
         if (result.Success && result.Data != null)
         {
-            return Json(new UploadResponseViewModel { Success = true, File = result.Data, Message = result.Message });
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Thành công", result.Message ?? "Tải lên tập tin thành công.", ToastType.Success));
+            return RedirectToAction(nameof(Index));
         }
         else
         {
-            return Json(new UploadResponseViewModel { Success = false, Message = result.Message ?? "Lỗi khi tải tập tin." });
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", result.Message ?? "Lỗi khi tải tập tin.", ToastType.Error));
+            ViewData["altText"] = altText;
+            ViewData["description"] = description;
+            return View();
         }
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    [Authorize(Policy = PermissionConstants.MediaDelete)]
-    public async Task<IActionResult> DeleteFile(int id)
+    // GET: Admin/Media/SelectMediaModalContent
+    [HttpGet]
+    public async Task<IActionResult> SelectMediaModalContent()
     {
-        var result = await _mediaService.DeleteFileAsync(id);
-        if (result.Success)
+        var files = await _mediaService.GetAllFilesForModalAsync();
+
+        var viewModel = new SelectMediaModalViewModel
         {
-            return Json(new { success = true, message = result.Message ?? "Đã xóa tập tin thành công." });
-        }
-        else
-        {
-            return Json(new { success = false, message = result.Message ?? "Không thể xóa tập tin." });
-        }
+            Files = files,
+        };
+
+        return PartialView("Components/Media/__Media.ModalContent", viewModel);
     }
 
-    // GET: Admin/Media/Edit/5
+    // GET: Admin/Media/Edit/5 
     [Authorize(Policy = PermissionConstants.MediaEdit)]
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
@@ -125,7 +112,7 @@ public partial class MediaController : Controller
     }
 
     // POST: Admin/Media/Edit/5
-    // [Authorize(Policy = PermissionConstants.MediaEdit)]
+    [Authorize(Policy = PermissionConstants.MediaEdit)]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, MediaFileViewModel viewModel)
@@ -150,6 +137,28 @@ public partial class MediaController : Controller
             if (originalViewModel != null) viewModel.PresignedUrl = originalViewModel.PresignedUrl; else viewModel.PresignedUrl = null;
 
             return View(viewModel);
+        }
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    [Authorize(Policy = PermissionConstants.MediaDelete)]
+    public async Task<IActionResult> DeleteFile(int id)
+    {
+        var deleteResult = await _mediaService.DeleteFileAsync(id);
+        if (deleteResult.Success)
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Thành công", deleteResult.Message ?? "Xóa tập tin thành công.", ToastType.Success)
+            );
+            return RedirectToAction(nameof(Index));
+        }
+        else
+        {
+            TempData[TempDataConstants.ToastMessage] = JsonSerializer.Serialize(
+                new ToastData("Lỗi", deleteResult.Message ?? "Không thể xóa tập tin.", ToastType.Error)
+            );
+            return RedirectToAction(nameof(Index));
         }
     }
 }
