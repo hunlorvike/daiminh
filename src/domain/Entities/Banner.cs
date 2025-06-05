@@ -23,7 +23,7 @@ public class BannerConfiguration : BaseEntityConfiguration<Banner, int>
         base.Configure(builder);
 
         builder.Property(e => e.Title).IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Description).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Description).HasColumnType("TEXT");
         builder.Property(e => e.ImageUrl).IsRequired().HasMaxLength(2048);
         builder.Property(e => e.LinkUrl).HasMaxLength(2048);
         builder.Property(e => e.Type).IsRequired();

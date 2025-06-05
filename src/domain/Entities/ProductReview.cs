@@ -29,7 +29,7 @@ public class ProductReviewConfiguration : BaseEntityConfiguration<ProductReview,
         builder.HasIndex(e => e.ProductId);
         builder.HasIndex(e => e.Rating);
         builder.Property(e => e.Rating).IsRequired();
-        builder.Property(e => e.Content).HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.Content).HasColumnType("TEXT").IsRequired();
         builder.Property(e => e.Status)
             .IsRequired()
             .HasDefaultValue(ReviewStatus.Pending);

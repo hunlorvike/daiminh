@@ -1,20 +1,20 @@
-version: '3.8'
 services:
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: daiminh_sqlserver
+  postgresql:
+    image: postgres:15 
+    container_name: daiminh_postgresql 
     restart: unless-stopped
     environment:
-      - ACCEPT_EULA=Y
-      - SA_PASSWORD=YourStrong!Password
+      POSTGRES_USER: nguyenviethung
+      POSTGRES_PASSWORD: 5v3LEO8ePNVVZLSa57h50Q
+      POSTGRES_DB: daiminh_pg 
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - sqlserver-daiminh:/var/opt/mssql
+      - postgresql-daiminh:/var/lib/postgresql/data
     networks:
       - app-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P YourStrong!Password -Q 'SELECT 1'"]
+      test: ["CMD-SHELL", "pg_isready -U nguyenviethung -d daiminh_pg"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -53,6 +53,8 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
 
 volumes:
+  postgresql-daiminh:         
+    name: daiminh-postgresql-data
   sqlserver-daiminh:
     name: daiminh-sqlserver-data
   minio-daiminh2:

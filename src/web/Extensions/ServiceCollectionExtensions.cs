@@ -16,8 +16,13 @@ public static class ServiceCollectionExtensions
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string not found."));
+            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"), npgsqlOptionsAction: sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorCodesToAdd: null);
+            });
         });
 
         return services;

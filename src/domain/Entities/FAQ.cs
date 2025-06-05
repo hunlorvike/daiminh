@@ -20,12 +20,12 @@ public class FAQConfiguration : BaseEntityConfiguration<FAQ, int>
     {
         base.Configure(builder);
         builder.Property(e => e.Question).IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Answer).IsRequired().HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Answer).IsRequired().HasColumnType("TEXT");
         builder.Property(e => e.OrderIndex).HasDefaultValue(0);
         builder.HasIndex(e => e.OrderIndex);
 
         builder.Property(e => e.IsActive).HasDefaultValue(true);
-        builder.Property(e => e.CategoryId).HasColumnName("category_id");
+        builder.Property(e => e.CategoryId);
         builder.HasOne(e => e.Category)
             .WithMany(c => c.FAQs)
             .HasForeignKey(e => e.CategoryId)

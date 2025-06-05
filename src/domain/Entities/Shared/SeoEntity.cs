@@ -33,28 +33,28 @@ public abstract class SeoEntityConfiguration<TEntity, TKey> : BaseEntityConfigur
     {
         base.Configure(builder);
 
-        builder.Property(e => e.MetaTitle).HasColumnName("meta_title").HasMaxLength(100);
-        builder.Property(e => e.MetaDescription).HasColumnName("meta_description").HasMaxLength(300);
-        builder.Property(e => e.MetaKeywords).HasColumnName("meta_keywords").HasMaxLength(200);
+        builder.Property(e => e.MetaTitle).HasMaxLength(100);
+        builder.Property(e => e.MetaDescription).HasMaxLength(300);
+        builder.Property(e => e.MetaKeywords).HasMaxLength(200);
 
-        builder.Property(e => e.CanonicalUrl).HasColumnName("canonical_url").HasMaxLength(255);
-        builder.Property(e => e.NoIndex).HasColumnName("no_index").HasDefaultValue(false);
-        builder.Property(e => e.NoFollow).HasColumnName("no_follow").HasDefaultValue(false);
+        builder.Property(e => e.CanonicalUrl).HasMaxLength(255);
+        builder.Property(e => e.NoIndex).HasDefaultValue(false);
+        builder.Property(e => e.NoFollow).HasDefaultValue(false);
 
-        builder.Property(e => e.OgTitle).HasColumnName("og_title").HasMaxLength(100);
-        builder.Property(e => e.OgDescription).HasColumnName("og_description").HasMaxLength(300);
-        builder.Property(e => e.OgImage).HasColumnName("og_image").HasMaxLength(255);
-        builder.Property(e => e.OgType).HasColumnName("og_type").HasMaxLength(50).HasDefaultValue("website");
+        builder.Property(e => e.OgTitle).HasMaxLength(100);
+        builder.Property(e => e.OgDescription).HasMaxLength(300);
+        builder.Property(e => e.OgImage).HasMaxLength(255);
+        builder.Property(e => e.OgType).HasMaxLength(50).HasDefaultValue("website");
 
-        builder.Property(e => e.TwitterTitle).HasColumnName("twitter_title").HasMaxLength(100);
-        builder.Property(e => e.TwitterDescription).HasColumnName("twitter_description").HasMaxLength(300);
-        builder.Property(e => e.TwitterImage).HasColumnName("twitter_image").HasMaxLength(255);
-        builder.Property(e => e.TwitterCard).HasColumnName("twitter_card").HasMaxLength(50).HasDefaultValue("summary_large_image");
+        builder.Property(e => e.TwitterTitle).HasMaxLength(100);
+        builder.Property(e => e.TwitterDescription).HasMaxLength(300);
+        builder.Property(e => e.TwitterImage).HasMaxLength(255);
+        builder.Property(e => e.TwitterCard).HasMaxLength(50).HasDefaultValue("summary_large_image");
 
-        builder.Property(e => e.SchemaMarkup).HasColumnName("schema_markup").HasColumnType("nvarchar(max)");
-        builder.Property(e => e.BreadcrumbJson).HasColumnName("breadcrumb_json").HasColumnType("nvarchar(max)");
+        builder.Property(e => e.SchemaMarkup).HasColumnType("TEXT");
+        builder.Property(e => e.BreadcrumbJson).HasColumnType("TEXT");
 
-        builder.Property(e => e.SitemapPriority).HasColumnName("sitemap_priority").HasColumnType("float").HasDefaultValue(0.5);
-        builder.Property(e => e.SitemapChangeFrequency).HasColumnName("sitemap_change_frequency").HasMaxLength(20).HasDefaultValue("monthly");
+        builder.Property(e => e.SitemapPriority).HasDefaultValue(0.5);
+        builder.Property(e => e.SitemapChangeFrequency).HasMaxLength(20).HasDefaultValue("monthly");
     }
 }

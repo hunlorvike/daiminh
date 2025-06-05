@@ -26,7 +26,7 @@ public class BrandConfiguration : BaseEntityConfiguration<Brand, int>
         builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Description).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Description).HasColumnType("TEXT");
         builder.Property(e => e.LogoUrl).HasMaxLength(2048);
         builder.Property(e => e.Website).HasMaxLength(255);
         builder.Property(e => e.IsActive).HasDefaultValue(true);

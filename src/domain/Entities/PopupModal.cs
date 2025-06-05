@@ -26,7 +26,7 @@ public class PopupModalConfiguration : BaseEntityConfiguration<PopupModal, int>
     {
         base.Configure(builder);
         builder.Property(e => e.Title).IsRequired().HasMaxLength(255);
-        builder.Property(e => e.Content).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Content).HasColumnType("TEXT");
         builder.Property(e => e.ImageUrl).HasMaxLength(2048);
         builder.Property(e => e.LinkUrl).HasMaxLength(2048);
         builder.Property(e => e.TargetPages)
@@ -43,7 +43,7 @@ public class PopupModalConfiguration : BaseEntityConfiguration<PopupModal, int>
         builder.Property(e => e.DelaySeconds).IsRequired().HasDefaultValue(0);
 
         builder.Property(e => e.IsActive).HasDefaultValue(true);
-        builder.Property(e => e.StartDate);
-        builder.Property(e => e.EndDate);
+        builder.Property(e => e.StartDate).HasColumnType("timestamp without time zone");
+        builder.Property(e => e.EndDate).HasColumnType("timestamp without time zone");
     }
 }

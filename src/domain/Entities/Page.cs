@@ -22,10 +22,10 @@ public class PageConfiguration : BaseEntityConfiguration<Page, int>
         builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Content).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Content).HasColumnType("TEXT");
         builder.Property(e => e.Status)
             .IsRequired()
             .HasDefaultValue(PublishStatus.Draft);
-        builder.Property(e => e.PublishedAt);
+        builder.Property(e => e.PublishedAt).HasColumnType("timestamp without time zone");
     }
 }

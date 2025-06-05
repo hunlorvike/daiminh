@@ -29,7 +29,7 @@ public class MediaFileConfiguration : BaseEntityConfiguration<MediaFile, int>
         builder.Property(e => e.MimeType).HasMaxLength(100);
         builder.Property(e => e.FileExtension).HasMaxLength(10);
 
-        builder.Property(e => e.FilePath).HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.FilePath).HasColumnType("TEXT").IsRequired();
 
         builder.Property(e => e.Description).HasMaxLength(255);
         builder.Property(e => e.AltText).HasMaxLength(255);

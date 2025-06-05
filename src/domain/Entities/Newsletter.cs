@@ -26,7 +26,7 @@ public class NewsletterConfiguration : BaseEntityConfiguration<Newsletter, int>
         builder.Property(e => e.IsActive).HasDefaultValue(true);
         builder.Property(e => e.IpAddress).HasMaxLength(50);
         builder.Property(e => e.UserAgent).HasMaxLength(255);
-        builder.Property(e => e.ConfirmedAt);
-        builder.Property(e => e.UnsubscribedAt);
+        builder.Property(e => e.ConfirmedAt).HasColumnType("timestamp without time zone");
+        builder.Property(e => e.UnsubscribedAt).HasColumnType("timestamp without time zone");
     }
 }

@@ -38,12 +38,12 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
         builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Description).HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.Description).HasColumnType("TEXT").IsRequired();
         builder.Property(e => e.ShortDescription).HasMaxLength(500);
         builder.Property(e => e.Manufacturer).HasMaxLength(255);
         builder.Property(e => e.Origin).HasMaxLength(100);
-        builder.Property(e => e.Specifications).HasColumnType("nvarchar(max)");
-        builder.Property(e => e.Usage).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Specifications).HasColumnType("TEXT");
+        builder.Property(e => e.Usage).HasColumnType("TEXT");
         builder.Property(e => e.ViewCount).HasDefaultValue(0);
         builder.Property(e => e.IsFeatured).HasDefaultValue(false);
         builder.Property(e => e.IsActive).HasDefaultValue(true);

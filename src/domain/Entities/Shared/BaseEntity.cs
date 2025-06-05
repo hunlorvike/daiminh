@@ -23,18 +23,11 @@ public abstract class BaseEntityConfiguration<TEntity, TKey> : IEntityTypeConfig
         builder.HasKey(e => e.Id);
 
         builder.Property(e => e.CreatedAt)
-            .HasColumnName("created_at")
-            .HasDefaultValueSql("GETDATE()");
+            .HasDefaultValueSql("NOW()")
+            .HasColumnType("timestamp without time zone");
 
         builder.Property(e => e.UpdatedAt)
-            .HasColumnName("updated_at");
-
-        builder.Property(e => e.CreatedBy)
-            .HasColumnName("created_by")
-            .HasMaxLength(50);
-
-        builder.Property(e => e.UpdatedBy)
-            .HasColumnName("updated_by")
-            .HasMaxLength(50);
+            .HasColumnType("timestamp without time zone")
+            .IsRequired(false);
     }
 }

@@ -28,8 +28,8 @@ public class SettingConfiguration : BaseEntityConfiguration<Setting, int>
             .IsRequired()
             .HasDefaultValue(FieldType.Text);
         builder.Property(s => s.Description).HasMaxLength(500);
-        builder.Property(s => s.DefaultValue).HasColumnType("nvarchar(max)");
-        builder.Property(s => s.Value).HasColumnType("nvarchar(max)");
+        builder.Property(s => s.DefaultValue).HasColumnType("TEXT");
+        builder.Property(s => s.Value).HasColumnType("TEXT");
         builder.Property(s => s.IsActive).HasDefaultValue(true);
     }
 }

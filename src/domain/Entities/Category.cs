@@ -32,7 +32,7 @@ public class CategoryConfiguration : BaseEntityConfiguration<Category, int>
         builder.Property(e => e.Slug).IsRequired().HasMaxLength(100);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Description).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Description).HasColumnType("TEXT");
 
         builder.Property(e => e.Icon).HasMaxLength(50);
         builder.Property(e => e.ParentId);

@@ -36,14 +36,13 @@ public class ArticleConfiguration : SeoEntityConfiguration<Article, int>
         builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
 
-        builder.Property(e => e.Content).HasColumnType("nvarchar(max)").IsRequired();
+        builder.Property(e => e.Content).HasColumnType("TEXT").IsRequired();
         builder.Property(e => e.Summary).HasMaxLength(500);
         builder.Property(e => e.FeaturedImage).HasMaxLength(255);
         builder.Property(e => e.ThumbnailImage).HasMaxLength(255);
         builder.Property(e => e.ViewCount).HasDefaultValue(0);
         builder.Property(e => e.IsFeatured).HasDefaultValue(false);
-        builder.Property(e => e.PublishedAt);
-        builder.HasIndex(e => e.PublishedAt);
+        builder.Property(e => e.PublishedAt).HasColumnType("timestamp without time zone");
 
         builder.Property(e => e.AuthorId).HasMaxLength(50);
         builder.Property(e => e.AuthorName).HasMaxLength(100);

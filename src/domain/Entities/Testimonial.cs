@@ -25,7 +25,7 @@ public class TestimonialConfiguration : BaseEntityConfiguration<Testimonial, int
         builder.Property(e => e.ClientTitle).HasMaxLength(100);
         builder.Property(e => e.ClientCompany).HasMaxLength(100);
         builder.Property(e => e.ClientAvatar).HasMaxLength(255);
-        builder.Property(e => e.Content).IsRequired().HasColumnType("nvarchar(max)");
+        builder.Property(e => e.Content).IsRequired().HasColumnType("TEXT");
         builder.Property(e => e.Rating).HasDefaultValue(5);
 
         builder.HasIndex(e => e.Rating);
