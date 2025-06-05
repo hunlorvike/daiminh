@@ -13,28 +13,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "shared", "src\shared\shared
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web", "src\web\web.csproj", "{BAE0833B-A9FF-41DF-80ED-97139700452F}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "domain.tests", "tests\domain.tests\domain.tests.csproj", "{F399CED7-AF65-46BB-8112-EC4993AAF64A}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "infrastructure.tests", "tests\infrastructure.tests\infrastructure.tests.csproj", "{507DCC72-3148-4302-876D-7111EDE56822}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "web.tests", "tests\web.tests\web.tests.csproj", "{E6B73CAB-D88F-4C36-BFD7-5984D8ED51D5}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
-		docs\DEPLOY.MD = docs\DEPLOY.MD
 		README.MD = README.MD
-		docs\UPDATE.MD = docs\UPDATE.MD
-	EndProjectSection
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docker", "docker", "{6FB2BA5D-4828-4AD0-B784-8964F013F718}"
-	ProjectSection(SolutionItems) = preProject
-		docker-compose.db.yml = docker-compose.db.yml
-		docker-compose.minio.yml = docker-compose.minio.yml
-		docker-compose.web.yml = docker-compose.web.yml
-		docker-compose.yml = docker-compose.yml
-		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject
 Global
