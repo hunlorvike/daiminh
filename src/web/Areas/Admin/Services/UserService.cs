@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
@@ -7,6 +6,7 @@ using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
+using System.Security.Claims;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;

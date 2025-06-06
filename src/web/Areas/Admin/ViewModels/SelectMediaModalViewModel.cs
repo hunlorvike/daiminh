@@ -1,5 +1,3 @@
-using X.PagedList;
-
 namespace web.Areas.Admin.ViewModels;
 
 public class SelectMediaModalViewModel

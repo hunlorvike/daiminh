@@ -1,4 +1,3 @@
-using System.Text.Json;
 using AutoMapper;
 using domain.Entities;
 using infrastructure;
@@ -7,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
+using System.Text.Json;
 using web.Areas.Client.Validators;
 using web.Areas.Client.ViewModels;
 

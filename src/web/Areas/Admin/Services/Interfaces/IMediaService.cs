@@ -1,5 +1,4 @@
 using domain.Entities;
-using shared.Enums;
 using shared.Models;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
