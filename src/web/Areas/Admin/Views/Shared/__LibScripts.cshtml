@@ -1,14 +1,14 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 @{
-	var tokens = Antiforgery.GetAndStoreTokens(Context);
-	var antiForgeryTokenValue = tokens.RequestToken;
+    var tokens = Antiforgery.GetAndStoreTokens(Context);
+    var antiForgeryTokenValue = tokens.RequestToken;
 }
 
 <!-- Jquery Scripts -->
 <script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
 <script src="~/lib/jquery-validation/dist/jquery.validate.min.js" asp-append-version="true"></script>
 <script src="~/lib/jquery-validation-unobtrusive/dist/jquery.validate.unobtrusive.min.js"
-		asp-append-version="true"></script>
+        asp-append-version="true"></script>
 
 <!-- Tabler Scripts -->
 <script src="~/lib/tabler/core/dist/js/tabler.min.js" asp-append-version="true"></script>
@@ -22,6 +22,9 @@
 <!-- Toastr Scripts -->
 <script src="~/lib/toastr/build/toastr.min.js" asp-append-version="true"></script>
 
+<!-- Apexcharts Scripts -->
+<script src="~/lib/apexcharts/dist/apexcharts.min.js" asp-append-version="true"></script>
+
 <!-- Litepicker Scripts -->
 <script src="~/lib/litepicker/dist/litepicker.min.js" asp-append-version="true"></script>
 
@@ -34,46 +37,46 @@
 <script src="~/js/tomselected.js" asp-append-version="true"></script>
 
 <script>
-	$(function () {
-		// Hiển thị toast
-		$('.toast').each(function () {
-			new tabler.Toast(this, {
-				autohide: true,
-				delay: 5000
-			}).show();
-		});
+    $(function () {
+        // Hiển thị toast
+        $('.toast').each(function () {
+            new tabler.Toast(this, {
+                autohide: true,
+                delay: 5000
+            }).show();
+        });
 
-		// Đổi icon collapse nếu màn hình nhỏ
-		if ($(window).width() < 992) {
-			$('[data-bs-toggle="collapse"]').each(function () {
-				var $toggle = $(this);
-				var $icon = $toggle.find('i');
-				var targetId = $toggle.attr('href');
-				var $target = $(targetId);
+        // Đổi icon collapse nếu màn hình nhỏ
+        if ($(window).width() < 992) {
+            $('[data-bs-toggle="collapse"]').each(function () {
+                var $toggle = $(this);
+                var $icon = $toggle.find('i');
+                var targetId = $toggle.attr('href');
+                var $target = $(targetId);
 
-				if ($target.length) {
-					$target.on('show.bs.collapse', function () {
-						$icon.removeClass('ti-chevron-down').addClass('ti-chevron-up');
-					});
-					$target.on('hide.bs.collapse', function () {
-						$icon.removeClass('ti-chevron-up').addClass('ti-chevron-down');
-					});
-				}
-			});
-		}
+                if ($target.length) {
+                    $target.on('show.bs.collapse', function () {
+                        $icon.removeClass('ti-chevron-down').addClass('ti-chevron-up');
+                    });
+                    $target.on('hide.bs.collapse', function () {
+                        $icon.removeClass('ti-chevron-up').addClass('ti-chevron-down');
+                    });
+                }
+            });
+        }
 
-		// Xử lý nút xóa
-		$(document).on('click', '.delete-item-btn', function () {
-			console.log('Xóa mục');
-			var $btn = $(this);
-			var id = $btn.data('id');
-			var name = $btn.data('name');
-			var url = $btn.data('delete-url');
+        // Xử lý nút xóa
+        $(document).on('click', '.delete-item-btn', function () {
+            console.log('Xóa mục');
+            var $btn = $(this);
+            var id = $btn.data('id');
+            var name = $btn.data('name');
+            var url = $btn.data('delete-url');
 
-			$('#delete-item-id').val(id);
-			$('#delete-form').attr('action', url);
-			$('#delete-modal-message').text('Bạn có chắc chắn muốn xóa "' + name + '"?');
-			$('#delete-confirmation-modal').modal('show');
-		});
-	});
+            $('#delete-item-id').val(id);
+            $('#delete-form').attr('action', url);
+            $('#delete-modal-message').text('Bạn có chắc chắn muốn xóa "' + name + '"?');
+            $('#delete-confirmation-modal').modal('show');
+        });
+    });
 </script>

@@ -12,666 +12,371 @@
         <input type="text" class="form-control" id="dashboardDateRangePicker" placeholder="Chọn khoảng thời gian..." />
     </div>
 }
-
-<!-- I. Tổng quan KPI -->
-<div class="page-header mb-3">
-    <h2 class="page-title"><i class="ti ti-chart-bar me-2 text-primary"></i>Tổng Quan KPI</h2>
-</div>
-<div class="row row-cards mb-3">
-    <!-- KPI: Bài viết mới -->
-    <div class="col-sm-6 col-lg-4">
-        <div class="card kpi-card">
+<div class="row row-deck row-cards mb-3">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
             <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Bài Viết Mới</div>
-                    <div class="ms-auto lh-1">
-                        <div class="dropdown">
-                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">7 ngày qua</a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item active" href="#">7 ngày qua</a>
-                                <a class="dropdown-item" href="#">30 ngày qua</a>
-                                <a class="dropdown-item" href="#">Năm nay</a>
-                            </div>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-primary text-white avatar"><i class="ti ti-file-text"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium">Bài Viết Mới (7 ngày)</div>
+                        <div class="text-muted" id="kpiNewArticlesCount">--</div>
+                    </div>
+                    <div class="col-auto">
+                        <span class="text-success d-inline-flex align-items-center lh-1" id="kpiNewArticlesTrend"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-azure text-white avatar"><i class="ti ti-package"></i></span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium">Sản Phẩm Mới (7 ngày)</div>
+                        <div class="text-muted" id="kpiNewProductsCount">--</div>
+                    </div>
+                    <div class="col-auto">
+                        <span class="text-danger d-inline-flex align-items-center lh-1" id="kpiNewProductsTrend"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-green text-white avatar">
+                            <i class="ti ti-mail-opened"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium">
+                            Liên Hệ Mới (Hôm nay)
+                        </div>
+                        <div class="text-muted" id="kpiNewContactsCount">
+                            --
                         </div>
                     </div>
-                </div>
-                <div class="d-flex align-items-baseline">
-                    <div class="h1 mb-0 me-2 kpi-value" id="kpiNewArticlesCount">--</div>
-                    <div class="ms-auto">
-                        <span class="kpi-trend" id="kpiNewArticlesTrend"></span>
+                    <div class="col-auto">
+                        <span class="text-success d-inline-flex align-items-center lh-1" id="kpiNewContactsTrend">
+                        </span>
                     </div>
                 </div>
             </div>
-            <div id="chart-kpi-new-articles" class="chart-sm"></div>
         </div>
     </div>
-    <!-- KPI: Sản phẩm mới -->
-    <div class="col-sm-6 col-lg-4">
-        <div class="card kpi-card">
+    <div class="col-sm-6 col-lg-3">
+        <div class="card card-sm">
             <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Sản Phẩm Mới</div>
-                    <div class="ms-auto lh-1">
-                        <div class="dropdown">
-                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">7 ngày qua</a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item active" href="#">7 ngày qua</a>
-                                <a class="dropdown-item" href="#">30 ngày qua</a>
-                                <a class="dropdown-item" href="#">Năm nay</a>
-                            </div>
+                <div class="row align-items-center">
+                    <div class="col-auto">
+                        <span class="bg-yellow text-white avatar">
+                            <i class="ti ti-users"></i>
+                        </span>
+                    </div>
+                    <div class="col">
+                        <div class="font-weight-medium">
+                            Người Dùng Mới (7 ngày)
+                        </div>
+                        <div class="text-muted" id="kpiNewUsersCount">
+                            --
                         </div>
                     </div>
-                </div>
-                <div class="d-flex align-items-baseline">
-                    <div class="h1 mb-0 me-2 kpi-value" id="kpiNewProductsCount">--</div>
-                    <div class="ms-auto">
-                        <span class="kpi-trend" id="kpiNewProductsTrend"></span>
+                    <div class="col-auto">
+                        <span class="text-success d-inline-flex align-items-center lh-1" id="kpiNewUsersTrend">
+                        </span>
                     </div>
                 </div>
-            </div>
-            <div id="chart-kpi-new-products" class="chart-sm"></div>
-        </div>
-    </div>
-    <!-- KPI: Liên hệ mới -->
-    <div class="col-sm-6 col-lg-4">
-        <div class="card kpi-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Liên Hệ Mới</div>
-                    <div class="ms-auto lh-1">
-                        <div class="dropdown">
-                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">7 ngày qua</a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item active" href="#">7 ngày qua</a>
-                                <a class="dropdown-item" href="#">30 ngày qua</a>
-                                <a class="dropdown-item" href="#">Năm nay</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-baseline">
-                    <div class="h1 mb-0 me-2 kpi-value" id="kpiNewContactsCount">--</div>
-                    <div class="ms-auto">
-                        <span class="kpi-trend" id="kpiNewContactsTrend"></span>
-                    </div>
-                </div>
-            </div>
-            <div id="chart-kpi-new-contacts" class="chart-sm"></div>
-        </div>
-    </div>
-    <!-- KPI: Người dùng mới -->
-    <div class="col-sm-6 col-lg-6">
-        <div class="card kpi-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Người Dùng Mới</div>
-                    <div class="ms-auto lh-1">
-                        <div class="dropdown">
-                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">7 ngày qua</a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item active" href="#">7 ngày qua</a>
-                                <a class="dropdown-item" href="#">30 ngày qua</a>
-                                <a class="dropdown-item" href="#">Năm nay</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-baseline">
-                    <div class="h1 mb-0 me-2 kpi-value" id="kpiNewUsersCount">--</div>
-                    <div class="ms-auto">
-                        <span class="kpi-trend" id="kpiNewUsersTrend"></span>
-                    </div>
-                </div>
-            </div>
-            <div id="chart-kpi-new-users" class="chart-sm"></div>
-        </div>
-    </div>
-    <!-- KPI: Đăng ký newsletter -->
-    <div class="col-sm-6 col-lg-6">
-        <div class="card kpi-card">
-            <div class="card-body">
-                <div class="d-flex align-items-center">
-                    <div class="subheader">Đăng Ký Newsletter</div>
-                    <div class="ms-auto lh-1">
-                        <div class="dropdown">
-                            <a class="dropdown-toggle text-muted" href="#" data-bs-toggle="dropdown">7 ngày qua</a>
-                            <div class="dropdown-menu dropdown-menu-end">
-                                <a class="dropdown-item active" href="#">7 ngày qua</a>
-                                <a class="dropdown-item" href="#">30 ngày qua</a>
-                                <a class="dropdown-item" href="#">Năm nay</a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="d-flex align-items-baseline">
-                    <div class="h1 mb-0 me-2 kpi-value" id="kpiNewNewslettersCount">--</div>
-                    <div class="ms-auto">
-                        <span class="kpi-trend" id="kpiNewNewslettersTrend"></span>
-                    </div>
-                </div>
-            </div>
-            <div id="chart-kpi-new-newsletters" class="chart-sm"></div>
-        </div>
-    </div>
-</div>
-
-<!-- II. Phân tích nội dung & sản phẩm -->
-<div class="page-header mt-4 mb-3">
-    <h2 class="page-title"><i class="ti ti-file-analytics me-2 text-azure"></i>Phân Tích Nội Dung & Sản Phẩm</h2>
-</div>
-<!-- Bài viết -->
-<div class="row row-cards mb-3">
-    <div class="col-md-12"><h3 class="h4 text-muted"><i class="ti ti-article me-1"></i>Bài Viết</h3></div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Xuất Bản Theo Thời Gian</h3></div>
-            <div class="card-body">
-                <div id="chart-articles-published-time" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Phân Bổ Theo Danh Mục</h3></div>
-            <div class="card-body">
-                <div id="chart-articles-by-category" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Trạng Thái Bài Viết</h3></div>
-            <div class="card-body">
-                <div id="chart-article-status" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-12 mt-3">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Top Bài Viết Xem Nhiều Nhất</h3></div>
-            <div class="table-responsive">
-                <table class="table card-table table-vcenter text-nowrap" id="table-top-articles">
-                    <thead><tr><th>Tiêu đề</th><th>Lượt xem</th><th>Ngày XB</th><th>Danh mục</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Sản phẩm -->
-<div class="row row-cards mb-3">
-    <div class="col-md-12"><h3 class="h4 text-muted"><i class="ti ti-package me-1"></i>Sản Phẩm</h3></div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Sản Phẩm Mới Theo Thời Gian</h3></div>
-            <div class="card-body">
-                <div id="chart-products-activity-time" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Phân Bổ Theo Danh Mục</h3></div>
-            <div class="card-body">
-                <div id="chart-products-by-category" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Phân Bổ Theo Thương Hiệu</h3></div>
-            <div class="card-body">
-                <div id="chart-products-by-brand" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6 mt-3">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Trạng Thái Sản Phẩm</h3></div>
-            <div class="card-body">
-                <div id="chart-product-status" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6 mt-3">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Top Sản Phẩm Xem Nhiều Nhất</h3></div>
-            <div class="table-responsive">
-                <table class="table card-table table-vcenter text-nowrap" id="table-top-products">
-                    <thead><tr><th>Tên sản phẩm</th><th>Lượt xem</th><th>Danh mục</th><th>Thương hiệu</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Banner/Popup -->
-<div class="row row-cards mb-3">
-    <div class="col-md-12"><h3 class="h4 text-muted"><i class="ti ti-ad-2 me-1"></i>Banner & Popup</h3></div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Phân Bổ Theo Loại</h3></div>
-            <div class="card-body">
-                <div id="chart-banner-type-distribution" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Trạng Thái</h3></div>
-            <div class="card-body">
-                <div id="chart-banner-status" style="height: 250px;"></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- III. Phân tích tương tác & khách hàng -->
-<div class="page-header mt-4 mb-3">
-    <h2 class="page-title"><i class="ti ti-messages me-2 text-green"></i>Phân Tích Tương Tác & Khách Hàng</h2>
-</div>
-<!-- Liên hệ -->
-<div class="row row-cards mb-3">
-    <div class="col-md-12"><h3 class="h4 text-muted"><i class="ti ti-mail-opened me-1"></i>Liên Hệ</h3></div>
-    <div class="col-lg-6">
+<div class="row row-deck row-cards mb-3">
+    <div class="col-lg-7">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Liên Hệ Mới Theo Thời Gian</h3></div>
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-chart-line me-2 text-primary"></i>Hoạt Động Tổng Quan</h3>
+            </div>
             <div class="card-body">
-                <div id="chart-new-contacts-time" style="height: 250px;"></div>
+                <div id="chart-main-overview" style="height: 300px;"></div>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
+    <div class="col-lg-5">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Phân Bổ Trạng Thái</h3></div>
-            <div class="card-body">
-                <div id="chart-contact-status-distribution" style="height: 250px;"></div>
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-chart-pie me-2 text-azure"></i>Phân Bổ Nội Dung Chính</h3>
             </div>
-        </div>
-    </div>
-</div>
-<!-- Đánh giá -->
-<div class="row row-cards mb-3">
-    <div class="col-md-12"><h3 class="h4 text-muted"><i class="ti ti-stars me-1"></i>Đánh Giá</h3></div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Đánh Giá Mới</h3></div>
             <div class="card-body">
-                <div id="chart-new-reviews-time" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Phân Bổ Rating</h3></div>
-            <div class="card-body">
-                <div id="chart-product-rating-distribution" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-4 col-md-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Trạng Thái Duyệt</h3></div>
-            <div class="card-body">
-                <div id="chart-product-review-status" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-</div>
-<!-- Newsletter -->
-<div class="row row-cards mb-3">
-    <div class="col-md-12"><h3 class="h4 text-muted"><i class="ti ti-news me-1"></i>Đăng Ký Newsletter</h3></div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Lượt Đăng Ký Mới</h3></div>
-            <div class="card-body">
-                <div id="chart-newsletter-subscriptions-time" style="height: 250px;"></div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header"><h3 class="card-title">Trạng Thái</h3></div>
-            <div class="card-body">
-                <div id="chart-newsletter-status" style="height: 250px;"></div>
+                <div id="chart-content-distribution" style="height: 300px;"></div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- IV. Phân tích người dùng -->
-<div class="page-header mt-4 mb-3">
-    <h2 class="page-title"><i class="ti ti-users me-2 text-purple"></i>Phân Tích Người Dùng</h2>
-</div>
-<div class="row row-cards mb-3">
-    <div class="col-lg-6">
+<div class="row row-deck row-cards">
+    <div class="col-md-6 col-lg-4">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Người Dùng Mới</h3></div>
-            <div class="card-body">
-                <div id="chart-new-registered-users-time" style="height: 250px;"></div>
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-article me-2 text-indigo"></i>Bài Viết Mới Nhất</h3>
+                <div class="card-actions">
+                    <a asp-area="Admin" asp-controller="Article" asp-action="Index" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                </div>
+            </div>
+            <div class="list-group list-group-flush list-group-hoverable" style="max-height: 350px; overflow-y: auto;">
+                <div id="latest-articles-list">
+                    <div class="list-group-item p-3 text-center text-muted">Đang tải...</div>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-lg-6">
+
+    <div class="col-md-6 col-lg-4">
         <div class="card">
-            <div class="card-header"><h3 class="card-title">Phân Bổ Vai Trò</h3></div>
-            <div class="card-body">
-                <div id="chart-user-role-distribution" style="height: 250px;"></div>
+            <div class="card-header">
+                <h3 class="card-title"><i class="ti ti-package me-2 text-purple"></i>Sản Phẩm Xem Nhiều</h3>
+                <div class="card-actions">
+                    <a asp-area="Admin" asp-controller="Product" asp-action="Index" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                </div>
+            </div>
+            <div class="list-group list-group-flush list-group-hoverable" style="max-height: 350px; overflow-y: auto;">
+                <div id="top-products-list">
+                    <div class="list-group-item p-3 text-center text-muted">Đang tải...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    <i class="ti ti-message-circle-2-filled me-2 text-yellow"></i>Liên Hệ Cần Xử Lý
+                </h3>
+                <div class="card-actions">
+                    <a asp-area="Admin" asp-controller="Contact" asp-action="Index" class="btn btn-sm btn-outline-primary">Xem tất cả</a>
+                </div>
+            </div>
+            <div class="list-group list-group-flush list-group-hoverable" style="max-height: 350px; overflow-y: auto;">
+                <div id="pending-contacts-list">
+                    <div class="list-group-item p-3 text-center text-muted">Đang tải...</div>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.53.0/dist/apexcharts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/litepicker@2.0.12/dist/litepicker.js"></script>
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            // Mock API Data
-            const mockApiData = {
-                kpi: {
-                    articles: { current: 150, previous: 135, trend: 11.11, currentData: [10, 15, 25, 18, 20, 22, 40], previousData: [8, 12, 20, 15, 18, 20, 42] },
-                    products: { current: 8, previous: 6, trend: -8.33, currentData: [8, 6, 7, 5, 3, 4, 5], previousData: [9, 7, 8, 6, 4, 5, 6] },
-                    contacts: { current: 75, previous: 60, trend: 25, currentData: [5, 8, 6, 10, 7, 12, 27], previousData: [4, 6, 5, 8, 6, 10, 21] },
-                    users: { current: 30, previous: 25, trend: 20, currentData: [2, 4, 3, 5, 3, 6, 7], previousData: [1, 3, 2, 4, 2, 5, 8] },
-                    newsletters: { current: 50, previous: 45, trend: 11.11, currentData: [3, 5, 4, 6, 2, 7, 23], previousData: [2, 4, 3, 5, 1, 6, 24] }
-                },
-                articles: {
-                    published: { current: [5, 8, 12, 10, 15, 13, 27], previous: [4, 7, 10, 9, 13, 11, 28] },
-                    categories: { labels: ["Hướng Dẫn", "Kinh Nghiệm", "Dự Án", "Tin Tức", "Kiến Thức"], values: [30, 25, 20, 15, 10] },
-                    status: { labels: ["Đã xuất bản", "Bản nháp", "Lưu trữ"], values: [75, 20, 5] },
-                    top: [
-                        { title: "Mẹo chọn sơn chống thấm", views: 2105, date: "15/07/2024", category: "Kinh Nghiệm Sơn" },
-                        { title: "Hướng dẫn thi công Kova CT11A", views: 1850, date: "10/07/2024", category: "Hướng Dẫn Thi Công" },
-                        { title: "Dự án biệt thự An Khang", views: 1500, date: "05/07/2024", category: "Dự Án Tiêu Biểu" },
-                        { title: "Sơn Dulux dòng mới", views: 1230, date: "01/07/2024", category: "Tin Tức" },
-                        { title: "Bảng màu nội thất 2024", views: 1100, date: "25/06/2024", category: "Kiến Thức" }
-                    ]
-                },
-                products: {
-                    new: { current: [3, 5, 2, 6, 4, 7, 1], previous: [2, 4, 1, 5, 3, 6, 1] },
-                    categories: { labels: ["Nội Thất", "Ngoại Thất", "Chống Thấm", "Vật Liệu", "Dụng Cụ"], values: [35, 25, 20, 10, 10] },
-                    brands: { labels: ["Kova", "Dulux", "Jotun", "Mykolor", "Nippon"], values: [50, 45, 38, 30, 25] },
-                    status: { labels: ["Đang bán", "Bản nháp", "Ngừng kinh doanh"], values: [80, 15, 5] },
-                    top: [
-                        { name: "Kova CT-11A Gold", views: 3500, category: "Chống Thấm", brand: "Kova" },
-                        { name: "Dulux Inspire Nội Thất", views: 2800, category: "Nội Thất", brand: "Dulux" },
-                        { name: "Jotun Jotashield", views: 2250, category: "Ngoại Thất", brand: "Jotun" },
-                        { name: "Mykolor Ruby Feel", views: 1980, category: "Nội Thất", brand: "Mykolor" },
-                        { name: "Nippon Odour-less", views: 1700, category: "Nội Thất", brand: "Nippon" }
-                    ]
-                },
-                banners: {
-                    types: { labels: ["Header", "Sidebar", "Footer", "Inline", "Popup"], values: [40, 25, 15, 10, 10] },
-                    status: { labels: ["Hoạt động", "Không hoạt động"], values: [85, 15] }
-                },
-                contacts: {
-                    new: { current: [7, 10, 6, 12, 9, 15, 16], previous: [6, 8, 5, 10, 7, 12, 12] },
-                    status: { labels: ["Mới", "Đang xử lý", "Đã giải quyết", "Spam"], values: [60, 20, 15, 5] }
-                },
-                reviews: {
-                    new: { current: [3, 5, 2, 6, 4, 7, 8], previous: [2, 4, 1, 5, 3, 6, 6] },
-                    ratings: { labels: ["1 Sao", "2 Sao", "3 Sao", "4 Sao", "5 Sao"], values: [5, 15, 50, 120, 60] },
-                    status: { labels: ["Đã duyệt", "Chờ duyệt", "Từ chối"], values: [70, 20, 10] }
-                },
-                newsletters: {
-                    new: { current: [4, 6, 3, 8, 5, 9, 15], previous: [3, 5, 2, 7, 4, 8, 16] },
-                    status: { labels: ["Hoạt động", "Đã hủy"], values: [85, 15] }
-                },
-                users: {
-                    new: { current: [15, 20, 18, 25, 22, 30, 20], previous: [12, 18, 15, 22, 20, 25, 18] },
-                    roles: { labels: ["Super Admin", "Admin", "User"], values: [5, 20, 75] }
-                },
-                labels: ["T2", "T3", "T4", "T5", "T6", "T7", "CN"]
-            };
+        $(document).ready(function () {
+            let currentStartDate = null;
+            let currentEndDate = null;
 
-            // Date Range Picker
-            const dateRangePicker = new Litepicker({
-                element: document.getElementById('dashboardDateRangePicker'),
+            const picker = new Litepicker({
+                element: $("#dashboardDateRangePicker")[0],
                 singleMode: false,
                 allowRepick: true,
                 autoApply: true,
-                format: 'DD/MM/YYYY',
-                separator: ' - ',
-                showTooltip: true,
-                numberOfMonths: 2,
-                numberOfColumns: 2,
-                tooltipText: { one: 'ngày', other: 'ngày' },
-                ranges: {
-                    'Hôm nay': [new Date(), new Date()],
-                    '7 ngày qua': [new Date(new Date().setDate(new Date().getDate() - 6)), new Date()],
-                    '30 ngày qua': [new Date(new Date().setDate(new Date().getDate() - 29)), new Date()],
-                    'Tháng này': [new Date(new Date().getFullYear(), new Date().getMonth(), 1), new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0)],
-                    'Tháng trước': [new Date(new Date().getFullYear(), new Date().getMonth() - 1, 1), new Date(new Date().getFullYear(), new Date().getMonth(), 0)],
-                    'Năm nay': [new Date(new Date().getFullYear(), 0, 1), new Date(new Date().getFullYear(), 11, 31)]
-                },
-                dropdowns: { minYear: 2020, maxYear: null, months: true, years: true },
+                format: "DD/MM/YYYY",
+                separator: " - ",
                 buttonText: {
-                    previousMonth: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="15 6 9 12 15 18" /></svg>`,
-                    nextMonth: `<svg xmlns="http://www.w3.org/2000/svg" class="icon" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><polyline points="9 6 15 12 9 18" /></svg>`,
-                    apply: 'Áp dụng',
-                    cancel: 'Hủy',
-                    reset: 'Đặt lại'
+                    previousMonth: `<i class="ti ti-chevron-left"></i>`,
+                    nextMonth: `<i class="ti ti-chevron-right"></i>`,
+                    apply: "Áp dụng",
+                    cancel: "Hủy",
+                    reset: "Đặt lại",
                 },
-                onSelect: function (date1, date2) {
-                    console.log("Selected range:", date1, date2);
-                    // In a real app, fetch new data based on date range and update charts
-                }
             });
 
-            // Chart Options
-            const defaultChartOptions = {
-                chart: { height: 250, toolbar: { show: false }, animations: { enabled: true, speed: 800 }, zoom: { enabled: false } },
-                dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 2 },
-                markers: { size: 4, hover: { size: 6 } },
-                grid: { borderColor: '#e9ecef', strokeDashArray: 4, padding: { top: -20, right: 0, bottom: -10, left: 0 } },
-                legend: { show: true, position: 'bottom', horizontalAlign: 'center', offsetY: 5, itemMargin: { horizontal: 10, vertical: 5 } }
-            };
+            picker.on("selected",(date1, date2)=>{
+                currentStartDate = date1 ? date1.toJSDate() : null;
+                currentEndDate = date2 ? date2.toJSDate() : null;
+                fetchDashboardData(currentStartDate, currentEndDate);
+            })
 
-            const defaultPieChartOptions = {
-                chart: { type: 'pie', height: 250 },
-                legend: { position: 'bottom', offsetY: 5 },
-                plotOptions: { pie: { donut: { labels: { show: true, total: { show: true, label: 'Tổng' } } } } },
-                dataLabels: { enabled: true, formatter: function (val, opts) { return opts.w.globals.labels[opts.seriesIndex] + ": " + val.toFixed(1) + "%" } },
-                tooltip: { y: { formatter: function (val) { return val + "%" } } }
-            };
-
-            const defaultDonutChartOptions = {
-                ...defaultPieChartOptions,
-                chart: { ...defaultPieChartOptions.chart, type: 'donut' }
-            };
-
-            const defaultBarChartOptions = {
-                ...defaultChartOptions,
-                chart: { ...defaultChartOptions.chart, type: 'bar' },
-                plotOptions: { bar: { horizontal: false, columnWidth: '60%', borderRadius: 4 } },
-                xaxis: { labels: { show: true, rotate: -45, hideOverlappingLabels: true, trim: true, style: { fontSize: '10px' } } },
-                yaxis: { labels: { formatter: function (val) { return val.toFixed(0); } } }
-            };
-
-            // Render KPI Sparkline
-            function renderKPISparkline(elementId, currentData, previousData, color = '#206bc4') {
-                new ApexCharts(document.getElementById(elementId), {
-                    chart: { type: 'line', height: 50, sparkline: { enabled: true } },
-                    series: [
-                        { name: 'Hiện tại', data: currentData },
-                        { name: 'Kỳ trước', data: previousData }
-                    ],
-                    stroke: { curve: 'smooth', width: 2 },
-                    tooltip: { x: { show: false }, y: { title: { formatter: (seriesName) => seriesName + ': ' } } }
-                }).render();
-            }
-
-            // Update KPI
-            function updateKPI(id, data, color) {
-                document.getElementById(`kpi${id}Count`).textContent = data.current;
-                const trendElement = document.getElementById(`kpi${id}Trend`);
-                const trend = data.trend.toFixed(2);
-                trendElement.innerHTML = `<i class="ti ti-arrow-${trend >= 0 ? 'up' : 'down'} me-1"></i>${trend}%`;
-                trendElement.className = `kpi-trend text-${trend >= 0 ? 'success' : 'danger'}`;
-                renderKPISparkline(`chart-kpi-new-${id.toLowerCase()}`, data.currentData, data.previousData, color);
-            }
-
-            updateKPI('NewArticles', mockApiData.kpi.articles, '#206bc4');
-            updateKPI('NewProducts', mockApiData.kpi.products, '#d63939');
-            updateKPI('NewContacts', mockApiData.kpi.contacts, '#fab005');
-            updateKPI('NewUsers', mockApiData.kpi.users, '#6f42c1');
-            updateKPI('NewNewsletters', mockApiData.kpi.newsletters, '#4299e1');
-
-            // Articles
-            new ApexCharts(document.getElementById('chart-articles-published-time'), {
-                ...defaultChartOptions,
-                chart: { ...defaultChartOptions.chart, type: 'area' },
-                series: [
-                    { name: 'Hiện tại', data: mockApiData.articles.published.current },
-                    { name: 'Kỳ trước', data: mockApiData.articles.published.previous }
-                ],
-                xaxis: { categories: mockApiData.labels },
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-articles-by-category'), {
-                ...defaultDonutChartOptions,
-                series: mockApiData.articles.categories.values,
-                labels: mockApiData.articles.categories.labels
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-article-status'), {
-                ...defaultDonutChartOptions,
-                series: mockApiData.articles.status.values,
-                labels: mockApiData.articles.status.labels,
-            }).render();
-
-            const articleTable = document.querySelector('#table-top-articles tbody');
-            mockApiData.articles.top.forEach(article => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${article.title}</td><td>${article.views}</td><td>${article.date}</td><td>${article.category}</td>`;
-                articleTable.appendChild(row);
-            });
-
-            // Products
-            new ApexCharts(document.getElementById('chart-products-activity-time'), {
-                ...defaultChartOptions,
-                chart: { ...defaultChartOptions.chart, type: 'area' },
-                series: [
-                    { name: 'Hiện tại', data: mockApiData.products.new.current },
-                    { name: 'Kỳ trước', data: mockApiData.products.new.previous }
-                ],
-                xaxis: { categories: mockApiData.labels },
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-products-by-category'), {
-                ...defaultDonutChartOptions,
-                series: mockApiData.products.categories.values,
-                labels: mockApiData.products.categories.labels
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-products-by-brand'), {
-                ...defaultBarChartOptions,
-                series: [{ name: 'Số sản phẩm', data: mockApiData.products.brands.values }],
-                xaxis: { categories: mockApiData.products.brands.labels }
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-product-status'), {
-                ...defaultDonutChartOptions,
-                series: mockApiData.products.status.values,
-                labels: mockApiData.products.status.labels,
-            }).render();
-
-            const productTable = document.querySelector('#table-top-products tbody');
-            mockApiData.products.top.forEach(product => {
-                const row = document.createElement('tr');
-                row.innerHTML = `<td>${product.name}</td><td>${product.views}</td><td>${product.category}</td><td>${product.brand}</td>`;
-                productTable.appendChild(row);
-            });
-
-            // Banners
-            new ApexCharts(document.getElementById('chart-banner-type-distribution'), {
-                ...defaultPieChartOptions,
-                series: mockApiData.banners.types.values,
-                labels: mockApiData.banners.types.labels,
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-banner-status'), {
-                ...defaultPieChartOptions,
-                series: mockApiData.banners.status.values,
-                labels: mockApiData.banners.status.labels,
-            }).render();
-
-            // Contacts
-            new ApexCharts(document.getElementById('chart-new-contacts-time'), {
-                ...defaultChartOptions,
-                chart: { ...defaultChartOptions.chart, type: 'area' },
-                series: [
-                    { name: 'Hiện tại', data: mockApiData.contacts.new.current },
-                    { name: 'Kỳ trước', data: mockApiData.contacts.new.previous }
-                ],
-                xaxis: { categories: mockApiData.labels },
-                colors: ['#fab005', '#adb5bd']
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-contact-status-distribution'), {
-                ...defaultPieChartOptions,
-                series: mockApiData.contacts.status.values,
-                labels: mockApiData.contacts.status.labels,
-            }).render();
-
-            // Reviews
-            new ApexCharts(document.getElementById('chart-new-reviews-time'), {
-                ...defaultChartOptions,
-                chart: { ...defaultChartOptions.chart, type: 'area' },
-                series: [
-                    { name: 'Hiện tại', data: mockApiData.reviews.new.current },
-                    { name: 'Kỳ trước', data: mockApiData.reviews.new.previous }
-                ],
-                xaxis: { categories: mockApiData.labels },
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-product-rating-distribution'), {
-                ...defaultBarChartOptions,
-                series: [{ name: 'Số lượng', data: mockApiData.reviews.ratings.values }],
-                xaxis: { categories: mockApiData.reviews.ratings.labels }
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-product-review-status'), {
-                ...defaultDonutChartOptions,
-                series: mockApiData.reviews.status.values,
-                labels: mockApiData.reviews.status.labels,
-            }).render();
-
-            // Newsletters
-            new ApexCharts(document.getElementById('chart-newsletter-subscriptions-time'), {
-                ...defaultChartOptions,
-                chart: { ...defaultChartOptions.chart, type: 'area' },
-                series: [
-                    { name: 'Hiện tại', data: mockApiData.newsletters.new.current },
-                    { name: 'Kỳ trước', data: mockApiData.newsletters.new.previous }
-                ],
-                xaxis: { categories: mockApiData.labels },
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-newsletter-status'), {
-                ...defaultPieChartOptions,
-                series: mockApiData.newsletters.status.values,
-                labels: mockApiData.newsletters.status.labels,
-            }).render();
-
-            // Users
-            new ApexCharts(document.getElementById('chart-new-registered-users-time'), {
-                ...defaultChartOptions,
-                chart: { ...defaultChartOptions.chart, type: 'area' },
-                series: [
-                    { name: 'Hiện tại', data: mockApiData.users.new.current },
-                    { name: 'Kỳ trước', data: mockApiData.users.new.previous }
-                ],
-                xaxis: { categories: mockApiData.labels },
-            }).render();
-
-            new ApexCharts(document.getElementById('chart-user-role-distribution'), {
-                ...defaultPieChartOptions,
-                series: mockApiData.users.roles.values,
-                labels: mockApiData.users.roles.labels,
-            }).render();
+            fetchDashboardData(null, null);
         });
+
+        // Fetch dashboard data from server
+        async function fetchDashboardData(startDate, endDate) {
+            showLoadingIndicators();
+            try {
+                const params = (startDate && endDate)
+                    ? {
+                        startDate: startDate.toISOString(),
+                        endDate: endDate.toISOString()
+                    }
+                    : {};
+                const response = await $.ajax({
+                    url: `/Admin/Dashboard/GetDashboardData?${$.param(params)}`,
+                    method: "GET"
+                });
+                updateDashboard(response);
+            } catch (error) {
+                console.error("Error fetching dashboard data:", error);
+                alert("Không thể tải dữ liệu dashboard. Vui lòng thử lại.");
+            } finally {
+                hideLoadingIndicators();
+            }
+        }
+
+        // Show loading indicators
+        function showLoadingIndicators() {
+            $(".card-body, .list-group").css("opacity", "0.5");
+            $("#kpiNewArticlesCount, #kpiNewProductsCount, #kpiNewContactsCount, #kpiNewUsersCount").text("--");
+            $("#kpiNewArticlesTrend, #kpiNewProductsTrend, #kpiNewContactsTrend, #kpiNewUsersTrend").empty();
+            $("#latest-articles-list, #top-products-list, #pending-contacts-list")
+                .html(`<div class="list-group-item p-3 text-center text-muted">Đang tải...</div>`);
+            $("#chart-main-overview, #chart-content-distribution")
+                .html(`<div class="text-center p-5"><div class="spinner-border text-primary"></div></div>`);
+        }
+
+        // Hide loading indicators
+        function hideLoadingIndicators() {
+            $(".card-body, .list-group").css("opacity", "1");
+        }
+
+        // Update dashboard data
+        function updateDashboard(data) {
+            updateKpi("#kpiNewArticles", data.newArticlesKpi);
+            updateKpi("#kpiNewProducts", data.newProductsKpi);
+            updateKpi("#kpiNewContacts", data.pendingContactsKpi);
+            updateKpi("#kpiNewUsers", data.newUsersKpi);
+
+            if (window.mainOverviewChart?.updateOptions) {
+                window.mainOverviewChart.updateOptions({
+                    series: data.mainOverviewChart.series,
+                    xaxis: { categories: data.mainOverviewChart.categories }
+                });
+            }
+
+            if (window.contentDistributionChart?.updateOptions) {
+                window.contentDistributionChart.updateOptions({
+                    series: data.contentDistributionChart.series,
+                    labels: data.contentDistributionChart.labels
+                });
+            }
+
+            updateList("#latest-articles-list", data.latestArticles, item => `
+                <a href="${item.url}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 text-truncate" style="max-width: 70%;" title="${item.title}">${item.title}</h5>
+                        <small class="text-muted">${item.dateInfo}</small>
+                    </div>
+                    <small class="text-muted">${item.subtitle || ""}</small>
+                </a>
+            `);
+
+            updateList("#top-products-list", data.topViewedProducts, item => `
+                <a href="${item.url}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 text-truncate" style="max-width: 70%;" title="${item.title}">${item.title}</h5>
+                        <small class="text-info">${item.value} ${item.valueLabel || ""}</small>
+                    </div>
+                    <small class="text-muted">${item.subtitle || ""}</small>
+                </a>
+            `);
+
+            updateList("#pending-contacts-list", data.pendingContacts, item => `
+                <a href="${item.url}" class="list-group-item list-group-item-action">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1 text-truncate" style="max-width: 60%;" title="${item.title}">${item.title}</h5>
+                        <small class="text-muted">${item.dateInfo}</small>
+                    </div>
+                    <p class="mb-1 text-muted text-truncate" style="max-width: 90%;" title="${item.subtitle}">${item.subtitle || ""}</p>
+                </a>
+            `);
+        }
+
+        // Update KPI
+        function updateKpi(selectorPrefix, kpiData) {
+            $(`${selectorPrefix}Count`).text(kpiData.count);
+            updateTrend(`${selectorPrefix}Trend`, kpiData.trendPercentage, kpiData.trendStatus);
+        }
+
+        // Update KPI trend
+        function updateTrend(selector, trendValue, status) {
+            const iconClass = status === "down"
+                ? "ti-trending-down"
+                : (status === "neutral" || trendValue === 0)
+                    ? "ti-minus"
+                    : "ti-trending-up";
+            const textColor = status === "down"
+                ? "text-danger"
+                : (status === "neutral" || trendValue === 0)
+                    ? "text-muted"
+                    : "text-success";
+            $(selector).html(`<i class="ti ${iconClass} me-1"></i> ${Math.abs(trendValue)}%`)
+                .attr("class", `d-inline-flex align-items-center lh-1 ${textColor}`);
+        }
+
+        // Update list
+        function updateList(selector, items, templateFn) {
+            $(selector).html(items?.length > 0
+                ? items.map(templateFn).join("")
+                : `<div class="list-group-item p-3 text-center text-muted">Không có dữ liệu.</div>`);
+        }
+
+        // Chart options
+        const defaultChartOptions = {
+            chart: { toolbar: { show: false }, animations: { enabled: true, speed: 600 }, zoom: { enabled: false } },
+            dataLabels: { enabled: false },
+            stroke: { curve: "smooth", width: 2 },
+            grid: { borderColor: "var(--tblr-border-color, #e9ecef)", strokeDashArray: 4, padding: { top: -20, right: 0, bottom: -10, left: 10 } },
+            legend: { show: true, position: "top", horizontalAlign: "right" }
+        };
+
+        // Main overview chart
+        window.mainOverviewChart = new ApexCharts($("#chart-main-overview")[0], {
+            ...defaultChartOptions,
+            series: [],
+            xaxis: { categories: [], labels: { style: { colors: "var(--tblr-secondary)" } }, axisBorder: { show: false }, axisTicks: { show: false } },
+            yaxis: { labels: { style: { colors: "var(--tblr-secondary)" }, formatter: val => val.toFixed(0) } },
+            colors: [tabler.tabler.getColor("primary"), tabler.tabler.getColor("azure"), tabler.tabler.getColor("green")],
+            tooltip: { theme: $("body").data("bs-theme") === "dark" ? "dark" : "light" }
+        });
+        window.mainOverviewChart.render();
+
+        // Content distribution chart
+        window.contentDistributionChart = new ApexCharts($("#chart-content-distribution")[0], {
+            chart: { type: "donut", height: 300, sparkline: { enabled: false } },
+            series: [],
+            labels: [],
+            colors: [tabler.tabler.getColor("blue"), tabler.tabler.getColor("indigo"), tabler.tabler.getColor("purple"), tabler.tabler.getColor("pink")],
+            legend: { position: "bottom", offsetY: 5 },
+            plotOptions: {
+                pie: {
+                    donut: {
+                        labels: {
+                            show: true,
+                            total: {
+                                show: true,
+                                label: "Tổng",
+                                formatter: w => w.globals.seriesTotals.reduce((a, b) => a + b, 0) + "%"
+                            }
+                        }
+                    }
+                }
+            },
+            dataLabels: {
+                enabled: true,
+                formatter: (val, opts) => `${opts.w.globals.labels[opts.seriesIndex]}: ${val.toFixed(1)}%`
+            },
+            tooltip: {
+                theme: $("body").data("bs-theme") === "dark" ? "dark" : "light",
+                y: { formatter: val => `${val}%` }
+            }
+        });
+        window.contentDistributionChart.render();
     </script>
 }
