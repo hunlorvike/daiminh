@@ -1,97 +1,120 @@
+@using web.Areas.Client.ViewModels
+@using X.PagedList.Mvc.Core
+@model ProductIndexViewModel
 @{
-    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> { new("Sản phẩm", "/product"), new("Sơn Nội Thất", "") };
+    ViewData["Title"] = "Danh sách Sản phẩm - Sơn Đại Minh";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> { new("Sản phẩm", "") };
 }
-<section class="mb-3">
-    <div class="row align-items-center">
-        <div class="col">
-            <h1 class="page-title">Sơn Nội Thất</h1>
-            <div class="text-muted mt-1">Tìm thấy 125 sản phẩm</div>
-        </div>
-        <div class="col-auto ms-auto d-print-none">
-            <div class="d-flex align-items-center">
-                <div class="me-3 d-none d-sm-block">
-                    <select class="form-select" style="min-width: 180px;">
-                        <option value="default">Mặc định</option>
-                        <option value="price_asc">Giá: Tăng dần</option>
-                        <option value="price_desc">Giá: Giảm dần</option>
-                        <option value="newest">Mới nhất</option>
-                        <option value="bestselling">Bán chạy</option>
-                    </select>
+
+<section class="row g-4">
+    <!-- Filter Sidebar -->
+    <div class="col-lg-3">
+        <form method="get" asp-action="Index" id="filterForm">
+            <div class="card sticky-lg-top" style="top: 80px;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="ti ti-filter me-2"></i>Bộ lọc sản phẩm</h3>
                 </div>
-                <div class="btn-group"> <button type="button" class="btn btn-outline-secondary active" title="Xem dạng lưới"> <i class="ti ti-layout-grid"></i> </button> <button type="button" class="btn btn-outline-secondary" title="Xem dạng danh sách"> <i class="ti ti-list"></i> </button> </div>
-            </div>
-        </div>
-    </div>
-</section>
-<section class="row">
-    <div class="card col-lg-3 mb-md-3">
-        <div class="card-header">
-            <h3 class="card-title"><i class="ti ti-filter me-2"></i>Bộ lọc sản phẩm</h3>
-        </div>
-        <div class="card-body">
-            <div class="mb-3">
-                <h4 class="h5">Thương hiệu</h4>
-                <div class="form-selectgroup form-selectgroup-pills gap-2"> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Jotun" class="form-selectgroup-input"> <span class="form-selectgroup-label">Jotun</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Dulux" class="form-selectgroup-input" checked> <span class="form-selectgroup-label">Dulux</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Kova" class="form-selectgroup-input"> <span class="form-selectgroup-label">Kova</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="brand" value="Nippon" class="form-selectgroup-input"> <span class="form-selectgroup-label">Nippon</span> </label> </div>
-            </div>
-            <div class="mb-3">
-                <h4 class="h5">Loại sơn</h4>
-                <div> <label class="form-check"> <input class="form-check-input" type="checkbox" value="son-lot"> <span class="form-check-label">Sơn lót</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="son-phu" checked> <span class="form-check-label">Sơn phủ</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="son-chong-kiem"> <span class="form-check-label">Sơn chống kiềm</span> </label> </div>
-            </div>
-            <div class="mb-3">
-                <h4 class="h5">Tính năng</h4>
-                <div> <label class="form-check"> <input class="form-check-input" type="checkbox" value="chong-nam-moc"> <span class="form-check-label">Chống nấm mốc</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="lau-chui"> <span class="form-check-label">Lau chùi hiệu quả</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="bong"> <span class="form-check-label">Bề mặt bóng</span> </label> <label class="form-check"> <input class="form-check-input" type="checkbox" value="mo"> <span class="form-check-label">Bề mặt mờ</span> </label> </div>
-            </div>
-            <div class="mb-3">
-                <h4 class="h5">Khoảng giá</h4>
-                <div class="row g-2 align-items-center">
-                    <div class="col"> <input type="number" class="form-control" placeholder="Từ"> </div>
-                    <div class="col-auto">-</div>
-                    <div class="col"> <input type="number" class="form-control" placeholder="Đến"> </div>
+                <div class="card-body">
+                    <!-- Search Filter -->
+                    <div class="mb-3">
+                        <label asp-for="Filter.SearchTerm" class="form-label fw-medium"></label>
+                        <input asp-for="Filter.SearchTerm" class="form-control" placeholder="Tên sản phẩm...">
+                    </div>
+                    <!-- Category Filter -->
+                    <div class="mb-3">
+                        <label asp-for="Filter.CategoryId" class="form-label fw-medium"></label>
+                        <select asp-for="Filter.CategoryId" asp-items="Model.Filter.Categories" class="form-select"></select>
+                    </div>
+                    <!-- Brand Filter -->
+                    <div class="mb-3">
+                        <label asp-for="Filter.BrandId" class="form-label fw-medium"></label>
+                        <select asp-for="Filter.BrandId" asp-items="Model.Filter.Brands" class="form-select"></select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary"><i class="ti ti-check me-2"></i>Áp dụng</button>
+                        <a asp-action="Index" class="btn btn-outline-secondary"><i class="ti ti-reload me-2"></i>Xóa bộ lọc</a>
+                    </div>
                 </div>
-                <div class="mt-2"> <label class="form-check form-check-inline"> <input class="form-check-input" type="radio" name="price_range" value="0-500000"> <span class="form-check-label">Dưới 500K</span> </label> <label class="form-check form-check-inline"> <input class="form-check-input" type="radio" name="price_range" value="500000-1000000"> <span class="form-check-label">500K - 1TR</span> </label> <label class="form-check form-check-inline"> <input class="form-check-input" type="radio" name="price_range" value="1000000-2000000"> <span class="form-check-label">1TR - 2TR</span> </label> </div>
             </div>
-            <div class="mb-3">
-                <h4 class="h5">Dung tích</h4>
-                <div class="form-selectgroup form-selectgroup-pills gap-2"> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="1L" class="form-selectgroup-input"> <span class="form-selectgroup-label">1L</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="5L" class="form-selectgroup-input" checked> <span class="form-selectgroup-label">5L</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="15L" class="form-selectgroup-input"> <span class="form-selectgroup-label">15L</span> </label> <label class="form-selectgroup-item m-0"> <input type="checkbox" name="volume" value="18L" class="form-selectgroup-input"> <span class="form-selectgroup-label">18L</span> </label> </div>
-            </div>
-            <div class="d-grid gap-2"> <button type="submit" class="btn btn-primary"> <i class="ti ti-check me-2"></i>Áp dụng bộ lọc </button> <button type="reset" class="btn btn-outline-secondary"> <i class="ti ti-reload me-2"></i>Xóa bộ lọc </button> </div>
-        </div>
+        </form>
     </div>
+
+    <!-- Product Grid -->
     <div class="col-lg-9">
-        <div class="row row-cards g-3">
-            @for (int i = 0; i < 9; i++)
-            {
-                <div class="col-6 col-md-4">
-                    <div class="card card-sm h-100">
-                        <div class="ribbon ribbon-top ribbon-start bg-green"> Mới </div> <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="d-block"> <img src="/img/placeholder.svg" alt="Sơn nước nội thất Jotun Majestic" class="card-img-top" style="height: 200px; object-fit: cover;" /> </a>
-                        <div class="card-body d-flex flex-column">
-                            <div class="d-flex align-items-center mb-2">
-                                <span class="badge bg-blue-lt me-2">Jotun</span>
-                                <div class="ms-auto text-warning"> <i class="ti ti-star-filled"></i> <span class="text-muted ms-1">5.0 (42)</span> </div>
-                            </div>
-                            <h3 class="h5 mb-1"> <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="text-reset">Sơn nước nội thất Jotun Majestic</a> </h3>
-                            <p class="text-muted small mb-3">Sơn nội thất cao cấp, kháng khuẩn, chống bám bẩn</p>
-                            <div class="mt-auto">
-                                <div class="d-flex align-items-center mb-3">
-                                    <div class="h5 mb-0 text-primary">850.000₫</div>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="text-muted">
+                @if (Model.Products.TotalItemCount > 0)
+                {
+                    <span>Hiển thị @Model.Products.FirstItemOnPage - @Model.Products.LastItemOnPage trên tổng số @Model.Products.TotalItemCount sản phẩm</span>
+                }
+            </div>
+            <div class="d-flex align-items-center">
+                <label asp-for="Filter.SortBy" class="form-label me-2 mb-0 d-none d-sm-block"></label>
+                <select asp-for="Filter.SortBy" asp-items="Model.Filter.SortOptions" class="form-select form-select-sm" style="min-width: 180px;" onchange="document.getElementById('filterForm').submit();"></select>
+            </div>
+        </div>
+
+        @if (!Model.Products.Any())
+        {
+            <div class="card card-body">
+                <div class="empty">
+                    <div class="empty-icon"><i class="ti ti-package-off fs-1 text-muted"></i></div>
+                    <p class="empty-title">Không tìm thấy sản phẩm</p>
+                    <p class="empty-subtitle text-muted">Không có sản phẩm nào khớp với tiêu chí lọc của bạn. Vui lòng thử lại.</p>
+                    <div class="empty-action">
+                        <a asp-action="Index" class="btn btn-primary"><i class="ti ti-reload me-2"></i>Xóa bộ lọc</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="row row-cards g-3">
+                @foreach (var product in Model.Products)
+                {
+                    <div class="col-6 col-md-4">
+                        <div class="card card-sm h-100">
+                            <a href="@Url.Action("Detail", "Product", new { slug = product.Slug })" class="d-block">
+                                <img src="@product.ThumbnailUrl" alt="@product.Name" class="card-img-top" style="height: 200px; object-fit: cover;" />
+                            </a>
+                            <div class="card-body d-flex flex-column">
+                                <span class="badge bg-blue-lt me-auto mb-2">@product.BrandName</span>
+                                <h3 class="h5 mb-1 flex-grow-1">
+                                    <a href="@Url.Action("Detail", "Product", new { slug = product.Slug })" class="text-reset">@product.Name</a>
+                                </h3>
+                                <div class="mt-auto">
+                                    <a href="@Url.Action("Detail", "Product", new { slug = product.Slug })" class="btn btn-primary w-100">
+                                        <i class="ti ti-eye me-1"></i>Xem chi tiết
+                                    </a>
                                 </div>
-                                <div class="d-flex gap-2"> <a href="/san-pham/son-nuoc-noi-that-jotun-majestic" class="btn btn-primary w-100"> <i class="ti ti-shopping-cart me-1"></i>Mua ngay </a> <button type="button" class="btn btn-icon btn-outline-primary" data-bs-toggle="tooltip" title="Thêm vào yêu thích"> <i class="ti ti-heart"></i> </button> </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            }
-        </div>
-        <div class="mt-3">
-            <nav aria-label="Page navigation">
-                <ul class="pagination justify-content-center">
-                    <li class="page-item disabled"> <a class="page-link" href="#" tabindex="-1" aria-disabled="true"><i class="ti ti-chevron-left"></i></a> </li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">2</a></li>
-                    <li class="page-item"><a class="page-link" href="#">3</a></li>
-                    <li class="page-item"> <a class="page-link" href="#"><i class="ti ti-chevron-right"></i></a> </li>
-                </ul>
-            </nav>
-        </div>
+                }
+            </div>
+        }
+
+        <!-- Pagination -->
+        @if (Model.Products.PageCount > 1)
+        {
+            <div class="mt-3">
+                <nav aria-label="Product navigation">
+                    @Html.PagedListPager(Model.Products, page => Url.Action("Index", new {
+                        page,
+                        searchTerm = Model.Filter.SearchTerm,
+                        categoryId = Model.Filter.CategoryId,
+                        brandId = Model.Filter.BrandId,
+                        sortBy = Model.Filter.SortBy
+                    }), new PagedListRenderOptions
+                    {
+                        UlElementClasses = new[] { "pagination", "justify-content-center" },
+                        LiElementClasses = new[] { "page-item" },
+                        PageClasses = new[] { "page-link" },
+                        ActiveLiElementClass = "active",
+                        ContainerDivClasses = new[] { "d-flex", "justify-content-center", "mt-4" }
+                    })
+                </nav>
+            </div>
+        }
     </div>
 </section>

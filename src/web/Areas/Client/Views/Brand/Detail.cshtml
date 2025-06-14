@@ -1,0 +1,112 @@
+@using web.Areas.Client.ViewModels
+@using X.PagedList.Mvc.Core
+@model BrandDetailViewModel
+@{
+    ViewData["Title"] = $"Sản phẩm thương hiệu {Model.Name} - Sơn Đại Minh";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> {
+        new("Thương hiệu", "/thuong-hieu"), // Sẽ tạo trang này sau
+        new(Model.Name, "")
+    };
+}
+
+<!-- Phần thông tin thương hiệu -->
+<section class="card mb-3">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            @if (!string.IsNullOrEmpty(Model.LogoUrl))
+            {
+                <div class="col-md-2 text-center">
+                    <img src="@Model.LogoUrl" alt="Logo @Model.Name" class="img-fluid rounded" style="max-height: 100px;">
+                </div>
+            }
+            <div class="col-md">
+                <h1 class="page-title">Thương hiệu @Model.Name</h1>
+                @if (!string.IsNullOrEmpty(Model.Description))
+                {
+                    <p class="text-muted">@Model.Description</p>
+                }
+                @if (!string.IsNullOrEmpty(Model.Website))
+                {
+                    <a href="@Model.Website" target="_blank" class="btn btn-sm btn-outline-primary">
+                        <i class="ti ti-world me-2"></i>Truy cập website
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Phần danh sách sản phẩm -->
+<section>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="h3 mb-0">Các sản phẩm của @Model.Name</h2>
+        @if (Model.Products.TotalItemCount > 0)
+        {
+            <div class="text-muted">Tìm thấy @Model.Products.TotalItemCount sản phẩm</div>
+        }
+    </div>
+
+    @if (!Model.Products.Any())
+    {
+        <!-- Fallback khi không có sản phẩm -->
+        <div class="card card-body">
+            <div class="empty">
+                <div class="empty-icon"><i class="ti ti-package-off fs-1 text-muted"></i></div>
+                <p class="empty-title">Chưa có sản phẩm</p>
+                <p class="empty-subtitle text-muted">Thương hiệu này hiện chưa có sản phẩm nào được đăng tải. Vui lòng quay lại sau.</p>
+                <div class="empty-action">
+                    <a href="/san-pham" class="btn btn-primary">
+                        <i class="ti ti-arrow-left me-2"></i>Xem các sản phẩm khác
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row row-cards g-3">
+            @foreach (var product in Model.Products)
+            {
+                <div class="col-6 col-md-4 col-lg-3">
+                    <div class="card card-sm h-100">
+                        <a href="@Url.Action("Detail", "Product", new { slug = product.Slug })" class="d-block">
+                            <img src="@product.ThumbnailUrl" alt="@product.Name" class="card-img-top" style="height: 180px; object-fit: cover;" />
+                        </a>
+                        <div class="card-body d-flex flex-column">
+                            <h3 class="h5 mb-2 flex-grow-1">
+                                <a href="@Url.Action("Detail", "Product", new { slug = product.Slug })" class="text-reset">@product.Name</a>
+                            </h3>
+                            <div class="mt-auto">
+                                <a href="@Url.Action("Detail", "Product", new { slug = product.Slug })" class="btn btn-primary w-100">
+                                    <i class="ti ti-eye me-1"></i>Xem chi tiết
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <!-- Pagination -->
+        @if (Model.Products.PageCount > 1)
+        {
+            <div class="mt-3">
+                <nav aria-label="Product navigation">
+                     @Html.PagedListPager(Model.Products, page => Url.Action("Detail", new { slug = Model.Name.ToLower(), page }), new PagedListRenderOptions
+                     {
+                        UlElementClasses = new[] { "pagination justify-content-center" },
+                        LiElementClasses = new[] { "page-item" },
+                        PageClasses = new[] { "page-link" },
+                        DisplayLinkToFirstPage = PagedListDisplayMode.IfNeeded,
+                        DisplayLinkToLastPage = PagedListDisplayMode.IfNeeded,
+                        DisplayLinkToPreviousPage = PagedListDisplayMode.Always,
+                        DisplayLinkToNextPage = PagedListDisplayMode.Always,
+                        ActiveLiElementClass = "active",
+                        LinkToPreviousPageFormat = "<i class='ti ti-chevron-left'></i>",
+                        LinkToNextPageFormat = "<i class='ti ti-chevron-right'></i>"
+                     })
+                </nav>
+            </div>
+        }
+    }
+</section>

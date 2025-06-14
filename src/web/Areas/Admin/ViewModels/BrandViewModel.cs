@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Mvc;
 
 namespace web.Areas.Admin.ViewModels;
 

@@ -1,4 +1,3 @@
-using AutoMapper;
 using AutoRegister;
 using infrastructure;
 using Microsoft.AspNetCore.Mvc;

@@ -1,10 +1,10 @@
+using System.Security.Claims;
 using AutoRegister;
 using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using shared.Models;
-using System.Security.Claims;
 using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;

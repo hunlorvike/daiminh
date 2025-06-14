@@ -1,11 +1,11 @@
+using System.Security.Claims;
+using System.Text.Json;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Security.Claims;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 
@@ -99,7 +99,7 @@ public class ProfileController : Controller
                 TempData["ShowPasswordTab"] = true;
             }
         }
-        
+
         return RedirectToAction(nameof(Index));
     }
 }

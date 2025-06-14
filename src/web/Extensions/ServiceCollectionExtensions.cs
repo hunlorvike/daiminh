@@ -1,3 +1,4 @@
+using System.Reflection;
 using AutoRegister;
 using domain.Entities;
 using infrastructure;
@@ -5,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Minio;
 using shared.Constants;
-using System.Reflection;
 using web.Configs;
 
 namespace web.Extensions;

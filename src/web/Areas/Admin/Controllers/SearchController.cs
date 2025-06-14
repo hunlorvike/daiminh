@@ -24,7 +24,7 @@ public class SearchController : Controller
         {
             viewModel.Results = await _searchService.SearchAsync(q);
         }
-        
+
         return View(viewModel);
     }
 }

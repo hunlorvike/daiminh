@@ -65,7 +65,7 @@ builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
 builder.Services.Configure<FluentValidationMvcConfiguration>(config =>
 {
     config.DisableDataAnnotationsValidation = true;
-    config.AutomaticValidationEnabled = false; 
+    config.AutomaticValidationEnabled = false;
 });
 
 ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
@@ -75,7 +75,8 @@ builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();
-builder.Services.AddScoped<IUrlHelper>(x => {
+builder.Services.AddScoped<IUrlHelper>(x =>
+{
     var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
     var factory = x.GetRequiredService<IUrlHelperFactory>();
     return factory.GetUrlHelper(actionContext!);

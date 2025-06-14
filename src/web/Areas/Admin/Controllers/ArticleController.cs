@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -7,8 +9,6 @@ using shared.Constants;
 using shared.Enums;
 using shared.Extensions;
 using shared.Models;
-using System.Security.Claims;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;

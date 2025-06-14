@@ -1,3 +1,4 @@
+using System.Text.Json;
 using AutoMapper;
 using FluentValidation;
 using FluentValidation.AspNetCore;
@@ -6,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using shared.Constants;
 using shared.Enums;
 using shared.Models;
-using System.Text.Json;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 

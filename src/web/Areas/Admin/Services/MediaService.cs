@@ -1,3 +1,5 @@
+using System.Net.Mime;
+using System.Text.RegularExpressions;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using AutoRegister;
@@ -6,8 +8,6 @@ using infrastructure;
 using Microsoft.EntityFrameworkCore;
 using shared.Enums;
 using shared.Models;
-using System.Net.Mime;
-using System.Text.RegularExpressions;
 using web.Areas.Admin.Services.Interfaces;
 using web.Areas.Admin.ViewModels;
 using X.PagedList;
