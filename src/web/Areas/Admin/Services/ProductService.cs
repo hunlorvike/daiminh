@@ -97,39 +97,43 @@ public class ProductService : IProductService
             return OperationResult<int>.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
         }
 
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            var product = _mapper.Map<Product>(viewModel);
-
-            product.Images = _mapper.Map<List<ProductImage>>(viewModel.Images);
-            EnsureOneMainImage(product.Images);
-
-            UpdateProductTags(product, viewModel.SelectedTagIds);
-
-            _context.Add(product);
-            await _context.SaveChangesAsync();
-
-            await transaction.CommitAsync();
-            _logger.LogInformation("Created Product: ID={Id}, Name={Name}, Slug={Slug}", product.Id, product.Name, product.Slug);
-            return OperationResult<int>.SuccessResult(product.Id, $"Thêm sản phẩm '{product.Name}' thành công.");
-        }
-        catch (DbUpdateException ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi DB khi tạo sản phẩm: {Name}", viewModel.Name);
-            if (ex.InnerException?.Message?.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                return OperationResult<int>.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
+                var product = _mapper.Map<Product>(viewModel);
+
+                product.Images = _mapper.Map<List<ProductImage>>(viewModel.Images);
+                EnsureOneMainImage(product.Images);
+
+                UpdateProductTags(product, viewModel.SelectedTagIds);
+
+                _context.Add(product);
+                await _context.SaveChangesAsync();
+
+                await transaction.CommitAsync();
+                _logger.LogInformation("Created Product: ID={Id}, Name={Name}, Slug={Slug}", product.Id, product.Name, product.Slug);
+                return OperationResult<int>.SuccessResult(product.Id, $"Thêm sản phẩm '{product.Name}' thành công.");
             }
-            return OperationResult<int>.FailureResult(message: "Lỗi cơ sở dữ liệu khi lưu sản phẩm.", errors: new List<string> { ex.Message });
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi không xác định khi tạo sản phẩm.");
-            return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi hệ thống khi lưu sản phẩm.", errors: new List<string> { ex.Message });
-        }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi DB khi tạo sản phẩm: {Name}", viewModel.Name);
+                if (ex.InnerException?.Message?.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return OperationResult<int>.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
+                }
+                return OperationResult<int>.FailureResult(message: "Lỗi cơ sở dữ liệu khi lưu sản phẩm.", errors: new List<string> { ex.Message });
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi không xác định khi tạo sản phẩm.");
+                return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi hệ thống khi lưu sản phẩm.", errors: new List<string> { ex.Message });
+            }
+        });
     }
 
     public async Task<OperationResult> UpdateProductAsync(ProductViewModel viewModel)
@@ -139,47 +143,51 @@ public class ProductService : IProductService
             return OperationResult.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
         }
 
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            var product = await _context.Set<Product>()
-                .Include(p => p.Images)
-                .Include(p => p.ProductTags)
-                .FirstOrDefaultAsync(p => p.Id == viewModel.Id);
-
-            if (product == null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                _logger.LogWarning("Product not found for update. ID: {Id}", viewModel.Id);
-                return OperationResult.FailureResult("Không tìm thấy sản phẩm để cập nhật.");
+                var product = await _context.Set<Product>()
+                    .Include(p => p.Images)
+                    .Include(p => p.ProductTags)
+                    .FirstOrDefaultAsync(p => p.Id == viewModel.Id);
+
+                if (product == null)
+                {
+                    _logger.LogWarning("Product not found for update. ID: {Id}", viewModel.Id);
+                    return OperationResult.FailureResult("Không tìm thấy sản phẩm để cập nhật.");
+                }
+
+                _mapper.Map(viewModel, product);
+
+                UpdateProductImages(product, viewModel.Images);
+                EnsureOneMainImage(product.Images);
+                UpdateProductTags(product, viewModel.SelectedTagIds);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                _logger.LogInformation("Updated Product: ID={Id}, Name={Name}, Slug={Slug}", product.Id, product.Name, product.Slug);
+                return OperationResult.SuccessResult($"Cập nhật sản phẩm '{product.Name}' thành công.");
             }
-
-            _mapper.Map(viewModel, product);
-
-            UpdateProductImages(product, viewModel.Images);
-            EnsureOneMainImage(product.Images);
-            UpdateProductTags(product, viewModel.SelectedTagIds);
-
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-            _logger.LogInformation("Updated Product: ID={Id}, Name={Name}, Slug={Slug}", product.Id, product.Name, product.Slug);
-            return OperationResult.SuccessResult($"Cập nhật sản phẩm '{product.Name}' thành công.");
-        }
-        catch (DbUpdateException ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi DB khi cập nhật sản phẩm ID: {Id}", viewModel.Id);
-            if (ex.InnerException?.Message?.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
+            catch (DbUpdateException ex)
             {
-                return OperationResult.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi DB khi cập nhật sản phẩm ID: {Id}", viewModel.Id);
+                if (ex.InnerException?.Message?.Contains("UQ_Product_Slug", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return OperationResult.FailureResult(message: "Slug sản phẩm này đã tồn tại.", errors: new List<string> { "Slug sản phẩm này đã tồn tại." });
+                }
+                return OperationResult.FailureResult(message: "Lỗi cơ sở dữ liệu khi cập nhật sản phẩm.", errors: new List<string> { ex.Message });
             }
-            return OperationResult.FailureResult(message: "Lỗi cơ sở dữ liệu khi cập nhật sản phẩm.", errors: new List<string> { ex.Message });
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi không xác định khi cập nhật sản phẩm ID: {Id}", viewModel.Id);
-            return OperationResult.FailureResult(message: "Lỗi hệ thống khi cập nhật sản phẩm.", errors: new List<string> { ex.Message });
-        }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi không xác định khi cập nhật sản phẩm ID: {Id}", viewModel.Id);
+                return OperationResult.FailureResult(message: "Lỗi hệ thống khi cập nhật sản phẩm.", errors: new List<string> { ex.Message });
+            }
+        });
     }
 
     public async Task<OperationResult> DeleteProductAsync(int id)

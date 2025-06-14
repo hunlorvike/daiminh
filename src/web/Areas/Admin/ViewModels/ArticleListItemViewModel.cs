@@ -14,6 +14,5 @@ public class ArticleListItemViewModel
     public bool IsFeatured { get; set; }
     public int ViewCount { get; set; }
     public int TagCount { get; set; }
-    public int ProductCount { get; set; }
     public DateTime? UpdatedAt { get; set; }
 }

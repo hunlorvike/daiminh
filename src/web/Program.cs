@@ -2,7 +2,9 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using infrastructure;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Serilog;
 using web.Areas.Admin.Validators;
 using web.Configs;
@@ -57,12 +59,27 @@ builder.Services
     .AddCustomServices();
 
 builder.Services.AddControllersWithViews();
-builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
+
 builder.Services.AddValidatorsFromAssemblyContaining<UserViewModelValidator>();
+
+builder.Services.Configure<FluentValidationMvcConfiguration>(config =>
+{
+    config.DisableDataAnnotationsValidation = true;
+    config.AutomaticValidationEnabled = false; 
+});
+
+ValidatorOptions.Global.DefaultClassLevelCascadeMode = CascadeMode.Stop;
+ValidatorOptions.Global.DefaultRuleLevelCascadeMode = CascadeMode.Stop;
+
 builder.Services.AddAutoMapper(typeof(Program).Assembly);
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 builder.Services.AddSingleton<IAuthorizationHandler, PermissionRequirementHandler>();
+builder.Services.AddScoped<IUrlHelper>(x => {
+    var actionContext = x.GetRequiredService<IActionContextAccessor>().ActionContext;
+    var factory = x.GetRequiredService<IUrlHelperFactory>();
+    return factory.GetUrlHelper(actionContext!);
+});
 
 var app = builder.Build();
 

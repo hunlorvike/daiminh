@@ -1,0 +1,77 @@
+@model ProfileViewModel
+@{
+    ViewData["Title"] = "Hồ sơ của tôi";
+    ViewData["PageTitle"] = "Hồ sơ cá nhân";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string, string)> { ("Hồ sơ", "") };
+    var changePasswordViewModel = ViewData["ChangePasswordViewModel"] as ChangePasswordViewModel ?? new ChangePasswordViewModel();
+    var showPasswordTab = TempData["ShowPasswordTab"] as bool? ?? false;
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs" data-bs-toggle="tabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <a href="#tabs-info" class="nav-link @(!showPasswordTab ? "active" : "")" data-bs-toggle="tab" aria-selected="true" role="tab"><i class="ti ti-user-circle me-2"></i>Thông tin cá nhân</a>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <a href="#tabs-password" class="nav-link @(showPasswordTab ? "active" : "")" data-bs-toggle="tab" aria-selected="false" role="tab" tabindex="-1"><i class="ti ti-lock me-2"></i>Đổi mật khẩu</a>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                <div class="tab-content">
+                    <div class="tab-pane @(!showPasswordTab ? "active show" : "")" id="tabs-info" role="tabpanel">
+                        <form asp-action="UpdateProfile" method="post">
+                            @Html.AntiForgeryToken()
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="Email" class="form-label"></label>
+                                        <input asp-for="Email" class="form-control" readonly />
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="FullName" class="form-label required"></label>
+                                        <input asp-for="FullName" class="form-control" />
+                                        <span asp-validation-for="FullName" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-footer">
+                                        <button type="submit" class="btn btn-primary">Lưu thay đổi</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane @(showPasswordTab ? "active show" : "")" id="tabs-password" role="tabpanel">
+                        <form asp-action="ChangePassword" method="post">
+                             @Html.AntiForgeryToken()
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label asp-for="@changePasswordViewModel.CurrentPassword" class="form-label required"></label>
+                                        <input asp-for="@changePasswordViewModel.CurrentPassword" class="form-control" type="password" />
+                                        <span asp-validation-for="@changePasswordViewModel.CurrentPassword" class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="@changePasswordViewModel.NewPassword" class="form-label required"></label>
+                                        <input asp-for="@changePasswordViewModel.NewPassword" class="form-control" type="password" />
+                                        <span asp-validation-for="@changePasswordViewModel.NewPassword" class="text-danger"></span>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label asp-for="@changePasswordViewModel.ConfirmNewPassword" class="form-label required"></label>
+                                        <input asp-for="@changePasswordViewModel.ConfirmNewPassword" class="form-control" type="password" />
+                                        <span asp-validation-for="@changePasswordViewModel.ConfirmNewPassword" class="text-danger"></span>
+                                    </div>
+                                    <div class="form-footer">
+                                        <button type="submit" class="btn btn-primary">Đổi mật khẩu</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

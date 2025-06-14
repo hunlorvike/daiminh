@@ -93,45 +93,49 @@ public class ArticleService : IArticleService
             return OperationResult<int>.FailureResult(message: "Slug bài viết này đã tồn tại.", errors: new List<string> { "Slug bài viết này đã tồn tại." });
         }
 
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            var article = _mapper.Map<Article>(viewModel);
-
-            article.AuthorId = authorId;
-            article.AuthorName = authorName ?? "Admin";
-
-            if (article.Status == PublishStatus.Published && article.PublishedAt == null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                article.PublishedAt = DateTime.Now;
+                var article = _mapper.Map<Article>(viewModel);
+
+                article.AuthorId = authorId;
+                article.AuthorName = authorName ?? "Admin";
+
+                if (article.Status == PublishStatus.Published && article.PublishedAt == null)
+                {
+                    article.PublishedAt = DateTime.Now;
+                }
+
+                UpdateArticleRelationships(article, viewModel.SelectedTagIds);
+
+                _context.Add(article);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                _logger.LogInformation("Created Article: ID={Id}, Title={Title}, Slug={Slug}", article.Id, article.Title, article.Slug);
+                return OperationResult<int>.SuccessResult(article.Id, $"Thêm bài viết '{article.Title}' thành công.");
             }
-
-            UpdateArticleRelationships(article, viewModel.SelectedTagIds);
-
-            _context.Add(article);
-
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            _logger.LogInformation("Created Article: ID={Id}, Title={Title}, Slug={Slug}", article.Id, article.Title, article.Slug);
-            return OperationResult<int>.SuccessResult(article.Id, $"Thêm bài viết '{article.Title}' thành công.");
-        }
-        catch (DbUpdateException ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi DB khi tạo bài viết: {Title}", viewModel.Title);
-            if (ex.InnerException?.Message?.Contains("UQ_Article_Slug", StringComparison.OrdinalIgnoreCase) == true)
+            catch (DbUpdateException ex)
             {
-                return OperationResult<int>.FailureResult(message: "Slug bài viết này đã tồn tại.", errors: new List<string> { "Slug bài viết này đã tồn tại." });
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi DB khi tạo bài viết: {Title}", viewModel.Title);
+                if (ex.InnerException?.Message?.Contains("UQ_Article_Slug", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return OperationResult<int>.FailureResult(message: "Slug bài viết này đã tồn tại.", errors: new List<string> { "Slug bài viết này đã tồn tại." });
+                }
+                return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi cơ sở dữ liệu khi lưu bài viết.", errors: new List<string> { "Đã xảy ra lỗi cơ sở dữ liệu khi lưu bài viết." });
             }
-            return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi cơ sở dữ liệu khi lưu bài viết.", errors: new List<string> { "Đã xảy ra lỗi cơ sở dữ liệu khi lưu bài viết." });
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi không xác định khi tạo bài viết.");
-            return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi hệ thống khi lưu bài viết.", errors: new List<string> { "Đã xảy ra lỗi hệ thống khi lưu bài viết." });
-        }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi không xác định khi tạo bài viết.");
+                return OperationResult<int>.FailureResult(message: "Đã xảy ra lỗi hệ thống khi lưu bài viết.", errors: new List<string> { "Đã xảy ra lỗi hệ thống khi lưu bài viết." });
+            }
+        });
     }
 
     public async Task<OperationResult> UpdateArticleAsync(ArticleViewModel viewModel)
@@ -141,51 +145,55 @@ public class ArticleService : IArticleService
             return OperationResult.FailureResult(message: "Slug bài viết này đã tồn tại.", errors: new List<string> { "Slug bài viết này đã tồn tại." });
         }
 
-        using var transaction = await _context.Database.BeginTransactionAsync();
-        try
+        var executionStrategy = _context.Database.CreateExecutionStrategy();
+        return await executionStrategy.ExecuteAsync(async () =>
         {
-            var article = await _context.Set<Article>()
-                .Include(a => a.ArticleTags)
-                .FirstOrDefaultAsync(a => a.Id == viewModel.Id);
-
-            if (article == null)
+            using var transaction = await _context.Database.BeginTransactionAsync();
+            try
             {
-                _logger.LogWarning("Article not found for update. ID: {Id}", viewModel.Id);
-                return OperationResult.FailureResult("Không tìm thấy bài viết để cập nhật.");
+                var article = await _context.Set<Article>()
+                    .Include(a => a.ArticleTags)
+                    .FirstOrDefaultAsync(a => a.Id == viewModel.Id);
+
+                if (article == null)
+                {
+                    _logger.LogWarning("Article not found for update. ID: {Id}", viewModel.Id);
+                    return OperationResult.FailureResult("Không tìm thấy bài viết để cập nhật.");
+                }
+
+                var oldStatus = article.Status;
+
+                _mapper.Map(viewModel, article);
+
+                if (oldStatus != PublishStatus.Published && article.Status == PublishStatus.Published && article.PublishedAt == null)
+                {
+                    article.PublishedAt = DateTime.Now;
+                }
+                UpdateArticleRelationships(article, viewModel.SelectedTagIds);
+
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                _logger.LogInformation("Updated Article: ID={Id}, Title={Title}, Slug={Slug}", article.Id, article.Title, article.Slug);
+                return OperationResult.SuccessResult($"Cập nhật bài viết '{article.Title}' thành công.");
             }
-
-            var oldStatus = article.Status;
-
-            _mapper.Map(viewModel, article);
-
-            if (oldStatus != PublishStatus.Published && article.Status == PublishStatus.Published && article.PublishedAt == null)
+            catch (DbUpdateException ex)
             {
-                article.PublishedAt = DateTime.Now;
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi DB khi cập nhật bài viết ID: {Id}", viewModel.Id);
+                if (ex.InnerException?.Message?.Contains("UQ_Article_Slug", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    return OperationResult.FailureResult(message: "Slug bài viết này đã tồn tại.", errors: new List<string> { "Slug bài viết này đã tồn tại." });
+                }
+                return OperationResult.FailureResult(message: "Đã xảy ra lỗi không mong muốn khi cập nhật bài viết.", errors: new List<string> { "Đã xảy ra lỗi không mong muốn khi cập nhật bài viết." });
             }
-            UpdateArticleRelationships(article, viewModel.SelectedTagIds);
-
-            await _context.SaveChangesAsync();
-            await transaction.CommitAsync();
-
-            _logger.LogInformation("Updated Article: ID={Id}, Title={Title}, Slug={Slug}", article.Id, article.Title, article.Slug);
-            return OperationResult.SuccessResult($"Cập nhật bài viết '{article.Title}' thành công.");
-        }
-        catch (DbUpdateException ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi DB khi cập nhật bài viết ID: {Id}", viewModel.Id);
-            if (ex.InnerException?.Message?.Contains("UQ_Article_Slug", StringComparison.OrdinalIgnoreCase) == true)
+            catch (Exception ex)
             {
-                return OperationResult.FailureResult(message: "Slug bài viết này đã tồn tại.", errors: new List<string> { "Slug bài viết này đã tồn tại." });
+                await transaction.RollbackAsync();
+                _logger.LogError(ex, "Lỗi hệ thống khi cập nhật bài viết ID: {Id}", viewModel.Id);
+                return OperationResult.FailureResult(message: "Đã xảy ra lỗi không mong muốn.", errors: new List<string> { "Đã xảy ra lỗi không mong muốn." });
             }
-            return OperationResult.FailureResult(message: "Đã xảy ra lỗi không mong muốn khi cập nhật bài viết.", errors: new List<string> { "Đã xảy ra lỗi không mong muốn khi cập nhật bài viết." });
-        }
-        catch (Exception ex)
-        {
-            await transaction.RollbackAsync();
-            _logger.LogError(ex, "Lỗi hệ thống khi cập nhật bài viết ID: {Id}", viewModel.Id);
-            return OperationResult.FailureResult(message: "Đã xảy ra lỗi không mong muốn.", errors: new List<string> { "Đã xảy ra lỗi không mong muốn." });
-        }
+        });
     }
 
 

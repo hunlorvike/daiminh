@@ -1,0 +1,54 @@
+@model AdminSearchViewModel
+@{
+    ViewData["Title"] = $"Kết quả tìm kiếm cho: {Model.Query}";
+    ViewData["PageTitle"] = $"Kết quả tìm kiếm";
+    ViewData[TempDataConstants.Breadcrumbs] = new List<(string Text, string Url)> { ("Tìm kiếm", "") };
+}
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Tìm thấy @Model.TotalResults kết quả cho từ khóa: <span class="text-primary">"@Model.Query"</span></h3>
+            </div>
+            <div class="card-body">
+                @if (!Model.Results.Any())
+                {
+                    <div class="empty">
+                        <div class="empty-icon">
+                            <i class="ti ti-search-off fs-1 text-muted"></i>
+                        </div>
+                        <p class="empty-title">Không tìm thấy kết quả</p>
+                        <p class="empty-subtitle text-muted">
+                            Vui lòng thử lại với một từ khóa khác.
+                        </p>
+                    </div>
+                }
+                else
+                {
+                    <div class="list-group list-group-flush">
+                        @foreach (var item in Model.Results)
+                        {
+                            <a href="@item.Url" class="list-group-item list-group-item-action">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <span class="avatar bg-blue-lt">
+                                            <i class="ti @item.Icon"></i>
+                                        </span>
+                                    </div>
+                                    <div class="col">
+                                        <div class="fw-medium">@item.Title</div>
+                                        <div class="text-muted small">@item.Description</div>
+                                    </div>
+                                    <div class="col-auto d-none d-md-block">
+                                        <span class="badge bg-secondary-lt">@item.Type</span>
+                                    </div>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

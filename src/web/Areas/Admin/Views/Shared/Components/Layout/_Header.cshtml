@@ -27,12 +27,13 @@
         <div class="navbar-nav flex-row order-md-last ms-auto align-items-center">
             <!-- Search -->
             <div class="me-3">
-                <form action="#" method="get">
+                <form asp-area="Admin" asp-controller="Search" asp-action="Index" method="get">
                     <div class="input-icon">
                         <span class="input-icon-addon">
                             <i class="ti ti-search"></i>
                         </span>
-                        <input type="text" name="q" class="form-control" placeholder="Tìm kiếm...">
+                        <input type="text" name="q" class="form-control" placeholder="Tìm kiếm..."
+                            value="@(Context.Request.Query["q"])">
                     </div>
                 </form>
             </div>
@@ -40,11 +41,11 @@
             <!-- Theme toggle -->
             <div class="d-none d-md-flex me-2">
                 <a href="?theme=dark" class="nav-link px-0 hide-theme-dark btn" title="Bật chế độ tối"
-                   data-bs-toggle="tooltip" data-bs-placement="bottom">
+                    data-bs-toggle="tooltip" data-bs-placement="bottom">
                     <i class="ti ti-moon"></i>
                 </a>
                 <a href="?theme=light" class="nav-link px-0 hide-theme-light btn" title="Bật chế độ sáng"
-                   data-bs-toggle="tooltip" data-bs-placement="bottom">
+                    data-bs-toggle="tooltip" data-bs-placement="bottom">
                     <i class="ti ti-sun"></i>
                 </a>
             </div>
@@ -52,7 +53,7 @@
             <!-- Notifications -->
             <div class="nav-item dropdown d-none d-md-flex me-2">
                 <a href="#" class="nav-link px-0 btn" data-bs-toggle="dropdown" tabindex="-1"
-                   aria-label="Show notifications">
+                    aria-label="Show notifications">
                     <i class="ti ti-bell"></i>
                     <span class="badge bg-red badge-notification badge-pill"></span>
                 </a>
@@ -104,7 +105,7 @@
             <!-- User dropdown -->
             <div class="nav-item dropdown">
                 <a href="#" class="nav-link d-flex align-items-center lh-1 text-reset" data-bs-toggle="dropdown"
-                   aria-label="Open user menu">
+                    aria-label="Open user menu">
                     <span class="avatar avatar-sm bg-primary-subtle">
                         <i class="ti ti-user-circle"></i>
                     </span>
@@ -113,11 +114,11 @@
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a href="#" class="dropdown-item">Hồ sơ</a>
+                    <a asp-area="Admin" asp-controller="Profile" asp-action="Index" class="dropdown-item">Hồ sơ</a>
                     <a href="#" class="dropdown-item">Cài đặt</a>
                     <div class="dropdown-divider"></div>
                     <form class="form-inline" asp-area="Admin" asp-controller="Account" asp-action="Logout"
-                          method="post">
+                        method="post">
                         @Html.AntiForgeryToken()
                         <button type="submit" class="dropdown-item">Đăng xuất</button>
                     </form>
