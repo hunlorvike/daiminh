@@ -44,7 +44,6 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<PopupModal> PopupModals { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
-    public DbSet<ProductReview> ProductReviews { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }
     public DbSet<Setting> Settings { get; set; }
     public DbSet<Tag> Tags { get; set; }

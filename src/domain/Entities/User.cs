@@ -8,7 +8,6 @@ public class User : IdentityUser<int>
 {
     public string? FullName { get; set; }
     public bool IsActive { get; set; } = true;
-    public virtual ICollection<ProductReview>? ReviewsWritten { get; set; }
 }
 
 public class UserConfiguration : IEntityTypeConfiguration<User>

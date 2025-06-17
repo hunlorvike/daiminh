@@ -26,7 +26,7 @@ public class ProductProfile : Profile
 
         // Product to ProductViewModel (for Edit/Create form)
         CreateMap<Product, ProductViewModel>()
-            .IncludeBase<SeoEntity<int>, SeoViewModel>() // Include SEO properties
+            .IncludeBase<SeoEntity<int>, SeoViewModel>()
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
             .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags != null ? src.ProductTags.Select(pt => pt.TagId).ToList() : new List<int>()))
             .ForMember(dest => dest.BrandOptions, opt => opt.Ignore())
@@ -36,13 +36,12 @@ public class ProductProfile : Profile
 
         // ProductViewModel to Product
         CreateMap<ProductViewModel, Product>()
-            .IncludeBase<SeoViewModel, SeoEntity<int>>() // Include SEO properties
+            .IncludeBase<SeoViewModel, SeoEntity<int>>()
             .ForMember(dest => dest.Brand, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
-            .ForMember(dest => dest.Images, opt => opt.Ignore()) // Will be handled manually
-            .ForMember(dest => dest.ProductTags, opt => opt.Ignore()) // Will be handled manually
-            .ForMember(dest => dest.Reviews, opt => opt.Ignore())
-            .ForMember(dest => dest.ViewCount, opt => opt.Ignore()) // Usually not set from form
+            .ForMember(dest => dest.Images, opt => opt.Ignore())
+            .ForMember(dest => dest.ProductTags, opt => opt.Ignore())
+            .ForMember(dest => dest.ViewCount, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore())
             .ForMember(dest => dest.CreatedBy, opt => opt.Ignore())

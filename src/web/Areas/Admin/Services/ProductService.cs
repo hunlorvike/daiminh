@@ -195,7 +195,6 @@ public class ProductService : IProductService
         var product = await _context.Set<Product>()
                                 .Include(p => p.Images)
                                 .Include(p => p.ProductTags)
-                                .Include(p => p.Reviews)
                                 .FirstOrDefaultAsync(p => p.Id == id);
 
         if (product == null)
@@ -205,7 +204,6 @@ public class ProductService : IProductService
         }
         if (product.Images != null) _context.RemoveRange(product.Images);
         if (product.ProductTags != null) _context.RemoveRange(product.ProductTags);
-        if (product.Reviews != null) _context.RemoveRange(product.Reviews);
 
         _context.Remove(product);
         string productName = product.Name;

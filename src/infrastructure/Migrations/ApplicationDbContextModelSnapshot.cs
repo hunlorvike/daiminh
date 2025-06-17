@@ -1086,65 +1086,6 @@ namespace infrastructure.Migrations
                     b.ToTable("ProductImages");
                 });
 
-            modelBuilder.Entity("domain.Entities.ProductReview", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<int>("ProductId")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Rating")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("Status")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("UserEmail")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<int?>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("UserName")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("Rating");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("ProductReviews");
-                });
-
             modelBuilder.Entity("domain.Entities.ProductTag", b =>
                 {
                     b.Property<int>("ProductId")
@@ -1621,24 +1562,6 @@ namespace infrastructure.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("domain.Entities.ProductReview", b =>
-                {
-                    b.HasOne("domain.Entities.Product", "Product")
-                        .WithMany("Reviews")
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("domain.Entities.User", "User")
-                        .WithMany("ReviewsWritten")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Product");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("domain.Entities.ProductTag", b =>
                 {
                     b.HasOne("domain.Entities.Product", "Product")
@@ -1735,8 +1658,6 @@ namespace infrastructure.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("ProductTags");
-
-                    b.Navigation("Reviews");
                 });
 
             modelBuilder.Entity("domain.Entities.Tag", b =>
@@ -1744,11 +1665,6 @@ namespace infrastructure.Migrations
                     b.Navigation("ArticleTags");
 
                     b.Navigation("ProductTags");
-                });
-
-            modelBuilder.Entity("domain.Entities.User", b =>
-                {
-                    b.Navigation("ReviewsWritten");
                 });
 #pragma warning restore 612, 618
         }
