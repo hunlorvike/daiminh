@@ -72,11 +72,6 @@ public static class PermissionConstants
     public const string ProductEdit = "Product.Edit";
     public const string ProductDelete = "Product.Delete";
 
-    // PRODUCT REVIEW MANAGEMENT
-    public const string ProductReviewView = "ProductReview.View";
-    public const string ProductReviewEdit = "ProductReview.Edit";
-    public const string ProductReviewDelete = "ProductReview.Delete";
-
     // PRODUCT VARIATION MANAGEMENT
     public const string ProductVariationView = "ProductVariation.View";
     public const string ProductVariationCreate = "ProductVariation.Create";
@@ -85,9 +80,6 @@ public static class PermissionConstants
 
     // ROLE MANAGEMENT
     public const string RoleManage = "Role.Manage";
-
-    // SETTING MANAGEMENT
-    public const string SettingManage = "Setting.Manage";
 
     // TAG MANAGEMENT
     public const string TagView = "Tag.View";
