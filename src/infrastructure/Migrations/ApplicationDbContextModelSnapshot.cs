@@ -197,6 +197,21 @@ namespace infrastructure.Migrations
                     b.ToTable("Articles");
                 });
 
+            modelBuilder.Entity("domain.Entities.ArticleProduct", b =>
+                {
+                    b.Property<int>("ArticleId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("ArticleId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ArticleProducts");
+                });
+
             modelBuilder.Entity("domain.Entities.ArticleTag", b =>
                 {
                     b.Property<int>("ArticleId")
@@ -1435,6 +1450,25 @@ namespace infrastructure.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("domain.Entities.ArticleProduct", b =>
+                {
+                    b.HasOne("domain.Entities.Article", "Article")
+                        .WithMany("ArticleProducts")
+                        .HasForeignKey("ArticleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("domain.Entities.Product", "Product")
+                        .WithMany("ArticleProducts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Article");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("domain.Entities.ArticleTag", b =>
                 {
                     b.HasOne("domain.Entities.Article", "Article")
@@ -1574,6 +1608,8 @@ namespace infrastructure.Migrations
 
             modelBuilder.Entity("domain.Entities.Article", b =>
                 {
+                    b.Navigation("ArticleProducts");
+
                     b.Navigation("ArticleTags");
                 });
 
@@ -1595,6 +1631,8 @@ namespace infrastructure.Migrations
 
             modelBuilder.Entity("domain.Entities.Product", b =>
                 {
+                    b.Navigation("ArticleProducts");
+
                     b.Navigation("Images");
 
                     b.Navigation("ProductTags");

@@ -101,6 +101,17 @@
 							<span asp-validation-for="SelectedTagIds" class="text-danger"></span>
 						</div>
 					</div>
+
+					<div class="col-md-6">
+						<div class="form-group mb-3">
+							<label asp-for="SelectedProductIds" class="form-label"></label>
+							<select asp-for="SelectedProductIds" asp-items="Model.ProductOptions"
+									class="form-select tom-selected" autocomplete="off" multiple>
+							</select>
+							<span asp-validation-for="SelectedProductIds" class="text-danger"></span>
+							<small class="form-hint">Bắt buộc đối với bài viết thuộc danh mục "Hướng dẫn thi công".</small>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

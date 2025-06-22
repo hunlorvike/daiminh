@@ -21,16 +21,20 @@ public class ArticleService : IArticleService
     private readonly ApplicationDbContext _context;
     private readonly IMapper _mapper;
     private readonly ILogger<ArticleService> _logger;
+    private readonly IProductService _productService;
 
     public ArticleService(
         ApplicationDbContext context,
         IMapper mapper,
-        ILogger<ArticleService> logger)
+        ILogger<ArticleService> logger,
+        IProductService productService)
     {
         _context = context;
         _mapper = mapper;
         _logger = logger;
+        _productService = productService;
     }
+
 
     public async Task<IPagedList<ArticleListItemViewModel>> GetPagedArticlesAsync(ArticleFilterViewModel filter, int pageNumber, int pageSize)
     {
@@ -109,7 +113,8 @@ public class ArticleService : IArticleService
                     article.PublishedAt = DateTime.Now;
                 }
 
-                UpdateArticleRelationships(article, viewModel.SelectedTagIds);
+                UpdateArticleTags(article, viewModel.SelectedTagIds);
+                UpdateArticleProducts(article, viewModel.SelectedProductIds);
 
                 _context.Add(article);
 
@@ -169,7 +174,8 @@ public class ArticleService : IArticleService
                 {
                     article.PublishedAt = DateTime.Now;
                 }
-                UpdateArticleRelationships(article, viewModel.SelectedTagIds);
+                UpdateArticleTags(article, viewModel.SelectedTagIds);
+                UpdateArticleProducts(article, viewModel.SelectedProductIds);
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
@@ -261,25 +267,48 @@ public class ArticleService : IArticleService
 
         return await query.AnyAsync();
     }
-    private void UpdateArticleRelationships(Article article, List<int>? selectedTagIds)
+    private void UpdateArticleTags(Article article, List<int>? selectedTagIds)
     {
-        var existingTagIds = article.ArticleTags?.Select(at => at.TagId).ToList() ?? new List<int>();
-        var tagIdsToAdd = selectedTagIds?.Except(existingTagIds).ToList() ?? new List<int>();
-        var tagIdsToRemove = existingTagIds.Except(selectedTagIds ?? new List<int>()).ToList();
+        article.ArticleTags ??= new List<ArticleTag>();
+        var currentTagIds = article.ArticleTags.Select(pt => pt.TagId).ToList();
 
-        foreach (var tagId in tagIdsToRemove)
+        var tagsToRemove = article.ArticleTags.Where(pt => !(selectedTagIds?.Contains(pt.TagId) ?? false)).ToList();
+        foreach (var tagToRemove in tagsToRemove)
         {
-            var articleTag = article.ArticleTags!.First(at => at.TagId == tagId);
-            _context.Remove(articleTag);
+            article.ArticleTags.Remove(tagToRemove);
         }
 
-        foreach (var tagId in tagIdsToAdd)
+        if (selectedTagIds != null)
         {
-            article.ArticleTags ??= new List<ArticleTag>();
-            article.ArticleTags.Add(new ArticleTag { ArticleId = article.Id, TagId = tagId });
+            var tagIdsToAdd = selectedTagIds.Except(currentTagIds).ToList();
+            foreach (var tagIdToAdd in tagIdsToAdd)
+            {
+                article.ArticleTags.Add(new ArticleTag { TagId = tagIdToAdd });
+            }
         }
     }
+    private void UpdateArticleProducts(Article article, List<int>? selectedProductIds)
+    {
+        article.ArticleProducts ??= new List<ArticleProduct>();
+        var currentProductIds = article.ArticleProducts.Select(ap => ap.ProductId).ToList();
 
+        var productsToRemove = article.ArticleProducts
+            .Where(ap => !(selectedProductIds?.Contains(ap.ProductId) ?? false))
+            .ToList();
+        foreach (var apToRemove in productsToRemove)
+        {
+            article.ArticleProducts.Remove(apToRemove);
+        }
+
+        if (selectedProductIds != null)
+        {
+            var productIdsToAdd = selectedProductIds.Except(currentProductIds).ToList();
+            foreach (var productIdToAdd in productIdsToAdd)
+            {
+                article.ArticleProducts.Add(new ArticleProduct { ProductId = productIdToAdd });
+            }
+        }
+    }
     public async Task<List<SelectListItem>> GetArticleSelectListAsync(List<int>? selectedValues = null)
     {
         var articles = await _context.Set<Article>()

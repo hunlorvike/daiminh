@@ -74,6 +74,9 @@ public class ArticleViewModel : SeoViewModel
 
     [Display(Name = "Thẻ (Tags)")]
     public List<int>? SelectedTagIds { get; set; }
+    [Display(Name = "Sản phẩm liên quan")]
+    public List<int>? SelectedProductIds { get; set; } = new();
+    public List<SelectListItem>? ProductOptions { get; set; }
     public List<SelectListItem>? CategoryOptions { get; set; }
     public List<SelectListItem>? StatusOptions { get; set; }
     public List<SelectListItem>? TagOptions { get; set; }

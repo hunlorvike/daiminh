@@ -32,6 +32,7 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     // Domain tables
     public DbSet<Article> Articles { get; set; }
     public DbSet<ArticleTag> ArticleTags { get; set; }
+    public DbSet<ArticleProduct> ArticleProducts { get; set; }
     public DbSet<Banner> Banners { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<Category> Categories { get; set; }
