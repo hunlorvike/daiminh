@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Serilog;
+using shared.Models;
 using web.Areas.Admin.Validators;
 using web.Configs;
 using web.Extensions;
@@ -22,32 +23,20 @@ builder.Configuration
 
 builder.Host.UseSerilog();
 
-var cacheProvider = builder.Configuration.GetValue<string>("CacheProvider:Type")?.ToLowerInvariant();
+// Cấu hình Options Pattern
+builder.Services.AddApplicationOptions(builder.Configuration);
 
-switch (cacheProvider)
+// Cấu hình Redis Cache từ Options
+var redisOptions = builder.Configuration.GetSection("Redis").Get<RedisSettings>();
+if (redisOptions != null && !string.IsNullOrEmpty(redisOptions.ConnectionString))
 {
-    case "redis":
-        var redisConnectionString = builder.Configuration.GetConnectionString("RedisConnection");
-        if (string.IsNullOrEmpty(redisConnectionString))
-        {
-            redisConnectionString = builder.Configuration["Redis:DefaultConnection"];
-        }
-        if (string.IsNullOrEmpty(redisConnectionString))
-        {
-            throw new InvalidOperationException("Redis connection string 'Redis:DefaultConnection' or 'ConnectionStrings:RedisConnection' not found.");
-        }
-        builder.Services.AddStackExchangeRedisCache(options =>
-        {
-            options.Configuration = redisConnectionString;
-            options.InstanceName = builder.Configuration["Redis:InstanceName"];
-        });
-        Log.Information("Đã cấu hình Redis Cache.");
-        break;
-
-    case "sqlserver":
-    case "memory":
-    default:
-        break;
+    builder.Services.AddStackExchangeRedisCache(options =>
+    {
+        options.Configuration = redisOptions.ConnectionString;
+        options.InstanceName = redisOptions.InstanceName;
+    });
+    Log.Information("Đã cấu hình Redis Cache với ConnectionString: {ConnectionString}",
+        redisOptions.ConnectionString);
 }
 
 builder.Services
@@ -88,7 +77,6 @@ app.UseSerilogRequestLogging();
 app.UseCustomMiddlewares();
 app.MapDefaultRoutes();
 
-// Seed Data on startup
 using (var scope = app.Services.CreateScope())
 {
     var seeder = scope.ServiceProvider.GetRequiredService<ApplicationDataSeeder>();
