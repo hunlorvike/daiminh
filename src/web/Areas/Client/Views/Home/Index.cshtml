@@ -41,43 +41,6 @@
     }
 </section>
 
-@if (Model.FeaturedBrands.Any())
-{
-    <div class="card shadow">
-        <div class="card-status-top bg-primary"></div>
-        <div class="card-body">
-            <div class="text-center mb-3">
-                <h3 class="card-title">Đối tác chính thức</h3>
-                <p class="text-muted">Chúng tôi là đại lý phân phối chính thức của các thương hiệu hàng đầu</p>
-            </div>
-            <div class="row g-3 text-center">
-                @foreach (var brand in Model.FeaturedBrands)
-                {
-                    <div class="col-6 col-md-4">
-                        <a href="@Url.Action("Index", "Brand", new { slug = brand.Slug })" class="card card-sm card-link border text-decoration-none">
-                            <div class="card-body">
-                                <img src="@(string.IsNullOrEmpty(brand.LogoUrl) ? "/img/placeholder.svg" : brand.LogoUrl)" 
-                                     alt="@brand.Name" 
-                                     class="img-fluid mb-2" 
-                                     style="max-height: 60px; object-fit: contain;" />
-                                <span class="d-block fw-medium">@brand.Name</span>
-                            </div>
-                        </a>
-                    </div>
-                }
-            </div>
-        </div>
-    </div>
-}
-else
-{
-    <!-- Fallback: Hiển thị một thông báo nếu không có thương hiệu nào được cấu hình -->
-    <div class="card card-body text-center bg-light-subtle">
-        <h3 class="card-title">Đối tác uy tín</h3>
-        <p class="text-muted">Chúng tôi hợp tác với nhiều thương hiệu sơn và vật liệu xây dựng hàng đầu để mang đến sản phẩm chất lượng nhất cho khách hàng.</p>
-    </div>
-}
-
 <!-- SECTION: Sản phẩm nổi bật / mới -->
 <div class="mb-3">
     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -99,7 +62,6 @@ else
                             <img src="@product.ThumbnailUrl" alt="@product.Name" class="card-img-top" style="height: 200px; object-fit: cover;" />
                         </a>
                         <div class="card-body d-flex flex-column">
-                            <span class="badge bg-blue-lt me-auto mb-2">@product.BrandName</span>
                             <h3 class="h5 mb-1 flex-grow-1">
                                 <a href="@Url.Action("Detail", "Product", new { slug = product.Slug })" class="text-reset">@product.Name</a>
                             </h3>

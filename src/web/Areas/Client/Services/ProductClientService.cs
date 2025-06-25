@@ -33,17 +33,12 @@ public class ProductClientService : IProductClientService
         if (!string.IsNullOrWhiteSpace(filter.SearchTerm))
         {
             var lowerTerm = filter.SearchTerm.ToLower();
-            productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(lowerTerm) || (p.Brand != null && p.Brand.Name.ToLower().Contains(lowerTerm)));
+            productsQuery = productsQuery.Where(p => p.Name.ToLower().Contains(lowerTerm));
         }
 
         if (filter.CategoryId.HasValue && filter.CategoryId > 0)
         {
             productsQuery = productsQuery.Where(p => p.CategoryId == filter.CategoryId.Value);
-        }
-
-        if (filter.BrandId.HasValue && filter.BrandId > 0)
-        {
-            productsQuery = productsQuery.Where(p => p.BrandId == filter.BrandId.Value);
         }
 
         // Áp dụng sắp xếp
@@ -61,7 +56,6 @@ public class ProductClientService : IProductClientService
 
         // Chuẩn bị dữ liệu cho các dropdown của bộ lọc
         filter.Categories = await GetCategoryOptionsAsync(filter.CategoryId);
-        filter.Brands = await GetBrandOptionsAsync(filter.BrandId);
         filter.SortOptions = GetSortOptions(filter.SortBy);
 
         return new ProductIndexViewModel
@@ -75,7 +69,6 @@ public class ProductClientService : IProductClientService
     {
         var product = await _context.Products
             .AsNoTracking()
-            .Include(p => p.Brand)
             .Include(p => p.Category)
             .Include(p => p.Images)
                 .ThenInclude(i => i) // Đảm bảo Images được load
@@ -111,24 +104,6 @@ public class ProductClientService : IProductClientService
             .ToListAsync();
 
         items.Insert(0, new SelectListItem { Value = "", Text = "Tất cả danh mục" });
-        if (selectedId.HasValue)
-        {
-            var selectedItem = items.FirstOrDefault(x => x.Value == selectedId.Value.ToString());
-            if (selectedItem != null) selectedItem.Selected = true;
-        }
-        return items;
-    }
-
-    private async Task<List<SelectListItem>> GetBrandOptionsAsync(int? selectedId)
-    {
-        var items = await _context.Brands
-            .AsNoTracking()
-            .Where(b => b.IsActive)
-            .OrderBy(b => b.Name)
-            .Select(b => new SelectListItem { Value = b.Id.ToString(), Text = b.Name })
-            .ToListAsync();
-
-        items.Insert(0, new SelectListItem { Value = "", Text = "Tất cả thương hiệu" });
         if (selectedId.HasValue)
         {
             var selectedItem = items.FirstOrDefault(x => x.Value == selectedId.Value.ToString());

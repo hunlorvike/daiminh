@@ -58,9 +58,6 @@ public class ProductViewModel : SeoViewModel
     [Required(ErrorMessage = "Vui lòng chọn {0}.")]
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
 
-    [Display(Name = "Thương hiệu")]
-    public int? BrandId { get; set; }
-
     [Display(Name = "Danh mục")]
     [Required(ErrorMessage = "Vui lòng chọn {0}.")]
     public int? CategoryId { get; set; }
@@ -73,7 +70,6 @@ public class ProductViewModel : SeoViewModel
 
 
     // Options for Dropdowns
-    public List<SelectListItem> BrandOptions { get; set; } = new();
     public List<SelectListItem> CategoryOptions { get; set; } = new();
     public List<SelectListItem> StatusOptions { get; set; } = new();
     public List<SelectListItem> TagOptions { get; set; } = new();

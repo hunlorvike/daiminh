@@ -32,10 +32,6 @@
                     <label asp-for="Filter.CategoryId" class="form-label"></label>
                     <select asp-for="Filter.CategoryId" asp-items="@Model.Filter.CategoryOptions" class="form-select tom-selected" autocomplete="off" ></select>
                 </div>
-                <div class="col-md-2 col-sm-6">
-                    <label asp-for="Filter.BrandId" class="form-label"></label>
-                    <select asp-for="Filter.BrandId" asp-items="@Model.Filter.BrandOptions" class="form-select tom-selected" autocomplete="off" ></select>
-                </div>
                  <div class="col-md-2 col-sm-6">
                     <label asp-for="Filter.Status" class="form-label"></label>
                     <select asp-for="Filter.Status" asp-items="@Model.Filter.StatusOptions" class="form-select tom-selected" autocomplete="off" ></select>
@@ -78,7 +74,6 @@
                             <th style="width: 5%;">Ảnh</th>
                             <th>Tên sản phẩm</th>
                             <th class="d-none d-md-table-cell">Danh mục</th>
-                            <th class="d-none d-md-table-cell">Thương hiệu</th>
                             <th class="text-center">Trạng thái</th>
                             <th class="text-center d-none d-md-table-cell">Kích hoạt</th>
                             <th class="text-center d-none d-md-table-cell">Nổi bật</th>
@@ -98,7 +93,6 @@
                                     <div class="text-muted small"><code>@item.Slug</code></div>
                                 </td>
                                 <td class="d-none d-md-table-cell">@item.CategoryName</td>
-                                <td class="d-none d-md-table-cell">@item.BrandName</td>
                                 <td class="text-center">
                                     <span class="badge bg-@(GetStatusBadgeColor(item.Status))-lt">@item.Status.GetDisplayName()</span>
                                 </td>

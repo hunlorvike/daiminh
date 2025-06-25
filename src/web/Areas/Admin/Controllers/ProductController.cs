@@ -20,7 +20,6 @@ public partial class ProductController : Controller
 {
     private readonly IProductService _productService;
     private readonly ICategoryService _categoryService;
-    private readonly IBrandService _brandService;
     private readonly ITagService _tagService;
     private readonly IMapper _mapper;
     private readonly ILogger<ProductController> _logger;
@@ -29,7 +28,6 @@ public partial class ProductController : Controller
     public ProductController(
         IProductService productService,
         ICategoryService categoryService,
-        IBrandService brandService,
         ITagService tagService,
         IMapper mapper,
         ILogger<ProductController> logger,
@@ -37,7 +35,6 @@ public partial class ProductController : Controller
     {
         _productService = productService;
         _categoryService = categoryService;
-        _brandService = brandService;
         _tagService = tagService;
         _mapper = mapper;
         _logger = logger;
@@ -54,7 +51,6 @@ public partial class ProductController : Controller
         IPagedList<ProductListItemViewModel> productsPaged = await _productService.GetPagedProductsAsync(filter, pageNumber, currentPageSize);
 
         filter.CategoryOptions = await _categoryService.GetParentCategorySelectListAsync(CategoryType.Product, filter.CategoryId);
-        filter.BrandOptions = await _brandService.GetBrandSelectListAsync(filter.BrandId);
         filter.StatusOptions = GetPublishStatusSelectList(filter.Status);
         filter.ActiveOptions = GetYesNoSelectList(filter.IsActive, "Kích hoạt");
         filter.FeaturedOptions = GetYesNoSelectList(filter.IsFeatured, "Nổi bật");
@@ -193,7 +189,6 @@ public partial class ProductController
 {
     private async Task PopulateViewModelSelectListsAsync(ProductViewModel viewModel)
     {
-        viewModel.BrandOptions = await _brandService.GetBrandSelectListAsync(viewModel.BrandId);
         viewModel.CategoryOptions = await _categoryService.GetParentCategorySelectListAsync(CategoryType.Product, viewModel.CategoryId);
         viewModel.StatusOptions = GetPublishStatusSelectList(viewModel.Status);
         viewModel.TagOptions = await _tagService.GetTagSelectListAsync(TagType.Product, viewModel.SelectedTagIds);

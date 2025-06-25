@@ -10,10 +10,7 @@ public class HomeProfile : Profile
     {
         CreateMap<Banner, BannerViewModel>();
 
-        CreateMap<Brand, BrandLogoViewModel>();
-
         CreateMap<Product, ProductCardViewModel>()
-            .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : "Chưa xác định"))
             .ForMember(dest => dest.ThumbnailUrl, opt => opt.MapFrom(src =>
                 src.Images!.OrderByDescending(i => i.IsMain).ThenBy(i => i.OrderIndex).FirstOrDefault()!.ImageUrl ?? "/img/placeholder.svg"));
 

@@ -12,9 +12,6 @@ public class ProductFilterViewModel
     [Display(Name = "Danh mục")]
     public int? CategoryId { get; set; }
 
-    [Display(Name = "Thương hiệu")]
-    public int? BrandId { get; set; }
-
     [Display(Name = "Trạng thái xuất bản")]
     public PublishStatus? Status { get; set; }
 
@@ -25,7 +22,6 @@ public class ProductFilterViewModel
     public bool? IsFeatured { get; set; }
 
     public List<SelectListItem> CategoryOptions { get; set; } = new();
-    public List<SelectListItem> BrandOptions { get; set; } = new();
     public List<SelectListItem> StatusOptions { get; set; } = new();
     public List<SelectListItem> ActiveOptions { get; set; } = new();
     public List<SelectListItem> FeaturedOptions { get; set; } = new();

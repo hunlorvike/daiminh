@@ -1,4 +1,3 @@
-// src/web/Areas/Admin/Validators/ProductViewModelValidator.cs
 using domain.Entities;
 using FluentValidation;
 using infrastructure;
@@ -42,9 +41,6 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
         RuleFor(x => x.Status)
             .IsInEnum().WithMessage("Trạng thái xuất bản không hợp lệ.");
 
-        RuleFor(x => x.BrandId)
-            .MustAsync(BrandExists).When(x => x.BrandId.HasValue).WithMessage("Thương hiệu không hợp lệ.");
-
         RuleFor(x => x.CategoryId)
             .NotEmpty().WithMessage("Vui lòng chọn danh mục sản phẩm.")
             .MustAsync(CategoryExists).WithMessage("Danh mục sản phẩm không hợp lệ.");
@@ -64,12 +60,6 @@ public class ProductViewModelValidator : AbstractValidator<ProductViewModel>
         if (string.IsNullOrWhiteSpace(slug)) return true;
         return !await _context.Set<Product>()
                               .AnyAsync(p => p.Slug == slug && p.Id != viewModel.Id, cancellationToken);
-    }
-
-    private async Task<bool> BrandExists(int? brandId, CancellationToken cancellationToken)
-    {
-        if (!brandId.HasValue) return true;
-        return await _context.Set<Brand>().AnyAsync(b => b.Id == brandId.Value, cancellationToken);
     }
 
     private async Task<bool> CategoryExists(int? categoryId, CancellationToken cancellationToken)

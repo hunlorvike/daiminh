@@ -36,28 +36,6 @@ namespace infrastructure.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Brands",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Slug = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Description = table.Column<string>(type: "TEXT", nullable: true),
-                    LogoUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
-                    Website = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: true),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()"),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Brands", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "Categories",
                 columns: table => new
                 {
@@ -217,33 +195,6 @@ namespace infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Pages", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "PopupModals",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
-                    Content = table.Column<string>(type: "TEXT", nullable: true),
-                    ImageUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
-                    LinkUrl = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
-                    TargetPages = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false, defaultValue: "AllPages"),
-                    DisplayFrequency = table.Column<int>(type: "integer", nullable: false, defaultValue: 5),
-                    OrderIndex = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    DelaySeconds = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
-                    StartDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    EndDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()"),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
-                    CreatedBy = table.Column<string>(type: "text", nullable: true),
-                    UpdatedBy = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_PopupModals", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -433,7 +384,6 @@ namespace infrastructure.Migrations
                     IsFeatured = table.Column<bool>(type: "boolean", nullable: false, defaultValue: false),
                     IsActive = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     Status = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    BrandId = table.Column<int>(type: "integer", nullable: true),
                     CategoryId = table.Column<int>(type: "integer", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false, defaultValueSql: "NOW()"),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: true),
@@ -461,12 +411,6 @@ namespace infrastructure.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Products", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Products_Brands_BrandId",
-                        column: x => x.BrandId,
-                        principalTable: "Brands",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_Products_Categories_CategoryId",
                         column: x => x.CategoryId,
@@ -701,12 +645,6 @@ namespace infrastructure.Migrations
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Brands_Slug",
-                table: "Brands",
-                column: "Slug",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Categories_ParentId",
                 table: "Categories",
                 column: "ParentId");
@@ -759,11 +697,6 @@ namespace infrastructure.Migrations
                 name: "IX_ProductImages_ProductId",
                 table: "ProductImages",
                 column: "ProductId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Products_BrandId",
-                table: "Products",
-                column: "BrandId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Products_CategoryId",
@@ -866,9 +799,6 @@ namespace infrastructure.Migrations
                 name: "Pages");
 
             migrationBuilder.DropTable(
-                name: "PopupModals");
-
-            migrationBuilder.DropTable(
                 name: "ProductImages");
 
             migrationBuilder.DropTable(
@@ -906,9 +836,6 @@ namespace infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
-
-            migrationBuilder.DropTable(
-                name: "Brands");
 
             migrationBuilder.DropTable(
                 name: "Categories");

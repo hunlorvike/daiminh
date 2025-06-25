@@ -12,7 +12,7 @@ using infrastructure;
 namespace infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250622162219_version1")]
+    [Migration("20250625153048_version1")]
     partial class version1
     {
         /// <inheritdoc />
@@ -285,62 +285,6 @@ namespace infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Banners");
-                });
-
-            modelBuilder.Entity("domain.Entities.Brand", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("LogoUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Website")
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("Brands");
                 });
 
             modelBuilder.Entity("domain.Entities.Category", b =>
@@ -808,82 +752,6 @@ namespace infrastructure.Migrations
                     b.ToTable("Pages");
                 });
 
-            modelBuilder.Entity("domain.Entities.PopupModal", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Content")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp without time zone")
-                        .HasDefaultValueSql("NOW()");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("text");
-
-                    b.Property<int>("DelaySeconds")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<int>("DisplayFrequency")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(5);
-
-                    b.Property<DateTime?>("EndDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("ImageUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
-
-                    b.Property<bool>("IsActive")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
-
-                    b.Property<string>("LinkUrl")
-                        .HasMaxLength(2048)
-                        .HasColumnType("character varying(2048)");
-
-                    b.Property<int>("OrderIndex")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<DateTime?>("StartDate")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("TargetPages")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)")
-                        .HasDefaultValue("AllPages");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("UpdatedBy")
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PopupModals");
-                });
-
             modelBuilder.Entity("domain.Entities.Product", b =>
                 {
                     b.Property<int>("Id")
@@ -891,9 +759,6 @@ namespace infrastructure.Migrations
                         .HasColumnType("integer");
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("BrandId")
-                        .HasColumnType("integer");
 
                     b.Property<string>("BreadcrumbJson")
                         .HasColumnType("TEXT");
@@ -1044,8 +909,6 @@ namespace infrastructure.Migrations
                         .HasDefaultValue(0);
 
                     b.HasKey("Id");
-
-                    b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
 
@@ -1513,17 +1376,10 @@ namespace infrastructure.Migrations
 
             modelBuilder.Entity("domain.Entities.Product", b =>
                 {
-                    b.HasOne("domain.Entities.Brand", "Brand")
-                        .WithMany("Products")
-                        .HasForeignKey("BrandId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("domain.Entities.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.SetNull);
-
-                    b.Navigation("Brand");
 
                     b.Navigation("Category");
                 });
@@ -1614,11 +1470,6 @@ namespace infrastructure.Migrations
                     b.Navigation("ArticleProducts");
 
                     b.Navigation("ArticleTags");
-                });
-
-            modelBuilder.Entity("domain.Entities.Brand", b =>
-                {
-                    b.Navigation("Products");
                 });
 
             modelBuilder.Entity("domain.Entities.Category", b =>

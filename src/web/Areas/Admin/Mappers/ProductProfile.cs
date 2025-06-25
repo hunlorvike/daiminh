@@ -16,7 +16,6 @@ public class ProductProfile : Profile
         // Product to ProductListItemViewModel
         CreateMap<Product, ProductListItemViewModel>()
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
-            .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
             .ForMember(dest => dest.ImageCount, opt => opt.MapFrom(src => src.Images != null ? src.Images.Count : 0))
             .ForMember(dest => dest.MainImageUrl, opt => opt.MapFrom(src =>
                 src.Images != null && src.Images.Any(i => i.IsMain)
@@ -29,7 +28,6 @@ public class ProductProfile : Profile
             .IncludeBase<SeoEntity<int>, SeoViewModel>()
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images))
             .ForMember(dest => dest.SelectedTagIds, opt => opt.MapFrom(src => src.ProductTags != null ? src.ProductTags.Select(pt => pt.TagId).ToList() : new List<int>()))
-            .ForMember(dest => dest.BrandOptions, opt => opt.Ignore())
             .ForMember(dest => dest.CategoryOptions, opt => opt.Ignore())
             .ForMember(dest => dest.StatusOptions, opt => opt.Ignore())
             .ForMember(dest => dest.TagOptions, opt => opt.Ignore());
@@ -37,7 +35,6 @@ public class ProductProfile : Profile
         // ProductViewModel to Product
         CreateMap<ProductViewModel, Product>()
             .IncludeBase<SeoViewModel, SeoEntity<int>>()
-            .ForMember(dest => dest.Brand, opt => opt.Ignore())
             .ForMember(dest => dest.Category, opt => opt.Ignore())
             .ForMember(dest => dest.Images, opt => opt.Ignore())
             .ForMember(dest => dest.ProductTags, opt => opt.Ignore())

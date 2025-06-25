@@ -21,12 +21,6 @@ public static class PermissionConstants
     public const string BannerEdit = "Banner.Edit";
     public const string BannerDelete = "Banner.Delete";
 
-    // BRAND MANAGEMENT
-    public const string BrandView = "Brand.View";
-    public const string BrandCreate = "Brand.Create";
-    public const string BrandEdit = "Brand.Edit";
-    public const string BrandDelete = "Brand.Delete";
-
     // CATEGORY MANAGEMENT
     public const string CategoryView = "Category.View";
     public const string CategoryCreate = "Category.Create";
@@ -59,12 +53,6 @@ public static class PermissionConstants
     public const string PageCreate = "Page.Create";
     public const string PageEdit = "Page.Edit";
     public const string PageDelete = "Page.Delete";
-
-    // POPUP MODAL MANAGEMENT
-    public const string PopupModalView = "PopupModal.View";
-    public const string PopupModalCreate = "PopupModal.Create";
-    public const string PopupModalEdit = "PopupModal.Edit";
-    public const string PopupModalDelete = "PopupModal.Delete";
 
     // PRODUCT MANAGEMENT
     public const string ProductView = "Product.View";

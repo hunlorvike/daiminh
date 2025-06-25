@@ -19,9 +19,7 @@ public class Product : SeoEntity<int>
     public bool IsFeatured { get; set; } = false;
     public bool IsActive { get; set; } = true;
     public PublishStatus Status { get; set; } = PublishStatus.Draft;
-    public int? BrandId { get; set; }
     public int? CategoryId { get; set; }
-    public virtual Brand? Brand { get; set; }
     public virtual Category? Category { get; set; }
     public virtual ICollection<ProductImage>? Images { get; set; }
     public virtual ICollection<ProductTag>? ProductTags { get; set; }
@@ -33,7 +31,6 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
     public override void Configure(EntityTypeBuilder<Product> builder)
     {
         base.Configure(builder);
-        builder.Property(e => e.BrandId);
         builder.Property(e => e.Name).IsRequired().HasMaxLength(255);
         builder.Property(e => e.Slug).IsRequired().HasMaxLength(255);
         builder.HasIndex(e => e.Slug).IsUnique();
@@ -52,10 +49,6 @@ public class ProductConfiguration : SeoEntityConfiguration<Product, int>
             .IsRequired()
             .HasDefaultValue(PublishStatus.Draft);
 
-        builder.HasOne(p => p.Brand)
-            .WithMany(b => b.Products)
-            .HasForeignKey(p => p.BrandId)
-            .OnDelete(DeleteBehavior.Restrict);
         builder.HasOne(e => e.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(e => e.CategoryId)

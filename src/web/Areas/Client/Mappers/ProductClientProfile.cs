@@ -16,8 +16,6 @@ public class ProductClientProfile : Profile
         // Mapping cho trang chi tiết sản phẩm
         CreateMap<Product, ProductDetailViewModel>()
             .IncludeBase<SeoEntity<int>, SeoViewModel>() // Kế thừa mapping từ SEO
-            .ForMember(dest => dest.BrandName, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Name : null))
-            .ForMember(dest => dest.BrandSlug, opt => opt.MapFrom(src => src.Brand != null ? src.Brand.Slug : null))
             .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category != null ? src.Category.Name : null))
             .ForMember(dest => dest.CategorySlug, opt => opt.MapFrom(src => src.Category != null ? src.Category.Slug : null))
             .ForMember(dest => dest.Images, opt => opt.MapFrom(src => src.Images!.OrderBy(i => i.OrderIndex)));

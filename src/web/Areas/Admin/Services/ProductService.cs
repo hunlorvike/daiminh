@@ -35,7 +35,6 @@ public class ProductService : IProductService
     {
         IQueryable<Product> query = _context.Set<Product>()
                                          .Include(p => p.Category)
-                                         .Include(p => p.Brand)
                                          .Include(p => p.Images)
                                          .AsNoTracking();
 
@@ -44,16 +43,11 @@ public class ProductService : IProductService
             string lowerSearchTerm = filter.SearchTerm.Trim().ToLower();
             query = query.Where(p => p.Name.ToLower().Contains(lowerSearchTerm) ||
                                      (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(lowerSearchTerm)) ||
-                                     (p.Brand != null && p.Brand.Name.ToLower().Contains(lowerSearchTerm)) ||
                                      (p.Category != null && p.Category.Name.ToLower().Contains(lowerSearchTerm)));
         }
         if (filter.CategoryId.HasValue && filter.CategoryId.Value > 0)
         {
             query = query.Where(p => p.CategoryId == filter.CategoryId.Value);
-        }
-        if (filter.BrandId.HasValue && filter.BrandId.Value > 0)
-        {
-            query = query.Where(p => p.BrandId == filter.BrandId.Value);
         }
         if (filter.Status.HasValue)
         {
@@ -79,7 +73,6 @@ public class ProductService : IProductService
     {
         Product? product = await _context.Set<Product>()
                                      .Include(p => p.Category)
-                                     .Include(p => p.Brand)
                                      .Include(p => p.Images!.OrderBy(i => i.OrderIndex))
                                      .Include(p => p.ProductTags!)
                                         .ThenInclude(pt => pt.Tag)

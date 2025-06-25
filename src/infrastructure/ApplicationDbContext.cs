@@ -34,7 +34,6 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<ArticleTag> ArticleTags { get; set; }
     public DbSet<ArticleProduct> ArticleProducts { get; set; }
     public DbSet<Banner> Banners { get; set; }
-    public DbSet<Brand> Brands { get; set; }
     public DbSet<Category> Categories { get; set; }
     public DbSet<ClaimDefinition> ClaimDefinitions { get; set; }
     public DbSet<Contact> Contacts { get; set; }
@@ -42,7 +41,6 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public DbSet<MediaFile> MediaFiles { get; set; }
     public DbSet<Newsletter> Newsletters { get; set; }
     public DbSet<Page> Pages { get; set; }
-    public DbSet<PopupModal> PopupModals { get; set; }
     public DbSet<Product> Products { get; set; }
     public DbSet<ProductImage> ProductImages { get; set; }
     public DbSet<ProductTag> ProductTags { get; set; }

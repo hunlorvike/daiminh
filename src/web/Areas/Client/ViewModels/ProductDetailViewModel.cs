@@ -12,10 +12,6 @@ public class ProductDetailViewModel : SeoViewModel
     public string? Specifications { get; set; }
     public string? Usage { get; set; }
 
-    public int? BrandId { get; set; }
-    public string? BrandName { get; set; }
-    public string? BrandSlug { get; set; }
-
     public int? CategoryId { get; set; }
     public string? CategoryName { get; set; }
     public string? CategorySlug { get; set; }

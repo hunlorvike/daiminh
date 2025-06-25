@@ -34,18 +34,9 @@ public class HomeService : IHomeService
             .ProjectTo<BannerViewModel>(_mapper.ConfigurationProvider)
             .ToListAsync();
 
-        var featuredBrands = await _context.Brands
-            .AsNoTracking()
-            .Where(b => b.IsActive)
-            .OrderBy(b => b.Name)
-            .Take(6)
-            .ProjectTo<BrandLogoViewModel>(_mapper.ConfigurationProvider)
-            .ToListAsync();
-
         var featuredProducts = await _context.Products
             .AsNoTracking()
             .Where(p => p.IsActive && p.IsFeatured && p.Status == PublishStatus.Published)
-            .Include(p => p.Brand)
             .Include(p => p.Images)
             .OrderByDescending(p => p.CreatedAt)
             .Take(8)
@@ -62,16 +53,14 @@ public class HomeService : IHomeService
             .ToListAsync();
 
         _logger.LogInformation(
-            "Lấy dữ liệu trang chủ thành công với {BannerCount} banners, {BrandCount} thương hiệu, {ProductCount} sản phẩm, {ArticleCount} bài viết.",
+            "Lấy dữ liệu trang chủ thành công với {BannerCount} banners, {ProductCount} sản phẩm, {ArticleCount} bài viết.",
             heroBanners.Count,
-            featuredBrands.Count,
             featuredProducts.Count,
             latestArticles.Count);
 
         return new HomeViewModel
         {
             HeroBanners = heroBanners,
-            FeaturedBrands = featuredBrands,
             FeaturedProducts = featuredProducts,
             LatestArticles = latestArticles
         };

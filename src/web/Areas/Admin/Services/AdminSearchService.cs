@@ -32,7 +32,7 @@ public class AdminSearchService : IAdminSearchService
             {
                 Id = p.Id,
                 Title = p.Name,
-                Description = p.ShortDescription ?? $"Thương hiệu: {p.Brand!.Name}",
+                Description = p.ShortDescription,
                 Url = _urlHelper.Action("Edit", "Product", new { area = "Admin", id = p.Id }) ?? "",
                 Type = "Sản phẩm",
                 Icon = "ti-package"

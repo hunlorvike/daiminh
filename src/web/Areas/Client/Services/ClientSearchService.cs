@@ -36,9 +36,7 @@ public class ClientSearchService : IClientSearchService
         // Tìm kiếm sản phẩm
         var productTask = _context.Products
             .AsNoTracking()
-            .Where(p => p.IsActive && p.Status == PublishStatus.Published &&
-                        (p.Name.ToLower().Contains(lowerQuery) ||
-                         (p.Brand != null && p.Brand.Name.ToLower().Contains(lowerQuery))))
+            .Where(p => p.IsActive && p.Status == PublishStatus.Published)
             .OrderByDescending(p => p.IsFeatured)
             .Take(resultLimit)
             .ProjectTo<ProductCardViewModel>(_mapper.ConfigurationProvider)
