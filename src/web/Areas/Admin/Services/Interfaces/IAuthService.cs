@@ -1,4 +1,4 @@
-using shared.Models;
+using shared.Result;
 
 namespace web.Areas.Admin.Services.Interfaces;
 

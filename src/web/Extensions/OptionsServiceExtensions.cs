@@ -1,26 +1,9 @@
-using shared.Models;
-
 namespace web.Extensions;
 
 public static class OptionsServiceExtensions
 {
     public static IServiceCollection AddApplicationOptions(this IServiceCollection services, IConfiguration configuration)
     {
-        services.Configure<GeneralSettings>(configuration.GetSection("GeneralSettings"));
-        services.Configure<EmailSettings>(configuration.GetSection("EmailSettings"));
-        services.Configure<MinioSettings>(configuration.GetSection("Minio"));
-        services.Configure<RedisSettings>(configuration.GetSection("Redis"));
-        services.Configure<ApiKeySettings>(configuration.GetSection("ApiKeys"));
-        services.Configure<DefaultSeoSettings>(configuration.GetSection("DefaultSeo"));
-        services.Configure<PaginationSettings>(configuration.GetSection("Pagination"));
-        services.Configure<SocialMediaSettings>(configuration.GetSection("SocialMedia"));
-
-        services.AddOptionsWithValidation<GeneralSettings>("GeneralSettings", configuration);
-        services.AddOptionsWithValidation<EmailSettings>("EmailSettings", configuration);
-        services.AddOptionsWithValidation<MinioSettings>("Minio", configuration);
-        services.AddOptionsWithValidation<RedisSettings>("Redis", configuration);
-        services.AddOptionsWithValidation<PaginationSettings>("Pagination", configuration);
-
         return services;
     }
 

@@ -5,7 +5,6 @@ using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Minio;
-using shared.Constants;
 using web.Configs;
 
 namespace web.Extensions;

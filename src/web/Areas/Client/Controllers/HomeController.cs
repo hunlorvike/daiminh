@@ -1,24 +1,13 @@
 using Microsoft.AspNetCore.Mvc;
-using web.Areas.Client.Services.Interfaces; // Thêm using
 
-namespace web.Areas.Client.Controllers;
-
-[Area("Client")]
-public class HomeController : Controller
+namespace web.Areas.Client.Controllers
 {
-    private readonly IHomeService _homeService;
-    private readonly ILogger<HomeController> _logger;
-
-    public HomeController(IHomeService homeService, ILogger<HomeController> logger)
+    [Area("Client")]
+    public class HomeController : Controller
     {
-        _homeService = homeService;
-        _logger = logger;
-    }
-
-    [HttpGet]
-    public async Task<IActionResult> Index()
-    {
-        var viewModel = await _homeService.GetHomeViewModelAsync();
-        return View(viewModel);
+        public IActionResult Index()
+        {
+            return View();
+        }
     }
 }

@@ -1,0 +1,70 @@
+{
+    "$schema": "https://repomix.com/schemas/latest/schema.json",
+    "input": {
+        "maxFileSize": 52428800
+    },
+    "output": {
+        "filePath": "repomix-output/codebase-packed.xml",
+        "style": "xml",
+        "headerText": "DM2023 Clean Architecture API",
+        "parsableStyle": false,
+        "fileSummary": true,
+        "directoryStructure": true,
+        "files": true,
+        "removeComments": false,
+        "removeEmptyLines": false,
+        "compress": false,
+        "topFilesLength": 20,
+        "showLineNumbers": true,
+        "copyToClipboard": false,
+        "git": {
+            "sortByChanges": true,
+            "sortByChangesMaxCommits": 100,
+            "includeDiffs": false
+        }
+    },
+    "include": [
+        "**/*.cs",
+        "**/*.json",
+        "**/*.md",
+        "**/Dockerfile*",
+        "**/docker-compose*",
+        "**/*.yml",
+        "**/*.yaml",
+        "**/*.sql",
+        "**/*.txt"
+    ],
+    "ignore": {
+        "useGitignore": true,
+        "useDefaultPatterns": true,
+        "customPatterns": [
+            "**/bin/**",
+            "**/obj/**",
+            "**/node_modules/**",
+            "**/.vs/**",
+            "**/.vscode/**",
+            "**/packages/**",
+            "**/TestResults/**",
+            "**/Logs/**",
+            "**/*.user",
+            "**/*.suo",
+            "**/*.cache",
+            "**/wwwroot/lib/**",
+            "**/migrations/**/*.Designer.cs",
+            "**/*migrations.*.cs",
+            "**/repomix-output/**",
+            "**/.git/**",
+            "**/.gitignore",
+            "**/LICENSE",
+            "**/*.log",
+            "**/temp/**",
+            "**/tmp/**"
+        ]
+    },
+    "security": {
+        "enableSecurityCheck": true
+    },
+    "tokenCount": {
+        "encoding": "o200k_base"
+    }
+}

@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Serilog;
-using shared.Models;
 using web.Areas.Admin.Validators;
 using web.Configs;
 using web.Extensions;

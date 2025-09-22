@@ -4,7 +4,7 @@ using domain.Entities;
 using infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using shared.Models;
+using shared.Result;
 using web.Areas.Admin.Services.Interfaces;
 
 namespace web.Areas.Admin.Services;
@@ -37,8 +37,8 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByNameAsync(username);
 
         if (user == null)
-        {
-            _logger.LogWarning("Authentication failed - user not found: {Username}", username);
+        {            _logger.LogWarning("Authentication failed - user not found: {Username}", username);
+
             return LoginResult.Failure("Tên đăng nhập hoặc mật khẩu không chính xác.");
         }
 

@@ -20,7 +20,6 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
         _httpContextAccessor = httpContextAccessor;
     }
 
-    // Identity tables (explicitly hiding base class members)
     public new DbSet<User> Users { get; set; }
     public new DbSet<Role> Roles { get; set; }
     public new DbSet<UserRole> UserRoles { get; set; }
@@ -28,24 +27,6 @@ public partial class ApplicationDbContext : IdentityDbContext<User, Role, int,
     public new DbSet<UserClaim> UserClaims { get; set; }
     public new DbSet<UserLogin> UserLogins { get; set; }
     public new DbSet<UserToken> UserTokens { get; set; }
-
-    // Domain tables
-    public DbSet<Article> Articles { get; set; }
-    public DbSet<ArticleTag> ArticleTags { get; set; }
-    public DbSet<ArticleProduct> ArticleProducts { get; set; }
-    public DbSet<Banner> Banners { get; set; }
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<ClaimDefinition> ClaimDefinitions { get; set; }
-    public DbSet<Contact> Contacts { get; set; }
-    public DbSet<FAQ> FAQs { get; set; }
-    public DbSet<MediaFile> MediaFiles { get; set; }
-    public DbSet<Newsletter> Newsletters { get; set; }
-    public DbSet<Page> Pages { get; set; }
-    public DbSet<Product> Products { get; set; }
-    public DbSet<ProductImage> ProductImages { get; set; }
-    public DbSet<ProductTag> ProductTags { get; set; }
-    public DbSet<Tag> Tags { get; set; }
-    public DbSet<Testimonial> Testimonials { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

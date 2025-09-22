@@ -1,5 +1,3 @@
-@using shared.Constants
-
 <header class="navbar navbar-expand-md d-none d-lg-flex d-print-none border-bottom">
     <div class="container">
         <div class="d-none d-md-block">
@@ -104,24 +102,21 @@
 
             <!-- User dropdown -->
             <div class="nav-item dropdown">
-                <a href="#" class="nav-link d-flex align-items-center lh-1 text-reset" data-bs-toggle="dropdown"
-                    aria-label="Open user menu">
-                    <span class="avatar avatar-sm bg-primary-subtle">
-                        <i class="ti ti-user-circle"></i>
+                <a href="#" class="nav-link d-flex lh-1 text-reset p-0" data-bs-toggle="dropdown"
+                   aria-label="Open user menu">
+                    <span class="avatar avatar-sm">
+                        <i class="ti ti-user"></i>
                     </span>
                     <div class="d-none d-xl-block ps-2">
-                        <div>Tài khoản</div>
+                        <div>@User.Identity?.Name</div>
+                        <div class="mt-1 small text-muted">@User.Claims.FirstOrDefault(c => c.Type == "role")?.Value</div>
                     </div>
                 </a>
                 <div class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <a asp-area="Admin" asp-controller="Profile" asp-action="Index" class="dropdown-item">Hồ sơ</a>
-                    <a href="#" class="dropdown-item">Cài đặt</a>
-                    <div class="dropdown-divider"></div>
-                    <form class="form-inline" asp-area="Admin" asp-controller="Account" asp-action="Logout"
-                        method="post">
-                        @Html.AntiForgeryToken()
-                        <button type="submit" class="dropdown-item">Đăng xuất</button>
-                    </form>
+                    <a asp-action="Logout" asp-controller="Account" asp-area="Admin" class="dropdown-item">
+                        <i class="ti ti-logout me-2"></i>
+                        Logout
+                    </a>
                 </div>
             </div>
         </div>

@@ -1,6 +1,4 @@
 @using System.Text.Json
-@using shared.Constants
-@using shared.Models
 @{
     var themeCookie = Context.Request.Cookies["daiminhTheme"];
     var theme = string.IsNullOrEmpty(themeCookie) ? "light" : themeCookie;
@@ -50,20 +48,6 @@
             <partial name="Components/Layout/_Footer" />
         </div>
     </div>
-
-    <!-- Toast notifications -->
-    @{
-        var toastJson = TempData[TempDataConstants.ToastMessage] as string;
-        var toastData = !string.IsNullOrEmpty(toastJson)
-        ? JsonSerializer.Deserialize<ToastData>(toastJson)
-        : null;
-    }
-    @if (toastData is not null
-        && !string.IsNullOrEmpty(toastData.Title)
-        && !string.IsNullOrEmpty(toastData.Message))
-    {
-        <partial name="Components/Layout/_Toast" model="toastData" />
-    }
 
     <partial name="Components/Media/_Media.Modal" />
 
